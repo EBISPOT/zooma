@@ -1,0 +1,20 @@
++-------+
+| ZOOMA |
++-------+
+
+ZOOMA is an optimal ontology mapping application developed by the Functional Genomics Production team at the
+European Bioinformatics Institute.
+
+This is the publicly available code repository for ZOOMA.
+
+Developer documentation is currently in the process of being written - more details about this codebase will be
+available soon, but in the meantime feel free to email the lead developer, Tony Burdett, on tburdett@ebi.ac.uk.
+
+Links
+=====
+
+ZOOMA homepage:        http://www.ebi.ac.uk/fgpt/zooma
+ZOOMA documentation:   http://www.ebi.ac.uk/fgpt/zooma/docs
+
+EBI:                             http://www.ebi.ac.uk
+Functional Genomics Team Page:   http://www.ebi.ac.uk/fgpt
