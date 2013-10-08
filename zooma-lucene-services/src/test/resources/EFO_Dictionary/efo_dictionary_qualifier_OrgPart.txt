@@ -1,0 +1,11 @@
+lateral	http://www.ebi.ac.uk/efo/EFO_0001657	1
+dorsal	http://www.ebi.ac.uk/efo/EFO_0001656	1
+right	http://www.ebi.ac.uk/efo/EFO_0001659	1
+left	http://www.ebi.ac.uk/efo/EFO_0001658	1
+apical	http://www.ebi.ac.uk/efo/EFO_0001653	1
+distal	http://www.ebi.ac.uk/efo/EFO_0001655	1
+basal	http://www.ebi.ac.uk/efo/EFO_0001654	1
+ventral	http://www.ebi.ac.uk/efo/EFO_0001662	1
+proximal    http://www.ebi.ac.uk/efo/EFO_0001661    1    
+medial	http://www.ebi.ac.uk/efo/EFO_0001660	1
+caudal	http://www.ebi.ac.uk/efo/EFO_0001908	1

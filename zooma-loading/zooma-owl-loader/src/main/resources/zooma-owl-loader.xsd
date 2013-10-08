@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.ebi.ac.uk/fgpt/zooma/zooma-owl-loader"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:beans="http://www.springframework.org/schema/beans"
+            targetNamespace="http://www.ebi.ac.uk/fgpt/zooma/zooma-owl-loader"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans" />
+
+    <xsd:element name="owlAnnotations">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:attribute name="name" type="xsd:string" use="required">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[A descriptive name for the ontology (specifically versioned) that ZOOMA annotations will be generated from.  This name should be unique across your configured datasources.]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="uri" type="xsd:anyURI" use="required">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[The logical URI of the ontology from which annotations will be generated from.]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="loadFrom" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[The location from which the ontology should be loaded.  This is optional - if omitted, ZOOMA will attempt to load the ontology from it's logical URI.]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="synonymURI" type="xsd:anyURI">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[The URI of the annotation property that describes synonym labels within the loaded ontology.  If omitted, no synonym labels will be used to generate annotations.]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="exclusionClassURI" type="xsd:anyURI">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[The URI of the class that encapsulates the set of subclasses that should be excluded from the loaded ontology.  If excluded, all classes will be used to generate annotations.]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="exclusionAnnotationURI" type="xsd:anyURI">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                               <![CDATA[The URI of the annotation property that flags classes within the loaded ontology that should be excluded when generating annotations.  If omitted, all classes will be used to generate annotations.]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="useReasoning" type="xsd:boolean">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[Whether or not a reasoner should be used when generating annotation sets.  If true, then all inferred superclasses of each class will be used as property types.  If false, only asserted supertype information will be used.  The default is true.]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

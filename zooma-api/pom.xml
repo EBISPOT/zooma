@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>zooma2</artifactId>
+        <groupId>uk.ac.ebi.fgpt</groupId>
+        <version>2.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>zooma-api</artifactId>
+    <version>2.0-SNAPSHOT</version>
+
+    <name>ZOOMA 2: API</name>
+    <url>http://www.ebi.ac.uk/fgpt/zooma</url>
+
+    <repositories>
+        <repository>
+            <id>hasbanana-repo</id>
+            <url>http://www.hasbanana.com/maven/repo</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- SPI utils: available for compilation only, not required at runtime -->
+        <dependency>
+            <groupId>net.sourceforge.fluxion</groupId>
+            <artifactId>fluxion-spi</artifactId>
+            <version>1.0-alpha-3</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+    </dependencies>
+</project>

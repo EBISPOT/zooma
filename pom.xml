@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>uk.ac.ebi.fgpt</groupId>
+    <artifactId>zooma2</artifactId>
+    <version>2.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>ZOOMA 2</name>
+    <url>http://www.ebi.ac.uk/fgpt/zooma</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.springframework.version>3.2.2.RELEASE</org.springframework.version>
+        <org.slf4j.version>1.7.5</org.slf4j.version>
+
+        <java.location>java</java.location>
+        <java.args>-Dorg.xml.sax.driver=uk.ac.ebi.fgpt.zooma.xml.ZoomaXMLReaderProxy -Xmx512m -DentityExpansionLimit=1000000000</java.args>
+
+        <!-- zooma properties -->
+        <zooma.url>http://localhost:8080/zooma</zooma.url>
+        <zooma.sparql.endpoint>http://localhost:8080/zooma/sparql/</zooma.sparql.endpoint>
+
+        <!-- sparql properties -->
+        <sparql.repository.name>zooma</sparql.repository.name>
+        <sparql.repository.version>2.2</sparql.repository.version>
+        <sparql.repository.id>${sparql.repository.name}${sparql.repository.version}</sparql.repository.id>
+        <!-- staging sparql endpoint (for loader resolving, indexing) -->
+        <staging.sparql.endpoint>http://localhost:8080/openrdf-sesame/</staging.sparql.endpoint>
+        <!-- ui sparql endpoint (where /zooma/sparql redirects to, usually the same as staging.sparql) -->
+        <ui.sparql.endpoint>http://localhost:8080/openrdf-sesame/</ui.sparql.endpoint>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-source</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.0</version>
+            </plugin>
+        </plugins>
+        <extensions>
+            <!-- Enabling the use of SCP -->
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>2.2</version>
+            </extension>
+        </extensions>
+    </build>
+
+    <!-- Licensing -->
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License</name>
+            <url>http://www.gnu.org/copyleft/lesser.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <!-- Developer Listing -->
+    <developers>
+        <developer>
+            <id>tburdett</id>
+            <name>Tony Burdett</name>
+            <email>tburdett@ebi.ac.uk</email>
+            <organization>EBI</organization>
+            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
+            <roles>
+                <role>administrator</role>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties />
+        </developer>
+        <developer>
+            <id>jupp</id>
+            <name>Simon Jupp</name>
+            <email>jupp@ebi.ac.uk</email>
+            <organization>EBI</organization>
+            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties />
+        </developer>
+    </developers>
+
+    <!-- Mailing Lists -->
+    <mailingLists>
+        <mailingList>
+            <name>EBI Functional Genomics Production Team Mailing List</name>
+            <post>fgpt@ebi.ac.uk</post>
+        </mailingList>
+    </mailingLists>
+
+    <!-- Bug Tracker -->
+    <issueManagement>
+        <system>jira</system>
+        <url>http://www.ebi.ac.uk/panda/jira/browse/FGPTO/component/10874</url>
+    </issueManagement>
+
+    <!-- Version control (GitHub) -->
+    <!--<scm>-->
+        <!--<connection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</connection>-->
+        <!--<developerConnection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</developerConnection>-->
+        <!--<url>http://bar.ebi.ac.uk:8080/trac/browser/trunk/fgpt/ontology/zooma2</url>-->
+    <!--</scm>-->
+
+    <!-- Reporting/Documentation output -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.5.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8.1</version>
+                <reportSets>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+                <configuration>
+                    <tags>
+                        <tag>
+                            <name>date</name>
+                            <placement>a</placement>
+                            <head>Created on:</head>
+                        </tag>
+                    </tags>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <modules>
+        <module>zooma-api</module>
+        <module>zooma-sparql</module>
+        <module>zooma-core</module>
+        <module>zooma-impl</module>
+        <module>zooma-owlapi</module>
+        <module>zooma-jdbc</module>
+        <module>zooma-lucene-services</module>
+        <module>zooma-reporting</module>
+        <module>zooma-client</module>
+        <module>zooma-loading</module>
+    </modules>
+
+    <!-- dependencies required by all zooma modules -->
+    <dependencies>
+        <!-- logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${org.slf4j.version}</version>
+        </dependency>
+
+        <!-- testing dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${org.slf4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- dependencies that may be required in several zooma modules but which aren't enforced -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- specific commons-codec version, to resolve dependency version conflicts -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.6</version>
+            </dependency>
+
+            <!-- spring dependencies should be declared here and used in submodules if required -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <!-- Jackson, JSON object mapping -->
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>1.9.9</version>
+            </dependency>
+
+            <!-- test scope dependencies -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${org.slf4j.version}</version>
+                <scope>test</scope>
+                <!-- override test scope if required for CLI, webapp modules -->
+            </dependency>
+
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.16</version>
+                <scope>test</scope>
+                <!-- override test scope if required for CLI, webapp modules -->
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${org.springframework.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>1.9.0</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>
