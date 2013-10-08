@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean name="atlasZoomaLoader" class="uk.ac.ebi.fgpt.zooma.load.ZoomaStandaloneLoader" autowire="byType">
+        <property name="annotationResolver" ref="annotationResolver" />
+        <property name="annotationSerializer" ref="annotationSerializer" />
+        <!--<property name="annotationStorer" ref="annotationStorer" />-->
+        <!--<property name="maxAnnotationCount" value="100000" />-->
+    </bean>
+
+    <!-- Configure AnnotationDAOs for this datasource -->
+    <bean name="atlasSampleDAO" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasSampleAnnotationDAO">
+        <property name="jdbcTemplate" ref="atlasJdbcTemplate" />
+    </bean>
+
+    <bean name="atlasAssayDAO" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasAssayAnnotationDAO">
+        <property name="jdbcTemplate" ref="atlasJdbcTemplate" />
+    </bean>
+
+    <bean name="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="atlasDataSource" />
+    </bean>
+
+    <!-- Atlas Database setup -->
+    <bean name="atlasDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@bart.ebi.ac.uk:1521:ATLASCUR" />
+        <property name="username" value="atlasraw2" />
+        <property name="password" value="atlas2" />
+        <property name="defaultAutoCommit" value="false" />
+        <property name="initialSize" value="32" />
+        <property name="maxIdle" value="32" />
+        <property name="maxActive" value="32" />
+        <property name="maxWait" value="-1" />
+    </bean>
+
+    <!-- configure resources required to load -->
+    <bean name="annotationResolver" class="uk.ac.ebi.fgpt.zooma.service.ContextBasedAnnotationResolverService">
+        <property name="zoomaAnnotationDAO" ref="zoomaAnnotationDAO" />
+        <property name="zoomaBiologicalEntityDAO" ref="zoomaBiologicalEntityDAO" />
+    </bean>
+
+    <bean name="annotationSerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIAnnotationSerializer" />
+
+    <!-- ZOOMA triplestore setup -->
+    <bean id="zoomaAnnotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationDAO"  autowire-candidate="false">
+        <property name="manager" ref="sesameRepositoryManager" />
+        <property name="biologicalEntityDAO" ref="zoomaBiologicalEntityDAO" />
+    </bean>
+
+    <bean id="zoomaBiologicalEntityDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO">
+        <property name="manager" ref="sesameRepositoryManager" />
+    </bean>
+
+    <bean id="queryManager" class="uk.ac.ebi.fgpt.zooma.service.QueryManager">
+        <property name="sparqlQueryResource" value="classpath:queries.sparql" />
+    </bean>
+
+    <bean id="sesameRepositoryManager"
+          class="uk.ac.ebi.fgpt.zooma.service.SesameRepositoryManager"
+          init-method="initialise"
+          destroy-method="disconnect">
+        <property name="serverUrl" value="http://localhost:8080/openrdf-sesame" />
+        <property name="repositoryId" value="zooma2.1" />
+        <property name="queryManager" ref="queryManager" />
+    </bean>
+
+</beans>

@@ -1,0 +1,100 @@
+dTip60-RNAi	RNAi
+passage: 12	age
+postnatal day 0	age
+C3A/HepG2	cell_line
+GM17218	cell_line
+GM17789	cell_line
+GM17795	cell_line
+GM17824	cell_line
+GM17841	cell_line
+GM17844	cell_line
+M-27-IGF-IR	cell_line
+ND06229	cell_line
+SKRC39	cell_line
+kp21-4	cell_line
+p53 -/-	cell_line
+S2 cells	cell_type
+breast cancer cells	cell_type
+immortalized embryonic fibroblast	cell_type
+murine bone-marrow derived macrophages	cell_type
+mushroom body gamma neuron	cell_type
+partial sciatic nerve ligation	clinical_treatment
+toxic compound	clinical_treatment
+AUB ds RNA	compound
+Ammonium Persulfate 500 micromolar	compound
+IFNg 5 nanograms per milliliter	compound
+acetamidofluorene 10 micromolar	compound
+ethionamide 24 micromolar	compound
+gemfibrozil 4 micromolar	compound
+glycerol-3-phosphate	compound
+lornoxicam 3 micromolar	compound
+nitrofurazone 300 micromolar	compound
+protective antigen	compound
+Boyes key 3.7	developmental_stage
+P7; Theiler stage 28	developmental_stage
+post-mature green seed	developmental_stage
+in situ	disease_staging
+late stage with metastasis	disease_staging
+primary	disease_staging
+adenomyosis	disease_state
+ileal Crohn's disease	disease_state
+invasive ductal carcinoma with metaplastic elements	disease_state
+ovarian tumor	disease_state
+continuous	dose
+CS6240	ecotype
+OX0203:MZ twin	family_relationship
+OX0258:DZ twin	family_relationship
+AdERb high moi	genetic_modification
+HNF1b transfected	genetic_modification
+RNAi-mediated depletion of Nup153 GFP	genetic_modification
+NCI-H460 lung large cell carcinoma	groups_369
+SKMC fetal skeletal muscle myoblast	groups_369
+airway epithelial cell cystic fibrosis	groups_369
+unknown lung cell carcinoma	groups_369
+hI60 promyelocytic leukemia	groups_96
+S1 stimulation (French trial conditions)	growth_condition
+hyperoxic	growth_condition
+light/dark, hot/cold	growth_condition
+not specified	growth_condition
+oxygen-limited	growth_condition
+soy diet	growth_condition
+untrained	growth_condition
+acute rejection IB	histology
+small cyst	histology
+Kaposi's sarcoma-associated herpesvirus	infect
+VP3 86/87/88	infect
+upper half	observation
+Claire,Mulligan	operator_variation
+Marc,E.,Lenburg	operator_variation
+atherosclerotic lesion of abdominal aorta	organism_part
+femur bone marrow	organism_part
+pancreatic tumor	organism_part
+peritoneal fat	organism_part
+right upper arm	organism_part
+root pole	organism_part
+whole body	organism_part
+Txnip-deficient	phenotype
+estrogen receptor positive cells	phenotype
+high Abeta42, low Abeta40 levels	phenotype
+Affymetrix 1-cycle labeling	protocol_type
+continuous treatment of E2	protocol_type
+B lymphocytes from peripheral blood were transformed with EBV	sample_type
+BY 4741 delta med15	strain_or_line
+CEN.PK 507-5B	strain_or_line
+HP1-21/act-Gal4	strain_or_line
+Line 2	strain_or_line
+NZW/LacJ	strain_or_line
+Sprague-Dawley	strain_or_line
+W303-1B rho0	strain_or_line
+WSB/EiJ	strain_or_line
+fasting glucose 102 mg/dl	test_result
+ZT24	time
+ZT28	time
+ZT46	time_point
+NSC319726 (1 ÂµM) for 24 hrs	treatment
+Pseudomonas syringae DC3000hrpA	treatment
+alpha-GalCer	treatment
+in-utero exposure to air, adult exposure to air	treatment
+microdissected	treatment
+siRNF43	treatment
+testosterone in sesame oil for 3 wks 2x a wk	treatment

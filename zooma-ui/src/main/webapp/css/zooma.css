@@ -1,0 +1,109 @@
+.fbs-flyout-content > h1,h2,h3,h4,h5,h6 {
+    clear: none !important;
+}
+
+.context-help-wrapper {
+    position: relative;
+    top: 10px;
+    left: 20px;
+    z-index: 1;
+    display: none;
+}
+
+.context-help-content {
+    position: absolute;
+    border: 1px solid #000000;
+    background-color: #f7f7f7;
+    display: none;
+}
+
+.context-help-label {
+    font-weight: inherit;
+    color: inherit;
+}
+
+.context-help-label:after {
+    font-family: 'EBI-Generic';
+    font-size: 70%;
+    color: inherit !important;
+    content: attr(data-icon);
+    vertical-align: super;
+    margin: 0 0 0 0;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.eg-description {
+    font-style: italic;
+    color: #999;
+    padding-top: 10px;
+}
+
+.eg-content {
+    font-family: monospace;
+    white-space: pre;
+    border: 1px solid #E2E1D5;
+    margin: 5px 10px;
+    padding: 10px;
+    border-radius: 2px;
+}
+
+.eg-var {
+    font-family: monospace;
+    font-style: italic;
+    font-weight: bold;
+}
+
+table.col-6 {
+    max-width: 98%;
+    table-layout: fixed;
+}
+
+table.col-6 th,td {
+    max-width: 16%;
+    font-size: 0.9em;
+}
+
+.scroll-pane {
+
+}
+
+table.version {
+    margin-left: 5%;
+    width: 250px;
+    font-size: 0.8em;
+    border: none;
+}
+
+.version > th,tr,td {
+    border: none;
+}
+
+.docs-label {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.progress-label {
+    font-size: 0.7em;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+    margin-top: 5px;
+    float: left;
+    text-shadow: 1px 1px 0 #fff;
+}
+
+.automatic {
+    background-color: #DEFFDE;
+}
+
+.curation {
+    background-color: #FFFDC4;
+}
+
+.unmapped {
+    display: none;
+}

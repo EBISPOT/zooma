@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Configure AnnotationDAOs for this datasource -->
+    <bean name="atlasSampleDAO" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasSampleAnnotationDAO">
+        <constructor-arg name="annotationMapper" ref="atlasSampleMapper" />
+        <property name="jdbcTemplate" ref="atlasJdbcTemplate" />
+    </bean>
+
+    <bean name="atlasSampleAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasAnnotationFactory">
+        <constructor-arg name="annotationLoadingSession" ref="atlasSampleLoadingSession" />
+    </bean>
+
+    <bean name="atlasSampleLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasSampleLoadingSession" />
+
+    <bean name="atlasSampleMapper" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasAnnotationMapper">
+        <constructor-arg name="atlasAnnotationFactory" ref="atlasSampleAnnotationFactory" />
+        <constructor-arg name="efoResource" value="http://www.ebi.ac.uk/efo/efo.owl" />
+    </bean>
+
+    <!--<bean name="atlasAssayDAO" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasAssayAnnotationDAO">-->
+        <!--<constructor-arg name="annotationMapper" ref="atlasAssayMapper" />-->
+        <!--<property name="jdbcTemplate" ref="atlasJdbcTemplate" />-->
+    <!--</bean>-->
+
+    <!--<bean name="atlasAssayAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasAnnotationFactory">-->
+        <!--<constructor-arg name="annotationLoadingSession" ref="atlasAssayLoadingSession" />-->
+    <!--</bean>-->
+
+    <!--<bean name="atlasAssayLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasAssayLoadingSession" />-->
+
+    <!--<bean name="atlasAssayMapper" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasAnnotationMapper">-->
+        <!--<constructor-arg name="atlasAnnotationFactory" ref="atlasAssayAnnotationFactory" />-->
+        <!--<constructor-arg name="efoResource" value="http://www.ebi.ac.uk/efo/efo.owl" />-->
+    <!--</bean>-->
+
+    <bean name="atlasJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="atlasDataSource" />
+    </bean>
+
+    <!-- Atlas Database setup -->
+    <bean name="atlasDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@bart.ebi.ac.uk:1521:ATLASCUR" />
+        <property name="username" value="atlasraw2" />
+        <property name="password" value="atlas2" />
+        <property name="defaultAutoCommit" value="false" />
+        <property name="initialSize" value="32" />
+        <property name="maxIdle" value="32" />
+        <property name="maxActive" value="32" />
+        <property name="maxWait" value="-1" />
+    </bean>
+
+</beans>

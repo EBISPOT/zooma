@@ -1,0 +1,100 @@
+not available years	Last_Follow_Up
+HDAC1 knockdown	RNAi
+ecdysone receptor knockdown	RNAi
+young	age
+Mass: 83.4 kg	biometrics
+Size: 186 cm	biometrics
+C7H2-S27(ZR)	cell_line
+G142	cell_line
+GM14453	cell_line
+GM17136	cell_line
+GM17203	cell_line
+GM17239	cell_line
+GM17831	cell_line
+GM17852	cell_line
+KMH2	cell_line
+NHBE cell	cell_line
+UMCL01-101	cell_line
+induced pluripotent stem cell line DF19-9-11	cell_line
+lncap cells, DHT-treated	cell_line
+CD8-positive T cell	cell_type
+Oct4-Gip ES	cell_type
+adipose tissue cell	cell_type
+dedifferentiating protoplasts	cell_type
+immortalized cell culture	cell_type
+mix of orthochromatic and polychromatophilic erythroblast	cell_type
+myoctye	cell_type
+primary mouse hepatocytes	cell_type
+stem cell post hepatic differentiation	cell_type
+unknown	clinical_history_extra_intestinal
+Altrain (lovastatin)	clinical_treatment
+CNOT8 + non-targeting	compound
+E.coli OP50	compound
+Infergen + interferon-gamma	compound
+bendazac 40 micromolar	compound
+control for ESR1 siRNA	compound
+heregulin 0.1 nanomoles	compound
+heregulin 1 nanomole	compound
+methoxyacetic acid 8.5 millimolar	compound
+none 10 nanomolar	compound
+pyrvinium pamoate 0.1 micromolar	compound
+quinidine 8 micromolar	compound
+rottlerin 0.00001 molar	compound
+syringolin 20 micromolar	compound
+tioguanine 0.00001 molar	compound
+versipelostatin 10 micromolar	compound
+vorinostat 0.00001 molar	compound
+GSE4922	datasource
+GSE6596	datasource
+GSE7138	datasource
+berry ripening stage 36 E-L	developmental_stage
+mature metaphase II	developmental_stage
+pollen stage 10	developmental_stage
+stages 1-14	developmental_stage
+DFS = 45 months	dfs_follow_up
+T4N2M0	disease_staging
+T4N2M0	disease_staging
+chronic stage	disease_staging
+glial neoplasm	disease_state
+hepatitis C virus, hepatocellular carcinoma	disease_state
+locally advanced breast carcinoma	disease_state
+meningitis infected	disease_state
+squamous cell carcinoma cell line, 2h after infection with fasX-mutant Streptococcus pyogenes	disease_state
+AA African-American	ethnicity
+OX0191:MZ twin	family_relationship
+OX0233:MZ twin	family_relationship
+OX0243:MZ twin	family_relationship
+injected with miR-430	genetic_modification
+sk-mel-28 melanoma	groups_369
+BT474 breast cancer	groups_with_10_and_more_replicates
+SDF stimulation	growth_condition
+collagen I matrix	growth_condition
+low iron	growth_condition
+low phosphate diet	growth_condition
+no flow	growth_condition
+starved	growth_condition
+xenografted	growth_condition
+Johnsen score count 2: Sertoli Cell Only-Syndrome	histology
+respiratory syncytial virus	infect
+inhalation injury	inhalationinjury
+Cristina,Battaglia	operator_variation
+Edward,J,Oakeley	operator_variation
+Maja,Herak Bosnar	operator_variation
+breast cancer tumor	organism_part
+lateral nectaries	organism_part
+myocardium (left ventricular)	organism_part
+peripheral blood or tonsil	organism_part
+pleural fluid	organism_part
+thalamus subthalamic nucleus	organism_part
+PolyRF+	original_diagnosis
+hypotension	phenotype
+cell suspension culture	sample_type
+BXD14	strain_or_line
+Sprague-Dawley	strain_or_line
+Tir1AA	strain_or_line
+FAL Index <0.128; HBV titer negative	test_result
+FAL Index >0.128; HBV titer negative	test_result
+plasma acetaminophen: 0 ug_per_ml; plasma glucagon: 71.7 pg_per_ml	test_result
+ZT32	time_point
+dexamethasone and indole-3-acetic acid	treatment
+fresh air, treatment over 2 month, 4x1h exposure per day	treatment

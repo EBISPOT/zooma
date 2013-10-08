@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <context:property-placeholder location="classpath:zooma.properties" />
+
+    <bean id="queryManager" class="uk.ac.ebi.fgpt.zooma.service.QueryManager" init-method="init">
+        <property name="sparqlQueryResource" value="classpath:queries.sparql" />
+    </bean>
+
+    <bean id="sesameRepositoryManager"
+          class="uk.ac.ebi.fgpt.zooma.service.SesameRepositoryManager"
+          init-method="initialise"
+          destroy-method="disconnect">
+        <property name="serverUrl" value="${zooma.server.url}" />
+        <property name="repositoryId" value="${zooma.repository.id}" />
+        <property name="queryManager" ref="queryManager" />
+        <property name="propertiesMapAdapter" ref="propertiesMapAdapter" />
+    </bean>
+
+    <bean id="prefixProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:zooma/prefix.properties" />
+    </bean>
+
+    <bean id="propertiesMapAdapter" class="uk.ac.ebi.fgpt.zooma.util.PropertiesMapAdapter" init-method="init">
+        <property name="properties" ref="prefixProperties" />
+    </bean>
+
+    <bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.load.ZoomaStandaloneLoader" autowire="byType" destroy-method="shutdown">
+        <property name="resolvingEnabled" value="true" />
+        <property name="serializingEnabled" value="true" />
+
+        <property name="annotationResolver" ref="annotationResolver" />
+        <property name="annotationSerializer" ref="annotationSerializer" />
+
+        <!-- optional configuration elements to tailor performance -->
+        <property name="blockSize" value="100" />
+        <property name="maxAnnotationCount" value="100" />
+    </bean>
+
+    <!-- configure resources required to load -->
+    <bean name="annotationResolver"
+          class="uk.ac.ebi.fgpt.zooma.service.ContextBasedAnnotationResolverService"
+          destroy-method="shutdown">
+        <constructor-arg name="numberOfThreads" value="1" />
+        <property name="zoomaAnnotationDAO" ref="zoomaAnnotationDAO" />
+        <property name="zoomaBiologicalEntityDAO" ref="zoomaBiologicalEntityDAO" />
+    </bean>
+
+    <bean name="annotationSerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIAnnotationSerializer" />
+
+    <!-- ZOOMA triplestore setup -->
+    <bean id="zoomaAnnotationDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationDAO"
+          autowire-candidate="false">
+        <property name="manager" ref="sesameRepositoryManager" />
+        <property name="biologicalEntityDAO" ref="zoomaBiologicalEntityDAO" />
+    </bean>
+
+    <bean id="zoomaBiologicalEntityDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO">
+        <property name="manager" ref="sesameRepositoryManager" />
+    </bean>
+
+</beans>

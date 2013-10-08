@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="jenaHttpExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaHttpExecutorService">
+        <property name="endpointURL" value="${lode.sparqlendpoint.url}" />
+    </bean>
+
+    <bean name="explorerConfig" class="uk.ac.ebi.fgpt.lode.impl.DefaultExplorerViewConfigImpl" />
+
+    <bean id="queryReader" class="uk.ac.ebi.fgpt.lode.utils.SparqlQueryReader" init-method="init">
+        <property name="sparqlQueryResource" value="classpath:sparql-queries.txt" />
+    </bean>
+
+    <bean id="jenaSparqlService" class="uk.ac.ebi.fgpt.lode.impl.JenaSparqlService">
+        <property name="maxQueryLimit" value="${lode.sparql.query.maxlimit}" />
+        <property name="queryExecutionService" ref="jenaHttpExecutorService" />
+    </bean>
+
+    <bean id="jenaExploreService" class="uk.ac.ebi.fgpt.lode.impl.JenaExploreService">
+        <property name="sampleLimit" value="${lode.sparql.query.maxlimit}" />
+        <property name="queryExecutionService" ref="jenaHttpExecutorService" />
+        <property name="queryReader" ref="queryReader" />
+    </bean>
+
+    <bean id="sparqlServlet" class="uk.ac.ebi.fgpt.lode.servlet.SparqlServlet">
+        <property name="sparqlService" ref="jenaSparqlService" />
+    </bean>
+
+
+</beans>

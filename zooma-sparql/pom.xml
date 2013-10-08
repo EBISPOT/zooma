@@ -65,6 +65,6 @@
             <artifactId>spring-context</artifactId>
             <scope>test</scope>
         </dependency>
-    </dependencies>
 
+    </dependencies>
 </project>

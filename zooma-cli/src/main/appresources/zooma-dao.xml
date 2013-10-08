@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- ZOOMA SPARQL datasource access configuration -->
+
+    <bean id="queryManager" class="uk.ac.ebi.fgpt.zooma.service.QueryManager" init-method="init">
+        <property name="sparqlQueryResource" value="classpath:queries.sparql" />
+    </bean>
+
+    <bean id="sesameRepositoryManager"
+          class="uk.ac.ebi.fgpt.zooma.service.SesameRepositoryManager"
+          init-method="initialise"
+          destroy-method="disconnect">
+        <property name="serverUrl" value="${zooma.server.url}" />
+        <property name="repositoryId" value="${zooma.repository.id}" />
+        <property name="queryManager" ref="queryManager" />
+        <property name="propertiesMapAdapter" ref="propertiesMapAdapter" />
+    </bean>
+
+    <bean id="prefixProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:zooma/prefix.properties" />
+    </bean>
+
+    <bean id="propertiesMapAdapter" class="uk.ac.ebi.fgpt.zooma.util.PropertiesMapAdapter" init-method="init">
+        <property name="properties" ref="prefixProperties" />
+    </bean>
+
+    <bean id="annotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationDAO" autowire-candidate="false">
+        <property name="manager" ref="sesameRepositoryManager" />
+        <property name="biologicalEntityDAO" ref="biologicalEntityDAO" />
+    </bean>
+
+    <bean id="biologicalEntityDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO"
+          autowire-candidate="false">
+        <property name="manager" ref="sesameRepositoryManager" />
+    </bean>
+
+    <bean id="ontologyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlOntologyDAO" autowire-candidate="false">
+        <property name="manager" ref="sesameRepositoryManager" />
+    </bean>
+
+    <bean id="propertyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlPropertyDAO" autowire-candidate="false">
+        <property name="manager" ref="sesameRepositoryManager" />
+    </bean>
+
+    <bean id="studyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlStudyDAO" autowire-candidate="false">
+        <property name="manager" ref="sesameRepositoryManager" />
+    </bean>
+
+</beans>

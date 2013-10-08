@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/jdbc
+       http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder />
+
+    <!-- Configure AnnotationDAOs for this datasource -->
+    <bean name="omiaDAO" class="uk.ac.ebi.fgpt.zooma.datasource.OmiaAnnotationDAO">
+        <constructor-arg name="annotationMapper" ref="omiaMapper" />
+        <property name="jdbcTemplate" ref="omiaJdbcTemplate" />
+    </bean>
+
+    <bean name="omiaAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.OmiaAnnotationFactory">
+        <constructor-arg name="annotationLoadingSession" ref="omiaSampleLoadingSession" />
+    </bean>
+
+    <bean name="omiaSampleLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.OmiaLoadingSession" />
+
+    <bean name="omiaMapper" class="uk.ac.ebi.fgpt.zooma.datasource.JDBCConventionBasedAnnotationMapper">
+        <constructor-arg name="annotationFactory" ref="omiaAnnotationFactory" />
+    </bean>
+
+    <bean name="omiaJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="omiaDataSource" />
+    </bean>
+
+    <bean name="omiaDownloader"
+          class="uk.ac.ebi.fgpt.zooma.datasource.OmiaDownloader"
+          init-method="init"
+          destroy-method="destroy">
+        <property name="datasource" ref="omiaDataSource" />
+        <property name="omiaLocation" value="http://omia.angis.org.au/dumps/omia.sql.gz" />
+        <property name="downloadTo" value="${zooma.home}/downloads/omia/omia.sql" />
+    </bean>
+
+    <bean name="omiaDataSource"
+          class="org.apache.commons.dbcp.BasicDataSource"
+          depends-on="omiaDownloader"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://megatron.windows.ebi.ac.uk:3306/omia" />
+        <property name="username" value="tburdett" />
+        <property name="password" value="tburdett" />
+        <property name="defaultAutoCommit" value="false" />
+        <property name="initialSize" value="32" />
+        <property name="maxIdle" value="32" />
+        <property name="maxActive" value="32" />
+        <property name="maxWait" value="-1" />
+    </bean>
+
+    <jdbc:initialize-database data-source="omiaDataSource">
+        <jdbc:script location="file://${zooma.home}/downloads/omia/omia.sql" />
+    </jdbc:initialize-database>
+
+</beans>

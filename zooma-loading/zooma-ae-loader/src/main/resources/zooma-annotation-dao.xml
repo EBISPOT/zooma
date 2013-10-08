@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- ArrayExpress/Atlas cross resolving DAO -->
+    <bean name="aeAtlasSampleEquivalenceDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.ArrayExpressAtlasEquivalentAnnotationsDAO"
+          > <!-- lazy init to avoid unnecessary upfront preload -->
+          <!--init-method="init">-->
+        <constructor-arg name="efoResource" value="http://www.ebi.ac.uk/efo/efo.owl" />
+        <property name="arrayExpressAnnotationDAO" ref="aeSampleDAO" />
+        <property name="atlasAnnotationDAO" ref="atlasSampleDAO" />
+    </bean>
+
+    <bean name="aeAtlasAssayEquivalenceDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.ArrayExpressAtlasEquivalentAnnotationsDAO"
+            > <!-- lazy init to avoid unnecessary upfront preload -->
+        <!--init-method="init">-->
+        <constructor-arg name="efoResource" value="http://www.ebi.ac.uk/efo/efo.owl" />
+        <property name="arrayExpressAnnotationDAO" ref="aeAssayDAO" />
+        <property name="atlasAnnotationDAO" ref="atlasAssayDAO" />
+    </bean>
+
+    <!-- ArrayExpress DAO for samples -->
+    <bean name="aeSampleDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.ArrayExpressSampleAnnotationDAO"
+          autowire-candidate="false">
+        <constructor-arg ref="aeSampleLoadingSession" />
+        <property name="jdbcTemplate" ref="aeJdbcTemplate" />
+    </bean>
+
+    <bean name="aeSampleLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.ArrayExpressSampleLoadingSession" />
+
+    <!-- ArrayExpress DAO for assays -->
+    <bean name="aeAssayDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.ArrayExpressAssayAnnotationDAO"
+          autowire-candidate="false">
+        <constructor-arg ref="aeAssayLoadingSession" />
+        <property name="jdbcTemplate" ref="aeJdbcTemplate" />
+    </bean>
+
+    <bean name="aeAssayLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.ArrayExpressAssayLoadingSession" />
+
+    <bean name="aeJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="aeDatasource" />
+    </bean>
+
+    <!-- Archive Database setup -->
+    <bean id="aeDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@rod.ebi.ac.uk:1521:AE2PRD" />
+        <property name="username" value="ae2query" />
+        <property name="password" value="ae22ea" />
+        <property name="defaultAutoCommit" value="false" />
+        <property name="initialSize" value="32" />
+        <property name="maxIdle" value="32" />
+        <property name="maxActive" value="32" />
+        <property name="maxWait" value="-1" />
+    </bean>
+
+    <!-- NB: This configuration relies on atlas configuration being loaded from the classpath -->
+
+</beans>

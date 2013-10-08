@@ -42,9 +42,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.hermit-reasoner</groupId>
-            <artifactId>org.semanticweb.hermit</artifactId>
-            <version>1.3.8.1</version>
+            <groupId>org.semanticweb</groupId>
+            <artifactId>HermiT</artifactId>
+            <version>1.3.7</version>
         </dependency>
 
         <dependency>
@@ -73,5 +73,13 @@
         </dependency>
 
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>misc-ebi-repo</id>
+            <name>Misc EBI repository (tburdett)</name>
+            <url>http://www.ebi.ac.uk/~tburdett/maven/</url>
+        </repository>
+    </repositories>
 
 </project>

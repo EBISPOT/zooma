@@ -1,0 +1,601 @@
+<!doctype html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]>
+<html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!-- Consider adding an manifest.appcache: h5bp.com/d/Offline -->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="en"><!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+
+    <!-- Use the .htaccess and remove these lines to avoid edge case issues.
+    More info: h5bp.com/b/378 --><!-- <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> -->
+    <!-- Not yet implemented -->
+
+    <title>ZOOMA &lt; FGPT &lt; EMBL-EBI</title>
+    <meta name="description" content="ZOOMA | Ontology Mapping and Annotation"/>
+    <meta name="author" content="Tony Burdett"/>
+    <meta name="keywords" content="ZOOMA, ZOOMA2, ZOOMA 2, ontology mapping, ontology annotation"/>
+
+    <!-- Mobile viewport optimized: j.mp/bplateviewport -->
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
+    <link rel="shortcut icon" href="images/favicon.ico"/>
+
+    <!-- CSS: implied media=all --><!-- CSS concatenated and minified via ant build script-->
+    <link rel="stylesheet" href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/boilerplate-style.css">
+    <link rel="stylesheet"
+          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-global.css"
+          type="text/css"
+          media="screen">
+    <link rel="stylesheet"
+          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-visual.css"
+          type="text/css"
+          media="screen">
+    <link rel="stylesheet"
+          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/984-24-col-fluid.css"
+          type="text/css"
+          media="screen">
+    <link rel="stylesheet" href="../css/zooma.css" type="text/css" media="screen">
+
+    <!-- you can replace this with [projectname]-colours.css. See http://frontier.ebi.ac.uk/web/style/colour for details of how to do this -->
+    <!-- also inform ES so we can host your colour palette file -->
+    <link rel="stylesheet"
+          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/embl-petrol-colours.css"
+          type="text/css"
+          media="screen">
+
+    <!-- for production the above can be replaced with --><!--
+    <link rel="stylesheet" href="http://www.ebi.ac.uk/web_guidelines/css/compliance/mini/ebi-fluid-embl.css">
+    -->
+
+    <style type=text/css>
+            /* You have the option of setting a maximum width for your page, and making sure everything is centered */
+        body {
+            max-width: 1366px;
+            margin: 0 auto;
+        }
+    </style>
+
+    <!-- end CSS-->
+
+
+    <!-- All JavaScript at the bottom, except for Modernizr / Respond.
+    Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries
+    For optimal performance, use a custom Modernizr build: www.modernizr.com/download/ -->
+
+    <!-- Full build --><!-- <script src="../js/libs/modernizr.minified.2.1.6.js"></script> -->
+
+    <!-- custom build (lacks most of the "advanced" HTML5 support -->
+    <script src="http://www.ebi.ac.uk/web_guidelines/js/libs/modernizr.custom.49274.js"></script>
+
+</head>
+
+<body class="level2">
+
+<div id="skip-to">
+    <ul>
+        <li><a href="#content" title="">Skip to main content</a></li>
+        <li><a href="#local-nav" title="">Skip to local navigation</a></li>
+        <li><a href="#global-nav" title="">Skip to EBI global navigation menu</a></li>
+        <li><a href="#global-nav-expanded" title="">Skip to expanded EBI global navigation menu (includes all
+            sub-sections)</a></li>
+    </ul>
+</div>
+
+<div id="wrapper" class="container_24">
+<header>
+    <div id="global-masthead" class="masthead grid_24">
+        <!--This has to be one line and no newline characters-->
+        <a href="http://www.ebi.ac.uk/"
+           title="Go to the EMBL-EBI homepage"><img src="http://www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
+                                                    alt="EMBL European Bioinformatics Institute"></a>
+
+        <nav>
+            <ul id="global-nav">
+                <!-- set active class as appropriate -->
+                <li class="first active" id="services"><a href="http://www.ebi.ac.uk/services">Services</a></li>
+                <li id="research"><a href="http://www.ebi.ac.uk/research">Research</a></li>
+                <li id="training"><a href="http://www.ebi.ac.uk/training">Training</a></li>
+                <li id="industry"><a href="http://www.ebi.ac.uk/industry">Industry</a></li>
+                <li id="about" class="last"><a href="http://www.ebi.ac.uk/about">About us</a></li>
+            </ul>
+        </nav>
+
+    </div>
+
+    <div id="local-masthead" class="masthead grid_24 nomenu">
+
+        <!-- local-title -->
+        <!-- NB: for additional title style patterns, see http://frontier.ebi.ac.uk/web/style/patterns -->
+
+        <div class="grid_12 alpha" id="local-title">
+            <h1><a href="../" title="">ZOOMA</a></h1>
+        </div>
+        <!-- /local-title -->
+
+        <!-- local-nav -->
+        <nav>
+            <ul class="grid_24" id="local-nav">
+                <li class="first">
+                    <a href="../index.html">Home</a>
+                </li>
+                <li>
+                    <a href="../sparql">SPARQL</a>
+                </li>
+                <li class="active">
+                    <a href="./index.html">Documentation</a>
+                </li>
+                <li>
+                    <a href="/efo">EFO</a>
+                </li>
+                <li>
+                    <a href="/fgpt">FGPT</a>
+                </li>
+                <li class="last">
+                    <a href="../about.html">About ZOOMA</a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /local-nav -->
+
+    </div>
+</header>
+
+<div id="content" role="main" class="grid_24 clearfix">
+
+<section id="docs" class="grid_18 alpha">
+<h2>Developer Documentation</h2>
+
+<section>
+    <h3>ZOOMA Annotation Model</h3>
+
+    <p>
+        The ZOOMA annotation model describes annotations between a property - plain text "property values", optionally
+        constrained by a type - and a semantic tag, in the context of a biological entity. It also represents the
+        provenance of the asserted annotation.
+    </p>
+
+    <p>
+        The general annotation model for ZOOMA is shown below.<br/> <img src="../images/zooma_annotation_model.gif"
+                                                                         alt="ZOOMA annotation model"
+                                                                         style="display: block; margin: auto"/>
+    </p>
+
+    <p>
+        Below is a worked example of a real annotation using the ZOOMA
+        model.<br/><img src="../images/zooma_annotation_example.gif"
+                        alt="ZOOMA annotation example"
+                        style="display: block; margin: auto"/>
+    </p>
+
+</section>
+
+<section>
+    <h3>Evidence Codes</h3>
+
+    <p>
+        The ZOOMA evidence codes, ranked in order of preference, are described below.
+    </p>
+
+    <ol>
+        <li>
+            <span class="docs-label">MANUAL_CURATED</span> - http://purl.obolibrary.org/obo/ECO_0000305
+            <ul>
+                <li>A type of curator inference that is used in a manual assertion.</li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">ZOOMA_INFERRED_FROM_CURATED</span> -
+            http://rdf.ebi.ac.uk/terms/zooma/ZOOMA_0000101
+            <ul>
+                <li>An annotation inferred by ZOOMA from previous curated entry. A type of Automatic curation.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">AUTOMATIC</span> - http://purl.obolibrary.org/obo/ECO_0000203
+            <ul>
+                <li>An assertion method that does not involve human review.</li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">COMPUTED_FROM_ONTOLOGY</span> - http://rdf.ebi.ac.uk/terms/zooma/ZOOMA_0000102
+            <ul>
+                <li>An evidence code that states the existence of an annotation was computed based on a match to a
+                    semantic tag. Use this when a property value exactly matches a class label or synonym from an
+                    ontology.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">COMPUTED_FROM_TEXT_MATCH</span> -
+            http://rdf.ebi.ac.uk/terms/zooma/ZOOMA_0000103
+            <ul>
+                <li>An evidence code that states the existence of an annotation was computed based on a text match to a
+                    previous annotation that has not been curated. This is a computed match based on a match that is (at
+                    best) inferred to exist, and hence has at least two degrees of separation from a curated match. This
+                    is therefore assigned a low confidence.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">SUBMITTER_PROVIDED</span> - http://rdf.ebi.ac.uk/terms/zooma/ZOOMA_0000104
+            <ul>
+                <li>An evidence code that states the existence of an annotation was provided by a submitter, usually
+                    within the scope of a single Study or Biological Entity. This annotation has never subsequently been
+                    confirmed or curated and may not represent a good annotation with respect to other available
+                    annotations.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">NON_TRACEABLE</span> - http://rdf.ebi.ac.uk/terms/zooma/ZOOMA_0000105
+            <ul>
+                <li>An evidence code that states this annotation was supported by evidence at some point, but it is
+                    unknown what this evidence was, or that the evidence for this annotation has been lost.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">NO_EVIDENCE</span> - http://rdf.ebi.ac.uk/terms/zooma/ZOOMA_0000106
+            <ul>
+                <li>An evidence code that states this annotation has no evidence to support it.</li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">UNKNOWN</span> - http://rdf.ebi.ac.uk/terms/zooma/ZOOMA_0000107
+            <ul>
+                <li>An evidence code that indicates it is unknown if this annotation has ever had evidence to support
+                    it.
+                </li>
+            </ul>
+        </li>
+    </ol>
+
+    </p>
+</section>
+
+<section>
+    <h3>Annotation Provenance</h3>
+
+    <p>
+        The following information is recorded as part of the ZOOMA annotation provenance model:
+    </p>
+
+    <ul>
+        <li>
+            <span class="docs-label">SOURCE</span>
+            <ul>
+                <li>the URI of the datasource</li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">EVIDENCE</span>
+            <ul>
+                <li>One of the evidence codes, above</li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">GENERATOR</span>
+            <ul>
+                <li>The agent that generated the annotation object</li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">GENERATION DATE</span>
+            <ul>
+                <li>The date on which the annotation was generated in the ZOOMA knowledgebase</li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">ANNOTATOR</span>
+            <ul>
+                <li>The agent who generated the annotation. This is usually a person name</li>
+            </ul>
+        </li>
+        <li>
+            <span class="docs-label">ANNOTATION DATE</span>
+            <ul>
+                <li>The date on which the annotation was generated in the source database</li>
+            </ul>
+        </li>
+    </ul>
+</section>
+
+<section>
+    <h3>Data Loading</h3>
+
+    <p>
+        There are several data loaders for ZOOMA implemented out-of-the-box. These are available as one of the packages
+        in the zooma-loading module of the project tree. Checkout the ZOOMA source code from version control and take a
+        look at these for some examples, or email <a href="mailto:tburdett@ebi.ac.uk">Tony Burdett</a> for more
+        information.
+    </p>
+
+</section>
+
+<section>
+    <h3>ZOOMA URI Policies</h3>
+
+    <p>
+        ZOOMA URIs are generated during data loading. Wherever possible, URIs from the originating database are used to
+        model data elements (biological entities, studies etc.) and the namespace is used to coin URIs that identify
+        ZOOMA concepts (annotations, provenance objects).
+    </p>
+
+    <p>
+        If you are implementing your own data loader, and would like more details on how to generate your own URIs,
+        please contact <a href="mailto:tburdett@ebi.ac.uk">Tony Burdett</a>.
+    </p>
+
+    <p>
+        Below are listed the namespaces used in the current version of ZOOMA.
+    </p>
+
+    <table style="font-size:0.85em">
+        <tr>
+            <td>owl</td>
+            <td>http://www.w3.org/2002/07/owl#</td>
+        </tr>
+        <tr>
+            <td>rdfs</td>
+            <td>http://www.w3.org/2000/01/rdf-schema#</td>
+        </tr>
+        <tr>
+            <td>rdf</td>
+            <td>http://www.w3.org/1999/02/22-rdf-syntax-ns#</td>
+        </tr>
+        <tr>
+            <td>xsd</td>
+            <td>http://www.w3.org/2001/XMLSchema#</td>
+        </tr>
+        <tr>
+            <td>xml</td>
+            <td>http://www.w3.org/XML/1998/namespace</td>
+        </tr>
+        <tr>
+            <td>swrl</td>
+            <td>http://www.w3.org/2003/11/swrl#</td>
+        </tr>
+        <tr>
+            <td>swrlb</td>
+            <td>http://www.w3.org/2003/11/swrlb#</td>
+        </tr>
+        <tr>
+            <td>skos</td>
+            <td>http://www.w3.org/2004/02/skos/core#</td>
+        </tr>
+        <tr>
+            <td>dc</td>
+            <td>http://purl.org/dc/elements/1.1/</td>
+        </tr>
+
+        <tr>
+            <td>oac</td>
+            <td>http://www.openannotation.org/ns/</td>
+        </tr>
+        <tr>
+            <td>prov</td>
+            <td>http://www.w3.org/TR/prov-o/</td>
+        </tr>
+
+        <tr>
+            <td>zooma</td>
+            <td>http://www.ebi.ac.uk/fgpt/zooma/</td>
+        </tr>
+        <tr>
+            <td>zoomaterms</td>
+            <td>http://rdf.ebi.ac.uk/terms/zooma/</td>
+        </tr>
+        <tr>
+            <td>zoomaresource</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/</td>
+        </tr>
+        <tr>
+            <td>annotation</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/annotation/</td>
+        </tr>
+        <tr>
+            <td>propval</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/propertyvalue/</td>
+        </tr>
+
+        <tr>
+            <td>arrayexpress</td>
+            <td>http://www.ebi.ac.uk/arrayexpress/</td>
+        </tr>
+        <tr>
+            <td>aeresource</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/arrayexpress/</td>
+        </tr>
+        <tr>
+            <td>aeannotation</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/arrayexpress/annotation/</td>
+        </tr>
+        <tr>
+            <td>aeexperiment</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/arrayexpress/experiment/</td>
+        </tr>
+        <tr>
+            <td>aeproperty</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/arrayexpress//property/</td>
+        </tr>
+
+        <tr>
+            <td>gxa</td>
+            <td>http://www.ebi.ac.uk/gxa/</td>
+        </tr>
+        <tr>
+            <td>gxaresource</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/gxa/</td>
+        </tr>
+        <tr>
+            <td>gxaannotation</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/gxa/annotation/</td>
+        </tr>
+        <tr>
+            <td>gxaexperiment</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/gxa/experiment/</td>
+        </tr>
+        <tr>
+            <td>gxaproperty</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/gxa/property/</td>
+        </tr>
+
+        <tr>
+            <td>gwas</td>
+            <td>http://www.genome.gov/gwastudies/</td>
+        </tr>
+        <tr>
+            <td>gwasresource</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/gwas/</td>
+        </tr>
+        <tr>
+            <td>gwasannotation</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/gwas/annotation/</td>
+        </tr>
+        <tr>
+            <td>gwassnp</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/gwas/snp/</td>
+        </tr>
+        <tr>
+            <td>gwasproperty</td>
+            <td>http://rdf.ebi.ac.uk/resource/zooma/gwas/property/</td>
+        </tr>
+
+        <tr>
+            <td>efo</td>
+            <td>http://www.ebi.ac.uk/efo/</td>
+        </tr>
+        <tr>
+            <td>cl</td>
+            <td>http://purl.org/obo/owl/CL#</td>
+        </tr>
+        <tr>
+            <td>obo</td>
+            <td>http://purl.obolibrary.org/obo/</td>
+        </tr>
+        <tr>
+            <td>ncbitaxon</td>
+            <td>http://purl.org/obo/owl/NCBITaxon#</td>
+        </tr>
+        <tr>
+            <td>pubmed</td>
+            <td>http://europepmc.org/abstract/MED/</td>
+        </tr>
+    </table>
+
+</section>
+</section>
+
+<section class="grid_6 omega">
+    <h3>Documentation</h3>
+    <ul id="secondary-nav">
+        <li class="first"><a href="./index.html">Home</a></li>
+        <li><a href="./getting-started.html">Getting Started</a></li>
+        <li><a href="./api.html">REST API Documentation</a></li>
+        <li class="last active"><a href="./developers.html">Developer Documentation</a></li>
+    </ul>
+</section>
+
+</div>
+
+
+<footer>
+    <!-- Optional local footer (insert citation / project-specific copyright / etc here --><!--
+    <div id="local-footer" class="grid_24 clearfix">
+
+    </div>
+     --><!-- End optional local footer -->
+
+    <div id="global-footer" class="grid_24 clearfix">
+
+        <nav id="global-nav-expanded">
+
+            <div class="grid_4 alpha">
+                <h3 class="explore">Explore</h3>
+            </div>
+
+            <div class="grid_4">
+                <h3 class="services"><a href="/services" title="Services">Services</a></h3>
+            </div>
+
+            <div class="grid_4">
+                <h3 class="research"><a href="/research" title="Research">Research</a></h3>
+            </div>
+
+            <div class="grid_4">
+                <h3 class="training"><a href="/training" title="Training">Training</a></h3>
+            </div>
+
+            <div class="grid_4">
+                <h3 class="industry"><a href="/industry" title="Industry">Industry</a></h3>
+            </div>
+
+            <div class="grid_4 omega">
+                <h3 class="about"><a href="/about" title="About us">About us</a></h3>
+            </div>
+
+        </nav>
+        <script src="http://www.ebi.ac.uk/web_guidelines/js/foot.js"></script>
+
+    </div>
+
+    <div class="grid_24">
+        <section id="ebi-footer-meta">
+            <p> &copy; EMBL-EBI European Bioinformatics Institute | <a href="#" title="">Privacy</a> | <a href="#"
+                                                                                                          title="">Cookies</a>
+                | <a href="#" title="">Terms of use</a></p>
+        </section>
+    </div>
+
+</footer>
+</div>
+<!--! end of #wrapper -->
+
+
+<!-- ZOOMA required JavaScript libraries, at the bottom for fast page loading -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/freebase/suggest/3_1/suggest.min.js"></script>
+<script type="text/javascript" src="../scripts/zooma.min.js"></script>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+
+<script type="text/javascript" src="../scripts/zooma-ui.js"></script>
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-38623609-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src =
+                ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+
+
+<!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.
+chromium.org/developers/how-tos/chrome-frame-getting-started --><!--[if lt IE 7 ]>
+<script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+<script>window.attachEvent('onload', function() {
+    CFInstall.check({mode: 'overlay'})
+})</script><![endif]-->
+
+</body>
+</html>

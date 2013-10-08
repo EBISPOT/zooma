@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Configure AnnotationDAOs for this datasource -->
+    <bean name="gwasDAO" class="uk.ac.ebi.fgpt.zooma.datasource.GwasAnnotationDAO">
+        <constructor-arg name="annotationMapper" ref="gwasAnnotationMapper" />
+        <!--<constructor-arg name="annotationFactory" ref="gwasAnnotationFactory" />-->
+        <property name="jdbcTemplate" ref="gwasJdbcTemplate" />
+    </bean>
+
+    <bean name="gwasAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.GwasAnnotationFactory">
+        <constructor-arg name="annotationLoadingSession" ref="gwasLoadingSession" />
+    </bean>
+
+    <bean name="gwasLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.GwasLoadingSession" />
+
+    <bean name="gwasAnnotationMapper" class="uk.ac.ebi.fgpt.zooma.datasource.JDBCConventionBasedAnnotationMapper">
+        <constructor-arg name="annotationFactory" ref="gwasAnnotationFactory" />
+        <!--<constructor-arg name="efoResource" value="classpath:efo.owl" />-->
+    </bean>
+
+    <bean name="gwasJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="gwasDataSource" />
+    </bean>
+
+    <!-- GWAS Database setup -->
+    <bean name="gwasDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">  
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@todd.ebi.ac.uk:1521:AE2TST" />
+        <property name="username" value="gwas" />
+        <property name="password" value="gwa5d6" />
+        <property name="defaultAutoCommit" value="false" />
+        <property name="initialSize" value="32" />
+        <property name="maxIdle" value="32" />
+        <property name="maxActive" value="32" />
+        <property name="maxWait" value="-1" />
+    </bean>
+
+</beans>

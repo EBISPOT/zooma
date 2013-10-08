@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Atlas Database setup -->
+    <bean id="atlasDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@bart.ebi.ac.uk:1521:ATLASCUR" />
+        <property name="username" value="atlasraw2" />
+        <property name="password" value="atlas2" />
+        <property name="defaultAutoCommit" value="false" />
+        <property name="initialSize" value="32" />
+        <property name="maxIdle" value="32" />
+        <property name="maxActive" value="32" />
+        <property name="maxWait" value="-1" />
+    </bean>
+
+    <!-- extract native jdbc connection for working with oracle connections -->
+    <bean name="nativeJdbcExtractor"
+          class="org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor" />
+
+    <bean name="template" class="org.springframework.jdbc.core.JdbcTemplate">
+        <!-- datasource bean, from JNDI -->
+        <property name="dataSource" ref="atlasDataSource" />
+        <property name="nativeJdbcExtractor" ref="nativeJdbcExtractor" />
+        <property name="ignoreWarnings" value="true" />
+    </bean>
+
+    <!-- Configure AtlasDAO for this datasource -->
+    <bean name="atlasDAO" class="uk.ac.ebi.fgpt.zooma.atlas.ZoomaAtlasJDBCDAO">
+        <property name="jdbcTemplate" ref="template" />
+    </bean>
+
+</beans>

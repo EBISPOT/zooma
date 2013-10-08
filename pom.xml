@@ -16,22 +16,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.springframework.version>3.2.2.RELEASE</org.springframework.version>
         <org.slf4j.version>1.7.5</org.slf4j.version>
-
-        <java.location>java</java.location>
-        <java.args>-Dorg.xml.sax.driver=uk.ac.ebi.fgpt.zooma.xml.ZoomaXMLReaderProxy -Xmx512m -DentityExpansionLimit=1000000000</java.args>
-
-        <!-- zooma properties -->
-        <zooma.url>http://localhost:8080/zooma</zooma.url>
-        <zooma.sparql.endpoint>http://localhost:8080/zooma/sparql/</zooma.sparql.endpoint>
-
-        <!-- sparql properties -->
-        <sparql.repository.name>zooma</sparql.repository.name>
-        <sparql.repository.version>2.2</sparql.repository.version>
-        <sparql.repository.id>${sparql.repository.name}${sparql.repository.version}</sparql.repository.id>
-        <!-- staging sparql endpoint (for loader resolving, indexing) -->
-        <staging.sparql.endpoint>http://localhost:8080/openrdf-sesame/</staging.sparql.endpoint>
-        <!-- ui sparql endpoint (where /zooma/sparql redirects to, usually the same as staging.sparql) -->
-        <ui.sparql.endpoint>http://localhost:8080/openrdf-sesame/</ui.sparql.endpoint>
     </properties>
 
     <build>
@@ -114,6 +98,8 @@
     <mailingLists>
         <mailingList>
             <name>EBI Functional Genomics Production Team Mailing List</name>
+            <!--<subscribe>ebi-gwas-oc@ebi.ac.uk</subscribe>-->
+            <!--<unsubscribe>ebi-gwas-oc@ebi.ac.uk</unsubscribe>-->
             <post>fgpt@ebi.ac.uk</post>
         </mailingList>
     </mailingLists>
@@ -124,12 +110,31 @@
         <url>http://www.ebi.ac.uk/panda/jira/browse/FGPTO/component/10874</url>
     </issueManagement>
 
-    <!-- Version control (GitHub) -->
-    <!--<scm>-->
-        <!--<connection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</connection>-->
-        <!--<developerConnection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</developerConnection>-->
-        <!--<url>http://bar.ebi.ac.uk:8080/trac/browser/trunk/fgpt/ontology/zooma2</url>-->
-    <!--</scm>-->
+    <!-- Version control (internal SVN) -->
+    <scm>
+        <connection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</connection>
+        <developerConnection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</developerConnection>
+        <url>http://bar.ebi.ac.uk:8080/trac/browser/trunk/fgpt/ontology/zooma2</url>
+    </scm>
+
+    <!-- Maven repository deploy -->
+    <distributionManagement>
+        <repository>
+            <id>coconut.ebi.ac.uk</id>
+            <name>coconut.ebi.ac.uk</name>
+            <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
+        </repository>
+        <snapshotRepository>
+            <id>coconut.ebi.ac.uk</id>
+            <name>coconut.ebi.ac.uk-snapshots</name>
+            <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
+        </snapshotRepository>
+        <site>
+            <id>coconut.ebi.ac.uk</id>
+            <name>coconut.ebi.ac.uk-snapshots</name>
+            <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
+        </site>
+    </distributionManagement>
 
     <!-- Reporting/Documentation output -->
     <reporting>
@@ -166,6 +171,7 @@
 
     <modules>
         <module>zooma-api</module>
+        <module>zooma-ui</module>
         <module>zooma-sparql</module>
         <module>zooma-core</module>
         <module>zooma-impl</module>
@@ -174,8 +180,20 @@
         <module>zooma-lucene-services</module>
         <module>zooma-reporting</module>
         <module>zooma-client</module>
-        <module>zooma-loading</module>
+        <module>zoomage</module>
     </modules>
+
+    <!-- Artifactory - ZOOMA dependencies -->
+    <repositories>
+        <repository>
+            <id>coconut.ebi.ac.uk</id>
+            <name>EBI Artifactory</name>
+            <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <!-- dependencies required by all zooma modules -->
     <dependencies>
@@ -289,5 +307,223 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>ui-only</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <properties>
+                <!-- java properties -->
+                <java.location>java</java.location>
+                <java.args>-Dorg.xml.sax.driver=uk.ac.ebi.fgpt.zooma.xml.ZoomaXMLReaderProxy -Xmx512m</java.args>
+
+                <!-- zooma properties -->
+                <zooma.url>http://localhost:8080/zooma</zooma.url>
+                <zooma.sparql.endpoint>http://localhost:8080/zooma/sparql/</zooma.sparql.endpoint>
+
+                <!-- sparql properties -->
+                <sparql.repository.name>zooma</sparql.repository.name>
+                <sparql.repository.version>2.2</sparql.repository.version>
+                <sparql.repository.id>${sparql.repository.name}${sparql.repository.version}</sparql.repository.id>
+                <!-- staging sparql endpoint (for loader resolving, indexing) -->
+                <staging.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</staging.sparql.endpoint>
+                <!-- ui sparql endpoint - URL is relative to zooma server -->
+                <ui.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</ui.sparql.endpoint>
+            </properties>
+
+            <modules>
+                <module>zooma-test</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>localdev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <!-- Handy enforce plugin to check dependency convergence.  Currently only problems in third party libs -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce</id>
+                                <configuration>
+                                    <rules>
+                                        <DependencyConvergence />
+                                    </rules>
+                                </configuration>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <phase>validate</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+
+            <properties>
+                <java.location>java</java.location>
+                <java.args>-Dorg.xml.sax.driver=uk.ac.ebi.fgpt.zooma.xml.ZoomaXMLReaderProxy -Xmx512m -DentityExpansionLimit=1000000000</java.args>
+
+                <!-- zooma properties -->
+                <zooma.url>http://localhost:8080/zooma</zooma.url>
+                <zooma.sparql.endpoint>http://localhost:8080/zooma/sparql/</zooma.sparql.endpoint>
+
+                <!-- sparql properties -->
+                <sparql.repository.name>zooma</sparql.repository.name>
+                <sparql.repository.version>2.2</sparql.repository.version>
+                <sparql.repository.id>${sparql.repository.name}${sparql.repository.version}</sparql.repository.id>
+                <!-- staging sparql endpoint (for loader resolving, indexing) -->
+                <staging.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</staging.sparql.endpoint>
+                <!-- ui sparql endpoint - URL is relative to zooma server -->
+                <ui.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</ui.sparql.endpoint>
+            </properties>
+
+            <modules>
+                <module>zooma-cli</module>
+                <module>zooma-loading</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>eforesolver-test</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <properties>
+                <!-- java properties -->
+                <java.location>/ebi/research/software/Linux_x86_64/opt/java/jdk1.7/bin/java</java.location>
+                <java.args>-Xmx8g -Dorg.xml.sax.driver=uk.ac.ebi.fgpt.zooma.xml.ZoomaXMLReaderProxy -DentityExpansionLimit=1000000000 -Dhttp.proxyHost=wwwcache.ebi.ac.uk -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=*.ebi.ac.uk -DproxyHost=wwwcache.ebi.ac.uk -DproxyPort=3128 -DproxySet=true -agentpath:/ebi/microarray/home/fgpt/tools/yjp-12.0.5/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,disableexceptiontelemetry,builtinprobes=none,delay=10000</java.args>
+
+                <!-- zooma properties -->
+                <zooma.url>http://megatron.windows.ebi.ac.uk:8080/zooma</zooma.url>
+                <zooma.sparql.endpoint>http://megatron.windows.ebi.ac.uk:8080/zooma/sparql/</zooma.sparql.endpoint>
+
+                <!-- sparql properties -->
+                <sparql.repository.name>zooma</sparql.repository.name>
+                <sparql.repository.version>2.2</sparql.repository.version>
+                <sparql.repository.id>${sparql.repository.name}${sparql.repository.version}</sparql.repository.id>
+                <!-- staging sparql endpoint (for loader resolving, indexing) -->
+                <staging.sparql.endpoint>http://megatron.windows.ebi.ac.uk:8080/openrdf-sesame/</staging.sparql.endpoint>
+                <!-- ui sparql endpoint - URL is relative to zooma server -->
+                <ui.sparql.endpoint>http://megatron.windows.ebi.ac.uk:8080/openrdf-sesame/</ui.sparql.endpoint>
+            </properties>
+
+            <modules>
+                <module>zooma-cli</module>
+                <module>zooma-loading</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <properties>
+                <!-- java properties -->
+                <java.location>/ebi/research/software/Linux_x86_64/opt/java/jdk1.7/bin/java</java.location>
+                <java.args>-Xmx16g -Dorg.xml.sax.driver=uk.ac.ebi.fgpt.zooma.xml.ZoomaXMLReaderProxy -DentityExpansionLimit=1000000000 -Dhttp.proxyHost=wwwcache.ebi.ac.uk -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=*.ebi.ac.uk -DproxyHost=wwwcache.ebi.ac.uk -DproxyPort=3128 -DproxySet=true -agentpath:/ebi/microarray/home/fgpt/tools/yjp-12.0.5/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,disableexceptiontelemetry,builtinprobes=none,delay=10000</java.args>
+
+                <!-- zooma properties -->
+                <zooma.url>http://orange.ebi.ac.uk:14096/zooma2</zooma.url>
+                <zooma.sparql.endpoint>http://orange.ebi.ac.uk:14096/zooma2/sparql/</zooma.sparql.endpoint>
+
+                <!-- sparql properties -->
+                <sparql.repository.name>zooma</sparql.repository.name>
+                <sparql.repository.version>2.2</sparql.repository.version>
+                <sparql.repository.id>${sparql.repository.name}${sparql.repository.version}</sparql.repository.id>
+                <!-- staging sparql endpoint (for loader resolving, indexing) -->
+                <staging.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</staging.sparql.endpoint>
+                <!-- ui sparql endpoint - URL is relative to zooma server -->
+                <ui.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</ui.sparql.endpoint>
+
+                <!-- OWLIM index building properties -->
+                <owlim.loader.script>/ebi/microarray/home/fgpt/dev/sw/owlim-lite-loader/bin/load-owlim.sh</owlim.loader.script>
+            </properties>
+
+            <modules>
+                <module>zooma-cli</module>
+                <module>zooma-loading</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>test</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <properties>
+                <java.location>/ebi/research/software/Linux_x86_64/opt/java/jdk1.7/bin/java</java.location>
+                <java.args>-Xmx16g -Dorg.xml.sax.driver=uk.ac.ebi.fgpt.zooma.xml.ZoomaXMLReaderProxy -DentityExpansionLimit=1000000000 -Dhttp.proxyHost=wwwcache.ebi.ac.uk -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=*.ebi.ac.uk -DproxyHost=wwwcache.ebi.ac.uk -DproxyPort=3128 -DproxySet=true</java.args>
+
+                <!-- zooma properties -->
+                <zooma.url>http://wwwdev.ebi.ac.uk/fgpt/zooma</zooma.url>
+                <zooma.sparql.endpoint>http://wwwdev.ebi.ac.uk/fgpt/sparql/</zooma.sparql.endpoint>
+
+                <!-- sparql properties -->
+                <sparql.repository.name>zooma</sparql.repository.name>
+                <sparql.repository.version>2.2</sparql.repository.version>
+                <sparql.repository.id>${sparql.repository.name}${sparql.repository.version}</sparql.repository.id>
+                <!-- staging sparql endpoint (for loader resolving, indexing) -->
+                <staging.sparql.endpoint>http://orange.ebi.ac.uk:14104/openrdf-sesame/</staging.sparql.endpoint>
+                <!-- ui sparql endpoint - URL is relative to zooma server -->
+                <ui.sparql.endpoint>http://localhost:8080/fgpt/sparql/</ui.sparql.endpoint>
+
+                <!-- OWLIM index building properties -->
+                <owlim.loader.script>/ebi/microarray/home/fgpt/test/sw/owlim-lite-loader/bin/load-owlim.sh</owlim.loader.script>
+            </properties>
+
+            <modules>
+                <module>zooma-cli</module>
+                <module>zooma-loading</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>production</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <properties>
+                <java.location>/ebi/research/software/Linux_x86_64/opt/java/jdk1.7/bin/java</java.location>
+                <java.args>-Xmx16g -Dorg.xml.sax.driver=uk.ac.ebi.fgpt.zooma.xml.ZoomaXMLReaderProxy -DentityExpansionLimit=1000000000 -Dhttp.proxyHost=wwwcache.ebi.ac.uk -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=*.ebi.ac.uk -DproxyHost=wwwcache.ebi.ac.uk -DproxyPort=3128 -DproxySet=true</java.args>
+
+                <!-- zooma properties -->
+                <zooma.url>http://www.ebi.ac.uk/fgpt/zooma</zooma.url>
+                <zooma.sparql.endpoint>http://www.ebi.ac.uk/fgpt/sparql/</zooma.sparql.endpoint>
+
+                <!-- sparql properties -->
+                <sparql.repository.name>zooma</sparql.repository.name>
+                <sparql.repository.version>2.2</sparql.repository.version>
+                <sparql.repository.id>${sparql.repository.name}${sparql.repository.version}</sparql.repository.id>
+                <!-- staging sparql endpoint (for loader resolving, indexing) -->
+                <staging.sparql.endpoint>http://orange.ebi.ac.uk:14102/openrdf-sesame/</staging.sparql.endpoint>
+                <!-- ui sparql endpoint - URL is relative to zooma server -->
+                <ui.sparql.endpoint>http://localhost:8080/fgpt/sparql/</ui.sparql.endpoint>
+
+                <!-- OWLIM index building properties -->
+                <owlim.loader.script>/ebi/microarray/home/fgpt/sw/owlim-lite-loader/bin/load-owlim.sh</owlim.loader.script>
+            </properties>
+
+            <modules>
+                <module>zooma-cli</module>
+                <module>zooma-loading</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

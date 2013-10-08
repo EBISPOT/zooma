@@ -1,0 +1,29 @@
+
+a.externallink {
+    border-bottom-style: none;
+}
+
+#results-table tbody {
+    vertical-align: top;
+    font-size: 0.9em;
+}
+
+
+a.pag {
+    color: #A67325;
+}
+
+a.prev {
+    float:left;
+    padding-left: 4px;
+}
+
+a.next {
+    float:right;
+    padding-right: 4px;
+}
+
+span.pagmes {
+    color: #A67325;
+    padding-left: 40%;
+}

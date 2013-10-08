@@ -1,0 +1,37 @@
+#
+# Sesame configuration template for a owlim repository
+#
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rep: <http://www.openrdf.org/config/repository#>.
+@prefix sr: <http://www.openrdf.org/config/repository/sail#>.
+@prefix sail: <http://www.openrdf.org/config/sail#>.
+@prefix owlim: <http://www.ontotext.com/trree/owlim#>.
+
+[] a rep:Repository ;
+   rep:repositoryID "${sparql.repository.id}"  ;
+   rdfs:label "${sparql.repository.id}" ;
+   rep:repositoryImpl [
+     rep:repositoryType "openrdf:SailRepository" ;
+     sr:sailImpl [
+       sail:sailType "swiftowlim:Sail" ;
+
+       owlim:base-URL "http://rdf.ebi.ac.uk/resource/zooma" ;
+       owlim:entity-index-size "5000000" ;
+       owlim:repository-type "in-memory-repository" ;
+       owlim:ruleset "empty" ;
+       owlim:storage-folder "storage" ;
+
+       # OWLIM-SE parameters
+       owlim:cache-memory "2g" ;
+
+       # OWLIM-Lite parameters
+       owlim:noPersist "false" ;
+
+       # Other OWLIM-SE parameters
+       owlim:index-compression-ratio "30" ;        # -1/10-50
+
+       owlim:predicate-memory "2g" ;
+       owlim:tuple-index-memory "2g" ;
+
+      ]
+   ].
