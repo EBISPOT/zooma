@@ -29,6 +29,7 @@
     </dependencies>
 
     <modules>
+        <module>zooma-csv-loader</module>
         <module>zooma-owl-loader</module>
     </modules>
 
