@@ -333,10 +333,6 @@
                 <!-- ui sparql endpoint - URL is relative to zooma server -->
                 <ui.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</ui.sparql.endpoint>
             </properties>
-
-            <modules>
-                <module>zooma-test</module>
-            </modules>
         </profile>
 
         <profile>
