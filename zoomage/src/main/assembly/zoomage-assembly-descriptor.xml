@@ -1,0 +1,92 @@
+<assembly
+        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+    http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0
+    http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+
+    <id>archive</id>
+
+    <formats>
+        <format>tar.gz</format>
+        <format>zip</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <!-- copy any resources or config files into config/ -->
+        <fileSet>
+            <directory>src/main/resources/</directory>
+            <outputDirectory>config/</outputDirectory>
+        </fileSet>
+        <!-- copy application resources (required for command line app) into config/ -->
+        <fileSet>
+            <directory>src/main/appresources/</directory>
+            <outputDirectory>config/</outputDirectory>
+            <filtered>true</filtered>
+            <!-- exclude XML files: these shouldn't be filtered -->
+            <excludes>
+                <exclude>**/*.xml</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/appresources/</directory>
+            <outputDirectory>config/</outputDirectory>
+            <filtered>false</filtered>
+            <includes>
+                <include>**/*.xml</include>
+            </includes>
+        </fileSet>
+        <!-- copy additional application resources (specified for profiles) -->
+        <fileSet>
+            <directory>${application.resources.path}</directory>
+            <outputDirectory>config/</outputDirectory>
+            <filtered>true</filtered>
+            <!-- exclude XML files: these shouldn't be filtered -->
+            <excludes>
+                <exclude>**/*.xml</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>${application.resources.path}</directory>
+            <outputDirectory>config/</outputDirectory>
+            <filtered>false</filtered>
+            <includes>
+                <include>**/*.xml</include>
+            </includes>
+        </fileSet>
+
+        <!-- copy all scripts into bin/ -->
+        <fileSet>
+            <directory>src/main/bin/</directory>
+            <outputDirectory>bin/</outputDirectory>
+            <directoryMode>0755</directoryMode>
+            <fileMode>0755</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+    </fileSets>
+
+    <!-- copy all submodules and transitive deps into lib/ -->
+    <moduleSets>
+        <moduleSet>
+            <includeSubModules>true</includeSubModules>
+            <binaries>
+                <includeDependencies>true</includeDependencies>
+                <fileMode>0644</fileMode>
+                <unpack>false</unpack>
+                <outputDirectory>lib/</outputDirectory>
+            </binaries>
+        </moduleSet>
+    </moduleSets>
+
+    <!-- copy all parent pom dependencies into lib/ -->
+    <dependencySets>
+        <dependencySet>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <fileMode>0644</fileMode>
+            <outputDirectory>lib/</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+
+</assembly>

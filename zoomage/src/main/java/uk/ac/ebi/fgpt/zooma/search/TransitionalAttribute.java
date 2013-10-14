@@ -8,12 +8,12 @@ import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.FactorValue
 import java.util.ArrayList;
 
 /**
- * Convenience class for minimal and temporary representation of an attribute of an annotation.
+ * Convenience class for minimal and *temporary* representation of an attribute of an annotation.
  * This representation takes a CharacteristicsAttribute object
  * or a FactorValue object and temporarily stores the corresponding four primary
  * components of the attribute (type, value, termSourceREF, termAccessionNumber).
  * The benefit it provides is that only a single version of each method in the ZoomaRESTClient is needed.
- * Comments are appended to the attribute any time one of its components is updated.
+ * Comments are appended to the attribute every time one of its components is updated.
  *
  * @author jmcmurry
  * @date 05/04/2013
@@ -114,20 +114,22 @@ public class TransitionalAttribute {
     }
 
     private void appendComment(String varName, String oldString, String newString) {
-//        // if there's no new string, just return
-//        if (newString == null || newString.equals("")) return;
-//
-//        // else, initialize comment
-//        String comment = "";
-//
-//        // if there's no original annotation, phrase the comment accordingly
-//        if (oldString == null || oldString.equals("")) comment = (varName + " set to " + newString + ".");
-//
-//            // otherwise if zoomification overwrites an existing annotation, phrase the comment accordingly
-//        else if (!oldString.equals(newString)) comment = (varName + " " + this.type + " changed to " + type + ".");
-//
-//        // finally, append the comment
-//        comments.add(comment);
+        // if there's no new string, just return
+        if (newString == null || newString.equals("")) return;
+
+        // else, initialize comment
+        String comment = "";
+
+        // if there's no original annotation, phrase the comment accordingly
+        if (oldString == null || oldString.equals("")) comment = (varName + " set to " + newString + ".");
+
+            // otherwise if zoomification overwrites an existing annotation, phrase the comment accordingly
+        else if (!oldString.equals(newString)) comment = (varName + " " + this.type + " changed to " + type + ".");
+
+        getLog().debug(comment);
+
+        // finally, append the comment
+        comments.add(comment);
     }
 
     public String getType() {

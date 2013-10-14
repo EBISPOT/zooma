@@ -1,0 +1,18 @@
++-----------------+
+| Zoomage Scripts |
++-----------------+
+
+This directory contains scripts for interacting with Zoomage.  A brief outline of each script is included below.
+
+zoomage.sh
+--------
+
+The overall program takes a MAGETAB accession number, parses it using the Limpopo web service and applies
+automatic curation using the Zooma webservice.
+
+Produces two spreadsheets (SDRF and IDF) resulting from the zooma curation process. Currently, IDF is returned
+only for convenience, no zoomification is applied yet.
+
+Takes three arguments - the accession to retrieve from ArrayExpress,
+the threshold for the minimum string length to initiate a zooma query, and the zooma cutoff percentage (eg .8
+discards the bottom 80% of matches and retains just the top 20%.

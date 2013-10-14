@@ -7,16 +7,11 @@ import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,15 +22,26 @@ import java.util.Set;
  */
 public class ZoomaRESTClient {
 
+    private final HashSet inelegibleProperties;
     private Logger log = LoggerFactory.getLogger(getClass());
 
     private int minInputLength;
     private float cutoffPercentage;
+    private float cutoffScore;
     private static HashMap<String, AnnotationSummary> resultsCache = new HashMap<String, AnnotationSummary>();
 
-    public ZoomaRESTClient(int minInputLength, float cutoffPercentage) {
+    public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, String excludedPropertiesResource) {
         this.minInputLength = minInputLength;
         this.cutoffPercentage = cutoffPercentage;
+        this.cutoffScore = cutoffScore;
+        inelegibleProperties = parseIneligibleProperties(excludedPropertiesResource);
+    }
+
+    public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, HashSet excludedProperties) {
+        this.minInputLength = minInputLength;
+        this.cutoffPercentage = cutoffPercentage;
+        this.cutoffScore = cutoffScore;
+        inelegibleProperties = excludedProperties;
     }
 
     protected Logger getLog() {
@@ -47,6 +53,7 @@ public class ZoomaRESTClient {
      * //todo: tony example here
      * Ultimately, the MAGETAB parser should support this edge case too, but until it does, this method
      * will concatenate the URIs into a single string.
+     *
      * @param zoomaAnnotationSummary
      * @return ArrayList with two elements, the first is the reference, and the second the accession.
      */
@@ -109,8 +116,9 @@ public class ZoomaRESTClient {
 
     /**
      * Get best Zooma AnnotationSummary for specified attribute type and value
-     * @param attributeType (eg: organism)
-     * @param attributeValue  (eg: human)
+     *
+     * @param attributeType  (eg: organism)
+     * @param attributeValue (eg: human)
      * @return corresponding best-scoring Zooma annotation
      */
     public AnnotationSummary getZoomaAnnotationSummary(String attributeType, String attributeValue) {
@@ -141,7 +149,7 @@ public class ZoomaRESTClient {
             // filter results based on cutoffpercentage specified by the user
             if (resultMap.size() != 0) {
                 getLog().info("Filtering " + resultMap.size() + " Zooma result(s)");
-                Set<AnnotationSummary> filteredResultSet = ZoomaUtils.filterAnnotationSummaries(resultMap, cutoffPercentage);
+                Set<AnnotationSummary> filteredResultSet = ZoomaUtils.filterAnnotationSummaries(resultMap, cutoffPercentage, cutoffScore);
                 // from among filtered results, get the best one and return it
                 return getBestMatch(input, filteredResultSet);
             }
@@ -160,7 +168,8 @@ public class ZoomaRESTClient {
     /**
      * Iterates through the set of Zooma AnnotationSummaries (if there are any) and returns the one with the
      * highest quality score
-     * @param input  concatenated type and value of an attribute (just used for logging purposes) todo: maybe delete this param
+     *
+     * @param input     concatenated type and value of an attribute (just used for logging purposes) todo: maybe delete this param
      * @param resultSet of Zooma AnnotationSummaries
      * @return Zooma AnnotationSummary with the highest quality score
      * @throws IOException
@@ -197,6 +206,7 @@ public class ZoomaRESTClient {
     /**
      * Delegates acquisition of a ZoomaAnnotationSummary based on type and value of the attribute passed in.
      * Using the resulting best summary, update the attribute accordingly.
+     *
      * @param attribute original (unzoomified) TransitionalAttribute
      * @return zoomified attribute.
      */
@@ -206,7 +216,7 @@ public class ZoomaRESTClient {
         AnnotationSummary zoomaAnnotationSummary = getZoomaAnnotationSummary(attribute.getType(), attribute.getValue());
 
         // if there are no zooma results, warn and return
-        if (zoomaAnnotationSummary == null ) {
+        if (zoomaAnnotationSummary == null) {
             if (attribute.getValue().length() < minInputLength)
                 log.info("Input value \"" + attribute.getValue() + "\" is below specified length of " + minInputLength + " characters.");
             else log.warn("No Zooma Annotation found for " + attribute.getType() + ":" + attribute.getValue());
@@ -217,7 +227,7 @@ public class ZoomaRESTClient {
             attribute.setType(zoomaAnnotationSummary.getAnnotatedPropertyType());
             attribute.setValue(zoomaAnnotationSummary.getAnnotatedPropertyValue());
 
-            ArrayList<String > refAndAcession = concatenateCompoundURIs(zoomaAnnotationSummary);
+            ArrayList<String> refAndAcession = concatenateCompoundURIs(zoomaAnnotationSummary);
             attribute.setTermSourceREF(refAndAcession.get(0));
             attribute.setTermAccessionNumber(refAndAcession.get(1));
         }
@@ -225,5 +235,32 @@ public class ZoomaRESTClient {
         // return updated (zoomified) attribute
         return attribute;  //todo: Tony...bad form to return same object that was passed in?
     }
+    private HashSet parseIneligibleProperties(String excludedPropertiesResource) {
+        HashSet excludedTypes = new HashSet<>();
+
+        // read sources from file
+        try {
+            InputStream in = getClass().getClassLoader().getResourceAsStream(excludedPropertiesResource);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.startsWith("#") && !line.isEmpty()) {
+                    String s = line.toLowerCase();
+                    if (s != null) {
+                        excludedTypes.add(s);
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            getLog().error("Failed to load properties: could not locate file '" + excludedPropertiesResource + "'.  " +
+                    "No properties will be excluded");
+        } catch (IOException e) {
+            getLog().error("Failed to load properties: could not read file '" + excludedPropertiesResource + "'.  " +
+                    "No properties will be excluded");
+        }
+
+        return excludedTypes;
+    }
+
 
 }
