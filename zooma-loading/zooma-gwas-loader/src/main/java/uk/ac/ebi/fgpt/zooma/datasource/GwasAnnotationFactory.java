@@ -18,7 +18,7 @@ public class GwasAnnotationFactory extends AbstractAnnotationFactory {
 
     public GwasAnnotationFactory(AnnotationLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
-        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GWAS.getURI()),
+        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GWAS.getURI(), "gwas"),
 			                                      AnnotationProvenance.Evidence.MANUAL_CURATED,
                                                          "ZOOMA",
                                                          new Date());
@@ -29,7 +29,7 @@ public class GwasAnnotationFactory extends AbstractAnnotationFactory {
     }
 
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GWAS.getURI()),
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GWAS.getURI(), "gwas"),
                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
                                               "ZOOMA",
                                               new Date(),

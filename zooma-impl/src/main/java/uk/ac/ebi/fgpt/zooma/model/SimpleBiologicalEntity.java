@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A basic implementation of a Biological Entity
@@ -15,12 +16,32 @@ public class SimpleBiologicalEntity extends AbstractIdentifiable implements Biol
     private static final long serialVersionUID = -5982916971163589494L;
 
     private String name;
+    private Set<URI> types;
     private Collection<Study> studies;
 
     public SimpleBiologicalEntity(URI uri, String name, Study... studies) {
         super(uri);
         this.name = name;
         this.studies = new HashSet<>();
+        this.types = new HashSet<URI>();
+        Collections.addAll(this.studies, studies);
+    }
+
+    public SimpleBiologicalEntity(URI uri, String name, URI type, Study... studies) {
+        super(uri);
+        this.name = name;
+        this.studies = new HashSet<>();
+        this.types = new HashSet<URI>();
+        getTypes().add(type);
+        Collections.addAll(this.studies, studies);
+    }
+
+    public SimpleBiologicalEntity(URI uri, String name, Collection<URI> type, Study... studies) {
+        super(uri);
+        this.name = name;
+        this.studies = new HashSet<>();
+        this.types = new HashSet<URI>();
+        getTypes().addAll(type);
         Collections.addAll(this.studies, studies);
     }
 
@@ -37,5 +58,10 @@ public class SimpleBiologicalEntity extends AbstractIdentifiable implements Biol
                 "  uri='" + getURI() + "'\n" +
                 "  name='" + name + "'\n" +
                 "  studies=" + studies + "\n}";
+    }
+
+    @Override
+    public Set<URI> getTypes() {
+        return types;
     }
 }

@@ -149,15 +149,15 @@ public class ZoomaRESTClient {
             // filter results based on cutoffpercentage specified by the user
             if (resultMap.size() != 0) {
                 getLog().info("Filtering " + resultMap.size() + " Zooma result(s)");
-                Set<AnnotationSummary> filteredResultSet = ZoomaUtils.filterAnnotationSummaries(resultMap, cutoffPercentage, cutoffScore);
+                Set<AnnotationSummary> filteredResultSet = ZoomaUtils.filterAnnotationSummaries(resultMap, cutoffScore, cutoffPercentage);
                 // from among filtered results, get the best one and return it
                 return getBestMatch(input, filteredResultSet);
             }
 
         } catch (MalformedURLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();  //todo
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();  //todo
         }
 
         // if there are no results from the query, still store this info in the resultsCache for expediency

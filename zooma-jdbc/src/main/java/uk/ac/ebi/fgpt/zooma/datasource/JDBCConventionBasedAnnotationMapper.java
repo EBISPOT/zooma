@@ -75,6 +75,8 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         // BIOENTITY
         // BIOENTITY_URI [optional]
         // BIOENTITY_ID [optional]
+        // BIOENTITY_TYPE_NAME [optional]
+        // BIOENTITY_TYPE_URI [optional]
         // PROPERTY_TYPE
         // PROPERTY_VALUE
         // PROPERTY_URI [optional]
@@ -100,6 +102,8 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         String annotationID;
         String studyID;
         String bioentityID;
+        String bioentityTypeName;
+        URI bioentityTypeURI;
         String propertyID;
         String annotator;
         Date annotationDate = null;
@@ -181,6 +185,20 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         else {
             bioentityURI = null;
         }
+        uriStr = extractColumnValue(resultSet, "BIOENTITY_TYPE_URI");
+        if (uriStr != null) {
+            bioentityTypeURI = URI.create(uriStr);
+        }
+        else {
+            bioentityTypeURI = null;
+        }
+        uriStr = extractColumnValue(resultSet, "BIOENTITY_TYPE_NAME");
+        if (uriStr != null) {
+            bioentityTypeName = uriStr;
+        }
+        else {
+            bioentityTypeName = null;
+        }
         uriStr = extractColumnValue(resultSet, "PROPERTY_URI");
         if (uriStr != null) {
             propertyURI = URI.create(uriStr);
@@ -212,6 +230,8 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
                                                        bioentityName,
                                                        bioentityURI,
                                                        bioentityID,
+                                                       bioentityTypeName,
+                                                       bioentityTypeURI,
                                                        propertyType,
                                                        propertyValue,
                                                        propertyURI,

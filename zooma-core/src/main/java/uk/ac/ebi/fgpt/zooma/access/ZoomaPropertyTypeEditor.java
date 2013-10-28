@@ -93,7 +93,7 @@ public class ZoomaPropertyTypeEditor {
             return "Successfully updated " + count + "annotations";
         }
         else {
-            return "Failed to update property: No property found matching type '" + propertyType + "'";
+            return "Failed to update property: No property found matching type '" + propertyType;
         }
     }
 

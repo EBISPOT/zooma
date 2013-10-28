@@ -11,7 +11,7 @@ package uk.ac.ebi.fgpt.zooma.model;
  * @author Tony Burdett
  * @date 13/03/12
  */
-public interface Study extends Identifiable {
+public interface Study extends TargetSource {
     /**
      * An accession attributed to this study, usually unique within the context of the datasource it was derived from.
      * This accession may not be globally unique (for instance, in the case of studies present in several datasources

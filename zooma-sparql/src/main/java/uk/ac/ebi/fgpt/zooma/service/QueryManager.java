@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+import uk.ac.ebi.fgpt.zooma.util.PropertiesMapAdapter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * QueryManager handles retrieval of sparql queries based on query id from a specified file
@@ -22,6 +24,16 @@ import java.util.List;
 public class QueryManager {
     private Resource sparqlQueryResource;
     private String[] queries;
+
+    public PropertiesMapAdapter getPropertiesMapAdapter() {
+        return propertiesMapAdapter;
+    }
+
+    public void setPropertiesMapAdapter(PropertiesMapAdapter propertiesMapAdapter) {
+        this.propertiesMapAdapter = propertiesMapAdapter;
+    }
+
+    private PropertiesMapAdapter propertiesMapAdapter;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -52,7 +64,7 @@ public class QueryManager {
             final String name = query.substring(0, query.indexOf(":"));
 
             if (name.equals(queryId)) {
-                return query.substring(name.length() + 2).trim();
+                return getPrefix() + "\n" + query.substring(name.length() + 2).trim();
             }
         }
 
@@ -60,6 +72,15 @@ public class QueryManager {
         return null;
     }
 
+    public String getPrefix() {
+        // add prefixes for all loaded namespaces
+        StringBuilder sb = new StringBuilder();
+        Map<String, String> propMap = getPropertiesMapAdapter().getPropertyMap();
+        for (String prefix : propMap.keySet()) {
+            sb.append("PREFIX ").append(prefix).append(":<").append(propMap.get(prefix)).append(">\n");
+        }
+        return sb.toString();
+    }
 
     private String[] collectQueries(InputStream in) throws IOException {
         getLog().debug("Loading SPARQL queries...");

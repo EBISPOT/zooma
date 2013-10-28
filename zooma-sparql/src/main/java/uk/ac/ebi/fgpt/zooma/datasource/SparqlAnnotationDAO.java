@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
+import com.hp.hpl.jena.rdf.model.Resource;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BindingSet;
@@ -50,6 +51,7 @@ import java.util.Set;
  * @date 03/04/12
  */
 public class SparqlAnnotationDAO implements AnnotationDAO {
+
     private StudyDAO studyDAO;
     private SparqlBiologicalEntityDAO biologicalEntityDAO;
 
@@ -230,6 +232,8 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         Value propertyValueValue = bindingSet.getValue(QueryVariables.PROPERTY_VALUE.toString());
         Value semanticTag = bindingSet.getValue(QueryVariables.SEMANTIC_TAG.toString());
         Value database = bindingSet.getValue(QueryVariables.DATABASEID.toString());
+        Value sourceType = bindingSet.getValue(QueryVariables.SOURCETYPE.toString());
+        Value sourceName = bindingSet.getValue(QueryVariables.SOURCENAME.toString());
         Value evidence = bindingSet.getValue(QueryVariables.EVIDENCE.toString());
         Value generator = bindingSet.getValue(QueryVariables.GENERATOR.toString());
         Value generated = bindingSet.getValue(QueryVariables.GENERATED.toString());
@@ -342,19 +346,23 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                     }
                 }
 
-                // TODO - check type from RDF, if type is ontology need a simple ontology annotation source
-                AnnotationSource.Type type = AnnotationSource.Type.DATABASE;
+                AnnotationSource source = null;
+                if (sourceType != null) {
+                    URI sourceAsUri = URI.create(sourceType.stringValue());
+                    AnnotationSource.Type sourceT = AnnotationSource.Type.lookup(sourceAsUri);
 
-                AnnotationSource source;
-                if (type == AnnotationSource.Type.DATABASE) {
-                    source = new SimpleDatabaseAnnotationSource(URI.create(database.stringValue()));
+                    if (sourceT == AnnotationSource.Type.ONTOLOGY) {
+                        source = new SimpleOntologyAnnotationSource(URI.create(database.toString()), sourceName.stringValue());
+                    }
+                    else if (sourceT == AnnotationSource.Type.DATABASE) {
+                        source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()), sourceName.stringValue());
+                    }
                 }
-                else if (type == AnnotationSource.Type.ONTOLOGY) {
-                    source = new SimpleOntologyAnnotationSource(URI.create(database.stringValue()));
-                }
-                else {
+
+                if (source == null) {
                     throw new RuntimeException("Data error - attempting to create provenance with unrecognised annotation source type");
                 }
+
 
                 prov = new SimpleAnnotationProvenance(source,
                                                       ev,

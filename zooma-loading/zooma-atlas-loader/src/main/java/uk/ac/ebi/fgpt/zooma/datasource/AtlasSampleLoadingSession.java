@@ -1,8 +1,11 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import uk.ac.ebi.fgpt.zooma.Namespaces;
+import uk.ac.ebi.fgpt.zooma.util.CollectionUtils;
 
 import java.net.URI;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * An atlas annotation loading session that can generate URIs specific to atlas samples
@@ -11,10 +14,17 @@ import java.net.URI;
  * @date 03/10/12
  */
 public class AtlasSampleLoadingSession extends AtlasLoadingSession {
+
+    protected AtlasSampleLoadingSession( ) {
+        super( Collections.<URI>singleton(URI.create("http://purl.obolibrary.org/obo/OBI_0000747")));
+    }
+
     @Override protected URI mintBioentityURI(String bioentityID,
                                              String bioentityName,
                                              String... studyAccessions) {
-        return URI.create(Namespaces.GXA_RESOURCE.getURI().toString() + "experiment/" +
+        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "gxa/" +
                                   encode(studyAccessions[0]) + "#sample-" + bioentityID);
     }
+
+
 }

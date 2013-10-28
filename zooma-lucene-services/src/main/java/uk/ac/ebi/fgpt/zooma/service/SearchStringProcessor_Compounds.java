@@ -2,8 +2,10 @@
 
 package uk.ac.ebi.fgpt.zooma.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -206,8 +208,7 @@ public class SearchStringProcessor_Compounds implements SearchStringProcessor{
 
         try {
 
-            InputStream bufferFile = this.getClass().getClassLoader().getResourceAsStream(
-                    "concentration_unit_dictionary.txt");
+            InputStream bufferFile = this.getClass().getClassLoader().getResourceAsStream("efo_dictionary_concentrationUnit.txt");
             
             if(bufferFile!=null){
 

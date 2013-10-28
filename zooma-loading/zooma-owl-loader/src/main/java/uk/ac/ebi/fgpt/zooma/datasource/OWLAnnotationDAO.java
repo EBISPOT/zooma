@@ -98,6 +98,8 @@ public class OWLAnnotationDAO extends Initializable implements AnnotationDAO {
                             null,
                             null,
                             null,
+                            null,
+                            null,
                             propertyType,
                             propertyValue,
                             null,
@@ -121,6 +123,8 @@ public class OWLAnnotationDAO extends Initializable implements AnnotationDAO {
                         // just values and semantic tags
                         // property type is a canned value
                         Annotation singleAnnotation = annotationFactory.createAnnotation(
+                                null,
+                                null,
                                 null,
                                 null,
                                 null,

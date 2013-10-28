@@ -333,6 +333,10 @@
                 <!-- ui sparql endpoint - URL is relative to zooma server -->
                 <ui.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</ui.sparql.endpoint>
             </properties>
+
+            <modules>
+                <module>zooma-test</module>
+            </modules>
         </profile>
 
         <profile>
@@ -368,7 +372,7 @@
 
             <properties>
                 <java.location>java</java.location>
-                <java.args>-Dorg.xml.sax.driver=uk.ac.ebi.fgpt.zooma.xml.ZoomaXMLReaderProxy -Xmx512m -DentityExpansionLimit=1000000000</java.args>
+                <java.args>-Dorg.xml.sax.driver=uk.ac.ebi.fgpt.zooma.xml.ZoomaXMLReaderProxy -Xmx2g -DentityExpansionLimit=1000000000</java.args>
 
                 <!-- zooma properties -->
                 <zooma.url>http://localhost:8080/zooma</zooma.url>

@@ -22,7 +22,7 @@ import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
  * @date 07/08/13
  */
 public class OWLAPIPropertySerializer extends OWLAPIZoomaSerializer<Property> {
-    private final IRI propertyClassIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "PropertyValue");
+    private final IRI propertyClassIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "Property");
 
     private final IRI propertyNamePropertyIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "propertyName");
     private final IRI propertyValuePropertyIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "propertyValue");

@@ -262,16 +262,16 @@ public class OWLAPIAnnotationSerializer extends OWLAPIZoomaSerializer<Annotation
 
         // get datasource IRI
         IRI datasourceIRI;
+        IRI datasourceTypeIRI;
         synchronized (sourceProvenanceIRIMap) {
             if (!sourceProvenanceIRIMap.containsKey(provenance.getSource().getURI())) {
                 datasourceIRI = createIRI(provenance.getSource().getURI());
                 sourceProvenanceIRIMap.put(provenance.getSource().getURI(), datasourceIRI);
-
-                // TODO - datasource type not stored as RDF
             }
             else {
                 datasourceIRI = sourceProvenanceIRIMap.get(provenance.getSource().getURI());
             }
+            datasourceTypeIRI =  IRI.create(provenance.getSource().getType().getUri());
         }
 
         // get evidence IRI
@@ -287,10 +287,15 @@ public class OWLAPIAnnotationSerializer extends OWLAPIZoomaSerializer<Annotation
         }
 
         OWLNamedIndividual datasourceIndividual = factory.getOWLNamedIndividual(datasourceIRI);
+        OWLClass datasourceTypeClass = factory.getOWLClass(datasourceTypeIRI);
         manager.addAxiom(ontology,
                          factory.getOWLObjectPropertyAssertionAxiom(hasDBProperty,
                                                                     annotationInstance,
                                                                     datasourceIndividual));
+
+        manager.addAxiom(ontology,
+                                 factory.getOWLClassAssertionAxiom(datasourceTypeClass, datasourceIndividual));
+
 
         // set evidence
         OWLNamedIndividual evidenceIndividual = factory.getOWLNamedIndividual(evidenceIRI);

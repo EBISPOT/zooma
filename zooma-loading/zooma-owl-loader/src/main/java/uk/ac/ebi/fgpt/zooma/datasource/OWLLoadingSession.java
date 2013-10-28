@@ -35,10 +35,10 @@ public class OWLLoadingSession extends AbstractAnnotationLoadingSession {
     @Override protected URI mintPropertyURI(String propertyID,
                                             String propertyType,
                                             String propertyValue) {
-        return URI.create(baseNamespace + "property/" + propertyID);
+        return URI.create(baseNamespace  + propertyID);
     }
 
     @Override protected URI mintAnnotationURI(String annotationID) {
-        return URI.create(baseNamespace + "annotation/" + annotationID);
+        return URI.create(baseNamespace  + annotationID);
     }
 }

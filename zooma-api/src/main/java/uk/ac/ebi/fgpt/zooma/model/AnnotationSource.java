@@ -1,5 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.model;
 
+import uk.ac.ebi.fgpt.zooma.Namespaces;
+
 import java.io.Serializable;
 import java.net.URI;
 
@@ -29,11 +31,38 @@ public interface AnnotationSource extends Serializable {
      */
     Type getType();
 
+
+    /**
+     * Returns the short name that was assigned to this source target
+     *
+     * @return the shortname for ths
+     */
+    String getName();
+
     /**
      * The type that an annotation sources can take.
      */
     public enum Type {
-        DATABASE,
-        ONTOLOGY
+        DATABASE(Namespaces.ZOOMA_TERMS.getURI().toString() + "DatabaseSource"),
+        ONTOLOGY(Namespaces.ZOOMA_TERMS.getURI().toString() + "OntologySource");
+
+        private URI uri;
+        Type (String uri) {
+            this.uri = URI.create(uri);
+        }
+
+        public static Type lookup (URI id) {
+            for (Type e : Type.values()) {
+                if (e.uri.equals(id)) {
+                    return e;
+                }
+            }
+            return Type.DATABASE;
+        }
+
+        public URI getUri() {
+            return uri;
+        }
+
     }
 }

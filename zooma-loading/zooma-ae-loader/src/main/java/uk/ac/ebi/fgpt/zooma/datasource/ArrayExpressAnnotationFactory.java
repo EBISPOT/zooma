@@ -18,7 +18,7 @@ public class ArrayExpressAnnotationFactory extends AbstractAnnotationFactory {
 
     public ArrayExpressAnnotationFactory(AnnotationLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
-        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.ARRAYEXPRESS.getURI()),
+        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.ARRAYEXPRESS.getURI(), "arrayexpress"),
                                                          AnnotationProvenance.Evidence.SUBMITTER_PROVIDED,
                                                          "ZOOMA",
                                                          new Date());
@@ -29,7 +29,7 @@ public class ArrayExpressAnnotationFactory extends AbstractAnnotationFactory {
     }
 
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.ARRAYEXPRESS.getURI()),
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.ARRAYEXPRESS.getURI(), "arrayexpress"),
                                               AnnotationProvenance.Evidence.SUBMITTER_PROVIDED,
                                               "ZOOMA",
                                               new Date(),

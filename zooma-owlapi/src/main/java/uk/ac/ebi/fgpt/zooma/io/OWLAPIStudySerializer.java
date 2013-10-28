@@ -14,6 +14,8 @@ import uk.ac.ebi.fgpt.zooma.Namespaces;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 
+import java.net.URI;
+
 /**
  * A ZOOMA serializer that uses the OWL API to generate RDF from studies
  *
@@ -22,7 +24,7 @@ import uk.ac.ebi.fgpt.zooma.model.Study;
  * @date 07/08/13
  */
 public class OWLAPIStudySerializer extends OWLAPIZoomaSerializer<Study> {
-    private final IRI studyClassIRI = IRI.create(Namespaces.EFO.getURI() + "EFO_0004033");
+    private final IRI studyClassIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "Source");
 
     public OWLAPIStudySerializer() {
         super();
@@ -43,7 +45,11 @@ public class OWLAPIStudySerializer extends OWLAPIZoomaSerializer<Study> {
         IRI studyIRI = createIRI(study.getURI());
         getLog().trace("Creating study owl individual");
         OWLNamedIndividual studyInstance = factory.getOWLNamedIndividual(studyIRI);
-        getLog().trace("Created study owl individual");
+        getLog().trace("Created study owl individual type");
+        for (URI uri : study.getTypes()) {
+            OWLClass cls = factory.getOWLClass(IRI.create(uri));
+            manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(cls, studyInstance));
+        }
         manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(studyClass, studyInstance));
 
         // create a label

@@ -115,6 +115,8 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                 String annotationID = null;
                 String studyID = null;
                 String bioentityID = null;
+                String bioentityTypeName = null;
+                URI bioentityTypeURI = null;
                 String propertyID = null;
                 String annotator = null;
                 Date annotationDate = null;
@@ -196,6 +198,12 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                 if ((column = lookupColumn("BIOENTITY_ID")) != -1) {
                     bioentityID = annotationElements[column];
                 }
+                if ((column = lookupColumn("BIOENTITY_TYPE_URI")) != -1) {
+                    bioentityTypeURI = URI.create(annotationElements[column]);
+                }
+                if ((column = lookupColumn("BIOENTITY_TYPE_NAME")) != -1) {
+                    bioentityTypeName = annotationElements[column];
+                }
                 if ((column = lookupColumn("PROPERTY_ID")) != -1) {
                     propertyID = annotationElements[column];
                 }
@@ -216,6 +224,8 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                                                                         bioentityName,
                                                                         bioentityURI,
                                                                         bioentityID,
+                                                                        bioentityTypeName,
+                                                                        bioentityTypeURI,
                                                                         propertyType,
                                                                         propertyValue,
                                                                         propertyURI,

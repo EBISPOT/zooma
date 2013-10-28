@@ -25,39 +25,21 @@ public enum Namespaces {
     ZOOMA("http://www.ebi.ac.uk/fgpt/zooma/"),
     ZOOMA_TERMS("http://rdf.ebi.ac.uk/terms/zooma/"),
     ZOOMA_RESOURCE("http://rdf.ebi.ac.uk/resource/zooma/"),
-    ANNOTATION("http://rdf.ebi.ac.uk/resource/zooma/annotation/"),
-    PROPVAL("http://rdf.ebi.ac.uk/resource/zooma/propertyvalue/"),
+
 
     EBI("http://www.ebi.ac.uk/"),
     EBIRESOURCE("http://rdf.ebi.ac.uk/resource/"),
 
-    ARRAYEXPRESS("http://www.ebi.ac.uk/arrayexpress/"),
-    AE_RESOURCE("http://rdf.ebi.ac.uk/resource/zooma/arrayexpress/"),
-    AE_ANNOTATION("http://rdf.ebi.ac.uk/resource/zooma/arrayexpress/annotation/"),
-    AE_EXPERIMENT("http://rdf.ebi.ac.uk/resource/zooma/arrayexpress/experiment/"),
-    AE_PROPERTY("http://rdf.ebi.ac.uk/resource/zooma/arrayexpress/property/"),
+    ARRAYEXPRESS("http://www.ebi.ac.uk/arrayexpress"),
 
-    GXA("http://www.ebi.ac.uk/gxa/"),
-    GXA_RESOURCE("http://rdf.ebi.ac.uk/resource/zooma/gxa/"),
-    GXA_ANNOTATION("http://rdf.ebi.ac.uk/resource/zooma/gxa/annotation/"),
-    GXA_EXPERIMENT("http://rdf.ebi.ac.uk/resource/zooma/gxa/experiment/"),
-    GXA_PROPERTY("http://rdf.ebi.ac.uk/resource/zooma/gxa/property/"),
+    GXA("http://www.ebi.ac.uk/gxa"),
 
-    GENOME("http://www.genome.gov/"),
-    GWAS("http://www.genome.gov/gwastudies/"),
-    GWAS_RESOURCE("http://rdf.ebi.ac.uk/resource/zooma/gwas/"),
-    GWAS_ANNOTATION("http://rdf.ebi.ac.uk/resource/zooma/gwas/annotation/"),
-    GWAS_SNP("http://rdf.ebi.ac.uk/resource/zooma/gwas/snp/"),
-    GWAS_PROPERTY("http://rdf.ebi.ac.uk/resource/zooma/gwas/property/"),
+    GENOME("http://www.genome.gov"),
+    GWAS("http://www.genome.gov/gwastudies"),
 
     OWL_RESOURCE("http://rdf.ebi.ac.uk/resource/zooma/owl/"),
-    OWL_ANNOTATION("http://rdf.ebi.ac.uk/resource/zooma/owl/annotation/"),
-    OWL_PROPERTY("http://rdf.ebi.ac.uk/resource/zooma/owl/property/"),
 
-    OMIA("http://omia.angis.org.au/"),
-    OMIA_RESOURCE("http://rdf.ebi.ac.uk/resource/zooma/omia/"),
-    OMIA_ANNOTATION("http://rdf.ebi.ac.uk/resource/zooma/omia/annotation/"),
-    OMIA_PROPERTY("http://rdf.ebi.ac.uk/resource/zooma/omia/property/"),
+    OMIA("http://omia.angis.org.au"),
 
     EFO("http://www.ebi.ac.uk/efo/"),
     SNAP("http://www.ifomis.org/bfo/1.1/snap#"),

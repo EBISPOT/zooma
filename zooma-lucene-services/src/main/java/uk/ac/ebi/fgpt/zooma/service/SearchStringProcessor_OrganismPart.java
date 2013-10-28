@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
 
 
@@ -107,8 +109,7 @@ public class SearchStringProcessor_OrganismPart implements SearchStringProcessor
         
         try {
 
-            InputStream bufferFile = this.getClass().getClassLoader().getResourceAsStream(
-                    "organism_part_qualifier_dictionary.txt");
+            InputStream bufferFile = this.getClass().getClassLoader().getResourceAsStream("efo_dictionary_qualifier_OrgPart.txt");        
 
             if(bufferFile!=null){
 
@@ -138,7 +139,39 @@ public class SearchStringProcessor_OrganismPart implements SearchStringProcessor
          
       }
  
+      try {
+            
+            InputStream bufferFile = this.getClass().getClassLoader().getResourceAsStream("pato_dictionary_qualifier_OrgPart.txt");        
+
+            if(bufferFile!=null){
+
+               String stringFile = inputStream_To_String(bufferFile,16000);
+
+               if(stringFile!=null && !stringFile.isEmpty()){
+
+                   String line;
+
+                   String[] lines = stringFile.split("\n");
+
+                   for(int i=0; i<lines.length ; i++){
+
+                      line = lines[i];
+                      String[] fields = line.split("\t");  
+
+                      if(fields.length>2){
+                           qualifier_OrgPart.add(fields[0]);
+                      }
+                   }
+               }
+            }
+        
+
+      }catch(Exception e){
+         e.printStackTrace();
+         
+      }  
       System.out.println(qualifier_OrgPart.size() + " qualifiers read from file");
+
     }
     
     

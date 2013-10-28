@@ -1,6 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.model;
 
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A basic implementation of a Study
@@ -13,9 +15,12 @@ public class SimpleStudy extends AbstractIdentifiable implements Study {
 
     private String accession;
 
+    private Set<URI> types;
+
     public SimpleStudy(URI uri, String accession) {
         super(uri);
         this.accession = accession;
+        this.types = new HashSet<URI>();
     }
 
     @Override public String getAccession() {
@@ -26,5 +31,10 @@ public class SimpleStudy extends AbstractIdentifiable implements Study {
         return "SimpleStudy {\n" +
                 "  uri='" + getURI() + "'\n" +
                 "  accession='" + accession + "'\n}";
+    }
+
+    @Override
+    public Set<URI> getTypes() {
+        return types;
     }
 }

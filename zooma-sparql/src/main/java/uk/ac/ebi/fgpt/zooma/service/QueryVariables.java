@@ -20,6 +20,8 @@ public enum QueryVariables {
     STUDY_ID ("study"),
     STUDY_LABEL ("studylabel"),
     DATABASEID ("databaseid"),
+    SOURCETYPE ("sourcetype"),
+    SOURCENAME ("preferredNamespacePrefix"),
     GENERATOR("generator"),
     GENERATED("generated"),
     ANNOTATOR("annotator"),

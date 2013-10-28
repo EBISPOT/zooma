@@ -9,7 +9,7 @@ import java.net.URI;
  * @date 04/10/13
  */
 public class SimpleOntologyAnnotationSource extends SimpleAnnotationSource {
-    public SimpleOntologyAnnotationSource(URI source) {
-        super(source, Type.ONTOLOGY);
+    public SimpleOntologyAnnotationSource(URI source, String name) {
+        super(source, name, Type.ONTOLOGY);
     }
 }

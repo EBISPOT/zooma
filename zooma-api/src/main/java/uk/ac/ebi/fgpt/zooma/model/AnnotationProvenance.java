@@ -73,17 +73,12 @@ public interface AnnotationProvenance extends Serializable {
         /**
          *  A type of curator inference that is used in a manual assertion.
          */
-        MANUAL_CURATED("http://purl.obolibrary.org/obo/ECO_0000305"),
+        MANUAL_CURATED("http://purl.obolibrary.org/obo/ECO_0000306"),
 
         /**
          * An annotation inferred by ZOOMA from previous curated entry. A type of Automatic curation
          */
         ZOOMA_INFERRED_FROM_CURATED(Namespaces.ZOOMA_TERMS.getURI() + "ZOOMA_0000101"),
-
-        /**
-         * An assertion method that does not involve human review.
-         */
-        AUTOMATIC ("http://purl.obolibrary.org/obo/ECO_0000203"), // http://purl.obolibrary.org/obo/ECO_0000203
 
         /**
          * An evidence code that states the existence of an annotation was computed based on a match to a semantic tag.
@@ -96,7 +91,7 @@ public interface AnnotationProvenance extends Serializable {
          * to exist, and hence has at least two degrees of separation from a curated match. This is therefore assigned a
          * low confidence.
          */
-        COMPUTED_FROM_TEXT_MATCH (Namespaces.ZOOMA_TERMS.getURI() + "ZOOMA_0000103"),
+//        COMPUTED_FROM_TEXT_MATCH (Namespaces.ZOOMA_TERMS.getURI() + "ZOOMA_0000103"),
         /**
          * An evidence code that states the existence of an annotation was provided by a submitter, usually within the
          * scope of a single Study or Biological Entity.  This annotation has never subsequently been confirmed or

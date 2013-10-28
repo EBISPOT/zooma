@@ -63,7 +63,11 @@ For optimal performance, use a custom Modernizr build: www.modernizr.com/downloa
 
 </head>
 
-<body onload="init()" class="level2"><!-- add any of your classes or IDs -->
+<body onload="$('#sparql-endpoint').sparql({
+    namespaces : lodeNamespacePrefixes,
+    example_queries: exampleQueries,
+    default_query: 'SELECT DISTINCT ?annotation WHERE {\n?annotation a oac:DataAnnotation \n}',
+    logging: false});"  class="level2"><!-- add any of your classes or IDs -->
 <div id="skip-to">
     <ul>
         <li><a href="#content">Skip to main content</a></li>
@@ -132,120 +136,17 @@ For optimal performance, use a custom Modernizr build: www.modernizr.com/downloa
 
 <div id="content" role="main" class="grid_24 clearfix">
 
-
-    <!-- Example layout containers -->
-
-    <!-- If you require a breadcrumb trail, its root should be your service.
-          You don't need a breadcrumb trail on the homepage of your service... -->
     <nav id="breadcrumb">
         <p>
             <a href="index.html">ZOOMA</a> &gt;
             SPARQL
         </p>
     </nav>
+    <h3>Zooma SPARQL Endpoint</h3>
+    <div id="sparql-endpoint"/>
 
-    <section>
-        <h2><span id="appname"/></h2>
-    </section>
+</div>
 
-
-    <div id="error-div" style="display: none;">
-        <p class="alert">Error: <span id="error-text"></span></p>
-    </div>
-
-    <form id="queryform" name="form_name" action="#results" method="GET">
-
-        <fieldset>
-            <legend>Enter SPARQL Query</legend>
-
-
-
-            <section class="grid_12 alpha">
-
-                <p>
-                    <textarea name="query" id="textarea" rows="18" style="width:100%">
-
-                    </textarea>
-                </p>
-
-
-                <p style="float: right;"><label for="render">Output: </label>
-                    <select name="render" id="render">
-                        <option value="HTML">HTML</option>
-                        <option value="XML">XML</option>
-                        <option value="JSON">JSON</option>
-                        <option value="RDF/XML">RDF/XML</option>
-                        <option value="N3">RDF/N3</option>
-                    </select>
-                </p>
-
-                <p><label for="limit">Results per page: </label>
-                    <select name="limit" id="limit">
-                        <option value="25" selected="selected">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </p>
-                <input id="offset" name="offset" type="hidden" value="0" />
-
-
-
-                <p>
-                    <input type="button" style="display: inline;" onclick="submitQuery()" value="Submit Query" class="submit" />
-                    <input type="button" style="display: inline;" onclick="reloadPage()" value="Reset" class="submit"/>
-                <div id="query-executing-spinner">
-                    Executing query...&nbsp;<img src="images/loadingAnimation.gif">
-                </div>
-                </p>
-
-            </section>
-
-            <section id="example_queries" class="grid_12 omega">
-
-                <h3 style="display: inline;" >Example Queries</h3>
-                <span style="float: right;">
-                                       <a href="images/zooma_annotation_example.gif" border="0" class="thickbox">
-                                           <img src="images/zooma_annotation_example.gif" style="height: 100px;width: 100px;" alt="schema" border="0"/>
-                                       </a>
-                                </span>
-
-                <ul id="queries_list">
-
-                </ul>
-
-            </section>
-
-
-        </fieldset>
-
-    </form>
-
-
-
-    <section id="results" name="results">
-
-        <div id="pagination" class="pagination-banner">
-
-        </div>
-
-
-        <div style="padding: 5px; width:99%;overflow: scroll;">
-
-            <table id="results-table">
-
-            </table>
-        </div>
-    </section>
-
-
-
-
-    <div id="lode-log">
-            <pre id="logmessage">
-
-            </pre>
-
-    </div>
 
     <!-- End example layout containers -->
 

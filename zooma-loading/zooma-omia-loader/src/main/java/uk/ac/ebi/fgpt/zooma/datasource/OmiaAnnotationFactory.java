@@ -18,8 +18,8 @@ public class OmiaAnnotationFactory extends AbstractAnnotationFactory {
 
     public OmiaAnnotationFactory(AnnotationLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
-        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.OMIA.getURI()),
-                                                         AnnotationProvenance.Evidence.COMPUTED_FROM_TEXT_MATCH,
+        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.OMIA.getURI(), "omia"),
+                                                         AnnotationProvenance.Evidence.MANUAL_CURATED,
                                                          "ZOOMA",
                                                          new Date());
     }
@@ -29,8 +29,8 @@ public class OmiaAnnotationFactory extends AbstractAnnotationFactory {
     }
 
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.OMIA.getURI()),
-                                              AnnotationProvenance.Evidence.COMPUTED_FROM_TEXT_MATCH,
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.OMIA.getURI(), "omia"),
+                                              AnnotationProvenance.Evidence.MANUAL_CURATED,
                                               "ZOOMA",
                                               new Date(),
                                               annotator,

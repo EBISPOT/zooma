@@ -103,7 +103,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
 
         // create new annotation provenance
         AnnotationSource zoomaSource =
-                new SimpleDatabaseAnnotationSource(URI.create("http://www.ebi.ac.uk/fgpt/zooma"));
+                new SimpleDatabaseAnnotationSource(URI.create("http://www.ebi.ac.uk/fgpt/zooma"), "zooma");
 
         AnnotationProvenance provenance =
                 new SimpleAnnotationProvenance(zoomaSource,

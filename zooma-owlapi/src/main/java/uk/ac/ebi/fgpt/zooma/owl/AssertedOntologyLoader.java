@@ -28,6 +28,16 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
         OWLOntology ontology = getManager().loadOntology(IRI.create(getOntologyURI()));
         IRI ontologyIRI = ontology.getOntologyID().getOntologyIRI();
         setOntologyIRI(ontologyIRI);
+        if (getOntologyName() == null) {
+            String name = URIUtils.getShortform(ontologyIRI.toURI());
+            if (name == null) {
+                getLog().warn("Can't generate a short form for " + ontologyIRI.toString() + " - you should register this namespace in zooma/prefix.properties " +
+                                                                "to ensure ZOOMA can correctly shorten URIs in this namespace");
+            }
+            else {
+                setOntologyName(name);
+            }
+        }
         getLog().debug("Successfully loaded ontology " + ontologyIRI);
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
         Set<URI> allKnownNamespaces = new HashSet<>();
@@ -143,4 +153,5 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
         getLog().debug("Successfully loaded " + labelCount + " labels on " + labelledClassCount + " classes and " +
                                synonymCount + " synonyms on " + synonymedClassCount + " classes!");
     }
+
 }

@@ -17,6 +17,8 @@ import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 
+import java.net.URI;
+
 /**
  * A ZOOMA serializer that uses the OWL API to generate RDF from biological entities
  *
@@ -25,7 +27,7 @@ import uk.ac.ebi.fgpt.zooma.model.Study;
  * @date 07/08/13
  */
 public class OWLAPIBiologicalEntitySerializer extends OWLAPIZoomaSerializer<BiologicalEntity> {
-    private final IRI dataItemIRI = IRI.create(Namespaces.OBO.getURI() + "IAO_0000027");
+    private final IRI dataItemIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "Target");
 
     private final IRI isPartOfPropertyIRI = IRI.create(Namespaces.DC.getURI() + "isPartOf");
 
@@ -61,6 +63,11 @@ public class OWLAPIBiologicalEntitySerializer extends OWLAPIZoomaSerializer<Biol
         OWLNamedIndividual bioentityInstance = factory.getOWLNamedIndividual(beIRI);
         getLog().trace("Created bioentity owl individual");
         manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(bioentityClass, bioentityInstance));
+
+        for (URI uri : biologicalEntity.getTypes()) {
+            OWLClass beType = factory.getOWLClass(IRI.create(uri));
+            manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(beType, bioentityInstance));
+        }
 
         // create a label
         if (biologicalEntity.getName() != null) {

@@ -16,15 +16,18 @@ import java.util.Date;
 public class CSVAnnotationFactory extends AbstractAnnotationFactory {
     private final String namespace;
     private final String generator;
+    private final String name;
     private final AnnotationProvenance provenance;
 
     public CSVAnnotationFactory(String namespace,
+                                String name,
                                 String annotationCreator,
                                 AnnotationLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
         this.namespace = namespace;
+        this.name = name;
         this.generator = annotationCreator;
-        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(namespace)),
+        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(namespace), name),
                                                          AnnotationProvenance.Evidence.MANUAL_CURATED,
                                                          generator,
                                                          new Date());
@@ -35,7 +38,7 @@ public class CSVAnnotationFactory extends AbstractAnnotationFactory {
     }
 
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(namespace)),
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(namespace), name),
                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
                                               generator,
                                               new Date(),

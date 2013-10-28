@@ -17,12 +17,14 @@ import java.util.Date;
  */
 public class OWLAnnotationFactory extends AbstractAnnotationFactory {
     private final URI namespace;
+    private final String name;
     private final AnnotationProvenance provenance;
 
     public OWLAnnotationFactory(AnnotationLoadingSession annotationLoadingSession, OntologyLoader owlLoader) {
         super(annotationLoadingSession);
         this.namespace = owlLoader.getOntologyIRI().toURI();
-        this.provenance = new SimpleAnnotationProvenance(new SimpleOntologyAnnotationSource(namespace),
+        this.name = owlLoader.getOntologyName();
+        this.provenance = new SimpleAnnotationProvenance(new SimpleOntologyAnnotationSource(namespace, name),
                                                          AnnotationProvenance.Evidence.COMPUTED_FROM_ONTOLOGY,
                                                          namespace.toString(),
                                                          new Date());
@@ -33,7 +35,7 @@ public class OWLAnnotationFactory extends AbstractAnnotationFactory {
     }
 
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleOntologyAnnotationSource(namespace),
+        return new SimpleAnnotationProvenance(new SimpleOntologyAnnotationSource(namespace, name),
                                               AnnotationProvenance.Evidence.COMPUTED_FROM_ONTOLOGY,
                                               namespace.toString(),
                                               new Date(),

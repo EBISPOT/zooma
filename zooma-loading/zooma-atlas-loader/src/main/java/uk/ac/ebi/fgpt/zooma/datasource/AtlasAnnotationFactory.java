@@ -18,7 +18,7 @@ public class AtlasAnnotationFactory extends AbstractAnnotationFactory {
 
     public AtlasAnnotationFactory(AnnotationLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
-        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GXA.getURI()),
+        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GXA.getURI(), "gxa"),
                                                          AnnotationProvenance.Evidence.ZOOMA_INFERRED_FROM_CURATED,
                                                          "ZOOMA",
                                                          new Date());
@@ -29,7 +29,7 @@ public class AtlasAnnotationFactory extends AbstractAnnotationFactory {
     }
 
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GXA.getURI()),
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GXA.getURI(), "gxa"),
                                               AnnotationProvenance.Evidence.ZOOMA_INFERRED_FROM_CURATED,
                                               "ZOOMA",
                                               new Date(),

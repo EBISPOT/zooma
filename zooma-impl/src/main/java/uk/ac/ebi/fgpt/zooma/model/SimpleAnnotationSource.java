@@ -11,8 +11,10 @@ import java.net.URI;
 public class SimpleAnnotationSource implements AnnotationSource {
     private URI source;
     private Type type;
+    private String name;
 
-    public SimpleAnnotationSource(URI source, Type type) {
+
+    public SimpleAnnotationSource(URI source, String name, Type type) {
         this.source = source;
         this.type = type;
     }
@@ -24,4 +26,10 @@ public class SimpleAnnotationSource implements AnnotationSource {
     @Override public Type getType() {
         return type;
     }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
 }

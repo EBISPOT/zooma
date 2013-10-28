@@ -24,6 +24,12 @@ public interface OntologyLoader {
     IRI getOntologyIRI();
 
     /**
+     * Get the ontology name.  This is a short name for the ontology, for example "efo" for the experimental factor ontology
+     * @return IRI of the ontology
+     */
+    String getOntologyName();
+
+    /**
      * Returns a mapping between the IRIs that identify classes in the loaded ontology and the corresponding class
      * rdfs:label.
      *

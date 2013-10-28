@@ -11,10 +11,13 @@ import uk.ac.ebi.fgpt.zooma.model.Study;
 
 import java.net.URI;
 import java.text.DecimalFormat;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 
 /**
- * An all-purpose factory class that can generate fully formed annotation objects and their dependants fro a series of
+ * An all-purpose factory class that can generate fully formed annotation objects and their dependants from a series of
  * strings.  Each factory instance should be configured with an AnnotationLoadingSession
  *
  * @author Tony Burdett
@@ -47,6 +50,8 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
                                                  String bioentityName,
                                                  URI bioentityURI,
                                                  String bioentityID,
+                                                 String bioentityTypeName,
+                                                 URI bioentityTypeURI,
                                                  String propertyType,
                                                  String propertyValue,
                                                  URI propertyURI,
@@ -76,17 +81,27 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
         }
 
         BiologicalEntity be;
+        Collection<String> bioEntityTypeNames = new HashSet<String>();
+        if (bioentityTypeName !=null) {
+            bioEntityTypeNames.add(bioentityTypeName);
+        }
+        Collection<URI> bioEntityTypeURIs = new HashSet<URI>();
+        if (bioentityTypeURI !=null) {
+            bioEntityTypeURIs.add(bioentityTypeURI);
+        }
+
+
         if (s != null) {
             if (bioentityURI != null) {
-                be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, bioentityURI, s);
+                be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, bioentityURI, bioEntityTypeNames, bioEntityTypeURIs, s);
             }
             else {
                 if (bioentityID != null) {
-                    be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, bioentityID, s);
+                    be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, bioentityID,  bioEntityTypeNames, bioEntityTypeURIs, s);
                 }
                 else {
                     if (bioentityName != null) {
-                        be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, s);
+                        be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName,  bioEntityTypeNames, bioEntityTypeURIs, s);
                     }
                     else {
                         be = null;
@@ -96,15 +111,15 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
         }
         else {
             if (bioentityURI != null) {
-                be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, bioentityURI);
+                be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, bioentityURI, bioEntityTypeNames, bioEntityTypeURIs);
             }
             else {
                 if (bioentityID != null) {
-                    be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, bioentityID);
+                    be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, bioentityID, bioEntityTypeNames, bioEntityTypeURIs);
                 }
                 else {
                     if (bioentityName != null) {
-                        be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName);
+                        be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, bioEntityTypeNames, bioEntityTypeURIs);
                     }
                     else {
                         be = null;

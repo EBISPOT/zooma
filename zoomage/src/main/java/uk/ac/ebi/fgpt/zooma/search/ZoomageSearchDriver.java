@@ -14,8 +14,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * A command line client for ZOOMA 2 that takes a list of properties (values, constrained by an optional type) and
- * produces a list of ontology mappings for those properties.
+ * A command line client for Zoomage that takes a MAGEtab accession number, Zooma configurations, and produces a zoomified sdrf file.
  *
  * @author Julie McMurry adapted from Tony Burdett
  * @date 7 October 2013
@@ -27,26 +26,6 @@ public class ZoomageSearchDriver {
     private static float _cutoffPercentage;
     private static String _magetabAccession;
     private static final String _excludedTypesResource = "zoomage-exclusions.properties";
-
-//    public static void old(String[] args) {
-//        try {
-//            ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
-//
-//            String MAGETABaccession = args[0];
-//            int minInputLength = Integer.parseInt(args[1]);
-//            float zoomaCutoffPercentage = Float.parseFloat(args[2]);
-//
-//            ZoomaRESTClient zoomaClient = new ZoomaRESTClient(minInputLength, zoomaCutoffPercentage);
-//
-//            zoomageParser.run(MAGETABaccession, zoomaClient);
-//
-//        } catch (Exception e) {
-//            //todo: input help
-//            System.err.print("Application failed: " + e.getMessage());
-//            e.printStackTrace();
-//            System.exit(1);
-//        }
-//    }
 
     public static void main(String[] args) {
         try {
@@ -121,6 +100,7 @@ public class ZoomageSearchDriver {
     }
 
     private static void assignInputsToVariables(Properties defaults, CommandLine cl) {
+
         // Magetab accession (required)
         _magetabAccession = cl.getOptionValue("a");
 
@@ -209,7 +189,7 @@ public class ZoomageSearchDriver {
     private float cutoffPercentage;
     private int minStringLength;
     private HashSet excludedProperties;
-    private String magetabAccession;
+    private ZoomaRESTClient zoomaClient;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -224,12 +204,14 @@ public class ZoomageSearchDriver {
         this.minStringLength = minStringLength;
         this.excludedProperties = excludedProperties;
         getLog().info("Zoomage Driver created, ready to execute search.");
+        zoomaClient = new ZoomaRESTClient(minStringLength, cutoffPercentage, cutoffScore, excludedProperties);
+
     }
 
-    public void executeSearch() {
+    //convenience, non-static method
+    public void executeSearch(String magetabAccession, ZoomaRESTClient zoomaClient){
         try {
 
-            ZoomaRESTClient zoomaClient = new ZoomaRESTClient(minStringLength, cutoffPercentage, cutoffScore, excludedProperties);
             ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
             zoomageParser.run(magetabAccession, zoomaClient);
 

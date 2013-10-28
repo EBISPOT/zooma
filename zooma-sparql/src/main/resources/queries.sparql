@@ -1,11 +1,15 @@
 
 ^[ANNOTATIONS.read]
-SELECT DISTINCT ?annotationid ?bioentityid ?study ?databaseid ?evidence ?propertyvalueid ?propertyname ?propertyvalue ?semantictag ?annotator ?annotated ?generator ?generated WHERE {
+SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) (?study as ?_study) ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
 ?annotationid rdf:type oac:DataAnnotation .
 ?annotationid oac:hasBody ?propertyvalueid .
 ?propertyvalueid zoomaterms:propertyName ?propertyname .
 ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
-?propertyvalueid rdf:type zoomaterms:PropertyValue .
+?propertyvalueid rdf:type zoomaterms:Property .
+
+OPTIONAL {
+?annotationid oac:hasTarget ?bioentityid
+}
 
 OPTIONAL {
     ?annotationid oac:hasTarget ?bioentityid .
@@ -15,7 +19,11 @@ OPTIONAL {
     ?annotationid oac:hasBody ?semantictag .
     ?semantictag rdf:type oac:SemanticTag
 } .
-OPTIONAL {?annotationid dc:source ?databaseid} .
+
+?annotationid dc:source ?databaseid .
+?databaseid a ?sourcetype .
+?databaseid zoomaterms:shortName ?sourcename .
+
 OPTIONAL {?annotationid zoomaterms:hasEvidence ?evidence} .
 OPTIONAL {?annotationid oac:annotator ?annotator} .
 OPTIONAL {?annotationid oac:annotated ?annotated} .
@@ -23,13 +31,40 @@ OPTIONAL {?annotationid oac:generator ?generator} .
 OPTIONAL {?annotationid oac:generated ?generated} .
 }
 
-^[ANNOTATIONS_BIOENTITY.read]
-SELECT DISTINCT ?annotationid ?bioentityid ?study ?databaseid ?evidence ?propertyvalueid ?propertyname ?propertyvalue ?semantictag ?annotator ?annotated ?generator ?generated WHERE {
+^[ANNOTATIONS_STUDY.read]
+SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) (?study as ?_study) ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
 ?annotationid rdf:type oac:DataAnnotation .
 ?annotationid oac:hasBody ?propertyvalueid .
 ?propertyvalueid zoomaterms:propertyName ?propertyname .
 ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
-?propertyvalueid rdf:type zoomaterms:PropertyValue .
+?propertyvalueid rdf:type zoomaterms:Property .
+
+?bioentityid dc:isPartOf ?study .
+?annotationid oac:hasTarget ?bioentityid .
+OPTIONAL {
+    ?annotationid oac:hasBody ?semantictag .
+    ?semantictag rdf:type oac:SemanticTag
+}
+
+?annotationid dc:source ?databaseid .
+?databaseid a ?sourcetype .
+?databaseid zoomaterms:shortName ?sourcename .
+
+OPTIONAL {?annotationid zoomaterms:hasEvidence ?evidence}
+OPTIONAL {?annotationid oac:annotator ?annotator}
+OPTIONAL {?annotationid oac:annotated ?annotated}
+OPTIONAL {?annotationid oac:generator ?generator}
+OPTIONAL {?annotationid oac:generated ?generated}
+}
+
+
+^[ANNOTATIONS_BIOENTITY.read]
+SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) (?study as ?_study) ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype  ?sourcename WHERE {
+?annotationid rdf:type oac:DataAnnotation .
+?annotationid oac:hasBody ?propertyvalueid .
+?propertyvalueid zoomaterms:propertyName ?propertyname .
+?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
+?propertyvalueid rdf:type zoomaterms:Property .
 
 ?annotationid oac:hasTarget ?bioentityid .
 OPTIONAL {?bioentityid dc:isPartOf ?study} .
@@ -37,7 +72,9 @@ OPTIONAL {
     ?annotationid oac:hasBody ?semantictag .
     ?semantictag rdf:type oac:SemanticTag
 } .
-OPTIONAL {?annotationid dc:source ?databaseid} .
+?annotationid dc:source ?databaseid .
+?databaseid a ?sourcetype .
+?databaseid zoomaterms:shortName ?sourcename .
 OPTIONAL {?annotationid zoomaterms:hasEvidence ?evidence} .
 OPTIONAL {?annotationid oac:annotator ?annotator} .
 OPTIONAL {?annotationid oac:annotated ?annotated} .
@@ -56,16 +93,14 @@ SELECT ?synonym WHERE {
 }
 
 ^[BiologicalEntity.read]
-SELECT DISTINCT ?bioentityid ?bioentitylabel ?study ?studylabel WHERE {
-?bioentityid rdf:type obo:IAO_0000027 .
-?annotationid oac:hasTarget ?bioentityid
-OPTIONAL {?bioentityid rdfs:label ?bioentitylabel} .
-OPTIONAL {
-    ?bioentityid dc:isPartOf ?study .
-    ?study rdf:type efo:EFO_0004033 .
-    ?study rdfs:label ?studylabel .
+SELECT DISTINCT (?bioentityid AS ?_bioentityid) ?bioentitylabel ?study ?studylabel ?sourceType WHERE {
+?bioentityid dc:isPartOf ?study .
+?bioentityid rdf:type zooma:Target .
+OPTIONAL {?study rdf:type ?sourceType }
+OPTIONAL {?bioentityid rdfs:label ?bioentitylabel }
+OPTIONAL { ?study rdfs:label ?studylabel}
 }
-}
+
 
 
 ^[Study.read]
@@ -82,6 +117,13 @@ SELECT DISTINCT ?propertyvalueid ?propertyname ?propertyvalue WHERE {
 ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
 }
 
+^[Property.readNoType]
+SELECT DISTINCT ?propertyvalueid ?propertyvalue WHERE {
+?propertyvalueid rdf:type zoomaterms:PropertyValue .
+?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
+FILTER NOT EXISTS { ?propertyvalueid zoomaterms:propertyName ?propertyname }
+}
+
 
 ^[Property.types]
 SELECT DISTINCT ?propertyname WHERE {
@@ -92,32 +134,27 @@ SELECT DISTINCT ?propertyname WHERE {
 
 ^[BiologicalEntity.bySemanticTag]
 SELECT DISTINCT ?bioentityid ?bioentitylabel ?study ?studylabel WHERE {
-?bioentityid rdf:type obo:IAO_0000027 .
-?annotationid oac:hasTarget ?bioentityid
-OPTIONAL {?bioentityid rdfs:label ?bioentitylabel} .
-OPTIONAL {
-    ?bioentityid dc:isPartOf ?study .
-    ?study rdf:type efo:EFO_0004033 .
-    ?study rdfs:label ?studylabel
-}
+?bioentityid dc:isPartOf ?study .
+?study rdf:type efo:EFO_0004033 .
+OPTIONAL {?bioentityid rdfs:label ?bioentitylabel }
+OPTIONAL { ?study rdfs:label ?studylabel}
 ?annotationid rdf:type oac:DataAnnotation .
-?annotationid oac:hasBody ?semantictag .
+?annotationid oac:hasTarget ?bioentityid .
+?annotationid oac:hasbody ?semantictag .
 ?semantictag rdf:type oac:SemanticTag
+
 }
 
 ^[BiologicalEntity.bySemanticTagInferred]
 SELECT DISTINCT ?bioentityid ?bioentitylabel ?study ?studylabel WHERE {
-?bioentityid rdf:type obo:IAO_0000027 .
-?annotationid oac:hasTarget ?bioentityid
-OPTIONAL {?bioentityid rdfs:label ?bioentitylabel} .
-OPTIONAL {
-    ?bioentityid dc:isPartOf ?study .
-    ?study rdf:type efo:EFO_0004033 .
-    ?study rdfs:label ?studylabel
-}
+?bioentityid dc:isPartOf ?study .
+?study rdf:type efo:EFO_0004033 .
+OPTIONAL {?bioentityid rdfs:label ?bioentitylabel }
+OPTIONAL { ?study rdfs:label ?studylabel}
 ?annotationid rdf:type oac:DataAnnotation .
-?annotationid oac:hasBody ?semantictag .
-?semantictag rdf:type oac:SemanticTag
+?annotationid oac:hasTarget ?bioentityid .
+?annotationid oac:hasBody ?semantictags .
+?semantictags rdf:type oac:SemanticTag .
 ?semantictags rdfs:subClassOf ?semantictag
 }
 
@@ -125,7 +162,7 @@ OPTIONAL {
 SELECT DISTINCT ?study ?studylabel WHERE {
 ?bioentityid dc:isPartOf ?study .
 OPTIONAL {?bioentityid rdfs:label ?bioentitylabel} .
-OPTIONAL {?study rdfs:label ?studylabel} .
+OPTIONAL { ?study rdfs:label ?studylabel} .
 ?study rdf:type efo:EFO_0004033 .
 ?annotationid rdf:type oac:DataAnnotation .
 ?annotationid oac:hasTarget ?bioentityid .
@@ -136,9 +173,9 @@ OPTIONAL {?study rdfs:label ?studylabel} .
 
 ^[Study.bySemanticTagInferred]
 SELECT DISTINCT ?bioentityid ?bioentitylabel ?study ?studylabel WHERE {
+?bioentityid rdfs:label ?bioentitylabel .
 ?bioentityid dc:isPartOf ?study .
-OPTIONAL {?bioentityid rdfs:label ?bioentitylabel} .
-OPTIONAL {?study rdfs:label ?studylabel} .
+OPTIONAL { ?study rdfs:label ?studylabel} .
 ?study rdf:type efo:EFO_0004033 .
 ?annotationid rdf:type oac:DataAnnotation .
 ?annotationid oac:hasTarget ?bioentityid .
@@ -146,3 +183,7 @@ OPTIONAL {?study rdfs:label ?studylabel} .
 ?semantictags rdf:type oac:SemanticTag .
 ?semantictags rdfs:subClassOf ?semantictag
 }
+
+
+
+

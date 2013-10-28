@@ -80,6 +80,7 @@ public class OWLAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         }
         owlLoader.setInitMethodName("init");
         owlLoader.addPropertyValue("ontologyURI", ontologyURI);
+        owlLoader.addPropertyValue("name", name);
         if (ontologyResource != null) {
             owlLoader.addPropertyValue("ontologyResource", ontologyResource);
         }
