@@ -14,15 +14,15 @@ import java.net.URI;
 public class AnnotationSourceRequest implements AnnotationSource {
     private static final long serialVersionUID = 3981174697979093334L;
 
-    private URI source;
+    private URI uri;
     private Type type;
 
     public URI getURI() {
-        return source;
+        return uri;
     }
 
-    public void setSource(URI source) {
-        this.source = source;
+    public void setURI(URI uri) {
+        this.uri = uri;
     }
 
     public Type getType() {
@@ -35,7 +35,7 @@ public class AnnotationSourceRequest implements AnnotationSource {
 
     @Override public String toString() {
         return "AnnotationSourceRequest{" +
-                "source=" + source +
+                "uri=" + uri +
                 ", type=" + type +
                 '}';
     }
