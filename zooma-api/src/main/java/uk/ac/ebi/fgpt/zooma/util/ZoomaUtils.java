@@ -105,12 +105,37 @@ public class ZoomaUtils {
      * <li>If the score for this summary is less than the value of cutoffPercentage the value of the top scoring one.
      * So, if you supply a cutoffPercentage of 0.95, only summaries with a score of 95% the value of the top hit will be
      * included.</li> </ol>
+     * <p/>
+     * This form does not take a minimum score - this is equivalent to calling {@link
+     * #filterAnnotationSummaries(java.util.Map, float, float)} with a cutoff score of 0.
      *
      * @param summaries        the set of summaries to filter
+     * @param cutoffPercentage the maximum distance away from the top score an annotation is allowed to be whilst not
+     *                         being filtered
+     * @return a filtered set of annotations, only including those that scored inside the confidence interval
+     */
+    public static Set<AnnotationSummary> filterAnnotationSummaries(Map<AnnotationSummary, Float> summaries,
+                                                                   float cutoffPercentage) {
+        return filterAnnotationSummaries(summaries, 0, cutoffPercentage);
+
+    }
+
+
+    /**
+     * Filter the supplied map of annotation summaries to their score, reducing them down to a set of summaries that
+     * exclude any unreasonable matches.  Summaries are excluded from the results with the following criteria: <ol>
+     * <li>If it duplicates a prior summary (meaning it produces a mapping to the same collection of semantic tags)</li>
+     * <li>If the score for this summary is less than the value of cutoffPercentage the value of the top scoring one.
+     * So, if you supply a cutoffPercentage of 0.95, only summaries with a score of 95% the value of the top hit will be
+     * included.</li> </ol>
+     *
+     * @param summaries        the set of summaries to filter
+     * @param cutoffScore      the minimum allowed score for an annotation to not be filtered
      * @param cutoffPercentage the maximum
      * @return a filtered set of annotations, only including those that scored inside the confidence interval
      */
     public static Set<AnnotationSummary> filterAnnotationSummaries(Map<AnnotationSummary, Float> summaries,
+                                                                   float cutoffScore,
                                                                    float cutoffPercentage) {
         Iterator<AnnotationSummary> summaryIterator = summaries.keySet().iterator();
 
@@ -151,8 +176,10 @@ public class ZoomaUtils {
         float topScore = Collections.max(summaries.values());
         for (AnnotationSummary as : referenceSummaries) {
             float score = summaries.get(as);
-            // if the score for this summary is within 5% of the top score, include
-            if (score > (topScore * cutoffPercentage)) {
+            // if the score for this summary is within 5% of the top score,
+            // AND if it is greater than the cutoff score
+            // include
+            if (score > (topScore * cutoffPercentage) && score >= cutoffScore) {
                 results.add(as);
             }
         }
