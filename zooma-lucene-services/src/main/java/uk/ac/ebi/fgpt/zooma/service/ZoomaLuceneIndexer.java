@@ -562,30 +562,12 @@ public class ZoomaLuceneIndexer extends Initializable {
         AnnotationProvenance prov = annotation.getProvenance();
         // evidence is most important factor, invert so ordinal 0 gets highest score
         int evidenceScore = AnnotationProvenance.Evidence.values().length - prov.getEvidence().ordinal();
-        // followed by source - ranked list?
-        int rank = getSourceRanking(prov.getSource().getURI());
         // creation time should then work backwards from most recent to oldest
         long age = prov.getGeneratedDate().getTime();
 
-        float score = (float) ((evidenceScore * Math.sqrt(rank)) + Math.log(age));
+        float score = (float) (evidenceScore + Math.log(age));
         getLog().trace("Evaluated score of annotation '" + annotation + "' as " + score);
         return score;
-    }
-
-    protected int getSourceRanking(URI source) {
-        // TODO - configurable source rankings, not hard coded?
-        if (source.toString().equals("http://www.ebi.ac.uk/fgpt/zooma")) {
-            return 3;
-        }
-        else if (source.toString().equals("http://www.ebi.ac.uk/gxa")) {
-            return 2;
-        }
-        else if (source.toString().equals("http://www.ebi.ac.uk/gwas")) {
-            return 2;
-        }
-        else {
-            return 1;
-        }
     }
 
     private Map<String, String[]> idKeyContentMap = Collections.synchronizedMap(new HashMap<String, String[]>());
