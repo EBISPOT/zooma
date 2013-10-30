@@ -124,7 +124,7 @@ public class TransitionalAttribute {
         if (oldString == null || oldString.equals("")) comment = (varName + " set to " + newString + ".");
 
             // otherwise if zoomification overwrites an existing annotation, phrase the comment accordingly
-        else if (!oldString.equals(newString)) comment = (varName + " " + this.type + " changed to " + type + ".");
+        else if (!oldString.equalsIgnoreCase(newString)) comment = (varName + " " + this.type + " changed to " + type + ".");
 
         getLog().debug(comment);
 

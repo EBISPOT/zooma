@@ -26,6 +26,7 @@ public class ZoomageSearchDriver {
     private static int _minStringLength;  // todo: move this to the zooma search rest client
     private static float _cutoffPercentage;
     private static String _magetabAccession;
+    private static boolean _olsShortIds;
     private static final String _excludedTypesResource = "zoomage-exclusions.properties";
 
 //    public static void old(String[] args) {
@@ -53,7 +54,7 @@ public class ZoomageSearchDriver {
             int statusCode = parseArguments(args);
             if (statusCode == 0) {
 
-                ZoomaRESTClient zoomaClient = new ZoomaRESTClient(_minStringLength, _cutoffPercentage, _cutoffScore, _excludedTypesResource);
+                ZoomaRESTClient zoomaClient = new ZoomaRESTClient(_minStringLength, _cutoffPercentage, _cutoffScore, _olsShortIds, _excludedTypesResource);
                 ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
                 zoomageParser.run(_magetabAccession, zoomaClient);
 
@@ -152,6 +153,11 @@ public class ZoomageSearchDriver {
             _cutoffPercentage = Float.parseFloat(defaults.getProperty("zoomage.cutoff.percentage"));
             System.out.println("Using default ZOOMA cutoff percentage, " + _cutoffPercentage);
         }
+
+        // whether to output ols short IDs instead of full URIs
+        if (cl.hasOption("o")) {
+            _olsShortIds = cl.getOptionValue("o").startsWith("t") || cl.getOptionValue("o").startsWith("y");
+        }
     }
 
     private static Options bindOptions() {
@@ -202,6 +208,16 @@ public class ZoomageSearchDriver {
         cutoffScoreOption.setRequired(false);
         options.addOption(cutoffScoreOption);
 
+        //use ols short IDs instead of URIs
+        Option olsShortIDs = new Option(
+                "o",
+                "olsShortIds",
+                true,
+                "true or false: use OLS short IDs instead of full URIs.");
+        cutoffScoreOption.setArgName("string");
+        cutoffScoreOption.setRequired(false);
+        options.addOption(olsShortIDs);
+
         return options;
     }
 
@@ -209,6 +225,7 @@ public class ZoomageSearchDriver {
     private float cutoffPercentage;
     private int minStringLength;
     private HashSet excludedProperties;
+    private boolean olsShortIds;
     private String magetabAccession;
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -218,18 +235,19 @@ public class ZoomageSearchDriver {
     }
 
     //Alternative constructor for instantiating programmatically instead of through the command line
-    public ZoomageSearchDriver(float cutoffScore, float cutoffPercentage, int minStringLength, HashSet excludedProperties) {
+    public ZoomageSearchDriver(float cutoffScore, float cutoffPercentage, int minStringLength, boolean olsShortIds, HashSet excludedProperties) {
         this.cutoffScore = cutoffScore;
         this.cutoffPercentage = cutoffPercentage;
         this.minStringLength = minStringLength;
         this.excludedProperties = excludedProperties;
+        this.olsShortIds = olsShortIds;
         getLog().info("Zoomage Driver created, ready to execute search.");
     }
 
     public void executeSearch() {
         try {
 
-            ZoomaRESTClient zoomaClient = new ZoomaRESTClient(minStringLength, cutoffPercentage, cutoffScore, excludedProperties);
+            ZoomaRESTClient zoomaClient = new ZoomaRESTClient(minStringLength, cutoffPercentage, cutoffScore, olsShortIds, excludedProperties);
             ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
             zoomageParser.run(magetabAccession, zoomaClient);
 

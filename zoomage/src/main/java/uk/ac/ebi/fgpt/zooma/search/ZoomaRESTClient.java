@@ -14,33 +14,34 @@ import java.net.URL;
 import java.util.*;
 
 /**
- * Created with IntelliJ IDEA.
- * User: jmcmurry
- * Date: 05/04/2013
- * Time: 20:57
- * To change this template use File | Settings | File Templates.
+ * Class to access Zooma and parse resulting annotations
  */
 public class ZoomaRESTClient {
 
     private final HashSet inelegibleProperties;
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    private int minInputLength;
-    private float cutoffPercentage;
-    private float cutoffScore;
+    private int minInputLength;       // minimum length of a string to match for annotations
+    private float cutoffPercentage;   // cutoff percentage (eg. .8 keeps only the top 20%)
+    private float cutoffScore;        // minimum score to accept as a zooma hit
+    private boolean olsShortIds;     // yes if output should include term ids in their (OLS-compatible) short form rather than full URI
     private static HashMap<String, AnnotationSummary> resultsCache = new HashMap<String, AnnotationSummary>();
 
-    public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, String excludedPropertiesResource) {
+    public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, boolean  olsShortIds, String excludedPropertiesResource) {
         this.minInputLength = minInputLength;
         this.cutoffPercentage = cutoffPercentage;
         this.cutoffScore = cutoffScore;
+        this.olsShortIds = olsShortIds;
+
         inelegibleProperties = parseIneligibleProperties(excludedPropertiesResource);
     }
 
-    public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, HashSet excludedProperties) {
+    public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, boolean  olsShortIds, HashSet excludedProperties) {
         this.minInputLength = minInputLength;
         this.cutoffPercentage = cutoffPercentage;
         this.cutoffScore = cutoffScore;
+        this.olsShortIds = olsShortIds;
+//
         inelegibleProperties = excludedProperties;
     }
 
@@ -50,7 +51,7 @@ public class ZoomaRESTClient {
 
     /**
      * Zooma supports the edge case in which there is a compound term with corresponding (compound) accessions.
-     * //todo: tony example here
+     * eg: heart and lung
      * Ultimately, the MAGETAB parser should support this edge case too, but until it does, this method
      * will concatenate the URIs into a single string.
      *
@@ -78,8 +79,13 @@ public class ZoomaRESTClient {
         if (semanticTags.size() == 1) {
             String uri = String.valueOf(iterator.next());
             int delimiterIndex = Math.max(uri.lastIndexOf("/"), uri.lastIndexOf("#")) + 1;
-            refAndAccession.add(uri.substring(0, delimiterIndex - 1));
-            refAndAccession.add(uri.substring(delimiterIndex));
+
+            String namespace =  uri.substring(0, delimiterIndex - 1);   //todo: check this!!!
+            refAndAccession.add(namespace);
+
+            String olsShortId = uri.substring(delimiterIndex).replace("_",":");
+            refAndAccession.add(olsShortId);
+
             return refAndAccession;
         }
 
@@ -149,15 +155,15 @@ public class ZoomaRESTClient {
             // filter results based on cutoffpercentage specified by the user
             if (resultMap.size() != 0) {
                 getLog().info("Filtering " + resultMap.size() + " Zooma result(s)");
-                Set<AnnotationSummary> filteredResultSet = ZoomaUtils.filterAnnotationSummaries(resultMap, cutoffPercentage, cutoffScore);
+                Set<AnnotationSummary> filteredResultSet = ZoomaUtils.filterAnnotationSummaries(resultMap,cutoffScore, cutoffPercentage );
                 // from among filtered results, get the best one and return it
                 return getBestMatch(input, filteredResultSet);
             }
 
         } catch (MalformedURLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();  //todo
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();  //todo
         }
 
         // if there are no results from the query, still store this info in the resultsCache for expediency
@@ -235,6 +241,7 @@ public class ZoomaRESTClient {
         // return updated (zoomified) attribute
         return attribute;  //todo: Tony...bad form to return same object that was passed in?
     }
+
     private HashSet parseIneligibleProperties(String excludedPropertiesResource) {
         HashSet excludedTypes = new HashSet<>();
 
