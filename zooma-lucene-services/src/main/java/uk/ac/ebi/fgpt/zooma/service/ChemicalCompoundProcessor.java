@@ -1,15 +1,13 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
+import org.springframework.core.io.Resource;
+import uk.ac.ebi.fgpt.zooma.util.AbstractDictionaryLoadingProcessor;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,15 +17,14 @@ import java.util.regex.Pattern;
  * @author Jose Iglesias
  * @date 16/08/13
  */
+public class ChemicalCompoundProcessor extends AbstractDictionaryLoadingProcessor {
+    // units dictionary contains all subclasses of "concentration unit" (UO_0000051).
+    public ChemicalCompoundProcessor(String dictionaryResourceName) {
+        super(dictionaryResourceName);
+    }
 
-public class SearchStringProcessor_Compounds implements SearchStringProcessor {
-    // units contains all subclasses of "concentration unit" (UO_0000051).
-    private ArrayList<String> units;
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    protected Logger getLog() {
-        return log;
+    public ChemicalCompoundProcessor(Resource dictionaryResource) {
+        super(dictionaryResource);
     }
 
     @Override
@@ -42,7 +39,8 @@ public class SearchStringProcessor_Compounds implements SearchStringProcessor {
     public boolean canProcess(String searchString, String searchStringType) {
         if (searchStringType != null && !searchStringType.isEmpty()) {
             searchStringType = searchStringType.toLowerCase();
-            if (searchStringType.contentEquals("compound") || searchStringType.contentEquals("compounds") ||
+            if (searchStringType.contentEquals("compound") ||
+                    searchStringType.contentEquals("compounds") ||
                     searchStringType.contentEquals("growth condition") ||
                     searchStringType.contentEquals("growth_condition")) {
                 return true;
@@ -86,7 +84,7 @@ public class SearchStringProcessor_Compounds implements SearchStringProcessor {
 
         // remove any units at the end of this string
         boolean removed_unit = false;
-        for (String unit : getUnits()) {
+        for (String unit : getDictionary()) {
             if (processedString.contains(" " + unit + " ") ||
                     processedString.startsWith(unit + " ") ||
                     processedString.endsWith(" " + unit)) {
@@ -100,7 +98,7 @@ public class SearchStringProcessor_Compounds implements SearchStringProcessor {
         if (!removed_unit) {
             ArrayList<String> substrings = extractSubstrings(processedString);
             for (String substring : substrings) {
-                if (approximateMatching_Unit(substring, getUnits())) {
+                if (levenshteinMatches(substring, getDictionary())) {
                     processedString = processedString.replaceAll(substring, " ");
                     break;
                 }
@@ -149,7 +147,7 @@ public class SearchStringProcessor_Compounds implements SearchStringProcessor {
      * Check if substring matches approximately to any concentration unit The method uses LevenshteinDistance. Only 1
      * edition/change between strings is permissible to consider that there is an approximate matching.
      */
-    private boolean approximateMatching_Unit(String substring, ArrayList<String> units) {
+    private boolean levenshteinMatches(String substring, Set<String> units) {
         for (String unit : units) {
             if (unit.length() > 2) {  //Exclude abbreviations/acronyms units
                 if (StringUtils.getLevenshteinDistance(substring, unit, 1) != -1) {
@@ -158,43 +156,5 @@ public class SearchStringProcessor_Compounds implements SearchStringProcessor {
             }
         }
         return false;
-    }
-
-    /**
-     * Initializes "units" from a file containing all subclasses of "concentration unit" (UO_0000051).
-     *
-     * @throws IOException
-     */
-    public void init() throws IOException {
-        units = new ArrayList<>();
-        InputStream bufferFile = this.getClass().getClassLoader().getResourceAsStream(
-                "concentration_unit_dictionary.txt");
-
-        if (bufferFile != null) {
-            String stringFile = inputStream_To_String(bufferFile, 4000);
-            if (stringFile != null && !stringFile.isEmpty()) {
-                String[] lines = stringFile.split("\n");
-                for (String line : lines) {
-                    String[] fields = line.split("\t");
-                    if (fields.length > 2) {
-                        units.add(fields[0]);
-                    }
-                }
-            }
-        }
-        getLog().info("Loaded units dictionary: obtained " + units.size() + " entries");
-    }
-
-    private String inputStream_To_String(InputStream is, int tam) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        byte[] buffer = new byte[tam];
-        while (is.read(buffer, 0, tam) != -1) {
-            sb.append(new String(buffer));
-        }
-        return sb.toString();
-    }
-
-    public ArrayList<String> getUnits() {
-        return units;
     }
 }

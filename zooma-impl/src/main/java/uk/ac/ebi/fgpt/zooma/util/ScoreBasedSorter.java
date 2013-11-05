@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A basic implementation of a sorter that only modidies the order of the supplied collection when a map of scores is
+ * A basic implementation of a sorter that only modifies the order of the supplied collection when a map of scores is
  * supplied.  If a list is supplied, the order is unmodified, and if a collection is supplied the contents are
- * transferred into a list in interation order.  However, if a map is supplied the contents are sorted by score.
+ * transferred into a list in iteration order.  However, if a map is supplied the contents are sorted by score.
  *
  * @author Tony Burdett
  * @date 08/06/12

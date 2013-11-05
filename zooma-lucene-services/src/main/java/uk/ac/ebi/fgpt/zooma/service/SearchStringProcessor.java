@@ -1,7 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
 import org.apache.commons.lang3.StringUtils;
-import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +13,7 @@ import java.util.List;
  * @author Jose Iglesias
  * @date 12/8/13
  */
-public class SearchStringProcessor_Splitter implements SearchStringProcessor {
+public class SearchStringProcessor implements uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor {
     @Override
     public float getBoostFactor() {
         return 0.7f;

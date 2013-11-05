@@ -46,24 +46,24 @@
     </bean>
 
     <bean id="splittingAnnotationSummarySearchService"
-          class="uk.ac.ebi.fgpt.zooma.service.SplittingAnnotationSummarySearchService">
+          class="uk.ac.ebi.fgpt.zooma.service.PostProcessingAnnotationSummarySearchService">
         <constructor-arg ref="needlemanLuceneSearchService" />
         <property name="SearchStringProcessor_Splitter" ref="stringProcessor_Splitter" />
     </bean>
 
-    <bean id="stringProcessorBrackets" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Brackets" />
+    <bean id="stringProcessorBrackets" class="uk.ac.ebi.fgpt.zooma.service.ParenthesesProcessor" />
 
-    <bean id="stringProcessorTime" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Time" />
+    <bean id="stringProcessorTime" class="uk.ac.ebi.fgpt.zooma.service.TimeProcessor" />
 
     <bean id="stringProcessorCompound"
-          class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Compounds"
+          class="uk.ac.ebi.fgpt.zooma.service.ChemicalCompoundProcessor"
           init-method="init" />
 
     <bean id="stringProcessorOrganismPart"
-          class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_OrganismPart"
+          class="uk.ac.ebi.fgpt.zooma.service.AnatomyProcessor"
           init-method="init" />
 
-    <bean id="stringProcessor_Splitter" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Splitter" />
+    <bean id="stringProcessor_Splitter" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor" />
 
     <bean id="normalizer" class="uk.ac.ebi.fgpt.zooma.service.NormalizerLexicalTechniques" init-method="init" />
 

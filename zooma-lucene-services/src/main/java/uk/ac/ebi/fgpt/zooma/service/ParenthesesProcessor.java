@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  * @author Jose Iglesias
  * @date 16/08/13
  */
-public class SearchStringProcessor_Brackets implements SearchStringProcessor {
+public class ParenthesesProcessor implements SearchStringProcessor {
     @Override
     public float getBoostFactor() {
         return 0.95f;
