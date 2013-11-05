@@ -47,7 +47,14 @@
         <property name="annotationIndex" ref="annotationIndex" />
     </bean>
 
-    <bean id="annotationSummarySearchService" class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummarySearchService">
+    <!--
+    NOTE:
+    Because we use decorated annotation summary search services,
+    autowiring requires a name to be used by convention.
+    Use id='annotationSummarySearchService' to denote the search service to autowire
+    -->
+
+    <bean id="baseAnnotationSummarySearchService" class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummarySearchService">
         <property name="analyzer" ref="analyzer" />
         <property name="index" ref="annotationSummaryIndex" />
         <property name="annotationIndex" ref="annotationIndex" />
@@ -59,6 +66,23 @@
                 <ref bean="stringProcessorOrganismPart" />
             </list>
         </property>
+    </bean>
+
+    <!-- wraps any annotationSummarySearchService with Needleman/Jaccard decorator -->
+    <bean id="needlemanJaccardSearchService"
+          class="uk.ac.ebi.fgpt.zooma.service.NeedlemanJaccardAnnotationSummarySearchService"
+          init-method="init">
+        <constructor-arg ref="baseAnnotationSummarySearchService" />
+        <property name="propertyDAO" ref="propertyDAO" />
+        <property name="normalizer" ref="normalizer" />
+        <property name="filter" ref="filter" />
+    </bean>
+
+    <!-- wraps any annotationSummarySearchService with string splitting decorator -->
+    <bean id="annotationSummarySearchService"
+          class="uk.ac.ebi.fgpt.zooma.service.SplittingAnnotationSummarySearchService">
+        <constructor-arg ref="needlemanJaccardSearchService" />
+        <property name="searchStringProcessor_Splitter" ref="stringProcessor_Splitter" />
     </bean>
 
     <bean id="biologicalEntityService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedBiologicalEntityService">
@@ -81,21 +105,6 @@
         <property name="propertyDAO" ref="propertyDAO" />
         <property name="annotationDAO" ref="annotationDAO" />
         <property name="propertiesMapAdapter" ref="propertiesMapAdapter" />
-    </bean>
-
-    <bean id="needlemanJaccardSearchService"
-          class="uk.ac.ebi.fgpt.zooma.service.NeedlemanJaccardAnnotationSummarySearchService"
-          init-method="init">
-        <constructor-arg ref="annotationSummarySearchService" />
-        <property name="propertyDAO" ref="propertyDAO" />
-        <property name="normalizer" ref="normalizer" />
-        <property name="filter" ref="filter" />
-    </bean>
-
-    <bean id="splittingSearchService"
-          class="uk.ac.ebi.fgpt.zooma.service.SplittingAnnotationSummarySearchService">
-        <constructor-arg ref="needlemanJaccardSearchService" />
-        <property name="SearchStringProcessor_Splitter" ref="stringProcessor_Splitter" />
     </bean>
 
     <bean id="propertySearchService" class="uk.ac.ebi.fgpt.zooma.service.LucenePropertySearchService">

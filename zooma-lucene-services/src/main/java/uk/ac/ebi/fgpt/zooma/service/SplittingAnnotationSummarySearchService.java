@@ -13,15 +13,14 @@ import java.util.Map;
 
 
 public class SplittingAnnotationSummarySearchService extends AnnotationSummarySearchServiceDecorator {
-
-    SearchStringProcessor_Splitter SearchStringProcessor_Splitter;
+    private SearchStringProcessor_Splitter searchStringProcessor_Splitter;
 
     public uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Splitter getSearchStringProcessor_Splitter() {
-        return SearchStringProcessor_Splitter;
+        return searchStringProcessor_Splitter;
     }
 
-    public void setSearchStringProcessor_Splitter(uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Splitter SearchStringProcessor_Splitter) {
-        this.SearchStringProcessor_Splitter = SearchStringProcessor_Splitter;
+    public void setSearchStringProcessor_Splitter(SearchStringProcessor_Splitter searchStringProcessor_Splitter) {
+        this.searchStringProcessor_Splitter = searchStringProcessor_Splitter;
     }
 
     public SplittingAnnotationSummarySearchService(AnnotationSummarySearchService annotationSummarySearchService) {
