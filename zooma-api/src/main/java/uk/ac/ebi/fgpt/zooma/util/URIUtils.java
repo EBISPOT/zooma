@@ -25,6 +25,7 @@ import java.util.Properties;
  * them.
  *
  * @author Tony Burdett
+ * @author Simon Jupp
  * @date 30/05/12
  */
 public class URIUtils {
@@ -281,12 +282,15 @@ public class URIUtils {
 
             String[] tokens = shortform.split(":");
             String prefix = tokens[0];
-            String localName = tokens[1];
+            String localName ="";
+            if (tokens.length > 1) {
+                localName = tokens[1];
+            }
 
             synchronized (prefixMappings) {
                 if (prefixMappings.containsKey(prefix)) {
                     String namespace = prefixMappings.get(prefix);
-                    if (!namespace.endsWith("/") && !namespace.endsWith("#")) {
+                    if (!namespace.endsWith("/") && !namespace.endsWith("#") && !"".equals(localName)) {
                         // no separator at end of namespace - could be / or # or something else, so just have to guess
                         namespace = namespace + "/";
                     }

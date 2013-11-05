@@ -28,9 +28,15 @@ public class OmiaAnnotationFactory extends AbstractAnnotationFactory {
         return provenance;
     }
 
+    @Override
+    protected AnnotationProvenance getAnnotationProvenance(String annotator, AnnotationProvenance.Accuracy accuracy, Date annotationDate) {
+        return null; // todo
+    }
+
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
         return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.OMIA.getURI(), "omia"),
                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                              AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                                               "ZOOMA",
                                               new Date(),
                                               annotator,

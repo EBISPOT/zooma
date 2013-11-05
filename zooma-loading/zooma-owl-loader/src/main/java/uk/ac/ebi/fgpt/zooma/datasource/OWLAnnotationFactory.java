@@ -34,9 +34,15 @@ public class OWLAnnotationFactory extends AbstractAnnotationFactory {
         return provenance;
     }
 
+    @Override
+    protected AnnotationProvenance getAnnotationProvenance(String annotator, AnnotationProvenance.Accuracy accuracy, Date annotationDate) {
+        return null; // todo
+    }
+
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
         return new SimpleAnnotationProvenance(new SimpleOntologyAnnotationSource(namespace, name),
                                               AnnotationProvenance.Evidence.COMPUTED_FROM_ONTOLOGY,
+                                              AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                                               namespace.toString(),
                                               new Date(),
                                               annotator,

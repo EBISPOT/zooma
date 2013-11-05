@@ -1,11 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
-    <bean id="jenaHttpExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaHttpExecutorService">
-        <property name="endpointURL" value="${lode.sparqlendpoint.url}" />
+
+    <context:annotation-config/>
+
+    <bean id="lodeSparqlService" class="uk.ac.ebi.fgpt.lode.impl.JenaSparqlService">
+        <property name="maxQueryLimit" value="${lode.sparql.query.maxlimit}" />
+        <property name="queryExecutionService" ref="jenaVirtuosoExecutorService" />
     </bean>
+
+    <bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoExecutorService">
+    </bean>
+
+    <bean id="virtuosoDataSourceProvider" class="uk.ac.ebi.fgpt.lode.impl.VirtuosoDatasourceProvider">
+        <constructor-arg name="endpointUrl" value="${lode.sparqlendpoint.url}"/>
+        <constructor-arg name="port" value="${lode.sparqlendpoint.port}"/>
+    </bean>
+
+    <!--<bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoConnectionPoolService">-->
+        <!--<constructor-arg ref="virtuosoDataSourceProvider"/>-->
+    <!--</bean>-->
 
     <bean name="explorerConfig" class="uk.ac.ebi.fgpt.lode.impl.DefaultExplorerViewConfigImpl" />
 
@@ -13,20 +32,21 @@
         <property name="sparqlQueryResource" value="classpath:sparql-queries.txt" />
     </bean>
 
-    <bean id="jenaSparqlService" class="uk.ac.ebi.fgpt.lode.impl.JenaSparqlService">
-        <property name="maxQueryLimit" value="${lode.sparql.query.maxlimit}" />
-        <property name="queryExecutionService" ref="jenaHttpExecutorService" />
-    </bean>
 
     <bean id="jenaExploreService" class="uk.ac.ebi.fgpt.lode.impl.JenaExploreService">
-        <property name="sampleLimit" value="${lode.sparql.query.maxlimit}" />
-        <property name="queryExecutionService" ref="jenaHttpExecutorService" />
+        <property name="sampleLimit" value="${lode.explorer.max.objects}" />
+        <property name="queryExecutionService" ref="jenaVirtuosoExecutorService" />
         <property name="queryReader" ref="queryReader" />
     </bean>
 
     <bean id="sparqlServlet" class="uk.ac.ebi.fgpt.lode.servlet.SparqlServlet">
-        <property name="sparqlService" ref="jenaSparqlService" />
+        <property name="sparqlService" ref="lodeSparqlService" />
     </bean>
 
+    <bean id="serviceServlet" class="uk.ac.ebi.fgpt.lode.servlet.ExplorerServlet">
+        <property name="sparqlService" ref="lodeSparqlService"/>
+        <property name="configuration" ref="explorerConfig"/>
+        <property name="service" ref="jenaExploreService"/>
+    </bean>
 
 </beans>

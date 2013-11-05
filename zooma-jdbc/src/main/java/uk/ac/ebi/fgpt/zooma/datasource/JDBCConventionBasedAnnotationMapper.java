@@ -46,6 +46,7 @@ import java.util.Map;
  * Optional fields may be excluded from the result set, but all others are required, even if values are null.
  *
  * @author Tony Burdett
+ * @author Simon Jupp
  * @date 26/09/12
  */
 public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation> {
@@ -97,6 +98,7 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         URI studyURI;
         URI bioentityURI;
         URI propertyURI;
+        URI studyType = null;
 
         // optional ID attributes with null initializers
         String annotationID;
@@ -178,6 +180,10 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         else {
             studyURI = null;
         }
+        uriStr = extractColumnValue(resultSet, "STUDY_TYPE");
+        if (uriStr != null) {
+            studyType = URI.create(uriStr);
+        }
         uriStr = extractColumnValue(resultSet, "BIOENTITY_URI");
         if (uriStr != null) {
             bioentityURI = URI.create(uriStr);
@@ -227,6 +233,7 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
                                                        studyAcc,
                                                        studyURI,
                                                        studyID,
+                                                       studyType,
                                                        bioentityName,
                                                        bioentityURI,
                                                        bioentityID,

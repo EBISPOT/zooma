@@ -39,6 +39,12 @@
     <!--<bean name="annotationResolver" class="uk.ac.ebi.fgpt.zooma.io.ContextBasedAnnotationResolver" />-->
 
     <bean name="annotationSerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIAnnotationSerializer" />
+    <bean id="bioentitySerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIBiologicalEntitySerializer">
+    </bean>
+    <bean id="propertySerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIPropertySerializer">
+    </bean>
+    <bean id="studySerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIStudySerializer">
+    </bean>
 
     <bean name="annotationStorer" class="uk.ac.ebi.fgpt.zooma.io.UnimplementedZoomaStorer" />
 

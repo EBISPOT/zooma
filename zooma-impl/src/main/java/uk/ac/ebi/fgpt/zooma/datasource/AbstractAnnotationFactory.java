@@ -21,6 +21,7 @@ import java.util.HashSet;
  * strings.  Each factory instance should be configured with an AnnotationLoadingSession
  *
  * @author Tony Burdett
+ * @author Simon Jupp
  * @date 01/10/12
  */
 public abstract class AbstractAnnotationFactory implements AnnotationFactory {
@@ -47,6 +48,7 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
                                                  String studyAccession,
                                                  URI studyURI,
                                                  String studyID,
+                                                 URI studyType,
                                                  String bioentityName,
                                                  URI bioentityURI,
                                                  String bioentityID,
@@ -64,7 +66,12 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
 
         Study s;
         if (studyURI != null) {
-            s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession, studyURI);
+            if (studyType !=null) {
+                s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession, studyURI, Collections.<URI>singleton(studyType));
+            }
+            else {
+                s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession, studyURI);
+            }
         }
         else {
             if (studyID != null) {
@@ -206,6 +213,8 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
     protected abstract AnnotationProvenance getAnnotationProvenance();
 
     protected abstract AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate);
+
+    protected abstract AnnotationProvenance getAnnotationProvenance(String annotator, AnnotationProvenance.Accuracy accuracy, Date annotationDate);
 
     private Thread t;
 

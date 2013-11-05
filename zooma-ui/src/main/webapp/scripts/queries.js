@@ -41,7 +41,7 @@ var exampleQueries = [
             "?propertyvalueid zoomaterms:propertyName ?propertyname ;\n" +
             "\t\t zoomaterms:propertyValue ?propertyvalue .\n\n" +
             "?annotationid oac:hasTarget ?assay .\n" +
-            "?assay dc:isPartOf aeexperiment:E-GEOD-13763 .\n" +
+            "?assay dc:isPartOf <http://rdf.ebi.ac.uk/resources/zooma/arrayexpress/E-GEOD-13763> .\n" +
             "?assay dc:isPartOf ?study .\n\n" +
             "OPTIONAL {?annotationid dc:source ?databaseid} .   \n" +
             "OPTIONAL {?annotationid zoomaterms:hasEvidence ?evidence} . \n" +
@@ -49,7 +49,7 @@ var exampleQueries = [
     },
     {
         shortname : "Query 4",
-        description: "Get all experiments where the samples is some brain part and the disease is a nervouse system disease",
+        description: "Get all experiments where the samples is some brain part and the disease is a nervous system disease",
         query: "SELECT DISTINCT ?study ?assayName ?brainTermLabel ?diseaseTermLabel WHERE {\n\n" +
 
         "?assay dc:isPartOf ?study .\n" +

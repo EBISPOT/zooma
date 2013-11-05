@@ -67,7 +67,9 @@ For optimal performance, use a custom Modernizr build: www.modernizr.com/downloa
     namespaces : lodeNamespacePrefixes,
     example_queries: exampleQueries,
     default_query: 'SELECT DISTINCT ?annotation WHERE {\n?annotation a oac:DataAnnotation \n}',
-    logging: false});"  class="level2"><!-- add any of your classes or IDs -->
+    servlet_base : 'v2/api',
+    logging: false,
+    inference: false});"  class="level2"><!-- add any of your classes or IDs -->
 <div id="skip-to">
     <ul>
         <li><a href="#content">Skip to main content</a></li>
@@ -224,6 +226,9 @@ For optimal performance, use a custom Modernizr build: www.modernizr.com/downloa
 <script type="text/javascript" src="scripts/queries.js"></script>
 <script type="text/javascript" src="scripts/lode.js"></script>
 <script type="text/javascript" src="scripts/thickbox.js"></script>
+<script type="text/javascript" src="codemirror/codemirror.js"></script>
+<link rel="stylesheet" href="codemirror/codemirror.css">
+<script type="text/javascript" src="codemirror/sparql.js"></script>
 <!-- end scripts-->
 
 <!-- Google Analytics details... -->

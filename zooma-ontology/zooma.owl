@@ -1,0 +1,879 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY prov "http://www.w3.org/ns/prov#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY obo "http://purl.obolibrary.org/obo/" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
+    <!ENTITY zooma "http://rdf.ebi.ac.uk/terms/zooma/" >
+    <!ENTITY ns "http://www.openannotation.org/ns/" >
+    <!ENTITY zooma2 "http://www.ebi.ac.uk/terms/zooma/" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY oboInOwl "http://www.geneontology.org/formats/oboInOwl#" >
+]>
+
+
+<rdf:RDF xmlns="http://rdf.ebi.ac.uk/terms/zooma#"
+     xml:base="http://rdf.ebi.ac.uk/terms/zooma"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:prov="http://www.w3.org/ns/prov#"
+     xmlns:ns="http://www.openannotation.org/ns/"
+     xmlns:zooma="http://rdf.ebi.ac.uk/terms/zooma/"
+     xmlns:obo="http://purl.obolibrary.org/obo/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:zooma2="http://www.ebi.ac.uk/terms/zooma/"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:oboInOwl="http://www.geneontology.org/formats/oboInOwl#">
+    <owl:Ontology rdf:about="http://rdf.ebi.ac.uk/terms/zooma"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:AnnotationProperty rdf:about="&oboInOwl;creation_date"/>
+    <owl:AnnotationProperty rdf:about="&oboInOwl;hasExactSynonym"/>
+    <owl:AnnotationProperty rdf:about="&oboInOwl;created_by"/>
+    <owl:AnnotationProperty rdf:about="&oboInOwl;hasRelatedSynonym"/>
+    <rdf:Description rdf:about="&obo;IAO_0000115">
+        <rdfs:label>definition</rdfs:label>
+    </rdf:Description>
+    <owl:AnnotationProperty rdf:about="&oboInOwl;hasDbXref"/>
+    <owl:AnnotationProperty rdf:about="&oboInOwl;hasAlternativeId"/>
+    <owl:AnnotationProperty rdf:about="&oboInOwl;hasOBONamespace"/>
+    <owl:AnnotationProperty rdf:about="&oboInOwl;id"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Datatypes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_9000000 -->
+
+    <owl:ObjectProperty rdf:about="&obo;ECO_9000000">
+        <rdfs:domain rdf:resource="&obo;ECO_0000000"/>
+        <rdfs:range rdf:resource="&obo;ECO_0000217"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/dc/elements/1.1/isPartOf -->
+
+    <owl:ObjectProperty rdf:about="&dc;isPartOf">
+        <rdfs:label>isPartOf</rdfs:label>
+        <obo:IAO_0000115>A related resource in which the described resource is physically or logically included.</obo:IAO_0000115>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/dc/elements/1.1/source -->
+
+    <owl:ObjectProperty rdf:about="&dc;source"/>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/accuracy -->
+
+    <owl:ObjectProperty rdf:about="&zooma;accuracy">
+        <rdfs:label xml:lang="en">accuracy</rdfs:label>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+        <obo:IAO_0000115>A measure of the accuracy of an annotation</obo:IAO_0000115>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/hadEvidence -->
+
+    <owl:ObjectProperty rdf:about="&zooma;hadEvidence">
+        <rdfs:label xml:lang="en">evidence</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openannotation.org/ns/annotator -->
+
+    <owl:ObjectProperty rdf:about="&ns;annotator">
+        <rdfs:label xml:lang="en">annotatedBy</rdfs:label>
+        <rdfs:comment xml:lang="en">The object of the relationship is a resource that identifies the agent responsible for creating the Annotation. This may be either a human or software agent. 
+
+There SHOULD be exactly 1 oa:annotatedBy relationship per Annotation, but MAY be 0 or more than 1, as the Annotation may be anonymous, or multiple agents may have worked together on it.
+
+It is RECOMMENDED to use these and other FOAF terms to describe agents: foaf:Person, prov:SoftwareAgent, foaf:Organization, foaf:name, foaf:mbox, foaf:openid, foaf:homepage</rdfs:comment>
+        <rdfs:domain rdf:resource="&ns;DataAnnotation"/>
+        <rdfs:isDefinedBy rdf:resource="http://www.w3.org/ns/oa#"/>
+        <rdfs:subPropertyOf rdf:resource="&prov;wasAttributedTo"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openannotation.org/ns/generator -->
+
+    <owl:ObjectProperty rdf:about="&ns;generator"/>
+    
+
+
+    <!-- http://www.openannotation.org/ns/hasBody -->
+
+    <owl:ObjectProperty rdf:about="&ns;hasBody">
+        <rdfs:label xml:lang="en">hasBody</rdfs:label>
+        <rdfs:comment xml:lang="en">The relationship between oa:Annotation and body. The body is somehow &quot;about&quot; the oa:hasTarget of the annotation.
+
+The Body may be of any media type, and contain any type of content. The Body SHOULD be identified by HTTP URIs unless they are embedded within the Annotation.
+
+Embedded bodies SHOULD be instances of cnt:ContentAsText and embed their content with cnt:chars. They SHOULD declare their media type with dc:format, and MAY indicate their language using dc:language and a RFC-3066 language tag. 
+
+There is no OA class provided for &quot;Body&quot; as a body might be a target of a different annotation. However, there SHOULD be 1 or more content-based classes associated with the body resources of an Annotation, and the dctypes: vocabulary is recommended for this purpose, for instance dctypes:Text to declare textual content.
+</rdfs:comment>
+        <rdfs:domain rdf:resource="&ns;DataAnnotation"/>
+        <rdfs:isDefinedBy rdf:resource="http://www.w3.org/ns/oa#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openannotation.org/ns/hasScope -->
+
+    <owl:ObjectProperty rdf:about="&ns;hasScope">
+        <rdfs:label xml:lang="en">hasScope</rdfs:label>
+        <rdfs:comment xml:lang="en">The relationship between a Specific Resource and the resource that provides the scope or context for it in this Annotation.
+
+There MAY be 0 or more hasScope relationships for each Specific Resource.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.w3.org/ns/oa#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openannotation.org/ns/hasSource -->
+
+    <owl:ObjectProperty rdf:about="&ns;hasSource">
+        <rdfs:label xml:lang="en">hasSource</rdfs:label>
+        <rdfs:comment xml:lang="en">The relationship between a oa:SpecificResource and the resource that it is a more specific representation of. 
+
+There MUST be exactly 1 oa:hasSource relationship associated with a Specific Resource.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.w3.org/ns/oa#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openannotation.org/ns/hasTarget -->
+
+    <owl:ObjectProperty rdf:about="&ns;hasTarget">
+        <rdfs:label xml:lang="en">hasTarget</rdfs:label>
+        <rdfs:comment xml:lang="en">The relationship between oa:Annotation and target. The target resource is what the oa:hasBody is somewhat &quot;about&quot;.
+
+The target may be of any media type, and contain any type of content. The target SHOULD be identified by HTTP URIs unless they are embedded within the Annotation.
+
+Embedded targets SHOULD be instances of cnt:ContentAsText and embed their content with cnt:chars. They SHOULD declare their media type with dc:format, and MAY indicate their language using dc:language and a RFC-3066 language tag. 
+
+There is no OA class provided for &quot;Target&quot; as a target might be a body in a different annotation. However, there SHOULD be 1 or more content-based classes associated with the target resources of an Annotation, and the dctypes: vocabulary is recommended for this purpose, for instance dctypes:Text to declare textual content.</rdfs:comment>
+        <rdfs:domain rdf:resource="&ns;DataAnnotation"/>
+        <rdfs:isDefinedBy rdf:resource="http://www.w3.org/ns/oa#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openannotation.org/ns/motivatedBy -->
+
+    <owl:ObjectProperty rdf:about="&ns;motivatedBy">
+        <rdfs:label xml:lang="en">motivatedBy</rdfs:label>
+        <rdfs:comment xml:lang="en">The relationship between an Annotation and a Motivation, indicating the reasons why the Annotation was created.
+
+Each Annotation SHOULD have at least one oa:motivatedBy relationship, and MAY be more than 1.</rdfs:comment>
+        <rdfs:domain rdf:resource="&ns;DataAnnotation"/>
+        <rdfs:isDefinedBy rdf:resource="http://www.w3.org/ns/oa#"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.w3.org/ns/prov#wasAttributedTo -->
+
+    <owl:ObjectProperty rdf:about="&prov;wasAttributedTo"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/propertyName -->
+
+    <owl:DatatypeProperty rdf:about="&zooma;propertyName">
+        <rdfs:label xml:lang="en">propertyName</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/propertyValue -->
+
+    <owl:DatatypeProperty rdf:about="&zooma;propertyValue"/>
+    
+
+
+    <!-- http://www.openannotation.org/ns/annotated -->
+
+    <owl:DatatypeProperty rdf:about="&ns;annotated">
+        <rdfs:label xml:lang="en">annotatedAt</rdfs:label>
+        <rdfs:comment xml:lang="en">The time at which the Annotation was created. 
+
+There SHOULD be exactly 1 oa:annotatedAt property per Annotation, and MUST NOT be more than 1. The datetime MUST be expressed in the xsd:dateTime format, and SHOULD have a timezone specified.</rdfs:comment>
+        <rdfs:domain rdf:resource="&ns;DataAnnotation"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+        <rdfs:isDefinedBy rdf:resource="http://www.w3.org/ns/oa#"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.openannotation.org/ns/generated -->
+
+    <owl:DatatypeProperty rdf:about="&ns;generated">
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_0000000 -->
+
+    <owl:Class rdf:about="&obo;ECO_0000000">
+        <rdfs:label rdf:datatype="&xsd;string">evidence</rdfs:label>
+        <owl:disjointWith rdf:resource="&obo;ECO_0000217"/>
+        <obo:IAO_0000115 rdf:datatype="&xsd;string">A type of information that is used to support an assertion.</obo:IAO_0000115>
+        <oboInOwl:id rdf:datatype="&xsd;string">ECO:0000000</oboInOwl:id>
+        <oboInOwl:hasOBONamespace rdf:datatype="&xsd;string">eco</oboInOwl:hasOBONamespace>
+        <oboInOwl:hasRelatedSynonym rdf:datatype="&xsd;string">evidence code</oboInOwl:hasRelatedSynonym>
+        <oboInOwl:hasRelatedSynonym rdf:datatype="&xsd;string">evidence_code</oboInOwl:hasRelatedSynonym>
+    </owl:Class>
+    <owl:Axiom>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">A type of information that is used to support an assertion.</owl:annotatedTarget>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000000"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_0000203 -->
+
+    <owl:Class rdf:about="&obo;ECO_0000203">
+        <rdfs:label rdf:datatype="&xsd;string">automatic assertion</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000217"/>
+        <oboInOwl:creation_date rdf:datatype="&xsd;string">2010-03-18T12:36:04Z</oboInOwl:creation_date>
+        <obo:IAO_0000115 rdf:datatype="&xsd;string">An assertion method that does not involve human review.</obo:IAO_0000115>
+        <rdfs:comment rdf:datatype="&xsd;string">An automatic assertion is based on computationally generated information that is not reviewed by a person prior to making the assertion. For example, one common type of automatic assertion involves creating an association of evidence with an entity based on commonness of attributes of that entity and another entity for which an assertion already exists. The commonness is determined algorithmically.</rdfs:comment>
+        <oboInOwl:hasAlternativeId rdf:datatype="&xsd;string">ECO:00000067</oboInOwl:hasAlternativeId>
+        <oboInOwl:id rdf:datatype="&xsd;string">ECO:0000203</oboInOwl:id>
+        <oboInOwl:hasOBONamespace rdf:datatype="&xsd;string">eco</oboInOwl:hasOBONamespace>
+        <oboInOwl:created_by rdf:datatype="&xsd;string">mchibucos</oboInOwl:created_by>
+    </owl:Class>
+    <owl:Axiom>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">An assertion method that does not involve human review.</owl:annotatedTarget>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000203"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_0000205 -->
+
+    <owl:Class rdf:about="&obo;ECO_0000205">
+        <rdfs:label rdf:datatype="&xsd;string">curator inference</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000000"/>
+        <oboInOwl:creation_date rdf:datatype="&xsd;string">2010-08-18T05:55:12Z</oboInOwl:creation_date>
+        <obo:IAO_0000115 rdf:datatype="&xsd;string">An evidence type that is based on conclusions drawn by a curator.</obo:IAO_0000115>
+        <oboInOwl:id rdf:datatype="&xsd;string">ECO:0000205</oboInOwl:id>
+        <oboInOwl:hasOBONamespace rdf:datatype="&xsd;string">eco</oboInOwl:hasOBONamespace>
+        <oboInOwl:created_by rdf:datatype="&xsd;string">mchibucos</oboInOwl:created_by>
+    </owl:Class>
+    <owl:Axiom>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">An evidence type that is based on conclusions drawn by a curator.</owl:annotatedTarget>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000205"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_0000217 -->
+
+    <owl:Class rdf:about="&obo;ECO_0000217">
+        <rdfs:label rdf:datatype="&xsd;string">assertion method</rdfs:label>
+        <oboInOwl:creation_date rdf:datatype="&xsd;string">2010-11-12T04:17:37Z</oboInOwl:creation_date>
+        <obo:IAO_0000115 rdf:datatype="&xsd;string">A means by which a statement is made about an entity.</obo:IAO_0000115>
+        <oboInOwl:id rdf:datatype="&xsd;string">ECO:0000217</oboInOwl:id>
+        <oboInOwl:hasOBONamespace rdf:datatype="&xsd;string">eco</oboInOwl:hasOBONamespace>
+        <oboInOwl:created_by rdf:datatype="&xsd;string">mchibucos</oboInOwl:created_by>
+    </owl:Class>
+    <owl:Axiom>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">A means by which a statement is made about an entity.</owl:annotatedTarget>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000217"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_0000218 -->
+
+    <owl:Class rdf:about="&obo;ECO_0000218">
+        <rdfs:label rdf:datatype="&xsd;string">manual assertion</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000217"/>
+        <oboInOwl:creation_date rdf:datatype="&xsd;string">2010-11-12T04:20:02Z</oboInOwl:creation_date>
+        <rdfs:comment rdf:datatype="&xsd;string">A manual assertion could be based on evidence that is generated by and interpreted by a human or it could involve human review of computationally generated information.</rdfs:comment>
+        <obo:IAO_0000115 rdf:datatype="&xsd;string">An assertion method that involves human review.</obo:IAO_0000115>
+        <oboInOwl:id rdf:datatype="&xsd;string">ECO:0000218</oboInOwl:id>
+        <oboInOwl:hasOBONamespace rdf:datatype="&xsd;string">eco</oboInOwl:hasOBONamespace>
+        <oboInOwl:created_by rdf:datatype="&xsd;string">mchibucos</oboInOwl:created_by>
+    </owl:Class>
+    <owl:Axiom>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">An assertion method that involves human review.</owl:annotatedTarget>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000218"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_0000305 -->
+
+    <owl:Class rdf:about="&obo;ECO_0000305">
+        <rdfs:label rdf:datatype="&xsd;string">curator inference used in manual assertion</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&obo;ECO_0000205"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&obo;ECO_9000000"/>
+                        <owl:someValuesFrom rdf:resource="&obo;ECO_0000218"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000205"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&obo;ECO_9000000"/>
+                <owl:someValuesFrom rdf:resource="&obo;ECO_0000218"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <oboInOwl:creation_date rdf:datatype="&xsd;string">2011-01-20T02:33:32Z</oboInOwl:creation_date>
+        <obo:IAO_0000115 rdf:datatype="&xsd;string">A type of curator inference that is used in a manual assertion.</obo:IAO_0000115>
+        <oboInOwl:id rdf:datatype="&xsd;string">ECO:0000305</oboInOwl:id>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">GOECO:IC</oboInOwl:hasDbXref>
+        <oboInOwl:hasOBONamespace rdf:datatype="&xsd;string">eco</oboInOwl:hasOBONamespace>
+        <oboInOwl:created_by rdf:datatype="&xsd;string">mchibucos</oboInOwl:created_by>
+    </owl:Class>
+    <owl:Axiom>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">A type of curator inference that is used in a manual assertion.</owl:annotatedTarget>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000305"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    <owl:Axiom>
+        <rdfs:label rdf:datatype="&xsd;string">inferred by curator</rdfs:label>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">GOECO:IC</owl:annotatedTarget>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000305"/>
+        <owl:annotatedProperty rdf:resource="&oboInOwl;hasDbXref"/>
+    </owl:Axiom>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_0000306 -->
+
+    <owl:Class rdf:about="&obo;ECO_0000306">
+        <rdfs:label rdf:datatype="&xsd;string">inference from background scientific knowledge used in manual assertion</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000305"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&obo;ECO_9000000"/>
+                <owl:someValuesFrom rdf:resource="&obo;ECO_0000218"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <oboInOwl:creation_date rdf:datatype="&xsd;string">2011-01-20T02:35:11Z</oboInOwl:creation_date>
+        <obo:IAO_0000115 rdf:datatype="&xsd;string">A type of inference from background scientific knowledge that is used in a manual assertion.</obo:IAO_0000115>
+        <oboInOwl:id rdf:datatype="&xsd;string">ECO:0000306</oboInOwl:id>
+        <oboInOwl:hasOBONamespace rdf:datatype="&xsd;string">eco</oboInOwl:hasOBONamespace>
+        <oboInOwl:created_by rdf:datatype="&xsd;string">mchibucos</oboInOwl:created_by>
+    </owl:Class>
+    <owl:Axiom>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">A type of inference from background scientific knowledge that is used in a manual assertion.</owl:annotatedTarget>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000306"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_0000313 -->
+
+    <owl:Class rdf:about="&obo;ECO_0000313">
+        <rdfs:label rdf:datatype="&xsd;string">imported information used in automatic assertion</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000501"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&obo;ECO_9000000"/>
+                <owl:someValuesFrom rdf:resource="&obo;ECO_0000203"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <oboInOwl:creation_date rdf:datatype="&xsd;string">2011-03-02T05:33:43Z</oboInOwl:creation_date>
+        <obo:IAO_0000115 rdf:datatype="&xsd;string">A type of imported information that is used in an automatic assertion.</obo:IAO_0000115>
+        <oboInOwl:id rdf:datatype="&xsd;string">ECO:0000313</oboInOwl:id>
+        <oboInOwl:hasOBONamespace rdf:datatype="&xsd;string">eco</oboInOwl:hasOBONamespace>
+        <oboInOwl:created_by rdf:datatype="&xsd;string">mchibucos</oboInOwl:created_by>
+    </owl:Class>
+    <owl:Axiom>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">A type of imported information that is used in an automatic assertion.</owl:annotatedTarget>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000313"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_0000322 -->
+
+    <owl:Class rdf:about="&obo;ECO_0000322">
+        <rdfs:label rdf:datatype="&xsd;string">imported manually asserted information used in automatic assertion</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000313"/>
+        <oboInOwl:creation_date rdf:datatype="&xsd;string">2011-12-13T12:04:48Z</oboInOwl:creation_date>
+        <oboInOwl:id rdf:datatype="&xsd;string">ECO:0000322</oboInOwl:id>
+        <obo:IAO_0000115 rdf:datatype="&xsd;string">Evidence that was initially used in manual assertion by one person or group, which is imported by a second person or group and used in automatic assertion.</obo:IAO_0000115>
+        <oboInOwl:hasOBONamespace rdf:datatype="&xsd;string">eco</oboInOwl:hasOBONamespace>
+        <oboInOwl:created_by rdf:datatype="&xsd;string">mchibucos</oboInOwl:created_by>
+    </owl:Class>
+    <owl:Axiom>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">Evidence that was initially used in manual assertion by one person or group, which is imported by a second person or group and used in automatic assertion.</owl:annotatedTarget>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000322"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_0000323 -->
+
+    <owl:Class rdf:about="&obo;ECO_0000323">
+        <rdfs:label rdf:datatype="&xsd;string">imported automatically asserted information used in automatic assertion</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000313"/>
+        <oboInOwl:creation_date rdf:datatype="&xsd;string">2011-12-13T02:06:25Z</oboInOwl:creation_date>
+        <oboInOwl:id rdf:datatype="&xsd;string">ECO:0000323</oboInOwl:id>
+        <obo:IAO_0000115 rdf:datatype="&xsd;string">Evidence that was initially used in automatic assertion by one person or group, which is imported by a second person or group and used in automatic assertion.</obo:IAO_0000115>
+        <oboInOwl:hasOBONamespace rdf:datatype="&xsd;string">eco</oboInOwl:hasOBONamespace>
+        <oboInOwl:created_by rdf:datatype="&xsd;string">mchibucos</oboInOwl:created_by>
+    </owl:Class>
+    <owl:Axiom>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">Evidence that was initially used in automatic assertion by one person or group, which is imported by a second person or group and used in automatic assertion.</owl:annotatedTarget>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000323"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/ECO_0000501 -->
+
+    <owl:Class rdf:about="&obo;ECO_0000501">
+        <rdfs:label rdf:datatype="&xsd;string">evidence used in automatic assertion</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&obo;ECO_0000000"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&obo;ECO_9000000"/>
+                        <owl:someValuesFrom rdf:resource="&obo;ECO_0000203"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000000"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&obo;ECO_9000000"/>
+                <owl:someValuesFrom rdf:resource="&obo;ECO_0000203"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <obo:IAO_0000115 rdf:datatype="&xsd;string">A type of evidence that is used in an automatic assertion.</obo:IAO_0000115>
+        <oboInOwl:id rdf:datatype="&xsd;string">ECO:0000501</oboInOwl:id>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">GOECO:IEA</oboInOwl:hasDbXref>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">GO_REF:0000004</oboInOwl:hasDbXref>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">GO_REF:0000023</oboInOwl:hasDbXref>
+        <oboInOwl:hasExactSynonym rdf:datatype="&xsd;string">IEA</oboInOwl:hasExactSynonym>
+        <oboInOwl:created_by rdf:datatype="&xsd;string">cjm</oboInOwl:created_by>
+        <oboInOwl:hasOBONamespace rdf:datatype="&xsd;string">eco</oboInOwl:hasOBONamespace>
+        <oboInOwl:hasExactSynonym rdf:datatype="&xsd;string">inferred from electronic annotation</oboInOwl:hasExactSynonym>
+    </owl:Class>
+    <owl:Axiom>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">GOECO:IEA</oboInOwl:hasDbXref>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">IEA</owl:annotatedTarget>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
+        <owl:annotatedProperty rdf:resource="&oboInOwl;hasExactSynonym"/>
+    </owl:Axiom>
+    <owl:Axiom>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">A type of evidence that is used in an automatic assertion.</owl:annotatedTarget>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:cjm</oboInOwl:hasDbXref>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    <owl:Axiom>
+        <rdfs:label rdf:datatype="&xsd;string">Gene Ontology annotation based on Swiss-Prot Subcellular Location vocabulary mapping.</rdfs:label>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">GO_REF:0000023</owl:annotatedTarget>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
+        <owl:annotatedProperty rdf:resource="&oboInOwl;hasDbXref"/>
+    </owl:Axiom>
+    <owl:Axiom>
+        <rdfs:label rdf:datatype="&xsd;string">Gene Ontology annotation based on Swiss-Prot keyword mapping.</rdfs:label>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">GO_REF:0000004</owl:annotatedTarget>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
+        <owl:annotatedProperty rdf:resource="&oboInOwl;hasDbXref"/>
+    </owl:Axiom>
+    <owl:Axiom>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">GOECO:IEA</oboInOwl:hasDbXref>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">inferred from electronic annotation</owl:annotatedTarget>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
+        <owl:annotatedProperty rdf:resource="&oboInOwl;hasExactSynonym"/>
+    </owl:Axiom>
+    <owl:Axiom>
+        <rdfs:label rdf:datatype="&xsd;string">inferred from electronic annotation</rdfs:label>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">GOECO:IEA</owl:annotatedTarget>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
+        <owl:annotatedProperty rdf:resource="&oboInOwl;hasDbXref"/>
+    </owl:Axiom>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/IAO_0000027 -->
+
+    <owl:Class rdf:about="&obo;IAO_0000027">
+        <rdfs:label xml:lang="en">data item</rdfs:label>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+        <rdfs:comment>a data item is an information content entity that is intended to be a truthful statement about something (modulo, e.g., measurement precision or other systematic errors) and is constructed/acquired by a method which reliably tends to produce (approximately) truthful statements.</rdfs:comment>
+        <obo:IAO_0000115>Any type of data referenced by Zooma</obo:IAO_0000115>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/DatabaseEntrySource -->
+
+    <owl:Class rdf:about="&zooma;DatabaseEntrySource">
+        <rdfs:label>database entry source</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&zooma;Source"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dc;isPartOf"/>
+                <owl:someValuesFrom rdf:resource="&zooma;DatabaseEntrySource"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <obo:IAO_0000115>any entry from a database source that has a part that can be annotated</obo:IAO_0000115>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/DatabaseSource -->
+
+    <owl:Class rdf:about="&zooma;DatabaseSource">
+        <rdfs:label>database source</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&zooma;Source"/>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+        <obo:IAO_0000115>A source of annotation from a database</obo:IAO_0000115>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/OntologySource -->
+
+    <owl:Class rdf:about="&zooma;OntologySource">
+        <rdfs:label>ontology source</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&zooma;Source"/>
+        <obo:IAO_0000115>A source of annotation from a database</obo:IAO_0000115>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/Property -->
+
+    <owl:Class rdf:about="&zooma;Property">
+        <rdfs:label>property</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;IAO_0000027"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&zooma;propertyValue"/>
+                <owl:someValuesFrom rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&zooma;propertyName"/>
+                <owl:someValuesFrom rdf:resource="&xsd;string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment>An example of a property would be Homo Sapiens, that could have an optional property name of Organsim.</rdfs:comment>
+        <obo:IAO_0000115>A property in Zooma represents a free text value, referred to a a property value and an additional property name, which add some context. </obo:IAO_0000115>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/Source -->
+
+    <owl:Class rdf:about="&zooma;Source">
+        <rdfs:label>source</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;IAO_0000027"/>
+        <obo:IAO_0000115>A source represents some data source such as a named database or ontology</obo:IAO_0000115>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/Target -->
+
+    <owl:Class rdf:about="&zooma;Target">
+        <rdfs:label xml:lang="en">annotation target</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;IAO_0000027"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dc;isPartOf"/>
+                <owl:someValuesFrom rdf:resource="&zooma;Source"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+        <obo:IAO_0000115>The target of a Zooma annotation. This can be anything that we can reference with a URI. In Zooma typically represents some type of biological entiity such as a sample or assay from a database.</obo:IAO_0000115>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/ZOOMA_0000101 -->
+
+    <owl:Class rdf:about="&zooma;ZOOMA_0000101">
+        <rdfs:label>ZOOMA inferred from curated</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000322"/>
+        <obo:IAO_0000115>An annotation inferred by ZOOMA from previous curated entry. A type of Automatic curation</obo:IAO_0000115>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/ZOOMA_0000104 -->
+
+    <owl:Class rdf:about="&zooma;ZOOMA_0000104">
+        <rdfs:label>submitter inference</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000000"/>
+        <obo:IAO_0000115>An evidence code that states the existence of an annotation was provided by a submitter, usually within the scope of a single Study or Biological Entity.  This annotation has never subsequently been confirmed or  curated and may not represent a good annotation with respect to other available annotations.</obo:IAO_0000115>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/accuracy -->
+
+    <owl:Class rdf:about="&zooma;accuracy">
+        <rdfs:label xml:lang="en">accuracy</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;IAO_0000027"/>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+        <obo:IAO_0000115>A measure of the accuracy of an annotation</obo:IAO_0000115>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/broad -->
+
+    <owl:Class rdf:about="&zooma;broad">
+        <rdfs:label>broad</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&zooma;accuracy"/>
+        <obo:IAO_0000115>The Zooma annotation of ontology term to property value only boradly related suggeting that a more granular ontology term is needed</obo:IAO_0000115>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/imprecise -->
+
+    <owl:Class rdf:about="&zooma;imprecise">
+        <rdfs:label>imprecise</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&zooma;accuracy"/>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+        <obo:IAO_0000115>The Zooma annotation of ontology term to property value lacks precision</obo:IAO_0000115>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/partial -->
+
+    <owl:Class rdf:about="&zooma;partial">
+        <rdfs:label>partial</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&zooma;accuracy"/>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+        <obo:IAO_0000115>The Zooma annotation only holds for part of the property value being annotated by these ontology terms</obo:IAO_0000115>
+    </owl:Class>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/precise -->
+
+    <owl:Class rdf:about="&zooma;precise">
+        <rdfs:label>precise</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&zooma;accuracy"/>
+        <rdfs:isDefinedBy>zooma</rdfs:isDefinedBy>
+        <obo:IAO_0000115>The Zooma annotation of ontology term to property value is a good match</obo:IAO_0000115>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ebi.ac.uk/terms/zooma/ZOOMA_0000102 -->
+
+    <owl:Class rdf:about="&zooma2;ZOOMA_0000102">
+        <rdfs:label>ZOOMA inferred from ontology</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&obo;ECO_0000322"/>
+        <obo:IAO_0000115>An evidence code that states the existence of an annotation was computed based on information from an ontology. Use this when a property value exactly matches a class label or synonym from an ontology</obo:IAO_0000115>
+    </owl:Class>
+    
+
+
+    <!-- http://www.openannotation.org/ns/DataAnnotation -->
+
+    <owl:Class rdf:about="&ns;DataAnnotation">
+        <rdfs:label xml:lang="en">Annotation</rdfs:label>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&zooma;accuracy"/>
+                <owl:someValuesFrom rdf:resource="&zooma;accuracy"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&ns;annotator"/>
+                <owl:someValuesFrom rdf:resource="&owl;Thing"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&ns;hasBody"/>
+                <owl:someValuesFrom rdf:resource="&zooma;Property"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&zooma;hadEvidence"/>
+                <owl:someValuesFrom rdf:resource="&obo;ECO_0000000"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&ns;hasTarget"/>
+                <owl:someValuesFrom rdf:resource="&zooma;Target"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&dc;source"/>
+                <owl:someValuesFrom rdf:resource="&zooma;Source"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&ns;annotated"/>
+                <owl:someValuesFrom rdf:resource="&xsd;dateTime"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&ns;hasBody"/>
+                <owl:someValuesFrom rdf:resource="&ns;SemanticTag"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">Typically an Annotation has a single Body (oa:hasBody), which is the comment or other descriptive resource, and a single Target (oa:hasTarget) that the Body is somehow &quot;about&quot;. The Body provides the information which is annotating the Target. 
+
+This &quot;aboutness&quot; may be further clarified or extended to notions such as classifying or identifying with oa:motivatedBy.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.w3.org/ns/oa#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.openannotation.org/ns/SemanticTag -->
+
+    <owl:Class rdf:about="&ns;SemanticTag">
+        <rdfs:label xml:lang="en">SemanticTag</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&ns;Tag"/>
+        <rdfs:comment xml:lang="en">A class assigned to the Body when it is a semantic tagging resource; a URI that identifies a concept, rather than an embedded string, frequently a term from a controlled vocabulary.
+
+It is NOT RECOMMENDED to use the URI of a document as a Semantic Tag, as it might also be used as a regular Body in other Annotations which would inherit the oa:SemanticTag class assignment. Instead it is more appropriate to create a new URI and link it to the document, using the foaf:page predicate.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.w3.org/ns/oa#"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.openannotation.org/ns/Tag -->
+
+    <owl:Class rdf:about="&ns;Tag">
+        <rdfs:label xml:lang="en">Tag</rdfs:label>
+        <rdfs:comment xml:lang="en">A class assigned to the Body when it is a tag, such as a embedded text string with cnt:chars.
+
+Tags are typically keywords or labels, and used for organization, description or discovery of the resource being tagged. In the Semantic Web, URIs are used instead of strings to avoid the issue of polysemy where one word has multiple meanings, such usage MUST be indicated using the subclass oa:SemanticTag.
+
+Annotations that tag resources, either with text or semantic tags, SHOULD also have the oa:tagging motivation to make the reason for the Annotation more clear to applications, and MAY have other motivations as well.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.w3.org/ns/oa#"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotations
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description rdf:about="&zooma;hasEvidence">
+        <rdfs:label>hasEvidence</rdfs:label>
+        <obo:IAO_0000115>A relation between an annotation to some evidence that supports the annotation assertion.</obo:IAO_0000115>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.2.3.1824) http://owlapi.sourceforge.net -->
+

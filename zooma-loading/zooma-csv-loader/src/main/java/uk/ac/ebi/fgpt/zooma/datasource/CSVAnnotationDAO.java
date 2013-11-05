@@ -108,6 +108,7 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                 // optional URI attributes with null initializers
                 URI annotationURI = null;
                 URI studyURI = null;
+                URI studyType = null;
                 URI bioentityURI = null;
                 URI propertyURI = null;
 
@@ -195,6 +196,9 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                 if ((column = lookupColumn("STUDY_ID")) != -1) {
                     studyID = annotationElements[column];
                 }
+                if ((column = lookupColumn("STUDY_TYPE")) != -1) {
+                    studyType = URI.create(annotationElements[column]);
+                }
                 if ((column = lookupColumn("BIOENTITY_ID")) != -1) {
                     bioentityID = annotationElements[column];
                 }
@@ -221,6 +225,7 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                                                                         studyAcc,
                                                                         studyURI,
                                                                         studyID,
+                                                                        studyType,
                                                                         bioentityName,
                                                                         bioentityURI,
                                                                         bioentityID,
@@ -344,7 +349,10 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                                                "SEMANTIC_TAG",
                                                "ANNOTATION_URI",
                                                "STUDY_URI",
+                                               "STUDY_TYPE",
                                                "BIOENTITY_URI",
+                                               "BIOENTITY_TYPE_NAME",
+                                               "BIOENTITY_TYPE_URI",
                                                "PROPERTY_URI",
                                                "ANNOTATION_ID",
                                                "STUDY_ID",

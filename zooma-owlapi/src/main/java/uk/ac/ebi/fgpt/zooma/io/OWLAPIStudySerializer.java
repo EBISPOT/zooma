@@ -24,7 +24,7 @@ import java.net.URI;
  * @date 07/08/13
  */
 public class OWLAPIStudySerializer extends OWLAPIZoomaSerializer<Study> {
-    private final IRI studyClassIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "Source");
+    private final IRI studyClassIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "DatabaseEntrySource");
 
     public OWLAPIStudySerializer() {
         super();
@@ -46,20 +46,25 @@ public class OWLAPIStudySerializer extends OWLAPIZoomaSerializer<Study> {
         getLog().trace("Creating study owl individual");
         OWLNamedIndividual studyInstance = factory.getOWLNamedIndividual(studyIRI);
         getLog().trace("Created study owl individual type");
-        for (URI uri : study.getTypes()) {
-            OWLClass cls = factory.getOWLClass(IRI.create(uri));
-            manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(cls, studyInstance));
+
+        if (!study.getTypes().isEmpty()) {
+            for (URI uri : study.getTypes()) {
+                OWLClass cls = factory.getOWLClass(IRI.create(uri));
+                manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(cls, studyInstance));
+            }
         }
+
         manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(studyClass, studyInstance));
+
 
         // create a label
         if (study.getAccession() != null) {
             OWLAnnotationProperty labelProperty =
                     factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
             manager.addAxiom(ontology,
-                             factory.getOWLAnnotationAssertionAxiom(labelProperty,
-                                                                    studyInstance.getIRI(),
-                                                                    factory.getOWLLiteral(study.getAccession())));
+                    factory.getOWLAnnotationAssertionAxiom(labelProperty,
+                            studyInstance.getIRI(),
+                            factory.getOWLLiteral(study.getAccession())));
         }
 
         return studyInstance;

@@ -31,6 +31,7 @@ import java.util.*;
  * that enough information is supplied to prevent duplicates being inadvertently created.
  *
  * @author Tony Burdett
+ * @author Simon Jupp
  * @date 28/09/12
  */
 public abstract class AbstractAnnotationLoadingSession implements AnnotationLoadingSession {
@@ -39,7 +40,9 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
     private final Map<URI, Property> propertyCache;
     private final Map<URI, Annotation> annotationCache;
 
-    private final Collection<URI> defaultBiologicalEntityUris;
+    private final Collection<URI> defaultTargetTypeUris;
+
+    private final Collection<URI> defaultTargetSourceTypeUris;
 
     private final MessageDigest messageDigest;
 
@@ -50,17 +53,18 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
     }
 
     protected AbstractAnnotationLoadingSession() {
-        this(Collections.<URI>emptySet());
+        this(Collections.<URI>emptySet(), Collections.<URI>emptySet());
     }
 
-    protected  AbstractAnnotationLoadingSession(Collection<URI> defaultBiologicalEntityUris) {
+    protected  AbstractAnnotationLoadingSession(Collection<URI> defaultTargetUriTypes, Collection<URI> defaultTargetSourceUriTypes) {
         this.studyCache = Collections.synchronizedMap(new HashMap<URI, Study>());
         this.biologicalEntityCache = Collections.synchronizedMap(new HashMap<URI, BiologicalEntity>());
         this.propertyCache = Collections.synchronizedMap(new HashMap<URI, Property>());
         this.annotationCache = Collections.synchronizedMap(new HashMap<URI, Annotation>());
 
         this.messageDigest = ZoomaUtils.generateMessageDigest();
-        this.defaultBiologicalEntityUris = defaultBiologicalEntityUris;
+        this.defaultTargetTypeUris = defaultTargetUriTypes;
+        this.defaultTargetSourceTypeUris = defaultTargetSourceUriTypes;
 
     }
 
@@ -73,14 +77,22 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
     }
 
     @Override public Study getOrCreateStudy(String studyAccession, URI studyURI) {
+        return getOrCreateStudy(studyAccession, studyURI, getDefaultTargetSourceTypeUris());
+    }
+
+    @Override public Study getOrCreateStudy(String studyAccession, URI studyURI, Collection<URI> studyTypes) {
         if (!studyCache.containsKey(studyURI)) {
-            studyCache.put(studyURI, new SimpleStudy(studyURI, studyAccession));
+            studyCache.put(studyURI, new SimpleStudy(studyURI, studyAccession, studyTypes));
         }
         return studyCache.get(studyURI);
     }
 
-    public Collection<URI> getDefaultBiologicalEntityUris() {
-        return defaultBiologicalEntityUris;
+    public Collection<URI> getDefaultTargetTypeUris() {
+        return defaultTargetTypeUris;
+    }
+
+    public Collection<URI> getDefaultTargetSourceTypeUris() {
+        return defaultTargetSourceTypeUris;
     }
 
     @Override public synchronized BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
@@ -116,15 +128,16 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
                                                                   Collection<String> bioentityTypeName,
                                                                   Collection<URI> bioentityTypeURI,
                                                                   Study... studies) {
+
         if (!biologicalEntityCache.containsKey(bioentityURI)) {
             if (!bioentityTypeURI.isEmpty()) {
-                biologicalEntityCache.put(bioentityURI, new SimpleBiologicalEntity(bioentityURI, bioentityName, bioentityTypeURI, studies));
+                biologicalEntityCache.put(bioentityURI, new SimpleBiologicalEntity(bioentityURI, bioentityName, getDefaultTargetTypeUris(), studies));
             }
             else if (!bioentityTypeName.isEmpty()) {
                 biologicalEntityCache.put(bioentityURI, new SimpleBiologicalEntity(bioentityURI, bioentityName, mintBioentityURITypes(bioentityTypeName), studies));
             }
             else {
-                biologicalEntityCache.put(bioentityURI, new SimpleBiologicalEntity(bioentityURI, bioentityName, studies));
+                biologicalEntityCache.put(bioentityURI, new SimpleBiologicalEntity(bioentityURI, bioentityName, getDefaultTargetTypeUris(), studies));
             }
         }
         return biologicalEntityCache.get(bioentityURI);

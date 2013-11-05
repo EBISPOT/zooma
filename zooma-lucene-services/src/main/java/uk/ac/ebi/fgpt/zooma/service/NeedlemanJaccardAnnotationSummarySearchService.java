@@ -402,9 +402,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
       public void doInitialization() throws IOException {
         long time_start, time_end;
         time_start = System.currentTimeMillis();
-        
-        
-        
+
         // get all properties 
         Collection<Property> properties = getPropertyDAO().read();
         

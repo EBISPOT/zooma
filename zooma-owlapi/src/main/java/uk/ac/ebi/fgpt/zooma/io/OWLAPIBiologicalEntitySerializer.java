@@ -61,22 +61,26 @@ public class OWLAPIBiologicalEntitySerializer extends OWLAPIZoomaSerializer<Biol
         IRI beIRI = createIRI(biologicalEntity.getURI());
         getLog().trace("Creating bioentity owl individual");
         OWLNamedIndividual bioentityInstance = factory.getOWLNamedIndividual(beIRI);
-        getLog().trace("Created bioentity owl individual");
+
+        if (!biologicalEntity.getTypes().isEmpty()) {
+            for (URI uri : biologicalEntity.getTypes()) {
+                OWLClass beType = factory.getOWLClass(IRI.create(uri));
+                getLog().trace("Created bioentity owl individual of type " + beType.getIRI());
+                manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(beType, bioentityInstance));
+            }
+        }
+        getLog().trace("Created bioentity owl individual of type " + bioentityClass.getIRI());
         manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(bioentityClass, bioentityInstance));
 
-        for (URI uri : biologicalEntity.getTypes()) {
-            OWLClass beType = factory.getOWLClass(IRI.create(uri));
-            manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(beType, bioentityInstance));
-        }
 
         // create a label
         if (biologicalEntity.getName() != null) {
             OWLAnnotationProperty labelProperty =
                     factory.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
             manager.addAxiom(ontology,
-                             factory.getOWLAnnotationAssertionAxiom(labelProperty,
-                                                                    bioentityInstance.getIRI(),
-                                                                    factory.getOWLLiteral(biologicalEntity.getName())));
+                    factory.getOWLAnnotationAssertionAxiom(labelProperty,
+                            bioentityInstance.getIRI(),
+                            factory.getOWLLiteral(biologicalEntity.getName())));
         }
 
         for (Study study : biologicalEntity.getStudies()) {
@@ -99,8 +103,8 @@ public class OWLAPIBiologicalEntitySerializer extends OWLAPIZoomaSerializer<Biol
         OWLObjectProperty isPartOfProperty = factory.getOWLObjectProperty(isPartOfPropertyIRI);
 
         manager.addAxiom(ontology,
-                         factory.getOWLObjectPropertyAssertionAxiom(isPartOfProperty,
-                                                                    biologicalEntityIndividual,
-                                                                    studyIndividual));
+                factory.getOWLObjectPropertyAssertionAxiom(isPartOfProperty,
+                        biologicalEntityIndividual,
+                        studyIndividual));
     }
 }

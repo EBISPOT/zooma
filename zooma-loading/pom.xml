@@ -46,7 +46,6 @@
     <modules>
         <module>zooma-atlas-loader</module>
         <module>zooma-ae-loader</module>
-        <module>zooma-biosd-loader</module>
         <module>zooma-csv-loader</module>
         <module>zooma-gwas-loader</module>
         <module>zooma-owl-loader</module>

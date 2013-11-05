@@ -40,6 +40,17 @@ public class CSVAnnotationFactory extends AbstractAnnotationFactory {
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
         return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(namespace), name),
                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                              AnnotationProvenance.Accuracy.NOT_SPECIFIED,
+                                              generator,
+                                              new Date(),
+                                              annotator,
+                                              annotationDate);
+    }
+
+    @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, AnnotationProvenance.Accuracy accuracy, Date annotationDate) {
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(namespace), name),
+                                              AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                              accuracy,
                                               generator,
                                               new Date(),
                                               annotator,

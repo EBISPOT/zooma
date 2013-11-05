@@ -4,6 +4,7 @@ import uk.ac.ebi.fgpt.zooma.Namespaces;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * An annotation loading session that is capable of minting URIs specific to GWAS data
@@ -15,7 +16,7 @@ public class GwasLoadingSession extends AbstractAnnotationLoadingSession {
 
 
     protected GwasLoadingSession() {
-        super(Collections.singleton(URI.create("http://purl.obolibrary.org/obo/SO_0000694")));
+        super(Collections.singleton(URI.create("http://purl.obolibrary.org/obo/SO_0000694")), new HashSet<URI>());
     }
 
     @Override protected URI mintStudyURI(String studyAccession, String studyID) {

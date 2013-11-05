@@ -353,7 +353,7 @@ function renderResults(data) {
             }
             if (result[6] != "N/A") {
                 var href;
-                if (result[6] == "http://www.ebi.ac.uk/gxa/") {
+                if (result[6] == "http://www.ebi.ac.uk/gxa") {
                     href =
                             "http://www.ebi.ac.uk/gxa/qrs?gprop_0=&gnot_0=&gval_0=%28all+genes%29&fact_1=&fexp_1=UP_DOWN&fmex_1=&fval_1=" +
                                     encodeURIComponent(result[1]) +
@@ -362,7 +362,7 @@ function renderResults(data) {
                             "<img src='http://www.ebi.ac.uk/gxa/images/ExpressionAtlas_logo_web.png' " +
                             "alt='Expression Atlas' style='height: 22px;'/> Expression Atlas</a></td>";
                 }
-                else if (result[6] == "http://www.ebi.ac.uk/arrayexpress/") {
+                else if (result[6] == "http://www.ebi.ac.uk/arrayexpress") {
                     href = "http://www.ebi.ac.uk/arrayexpress/experiments/search.html?query=" +
                             encodeURIComponent(result[1]);
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
@@ -377,13 +377,13 @@ function renderResults(data) {
                             "<img src='http://www.ebi.ac.uk/sites/ebi.ac.uk/files/styles/thumbnail/public/resource/logo/EFO_logo_0.png' " +
                             "alt='EFO' style='height: 22px;'/> EFO</a></td>";
                 }
-                else if (result[6] == "http://www.genome.gov/gwastudies/") {
+                else if (result[6] == "http://www.genome.gov/gwastudies") {
                     href = "http://www.genome.gov/gwastudies/#searchForm";
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/nhgri.png' " +
                             "alt='GWAS' style='height: 22px;'/> GWAS</a></td>";
                 }
-                else if (result[6] == "http://omia.angis.org.au/") {
+                else if (result[6] == "http://omia.angis.org.au") {
                     href = result[5] + result[4];
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/omia.png' " +

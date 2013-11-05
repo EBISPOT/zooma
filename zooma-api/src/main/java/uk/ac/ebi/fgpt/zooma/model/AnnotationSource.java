@@ -43,26 +43,16 @@ public interface AnnotationSource extends Serializable {
      * The type that an annotation sources can take.
      */
     public enum Type {
-        DATABASE(Namespaces.ZOOMA_TERMS.getURI().toString() + "DatabaseSource"),
-        ONTOLOGY(Namespaces.ZOOMA_TERMS.getURI().toString() + "OntologySource");
+        DATABASE,
+        ONTOLOGY;
 
-        private URI uri;
-        Type (String uri) {
-            this.uri = URI.create(uri);
-        }
-
-        public static Type lookup (URI id) {
+        public static Type lookup (String id) {
             for (Type e : Type.values()) {
-                if (e.uri.equals(id)) {
+                if (e.name().equals(id)) {
                     return e;
                 }
             }
             return Type.DATABASE;
         }
-
-        public URI getUri() {
-            return uri;
-        }
-
     }
 }

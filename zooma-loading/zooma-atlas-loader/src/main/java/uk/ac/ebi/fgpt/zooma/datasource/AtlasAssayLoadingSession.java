@@ -15,7 +15,8 @@ import java.util.Collections;
 public class AtlasAssayLoadingSession extends AtlasLoadingSession {
 
     protected AtlasAssayLoadingSession( ) {
-        super( Collections.<URI>singleton(URI.create("http://purl.obolibrary.org/obo/OBI_0000070")));
+        super( Collections.<URI>singleton(URI.create("http://purl.obolibrary.org/obo/OBI_0000070")),
+                Collections.<URI>singleton(URI.create("http://www.ebi.ac.uk/efo/EFO_0004033")));
     }
 
     @Override protected URI mintBioentityURI(String bioentityID,

@@ -18,8 +18,8 @@ public abstract class AtlasLoadingSession extends AbstractAnnotationLoadingSessi
         super();
     }
 
-    protected AtlasLoadingSession(Collection<URI> defaultBiologicalEntityUris) {
-        super(defaultBiologicalEntityUris);
+    protected AtlasLoadingSession(Collection<URI> defaultBiologicalEntityUris, Collection<URI> defaultStudyEntityUris) {
+        super(defaultBiologicalEntityUris, defaultStudyEntityUris);
     }
 
     @Override protected URI mintStudyURI(String studyAccession, String studyID) {

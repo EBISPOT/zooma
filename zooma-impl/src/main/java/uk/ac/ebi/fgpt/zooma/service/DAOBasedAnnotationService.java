@@ -105,10 +105,12 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
         AnnotationSource zoomaSource =
                 new SimpleDatabaseAnnotationSource(URI.create("http://www.ebi.ac.uk/fgpt/zooma"), "zooma");
 
+        // todo specify annotator based on user
         AnnotationProvenance provenance =
                 new SimpleAnnotationProvenance(zoomaSource,
                                                AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                               "GENERATOR",
+                                               AnnotationProvenance.Accuracy.NOT_SPECIFIED,
+                                               "ZOOMA",
                                                new Date(),
                                                "ANNOTATOR",
                                                new Date());

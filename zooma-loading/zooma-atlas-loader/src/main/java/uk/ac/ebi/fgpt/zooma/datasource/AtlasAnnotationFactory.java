@@ -28,9 +28,15 @@ public class AtlasAnnotationFactory extends AbstractAnnotationFactory {
         return provenance;
     }
 
+    @Override
+    protected AnnotationProvenance getAnnotationProvenance(String annotator, AnnotationProvenance.Accuracy accuracy, Date annotationDate) {
+        return null; // todo
+    }
+
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
         return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GXA.getURI(), "gxa"),
                                               AnnotationProvenance.Evidence.ZOOMA_INFERRED_FROM_CURATED,
+                                              AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                                               "ZOOMA",
                                               new Date(),
                                               annotator,

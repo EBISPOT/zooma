@@ -18,8 +18,8 @@ public abstract class ArrayExpressLoadingSession extends AbstractAnnotationLoadi
         super();
     }
 
-    protected ArrayExpressLoadingSession(Collection<URI> defaultBiologicalEntityUris) {
-        super(defaultBiologicalEntityUris);
+    protected ArrayExpressLoadingSession(Collection<URI> defaultBiologicalEntityUris, Collection<URI> defaultStudyEntityUris) {
+        super(defaultBiologicalEntityUris, defaultStudyEntityUris);
     }
 
     @Override protected URI mintStudyURI(String studyAccession, String studyID) {

@@ -15,7 +15,7 @@ import java.util.Collections;
 public class ArrayExpressAssayLoadingSession extends ArrayExpressLoadingSession {
 
     protected ArrayExpressAssayLoadingSession( ) {
-        super( Collections.<URI>singleton(URI.create("http://purl.obolibrary.org/obo/OBI_0000070")));
+        super( Collections.<URI>singleton(URI.create("http://purl.obolibrary.org/obo/OBI_0000070")), Collections.<URI>singleton(URI.create("http://www.ebi.ac.uk/efo/EFO_0004033")));
     }
 
     @Override protected URI mintBioentityURI(String bioentityID,

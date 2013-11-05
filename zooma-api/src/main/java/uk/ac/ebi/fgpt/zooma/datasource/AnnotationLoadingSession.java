@@ -14,6 +14,7 @@ import java.util.Collection;
  * of previously encountered studies, biological entities, properties and provenances to avoid unnecessary duplication.
  *
  * @author Tony Burdett
+ * @author Simon Jupp
  * @date 28/09/12
  */
 public interface AnnotationLoadingSession {
@@ -22,6 +23,8 @@ public interface AnnotationLoadingSession {
     Study getOrCreateStudy(String studyAccession, String studyID);
 
     Study getOrCreateStudy(String studyAccession, URI studyURI);
+
+    Study getOrCreateStudy(String studyAccession, URI studyURI, Collection<URI> studyTypes);
 
     /**
      * A method to create a biological entity object based on the bioentity name, types and set of studies

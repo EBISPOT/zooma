@@ -172,7 +172,6 @@
     <modules>
         <module>zooma-api</module>
         <module>zooma-ui</module>
-        <module>zooma-sparql</module>
         <module>zooma-core</module>
         <module>zooma-impl</module>
         <module>zooma-owlapi</module>
@@ -181,6 +180,7 @@
         <module>zooma-reporting</module>
         <module>zooma-client</module>
         <module>zoomage</module>
+        <module>zooma-lodestar</module>
     </modules>
 
     <!-- Artifactory - ZOOMA dependencies -->
@@ -268,6 +268,11 @@
                 <version>${org.springframework.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
             <!-- Jackson, JSON object mapping -->
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
@@ -331,7 +336,14 @@
                 <!-- staging sparql endpoint (for loader resolving, indexing) -->
                 <staging.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</staging.sparql.endpoint>
                 <!-- ui sparql endpoint - URL is relative to zooma server -->
-                <ui.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</ui.sparql.endpoint>
+
+                <!-- virtuoso config -->
+                <virtuoso.server>rdf-hx-01.ebi.ac.uk</virtuoso.server>
+                <virtuoso.port>1113</virtuoso.port>
+                <ui.sparql.endpoint>jdbc:virtuoso://${virtuoso.server}:${virtuoso.port}</ui.sparql.endpoint>
+
+
+
             </properties>
 
             <modules>
@@ -379,13 +391,18 @@
                 <zooma.sparql.endpoint>http://localhost:8080/zooma/sparql/</zooma.sparql.endpoint>
 
                 <!-- sparql properties -->
+                <ui.sparql.endpoint>jdbc:virtuoso://localhost:1111</ui.sparql.endpoint>
+
                 <sparql.repository.name>zooma</sparql.repository.name>
                 <sparql.repository.version>2.2</sparql.repository.version>
                 <sparql.repository.id>${sparql.repository.name}${sparql.repository.version}</sparql.repository.id>
                 <!-- staging sparql endpoint (for loader resolving, indexing) -->
                 <staging.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</staging.sparql.endpoint>
                 <!-- ui sparql endpoint - URL is relative to zooma server -->
-                <ui.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</ui.sparql.endpoint>
+
+                <virtuoso.server>localhost</virtuoso.server>
+                <virtuoso.port>1111</virtuoso.port>
+                <ui.sparql.endpoint>jdbc:virtuoso://${virtuoso.server}:${virtuoso.port}</ui.sparql.endpoint>
             </properties>
 
             <modules>
