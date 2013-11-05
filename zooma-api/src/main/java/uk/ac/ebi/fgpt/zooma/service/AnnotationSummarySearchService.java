@@ -80,7 +80,6 @@ public interface AnnotationSummarySearchService {
      */
     Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern);
     
-
     /**
      * Retrieves a collection of annotation summaries that describe annotations about the given property value and
      * type.

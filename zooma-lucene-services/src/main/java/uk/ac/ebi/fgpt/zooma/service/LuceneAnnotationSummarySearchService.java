@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -51,7 +50,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             initOrWait();
 
             // build a property query
-            Query q = formulateProcessedQuery("property", propertyValuePattern,null);
+            Query q = formulateProcessedQuery("property", propertyValuePattern, null);
 
             // do the query
             return doQuery(q, getMapper());
@@ -69,7 +68,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             initOrWait();
 
             // build a property query
-            Query pq = formulateProcessedQuery("property", propertyValuePattern,propertyType);
+            Query pq = formulateProcessedQuery("property", propertyValuePattern, propertyType);
 
             // build a property type query
             Query ptq = formulateQueryConserveOrderIfMultiword("propertytype", propertyType);
@@ -173,15 +172,13 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         }
     }
 
-   
-    
-    
+
     @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern) {
         try {
             initOrWait();
 
             // build a property query
-            Query q = formulateProcessedQuery("property", propertyValuePattern,null);
+            Query q = formulateProcessedQuery("property", propertyValuePattern, null);
 
             // do the query
             getLog().debug("Calling doQueryAndScore... ");
@@ -194,14 +191,14 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             throw new SearchException("Failed to perform query - indexing process was interrupted", e);
         }
     }
-    
- 
+
+
     @Override public Map<AnnotationSummary, Float> searchAndScore_QueryExpansion(String propertyValuePattern) {
         try {
             initOrWait();
 
             // gets a collection of queries rather a boolean query with alternative terms
-            Collection<Query> queries = formulateProcessedQueries("property", propertyValuePattern,null);
+            Collection<Query> queries = formulateProcessedQueries("property", propertyValuePattern, null);
 
             // do the query
             getLog().debug("Calling doQueryAndScore_MaxScore... ");
@@ -214,14 +211,14 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             throw new SearchException("Failed to perform query - indexing process was interrupted", e);
         }
     }
-    
+
     //Original
     @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyType, String propertyValuePattern) {
         try {
             initOrWait();
 
             // build a property query
-            Query pq = formulateProcessedQuery("property", propertyValuePattern,propertyType);
+            Query pq = formulateProcessedQuery("property", propertyValuePattern, propertyType);
 
             // build a property type query
             Query ptq = formulateQueryConserveOrderIfMultiword("propertytype", propertyType);
@@ -232,7 +229,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // now combine pq (i.e. untyped) with q (i.e. typed) so we search typed or untyped, preferring typed
             Query tq = formulateTypedQuery(q, pq);
 
-            
+
             getLog().debug("Calling doQueryAndScore... ");
             // do the query
             return doQueryAndScore(tq, getMapper());
@@ -245,31 +242,30 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             throw new SearchException("Failed to perform query - indexing process was interrupted", e);
         }
     }
-    
-    @Override public Map<AnnotationSummary, Float> searchAndScore_QueryExpansion(String propertyType, String propertyValuePattern) {
-        
+
+    @Override public Map<AnnotationSummary, Float> searchAndScore_QueryExpansion(String propertyType,
+                                                                                 String propertyValuePattern) {
         try {
             initOrWait();
 
-            Collection<Query> queries = formulateProcessedQueries("property", propertyValuePattern,propertyType);
-            
-            ArrayList<Query> final_queries = new ArrayList<Query>();
-            
+            Collection<Query> queries = formulateProcessedQueries("property", propertyValuePattern, propertyType);
+
+            ArrayList<Query> final_queries = new ArrayList<>();
+
             // build a property type query
             Query ptq = formulateQueryConserveOrderIfMultiword("propertytype", propertyType);
-            
-            for(Query query: queries){
-                
+
+            for (Query query : queries) {
                 float boost_query = query.getBoost();
                 query.setBoost(1.0f);
-                
+
                 // unify the two queries
-                Query q =  formulateTypedQuery(ptq, query);
-                
+                Query q = formulateTypedQuery(ptq, query);
+
                 Query tq = formulateTypedQuery(q, query);
-                
+
                 tq.setBoost(boost_query);
-                
+
                 final_queries.add(tq);
             }
 
@@ -285,10 +281,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             throw new SearchException("Failed to perform query - indexing process was interrupted", e);
         }
     }
-    
- 
-    
-    
+
 
     @Override public Map<AnnotationSummary, Float> searchAndScoreByPrefix(String propertyValuePrefix) {
         try {
@@ -376,6 +369,4 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             throw new SearchException("Failed to perform query - indexing process was interrupted", e);
         }
     }
-
-    
 }

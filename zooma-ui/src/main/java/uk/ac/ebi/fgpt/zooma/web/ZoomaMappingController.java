@@ -92,7 +92,7 @@ public class ZoomaMappingController {
     }
 
     @Autowired
-    @Qualifier("splittingAnnotationSummarySearchService")        
+    @Qualifier("splittingSearchService")
     public void setAnnotationSummarySearchService(AnnotationSummarySearchService annotationSummarySearchService) {
         this.annotationSummarySearchService = annotationSummarySearchService;
     }

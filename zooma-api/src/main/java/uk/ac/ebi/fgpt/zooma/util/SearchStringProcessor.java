@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
 import java.util.Collection;
+
 /**
  * Encapsulates rules that allow ZOOMA search strings to be processed. How this processing is performed is up to
  * individual implementations.
@@ -30,14 +31,14 @@ public interface SearchStringProcessor {
      * implementation can process the given search string before calling {@link #processSearchString(String)} avoids
      * IllegalArgumentExceptions
      *
-     * @param searchString the search string to test
-     * @param type 
+     * @param searchString     the search string to test
+     * @param searchStringType the type
      * @return true if the given string can be processed using this processor
      */
-    boolean canProcess(String searchString,String type);
+    boolean canProcess(String searchString, String searchStringType);
 
     /**
-     * Takes a string, processes it using the rules for this implementation, and returns the processed form.
+     * Takes a string, processes it using the rules for this implementation, and returns the processed form(s).
      *
      * @param searchString the string to process
      * @return a collection of processed forms of the search string

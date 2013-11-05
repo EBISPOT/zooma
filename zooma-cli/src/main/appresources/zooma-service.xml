@@ -6,7 +6,6 @@
        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- Configuration for the full suite of ZOOMA search services and utils -->
-
     <bean id="annotationService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedAnnotationService">
         <property name="annotationDAO" ref="annotationDAO" />
         <property name="propertiesMapAdapter" ref="propertiesMapAdapter" />
@@ -23,17 +22,10 @@
         <property name="annotationIndex" ref="annotationIndex" />
     </bean>
 
-    <!--<bean id="annotationSummarySearchService" class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummarySearchService">
-        <property name="analyzer" ref="analyzer" />
-        <property name="index" ref="annotationSummaryIndex" />
-        <property name="annotationIndex" ref="annotationIndex" />
-    </bean>-->
-    
     <bean id="annotationSummarySearchService" class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummarySearchService">
         <property name="analyzer" ref="analyzer" />
         <property name="index" ref="annotationSummaryIndex" />
         <property name="annotationIndex" ref="annotationIndex" />
-
         <property name="searchStringProcessors">
             <list>
                 <ref bean="stringProcessorBrackets" />
@@ -41,38 +33,42 @@
                 <ref bean="stringProcessorCompound" />
                 <ref bean="stringProcessorOrganismPart" />
             </list>
-	</property>
-        
+        </property>
     </bean>
-    
-    <bean id="NeedlemanLuceneSearchService" class="uk.ac.ebi.fgpt.zooma.service.NeedlemanJaccardAnnotationSummarySearchService" init-method="init">
-        <constructor-arg ref="annotationSummarySearchService"/>
+
+    <bean id="needlemanLuceneSearchService"
+          class="uk.ac.ebi.fgpt.zooma.service.NeedlemanJaccardAnnotationSummarySearchService"
+          init-method="init">
+        <constructor-arg ref="annotationSummarySearchService" />
         <property name="propertyDAO" ref="propertyDAO" />
         <property name="normalizer" ref="normalizer" />
         <property name="filter" ref="filter" />
-        
     </bean>
-    
-    <bean id="splittingAnnotationSummarySearchService" class="uk.ac.ebi.fgpt.zooma.service.SplittingAnnotationSummarySearchService"> 
-        <constructor-arg ref="NeedlemanLuceneSearchService"/> 
-        <property name="SearchStringProcessor_Splitter" ref="stringProcessor_Splitter" />   
+
+    <bean id="splittingAnnotationSummarySearchService"
+          class="uk.ac.ebi.fgpt.zooma.service.SplittingAnnotationSummarySearchService">
+        <constructor-arg ref="needlemanLuceneSearchService" />
+        <property name="SearchStringProcessor_Splitter" ref="stringProcessor_Splitter" />
     </bean>
-    
-    <bean id="stringProcessorBrackets" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Brackets"/>
-    
-    <bean id="stringProcessorTime" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Time"/> 
 
-    <bean id="stringProcessorCompound" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Compounds" init-method="init"/>
+    <bean id="stringProcessorBrackets" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Brackets" />
 
-    <bean id="stringProcessorOrganismPart" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_OrganismPart" init-method="init"/>
+    <bean id="stringProcessorTime" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Time" />
 
-    <bean id="stringProcessor_Splitter" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Splitter"/>
-   
-    <bean id="normalizer" class="uk.ac.ebi.fgpt.zooma.service.NormalizerLexicalTechniques" init-method="init"/>
+    <bean id="stringProcessorCompound"
+          class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Compounds"
+          init-method="init" />
 
-    <bean id="filter" class="uk.ac.ebi.fgpt.zooma.service.FilterLexicalTechniques"/>
+    <bean id="stringProcessorOrganismPart"
+          class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_OrganismPart"
+          init-method="init" />
 
-    
+    <bean id="stringProcessor_Splitter" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor_Splitter" />
+
+    <bean id="normalizer" class="uk.ac.ebi.fgpt.zooma.service.NormalizerLexicalTechniques" init-method="init" />
+
+    <bean id="filter" class="uk.ac.ebi.fgpt.zooma.service.FilterLexicalTechniques" />
+
 
     <bean id="biologicalEntityService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedBiologicalEntityService">
         <property name="biologicalEntityDAO" ref="biologicalEntityDAO" />

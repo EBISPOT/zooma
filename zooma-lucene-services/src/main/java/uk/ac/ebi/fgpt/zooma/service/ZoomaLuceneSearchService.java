@@ -24,6 +24,7 @@ import org.apache.lucene.store.Directory;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Identifiable;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
 
@@ -34,10 +35,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
 /**
  * An abstract implementation of a lucene search service for ZOOMA.  This class provides a convenience method for
@@ -61,7 +60,6 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
     private Collection<SearchStringProcessor> searchStringProcessors;
 
-    
 
     protected enum QUERY_TYPE {
         FULL,
@@ -137,43 +135,25 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     protected Query formulateSuffixQuery(String field, String suffix) throws QueryCreationException {
         return formulateQuery(field, suffix, QUERY_TYPE.SUFFIX, false);
     }
-    
-    
-    /* The method processes the query and generates similar strings to the given property. 
-     * 
-     * Unlike the method formulateProcessedQueries, it returns a boolean query
-     * 
-     * @return a boolean query with alternative terms
+
+
+    /**
+     * Generate a lucene query from the supplied field and pattern, possibly processing the pattern first using any
+     * {@link SearchStringProcessor}s that may be able to expand the query.
+     *
+     * @param field   the field to query
+     * @param pattern the pattern to search for
+     * @param type    typing information about the search pattern
+     * @return the parsed query
+     * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateProcessedQuery(String field, String patternToProcess, String type) throws QueryCreationException {       
-       
+    protected Query formulateProcessedQuery(String field, String pattern, String type)
+            throws QueryCreationException {
         // first, formulate original query
-        Query originalQuery = formulateQuery(field, patternToProcess);
+        Query originalQuery = formulateQuery(field, pattern);
 
         // combine queries for any string processors that can process our string
         Map<Query, Float> processedQueries = new HashMap<>();
-        /*for (SearchStringProcessor processor : getSearchStringProcessors()) {
-            
-            if (processor.canProcess(patternToProcess,type)) {
-                
-                Collection<String> processedStrings =  processor.processSearchString(patternToProcess);
-                
-                if (processedStrings instanceof ArrayList) {
-                    
-                    for(String processedString:processedStrings){
-                     
-                       if( !processedString.isEmpty()){
-                            
-                            System.out.println(processor.getClass() + " generated " + processedString);
-                            
-                            float boost = processor.getBoostFactor();
-                            processedQueries.put(formulateQuery(field, processedString), boost);
-                        }
-                    }
-                } 
-            }
-        }*/
-
         if (processedQueries.isEmpty()) {
             return originalQuery;
         }
@@ -182,57 +162,43 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             return formulateAlternativesBooleanQuery(processedQueries);
         }
     }
-    
-    
-    /* The method processes the query and generates similar strings to the given property. 
-     * 
-     * Unlike the method formulateProcessedQuery, it returns a collection of queries
-     * 
-     * @return a collection of queries
+
+
+    /**
+     * Generate a series of lucene queries from the supplied field and pattern, possibly processing the pattern first
+     * using any {@link SearchStringProcessor}s that maye be able to expand the query.
+     *
+     * @param field   the field to query
+     * @param pattern the pattern to search for
+     * @param type    typing information about the search pattern
+     * @return the parsed query
+     * @throws QueryCreationException if the query could not be created
      */
-    protected Collection<Query> formulateProcessedQueries(String field, String patternToProcess, String type) throws QueryCreationException {       
-       
-        ArrayList<Query> queries = new ArrayList<Query>();
-        
+    protected Collection<Query> formulateProcessedQueries(String field, String pattern, String type)
+            throws QueryCreationException {
+        ArrayList<Query> queries = new ArrayList<>();
+
         // first, formulate original query
-        Query originalQuery = formulateQuery(field, patternToProcess);
-        
+        Query originalQuery = formulateQuery(field, pattern);
         queries.add(originalQuery);
 
+        // now, attempt to process the pattern and if successful generate extra queries
         for (SearchStringProcessor processor : getSearchStringProcessors()) {
-            
-            if (processor.canProcess(patternToProcess,type)) {
-                
-                Collection<String> processedStrings =  processor.processSearchString(patternToProcess);
-                
-                if (processedStrings instanceof ArrayList) {
-                    
-                    for(String processedString:processedStrings){
-                     
-                       if( !processedString.isEmpty()){
-                            
-                            System.out.println(processor.getClass() + " generated " + processedString);
-                            
-                            float boost = processor.getBoostFactor();
-
-                            Query query_aux = formulateQuery(field, processedString);
-                            
-                            query_aux.setBoost(boost);
-                            
-                            queries.add(query_aux);
-                            
-                        }
+            if (processor.canProcess(pattern, type)) {
+                Collection<String> processedStrings = processor.processSearchString(pattern);
+                for (String processedString : processedStrings) {
+                    if (!processedString.isEmpty()) {
+                        float boost = processor.getBoostFactor();
+                        Query query_aux = formulateQuery(field, processedString);
+                        query_aux.setBoost(boost);
+                        queries.add(query_aux);
                     }
-                } 
+                }
             }
         }
-        
         return queries;
-
     }
-    
-    
-    
+
     /**
      * Generates a lucene query that unifies the multiple supplied queries into a boolean query.  If you supply a
      * <code>compulsoryQuery</code> parameter, it is assumed that the <code>otherQueries</code> provided are optional.
@@ -441,8 +407,6 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      */
     protected Query formulateAlternativesBooleanQuery(Map<Query, Float> queriesToCombine)
             throws QueryCreationException {
-        
-        
         BooleanQuery q = new BooleanQuery();
         for (Query nextQuery : queriesToCombine.keySet()) {
             nextQuery.setBoost(queriesToCombine.get(nextQuery));
@@ -652,13 +616,14 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             throw new IOException("Failed to perform query - indexing process was interrupted", e);
         }
     }
-    
+
     /* Performs several lucene queries, one for each query, accumulating the results in one hashMap.  */
-    protected <T> Map<T, Float> doQueriesAndScore(Collection<Query> queries, LuceneDocumentMapper<T> mapper) throws IOException {
-        
+    protected <T> Map<T, Float> doQueriesAndScore(Collection<Query> queries, LuceneDocumentMapper<T> mapper)
+            throws IOException {
+
         Map<T, Float> results = new HashMap<>();
-  
-        for(Query q: queries){
+
+        for (Query q : queries) {
 
             try {
                 // init, to make sure searcher is available
@@ -680,8 +645,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
                 getLog().debug("We have " + hits.length + " hits");
 
-                if (hits.length >0) {
-                    
+                if (hits.length > 0) {
+
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
                         Document doc = getSearcher().doc(hit.doc);
@@ -706,27 +671,27 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         }
                     }
                 }
-                    
+
                 getLog().debug(
                         "Query '" + q.toString() + "' gives the following " + results.size() + " results:\n" + results);
 
                 getLog().debug("Returning results");
-                
+
             }
             catch (InterruptedException e) {
                 throw new IOException("Failed to perform query - indexing process was interrupted", e);
             }
         }
-        
+
         return results;
-        
+
     }
 
     protected <T> Map<T, Float> doQueryAndScore(Query q, LuceneDocumentMapper<T> mapper) throws IOException {
-        
+
         getLog().debug("Starting doQueryAndScore... ");
-                                                   
-        
+
+
         try {
             // init, to make sure searcher is available
             initOrWait();
@@ -738,50 +703,49 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             ScoreDoc lastScoreDoc = null;
             boolean complete = false;
             //while (!complete) {
-                // create a collector to obtain query results
-                TopScoreDocCollector collector = lastScoreDoc == null
-                        ? TopScoreDocCollector.create(100, true)
-                        : TopScoreDocCollector.create(100, lastScoreDoc, true);
+            // create a collector to obtain query results
+            TopScoreDocCollector collector = lastScoreDoc == null
+                    ? TopScoreDocCollector.create(100, true)
+                    : TopScoreDocCollector.create(100, lastScoreDoc, true);
 
-                // perform query
-                getSearcher().search(q, collector);
-                TopDocs topDocs = collector.topDocs();
-                
-                
-                ScoreDoc[] hits = topDocs.scoreDocs;
-                
-                getLog().debug("We have " + hits.length + " hits");
+            // perform query
+            getSearcher().search(q, collector);
+            TopDocs topDocs = collector.topDocs();
 
-                if (hits.length == 0) {
-                    complete = true;
-                }
-                else {
-                    // get URI and readByProperty property, add to results
-                    for (ScoreDoc hit : hits) {
-                        lastScoreDoc = hit;
-                        Document doc = getSearcher().doc(hit.doc);
-                        try {
-                            float summaryScore = mapper.getDocumentQuality(doc);
-                            float luceneScore = hit.score;
-                            float totalScore = summaryScore * luceneScore;
-                            getLog().debug("Next document has a quality score of: " +
-                                                   summaryScore + " x " + luceneScore + " = " +
-                                                   (summaryScore * luceneScore));
-                            results.put(mapper.mapDocument(doc), totalScore);
-                        }
-                        catch (Exception e) {
-                            results.put(mapper.mapDocument(doc), hit.score);
-                        }
+
+            ScoreDoc[] hits = topDocs.scoreDocs;
+
+            getLog().debug("We have " + hits.length + " hits");
+
+            if (hits.length == 0) {
+                complete = true;
+            }
+            else {
+                // get URI and readByProperty property, add to results
+                for (ScoreDoc hit : hits) {
+                    lastScoreDoc = hit;
+                    Document doc = getSearcher().doc(hit.doc);
+                    try {
+                        float summaryScore = mapper.getDocumentQuality(doc);
+                        float luceneScore = hit.score;
+                        float totalScore = summaryScore * luceneScore;
+                        getLog().debug("Next document has a quality score of: " +
+                                               summaryScore + " x " + luceneScore + " = " +
+                                               (summaryScore * luceneScore));
+                        results.put(mapper.mapDocument(doc), totalScore);
+                    }
+                    catch (Exception e) {
+                        results.put(mapper.mapDocument(doc), hit.score);
                     }
                 }
+            }
             //}
             getLog().debug(
                     "Query '" + q.toString() + "' gives the following " + results.size() + " results:\n" + results);
-            
+
             getLog().debug("Returning results");
-            
-            
-            
+
+
             return results;
         }
         catch (InterruptedException e) {
@@ -835,25 +799,26 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             throw new IOException("Failed to perform query - indexing process was interrupted", e);
         }
     }
-    
-    
+
+
     private <T> Float obtainScoreAnnotationSummary(Map<T, Float> results, String id) {
-        
+
         for (Map.Entry e : results.entrySet()) {
-            
+
             T ann = (T) e.getKey();
-            
-            if (ann instanceof AnnotationSummary){
-                
+
+            if (ann instanceof AnnotationSummary) {
+
                 AnnotationSummary annotationSummary = (AnnotationSummary) ann;
-                
-                if(annotationSummary.getID().contentEquals(id))
+
+                if (annotationSummary.getID().contentEquals(id)) {
                     return (Float) e.getValue();
+                }
             }
         }
         return -1.0f;
-        
+
     }
-    
+
 }
 
