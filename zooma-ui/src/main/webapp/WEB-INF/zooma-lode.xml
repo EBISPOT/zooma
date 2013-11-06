@@ -17,10 +17,10 @@
     <bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoExecutorService">
     </bean>
 
-    <bean id="virtuosoDataSourceProvider" class="uk.ac.ebi.fgpt.lode.impl.VirtuosoDatasourceProvider">
-        <constructor-arg name="endpointUrl" value="${lode.sparqlendpoint.url}"/>
-        <constructor-arg name="port" value="${lode.sparqlendpoint.port}"/>
-    </bean>
+    <!--<bean id="virtuosoDataSourceProvider" class="uk.ac.ebi.fgpt.lode.impl.VirtuosoDatasourceProvider">-->
+        <!--<constructor-arg name="endpointUrl" value="${lode.sparqlendpoint.url}"/>-->
+        <!--<constructor-arg name="port" value="${lode.sparqlendpoint.port}"/>-->
+    <!--</bean>-->
 
     <!--<bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoConnectionPoolService">-->
         <!--<constructor-arg ref="virtuosoDataSourceProvider"/>-->
