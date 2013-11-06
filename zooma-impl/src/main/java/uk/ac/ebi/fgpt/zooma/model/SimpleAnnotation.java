@@ -38,7 +38,9 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
         this.biologicalEntities = biologicalEntities;
         this.annotatedProperty = annotatedProperty;
         this.semanticTags = new HashSet<>();
-        Collections.addAll(this.semanticTags, semanticTags);
+        if (semanticTags != null) {
+            Collections.addAll(this.semanticTags, semanticTags);
+        }
         this.replacingAnnotations = new HashSet<>();
         Collections.addAll(this.replacingAnnotations, replacingAnnotations);
         this.replacedAnnotations = new HashSet<>();
