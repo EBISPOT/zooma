@@ -149,24 +149,31 @@ public class OWLAPIAnnotationSerializer extends OWLAPIZoomaSerializer<Annotation
         }
         pts += annotatedProperty.getPropertyValue();
         sb.append(pts);
-        sb.append(" annotated to ");
 
         if (!semanticTags.isEmpty()) {
+            sb.append(" annotated to ");
+
             List<String> tagUris = new ArrayList<String>();
             for (URI u : semanticTags) {
-                tagUris.add(URIUtils.extractFragment(u));
+                if (u != null) {
+                    tagUris.add(URIUtils.extractFragment(u));
+                }
+                else {
+                    tagUris.add("something");
+                }
             }
             sb.append(StringUtils.collectionToCommaDelimitedString(tagUris));
+
+            if (!annotatedBiologicalEntities.isEmpty()) {
+                List<String> bes = new ArrayList<String>();
+                for (BiologicalEntity be : annotatedBiologicalEntities) {
+                    bes.add(be.getName());
+                }
+                sb.append(" in ");
+                sb.append(StringUtils.collectionToCommaDelimitedString(bes));
+            }
         }
 
-        if (!annotatedBiologicalEntities.isEmpty()) {
-            List<String> bes = new ArrayList<String>();
-            for (BiologicalEntity be : annotatedBiologicalEntities) {
-                bes.add(be.getName());
-            }
-            sb.append(" in ");
-            sb.append(StringUtils.collectionToCommaDelimitedString(bes));
-        }
         return sb.toString();
     }
 
