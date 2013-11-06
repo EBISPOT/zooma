@@ -92,7 +92,7 @@
     <bean id="propertyService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedPropertyService">
         <property name="annotationService" ref="annotationService" />
         <property name="propertyDAO" ref="lodePropertyDAO" />
-        <property name="annotationDAO" ref="annotationDAO" />
+        <property name="annotationDAO" ref="lodeAnnotationDAO" />
         <property name="propertiesMapAdapter" ref="propertiesMapAdapter" />
     </bean>
 
