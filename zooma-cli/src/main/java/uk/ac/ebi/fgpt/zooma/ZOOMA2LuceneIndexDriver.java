@@ -151,6 +151,7 @@ public class ZOOMA2LuceneIndexDriver {
                 "zooma-dao.xml",
                 "zooma-indexer.xml",
                 "zooma-lucene.xml",
+                "zooma-load.xml",
                 "zooma-service.xml");
         zoomaStatusService = ctx.getBean("statusService", StatusService.class);
         System.out.println("ok!");
