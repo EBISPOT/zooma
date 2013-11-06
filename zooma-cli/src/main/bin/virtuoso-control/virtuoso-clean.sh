@@ -79,7 +79,7 @@ echo `date` "Generating config file"
 
 (cat $templatefile | sed  -e "s#\$VIRTUOSO_HOME#$VIRTUOSO_HOME#g" -e "s#\$DBDIR#$build_dir#g" -e "s#\$SERVERPORT#$port#g" -e "s#\$HTTPPORT#$httpport#g" > $configfile) || exit 3
 
-$base/virtuoso-start.sh $build_dir ?port || exit $?
+$base/virtuoso-start.sh $build_dir $port || exit $?
 
 echo `date` "Enabling federated queries"
 $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $base/templates/enable-federated.sql > /dev/null || exit $?
