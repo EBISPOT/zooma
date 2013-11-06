@@ -85,7 +85,9 @@ fi
 
 echo `date` "Creating checkpoint"
 
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="checkpoint;" echo "finished indexing files, executing final virtuoso configuration scripts..."
+$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="checkpoint;"
+
+echo "finished indexing files, executing final virtuoso configuration scripts..."
 
 echo "creating inference rules set"
 
