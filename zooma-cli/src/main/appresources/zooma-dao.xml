@@ -7,11 +7,13 @@
 
     <!-- ZOOMA SPARQL datasource access configuration -->
     <context:annotation-config />
+
     <bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoExecutorService">
     </bean>
 
 
     <bean id="queryManager" class="uk.ac.ebi.fgpt.zooma.service.QueryManager" init-method="init">
+        <property name="propertiesMapAdapter" ref="propertiesMapAdapter" />
         <property name="sparqlQueryResource" value="classpath:queries.sparql" />
     </bean>
 
