@@ -116,6 +116,22 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    public void testSparqlAnnotationDao3 () {
+
+        if (hasConnection) {
+
+            log.info("pulling out all annotations from zooma");
+
+            int c = annotationBean.count();
+            System.out.println("count is " + c);
+
+
+            System.out.println("next count is :" + annotationBean.read().size());
+
+
+        }
+    }
+
     public void testSparqlAnnotationLoading ()  {
 
         if (hasConnection) {

@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.lode.exception.LodeException;
 import uk.ac.ebi.fgpt.lode.service.JenaQueryExecutionService;
+import uk.ac.ebi.fgpt.zooma.Namespaces;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.BiologicalEntityDAO;
 import uk.ac.ebi.fgpt.zooma.exception.*;
@@ -100,6 +101,8 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                     Graph g = getQueryService().getDefaultGraph();
                     Model m = ModelFactory.createModelForGraph(g);
                     m.read(pis, "http://www.ebi.ac.uk/fgpt/zooma/create");
+                    m.close();
+                    g.close();
                 }
             });
             thread.start();
@@ -131,6 +134,8 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                     Graph g = getQueryService().getDefaultGraph();
                     Model m = ModelFactory.createModelForGraph(g);
                     m.read(pis, "http://www.ebi.ac.uk/fgpt/zooma/update");
+                    m.close();
+                    g.close();
                 }
             });
             thread.start();
@@ -152,46 +157,31 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         Graph g = getQueryService().getDefaultGraph();
         Model m = ModelFactory.createModelForGraph(g);
         m.removeAll(new ResourceImpl(annotation.getURI().toString()), null, null);
+        m.close();
+        g.close();
     }
 
     @Override public Collection<Annotation> read() {
-        return read(-1,-1);
+        return read(-1, -1);
     }
 
     @Override public int count() {
-        String query = getQueryManager().getSparqlCountQuery("ANNOTATIONS.read");
-        Graph g = getQueryService().getDefaultGraph();
-        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
-        QueryExecution execute = null;
-        int c = 0;
-        try {
-            execute = getQueryService().getQueryExecution(g, q1, false);
-            ResultSet results = execute.execSelect();
-
-            while (results.hasNext()) {
-                QuerySolution sol = results.next();
-                String cv = sol.getLiteral("count").getLexicalForm();
-                c = Integer.parseInt(cv);
-            }
-
-        } catch (LodeException e) {
-            throw new SPARQLQueryException("Failed to retrieve count for Annotations", e);
-        }
-        finally {
-            if (execute !=  null)  {
-                execute.close();
-                if (g != null ) {
-                    g.close();
-                }
-            }
-        }
-        return c;
+        return getAllAnnotationURIs(-1,-1).size();
     }
 
 
     @Override public List<Annotation> read(int size, int start) {
 
-        String query = getQueryManager().getSparqlQuery("ANNOTATIONS.read");
+        List<Annotation> annos = new ArrayList<Annotation>();
+        for (URI uri : getAllAnnotationURIs(size, start)) {
+            annos.add(read(uri));
+        }
+        return annos;
+    }
+
+    private List<URI> getAllAnnotationURIs(int size, int start) {
+
+        String query = getQueryManager().getSparqlQuery("Instance");
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
         if (size > -1) {
@@ -199,14 +189,24 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         }
         if (start > -1) {
             q1.setOffset(start);
+            q1.addOrderBy(underscore + QueryVariables.RESOURCE.toString(), Query.ORDER_DEFAULT);
         }
+        QuerySolutionMap initialBinding = new QuerySolutionMap();
+        initialBinding.add(QueryVariables.RESOURCE_TYPE.toString(), new ResourceImpl(Namespaces.OAC.getURI() + "DataAnnotation"));
+
         QueryExecution execute = null;
+        List<URI> uris = new ArrayList<URI>();
         try {
-            execute = getQueryService().getQueryExecution(g, q1, false);
+            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
             ResultSet results = execute.execSelect();
-            return evaluateQueryResults(results);
+
+            while (results.hasNext()) {
+                QuerySolution sol = results.next();
+                uris.add(URI.create(sol.getResource(QueryVariables.RESOURCE.toString()).getURI()));
+            }
+
         } catch (LodeException e) {
-            throw new SPARQLQueryException("Failed to retrieve annotation", e);
+            throw new SPARQLQueryException("Failed to retrieve all annotation URIs", e);
         }
         finally {
             if (execute !=  null)  {
@@ -216,8 +216,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 }
             }
         }
+        getLog().info("Read " + uris.size() + " annotation URIs");
+        return uris;
     }
-
 
     @Override public Annotation read(URI uri) {
         String query = getQueryManager().getSparqlQuery("ANNOTATIONS.read");
@@ -378,7 +379,6 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
     public List<Annotation> evaluateQueryResults(ResultSet result) {
         Map<URI, Annotation> annotationMap = new HashMap<>();
-
         while (result.hasNext()) {
             QuerySolution solution = (QuerySolution) result.next();
             Annotation a = getAnnotationFromBindingSet(annotationMap, solution);

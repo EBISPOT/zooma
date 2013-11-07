@@ -125,7 +125,6 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
             ResultSet results = execute.execSelect();
             List<BiologicalEntity> bes = evaluateQueryResults(results);
 
-
             if (bes.size() > 1) {
                 getLog().error("Too many results looking for biological entity <" + uri.toString() + ">");
                 throw new TooManyResultsException("Expected one result, got " + bes.size() + " for <" + uri + ">");

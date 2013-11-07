@@ -201,3 +201,7 @@ SELECT DISTINCT ?resourceType WHERE {
 }
 
 
+^[Instance]
+SELECT DISTINCT ?resource WHERE {
+    ?resource a ?resourceType
+}
