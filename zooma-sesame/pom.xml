@@ -76,18 +76,7 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
         </dependency>
-        <!-- Lode SPARQL endpoint -->
-        <dependency>
-            <groupId>ebi-lode</groupId>
-            <artifactId>lode-core-api</artifactId>
-            <version>1.0.4</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+
 
 
 

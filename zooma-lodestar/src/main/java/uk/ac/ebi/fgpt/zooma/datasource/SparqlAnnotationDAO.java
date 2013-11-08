@@ -169,15 +169,44 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         return getAllAnnotationURIs(-1,-1).size();
     }
 
-
     @Override public List<Annotation> read(int size, int start) {
 
-        List<Annotation> annos = new ArrayList<Annotation>();
-        for (URI uri : getAllAnnotationURIs(size, start)) {
-            annos.add(read(uri));
+        String query = getQueryManager().getSparqlQuery("ANNOTATIONS.read");
+        Graph g = getQueryService().getDefaultGraph();
+        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
+        if (size > -1) {
+            q1.setLimit(size);
         }
-        return annos;
+        if (start > -1) {
+            q1.setOffset(start);
+            q1.addOrderBy(underscore + QueryVariables.ANNOTATION_ID.toString(), Query.ORDER_DEFAULT);
+        }
+        QueryExecution execute = null;
+        try {
+            execute = getQueryService().getQueryExecution(g, q1, false);
+            ResultSet results = execute.execSelect();
+            return evaluateQueryResults(results);
+        } catch (LodeException e) {
+            throw new SPARQLQueryException("Failed to retrieve annotation", e);
+        }
+        finally {
+            if (execute !=  null)  {
+                execute.close();
+                if (g != null ) {
+                    g.close();
+                }
+            }
+        }
     }
+
+//    @Override public List<Annotation> read(int size, int start) {
+//
+//        List<Annotation> annos = new ArrayList<Annotation>();
+//        for (URI uri : getAllAnnotationURIs(size, start)) {
+//            annos.add(read(uri));
+//        }
+//        return annos;
+//    }
 
     private List<URI> getAllAnnotationURIs(int size, int start) {
 
