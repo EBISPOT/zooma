@@ -29,12 +29,6 @@ public class GwasLoadingSession extends AbstractAnnotationLoadingSession {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "gwas/" + encode(bioentityName));
     }
 
-    @Override protected URI mintPropertyURI(String propertyID,
-                                            String propertyType,
-                                            String propertyValue) {
-        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "gwas/" + propertyID);
-    }
-
     @Override protected URI mintAnnotationURI(String annotationID) {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "gwas/" + annotationID);
     }

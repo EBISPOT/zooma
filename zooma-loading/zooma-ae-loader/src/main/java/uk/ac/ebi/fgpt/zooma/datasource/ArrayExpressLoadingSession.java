@@ -26,12 +26,6 @@ public abstract class ArrayExpressLoadingSession extends AbstractAnnotationLoadi
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "arrayexpress/" + encode(studyAccession));
     }
 
-    @Override protected URI mintPropertyURI(String propertyID,
-                                            String propertyType,
-                                            String propertyValue) {
-        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "arrayexpress/" + propertyID);
-    }
-
     @Override protected URI mintAnnotationURI(String annotationID) {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "arrayexpress/" + annotationID);
     }

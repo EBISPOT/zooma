@@ -415,11 +415,14 @@ public class SparqlPropertyDAO implements PropertyDAO {
 
     }
 
+    final static String underscore = "_";
+
+
     public Property getPropertyFromBindingSet(QuerySolution solution) {
-        Resource propertyUri = solution.getResource(QueryVariables.PROPERTY_VALUE_ID.toString());
+        Resource propertyUri = solution.getResource(underscore + QueryVariables.PROPERTY_VALUE_ID.toString());
         URI uri = URI.create(propertyUri.getURI());
-        Literal propertyName = solution.getLiteral(QueryVariables.PROPERTY_NAME.toString());
-        Literal propertyValue = solution.getLiteral(QueryVariables.PROPERTY_VALUE.toString());
+        Literal propertyName = solution.getLiteral(underscore + QueryVariables.PROPERTY_NAME.toString());
+        Literal propertyValue = solution.getLiteral(underscore + QueryVariables.PROPERTY_VALUE.toString());
 
         Property p;
         if (propertyName == null) {

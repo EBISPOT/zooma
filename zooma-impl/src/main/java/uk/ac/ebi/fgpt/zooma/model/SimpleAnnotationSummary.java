@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.model;
 
+import uk.ac.ebi.fgpt.zooma.Namespaces;
 import uk.ac.ebi.fgpt.zooma.util.CollectionUtils;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
@@ -21,6 +22,8 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
     private Collection<URI> semanticTags;
     private Collection<URI> annotationURIs;
     private float qualityScore;
+
+
 
     public SimpleAnnotationSummary(String id,
                                    String propertyType,
@@ -129,4 +132,22 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
         result = 31 * result + (annotationURIs != null ? annotationURIs.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public URI getURI() {
+        return URI.create(Namespaces.ZOOMA_RESOURCE + "annotation_summary/" + getID());
+    }
+
+    @Override
+    public String toString() {
+        return "SimpleAnnotationSummary{" +
+                "id='" + id + '\'' +
+                ", propertyType='" + propertyType + '\'' +
+                ", propertyValue='" + propertyValue + '\'' +
+                ", semanticTags=" + semanticTags +
+                ", annotationURIs=" + annotationURIs +
+                ", qualityScore=" + qualityScore +
+                '}';
+    }
+
 }

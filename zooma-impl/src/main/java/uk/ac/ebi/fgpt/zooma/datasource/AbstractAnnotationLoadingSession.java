@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.zooma.Namespaces;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
@@ -273,9 +274,12 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
         return Collections.emptySet();
     }
 
-    protected abstract URI mintPropertyURI(String propertyID,
+    protected URI mintPropertyURI(String propertyID,
                                            String propertyType,
-                                           String propertyValue);
+                                           String propertyValue) {
+        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + propertyID);
+
+    }
 
     protected abstract URI mintAnnotationURI(String annotationID);
 

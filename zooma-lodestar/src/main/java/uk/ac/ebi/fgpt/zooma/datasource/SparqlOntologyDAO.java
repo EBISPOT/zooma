@@ -13,6 +13,7 @@ import uk.ac.ebi.fgpt.zooma.datasource.OntologyDAO;
 import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
+import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
 import java.util.*;
@@ -69,11 +70,11 @@ public class SparqlOntologyDAO implements OntologyDAO {
             String label = evaluateLabelQueryResult(results);
 
             if (label == null) {
-                throw new NullPointerException("No rdfs:label present for <" + semanticTagURI + ">");
+                label = URIUtils.extractFragment(semanticTagURI);
+                getLog().warn("No rdfs:label present for <" + semanticTagURI + ">");
             }
-            else {
-                return label;
-            }
+
+            return label;
 
         } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);

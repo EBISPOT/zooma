@@ -4,6 +4,9 @@ import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.*;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.slf4j.Logger;
@@ -47,7 +50,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
     private QueryManager queryManager;
 
-    private static SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+    private static DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+//    private static SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
     protected Logger getLog() {
         return log;
@@ -169,44 +174,44 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         return getAllAnnotationURIs(-1,-1).size();
     }
 
-    @Override public List<Annotation> read(int size, int start) {
-
-        String query = getQueryManager().getSparqlQuery("ANNOTATIONS.read");
-        Graph g = getQueryService().getDefaultGraph();
-        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
-        if (size > -1) {
-            q1.setLimit(size);
-        }
-        if (start > -1) {
-            q1.setOffset(start);
-            q1.addOrderBy(underscore + QueryVariables.ANNOTATION_ID.toString(), Query.ORDER_DEFAULT);
-        }
-        QueryExecution execute = null;
-        try {
-            execute = getQueryService().getQueryExecution(g, q1, false);
-            ResultSet results = execute.execSelect();
-            return evaluateQueryResults(results);
-        } catch (LodeException e) {
-            throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
-            if (execute !=  null)  {
-                execute.close();
-                if (g != null ) {
-                    g.close();
-                }
-            }
-        }
-    }
-
 //    @Override public List<Annotation> read(int size, int start) {
 //
-//        List<Annotation> annos = new ArrayList<Annotation>();
-//        for (URI uri : getAllAnnotationURIs(size, start)) {
-//            annos.add(read(uri));
+//        String query = getQueryManager().getSparqlQuery("ANNOTATIONS.read");
+//        Graph g = getQueryService().getDefaultGraph();
+//        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
+//        if (size > -1) {
+//            q1.setLimit(size);
 //        }
-//        return annos;
+//        if (start > -1) {
+//            q1.setOffset(start);
+//            q1.addOrderBy(underscore + QueryVariables.ANNOTATION_ID.toString(), Query.ORDER_DEFAULT);
+//        }
+//        QueryExecution execute = null;
+//        try {
+//            execute = getQueryService().getQueryExecution(g, q1, false);
+//            ResultSet results = execute.execSelect();
+//            return evaluateQueryResults(results);
+//        } catch (LodeException e) {
+//            throw new SPARQLQueryException("Failed to retrieve annotation", e);
+//        }
+//        finally {
+//            if (execute !=  null)  {
+//                execute.close();
+//                if (g != null ) {
+//                    g.close();
+//                }
+//            }
+//        }
 //    }
+
+    @Override public List<Annotation> read(int size, int start) {
+
+        List<Annotation> annos = new ArrayList<Annotation>();
+        for (URI uri : getAllAnnotationURIs(size, start)) {
+            annos.add(read(uri));
+        }
+        return annos;
+    }
 
     private List<URI> getAllAnnotationURIs(int size, int start) {
 
@@ -521,35 +526,30 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 }
 
 
-                Date generatedDate = null;
+                DateTime generatedDate = null;
                 if (generated == null) {
                     getLog().warn("No generated date for annotation <" + annotationUri.toString() + ">");
                 }
                 else {
-                    String dateStr = generated.getLexicalForm();
+                    // handle cases where virtuoso returns .0 for timezone
+                    String dateStr = generated.getLexicalForm().replace(".0", "Z");
                     try {
-                        generatedDate = dateformat.parse(dateStr);
-                    }
-                    catch (ParseException e) {
-                        getLog().error("Can't parse generation date '" + dateStr + "' " +
-                                "for annotation <" + annotationUri.toString() + ">", e);
+                        generatedDate = fmt.parseDateTime(dateStr);
                     }
                     catch (NumberFormatException e) {
                         getLog().error("Can't read generation date '" + dateStr + "' " +
                                 "for annotation <" + annotationUri.toString() + ">", e);
+
                     }
                 }
 
 
-                Date annotatedDate = null;
+                DateTime annotatedDate = null;
                 if (annotated != null) {
-                    String dateStr = annotated.getLexicalForm();
+                    String dateStr = annotated.getLexicalForm().replace(".0", "Z");
                     try {
-                        annotatedDate = dateformat.parse(dateStr);
-                    }
-                    catch (ParseException e) {
-                        getLog().error("Can't parse annotation date '" + dateStr + "' " +
-                                "for annotation <" + annotationUri.toString() + ">", e);
+                        // handle cases where virtuoso returns .0 for timezone
+                        annotatedDate = fmt.parseDateTime(dateStr);
                     }
                     catch (NumberFormatException e) {
                         getLog().error("Can't read annotation date '" + dateStr + "' " +
@@ -580,9 +580,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                         ev,
                         AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                         generator.getLexicalForm(),
-                        generatedDate,
+                        generatedDate != null ? generatedDate.toDate(): new Date(),
                         annotator.getLexicalForm(),
-                        annotatedDate);
+                        annotatedDate !=null ? annotatedDate.toDate() : new Date());
 
             }
             Annotation newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov, ontoUri);

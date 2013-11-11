@@ -8,15 +8,14 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import uk.ac.ebi.fgpt.lode.service.SparqlService;
 import uk.ac.ebi.fgpt.lode.utils.TupleQueryFormats;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
+import uk.ac.ebi.fgpt.zooma.datasource.AnnotationSummaryDAO;
+import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO;
 import uk.ac.ebi.fgpt.zooma.model.*;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Simon Jupp
@@ -32,6 +31,8 @@ public class RepositoryConnectionTester extends TestCase {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     private AnnotationDAO annotationBean;
+    private PropertyDAO propertyBean;
+    private AnnotationSummaryDAO annotationSummaryBean;
 
     private SparqlBiologicalEntityDAO bioentityBean;
 
@@ -51,6 +52,8 @@ public class RepositoryConnectionTester extends TestCase {
             hasConnection = true;
 
             this.annotationBean = (AnnotationDAO) context.getBean("lodeAnnotationDAO");
+            this.propertyBean = (PropertyDAO) context.getBean("lodePropertyDAO");
+            this.annotationSummaryBean = (AnnotationSummaryDAO) context.getBean("lodeAnnotationSummaryDAO");
             this.bioentityBean = (SparqlBiologicalEntityDAO) context.getBean("lodeBiologicalEntityDAO");
         }
         catch (Exception e) {
@@ -129,6 +132,34 @@ public class RepositoryConnectionTester extends TestCase {
             System.out.println("next count is :" + annotationBean.read().size());
 
 
+        }
+    }
+
+    public void testSparqlSummaryAnnotationDao3 () {
+
+        if (hasConnection) {
+
+            log.info("pulling out all annotations summaries from zooma");
+
+            for (AnnotationSummary summary:  annotationSummaryBean.read() ) {
+                if (summary.getAnnotationURIs().size() > 1) {
+                    System.out.println(summary.toString());
+                }
+            }
+
+//            for (URI p : propertyCollectionMap.keySet()) {
+//                Collection<Annotation> as = annotationSummaryBean.readAnnotationsByPropertyToSemanticTag(p, propertyCollectionMap.get(p));
+//
+//                for (Annotation a : as) {
+//                    assertEquals(p, a.getAnnotatedProperty().getURI());
+//                }
+//
+//                System.out.println("reading property form dao: " + p.toString());
+//                Property ps = propertyBean.read(p);
+//                System.out.println("Property semantic tag pair: " + ((TypedProperty) ps).getPropertyType() + " / " + ps.getPropertyValue() + " mapped to " + propertyCollectionMap.get(p)) ;
+//                System.out.println("\t\t has " + as.size() + " annotations" );
+//
+//            }
         }
     }
 

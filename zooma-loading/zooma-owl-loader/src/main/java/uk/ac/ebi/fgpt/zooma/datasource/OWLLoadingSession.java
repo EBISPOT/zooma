@@ -32,11 +32,6 @@ public class OWLLoadingSession extends AbstractAnnotationLoadingSession {
                                                         "ontology mapping does not allow for creation of bioentities.");
     }
 
-    @Override protected URI mintPropertyURI(String propertyID,
-                                            String propertyType,
-                                            String propertyValue) {
-        return URI.create(baseNamespace  + propertyID);
-    }
 
     @Override protected URI mintAnnotationURI(String annotationID) {
         return URI.create(baseNamespace  + annotationID);

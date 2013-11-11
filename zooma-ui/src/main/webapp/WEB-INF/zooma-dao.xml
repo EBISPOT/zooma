@@ -55,4 +55,15 @@
         <property name="studyZoomaSerializer" ref="studySerializer"/>
     </bean>
 
+    <bean id="lodeAnnotationSummaryDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationSummaryDAO" autowire-candidate="false">
+        <property name="queryManager" ref="queryManager"/>
+        <property name="queryService" ref="jenaVirtuosoExecutorService"/>
+        <property name="propertyDAO" ref="lodePropertyDAO" />
+    </bean>
+
+    <bean id="lodeAnnotationProvenanceDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationProvenanceDAO" autowire-candidate="false">
+        <property name="queryManager" ref="queryManager"/>
+        <property name="queryService" ref="jenaVirtuosoExecutorService"/>
+    </bean>
+
 </beans>

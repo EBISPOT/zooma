@@ -22,12 +22,6 @@ public class OmiaLoadingSession extends AbstractAnnotationLoadingSession {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "omia/" + bioentityID);
     }
 
-    @Override protected URI mintPropertyURI(String propertyID,
-                                            String propertyType,
-                                            String propertyValue) {
-        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "omia/" + propertyID);
-    }
-
     @Override protected URI mintAnnotationURI(String annotationID) {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "omia/" + annotationID);
     }

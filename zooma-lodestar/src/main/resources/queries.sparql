@@ -119,8 +119,8 @@ SELECT DISTINCT ?study ?studylabel WHERE {
 
 
 ^[Property.read]
-SELECT DISTINCT ?propertyvalueid ?propertyname ?propertyvalue WHERE {
-    ?propertyvalueid rdf:type zoomaterms:Property .
+SELECT DISTINCT (?propertyvalueid as ?_propertyvalueid) (?propertyname as ?_propertyname) (?propertyvalue as ?_propertyvalue) WHERE {
+    ?propertyvalueid a zoomaterms:Property .
     ?propertyvalueid zoomaterms:propertyName ?propertyname .
     ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
 }
@@ -205,3 +205,39 @@ SELECT DISTINCT ?resourceType WHERE {
 SELECT DISTINCT ?resource WHERE {
     ?resource a ?resourceType
 }
+
+^[PropertySemanticTag]
+SELECT DISTINCT ?propertyvalueid ?semantictag WHERE {
+    ?annotationid a oac:DataAnnotation .
+    ?annotationid oac:hasBody ?propertyvalueid .
+    ?propertyvalueid rdf:type zoomaterms:Property .
+    ?annotationid oac:hasBody ?semantictag .
+    ?semantictag rdf:type oac:SemanticTag .
+}
+
+^[AnnotationByPropertySemanticTag]
+SELECT DISTINCT ?annotationid WHERE {
+    ?annotationid a oac:DataAnnotation .
+    ?annotationid oac:hasBody ?propertyvalueid .
+    ?propertyvalueid rdf:type zoomaterms:Property .
+    ?annotationid oac:hasBody ?semantictag .
+    ?semantictag rdf:type oac:SemanticTag
+}
+
+^[AnnotationProvenance.read]
+SELECT DISTINCT (?annotationid as ?_annotationid) ?databaseid ?evidence ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
+    ?annotationid a oac:DataAnnotation .
+    ?annotationid dc:source ?databaseid .
+    ?databaseid a ?sourcetype .
+    ?databaseid zoomaterms:shortName ?sourcename .
+
+    OPTIONAL {?annotationid zoomaterms:hasEvidence ?evidence} .
+    OPTIONAL {?annotationid oac:annotator ?annotator} .
+    OPTIONAL {?annotationid oac:annotated ?annotated} .
+    OPTIONAL {?annotationid oac:generator ?generator} .
+    OPTIONAL {?annotationid oac:generated ?generated} .
+    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#NamedIndividual")
+    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Class")
+    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Ontology")
+}
+

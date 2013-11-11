@@ -51,12 +51,6 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
         return typeUris;
     }
 
-    @Override protected URI mintPropertyURI(String propertyID,
-                                            String propertyType,
-                                            String propertyValue) {
-        return URI.create(namespace.toString() + "/" + propertyID);
-    }
-
     @Override protected URI mintAnnotationURI(String annotationID) {
         return URI.create(namespace.toString() + "/" + annotationID);
     }

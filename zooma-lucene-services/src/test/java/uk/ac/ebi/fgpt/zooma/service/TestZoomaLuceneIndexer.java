@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
+import uk.ac.ebi.fgpt.zooma.datasource.AnnotationSummaryDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
@@ -52,6 +53,7 @@ public class TestZoomaLuceneIndexer {
     private AnnotationDAO singleAnnotationDAO;
     private AnnotationDAO multiAnnotationDAO;
     private AnnotationDAO verifiedAnnotationDAO;
+    private AnnotationSummaryDAO verifiedSummaryAnnotationDAO;
 
     //    private PropertyDAO singlePropertyDAO;
     private PropertyDAO propertyDAO;
@@ -236,8 +238,8 @@ public class TestZoomaLuceneIndexer {
 
         // create indices needed for this test
         try {
-            indexer.createAnnotationIndex(verifiedAnnotationDAO.read());
-            indexer.createAnnotationSummaryIndex(verifiedAnnotationDAO.read());
+//            indexer.createAnnotationIndex(verifiedAnnotationDAO.read());
+            indexer.createAnnotationSummaryIndex(verifiedSummaryAnnotationDAO);
         }
         catch (IOException e) {
             e.printStackTrace();

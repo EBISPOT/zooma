@@ -127,4 +127,9 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
                 ", annotationDate=" + annotationDate +
                 '}';
     }
+
+    @Override
+    public URI getURI() {
+        throw new UnsupportedOperationException();
+    }
 }
