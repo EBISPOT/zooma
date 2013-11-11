@@ -48,7 +48,7 @@ public class ZoomaLuceneIndexer extends Initializable {
     private Analyzer analyzer;
 
     // maximum number of entities that will be fetched from DAO, usually only used in testing
-    private int maxEntityCount = 1000;
+    private int maxEntityCount = -1;
 
     private int threadCount = 1;
 
@@ -269,7 +269,7 @@ public class ZoomaLuceneIndexer extends Initializable {
     }
 
     public void createAnnotationIndex(int count, AnnotationDAO dao) throws IOException {
-        getLog().info("Creating multithreaded lucene index for annotations...");
+        getLog().info("Creating threaded lucene index for annotations, with " + getThreadCount() + " threads");
 
         IndexWriter annotationIndexWriter = obtainIndexWriter(getAnnotationIndex());
 
