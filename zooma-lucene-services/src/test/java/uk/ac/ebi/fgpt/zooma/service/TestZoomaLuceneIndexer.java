@@ -48,7 +48,6 @@ public class TestZoomaLuceneIndexer {
     private AnnotationDAO multiAnnotationDAO;
     private AnnotationDAO verifiedAnnotationDAO;
     private AnnotationSummaryDAO verifiedSummaryAnnotationDAO;
-    private AnnotationProvenanceDAO verifiedAnnotationProvenanceDAO;
 
     //    private PropertyDAO singlePropertyDAO;
     private PropertyDAO propertyDAO;
@@ -173,11 +172,6 @@ public class TestZoomaLuceneIndexer {
             verifiedAnnotations.add(anno5);
             when(verifiedAnnotationDAO.read()).thenReturn(verifiedAnnotations);
 
-            verifiedAnnotationProvenanceDAO = mock(AnnotationProvenanceDAO.class);
-            Collection<AnnotationProvenance> verifiedProvenances = new HashSet<>();
-            verifiedProvenances.add(prov4);
-            when(verifiedAnnotationProvenanceDAO.read(new URI("http://www.test.com/annotation4"))).thenReturn(prov4);
-
             verifiedSummaryAnnotationDAO = mock(AnnotationSummaryDAO.class);
             Collection<AnnotationSummary> verifiedSummaries = new HashSet<>();
             verifiedSummaries.add(summary1);
@@ -199,7 +193,6 @@ public class TestZoomaLuceneIndexer {
         singleAnnotationDAO = null;
         multiAnnotationDAO = null;
         verifiedAnnotationDAO = null;
-        verifiedAnnotationProvenanceDAO = null;
         verifiedSummaryAnnotationDAO = null;
 
         FileVisitor deletor = new SimpleFileVisitor<Path>() {
@@ -253,7 +246,6 @@ public class TestZoomaLuceneIndexer {
         indexer.setAnalyzer(analyzer);
         indexer.setAnnotationDAO(verifiedAnnotationDAO);
         indexer.setAnnotationSummaryDAO(verifiedSummaryAnnotationDAO);
-        indexer.setAnnotationProvenanceDAO(verifiedAnnotationProvenanceDAO);
         indexer.setPropertyDAO(propertyDAO);
         indexer.setPropertyIndex(new RAMDirectory());
         indexer.setPropertyTypeIndex(new RAMDirectory());
@@ -262,14 +254,7 @@ public class TestZoomaLuceneIndexer {
         indexer.setAnnotationSummaryIndex(summaryDir);
 
 
-        // create indices needed for this test
-        try {
-            indexer.createAnnotationSummaryIndex(verifiedSummaryAnnotationDAO);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            fail("Couldn't create annotation summary index");
-        }
+
 
         // close indexer
         indexer.destroy();

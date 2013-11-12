@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -60,7 +61,7 @@ public class ZoomaLuceneIndexer extends Initializable {
 
     private AnnotationSummaryDAO annotationSummaryDAO;
 
-    private AnnotationProvenanceDAO annotationProvenanceDAO;
+//    private AnnotationProvenanceDAO annotationProvenanceDAO;
 
     private PropertyDAO propertyDAO;
 
@@ -167,13 +168,13 @@ public class ZoomaLuceneIndexer extends Initializable {
         this.annotationsPerThread = annotationsPerThread;
     }
 
-    public AnnotationProvenanceDAO getAnnotationProvenanceDAO() {
-        return annotationProvenanceDAO;
-    }
-
-    public void setAnnotationProvenanceDAO(AnnotationProvenanceDAO annotationProvenanceDAO) {
-        this.annotationProvenanceDAO = annotationProvenanceDAO;
-    }
+//    public AnnotationProvenanceDAO getAnnotationProvenanceDAO() {
+//        return annotationProvenanceDAO;
+//    }
+//
+//    public void setAnnotationProvenanceDAO(AnnotationProvenanceDAO annotationProvenanceDAO) {
+//        this.annotationProvenanceDAO = annotationProvenanceDAO;
+//    }
 
     /**
      * Returns a flag to indicate whether initialization of this indexer has already been successful or not
@@ -268,8 +269,9 @@ public class ZoomaLuceneIndexer extends Initializable {
 
     }
 
-    public void createAnnotationIndex(List<Annotation> annotations) throws IOException {
+    public Map<URI, AnnotationProvenance> createAnnotationIndex(List<Annotation> annotations) throws IOException {
         getLog().info("Creating threaded lucene index for annotations, with " + getThreadCount() + " threads");
+        final ConcurrentHashMap<URI, AnnotationProvenance> provenanceMap  = new ConcurrentHashMap<>();
 
         IndexWriter annotationIndexWriter = obtainIndexWriter(getAnnotationIndex());
 
@@ -283,7 +285,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                 limit = annotations.size() -1;
             }
 
-            Runnable worker = new RunnableAnnotationIndexBuilder(this, annotationIndexWriter, annotations.subList(offset, limit));
+            Runnable worker = new RunnableAnnotationIndexBuilder(this, annotationIndexWriter, annotations.subList(offset, limit), provenanceMap);
             executor.execute(worker);
             x = x + getAnnotationsPerThread();
         }
@@ -301,9 +303,10 @@ public class ZoomaLuceneIndexer extends Initializable {
         annotationIndexWriter.close();
 
         getLog().debug("Annotation lucene indexing complete!");
+        return provenanceMap;
     }
 
-    public void createAnnotationIndex(Collection<Annotation> annotations, IndexWriter indexWriter) throws IOException {
+    public void createAnnotationIndex(Collection<Annotation> annotations, Map<URI, AnnotationProvenance> provenanceMap, IndexWriter indexWriter) throws IOException {
         getLog().debug("Creating lucene index from " + annotations.size() + " annotations...");
 
         // iterate over all annotations
@@ -337,8 +340,9 @@ public class ZoomaLuceneIndexer extends Initializable {
                 }
             }
 
+            provenanceMap.put(annotation.getURI(), annotation.getProvenance());
             doc.add(new Field("quality",
-                    Float.toString(scoreAnnotationQuality(getAnnotationProvenanceDAO().read(annotation.getURI()))),
+                    Float.toString(scoreAnnotationQuality(annotation.getProvenance())),
                     Field.Store.YES,
                     Field.Index.ANALYZED));
 
@@ -352,7 +356,7 @@ public class ZoomaLuceneIndexer extends Initializable {
 
     }
 
-    public void createAnnotationSummaryIndex(AnnotationSummaryDAO summaryDao) throws IOException {
+    public void createAnnotationSummaryIndex(AnnotationSummaryDAO summaryDao,  Map<URI, AnnotationProvenance> provenanceMap) throws IOException {
 
         getLog().info("Creating annotation summary lucene index...");
 
@@ -403,7 +407,7 @@ public class ZoomaLuceneIndexer extends Initializable {
 
                 // check annotation score against current max - if no current max, or if greater, replace
                 for (URI annoUri : annotations) {
-                    AnnotationProvenance prov = getAnnotationProvenanceDAO().read(annoUri);
+                    AnnotationProvenance prov =provenanceMap.get(annoUri);
                     float annotationScore = scoreAnnotationQuality(prov);
                     if (!summaryIdToMaxScore.containsKey(summaryId) ||
                             (annotationScore > summaryIdToMaxScore.get(summaryId))) {
@@ -723,8 +727,8 @@ public class ZoomaLuceneIndexer extends Initializable {
         int count = getMaxEntityCount() == -1 ? annotations.size(): getMaxEntityCount();
         getLog().info("Total annotation to index:" + count);
         createAnnotationCountIndex(count);
-        createAnnotationIndex(new ArrayList<Annotation>(annotations));
-        createAnnotationSummaryIndex(getAnnotationSummaryDAO());
+        Map<URI, AnnotationProvenance> provenanceMap = createAnnotationIndex(new ArrayList<Annotation>(annotations));
+        createAnnotationSummaryIndex(getAnnotationSummaryDAO(), provenanceMap);
         getLog().info("Lucene indexing complete!");
     }
 

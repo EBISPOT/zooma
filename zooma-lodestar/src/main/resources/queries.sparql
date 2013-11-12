@@ -31,7 +31,7 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
 }
 
 ^[ANNOTATIONS.lucene.read]
-SELECT DISTINCT (?annotationid as ?_annotationid) (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) WHERE {
+SELECT DISTINCT (?annotationid as ?_annotationid) (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?databaseid ?evidence ?generated WHERE {
     ?annotationid a oac:DataAnnotation .
     ?annotationid oac:hasBody ?propertyvalueid .
     ?propertyvalueid zoomaterms:propertyName ?propertyname .
@@ -42,6 +42,11 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?propertyvalueid as ?_propert
         ?annotationid oac:hasBody ?semantictag .
         ?semantictag rdf:type oac:SemanticTag
     }
+
+    OPTIONAL {?annotationid zoomaterms:hasEvidence ?evidence} .
+    OPTIONAL {?annotationid oac:generated ?generated} .
+    ?annotationid dc:source ?databaseid .
+
 }
 
 ^[ANNOTATIONS_STUDY.read]

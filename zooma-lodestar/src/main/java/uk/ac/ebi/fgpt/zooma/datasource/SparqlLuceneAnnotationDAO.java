@@ -41,6 +41,8 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
+    private static DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
     private int queryCounter = 1;
 
     private QueryManager queryManager;
@@ -253,6 +255,11 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
         Literal propertyValueValue = solution.getLiteral(underscore + QueryVariables.PROPERTY_VALUE.toString());
         Resource semanticTag = solution.getResource(underscore + QueryVariables.SEMANTIC_TAG.toString());
 
+        Literal generated = solution.getLiteral(QueryVariables.GENERATED.toString());
+        Resource evidence = solution.getResource(QueryVariables.EVIDENCE.toString());
+        Resource database = solution.getResource(QueryVariables.DATABASEID.toString());
+
+
         URI annotationUri = URI.create(annotationIdValue.getURI());
         URI pvUri = URI.create(propertyValueIdValue.getURI());
         URI ontoUri;
@@ -277,6 +284,54 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
             annotationMap.get(annotationUri).getSemanticTags().add(ontoUri);
         }
 
+        AnnotationProvenance prov = null;
+
+        if (database != null && evidence != null) {
+            URI evidenceUri = URI.create(evidence.toString());
+            AnnotationProvenance.Evidence ev;
+            String name = null;
+            try {
+                name = URIBindingUtils.getName(evidenceUri);
+                ev = AnnotationProvenance.Evidence.lookup(name);
+            }
+            catch (IllegalArgumentException e) {
+                ev = AnnotationProvenance.Evidence.NON_TRACEABLE;
+                getLog().warn("SPARQL query returned evidence '" + name + "' " +
+                        "(" + evidenceUri + ") but this is not a valid evidence type.  " +
+                        "Setting evidence to " + ev);
+            }
+            catch (NullPointerException e) {
+                ev = AnnotationProvenance.Evidence.NON_TRACEABLE;
+                getLog().warn("No traceable evidence (" + e.getMessage() + ") for annotation " +
+                        "<" + annotationUri.toString() + ">.  Setting evidence to " + ev);
+            }
+
+            DateTime generatedDate = null;
+            if (generated == null) {
+                getLog().warn("No generated date for annotation <" + annotationUri.toString() + ">");
+            }
+            else {
+                // handle cases where virtuoso returns .0 for timezone
+                String dateStr = generated.getLexicalForm().replace(".0", "Z");
+                try {
+                    generatedDate = fmt.parseDateTime(dateStr);
+                }
+                catch (NumberFormatException e) {
+                    getLog().error("Can't read generation date '" + dateStr + "' " +
+                            "for annotation <" + annotationUri.toString() + ">", e);
+
+                }
+            }
+
+            AnnotationSource source = new SimpleDatabaseAnnotationSource(URI.create(database.getURI()), null);
+            prov = new SimpleAnnotationProvenance(source,
+                                    ev,
+                                   "zooma",
+                                    generatedDate != null ? generatedDate.toDate(): new Date());
+        }
+
+        ((SimpleLuceneAnnotation) annotationMap.get(annotationUri)).setProvenance(prov);
+
         return annotationMap.get(annotationUri);
 
     }
@@ -285,6 +340,7 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
 
         private Collection<URI> semanticTags;
         private Property property;
+        private AnnotationProvenance provenance;
 
         private SimpleLuceneAnnotation(URI annotationUri, Property property) {
             super(annotationUri);
@@ -292,6 +348,9 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
             this.semanticTags = new HashSet<>();
         }
 
+        public void setProvenance (AnnotationProvenance prov) {
+            this.provenance = prov;
+        }
 
         @Override
         public Collection<BiologicalEntity> getAnnotatedBiologicalEntities() {
@@ -310,7 +369,7 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
 
         @Override
         public AnnotationProvenance getProvenance() {
-            throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+            return provenance;
         }
 
         @Override
@@ -344,6 +403,4 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
                     '}';
         }
     }
-
-
 }
