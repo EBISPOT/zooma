@@ -407,13 +407,18 @@ public class ZoomaLuceneIndexer extends Initializable {
 
                 // check annotation score against current max - if no current max, or if greater, replace
                 for (URI annoUri : annotations) {
-                    AnnotationProvenance prov =provenanceMap.get(annoUri);
-                    float annotationScore = scoreAnnotationQuality(prov);
-                    if (!summaryIdToMaxScore.containsKey(summaryId) ||
-                            (annotationScore > summaryIdToMaxScore.get(summaryId))) {
-                        summaryIdToMaxScore.put(summaryId, scoreAnnotationQuality(prov));
+                    if (!provenanceMap.containsKey(annoUri)) {
+                        getLog().warn("No provenance for annotation " + annoUri.toString());
                     }
-                    summaryIdToSourcesMap.get(summaryId).add(prov.getSource().getURI());
+                    else {
+                        AnnotationProvenance prov =provenanceMap.get(annoUri);
+                        float annotationScore = scoreAnnotationQuality(prov);
+                        if (!summaryIdToMaxScore.containsKey(summaryId) ||
+                                (annotationScore > summaryIdToMaxScore.get(summaryId))) {
+                            summaryIdToMaxScore.put(summaryId, scoreAnnotationQuality(prov));
+                        }
+                        summaryIdToSourcesMap.get(summaryId).add(prov.getSource().getURI());
+                    }
                 }
 
                 // build one document to index each summary combination

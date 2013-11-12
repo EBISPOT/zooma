@@ -400,6 +400,7 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
                     ", uri=" + getURI().toString() +
                     "semanticTags=" + semanticTags +
                     ", property=" + property +
+                    ", prov=" + provenance.toString() +
                     '}';
         }
     }
