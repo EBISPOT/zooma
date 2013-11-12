@@ -23,25 +23,23 @@
         <property name="propertySearchService" ref="propertySearchService" />
     </bean>
 
-    <bean id="stringProcessorBrackets" class="uk.ac.ebi.fgpt.zooma.service.ParenthesesProcessor" />
+    <bean id="stringProcessorBrackets" class="uk.ac.ebi.fgpt.zooma.util.ParenthesesProcessor" />
 
-    <bean id="stringProcessorTime" class="uk.ac.ebi.fgpt.zooma.service.TimeProcessor" />
+    <bean id="stringProcessorTime" class="uk.ac.ebi.fgpt.zooma.util.TimeProcessor" />
 
     <bean id="chemicalCompoundProcessor"
-          class="uk.ac.ebi.fgpt.zooma.service.ChemicalCompoundProcessor"
+          class="uk.ac.ebi.fgpt.zooma.util.ChemicalCompoundProcessor"
           init-method="init">
         <constructor-arg name="dictionaryResourceName" value="concentration_unit_dictionary.txt" />
     </bean>
 
-    <bean id="anatomyProcessor" class="uk.ac.ebi.fgpt.zooma.service.AnatomyProcessor" init-method="init">
+    <bean id="anatomyProcessor" class="uk.ac.ebi.fgpt.zooma.util.AnatomyProcessor" init-method="init">
         <constructor-arg name="dictionaryResourceName" value="organism_part_qualifier_dictionary.txt" />
     </bean>
 
-    <bean id="stringProcessor_Splitter" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor" />
+    <bean id="splittingProcessor" class="uk.ac.ebi.fgpt.zooma.util.SplittingProcessor" />
 
-    <bean id="normalizer" class="uk.ac.ebi.fgpt.zooma.service.NormalizerLexicalTechniques" init-method="init" />
-
-    <bean id="filter" class="uk.ac.ebi.fgpt.zooma.service.FilterLexicalTechniques" />
+    <bean id="stopwordProcessor" class="uk.ac.ebi.fgpt.zooma.util.StopwordProcessor" />
 
     <bean id="annotationSummaryService" class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummaryService">
         <property name="analyzer" ref="analyzer" />
@@ -77,15 +75,14 @@
           init-method="init">
         <constructor-arg ref="baseAnnotationSummarySearchService" />
         <property name="propertyDAO" ref="propertyDAO" />
-        <property name="normalizer" ref="normalizer" />
-        <property name="filter" ref="filter" />
+        <property name="searchStringProcessor" ref="stopwordProcessor" />
     </bean>
 
     <!-- wraps any annotationSummarySearchService with string splitting decorator -->
     <bean id="annotationSummarySearchService"
           class="uk.ac.ebi.fgpt.zooma.service.PostProcessingAnnotationSummarySearchService">
         <constructor-arg ref="needlemanJaccardSearchService" />
-        <property name="searchStringProcessor" ref="stringProcessor_Splitter" />
+        <property name="searchStringProcessor" ref="splittingProcessor" />
     </bean>
 
     <bean id="biologicalEntityService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedBiologicalEntityService">

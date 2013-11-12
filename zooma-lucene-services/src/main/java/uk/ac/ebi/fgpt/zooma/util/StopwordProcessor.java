@@ -1,25 +1,26 @@
-
-package uk.ac.ebi.fgpt.zooma.service;
-
+package uk.ac.ebi.fgpt.zooma.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.regex.Pattern;
 
-
 /**
- * Normalizer of EFO labels and properties. This normalizer removes stopwords (e.g. "the", "a")  and characters (e.g.
- * "-", ",") Normalization improves quality of lexical mappings. Normalization should be applied to EFO labels and
- * properties before using approximate lexical techniques.
+ * A {@link SearchStringProcessor} that removes stopwords from the strings it is given to process.  Lucene normally does
+ * this for searches by default, but as they convey meaning in ontology annotations we usually require first searching
+ * with stopwords present and therefore we store stopwords in the index.  This class is therefore a workaround to allow
+ * results that return no results with stopwords included to have them stripped and requeried.
+ * <p/>
+ * This technique is usually applied to ontology labels before using approximate matching algorithms
  *
+ * @author Tony Burdett
  * @author Jose Iglesias
- * @date 16/08/13
+ * @date 11/11/13
  */
+public class StopwordProcessor implements SearchStringProcessor {
+    private final Collection<String> stopWords;
 
-public class NormalizerLexicalTechniques {
-    public Collection<String> stopWords;
-
-    public void init() {
+    public StopwordProcessor() {
         stopWords = new ArrayList<>();
         stopWords.add("a");
         stopWords.add("an");
@@ -53,24 +54,41 @@ public class NormalizerLexicalTechniques {
         stopWords.add("nos");
     }
 
+    @Override public float getBoostFactor() {
+        return 1;
+    }
+
+    @Override public boolean canProcess(String searchString) {
+        for (String stopWord : stopWords) {
+            if (searchString.contains(stopWord)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override public Collection<String> processSearchString(String searchString) throws IllegalArgumentException {
+        return Collections.singleton(removeCharacters(removeStopWords(searchString.toLowerCase())));
+    }
+
     /**
      * This method removes the stopwords of a string
      *
      * @param input the string to remove stopwords from
      * @return the processed string
      */
-    public String removeStopWords(String input) {
+    private String removeStopWords(String input) {
         String output = "";
         String[] inputWords = input.split(" ");
 
         for (String inputWord : inputWords) {
-            if (!stopWords.contains(inputWord)) {
+            if (!stopWords.contains(inputWord) && inputWord != null && !inputWord.isEmpty()) {
                 output += inputWord + " ";
             }
         }
 
         // remove extraneous whitespace
-        return output.trim().replaceAll(" +", " ");
+        return output.trim();
     }
 
     /**
@@ -79,7 +97,7 @@ public class NormalizerLexicalTechniques {
      * @param input the string to remove separator characters from
      * @return the processed string
      */
-    public String removeCharacters(String input) {
+    private String removeCharacters(String input) {
         String output = input.replaceAll(", ", " ");
         output = output.replaceAll(" _ ", " ");
         output = output.replaceAll(" - ", " ");

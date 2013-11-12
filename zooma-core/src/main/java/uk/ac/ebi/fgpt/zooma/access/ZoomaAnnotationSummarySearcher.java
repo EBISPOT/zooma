@@ -44,12 +44,7 @@ import java.util.Map;
 public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSummary, String> {
     private AnnotationSummaryService annotationSummaryService;
 
-    //annotationSummarySearchService including new improvements 
     private AnnotationSummarySearchService annotationSummarySearchService;
-
-    //annotationSummarySearchService without improvements 
-    private AnnotationSummarySearchService annotationSummarySearchServiceOLD;
-
 
     private Sorter<AnnotationSummary> annotationSummarySorter;
     private Limiter<AnnotationSummary> annotationSummaryLimiter;
@@ -72,16 +67,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     @Qualifier("annotationSummarySearchService")
     public void setAnnotationSummarySearchService(AnnotationSummarySearchService annotationSummarySearchService) {
         this.annotationSummarySearchService = annotationSummarySearchService;
-    }
-
-    @Autowired
-    @Qualifier("annotationSummarySearchService")
-    public void setAnnotationSummarySearchServiceOLD(AnnotationSummarySearchService annotationSummarySearchService) {
-        this.annotationSummarySearchServiceOLD = annotationSummarySearchService;
-    }
-
-    public AnnotationSummarySearchService getAnnotationSummarySearchServiceOLD() {
-        return annotationSummarySearchServiceOLD;
     }
 
     public Sorter<AnnotationSummary> getAnnotationSummarySorter() {
@@ -148,17 +133,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         validate();
         return prefixed
                 ? getAnnotationSummarySearchService().searchAndScoreByPrefix(query)
-                : getAnnotationSummarySearchService().searchAndScore_QueryExpansion(query);
-    }
-
-    public Map<AnnotationSummary, Float> queryAndScoreOLD(String query, boolean prefixed) {
-
-        System.out.println("queryAndScoreOLD    Querying for " + query + " (prefixed = " + prefixed + ")");
-        getLog().debug("queryAndScoreOLD    Querying for " + query + " (prefixed = " + prefixed + ")");
-        validate();
-        return prefixed
-                ? getAnnotationSummarySearchServiceOLD().searchAndScoreByPrefix(query)
-                : getAnnotationSummarySearchServiceOLD().searchAndScore(query);
+                : getAnnotationSummarySearchService().searchAndScore(query);
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query, String type, boolean prefixed) {
@@ -168,20 +143,8 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         validate();
         return prefixed
                 ? getAnnotationSummarySearchService().searchAndScoreByPrefix(type, query)
-                : getAnnotationSummarySearchService().searchAndScore_QueryExpansion(type, query);
+                : getAnnotationSummarySearchService().searchAndScore(type, query);
 
-    }
-
-    public Map<AnnotationSummary, Float> queryAndScoreOLD(String query, String type, boolean prefixed) {
-
-        System.out.println("queryAndScoreOLD    Querying for " + query + " (prefixed = " + prefixed + ")");
-
-
-        getLog().debug("queryAndScoreOLD    Querying for " + query + ", " + type + " (prefixed = " + prefixed + ")");
-        validate();
-        return prefixed
-                ? getAnnotationSummarySearchServiceOLD().searchAndScoreByPrefix(type, query)
-                : getAnnotationSummarySearchServiceOLD().searchAndScore(type, query);
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query,
@@ -197,23 +160,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         validate();
         return prefixed
                 ? getAnnotationSummarySearchService().searchAndScoreByPrefix(type, query)
-                : getAnnotationSummarySearchService().searchAndScore_QueryExpansion(type, query);
-    }
-
-    public Map<AnnotationSummary, Float> queryAndScoreOLD(String query,
-                                                          String type,
-                                                          boolean prefixed,
-                                                          int limit,
-                                                          int start) {
-
-        System.out.println("queryAndScoreOLD    Querying for " + query + " (prefixed = " + prefixed + ")");
-
-        getLog().debug("queryAndScoreOLD    Querying for " + query + ", " + type + ", " + limit + ", " + start +
-                               " (prefixed = " + prefixed + ")");
-        validate();
-        return prefixed
-                ? getAnnotationSummarySearchServiceOLD().searchAndScoreByPrefix(type, query)
-                : getAnnotationSummarySearchServiceOLD().searchAndScore(type, query);
+                : getAnnotationSummarySearchService().searchAndScore(type, query);
     }
 
     public Map<AnnotationSummary, Float> queryAndScoreBySemanticTags(String... semanticTagShortnames) {
@@ -328,49 +275,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         }
     }
 
-
-    @RequestMapping(value = "/searchOLD", method = RequestMethod.GET)
-    public @ResponseBody SearchResponse searchOLD(
-            @RequestParam(value = "query", required = false) final String query,
-            @RequestParam(value = "type", required = false) final String type,
-            @RequestParam(value = "exact", required = false, defaultValue = "false") final Boolean exact,
-            @RequestParam(value = "limit", required = false, defaultValue = "20") final Integer limit,
-            @RequestParam(value = "start", required = false, defaultValue = "0") final Integer start,
-            @RequestParam(value = "prefixed", required = false, defaultValue = "false") final Boolean prefixed,
-            @RequestParam(value = "lang", required = false) final String lang,
-            @RequestParam(value = "domain", required = false) final String domain,
-            @RequestParam(value = "filter", required = false) final String filter,
-            @RequestParam(value = "html_escape", required = false, defaultValue = "true") final Boolean html_escape,
-            @RequestParam(value = "indent", required = false, defaultValue = "false") final Boolean indent,
-            @RequestParam(value = "mql_output", required = false) final String mql_output,
-            @RequestParam(value = "semanticTag", required = false) String[] semanticTags) {
-        validateArguments(query, type, exact, limit, start, prefixed, semanticTags);
-
-        getLog().debug("****oldsearch RequestMapping");
-        //System.out.println("****oldsearch RequestMapping ");
-
-        if (semanticTags != null) {
-            return searchBySemanticTags(semanticTags);
-        }
-        else {
-
-            getLog().debug("****calling searchOLD()");
-
-            return searchOLD(query,
-                             type,
-                             exact,
-                             limit,
-                             start,
-                             prefixed,
-                             lang,
-                             domain,
-                             filter,
-                             html_escape,
-                             indent,
-                             mql_output);
-        }
-    }
-
     @Override
     public SearchResponse search(final String query,
                                  final String type,
@@ -413,49 +317,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
             return convertToSearchResponse(query, queryAndScore(query, prefixed), getAnnotationSummarySorter());
         }
     }
-
-
-    public SearchResponse searchOLD(final String query,
-                                    final String type,
-                                    final Boolean exact,
-                                    final Integer limit,
-                                    final Integer start,
-                                    final Boolean prefixed,
-                                    final String lang,
-                                    final String domain,
-                                    final String filter,
-                                    final Boolean html_escape,
-                                    final Boolean indent,
-                                    final String mql_output) {
-
-        getLog().debug("****searchOLD norequest");
-        //System.out.println("****searchOLD");
-
-        // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
-        if (type != null) {
-            if (limit != null) {
-                if (start != null) {
-                    return convertToSearchResponse(query,
-                                                   queryAndScoreOLD(query, type, prefixed, limit, start),
-                                                   getAnnotationSummarySorter());
-                }
-                else {
-                    return convertToSearchResponse(query,
-                                                   queryAndScoreOLD(query, type, prefixed, limit, 0),
-                                                   getAnnotationSummarySorter());
-                }
-            }
-            else {
-                return convertToSearchResponse(query,
-                                               queryAndScoreOLD(query, type, prefixed),
-                                               getAnnotationSummarySorter());
-            }
-        }
-        else {
-            return convertToSearchResponse(query, queryAndScoreOLD(query, prefixed), getAnnotationSummarySorter());
-        }
-    }
-
 
     @Override
     @RequestMapping(value = "/flyout", method = RequestMethod.GET)

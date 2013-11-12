@@ -1,6 +1,4 @@
-package uk.ac.ebi.fgpt.zooma.service;
-
-import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
+package uk.ac.ebi.fgpt.zooma.util;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +23,7 @@ public class ParenthesesProcessor implements SearchStringProcessor {
      * Returns false otherwise.
      */
     @Override
-    public boolean canProcess(String searchString, String searchStringType) {
+    public boolean canProcess(String searchString) {
         if (searchString.contains("(") && searchString.contains(")")) {
             // Brackets of compounds mustn't be removed (e.g: 4-(N-nitrosomethylamino)-1-(3-pyridyl)butan-1-one  )
             // Two patterns to identify compounds:

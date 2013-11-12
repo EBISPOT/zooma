@@ -1,8 +1,7 @@
-package uk.ac.ebi.fgpt.zooma.service;
+package uk.ac.ebi.fgpt.zooma.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.Resource;
-import uk.ac.ebi.fgpt.zooma.util.AbstractDictionaryLoadingProcessor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +17,8 @@ import java.util.regex.Pattern;
  * @date 16/08/13
  */
 public class ChemicalCompoundProcessor extends AbstractDictionaryLoadingProcessor {
+    // should only be invoked if type is some derivation of 'compound' or 'growth condition'
+
     // units dictionary contains all subclasses of "concentration unit" (UO_0000051).
     public ChemicalCompoundProcessor(String dictionaryResourceName) {
         super(dictionaryResourceName);
@@ -30,23 +31,6 @@ public class ChemicalCompoundProcessor extends AbstractDictionaryLoadingProcesso
     @Override
     public float getBoostFactor() {
         return 0.95f;
-    }
-
-    /**
-     * Returns true if the property type is equal to compound or growth_condition. Returns false otherwise.
-     */
-    @Override
-    public boolean canProcess(String searchString, String searchStringType) {
-        if (searchStringType != null && !searchStringType.isEmpty()) {
-            searchStringType = searchStringType.toLowerCase();
-            if (searchStringType.contentEquals("compound") ||
-                    searchStringType.contentEquals("compounds") ||
-                    searchStringType.contentEquals("growth condition") ||
-                    searchStringType.contentEquals("growth_condition")) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

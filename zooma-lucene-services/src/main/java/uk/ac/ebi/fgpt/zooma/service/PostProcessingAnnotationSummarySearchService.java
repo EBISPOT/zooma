@@ -2,12 +2,13 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationSummary;
+import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
 
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -23,7 +24,7 @@ import java.util.Map;
  * searched property and the list of semantic tags obtained from one or more ZOOMA searches.
  * <p/>
  * Because expanding results in this way gives us a (possibly very) large set of summaries that require merging, this
- * class currently only supports merging if the processed string returns two distinct parts.
+ * class currently only supports merging if the processed string returns at most two distinct parts.
  *
  * @author Jose Iglesias
  * @date 12/8/13
@@ -46,34 +47,46 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     }
 
     @Override
-    public Map<AnnotationSummary, Float> searchAndScore_QueryExpansion(String propertyValuePattern) {
-        try {
-            initOrWait();
-        }
-        catch (InterruptedException e) {
-            throw new RuntimeException("Initialization failed, cannot query", e);
-        }
+    public Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern) {
+        Map<AnnotationSummary, Float> rawResults = super.searchAndScore(propertyValuePattern);
 
-        Map<AnnotationSummary, Float> rawResults = super.searchAndScore_QueryExpansion(propertyValuePattern);
-
-        // if raw results are empty, attempt to split the string and reprocess
+        // if raw results are empty, attempt to process the string and requery
         if (rawResults.isEmpty()) {
-            // We check if string contains "and"
-            if (getSearchStringProcessor().canProcess(propertyValuePattern, null)) {
-                List<String> parts = getSearchStringProcessor().processSearchString(propertyValuePattern);
+            try {
+                initOrWait();
+            }
+            catch (InterruptedException e) {
+                throw new RuntimeException("Initialization failed, cannot query", e);
+            }
 
-                // for now, we only work with properties containing 2 sentences, such as "sentence1 and sentence2"
-                if (parts.size() == 2) {
-                    String firstPart = parts.get(0);
-                    Map<AnnotationSummary, Float> firstPartResults = super.searchAndScore_QueryExpansion(firstPart);
-                    String secondPart = parts.get(1);
-                    Map<AnnotationSummary, Float> secondPartResults = super.searchAndScore_QueryExpansion(secondPart);
+            // check if we can process the string
+            // todo - only use processors that are suitable based on type
+            if (getSearchStringProcessor().canProcess(propertyValuePattern)) {
+                Collection<String> parts = getSearchStringProcessor().processSearchString(propertyValuePattern);
 
-                    return processResults(propertyValuePattern,
-                                          firstPart,
-                                          firstPartResults,
-                                          secondPart,
-                                          secondPartResults);
+                // for now, we only work with cases where the string returns at most 2 processed forms
+                if (parts.size() < 3) {
+                    if (parts.size() == 0) {
+                        return rawResults;
+                    }
+                    else if (parts.size() == 1) {
+                        return super.searchAndScore(propertyValuePattern);
+                    }
+                    else {
+                        Iterator<String> partsIterator = parts.iterator();
+                        String firstPart = partsIterator.next();
+                        String secondPart = partsIterator.next();
+                        Map<AnnotationSummary, Float> firstPartResults =
+                                super.searchAndScore(firstPart);
+                        Map<AnnotationSummary, Float> secondPartResults =
+                                super.searchAndScore(secondPart);
+
+                        return mergeResults(propertyValuePattern,
+                                            firstPart,
+                                            firstPartResults,
+                                            secondPart,
+                                            secondPartResults);
+                    }
                 }
                 else {
                     getLog().warn("Cannot currently support merging more than 2 processed results, " +
@@ -87,38 +100,47 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     }
 
     @Override
-    public Map<AnnotationSummary, Float> searchAndScore_QueryExpansion(String propertyType,
-                                                                       String propertyValuePattern) {
-        try {
-            initOrWait();
-        }
-        catch (InterruptedException e) {
-            throw new RuntimeException("Initialization failed, cannot query", e);
-        }
+    public Map<AnnotationSummary, Float> searchAndScore(String propertyType,
+                                                        String propertyValuePattern) {
+        Map<AnnotationSummary, Float> rawResults = super.searchAndScore(propertyType, propertyValuePattern);
 
-        Map<AnnotationSummary, Float> rawResults =
-                super.searchAndScore_QueryExpansion(propertyType, propertyValuePattern);
-
-        // If the complete string hasn't annotations then partial strings are used
+        // if raw results are empty, attempt to process the string and requery
         if (rawResults.isEmpty()) {
-            // We check if string contains "and"
-            if (getSearchStringProcessor().canProcess(propertyValuePattern, propertyType)) {
-                List<String> parts = getSearchStringProcessor().processSearchString(propertyValuePattern);
+            try {
+                initOrWait();
+            }
+            catch (InterruptedException e) {
+                throw new RuntimeException("Initialization failed, cannot query", e);
+            }
 
-                // for now, we only work with properties containing 2 sentences, such as "sentence1 and sentence2"
-                if (parts.size() == 2) {
-                    String firstPart = parts.get(0);
-                    Map<AnnotationSummary, Float> firstPartResults =
-                            super.searchAndScore_QueryExpansion(propertyType, firstPart);
-                    String secondPart = parts.get(1);
-                    Map<AnnotationSummary, Float> secondPartResults =
-                            super.searchAndScore_QueryExpansion(propertyType, secondPart);
+            // check if we can process the string
+            // todo - only use processors that are suitable based on type
+            if (getSearchStringProcessor().canProcess(propertyValuePattern)) {
+                Collection<String> parts = getSearchStringProcessor().processSearchString(propertyValuePattern);
 
-                    return processResults(propertyValuePattern,
-                                          firstPart,
-                                          firstPartResults,
-                                          secondPart,
-                                          secondPartResults);
+                // for now, we only work with cases where the string returns at most 2 processed forms
+                if (parts.size() < 3) {
+                    if (parts.size() == 0) {
+                        return rawResults;
+                    }
+                    else if (parts.size() == 1) {
+                        return super.searchAndScore(propertyType, propertyValuePattern);
+                    }
+                    else {
+                        Iterator<String> partsIterator = parts.iterator();
+                        String firstPart = partsIterator.next();
+                        String secondPart = partsIterator.next();
+                        Map<AnnotationSummary, Float> firstPartResults =
+                                super.searchAndScore(firstPart);
+                        Map<AnnotationSummary, Float> secondPartResults =
+                                super.searchAndScore(secondPart);
+
+                        return mergeResults(propertyValuePattern,
+                                            firstPart,
+                                            firstPartResults,
+                                            secondPart,
+                                            secondPartResults);
+                    }
                 }
                 else {
                     getLog().warn("Cannot currently support merging more than 2 processed results, " +
@@ -130,11 +152,11 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
         return rawResults;
     }
 
-    protected Map<AnnotationSummary, Float> processResults(String propertyValuePattern,
-                                                           String firstPart,
-                                                           Map<AnnotationSummary, Float> firstPartResults,
-                                                           String secondPart,
-                                                           Map<AnnotationSummary, Float> secondPartResults) {
+    protected Map<AnnotationSummary, Float> mergeResults(String propertyValuePattern,
+                                                         String firstPart,
+                                                         Map<AnnotationSummary, Float> firstPartResults,
+                                                         String secondPart,
+                                                         Map<AnnotationSummary, Float> secondPartResults) {
         Map<AnnotationSummary, Float> results = new HashMap<>();
 
         int firstPartLength = firstPart.length();

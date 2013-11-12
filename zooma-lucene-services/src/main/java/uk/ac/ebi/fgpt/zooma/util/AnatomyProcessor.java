@@ -1,7 +1,6 @@
-package uk.ac.ebi.fgpt.zooma.service;
+package uk.ac.ebi.fgpt.zooma.util;
 
 import org.springframework.core.io.Resource;
-import uk.ac.ebi.fgpt.zooma.util.AbstractDictionaryLoadingProcessor;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +12,8 @@ import java.util.List;
  * @date 16/08/13
  */
 public class AnatomyProcessor extends AbstractDictionaryLoadingProcessor {
+    // should only be invoked if type is some derivation of 'organism part'
+
     // organism part qualifier dictionary contains all subclasses of "anatomical modifier" (EFO)
     // and all subclasses of "position" (PATO)
     public AnatomyProcessor(String dictionaryResourceName) {
@@ -26,22 +27,6 @@ public class AnatomyProcessor extends AbstractDictionaryLoadingProcessor {
     @Override
     public float getBoostFactor() {
         return 0.9f;
-    }
-
-    /**
-     * Returns true if the property type indicates this string is an organism part, or false otherwise.
-     */
-    @Override
-    public boolean canProcess(String searchString, String searchStringType) {
-        if (searchStringType != null && !searchStringType.isEmpty()) {
-            searchStringType = searchStringType.toLowerCase();
-            if (searchStringType.contentEquals("organism_part") ||
-                    searchStringType.contentEquals("organism part") ||
-                    searchStringType.contentEquals("organismpart")) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

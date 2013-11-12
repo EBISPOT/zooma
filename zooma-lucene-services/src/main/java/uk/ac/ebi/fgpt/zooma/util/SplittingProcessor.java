@@ -1,4 +1,4 @@
-package uk.ac.ebi.fgpt.zooma.service;
+package uk.ac.ebi.fgpt.zooma.util;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,7 +13,7 @@ import java.util.List;
  * @author Jose Iglesias
  * @date 12/8/13
  */
-public class SearchStringProcessor implements uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor {
+public class SplittingProcessor implements SearchStringProcessor {
     @Override
     public float getBoostFactor() {
         return 0.7f;
@@ -22,12 +22,12 @@ public class SearchStringProcessor implements uk.ac.ebi.fgpt.zooma.util.SearchSt
     /**
      * Returns true if the property value contains exactly one " and ". Returns false otherwise.
      *
+     *
      * @param searchString     the search string to test
-     * @param searchStringType the type
      * @return true if the string can be processed
      */
     @Override
-    public boolean canProcess(String searchString, String searchStringType) {
+    public boolean canProcess(String searchString) {
         return StringUtils.countMatches(searchString, " and ") == 1;
     }
 

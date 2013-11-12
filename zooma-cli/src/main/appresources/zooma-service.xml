@@ -16,13 +16,39 @@
         <property name="propertySearchService" ref="propertySearchService" />
     </bean>
 
+    <bean id="stringProcessorBrackets" class="uk.ac.ebi.fgpt.zooma.util.ParenthesesProcessor" />
+
+    <bean id="stringProcessorTime" class="uk.ac.ebi.fgpt.zooma.util.TimeProcessor" />
+
+    <bean id="chemicalCompoundProcessor"
+          class="uk.ac.ebi.fgpt.zooma.util.ChemicalCompoundProcessor"
+          init-method="init">
+        <constructor-arg name="dictionaryResourceName" value="concentration_unit_dictionary.txt" />
+    </bean>
+
+    <bean id="anatomyProcessor" class="uk.ac.ebi.fgpt.zooma.util.AnatomyProcessor" init-method="init">
+        <constructor-arg name="dictionaryResourceName" value="organism_part_qualifier_dictionary.txt" />
+    </bean>
+
+    <bean id="splittingProcessor" class="uk.ac.ebi.fgpt.zooma.util.SplittingProcessor" />
+
+    <bean id="stopwordProcessor" class="uk.ac.ebi.fgpt.zooma.util.StopwordProcessor" />
+
     <bean id="annotationSummaryService" class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummaryService">
         <property name="analyzer" ref="analyzer" />
         <property name="index" ref="annotationSummaryIndex" />
         <property name="annotationIndex" ref="annotationIndex" />
     </bean>
 
-    <bean id="annotationSummarySearchService" class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummarySearchService">
+    <!--
+    NOTE:
+    Because we use decorated annotation summary search services,
+    autowiring requires a name to be used by convention.
+    Use id='annotationSummarySearchService' to denote the search service to autowire
+    -->
+
+    <bean id="baseAnnotationSummarySearchService"
+          class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummarySearchService">
         <property name="analyzer" ref="analyzer" />
         <property name="index" ref="annotationSummaryIndex" />
         <property name="annotationIndex" ref="annotationIndex" />
@@ -30,45 +56,27 @@
             <list>
                 <ref bean="stringProcessorBrackets" />
                 <ref bean="stringProcessorTime" />
-                <ref bean="stringProcessorCompound" />
-                <ref bean="stringProcessorOrganismPart" />
+                <ref bean="chemicalCompoundProcessor" />
+                <ref bean="anatomyProcessor" />
             </list>
         </property>
     </bean>
 
-    <bean id="needlemanLuceneSearchService"
+    <!-- wraps any annotationSummarySearchService with Needleman/Jaccard decorator -->
+    <bean id="needlemanJaccardSearchService"
           class="uk.ac.ebi.fgpt.zooma.service.NeedlemanJaccardAnnotationSummarySearchService"
           init-method="init">
-        <constructor-arg ref="annotationSummarySearchService" />
+        <constructor-arg ref="baseAnnotationSummarySearchService" />
         <property name="propertyDAO" ref="propertyDAO" />
-        <property name="normalizer" ref="normalizer" />
-        <property name="filter" ref="filter" />
+        <property name="searchStringProcessor" ref="stopwordProcessor" />
     </bean>
 
-    <bean id="splittingAnnotationSummarySearchService"
+    <!-- wraps any annotationSummarySearchService with string splitting decorator -->
+    <bean id="annotationSummarySearchService"
           class="uk.ac.ebi.fgpt.zooma.service.PostProcessingAnnotationSummarySearchService">
-        <constructor-arg ref="needlemanLuceneSearchService" />
-        <property name="SearchStringProcessor_Splitter" ref="stringProcessor_Splitter" />
+        <constructor-arg ref="needlemanJaccardSearchService" />
+        <property name="searchStringProcessor" ref="splittingProcessor" />
     </bean>
-
-    <bean id="stringProcessorBrackets" class="uk.ac.ebi.fgpt.zooma.service.ParenthesesProcessor" />
-
-    <bean id="stringProcessorTime" class="uk.ac.ebi.fgpt.zooma.service.TimeProcessor" />
-
-    <bean id="stringProcessorCompound"
-          class="uk.ac.ebi.fgpt.zooma.service.ChemicalCompoundProcessor"
-          init-method="init" />
-
-    <bean id="stringProcessorOrganismPart"
-          class="uk.ac.ebi.fgpt.zooma.service.AnatomyProcessor"
-          init-method="init" />
-
-    <bean id="stringProcessor_Splitter" class="uk.ac.ebi.fgpt.zooma.service.SearchStringProcessor" />
-
-    <bean id="normalizer" class="uk.ac.ebi.fgpt.zooma.service.NormalizerLexicalTechniques" init-method="init" />
-
-    <bean id="filter" class="uk.ac.ebi.fgpt.zooma.service.FilterLexicalTechniques" />
-
 
     <bean id="biologicalEntityService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedBiologicalEntityService">
         <property name="biologicalEntityDAO" ref="biologicalEntityDAO" />

@@ -1,6 +1,4 @@
-package uk.ac.ebi.fgpt.zooma.service;
-
-import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
+package uk.ac.ebi.fgpt.zooma.util;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +12,18 @@ import java.util.regex.Pattern;
  * @date 16/08/13
  */
 public class TimeProcessor implements SearchStringProcessor {
+    // should only be invoked if type is some derivation of 'time', 'time unit' or 'age', e.g.
+//    if (searchStringType.contentEquals("time") ||
+//            searchStringType.contentEquals("time unit") ||
+//            searchStringType.contentEquals("time_unit") ||
+//            searchStringType.contentEquals("timeunit") ||
+//            searchStringType.contentEquals("age") ||
+//            searchStringType.contentEquals("derived time unit") ||
+//            searchStringType.contentEquals("time derived unit") ||
+//            searchStringType.contentEquals("period")) {
+//        return true;
+//    }
+
     @Override
     public float getBoostFactor() {
         return 0.95f;
@@ -23,21 +33,10 @@ public class TimeProcessor implements SearchStringProcessor {
      * Returns true if the property type is equal to time,age, ect.. Returns false otherwise.
      */
     @Override
-    public boolean canProcess(String searchString, String searchStringType) {
-        if (searchStringType != null && !searchStringType.isEmpty()) {
-            searchStringType = searchStringType.toLowerCase();
-            if (searchStringType.contentEquals("time") ||
-                    searchStringType.contentEquals("time unit") ||
-                    searchStringType.contentEquals("time_unit") ||
-                    searchStringType.contentEquals("timeunit") ||
-                    searchStringType.contentEquals("age") ||
-                    searchStringType.contentEquals("derived time unit") ||
-                    searchStringType.contentEquals("time derived unit") ||
-                    searchStringType.contentEquals("period")) {
-                return true;
-            }
-        }
-        return false;
+    public boolean canProcess(String searchString) {
+        Pattern p = Pattern.compile(".*\\d.*");
+        Matcher m = p.matcher(searchString);
+        return m.find();
     }
 
 

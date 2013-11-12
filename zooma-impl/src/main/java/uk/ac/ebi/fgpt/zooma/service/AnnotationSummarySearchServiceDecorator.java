@@ -54,14 +54,6 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
         return _annotatationSummarySearchService.searchAndScore(propertyType, propertyValuePattern);
     }
     
-    @Override public Map<AnnotationSummary, Float> searchAndScore_QueryExpansion(String propertyValuePattern) {
-        return _annotatationSummarySearchService.searchAndScore_QueryExpansion(propertyValuePattern);
-    }
-    
-    @Override public Map<AnnotationSummary, Float> searchAndScore_QueryExpansion(String propertyType, String propertyValuePattern) {
-        return _annotatationSummarySearchService.searchAndScore_QueryExpansion(propertyType, propertyValuePattern);
-    }
-
     @Override public Map<AnnotationSummary, Float> searchAndScoreByPrefix(String propertyValuePrefix) {
         return _annotatationSummarySearchService.searchAndScoreByPrefix(propertyValuePrefix);
     }
