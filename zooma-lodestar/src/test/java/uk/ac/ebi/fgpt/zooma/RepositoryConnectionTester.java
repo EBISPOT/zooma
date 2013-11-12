@@ -151,19 +151,6 @@ public class RepositoryConnectionTester extends TestCase {
                 }
             }
 
-//            for (URI p : propertyCollectionMap.keySet()) {
-//                Collection<Annotation> as = annotationSummaryBean.readAnnotationsByPropertyToSemanticTag(p, propertyCollectionMap.get(p));
-//
-//                for (Annotation a : as) {
-//                    assertEquals(p, a.getAnnotatedProperty().getURI());
-//                }
-//
-//                System.out.println("reading property form dao: " + p.toString());
-//                Property ps = propertyBean.read(p);
-//                System.out.println("Property semantic tag pair: " + ((TypedProperty) ps).getPropertyType() + " / " + ps.getPropertyValue() + " mapped to " + propertyCollectionMap.get(p)) ;
-//                System.out.println("\t\t has " + as.size() + " annotations" );
-//
-//            }
         }
     }
 

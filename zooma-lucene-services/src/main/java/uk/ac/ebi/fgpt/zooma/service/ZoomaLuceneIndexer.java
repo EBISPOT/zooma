@@ -280,7 +280,7 @@ public class ZoomaLuceneIndexer extends Initializable {
 
             int limit = offset + getAnnotationsPerThread();
             if (offset + getAnnotationsPerThread() > annotations.size()) {
-                limit = annotations.size();
+                limit = annotations.size() -1;
             }
 
             Runnable worker = new RunnableAnnotationIndexBuilder(this, annotationIndexWriter, annotations.subList(offset, limit));
@@ -338,7 +338,7 @@ public class ZoomaLuceneIndexer extends Initializable {
             }
 
             doc.add(new Field("quality",
-                    Float.toString(scoreAnnotationQuality(annotation.getProvenance())),
+                    Float.toString(scoreAnnotationQuality(getAnnotationProvenanceDAO().read(annotation.getURI()))),
                     Field.Store.YES,
                     Field.Index.ANALYZED));
 
@@ -361,6 +361,7 @@ public class ZoomaLuceneIndexer extends Initializable {
         final String UNTYPED = "##zooma.untyped.property.key##";
 
         Collection<AnnotationSummary> summaries = summaryDao.read();
+        getLog().debug("Number of summaries to index: " + summaries.size());
 
         Map<String, Float> summaryIdToMaxScore = new HashMap<>();
         Map<String, Set<URI>> summaryIdToSourcesMap = new HashMap<>();

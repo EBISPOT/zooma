@@ -253,6 +253,17 @@ SELECT DISTINCT ?annotationid WHERE {
     ?semantictag rdf:type oac:SemanticTag
 }
 
+^[AnnotationSummaries.read]
+SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?semantictag WHERE {
+     ?annotationid a oac:DataAnnotation .
+     ?annotationid oac:hasBody ?propertyvalueid .
+     OPTIONAL {?propertyvalueid zoomaterms:propertyName ?propertyname }
+     ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
+     ?propertyvalueid rdf:type zoomaterms:Property .
+     ?annotationid oac:hasBody ?semantictag .
+     ?semantictag rdf:type oac:SemanticTag
+}
+
 ^[AnnotationProvenance.read]
 SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
     ?annotationid a oac:DataAnnotation .
