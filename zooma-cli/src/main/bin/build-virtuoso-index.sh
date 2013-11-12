@@ -73,7 +73,7 @@ if [ $threads ] ; then
     # We want 1 fewer loader than the number of CPUs
     echo `date` "Starting $(($threads-1)) loader processes"
     for ((i=1; i<$threads; i++)); do
-        $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="rdf_loader_run();"
+        $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="rdf_loader_run();" &
     done
     echo `date` "Waiting for loaders"
     wait
