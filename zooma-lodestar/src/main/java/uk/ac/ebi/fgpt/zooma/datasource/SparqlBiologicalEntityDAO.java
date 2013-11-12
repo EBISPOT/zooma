@@ -324,11 +324,11 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
         }
         List<BiologicalEntity> beList = new ArrayList<>();
         beList.addAll(beMap.values());
-//        Collections.sort(beList, new Comparator<BiologicalEntity>() {
-//            @Override public int compare(BiologicalEntity o1, BiologicalEntity o2) {
-//                return o1.getURI().toString().compareTo(o2.getURI().toString());
-//            }
-//        });
+        Collections.sort(beList, new Comparator<BiologicalEntity>() {
+            @Override public int compare(BiologicalEntity o1, BiologicalEntity o2) {
+                return o1.getURI().toString().compareTo(o2.getURI().toString());
+            }
+        });
         return beList;
     }
     final static String underscore = "_";
@@ -393,45 +393,4 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
 
         return biologicalEntityMap.get(uri);
     }
-
-//    private Collection<URI> getTypes (URI resource) {
-//
-//        if (resource == null) {
-//            return Collections.<URI>emptySet();
-//        }
-//
-//        String query = getQueryManager().getSparqlQuery("Types");
-//
-//        Graph g = getQueryService().getDefaultGraph();
-//        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
-//
-//        QuerySolutionMap initialBinding = new QuerySolutionMap();
-//        initialBinding.add(QueryVariables.RESOURCE.toString(), new ResourceImpl(resource.toString()));
-//
-//        QueryExecution execute = null;
-//        Set<URI> types= new HashSet<URI>();
-//        try {
-//            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
-//            ResultSet results = execute.execSelect();
-//            while (results.hasNext()) {
-//                QuerySolution solution =  results.nextSolution();
-//                Resource r = solution.getResource(QueryVariables.RESOURCE_TYPE.toString());
-//                if (r !=null) {
-//                    types.add(URI.create(r.getURI()));
-//                }
-//            }
-//        } catch (LodeException e) {
-//            throw new SPARQLQueryException("Failed to retrieve types for biological entity types", e);
-//        }
-//        finally {
-//            if (execute !=  null)  {
-//                execute.close();
-//                if (g != null ) {
-//                    g.close();
-//                }
-//            }
-//        }
-//        return types;
-//    }
-
 }

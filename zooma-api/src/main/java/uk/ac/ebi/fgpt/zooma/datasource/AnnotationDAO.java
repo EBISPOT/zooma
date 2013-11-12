@@ -55,10 +55,4 @@ public interface AnnotationDAO extends ZoomaDAO<Annotation> {
      */
     Collection<Annotation> readBySemanticTag(URI semanticTagURI);
 
-    /**
-     * Retrieves all URIs for all annotations in the database. Implementations
-     * may choose to use this to provide a more efficient retrieval of annotations identifiers.
-     * @return the collection of annotation URIs in Zooma
-     */
-    List<URI> getAllAnnotationURIs ();
 }

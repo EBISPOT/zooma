@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma;
 
 import junit.framework.TestCase;
+import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -25,7 +26,7 @@ import java.util.*;
  * ignored unless a specific backend is provided
  *
  */
-//@Ignore
+@Ignore
 public class RepositoryConnectionTester extends TestCase {
 
     private Logger log = LoggerFactory.getLogger(getClass());

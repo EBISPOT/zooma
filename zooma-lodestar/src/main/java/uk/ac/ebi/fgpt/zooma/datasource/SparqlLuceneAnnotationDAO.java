@@ -34,6 +34,10 @@ import java.util.*;
  * @author Simon Jupp
  * @date 06/08/2013
  * Functional Genomics Group EMBL-EBI
+ *
+ * This partial implementation of the AnnotationDAO is designed
+ * specifically to support the efficient creation of the Zooma lucene indexes
+ *
  */
 public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
 
@@ -119,7 +123,7 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
     }
 
 
-    @Override public List<URI> getAllAnnotationURIs() {
+    public List<URI> getAllAnnotationURIs() {
         return  getAllAnnotationURIs(-1,-1);
     }
 

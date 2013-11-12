@@ -131,11 +131,6 @@ public class AtlasAssayAnnotationDAO implements AnnotationDAO {
                                                         "of annotations using this method is not supported");
     }
 
-    @Override
-    public List<URI> getAllAnnotationURIs() {
-        throw new UnsupportedOperationException("Use read() method");
-    }
-
     @Override public int count() {
         return getJdbcTemplate().queryForInt(ANNOTATIONS_SELECT_COUNT);
     }

@@ -367,7 +367,4 @@ public class SparqlStudyDAO implements StudyDAO {
         }
         return types;
     }
-
-
-
 }

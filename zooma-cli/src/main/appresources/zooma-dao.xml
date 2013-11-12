@@ -61,7 +61,7 @@
         <property name="studyZoomaSerializer" ref="studySerializer"/>
     </bean>
 
-    <bean id="lodeAnnotationSummaryDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlLuceneAnnotationSummaryDAO" autowire-candidate="false">
+    <bean id="lodeLuceneAnnotationSummaryDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlLuceneAnnotationSummaryDAO" autowire-candidate="false">
         <property name="queryManager" ref="queryManager"/>
         <property name="queryService" ref="jenaVirtuosoExecutorService"/>
     </bean>

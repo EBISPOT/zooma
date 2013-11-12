@@ -26,6 +26,9 @@ import java.util.*;
  * @author Simon Jupp
  * @date 08/11/2013
  * Functional Genomics Group EMBL-EBI
+ *
+ * This partial implementation of the AnnotationSummaryDAO is designed
+ * specifically to support the efficient creation of the Zooma lucene indexes
  */
 public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO{
 

@@ -51,11 +51,6 @@ public class ZoomaLuceneIndexer extends Initializable {
     // maximum number of entities that will be fetched from DAO, usually only used in testing
     private int maxEntityCount = -1;
 
-    private int threadCount = 1;
-
-    private int annotationsPerThread = 100;
-
-
     // DAOs to fetch entities which will be used to build indices
     private AnnotationDAO annotationDAO;
 
@@ -152,22 +147,6 @@ public class ZoomaLuceneIndexer extends Initializable {
         this.annotationSummaryDAO = annotationSummaryDAO;
     }
 
-    public int getThreadCount() {
-        return threadCount;
-    }
-
-    public void setThreadCount(int threadCount) {
-        this.threadCount = threadCount;
-    }
-
-    public int getAnnotationsPerThread() {
-        return annotationsPerThread;
-    }
-
-    public void setAnnotationsPerThread(int annotationsPerThread) {
-        this.annotationsPerThread = annotationsPerThread;
-    }
-
     /**
      * Returns a flag to indicate whether initialization of this indexer has already been successful or not
      *
@@ -262,34 +241,11 @@ public class ZoomaLuceneIndexer extends Initializable {
     }
 
     public Map<URI, AnnotationProvenance> createAnnotationIndex(List<Annotation> annotations) throws IOException {
-        getLog().info("Creating threaded lucene index for annotations, with " + getThreadCount() + " threads");
+        getLog().info("Creating lucene index for " + annotations.size() + " annotations");
         ConcurrentHashMap<URI, AnnotationProvenance> provenanceMap  = new ConcurrentHashMap<>();
 
         IndexWriter annotationIndexWriter = obtainIndexWriter(getAnnotationIndex());
 
-//        ExecutorService executor = Executors.newFixedThreadPool(getThreadCount());
-
-//        for (int x = 0; x <annotations.size(); x++) {
-//            int offset = x;
-//
-//            int limit = offset + getAnnotationsPerThread();
-//            if (offset + getAnnotationsPerThread() > annotations.size()) {
-//                limit = annotations.size() -1;
-//            }
-//
-//            Runnable worker = new RunnableAnnotationIndexBuilder(this, annotationIndexWriter, annotations.subList(offset, limit), provenanceMap);
-//            executor.execute(worker);
-//            x = x + getAnnotationsPerThread();
-//        }
-//
-//        // This will make the executor accept no new threads
-//        // and finish all existing threads in the queue
-//        executor.shutdown();
-//        // Wait until all threads are finish
-//        while (!executor.isTerminated()) {
-//
-//        }
-//        getLog().info("Finished all threads");
         createAnnotationIndex(annotations, provenanceMap, annotationIndexWriter);
 
         // now we have indexed all annotations, close the index writer
@@ -342,7 +298,6 @@ public class ZoomaLuceneIndexer extends Initializable {
             // add this document to the index
             indexWriter.addDocument(doc, getAnalyzer());
         }
-
     }
 
     public void clearAnnotationIndex() {

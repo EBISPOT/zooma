@@ -202,19 +202,6 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         }
     }
 
-//    @Override public List<Annotation> read(int size, int start) {
-//
-//        List<Annotation> annos = new ArrayList<Annotation>();
-//        for (URI uri : getAllAnnotationURIs(size, start)) {
-//            annos.add(read(uri));
-//        }
-//        return annos;
-//    }
-
-    @Override public List<URI> getAllAnnotationURIs() {
-        return  getAllAnnotationURIs(-1,-1);
-    }
-
     private List<URI> getAllAnnotationURIs(int size, int start) {
 
         String query = getQueryManager().getSparqlQuery("Instance");
@@ -422,11 +409,11 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         }
         List<Annotation> annotationList = new ArrayList<>();
         annotationList.addAll(annotationMap.values());
-//        Collections.sort(annotationList, new Comparator<Annotation>() {
-//            @Override public int compare(Annotation o1, Annotation o2) {
-//                return o1.getURI().toString().compareTo(o2.getURI().toString());
-//            }
-//        });
+        Collections.sort(annotationList, new Comparator<Annotation>() {
+            @Override public int compare(Annotation o1, Annotation o2) {
+                return o1.getURI().toString().compareTo(o2.getURI().toString());
+            }
+        });
         return annotationList;
     }
 
@@ -482,16 +469,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 if (be != null) {
                     beSet.add(be);
                 }
-/**
- * Should be ok for an annotation to have no bioentity so no use logging that it is missing right?
- */
-//                else {
-//                    getLog().debug("Missing biological entity for annotation <" + annotationUri.toString() + ">");
-//                }
             }
-//            else {
-//                getLog().debug("Missing biological entity for annotation " + annotationUri.toString() + ">");
-//            }
             Property p =
                     new SimpleTypedProperty(pvUri, propertyNameValue.getLexicalForm(), propertyValueValue.getLexicalForm());
 
