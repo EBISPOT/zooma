@@ -27,19 +27,19 @@
 
     <bean id="stringProcessorTime" class="uk.ac.ebi.fgpt.zooma.util.TimeProcessor" />
 
-    <bean id="chemicalCompoundProcessor"
-          class="uk.ac.ebi.fgpt.zooma.util.ChemicalCompoundProcessor"
-          init-method="init">
-        <constructor-arg name="dictionaryResourceName" value="concentration_unit_dictionary.txt" />
+    <bean id="chemicalCompoundProcessor" class="uk.ac.ebi.fgpt.zooma.util.ChemicalCompoundProcessor" init-method="init">
+        <constructor-arg name="dictionaryResource" value="classpath:concentration_unit_dictionary.txt" />
     </bean>
 
     <bean id="anatomyProcessor" class="uk.ac.ebi.fgpt.zooma.util.AnatomyProcessor" init-method="init">
-        <constructor-arg name="dictionaryResourceName" value="organism_part_qualifier_dictionary.txt" />
+        <constructor-arg name="dictionaryResource" value="classpath:organism_part_qualifier_dictionary.txt" />
     </bean>
 
     <bean id="splittingProcessor" class="uk.ac.ebi.fgpt.zooma.util.SplittingProcessor" />
 
-    <bean id="stopwordProcessor" class="uk.ac.ebi.fgpt.zooma.util.StopwordProcessor" />
+    <bean id="stopwordProcessor" class="uk.ac.ebi.fgpt.zooma.util.StopwordProcessor" init-method="init">
+        <constructor-arg name="dictionaryResource" value="classpath:stopword_dictionary.txt" />
+    </bean>
 
     <bean id="annotationSummaryService" class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummaryService">
         <property name="analyzer" ref="analyzer" />

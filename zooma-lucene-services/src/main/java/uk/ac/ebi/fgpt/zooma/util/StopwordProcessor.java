@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
-import java.util.ArrayList;
+import org.springframework.core.io.Resource;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Pattern;
@@ -17,54 +18,17 @@ import java.util.regex.Pattern;
  * @author Jose Iglesias
  * @date 11/11/13
  */
-public class StopwordProcessor implements SearchStringProcessor {
-    private final Collection<String> stopWords;
+public class StopwordProcessor extends AbstractDictionaryLoadingProcessor {
+    public StopwordProcessor(String dictionaryResourceName) {
+        super(dictionaryResourceName);
+    }
 
-    public StopwordProcessor() {
-        stopWords = new ArrayList<>();
-        stopWords.add("a");
-        stopWords.add("an");
-        stopWords.add("are");
-        stopWords.add("as");
-        stopWords.add("at");
-        stopWords.add("be");
-        stopWords.add("but");
-        stopWords.add("by");
-        stopWords.add("for");
-        stopWords.add("if");
-        stopWords.add("in");
-        stopWords.add("into");
-        stopWords.add("is");
-        stopWords.add("it");
-        stopWords.add("of");
-        stopWords.add("on");
-        stopWords.add("such");
-        stopWords.add("that");
-        stopWords.add("the");
-        stopWords.add("their");
-        stopWords.add("then");
-        stopWords.add("there");
-        stopWords.add("these");
-        stopWords.add("they");
-        stopWords.add("this");
-        stopWords.add("to");
-        stopWords.add("was");
-        stopWords.add("will");
-        stopWords.add("with");
-        stopWords.add("nos");
+    public StopwordProcessor(Resource dictionaryResource) {
+        super(dictionaryResource);
     }
 
     @Override public float getBoostFactor() {
         return 1;
-    }
-
-    @Override public boolean canProcess(String searchString) {
-        for (String stopWord : stopWords) {
-            if (searchString.contains(stopWord)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override public Collection<String> processSearchString(String searchString) throws IllegalArgumentException {
@@ -80,9 +44,8 @@ public class StopwordProcessor implements SearchStringProcessor {
     private String removeStopWords(String input) {
         String output = "";
         String[] inputWords = input.split(" ");
-
         for (String inputWord : inputWords) {
-            if (!stopWords.contains(inputWord) && inputWord != null && !inputWord.isEmpty()) {
+            if (!getDictionary().contains(inputWord) && inputWord != null && !inputWord.isEmpty()) {
                 output += inputWord + " ";
             }
         }
