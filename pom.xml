@@ -478,8 +478,8 @@
                 <ui.sparql.endpoint>jdbc:virtuoso://${virtuoso.server}:${virtuoso.port}</ui.sparql.endpoint>
 
                 <!-- Zooma lucene building properties -->
-                <zooma.profile.threadcount>20</zooma.profile.threadcount>
-                <zooma.profile.annotationPerThread>10000</zooma.profile.annotationPerThread>
+                <zooma.profile.threadcount>10</zooma.profile.threadcount>
+                <zooma.profile.annotationPerThread>100000</zooma.profile.annotationPerThread>
             </properties>
 
             <modules>
