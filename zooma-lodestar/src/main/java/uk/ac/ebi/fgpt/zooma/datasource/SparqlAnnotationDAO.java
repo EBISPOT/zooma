@@ -213,6 +213,10 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         return annos;
     }
 
+    @Override public List<URI> getAllAnnotationURIs() {
+        return  getAllAnnotationURIs(-1,-1);
+    }
+
     private List<URI> getAllAnnotationURIs(int size, int start) {
 
         String query = getQueryManager().getSparqlQuery("Instance");
@@ -420,11 +424,11 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         }
         List<Annotation> annotationList = new ArrayList<>();
         annotationList.addAll(annotationMap.values());
-        Collections.sort(annotationList, new Comparator<Annotation>() {
-            @Override public int compare(Annotation o1, Annotation o2) {
-                return o1.getURI().toString().compareTo(o2.getURI().toString());
-            }
-        });
+//        Collections.sort(annotationList, new Comparator<Annotation>() {
+//            @Override public int compare(Annotation o1, Annotation o2) {
+//                return o1.getURI().toString().compareTo(o2.getURI().toString());
+//            }
+//        });
         return annotationList;
     }
 

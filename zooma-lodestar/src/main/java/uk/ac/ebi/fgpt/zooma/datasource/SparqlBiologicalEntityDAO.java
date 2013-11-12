@@ -121,7 +121,8 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
         initialBinding.add(QueryVariables.BIOLOGICAL_ENTITY.toString(), new ResourceImpl(uri.toString()));
         QueryExecution execute = null;
         try {
-            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
+            ParameterizedSparqlString queryString = new ParameterizedSparqlString(q1.toString(), initialBinding);
+            execute = getQueryService().getQueryExecution(g, queryString.asQuery(), false);
             ResultSet results = execute.execSelect();
             List<BiologicalEntity> bes = evaluateQueryResults(results);
 
@@ -314,27 +315,37 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
 
     public List<BiologicalEntity> evaluateQueryResults(ResultSet result) {
         Map<URI, BiologicalEntity> beMap = new HashMap<>();
+        Map<URI, Study> studyMap = new HashMap<>();
 
         while (result.hasNext()) {
             QuerySolution solution =  result.nextSolution();
-            BiologicalEntity a = getBiologicalEntityFromBindingSet(beMap, solution);
+            BiologicalEntity a = getBiologicalEntityFromBindingSet(beMap, studyMap,  solution);
             beMap.put(a.getURI(), a);
         }
         List<BiologicalEntity> beList = new ArrayList<>();
         beList.addAll(beMap.values());
-        Collections.sort(beList, new Comparator<BiologicalEntity>() {
-            @Override public int compare(BiologicalEntity o1, BiologicalEntity o2) {
-                return o1.getURI().toString().compareTo(o2.getURI().toString());
-            }
-        });
+//        Collections.sort(beList, new Comparator<BiologicalEntity>() {
+//            @Override public int compare(BiologicalEntity o1, BiologicalEntity o2) {
+//                return o1.getURI().toString().compareTo(o2.getURI().toString());
+//            }
+//        });
         return beList;
     }
     final static String underscore = "_";
 
-    public BiologicalEntity getBiologicalEntityFromBindingSet(Map<URI, BiologicalEntity> biologicalEntityMap,
-                                                              QuerySolution solution) {
+    public BiologicalEntity getBiologicalEntityFromBindingSet(
+            Map<URI, BiologicalEntity> biologicalEntityMap,
+            Map<URI, Study> studyMap,
+            QuerySolution solution) {
         Resource sampleUriValue = solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY.toString());
         URI uri = URI.create(sampleUriValue.getURI());
+
+        URI sampleTypeUri = null;
+        Resource sampleTypeUriValue = solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY_TYPE.toString());
+        if (sampleTypeUriValue != null) {
+            sampleTypeUri = URI.create(sampleTypeUriValue.getURI());
+        }
+
 
         Literal sampleLabelValue = solution.getLiteral(QueryVariables.BIOLOGICAL_ENTITY_NAME.toString());
         String label = "";
@@ -343,9 +354,11 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
         }
 
         Resource studyIdValue = solution.getResource(QueryVariables.STUDY_ID.toString());
-        Study study = null;
+        Resource studyTypeValue = solution.getResource(underscore + QueryVariables.STUDY_TYPE.toString());
         URI studyUri = null;
+        URI studyType = null;
         String studyLabel = "";
+
 
         if (studyIdValue != null) {
             studyUri = URI.create(studyIdValue.getURI());
@@ -353,60 +366,72 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
 
             Literal studyLabelValue = solution.getLiteral(QueryVariables.STUDY_LABEL.toString());
             if (sampleLabelValue != null) {
-               studyLabel = studyLabelValue.getLexicalForm();
+                studyLabel = studyLabelValue.getLexicalForm();
             }
-            study = new SimpleStudy(studyUri, studyLabel, getTypes(studyUri));
+
+            if (!studyMap.containsKey(studyUri)) {
+                studyMap.put(studyUri, new SimpleStudy(studyUri, studyLabel));
+            }
+
+            if (studyTypeValue != null) {
+                studyType = URI.create(studyTypeValue.getURI());
+                studyMap.get(studyUri).getTypes().add(studyType);
+            }
         }
 
 
-        if (biologicalEntityMap.containsKey(uri) && study != null) {
-            biologicalEntityMap.get(uri).getStudies().add(study);
-        }
-        else {
-            BiologicalEntity newBe = new SimpleBiologicalEntity(uri, label, getTypes(uri),study);
+        if (!biologicalEntityMap.containsKey(uri)) {
+            BiologicalEntity newBe = new SimpleBiologicalEntity(uri,label);
             biologicalEntityMap.put(newBe.getURI(), newBe);
         }
+        if (sampleTypeUri != null) {
+            biologicalEntityMap.get(uri).getTypes().add(sampleTypeUri);
+        }
+        if (studyMap.containsKey(studyUri)) {
+            biologicalEntityMap.get(uri).getStudies().add(studyMap.get(studyUri));
+        }
+
         return biologicalEntityMap.get(uri);
     }
 
-    private Collection<URI> getTypes (URI resource) {
-
-        if (resource == null) {
-            return Collections.<URI>emptySet();
-        }
-
-        String query = getQueryManager().getSparqlQuery("Types");
-
-        Graph g = getQueryService().getDefaultGraph();
-        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
-
-        QuerySolutionMap initialBinding = new QuerySolutionMap();
-        initialBinding.add(QueryVariables.RESOURCE.toString(), new ResourceImpl(resource.toString()));
-
-        QueryExecution execute = null;
-        Set<URI> types= new HashSet<URI>();
-        try {
-            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
-            ResultSet results = execute.execSelect();
-            while (results.hasNext()) {
-                QuerySolution solution =  results.nextSolution();
-                Resource r = solution.getResource(QueryVariables.RESOURCE_TYPE.toString());
-                if (r !=null) {
-                    types.add(URI.create(r.getURI()));
-                }
-            }
-        } catch (LodeException e) {
-            throw new SPARQLQueryException("Failed to retrieve types for biological entity types", e);
-        }
-        finally {
-            if (execute !=  null)  {
-                execute.close();
-                if (g != null ) {
-                    g.close();
-                }
-            }
-        }
-        return types;
-    }
+//    private Collection<URI> getTypes (URI resource) {
+//
+//        if (resource == null) {
+//            return Collections.<URI>emptySet();
+//        }
+//
+//        String query = getQueryManager().getSparqlQuery("Types");
+//
+//        Graph g = getQueryService().getDefaultGraph();
+//        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
+//
+//        QuerySolutionMap initialBinding = new QuerySolutionMap();
+//        initialBinding.add(QueryVariables.RESOURCE.toString(), new ResourceImpl(resource.toString()));
+//
+//        QueryExecution execute = null;
+//        Set<URI> types= new HashSet<URI>();
+//        try {
+//            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
+//            ResultSet results = execute.execSelect();
+//            while (results.hasNext()) {
+//                QuerySolution solution =  results.nextSolution();
+//                Resource r = solution.getResource(QueryVariables.RESOURCE_TYPE.toString());
+//                if (r !=null) {
+//                    types.add(URI.create(r.getURI()));
+//                }
+//            }
+//        } catch (LodeException e) {
+//            throw new SPARQLQueryException("Failed to retrieve types for biological entity types", e);
+//        }
+//        finally {
+//            if (execute !=  null)  {
+//                execute.close();
+//                if (g != null ) {
+//                    g.close();
+//                }
+//            }
+//        }
+//        return types;
+//    }
 
 }

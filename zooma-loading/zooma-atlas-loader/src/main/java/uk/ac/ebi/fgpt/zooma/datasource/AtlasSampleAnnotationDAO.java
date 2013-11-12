@@ -162,4 +162,9 @@ public class AtlasSampleAnnotationDAO implements AnnotationDAO {
         throw new UnsupportedOperationException(
                 getClass().getSimpleName() + " is a read-only annotation DAO, deletions not supported");
     }
+
+    @Override
+    public List<URI> getAllAnnotationURIs() {
+        throw new UnsupportedOperationException("Use read() method");
+    }
 }

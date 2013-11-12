@@ -100,14 +100,29 @@ SELECT ?synonym WHERE {
 }
 
 ^[BiologicalEntity.read]
-SELECT DISTINCT (?bioentityid AS ?_bioentityid) ?bioentitylabel ?study ?studylabel WHERE {
+SELECT DISTINCT (?bioentityid AS ?_bioentityid) (?bioentityType AS ?_bioentityType) ?bioentitylabel ?study (?studyType AS ?_studyType) ?studylabel WHERE {
     ?annotationid rdf:type oac:DataAnnotation .
     ?annotationid oac:hasTarget ?bioentityid .
+
+    OPTIONAL {
+        ?bioentityid a ?bioentityType
+    }
+
     OPTIONAL {
          ?bioentityid dc:isPartOf ?study .
-     OPTIONAL { ?study rdfs:label ?studylabel}
+     OPTIONAL {
+            ?study rdfs:label ?studylabel .
+            ?study a ?studyType .
+     }
     }
-    OPTIONAL {?bioentityid rdfs:label ?bioentitylabel }
+    OPTIONAL {?bioentityid  rdfs:label ?bioentitylabel }
+
+    FILTER (str(?studyType) != "http://www.w3.org/2002/07/owl#NamedIndividual")
+    FILTER (str(?studyType) != "http://www.w3.org/2002/07/owl#Class")
+    FILTER (str(?studyType) != "http://www.w3.org/2002/07/owl#Ontology")
+    FILTER (str(?bioentityType) != "http://www.w3.org/2002/07/owl#NamedIndividual")
+    FILTER (str(?bioentityType) != "http://www.w3.org/2002/07/owl#Class")
+    FILTER (str(?bioentityType) != "http://www.w3.org/2002/07/owl#Ontology")
 }
 
 ^[Study.read]
@@ -225,7 +240,7 @@ SELECT DISTINCT ?annotationid WHERE {
 }
 
 ^[AnnotationProvenance.read]
-SELECT DISTINCT (?annotationid as ?_annotationid) ?databaseid ?evidence ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
+SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
     ?annotationid a oac:DataAnnotation .
     ?annotationid dc:source ?databaseid .
     ?databaseid a ?sourcetype .

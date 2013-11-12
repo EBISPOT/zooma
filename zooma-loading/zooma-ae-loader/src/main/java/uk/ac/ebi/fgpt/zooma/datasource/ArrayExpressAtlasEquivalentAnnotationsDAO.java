@@ -321,6 +321,11 @@ public class ArrayExpressAtlasEquivalentAnnotationsDAO extends Initializable imp
         }
     }
 
+    @Override
+    public List<URI> getAllAnnotationURIs() {
+        throw new UnsupportedOperationException("Use read() method");
+    }
+
 //    private String normalizeString(String s) {
 //        return ZoomaUtils.normalizePropertyTypeString(s);
 //    }

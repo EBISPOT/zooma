@@ -297,6 +297,11 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
         return results;
     }
 
+    @Override
+    public List<URI> getAllAnnotationURIs() {
+        throw new UnsupportedOperationException();
+    }
+
     @Override public int count() {
         return annotations.size();
     }

@@ -19,6 +19,13 @@ public class SimpleBiologicalEntity extends AbstractIdentifiable implements Biol
     private Set<URI> types;
     private Collection<Study> studies;
 
+    public SimpleBiologicalEntity(URI uri, String name) {
+        super(uri);
+        this.name = name;
+        this.studies = new HashSet<>();
+        this.types = new HashSet<URI>();
+    }
+
     public SimpleBiologicalEntity(URI uri, String name, Study... studies) {
         super(uri);
         this.name = name;

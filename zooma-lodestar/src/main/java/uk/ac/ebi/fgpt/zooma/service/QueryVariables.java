@@ -9,6 +9,7 @@ public enum QueryVariables {
 
     ANNOTATION_ID ("annotationid"),
     BIOLOGICAL_ENTITY ("bioentityid"),
+    BIOLOGICAL_ENTITY_TYPE ("bioentityType"),
     BIOLOGICAL_ENTITY_NAME ("bioentitylabel"),
     PROPERTY_VALUE_ID ("propertyvalueid"),
     PROPERTY_NAME ("propertyname"),
@@ -18,6 +19,7 @@ public enum QueryVariables {
     SYNONYM_PROPERTY("synonymproperty"),
     SEMANTIC_TAG_SYNONYM("synonym"),
     STUDY_ID ("study"),
+    STUDY_TYPE ("studyType"),
     STUDY_LABEL ("studylabel"),
     DATABASEID ("databaseid"),
     SOURCETYPE ("sourcetype"),

@@ -7,6 +7,7 @@ import uk.ac.ebi.fgpt.zooma.model.Study;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A data access object that defines methods to create, retrieve, update and delete annotations from a ZOOMA
@@ -53,4 +54,11 @@ public interface AnnotationDAO extends ZoomaDAO<Annotation> {
      * @return the collection of annotations declared to link to the supplied ontology term
      */
     Collection<Annotation> readBySemanticTag(URI semanticTagURI);
+
+    /**
+     * Retrieves all URIs for all annotations in the database. Implementations
+     * may choose to use this to provide a more efficient retrieval of annotations identifiers.
+     * @return the collection of annotation URIs in Zooma
+     */
+    List<URI> getAllAnnotationURIs ();
 }
