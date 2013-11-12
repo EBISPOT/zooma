@@ -102,10 +102,10 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     @Override
     public Map<AnnotationSummary, Float> searchAndScore(String propertyType,
                                                         String propertyValuePattern) {
-        Map<AnnotationSummary, Float> rawResults = super.searchAndScore(propertyType, propertyValuePattern);
+        Map<AnnotationSummary, Float> results = super.searchAndScore(propertyType, propertyValuePattern);
 
         // if raw results are empty, attempt to process the string and requery
-        if (rawResults.isEmpty()) {
+        if (results.isEmpty()) {
             try {
                 initOrWait();
             }
@@ -121,7 +121,7 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                 // for now, we only work with cases where the string returns at most 2 processed forms
                 if (parts.size() < 3) {
                     if (parts.size() == 0) {
-                        return rawResults;
+                        return results;
                     }
                     else if (parts.size() == 1) {
                         return super.searchAndScore(propertyType, propertyValuePattern);
@@ -149,7 +149,7 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                 }
             }
         }
-        return rawResults;
+        return results;
     }
 
     protected Map<AnnotationSummary, Float> mergeResults(String propertyValuePattern,

@@ -4,6 +4,7 @@ import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
+import uk.ac.ebi.fgpt.zooma.util.ScoreBasedSorter;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.JaccardSimilarity;
@@ -12,13 +13,8 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.NeedlemanWunch;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +62,8 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
     public Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern) {
         Map<AnnotationSummary, Float> results = super.searchAndScore(propertyValuePattern);
 
-        if (!propertyValuePattern.contains(" and ")) {
+        // if results are empty, find lexically similar strings and requery
+        if (results.isEmpty()) {
             // use "Needleman-Wunsch"  and "Jaccard similarity" to find approximate matchings
             Map<String, Float> similarStrings = findSimilarProperties(null, propertyValuePattern);
 
@@ -77,15 +74,13 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
                     for (AnnotationSummary as : modifiedResults.keySet()) {
                         if (results.containsKey(as)) {
                             // results already contains this result
-                            float zoomaScore = results.get(as);
-                            // so calculalate the weight of the lexical score based on similarity
-                            float ourScore = modifiedResults.get(as) * similarStrings.get(s) * similarStrings.get(s);
+                            float previousScore = results.get(as);
+                            // so calculate the weight of the lexical score based on similarity
+                            float newScore = modifiedResults.get(as) * similarStrings.get(s) * similarStrings.get(s);
 
-                            getLog().debug("zoomaScore: " + zoomaScore + "; ourScore: " + ourScore);
-                            if (ourScore > zoomaScore) {
+                            if (newScore > previousScore) {
                                 // if the lexical score is higher than the zooma score, override zooma result
-                                // todo - is this correct?
-                                results.put(as, ourScore);
+                                results.put(as, newScore);
                             }
                         }
                         else {
@@ -96,12 +91,6 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
                 }
             }
         }
-
-        getLog().debug("\nFinal scores: ");
-        for (AnnotationSummary as : results.keySet()) {
-            float finalScore = results.get(as);
-            getLog().debug("\t" + finalScore);
-        }
         return results;
     }
 
@@ -110,25 +99,29 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
                                                         String propertyValuePattern) {
         // original query results
         Map<AnnotationSummary, Float> results = super.searchAndScore(propertyType, propertyValuePattern);
-        if (!propertyValuePattern.contains(" and ")) {
+
+        // if results are empty, find lexically similar strings and requery
+        if (results.isEmpty()) {
             // use algorithm to find matching properties
             Map<String, Float> similarStrings = findSimilarProperties(propertyType, propertyValuePattern);
 
             for (String s : similarStrings.keySet()) {
                 if (areBothNegative(s, propertyValuePattern)) {
-                    Map<AnnotationSummary, Float> modifiedResults =
-                            super.searchAndScore(propertyType, s);
+                    Map<AnnotationSummary, Float> modifiedResults = super.searchAndScore(propertyType, s);
                     for (AnnotationSummary as : modifiedResults.keySet()) {
                         if (results.containsKey(as)) {
-                            // results already contains this result!
-                            float zoomaScore = results.get(as);
-                            float ourScore = modifiedResults.get(as) * similarStrings.get(s) * similarStrings.get(s);
+                            // results already contains this result
+                            float previousScore = results.get(as);
+                            // so calculate the weight of the lexical score based on similarity
+                            float newScore = modifiedResults.get(as) * similarStrings.get(s) * similarStrings.get(s);
 
-                            if (ourScore > zoomaScore) {
-                                results.put(as, ourScore);
+                            if (newScore > previousScore) {
+                                // if the lexical score is higher than the zooma score, override zooma result
+                                results.put(as, newScore);
                             }
                         }
                         else {
+                            // add the result, and weight the lexical score based on similarity
                             results.put(as, modifiedResults.get(as) * similarStrings.get(s) * similarStrings.get(s));
                         }
                     }
@@ -198,7 +191,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
 
         Map<String, Float> result = new HashMap<>();
         if (expandedPropertyMap.size() >= 1) {
-            result = filterAnnotations(expandedPropertyMap, min_score, num_max_annotations, pct_cutoff);
+            result = filter(expandedPropertyMap, min_score, num_max_annotations, pct_cutoff);
         }
         return result;
     }
@@ -236,98 +229,49 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
 
         Map<String, Float> result = new HashMap<>();
         if (expandedPropertyMap.size() >= 1) {
-            result = filterAnnotations(expandedPropertyMap, min_score, num_max_annotations, pct_cutoff);
+            result = filter(expandedPropertyMap, min_score, num_max_annotations, pct_cutoff);
         }
         return result;
     }
 
     /**
-     * Initializes this service.  At startup, a {@link PropertyDAO} is used to extract all properties known to ZOOMA.
-     * Returned properties are normalized and cached in a dictionary for future use.
+     * Filters a map of strings linked to similarity scores based on parameters supplied.  The resulting map will
+     * contain a subset of the original map, filtering out any strings with a quality score below the minimum score,
+     * with a score that is more than the percentage cutoff away from the top score, or fall outside the maximum number
+     * of annotations once sorted by score.
      *
-     * @throws IOException
+     * @param scoredStrings      the strings to filter, mapped to a quality score
+     * @param minScore           the minimum score allowed in the result set
+     * @param maxNumberOfStrings the maximum number of strings that should be returned
+     * @param cutoffPercentage   anything with a score less than the product of this and the highest score will be
+     *                           excluded
+     * @return a map of retained, high quality strings
      */
-    public void doInitialization() throws IOException {
-        long time_start, time_end;
-        time_start = System.currentTimeMillis();
-
-        // get all properties 
-        Collection<Property> properties = getPropertyDAO().read();
-
-        propertyValueDictionary = new ArrayList<>();
-        for (Property p : properties) {
-            String propertyValue = p.getPropertyValue();
-            String propertyType = p instanceof TypedProperty ? ((TypedProperty) p).getPropertyType() : null;
-            // todo - only use processors that are suitable based on type
-            if (getSearchStringProcessor().canProcess(propertyValue)) {
-                propertyValueDictionary.addAll(getSearchStringProcessor().processSearchString(propertyValue));
-            }
-        }
-        time_end = System.currentTimeMillis();
-        getLog().debug("Loaded property value dictionary of " + propertyValueDictionary.size() + " entries in " +
-                               (time_end - time_start) + " milliseconds");
-    }
-
-    /**
-     * The filter receives a set of annotations and selects the best annotations using several criteria (min_score,
-     * num_max_annotations, pct_cutoff). These criteria can be adjusted.
-     *
-     * @param annotations         the annotations to filter
-     * @param min_score           the minimum score
-     * @param num_max_annotations
-     * @param pct_cutoff
-     * @return
-     */
-    public Map<String, Float> filterAnnotations(Map<String, Float> annotations,
-                                                float min_score,
-                                                int num_max_annotations,
-                                                float pct_cutoff) {
-        Map<String, Float> final_annotations = new HashMap<>();
-        float top_score = 0.0f;
-        float min_score_cut_off = 0.0f;
-
-        if (annotations.size() > 0) {
-            Map<String, Float> sortedMap = sortByComparator(annotations);
-            Iterator iterator = sortedMap.entrySet().iterator();
-            for (int i = 0; i < num_max_annotations; i++) {
-                if (iterator.hasNext()) {
-                    Map.Entry entry = (Map.Entry) iterator.next();
-                    float score_annotation = (Float) entry.getValue();
-                    if (score_annotation >= min_score_cut_off) {
-                        final_annotations.put((String) entry.getKey(), score_annotation);
-                        if (i == 0) {
-                            top_score = score_annotation;
-                            min_score_cut_off = top_score * pct_cutoff;
+    private Map<String, Float> filter(Map<String, Float> scoredStrings,
+                                      float minScore,
+                                      int maxNumberOfStrings,
+                                      float cutoffPercentage) {
+        Map<String, Float> results = new HashMap<>();
+        if (!scoredStrings.isEmpty()) {
+            ScoreBasedSorter<String> sorter = new ScoreBasedSorter<>();
+            List<String> sortedStrings = sorter.sort(scoredStrings);
+            if (!sortedStrings.isEmpty()) {
+                float top_score = scoredStrings.get(sortedStrings.get(0));
+                for (int i = 0; i < maxNumberOfStrings; i++) {
+                    String s = sortedStrings.get(i);
+                    float score = scoredStrings.get(s);
+                    if (score > minScore) {
+                        if (score > top_score * cutoffPercentage) {
+                            results.put(s, scoredStrings.get(s));
                         }
                     }
                 }
             }
         }
-        return final_annotations;
+        return results;
     }
 
-    /* This method sorts a Map of annotations by score */
-    private Map<String, Float> sortByComparator(Map<String, Float> unsortMap) {
-        List<Map.Entry<String, Float>> list = new LinkedList<>(unsortMap.entrySet());
-        // sort list based on comparator
-        Collections.sort(list, new Comparator<Map.Entry<String, Float>>() {
-            public int compare(Map.Entry<String, Float> o1, Map.Entry<String, Float> o2) {
-                int com = o1.getValue().compareTo(o2.getValue());
-                //Descending order
-                return com * (-1);
-            }
-        });
-
-        // put sorted list into map again
-        // LinkedHashMap make sure order in which keys were inserted
-        Map<String, Float> sortedMap = new LinkedHashMap<>();
-        for (Map.Entry<String, Float> entry : list) {
-            sortedMap.put(entry.getKey(), entry.getValue());
-        }
-        return sortedMap;
-    }
-
-    public boolean isNegative(String sentence) {
+    private boolean isNegative(String sentence) {
         if (sentence.contains(" not ") || sentence.contains(" no ") || sentence.contains(" non ") ||
                 sentence.contains(" not-") || sentence.contains(" no-") || sentence.contains(" non-") ||
                 sentence.contains(" dont ") || sentence.contains(" don't ") || sentence.contains(" didn't ") ||
@@ -343,7 +287,34 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         return false;
     }
 
-    public boolean areBothNegative(String term1, String term2) {
+    private boolean areBothNegative(String term1, String term2) {
         return isNegative(term1) == isNegative(term2);
+    }
+
+    /**
+     * Initializes this service.  At startup, a {@link PropertyDAO} is used to extract all properties known to ZOOMA.
+     * Returned properties are normalized and cached in a dictionary for future use.
+     *
+     * @throws IOException
+     */
+    protected void doInitialization() throws IOException {
+        long time_start, time_end;
+        time_start = System.currentTimeMillis();
+
+        // get all properties
+        Collection<Property> properties = getPropertyDAO().read();
+
+        propertyValueDictionary = new ArrayList<>();
+        for (Property p : properties) {
+            String propertyValue = p.getPropertyValue();
+            String propertyType = p instanceof TypedProperty ? ((TypedProperty) p).getPropertyType() : null;
+            // todo - only use processors that are suitable based on type
+            if (getSearchStringProcessor().canProcess(propertyValue)) {
+                propertyValueDictionary.addAll(getSearchStringProcessor().processSearchString(propertyValue));
+            }
+        }
+        time_end = System.currentTimeMillis();
+        getLog().debug("Loaded property value dictionary of " + propertyValueDictionary.size() + " entries in " +
+                               (time_end - time_start) + " milliseconds");
     }
 }

@@ -170,7 +170,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             return originalQuery;
         }
         else {
-            return formulateCombinedQuery(true, false, queries.toArray(new Query[queries.size()]));
+            return formulateCombinedQuery(false, false, queries.toArray(new Query[queries.size()]));
         }
     }
 
@@ -570,80 +570,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
     }
 
-//    /* Performs several lucene queries, one for each query, accumulating the results in one hashMap.  */
-//    protected <T> Map<T, Float> doQueriesAndScore(Collection<Query> queries, LuceneDocumentMapper<T> mapper)
-//            throws IOException {
-//
-//        Map<T, Float> results = new HashMap<>();
-//
-//        for (Query q : queries) {
-//
-//            try {
-//                // init, to make sure searcher is available
-//                initOrWait();
-//
-//                // perform queries in blocks until there are no more hits
-//                ScoreDoc lastScoreDoc = null;
-//
-//                // create a collector to obtain query results
-//                TopScoreDocCollector collector = lastScoreDoc == null
-//                        ? TopScoreDocCollector.create(100, true)
-//                        : TopScoreDocCollector.create(100, lastScoreDoc, true);
-//
-//                // perform query
-//                getSearcher().search(q, collector);
-//                TopDocs topDocs = collector.topDocs();
-//
-//                ScoreDoc[] hits = topDocs.scoreDocs;
-//
-//                getLog().debug("We have " + hits.length + " hits");
-//
-//                if (hits.length > 0) {
-//
-//                    for (ScoreDoc hit : hits) {
-//                        lastScoreDoc = hit;
-//                        Document doc = getSearcher().doc(hit.doc);
-//                        try {
-//                            float summaryScore = mapper.getDocumentQuality(doc);
-//                            float luceneScore = hit.score;
-//                            float totalScore = summaryScore * luceneScore;
-//
-//                            //Here, we update totalScore using the boots
-//                            totalScore = totalScore * q.getBoost();
-//
-//                            getLog().debug("Next document has a quality score of: " +
-//                                                   summaryScore + " x " + luceneScore + " = " +
-//                                                   (summaryScore * luceneScore));
-//
-//                            //We accumulate annotations of all queries..
-//                            results.put(mapper.mapDocument(doc), totalScore);
-//
-//                        }
-//                        catch (Exception e) {
-//                            results.put(mapper.mapDocument(doc), hit.score);
-//                        }
-//                    }
-//                }
-//
-//                getLog().debug(
-//                        "Query '" + q.toString() + "' gives the following " + results.size() + " results:\n" + results);
-//
-//                getLog().debug("Returning results");
-//
-//            }
-//            catch (InterruptedException e) {
-//                throw new IOException("Failed to perform query - indexing process was interrupted", e);
-//            }
-//        }
-//
-//        return results;
-//    }
-
     protected <T> Map<T, Float> doQueryAndScore(Query q, LuceneDocumentMapper<T> mapper) throws IOException {
-
-        getLog().debug("Starting doQueryAndScore... ");
-
-
         try {
             // init, to make sure searcher is available
             initOrWait();
@@ -654,50 +581,41 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             // perform queries in blocks until there are no more hits
             ScoreDoc lastScoreDoc = null;
             boolean complete = false;
-            //while (!complete) {
-            // create a collector to obtain query results
-            TopScoreDocCollector collector = lastScoreDoc == null
-                    ? TopScoreDocCollector.create(100, true)
-                    : TopScoreDocCollector.create(100, lastScoreDoc, true);
+            while (!complete) {
+                // create a collector to obtain query results
+                TopScoreDocCollector collector = lastScoreDoc == null
+                        ? TopScoreDocCollector.create(100, true)
+                        : TopScoreDocCollector.create(100, lastScoreDoc, true);
 
-            // perform query
-            getSearcher().search(q, collector);
-            TopDocs topDocs = collector.topDocs();
+                // perform query
+                getSearcher().search(q, collector);
+                TopDocs topDocs = collector.topDocs();
+                ScoreDoc[] hits = topDocs.scoreDocs;
 
-
-            ScoreDoc[] hits = topDocs.scoreDocs;
-
-            getLog().debug("We have " + hits.length + " hits");
-
-            if (hits.length == 0) {
-                complete = true;
-            }
-            else {
-                // get URI and readByProperty property, add to results
-                for (ScoreDoc hit : hits) {
-                    lastScoreDoc = hit;
-                    Document doc = getSearcher().doc(hit.doc);
-                    try {
-                        float summaryScore = mapper.getDocumentQuality(doc);
-                        float luceneScore = hit.score;
-                        float totalScore = summaryScore * luceneScore;
-                        getLog().debug("Next document has a quality score of: " +
-                                               summaryScore + " x " + luceneScore + " = " +
-                                               (summaryScore * luceneScore));
-                        results.put(mapper.mapDocument(doc), totalScore);
-                    }
-                    catch (Exception e) {
-                        results.put(mapper.mapDocument(doc), hit.score);
+                if (hits.length == 0) {
+                    complete = true;
+                }
+                else {
+                    // map each document using the supplied mapper, and associate result score
+                    for (ScoreDoc hit : hits) {
+                        lastScoreDoc = hit;
+                        Document doc = getSearcher().doc(hit.doc);
+//                        try {
+                            float summaryScore = mapper.getDocumentQuality(doc);
+                            float luceneScore = hit.score;
+                            float totalScore = summaryScore * luceneScore;
+                            getLog().debug("Next document has a quality score of: " +
+                                                   summaryScore + " x " + luceneScore + " = " +
+                                                   (summaryScore * luceneScore));
+                            results.put(mapper.mapDocument(doc), totalScore);
+//                        }
+//                        catch (Exception e) {
+//                            results.put(mapper.mapDocument(doc), hit.score);
+//                        }
                     }
                 }
             }
-            //}
-            getLog().debug(
-                    "Query '" + q.toString() + "' gives the following " + results.size() + " results:\n" + results);
-
-            getLog().debug("Returning results");
-
-
+            getLog().debug("Query '" + q.toString() + "'\n...gives the following " + results.size() + " results:\n" + results);
             return results;
         }
         catch (InterruptedException e) {
@@ -751,25 +669,5 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             throw new IOException("Failed to perform query - indexing process was interrupted", e);
         }
     }
-
-//    private <T> Float obtainScoreAnnotationSummary(Map<T, Float> results, String id) {
-//
-//        for (Map.Entry e : results.entrySet()) {
-//
-//            T ann = (T) e.getKey();
-//
-//            if (ann instanceof AnnotationSummary) {
-//
-//                AnnotationSummary annotationSummary = (AnnotationSummary) ann;
-//
-//                if (annotationSummary.getID().contentEquals(id)) {
-//                    return (Float) e.getValue();
-//                }
-//            }
-//        }
-//        return -1.0f;
-//
-//    }
-
 }
 
