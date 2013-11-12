@@ -31,6 +31,7 @@ public class RepositoryConnectionTester extends TestCase {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     private AnnotationDAO annotationBean;
+    private AnnotationDAO annotationLuceneBean;
     private PropertyDAO propertyBean;
     private AnnotationSummaryDAO annotationSummaryBean;
 
@@ -52,6 +53,7 @@ public class RepositoryConnectionTester extends TestCase {
             hasConnection = true;
 
             this.annotationBean = (AnnotationDAO) context.getBean("lodeAnnotationDAO");
+            this.annotationLuceneBean = (AnnotationDAO) context.getBean("lodeLuceneAnnotationDAO");
             this.propertyBean = (PropertyDAO) context.getBean("lodePropertyDAO");
             this.annotationSummaryBean = (AnnotationSummaryDAO) context.getBean("lodeAnnotationSummaryDAO");
             this.bioentityBean = (SparqlBiologicalEntityDAO) context.getBean("lodeBiologicalEntityDAO");
@@ -136,6 +138,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+
     public void testSparqlSummaryAnnotationDao3 () {
 
         if (hasConnection) {
@@ -163,6 +166,26 @@ public class RepositoryConnectionTester extends TestCase {
 //            }
         }
     }
+
+    public void testSparqlAnnotationDao5 () {
+
+        if (hasConnection) {
+
+            log.info("pulling out all lucene annotations from zooma");
+
+            long start = System.currentTimeMillis();
+            Collection<Annotation> annos = annotationLuceneBean.read();
+            System.out.println("Lucene annos size: " + annos.size());
+            for (Annotation annotation : annos) {
+                System.out.println("annotation:  " + annotation.toString());
+            }
+            long end = System.currentTimeMillis();
+
+            System.out.println("time: " + (end-start) / 60 );
+
+        }
+    }
+
 
     public void testSparqlAnnotationLoading ()  {
 

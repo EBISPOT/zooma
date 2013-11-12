@@ -268,22 +268,22 @@ public class ZoomaLuceneIndexer extends Initializable {
 
     }
 
-    public void createAnnotationIndex(AnnotationDAO dao, List<URI> annotationURIs) throws IOException {
+    public void createAnnotationIndex(List<Annotation> annotations) throws IOException {
         getLog().info("Creating threaded lucene index for annotations, with " + getThreadCount() + " threads");
 
         IndexWriter annotationIndexWriter = obtainIndexWriter(getAnnotationIndex());
 
         ExecutorService executor = Executors.newFixedThreadPool(getThreadCount());
 
-        for (int x = 0; x <annotationURIs.size(); x++) {
+        for (int x = 0; x <annotations.size(); x++) {
             int offset = x;
 
             int limit = offset + getAnnotationsPerThread();
-            if (offset + getAnnotationsPerThread() > annotationURIs.size()) {
-                limit = annotationURIs.size();
+            if (offset + getAnnotationsPerThread() > annotations.size()) {
+                limit = annotations.size();
             }
 
-            Runnable worker = new RunnableAnnotationIndexBuilder(this, annotationIndexWriter, dao, annotationURIs.subList(offset, limit));
+            Runnable worker = new RunnableAnnotationIndexBuilder(this, annotationIndexWriter, annotations.subList(offset, limit));
             executor.execute(worker);
             x = x + getAnnotationsPerThread();
         }
@@ -717,12 +717,12 @@ public class ZoomaLuceneIndexer extends Initializable {
         createPropertyIndices(properties);
         getLog().info("Querying underlying datasources for annotations to index...");
 
-        List<URI> annotationURIs = getAnnotationDAO().getAllAnnotationURIs();
+        Collection<Annotation> annotations = getAnnotationDAO().read();
 
-        int count = getMaxEntityCount() == -1 ? annotationURIs.size(): getMaxEntityCount();
+        int count = getMaxEntityCount() == -1 ? annotations.size(): getMaxEntityCount();
         getLog().info("Total annotation to index:" + count);
-        createAnnotationCountIndex(annotationURIs.size());
-        createAnnotationIndex(getAnnotationDAO(), annotationURIs);
+        createAnnotationCountIndex(count);
+        createAnnotationIndex(new ArrayList<Annotation>(annotations));
         createAnnotationSummaryIndex(getAnnotationSummaryDAO());
         getLog().info("Lucene indexing complete!");
     }

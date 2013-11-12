@@ -46,7 +46,7 @@
 
     <bean id="luceneIndexer" class="uk.ac.ebi.fgpt.zooma.service.ZoomaLuceneIndexer" destroy-method="destroy">
         <property name="analyzer" ref="analyzer" />
-        <property name="annotationDAO" ref="lodeAnnotationDAO" />
+        <property name="annotationDAO" ref="lodeLuceneAnnotationDAO" />
         <property name="propertyDAO" ref="lodePropertyDAO" />
         <property name="propertyIndex" ref="propertyIndex" />
         <property name="propertyTypeIndex" ref="propertyTypeIndex" />

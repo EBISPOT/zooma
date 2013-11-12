@@ -32,6 +32,11 @@
         <property name="annotationZoomaSerializer" ref="annotationSerializer"/>
     </bean>
 
+    <bean id="lodeLuceneAnnotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlLuceneAnnotationDAO" autowire-candidate="false">
+        <property name="queryManager" ref="queryManager"/>
+        <property name="queryService" ref="jenaVirtuosoExecutorService"/>
+    </bean>
+
     <bean id="lodeBiologicalEntityDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO" autowire-candidate="false">
         <property name="queryManager" ref="queryManager"/>
         <property name="queryService" ref="jenaVirtuosoExecutorService"/>

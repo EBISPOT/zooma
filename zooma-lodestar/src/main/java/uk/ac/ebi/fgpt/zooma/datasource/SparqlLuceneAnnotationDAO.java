@@ -1,0 +1,349 @@
+package uk.ac.ebi.fgpt.zooma.datasource;
+
+import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.query.*;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.semanticweb.owlapi.model.OWLNamedIndividual;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.lode.exception.LodeException;
+import uk.ac.ebi.fgpt.lode.service.JenaQueryExecutionService;
+import uk.ac.ebi.fgpt.zooma.Namespaces;
+import uk.ac.ebi.fgpt.zooma.exception.*;
+import uk.ac.ebi.fgpt.zooma.io.ZoomaSerializer;
+import uk.ac.ebi.fgpt.zooma.model.*;
+import uk.ac.ebi.fgpt.zooma.service.QueryManager;
+import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
+import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
+
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.net.URI;
+import java.util.*;
+
+/**
+ * @author Simon Jupp
+ * @date 06/08/2013
+ * Functional Genomics Group EMBL-EBI
+ */
+public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
+
+    private JenaQueryExecutionService queryService;
+
+    private Logger log = LoggerFactory.getLogger(getClass());
+
+    private int queryCounter = 1;
+
+    private QueryManager queryManager;
+
+    protected Logger getLog() {
+        return log;
+    }
+
+    public JenaQueryExecutionService getQueryService() {
+        return queryService;
+    }
+
+    public void setQueryService(JenaQueryExecutionService queryService) {
+        this.queryService = queryService;
+    }
+
+    public QueryManager getQueryManager() {
+        return queryManager;
+    }
+
+    public void setQueryManager(QueryManager queryManager) {
+        this.queryManager = queryManager;
+    }
+
+    @Override public void create(Annotation annotation) throws ResourceAlreadyExistsException {
+        throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+    }
+
+    @Override public void update(Annotation annotation) throws NoSuchResourceException {
+        getLog().debug("Triggered annotation update request...\n\n" + annotation.toString());
+        throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+    }
+
+    @Override public void delete(Annotation annotation) throws NoSuchResourceException {
+        throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+    }
+
+    @Override public Collection<Annotation> read() {
+        return read(-1, -1);
+    }
+
+    @Override public int count() {
+        return getAllAnnotationURIs(-1,-1).size();
+    }
+
+    @Override public List<Annotation> read(int size, int start) {
+
+        String query = getQueryManager().getSparqlQuery("ANNOTATIONS.read");
+        Graph g = getQueryService().getDefaultGraph();
+        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
+        if (size > -1) {
+            q1.setLimit(size);
+        }
+        if (start > -1) {
+            q1.setOffset(start);
+            q1.addOrderBy(underscore + QueryVariables.ANNOTATION_ID.toString(), Query.ORDER_DEFAULT);
+        }
+        QueryExecution execute = null;
+        try {
+            execute = getQueryService().getQueryExecution(g, q1, false);
+            ResultSet results = execute.execSelect();
+            return evaluateQueryResults(results);
+        } catch (LodeException e) {
+            throw new SPARQLQueryException("Failed to retrieve annotation", e);
+        }
+        finally {
+            if (execute !=  null)  {
+                execute.close();
+                if (g != null ) {
+                    g.close();
+                }
+            }
+        }
+    }
+
+
+    @Override public List<URI> getAllAnnotationURIs() {
+        return  getAllAnnotationURIs(-1,-1);
+    }
+
+    private List<URI> getAllAnnotationURIs(int size, int start) {
+
+        String query = getQueryManager().getSparqlQuery("Instance");
+        Graph g = getQueryService().getDefaultGraph();
+        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
+        if (size > -1) {
+            q1.setLimit(size);
+        }
+        if (start > -1) {
+            q1.setOffset(start);
+            q1.addOrderBy(underscore + QueryVariables.RESOURCE.toString(), Query.ORDER_DEFAULT);
+        }
+        QuerySolutionMap initialBinding = new QuerySolutionMap();
+        initialBinding.add(QueryVariables.RESOURCE_TYPE.toString(), new ResourceImpl(Namespaces.OAC.getURI() + "DataAnnotation"));
+
+        QueryExecution execute = null;
+        List<URI> uris = new ArrayList<URI>();
+        try {
+            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
+            ResultSet results = execute.execSelect();
+
+            while (results.hasNext()) {
+                QuerySolution sol = results.next();
+                uris.add(URI.create(sol.getResource(QueryVariables.RESOURCE.toString()).getURI()));
+            }
+
+        } catch (LodeException e) {
+            throw new SPARQLQueryException("Failed to retrieve all annotation URIs", e);
+        }
+        finally {
+            if (execute !=  null)  {
+                execute.close();
+                if (g != null ) {
+                    g.close();
+                }
+            }
+        }
+        getLog().info("Read " + uris.size() + " annotation URIs");
+        return uris;
+    }
+
+    @Override public Annotation read(URI uri) {
+        String query = getQueryManager().getSparqlQuery("ANNOTATIONS.lucene.read");
+        Graph g = getQueryService().getDefaultGraph();
+        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
+
+        QuerySolutionMap initialBinding = new QuerySolutionMap();
+        initialBinding.add(QueryVariables.ANNOTATION_ID.toString(), new ResourceImpl(uri.toString()));
+
+        QueryExecution execute = null;
+        try {
+            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
+            ResultSet results = execute.execSelect();
+            List<Annotation> annos = evaluateQueryResults(results);
+            getLog().trace("SPARQL query " + queryCounter++ + " complete");
+            if (annos.size() > 1) {
+                getLog().error("Too many results looking for annotation <" + uri.toString() + ">");
+                throw new TooManyResultsException("Expected one result, got " + annos.size() + " for <" + uri + ">");
+            }
+            else {
+                if (annos.size() == 0) {
+                    return null;
+                }
+                else {
+                    return annos.get(0);
+                }
+            }
+
+        } catch (LodeException e) {
+            throw new SPARQLQueryException("Failed to retrieve annotation", e);
+        }
+        finally {
+            if (execute !=  null)  {
+                execute.close();
+                if (g != null ) {
+                    g.close();
+                }
+            }
+        }
+    }
+
+
+
+    @Override public Collection<Annotation> readByStudy(Study study) {
+        throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+
+    }
+
+
+
+    @Override public Collection<Annotation> readByBiologicalEntity(BiologicalEntity biologicalEntity) {
+        throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+
+    }
+
+    @Override public Collection<Annotation> readByProperty(Property property) {
+        throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+
+    }
+
+    @Override public Collection<Annotation> readBySemanticTag(URI semanticTagURI) {
+        throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+
+    }
+
+    public List<Annotation> evaluateQueryResults(ResultSet result) {
+        Map<URI, Annotation> annotationMap = new HashMap<>();
+        while (result.hasNext()) {
+            QuerySolution solution = (QuerySolution) result.next();
+            Annotation a = getAnnotationFromBindingSet(annotationMap, solution);
+            annotationMap.put(a.getURI(), a);
+        }
+        List<Annotation> annotationList = new ArrayList<>();
+        annotationList.addAll(annotationMap.values());
+
+        return annotationList;
+    }
+
+    @Override public String getDatasourceName() {
+        return "zooma";
+    }
+
+
+    final static String underscore = "_";
+    public Annotation getAnnotationFromBindingSet(Map<URI, Annotation> annotationMap, QuerySolution solution) {
+
+        Resource annotationIdValue = solution.getResource(underscore + QueryVariables.ANNOTATION_ID.toString());
+        Resource propertyValueIdValue = solution.getResource(underscore + QueryVariables.PROPERTY_VALUE_ID.toString());
+        Literal propertyNameValue = solution.getLiteral(underscore + QueryVariables.PROPERTY_NAME.toString());
+        Literal propertyValueValue = solution.getLiteral(underscore + QueryVariables.PROPERTY_VALUE.toString());
+        Resource semanticTag = solution.getResource(underscore + QueryVariables.SEMANTIC_TAG.toString());
+
+        URI annotationUri = URI.create(annotationIdValue.getURI());
+        URI pvUri = URI.create(propertyValueIdValue.getURI());
+        URI ontoUri;
+        if (semanticTag != null) {
+            ontoUri = URI.create(semanticTag.getURI());
+        }
+        else {
+            ontoUri = null;
+            getLog().debug("Missing semantic tag for annotation <" + annotationUri.toString() + ">");
+        }
+
+        Property p =
+                new SimpleTypedProperty(pvUri, propertyNameValue.getLexicalForm(), propertyValueValue.getLexicalForm());
+
+        if (!annotationMap.containsKey(annotationUri)) {
+            Annotation newAnno = new SimpleLuceneAnnotation(annotationUri,p);
+            annotationMap.put(newAnno.getURI(), newAnno);
+            annotationMap.get(annotationUri).getSemanticTags().add(ontoUri);
+        }
+
+        if (ontoUri != null) {
+            annotationMap.get(annotationUri).getSemanticTags().add(ontoUri);
+        }
+
+        return annotationMap.get(annotationUri);
+
+    }
+
+    private class SimpleLuceneAnnotation extends AbstractIdentifiable implements Annotation {
+
+        private Collection<URI> semanticTags;
+        private Property property;
+
+        private SimpleLuceneAnnotation(URI annotationUri, Property property) {
+            super(annotationUri);
+            this.property = property;
+            this.semanticTags = new HashSet<>();
+        }
+
+
+        @Override
+        public Collection<BiologicalEntity> getAnnotatedBiologicalEntities() {
+            throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+        }
+
+        @Override
+        public Property getAnnotatedProperty() {
+            return property;
+        }
+
+        @Override
+        public Collection<URI> getSemanticTags() {
+            return semanticTags;
+        }
+
+        @Override
+        public AnnotationProvenance getProvenance() {
+            throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+        }
+
+        @Override
+        public Collection<URI> replacedBy() {
+            throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+        }
+
+        @Override
+        public void setReplacedBy(URI... replacedBy) {
+            throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+
+        }
+
+        @Override
+        public Collection<URI> replaces() {
+            throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+        }
+
+        @Override
+        public void setReplaces(URI... replaces) {
+            throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+
+        }
+
+        @Override
+        public String toString() {
+            return "SimpleLuceneAnnotation{" +
+                    ", uri=" + getURI().toString() +
+                    "semanticTags=" + semanticTags +
+                    ", property=" + property +
+                    '}';
+        }
+    }
+
+
+}

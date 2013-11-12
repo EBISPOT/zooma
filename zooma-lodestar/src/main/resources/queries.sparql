@@ -30,6 +30,20 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
     FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Ontology")
 }
 
+^[ANNOTATIONS.lucene.read]
+SELECT DISTINCT (?annotationid as ?_annotationid) (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) WHERE {
+    ?annotationid a oac:DataAnnotation .
+    ?annotationid oac:hasBody ?propertyvalueid .
+    ?propertyvalueid zoomaterms:propertyName ?propertyname .
+    ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
+    ?propertyvalueid rdf:type zoomaterms:Property .
+
+    OPTIONAL {
+        ?annotationid oac:hasBody ?semantictag .
+        ?semantictag rdf:type oac:SemanticTag
+    }
+}
+
 ^[ANNOTATIONS_STUDY.read]
 SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
     ?annotationid a oac:DataAnnotation .

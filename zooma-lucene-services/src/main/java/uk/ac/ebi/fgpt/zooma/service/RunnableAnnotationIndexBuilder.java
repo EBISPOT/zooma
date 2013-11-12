@@ -18,25 +18,19 @@ import java.util.List;
 public class RunnableAnnotationIndexBuilder implements Runnable{
 
     private ZoomaLuceneIndexer indexer;
-    private AnnotationDAO dao;
     private IndexWriter annotationWriter;
-    private Collection<URI> annotationURIs;
+    private Collection<Annotation> annotations;
 
-    public RunnableAnnotationIndexBuilder(ZoomaLuceneIndexer indexer, IndexWriter annotationWriter, AnnotationDAO dao, Collection<URI> annotationURIs) {
+    public RunnableAnnotationIndexBuilder(ZoomaLuceneIndexer indexer, IndexWriter annotationWriter, Collection<Annotation> annotations) {
         this.indexer = indexer;
-        this.dao = dao;
         this.annotationWriter=annotationWriter;
-        this.annotationURIs = annotationURIs;
+        this.annotations = annotations;
     }
 
     @Override
     public void run() {
         try {
-            Collection<Annotation> annos = new HashSet<>();
-            for (URI aUri : annotationURIs) {
-                annos.add(dao.read(aUri));
-            }
-            indexer.createAnnotationIndex(annos, annotationWriter);
+            indexer.createAnnotationIndex(annotations, annotationWriter);
         } catch (IOException e) {
             e.printStackTrace();
         }

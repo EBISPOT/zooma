@@ -479,7 +479,7 @@
 
                 <!-- Zooma lucene building properties -->
                 <zooma.profile.threadcount>20</zooma.profile.threadcount>
-                <zooma.profile.annotationPerThread>10000</zooma.profile.annotationPerThread>
+                <zooma.profile.annotationPerThread>15000</zooma.profile.annotationPerThread>
             </properties>
 
             <modules>
