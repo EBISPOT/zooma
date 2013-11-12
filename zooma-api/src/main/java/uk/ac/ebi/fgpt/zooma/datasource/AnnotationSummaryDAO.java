@@ -16,16 +16,4 @@ import java.util.Set;
  */
 public interface AnnotationSummaryDAO extends ZoomaDAO<AnnotationSummary> {
 
-//    /**
-//     * Retrieves a map of unique combinations of Property to Semantic tag mappings
-//     * @return the map of property to semantic tag mappings
-//     */
-//    Map<URI, Collection<URI>> readDistinctPropertyToSemanticTag();
-//
-//    /**
-//     * Retrieves a collection of all annotations for a property and semantic tag pair
-//     * @return the map of annotations
-//     */
-//    Collection<Annotation> readAnnotationsByPropertyToSemanticTag(URI propertyUri, Collection<URI> semanticTag);
-
 }

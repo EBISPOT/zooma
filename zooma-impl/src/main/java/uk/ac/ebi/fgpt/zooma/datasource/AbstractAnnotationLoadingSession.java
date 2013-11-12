@@ -204,6 +204,11 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
             if (bioentity.getName() != null) {
                 idContents.add(bioentity.getName());
             }
+            if (bioentity.getTypes() != null) {
+                for (URI type : bioentity.getTypes()) {
+                    idContents.add(URIUtils.getShortform(type));
+                }
+            }
         }
         if (p instanceof TypedProperty) {
             idContents.add(((TypedProperty) p).getPropertyType());
