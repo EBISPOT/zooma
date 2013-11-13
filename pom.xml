@@ -204,6 +204,13 @@
             <version>${org.slf4j.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${org.slf4j.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- testing dependencies -->
         <dependency>
             <groupId>junit</groupId>
@@ -341,9 +348,6 @@
                 <virtuoso.server>rdf-hx-01.ebi.ac.uk</virtuoso.server>
                 <virtuoso.port>1113</virtuoso.port>
                 <ui.sparql.endpoint>jdbc:virtuoso://${virtuoso.server}:${virtuoso.port}</ui.sparql.endpoint>
-
-
-
             </properties>
 
             <modules>
@@ -399,11 +403,9 @@
                 <!-- staging sparql endpoint (for loader resolving, indexing) -->
                 <staging.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</staging.sparql.endpoint>
                 <!-- ui sparql endpoint - URL is relative to zooma server -->
-
                 <virtuoso.server>localhost</virtuoso.server>
                 <virtuoso.port>1111</virtuoso.port>
                 <ui.sparql.endpoint>jdbc:virtuoso://${virtuoso.server}:${virtuoso.port}</ui.sparql.endpoint>
-
             </properties>
 
             <modules>
@@ -465,14 +467,12 @@
                 <!-- staging sparql endpoint (for loader resolving, indexing) -->
                 <staging.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</staging.sparql.endpoint>
                 <!-- ui sparql endpoint - URL is relative to zooma server -->
-
-                <!-- OWLIM index building properties -->
-                <owlim.loader.script>/ebi/microarray/home/fgpt/dev/sw/owlim-lite-loader/bin/load-owlim.sh</owlim.loader.script>
-
                 <virtuoso.server>orange.ebi.ac.uk</virtuoso.server>
                 <virtuoso.port>1111</virtuoso.port>
                 <ui.sparql.endpoint>jdbc:virtuoso://${virtuoso.server}:${virtuoso.port}</ui.sparql.endpoint>
 
+                <!-- OWLIM index building properties -->
+                <owlim.loader.script>/ebi/microarray/home/fgpt/dev/sw/owlim-lite-loader/bin/load-owlim.sh</owlim.loader.script>
             </properties>
 
             <modules>
