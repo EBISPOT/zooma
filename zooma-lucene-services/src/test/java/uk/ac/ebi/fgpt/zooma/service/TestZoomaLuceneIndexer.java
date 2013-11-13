@@ -8,10 +8,8 @@ import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.AnnotationProvenanceDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationSummaryDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 import uk.ac.ebi.fgpt.zooma.model.*;
@@ -24,11 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -49,6 +43,7 @@ public class TestZoomaLuceneIndexer {
     private AnnotationDAO verifiedAnnotationDAO;
     private AnnotationSummaryDAO verifiedSummaryAnnotationDAO;
 
+    private Map<URI, AnnotationProvenance> verifiedProvenanceMap;
     //    private PropertyDAO singlePropertyDAO;
     private PropertyDAO propertyDAO;
 
@@ -129,21 +124,6 @@ public class TestZoomaLuceneIndexer {
                                                     prov5,
                                                     semanticTag3);
 
-            Collection<URI> semanticTags = new HashSet<>();
-            semanticTags.add(semanticTag1);
-            semanticTags.add(semanticTag2);
-            semanticTags.add(semanticTag3);
-
-            Collection<URI> annotations = new HashSet<URI>();
-            annotations.add(anno1.getURI());
-            annotations.add(anno2.getURI());
-            annotations.add(anno3.getURI());
-            annotations.add(anno4.getURI());
-            annotations.add(anno5.getURI());
-
-            AnnotationSummary summary1 = new SimpleAnnotationSummary(null, ((TypedProperty)property1).getPropertyType(), property1.getPropertyValue(), semanticTags, annotations, 0);
-            AnnotationSummary summary2 = new SimpleAnnotationSummary(null, ((TypedProperty)property2).getPropertyType(), property2.getPropertyValue(), semanticTags, annotations, 0);
-
 
             // create mocked DAOs
 //            singlePropertyDAO = mock(PropertyDAO.class);
@@ -164,6 +144,7 @@ public class TestZoomaLuceneIndexer {
             multiAnnotations.add(anno2);
             when(multiAnnotationDAO.read()).thenReturn(multiAnnotations);
 
+
             verifiedAnnotationDAO = mock(AnnotationDAO.class);
             Collection<Annotation> verifiedAnnotations = new HashSet<>();
             verifiedAnnotations.add(anno1);
@@ -172,11 +153,52 @@ public class TestZoomaLuceneIndexer {
             verifiedAnnotations.add(anno5);
             when(verifiedAnnotationDAO.read()).thenReturn(verifiedAnnotations);
 
-            verifiedSummaryAnnotationDAO = mock(AnnotationSummaryDAO.class);
-            Collection<AnnotationSummary> verifiedSummaries = new HashSet<>();
-            verifiedSummaries.add(summary1);
-            when(verifiedSummaryAnnotationDAO.read()).thenReturn(Collections.singleton(summary1));
+            verifiedProvenanceMap = new HashMap<>();
+            verifiedProvenanceMap.put(anno1.getURI(), prov1);
+            verifiedProvenanceMap.put(anno2.getURI(), prov2);
+            verifiedProvenanceMap.put(anno3.getURI(), prov3);
+            verifiedProvenanceMap.put(anno4.getURI(), prov4);
+            verifiedProvenanceMap.put(anno5.getURI(), prov5);
 
+            Collection<URI> semanticsTags = new HashSet<>();
+            semanticsTags.add(semanticTag1);
+            semanticsTags.add(semanticTag2);
+            semanticsTags.add(semanticTag3);
+            Collection<URI> summaryAnnotations = new HashSet<>();
+            summaryAnnotations.add(anno1.getURI());
+            summaryAnnotations.add(anno3.getURI());
+            summaryAnnotations.add(anno4.getURI());
+            summaryAnnotations.add(anno5.getURI());
+            Collection<AnnotationSummary> verifiedSummaries = new HashSet<>();
+
+            AnnotationSummary summary1 = new SimpleAnnotationSummary(
+                    null,
+                    ((TypedProperty)property1).getPropertyType(),
+                    property1.getPropertyValue(),
+                    Collections.singleton(semanticTag1) ,
+                    Arrays.asList(anno1.getURI(), anno4.getURI()),
+                    0);
+
+            AnnotationSummary summary2 = new SimpleAnnotationSummary(
+                    null,
+                    ((TypedProperty)property1).getPropertyType(),
+                    property1.getPropertyValue(),
+                    Collections.singleton(semanticTag3) ,
+                    Arrays.asList(anno3.getURI(), anno5.getURI()),
+                    0);
+
+            AnnotationSummary summary3 = new SimpleAnnotationSummary(
+                    null,
+                    ((TypedProperty)property2).getPropertyType(),
+                    property2.getPropertyValue(),
+                    Collections.singleton(semanticTag2) ,
+                    Collections.singleton(anno2.getURI()), 0);
+
+            verifiedSummaries.add(summary1);
+            verifiedSummaries.add(summary2);
+            verifiedSummaries.add(summary3);
+            verifiedSummaryAnnotationDAO = mock(AnnotationSummaryDAO.class);
+            when(verifiedSummaryAnnotationDAO.read()).thenReturn(verifiedSummaries);
 
         }
         catch (Exception e) {
@@ -193,7 +215,6 @@ public class TestZoomaLuceneIndexer {
         singleAnnotationDAO = null;
         multiAnnotationDAO = null;
         verifiedAnnotationDAO = null;
-        verifiedSummaryAnnotationDAO = null;
 
         FileVisitor deletor = new SimpleFileVisitor<Path>() {
             @Override
@@ -226,7 +247,7 @@ public class TestZoomaLuceneIndexer {
         }
     }
 
-    @Ignore
+    @Test
     public void testCreateVerifiedAnnotationSummaryIndex() {
 
         Directory annotationDir = null;
@@ -245,7 +266,6 @@ public class TestZoomaLuceneIndexer {
         ZoomaLuceneIndexer indexer = new ZoomaLuceneIndexer();
         indexer.setAnalyzer(analyzer);
         indexer.setAnnotationDAO(verifiedAnnotationDAO);
-        indexer.setAnnotationSummaryDAO(verifiedSummaryAnnotationDAO);
         indexer.setPropertyDAO(propertyDAO);
         indexer.setPropertyIndex(new RAMDirectory());
         indexer.setPropertyTypeIndex(new RAMDirectory());
@@ -254,7 +274,15 @@ public class TestZoomaLuceneIndexer {
         indexer.setAnnotationSummaryIndex(summaryDir);
 
 
-
+        // create indices needed for this test
+        try {
+            indexer.createAnnotationIndex(new ArrayList<Annotation>(verifiedAnnotationDAO.read()));
+            indexer.createAnnotationSummaryIndex(verifiedSummaryAnnotationDAO, verifiedProvenanceMap);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            fail("Couldn't create annotation summary index");
+        }
 
         // close indexer
         indexer.destroy();
