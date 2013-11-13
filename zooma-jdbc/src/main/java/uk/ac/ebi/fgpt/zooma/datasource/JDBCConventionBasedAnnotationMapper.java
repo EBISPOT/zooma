@@ -46,6 +46,7 @@ import java.util.Map;
  * Optional fields may be excluded from the result set, but all others are required, even if values are null.
  *
  * @author Tony Burdett
+ * @author Simon Jupp
  * @date 26/09/12
  */
 public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation> {
@@ -75,6 +76,8 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         // BIOENTITY
         // BIOENTITY_URI [optional]
         // BIOENTITY_ID [optional]
+        // BIOENTITY_TYPE_NAME [optional]
+        // BIOENTITY_TYPE_URI [optional]
         // PROPERTY_TYPE
         // PROPERTY_VALUE
         // PROPERTY_URI [optional]
@@ -95,11 +98,14 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         URI studyURI;
         URI bioentityURI;
         URI propertyURI;
+        URI studyType = null;
 
         // optional ID attributes with null initializers
         String annotationID;
         String studyID;
         String bioentityID;
+        String bioentityTypeName;
+        URI bioentityTypeURI;
         String propertyID;
         String annotator;
         Date annotationDate = null;
@@ -174,12 +180,30 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         else {
             studyURI = null;
         }
+        uriStr = extractColumnValue(resultSet, "STUDY_TYPE");
+        if (uriStr != null) {
+            studyType = URI.create(uriStr);
+        }
         uriStr = extractColumnValue(resultSet, "BIOENTITY_URI");
         if (uriStr != null) {
             bioentityURI = URI.create(uriStr);
         }
         else {
             bioentityURI = null;
+        }
+        uriStr = extractColumnValue(resultSet, "BIOENTITY_TYPE_URI");
+        if (uriStr != null) {
+            bioentityTypeURI = URI.create(uriStr);
+        }
+        else {
+            bioentityTypeURI = null;
+        }
+        uriStr = extractColumnValue(resultSet, "BIOENTITY_TYPE_NAME");
+        if (uriStr != null) {
+            bioentityTypeName = uriStr;
+        }
+        else {
+            bioentityTypeName = null;
         }
         uriStr = extractColumnValue(resultSet, "PROPERTY_URI");
         if (uriStr != null) {
@@ -209,9 +233,12 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
                                                        studyAcc,
                                                        studyURI,
                                                        studyID,
+                                                       studyType,
                                                        bioentityName,
                                                        bioentityURI,
                                                        bioentityID,
+                                                       bioentityTypeName,
+                                                       bioentityTypeURI,
                                                        propertyType,
                                                        propertyValue,
                                                        propertyURI,

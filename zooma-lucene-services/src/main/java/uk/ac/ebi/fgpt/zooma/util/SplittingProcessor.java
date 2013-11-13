@@ -22,8 +22,7 @@ public class SplittingProcessor implements SearchStringProcessor {
     /**
      * Returns true if the property value contains exactly one " and ". Returns false otherwise.
      *
-     *
-     * @param searchString     the search string to test
+     * @param searchString the search string to test
      * @return true if the string can be processed
      */
     @Override

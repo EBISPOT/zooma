@@ -320,8 +320,4 @@ public class ArrayExpressAtlasEquivalentAnnotationsDAO extends Initializable imp
             return null;
         }
     }
-
-//    private String normalizeString(String s) {
-//        return ZoomaUtils.normalizePropertyTypeString(s);
-//    }
 }

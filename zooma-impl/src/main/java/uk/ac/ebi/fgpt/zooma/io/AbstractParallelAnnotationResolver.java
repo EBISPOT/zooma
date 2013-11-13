@@ -17,9 +17,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * An abstract implementation of an annotation resolver service that can resolve annotations in parallel.  This provides
- * a default implementation of {@link #resolve(String, java.util.Collection)} that delegates the work to
- * {@link #resolve(uk.ac.ebi.fgpt.zooma.model.Annotation)} for each annotation, but performs requests in a
- * parallelized manner using a configurable number of worker threads.
+ * a default implementation of {@link #resolve(String, java.util.Collection)} that delegates the work to {@link
+ * #resolve(uk.ac.ebi.fgpt.zooma.model.Annotation)} for each annotation, but performs requests in a parallelized manner
+ * using a configurable number of worker threads.
  * <p/>
  * You should always make sure you call {@link #shutdown()} on all classes that extend this implementation once you have
  * finished with it, in order to correctly terminate any worker threads that are running.

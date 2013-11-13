@@ -7,19 +7,28 @@ import java.util.Date;
  * A basic implementation of an Annotation Provenance object, declaring the origin of an annotation
  *
  * @author Tony Burdett
+ * @author Simon Jupp
  * @date 10/04/12
  */
 public class SimpleAnnotationProvenance implements AnnotationProvenance {
     private AnnotationSource source;
     private Evidence evidence;
+    private Accuracy accuracy;
     private String generator;
     private Date generationDate;
     private String annotator;
     private Date annotationDate;
 
-    public SimpleAnnotationProvenance(AnnotationSource source, Evidence evidence, String generator, Date generationDate, String annotator, Date annotationDate) {
+    public SimpleAnnotationProvenance(AnnotationSource source,
+                                      Evidence evidence,
+                                      Accuracy accuracy,
+                                      String generator,
+                                      Date generationDate,
+                                      String annotator,
+                                      Date annotationDate) {
         this.source = source;
         this.evidence = evidence;
+        this.accuracy = accuracy;
         this.generator = generator;
         this.generationDate = generationDate;
         this.annotator = annotator;
@@ -58,6 +67,14 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
 
     public Date getAnnotationDate() {
         return annotationDate;
+    }
+
+    public Accuracy getAccuracy() {
+        return accuracy;
+    }
+
+    public Date getGenerationDate() {
+        return generationDate;
     }
 
     @Override
@@ -109,10 +126,16 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
         return "SimpleAnnotationProvenance{" +
                 "source=" + source +
                 ", evidence=" + evidence +
+                ", accuracy=" + accuracy +
                 ", generator='" + generator + '\'' +
                 ", generationDate=" + generationDate +
                 ", annotator='" + annotator + '\'' +
                 ", annotationDate=" + annotationDate +
                 '}';
+    }
+
+    @Override
+    public URI getURI() {
+        throw new UnsupportedOperationException();
     }
 }

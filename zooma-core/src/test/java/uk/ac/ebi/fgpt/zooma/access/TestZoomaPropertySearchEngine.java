@@ -142,9 +142,9 @@ public class TestZoomaPropertySearchEngine {
 
         // create search engine
         propertySearchEngine = new ZoomaPropertySearcher(propertyService,
-                                                             propertySearchService,
-                                                             propertySorter,
-                                                             propertyLimiter);
+                                                         propertySearchService,
+                                                         propertySorter,
+                                                         propertyLimiter);
     }
 
     @After

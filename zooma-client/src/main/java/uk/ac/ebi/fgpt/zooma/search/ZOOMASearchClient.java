@@ -347,7 +347,9 @@ public class ZOOMASearchClient {
                 if (sourceNode != null) {
                     AnnotationSource.Type type = AnnotationSource.Type.valueOf(sourceNode.get("type").getTextValue());
                     AnnotationSource annotationSource =
-                            new SimpleAnnotationSource(URI.create(sourceNode.get("uri").getTextValue()), type);
+                            new SimpleAnnotationSource(URI.create(sourceNode.get("uri").getTextValue()),
+                                                       sourceNode.get("name").getTextValue(),
+                                                       type);
                     annotationProvenance = new SimpleAnnotationProvenance(
                             annotationSource,
                             AnnotationProvenance.Evidence.valueOf(provenanceNode.get("evidence").getTextValue()),

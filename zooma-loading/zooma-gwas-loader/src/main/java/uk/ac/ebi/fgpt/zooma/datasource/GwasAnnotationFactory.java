@@ -18,19 +18,28 @@ public class GwasAnnotationFactory extends AbstractAnnotationFactory {
 
     public GwasAnnotationFactory(AnnotationLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
-        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GWAS.getURI()),
-			                                      AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                                         "ZOOMA",
-                                                         new Date());
+        this.provenance =
+                new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GWAS.getURI(), "gwas"),
+                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                               "ZOOMA",
+                                               new Date());
     }
 
     @Override protected AnnotationProvenance getAnnotationProvenance() {
         return provenance;
     }
 
+    @Override
+    protected AnnotationProvenance getAnnotationProvenance(String annotator,
+                                                           AnnotationProvenance.Accuracy accuracy,
+                                                           Date annotationDate) {
+        return null;    // todo
+    }
+
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GWAS.getURI()),
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.GWAS.getURI(), "gwas"),
                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                              AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                                               "ZOOMA",
                                               new Date(),
                                               annotator,

@@ -5,10 +5,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaResolutionException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
-import uk.ac.ebi.fgpt.zooma.io.ZoomaLoader;
-import uk.ac.ebi.fgpt.zooma.io.ZoomaResolver;
-import uk.ac.ebi.fgpt.zooma.io.ZoomaSerializer;
-import uk.ac.ebi.fgpt.zooma.io.ZoomaStorer;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 
 import java.io.File;
@@ -20,8 +16,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A {@link uk.ac.ebi.fgpt.zooma.io.ZoomaLoader} for {@link Annotation}s that can be configured to enable resolving, serializing and storage of
- * annotations.
+ * A {@link uk.ac.ebi.fgpt.zooma.io.ZoomaLoader} for {@link Annotation}s that can be configured to enable resolving,
+ * serializing and storage of annotations.
  *
  * @author Tony Burdett
  * @date 11/06/13

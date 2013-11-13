@@ -52,6 +52,6 @@
         <module>zooma-gwas-loader</module>
         <module>zooma-owl-loader</module>
         <module>zooma-omia-loader</module>
-  </modules>
+    </modules>
 
 </project>

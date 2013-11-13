@@ -28,7 +28,7 @@
     </bean>
 
     <!-- GWAS Database setup -->
-    <bean name="gwasDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">  
+    <bean name="gwasDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
         <property name="url" value="jdbc:oracle:thin:@todd.ebi.ac.uk:1521:AE2TST" />
         <property name="username" value="gwas" />

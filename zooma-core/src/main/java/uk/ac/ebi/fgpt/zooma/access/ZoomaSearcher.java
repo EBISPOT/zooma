@@ -18,8 +18,7 @@ import java.util.List;
 /**
  * This class represents the standard endpoint for all zooma searches.  This will only delegate searches to a {@link
  * ZoomaAnnotationSummarySearcher} by default, although you can enable wider searches using the supplied flags to
- * "switch on" a {@link ZoomaAnnotationSearcher}, {@link ZoomaPropertySearcher} and {@link
- * ZoomaPropertyTypeSearcher}.
+ * "switch on" a {@link ZoomaAnnotationSearcher}, {@link ZoomaPropertySearcher} and {@link ZoomaPropertyTypeSearcher}.
  * <p/>
  * By enabling each search service, the results returned from a search become composited.  The order used when
  * compositing is always {@link uk.ac.ebi.fgpt.zooma.model.AnnotationSummary} &lt; {@link
@@ -206,7 +205,7 @@ public class ZoomaSearcher extends SuggestEndpoint<Object, String> {
             @RequestParam(value = "indent", required = false, defaultValue = "false") final Boolean indent,
             @RequestParam(value = "mql_output", required = false) final String mql_output) {
         getLog().debug("ZOOMA search engine received search request (query '" + query + "')");
-        
+
         getLog().debug("Zooma Searcher... ZOOMA search engine received search request (query '" + query + "')");
         System.out.println("Zooma Searcher...");
         try {
@@ -278,7 +277,7 @@ public class ZoomaSearcher extends SuggestEndpoint<Object, String> {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Override
     @RequestMapping(value = "/flyout", method = RequestMethod.GET)
     public @ResponseBody FlyoutResponse flyout(@RequestParam(value = "id") final String id) {

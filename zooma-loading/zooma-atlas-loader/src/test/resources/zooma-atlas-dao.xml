@@ -47,7 +47,9 @@
     <bean name="annotationSerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIAnnotationSerializer" />
 
     <!-- ZOOMA triplestore setup -->
-    <bean id="zoomaAnnotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationDAO"  autowire-candidate="false">
+    <bean id="zoomaAnnotationDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationDAO"
+          autowire-candidate="false">
         <property name="manager" ref="sesameRepositoryManager" />
         <property name="biologicalEntityDAO" ref="zoomaBiologicalEntityDAO" />
     </bean>

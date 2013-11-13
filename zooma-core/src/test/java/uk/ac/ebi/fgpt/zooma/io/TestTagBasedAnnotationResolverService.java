@@ -69,7 +69,7 @@ public class TestTagBasedAnnotationResolverService {
         URI modifiedAnnotationURI = URI.create("http://www.ebi.ac.uk/zooma/test/modified_annotation");
         URI emptyAnnotationURI = URI.create("http://www.ebi.ac.uk/zooma/test/empty_annotation");
 
-        AnnotationSource source = new SimpleDatabaseAnnotationSource(sourceURI);
+        AnnotationSource source = new SimpleDatabaseAnnotationSource(sourceURI, "test");
         AnnotationProvenance provenance = new SimpleAnnotationProvenance(
                 source,
                 AnnotationProvenance.Evidence.ZOOMA_INFERRED_FROM_CURATED,
@@ -207,11 +207,13 @@ public class TestTagBasedAnnotationResolverService {
             getLog().debug("Annotation comparison:" +
                                    "\n\tResult:  \t" + result.toString() +
                                    "\n\tOriginal:\t" + updatedAnnotation.toString());
-            assertTrue("Result is not replaced by updatedAnnotation", result.replaces().contains(resolvableAnnotation.getURI()));
+            assertTrue("Result is not replaced by updatedAnnotation",
+                       result.replaces().contains(resolvableAnnotation.getURI()));
 
             // if annotation doesn't exist but is a modified version of an old one, we should get back our original annotation, but linked to an old one
             result = resolver.resolve(modifiedAnnotation);
-            assertTrue("No relation between result and resolvableAnnotation", result.replaces().contains(resolvableAnnotation.getURI()));
+            assertTrue("No relation between result and resolvableAnnotation",
+                       result.replaces().contains(resolvableAnnotation.getURI()));
         }
         catch (Exception e) {
             e.printStackTrace();

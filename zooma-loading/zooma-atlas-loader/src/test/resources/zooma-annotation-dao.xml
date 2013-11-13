@@ -23,19 +23,19 @@
     </bean>
 
     <!--<bean name="atlasAssayDAO" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasAssayAnnotationDAO">-->
-        <!--<constructor-arg name="annotationMapper" ref="atlasAssayMapper" />-->
-        <!--<property name="jdbcTemplate" ref="atlasJdbcTemplate" />-->
+    <!--<constructor-arg name="annotationMapper" ref="atlasAssayMapper" />-->
+    <!--<property name="jdbcTemplate" ref="atlasJdbcTemplate" />-->
     <!--</bean>-->
 
     <!--<bean name="atlasAssayAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasAnnotationFactory">-->
-        <!--<constructor-arg name="annotationLoadingSession" ref="atlasAssayLoadingSession" />-->
+    <!--<constructor-arg name="annotationLoadingSession" ref="atlasAssayLoadingSession" />-->
     <!--</bean>-->
 
     <!--<bean name="atlasAssayLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasAssayLoadingSession" />-->
 
     <!--<bean name="atlasAssayMapper" class="uk.ac.ebi.fgpt.zooma.datasource.AtlasAnnotationMapper">-->
-        <!--<constructor-arg name="atlasAnnotationFactory" ref="atlasAssayAnnotationFactory" />-->
-        <!--<constructor-arg name="efoResource" value="http://www.ebi.ac.uk/efo/efo.owl" />-->
+    <!--<constructor-arg name="atlasAnnotationFactory" ref="atlasAssayAnnotationFactory" />-->
+    <!--<constructor-arg name="efoResource" value="http://www.ebi.ac.uk/efo/efo.owl" />-->
     <!--</bean>-->
 
     <bean name="atlasJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">

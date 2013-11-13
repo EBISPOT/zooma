@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 import uk.ac.ebi.fgpt.zooma.Namespaces;
 
 import java.net.URI;
+import java.util.Collection;
 
 /**
  * An annotation loading session that is capable of minting URIs specific to the Atlas
@@ -11,17 +12,19 @@ import java.net.URI;
  * @date 28/09/12
  */
 public abstract class AtlasLoadingSession extends AbstractAnnotationLoadingSession {
-    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
-        return URI.create(Namespaces.GXA_RESOURCE.getURI().toString() + "experiment/" + encode(studyAccession));
+    protected AtlasLoadingSession() {
+        super();
     }
 
-    @Override protected URI mintPropertyURI(String propertyID,
-                                            String propertyType,
-                                            String propertyValue) {
-        return URI.create(Namespaces.GXA_RESOURCE.getURI().toString() + "property/" + propertyID);
+    protected AtlasLoadingSession(Collection<URI> defaultBiologicalEntityUris, Collection<URI> defaultStudyEntityUris) {
+        super(defaultBiologicalEntityUris, defaultStudyEntityUris);
+    }
+
+    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
+        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "gxa/" + encode(studyAccession));
     }
 
     @Override protected URI mintAnnotationURI(String annotationID) {
-        return URI.create(Namespaces.GXA_RESOURCE.getURI().toString() + "annotation/" + annotationID);
+        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "gxa/" + annotationID);
     }
 }

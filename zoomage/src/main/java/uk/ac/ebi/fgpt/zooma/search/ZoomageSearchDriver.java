@@ -29,26 +29,6 @@ public class ZoomageSearchDriver {
     private static boolean _olsShortIds;
     private static final String _excludedTypesResource = "zoomage-exclusions.properties";
 
-//    public static void old(String[] args) {
-//        try {
-//            ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
-//
-//            String MAGETABaccession = args[0];
-//            int minInputLength = Integer.parseInt(args[1]);
-//            float zoomaCutoffPercentage = Float.parseFloat(args[2]);
-//
-//            ZoomaRESTClient zoomaClient = new ZoomaRESTClient(minInputLength, zoomaCutoffPercentage);
-//
-//            zoomageParser.run(MAGETABaccession, zoomaClient);
-//
-//        } catch (Exception e) {
-//            //todo: input help
-//            System.err.print("Application failed: " + e.getMessage());
-//            e.printStackTrace();
-//            System.exit(1);
-//        }
-//    }
-
     public static void main(String[] args) {
         try {
             int statusCode = parseArguments(args);

@@ -64,6 +64,7 @@ public interface PropertySearchService {
      * @return a collection of matching properties
      */
     Collection<Property> searchByPrefix(String propertyType, String propertyValuePrefix);
+
     /**
      * Search the set of properties known to ZOOMA for those which have a value that matches the supplied pattern.
      * <p/>

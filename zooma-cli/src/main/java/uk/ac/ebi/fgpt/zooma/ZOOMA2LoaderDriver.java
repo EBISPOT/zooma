@@ -41,6 +41,7 @@ public class ZOOMA2LoaderDriver {
 
                     System.out.print(
                             "Backing up " + oldRDFHome.toString() + " to " + newRDFHome.toString() + "...");
+                    Files.deleteIfExists(newRDFHome);
                     Files.move(oldRDFHome,
                                newRDFHome,
                                StandardCopyOption.REPLACE_EXISTING,

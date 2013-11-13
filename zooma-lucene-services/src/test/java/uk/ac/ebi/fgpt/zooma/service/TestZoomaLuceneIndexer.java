@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
+import uk.ac.ebi.fgpt.zooma.datasource.AnnotationSummaryDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
@@ -18,8 +19,10 @@ import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotation;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenance;
+import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.SimpleDatabaseAnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
+import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
 
 import java.io.IOException;
 import java.net.URI;
@@ -29,9 +32,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -52,7 +58,9 @@ public class TestZoomaLuceneIndexer {
     private AnnotationDAO singleAnnotationDAO;
     private AnnotationDAO multiAnnotationDAO;
     private AnnotationDAO verifiedAnnotationDAO;
+    private AnnotationSummaryDAO verifiedSummaryAnnotationDAO;
 
+    private Map<URI, AnnotationProvenance> verifiedProvenanceMap;
     //    private PropertyDAO singlePropertyDAO;
     private PropertyDAO propertyDAO;
 
@@ -84,7 +92,8 @@ public class TestZoomaLuceneIndexer {
             verifiableSemanticTag = semanticTag1;
             unverifiableSemanticTag = semanticTag3;
 
-            AnnotationProvenance prov1 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source1")),
+            AnnotationProvenance prov1 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
+                    "http://www.test.com/source1"), "source1"),
                                                                         AnnotationProvenance.Evidence.MANUAL_CURATED,
                                                                         "TEST",
                                                                         new Date());
@@ -93,7 +102,8 @@ public class TestZoomaLuceneIndexer {
                                                     property1,
                                                     prov1,
                                                     semanticTag1);
-            AnnotationProvenance prov2 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2")),
+            AnnotationProvenance prov2 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
+                    "http://www.test.com/source2"), "source2"),
                                                                         AnnotationProvenance.Evidence.MANUAL_CURATED,
                                                                         "TEST",
                                                                         new Date());
@@ -103,7 +113,8 @@ public class TestZoomaLuceneIndexer {
                                                     prov2,
                                                     semanticTag2);
             // anno3 is alternate mapping for property1
-            AnnotationProvenance prov3 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3")),
+            AnnotationProvenance prov3 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
+                    "http://www.test.com/source3"), "source3"),
                                                                         AnnotationProvenance.Evidence.MANUAL_CURATED,
                                                                         "TEST",
                                                                         new Date());
@@ -113,7 +124,8 @@ public class TestZoomaLuceneIndexer {
                                                     prov3,
                                                     semanticTag3);
             // anno4 verifies anno1 from different source
-            AnnotationProvenance prov4 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2")),
+            AnnotationProvenance prov4 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
+                    "http://www.test.com/source2"), "source2"),
                                                                         AnnotationProvenance.Evidence.MANUAL_CURATED,
                                                                         "TEST",
                                                                         new Date());
@@ -123,7 +135,8 @@ public class TestZoomaLuceneIndexer {
                                                     prov4,
                                                     semanticTag1);
             // anno5 verifies anno3 from same source
-            AnnotationProvenance prov5 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3")),
+            AnnotationProvenance prov5 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
+                    "http://www.test.com/source3"), "source3"),
                                                                         AnnotationProvenance.Evidence.MANUAL_CURATED,
                                                                         "TEST",
                                                                         new Date());
@@ -153,6 +166,7 @@ public class TestZoomaLuceneIndexer {
             multiAnnotations.add(anno2);
             when(multiAnnotationDAO.read()).thenReturn(multiAnnotations);
 
+
             verifiedAnnotationDAO = mock(AnnotationDAO.class);
             Collection<Annotation> verifiedAnnotations = new HashSet<>();
             verifiedAnnotations.add(anno1);
@@ -160,6 +174,54 @@ public class TestZoomaLuceneIndexer {
             verifiedAnnotations.add(anno4);
             verifiedAnnotations.add(anno5);
             when(verifiedAnnotationDAO.read()).thenReturn(verifiedAnnotations);
+
+            verifiedProvenanceMap = new HashMap<>();
+            verifiedProvenanceMap.put(anno1.getURI(), prov1);
+            verifiedProvenanceMap.put(anno2.getURI(), prov2);
+            verifiedProvenanceMap.put(anno3.getURI(), prov3);
+            verifiedProvenanceMap.put(anno4.getURI(), prov4);
+            verifiedProvenanceMap.put(anno5.getURI(), prov5);
+
+            Collection<URI> semanticsTags = new HashSet<>();
+            semanticsTags.add(semanticTag1);
+            semanticsTags.add(semanticTag2);
+            semanticsTags.add(semanticTag3);
+            Collection<URI> summaryAnnotations = new HashSet<>();
+            summaryAnnotations.add(anno1.getURI());
+            summaryAnnotations.add(anno3.getURI());
+            summaryAnnotations.add(anno4.getURI());
+            summaryAnnotations.add(anno5.getURI());
+            Collection<AnnotationSummary> verifiedSummaries = new HashSet<>();
+
+            AnnotationSummary summary1 = new SimpleAnnotationSummary(
+                    null,
+                    ((TypedProperty) property1).getPropertyType(),
+                    property1.getPropertyValue(),
+                    Collections.singleton(semanticTag1),
+                    Arrays.asList(anno1.getURI(), anno4.getURI()),
+                    0);
+
+            AnnotationSummary summary2 = new SimpleAnnotationSummary(
+                    null,
+                    ((TypedProperty) property1).getPropertyType(),
+                    property1.getPropertyValue(),
+                    Collections.singleton(semanticTag3),
+                    Arrays.asList(anno3.getURI(), anno5.getURI()),
+                    0);
+
+            AnnotationSummary summary3 = new SimpleAnnotationSummary(
+                    null,
+                    ((TypedProperty) property2).getPropertyType(),
+                    property2.getPropertyValue(),
+                    Collections.singleton(semanticTag2),
+                    Collections.singleton(anno2.getURI()), 0);
+
+            verifiedSummaries.add(summary1);
+            verifiedSummaries.add(summary2);
+            verifiedSummaries.add(summary3);
+            verifiedSummaryAnnotationDAO = mock(AnnotationSummaryDAO.class);
+            when(verifiedSummaryAnnotationDAO.read()).thenReturn(verifiedSummaries);
+
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -236,8 +298,8 @@ public class TestZoomaLuceneIndexer {
 
         // create indices needed for this test
         try {
-            indexer.createAnnotationIndex(verifiedAnnotationDAO.read());
-            indexer.createAnnotationSummaryIndex(verifiedAnnotationDAO.read());
+            indexer.createAnnotationIndex(new ArrayList<Annotation>(verifiedAnnotationDAO.read()));
+            indexer.createAnnotationSummaryIndex(verifiedSummaryAnnotationDAO, verifiedProvenanceMap);
         }
         catch (IOException e) {
             e.printStackTrace();

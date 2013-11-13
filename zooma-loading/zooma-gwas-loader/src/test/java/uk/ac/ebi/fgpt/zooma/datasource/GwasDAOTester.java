@@ -6,11 +6,8 @@ import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import java.util.Collection;
 
 /**
- * Created with IntelliJ IDEA.
- * User: daniwelter
- * Date: 06/11/2012
- * Time: 16:45
- * To change this template use File | Settings | File Templates.
+ * Created with IntelliJ IDEA. User: daniwelter Date: 06/11/2012 Time: 16:45 To change this template use File | Settings
+ * | File Templates.
  */
 public class GwasDAOTester {
 

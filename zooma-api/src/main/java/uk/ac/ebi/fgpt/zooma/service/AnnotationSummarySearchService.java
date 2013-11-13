@@ -79,7 +79,7 @@ public interface AnnotationSummarySearchService {
      * @return a map of annotation summaries about this property, linked to the score for the match
      */
     Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern);
-    
+
     /**
      * Retrieves a collection of annotation summaries that describe annotations about the given property value and
      * type.
@@ -92,7 +92,7 @@ public interface AnnotationSummarySearchService {
      * @return a map of annotation summaries about this property, linked to the score for the match
      */
     Map<AnnotationSummary, Float> searchAndScore(String propertyType, String propertyValuePattern);
-    
+
     /**
      * Retrieves a collection of annotation summaries that describe annotations about the given property value.
      * <p/>

@@ -34,12 +34,7 @@ import uk.ac.ebi.arrayexpress2.magetab.exception.ParseException;
 import uk.ac.ebi.arrayexpress2.magetab.parser.SDRFParser;
 import uk.ac.ebi.arrayexpress2.magetab.renderer.SDRFWriter;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -96,12 +91,13 @@ public class ZoomageMagetabParser {
             getLog().info("We parsed magetab and zoomified contents into sdrf representation");
 
             //write the results to a file
-            Writer outFileWriter = new FileWriter(MAGETABaccession + ".txt");
+            File outfile = new File(MAGETABaccession + ".txt");
+            Writer outFileWriter = new FileWriter(outfile);
             SDRFWriter sdrfWriter = new SDRFWriter(outFileWriter);
             sdrfWriter.write(sdrf);
 
             getLog().info("\n\n\n============================\n\n\n");
-            getLog().info("We wrote sdrf to file.");
+            getLog().info("We wrote sdrf to "+ outfile.getAbsolutePath());
 
             //todo: IDF too
 

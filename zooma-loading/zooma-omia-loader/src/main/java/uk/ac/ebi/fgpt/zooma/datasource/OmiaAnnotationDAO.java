@@ -30,15 +30,18 @@ public class OmiaAnnotationDAO implements AnnotationDAO {
     // BIOENTITY
     // BIOENTITY_URI [optional]
     // BIOENTITY_ID [optional]
+    // BIOENTITY_TYPE_NAME [optional]
     // PROPERTY_TYPE
     // PROPERTY_VALUE
     // PROPERTY_URI [optional]
     // PROPERTY_ID [optional]
     // SEMANTIC_TAG
     public static final String ANNOTATIONS_SELECT =
-            "select distinct STUDY, BIOENTITY, BIOENTITY_ID, BIOENTITY_URI, PROPERTY_TYPE, PROPERTY_VALUE, PROPERTY_ID, SEMANTIC_TAG, ANNOTATION_DATE " +
+            "select distinct STUDY, BIOENTITY, BIOENTITY_ID, BIOENTITY_URI, BIOENTITY_TYPE_NAME, PROPERTY_TYPE, PROPERTY_VALUE, PROPERTY_ID, SEMANTIC_TAG, ANNOTATION_DATE " +
                     "from ( " +
-                    "select a.pubmed_id as STUDY, g.symbol as BIOENTITY, CONCAT('gene', g.gene_id) as BIOENTITY_ID, null as BIOENTITY_URI, 'phenotype' as PROPERTY_TYPE, og.group_name as PROPERTY_VALUE, CONCAT('OMIA', og.omia_id) as PROPERTY_ID, CONCAT('" + Namespaces.OMIA.getURI().toString() + "OMIA', p.omia_id, '/', p.gb_species_id) as SEMANTIC_TAG, p.date_modified as ANNOTATION_DATE " +
+                    "select a.pubmed_id as STUDY, g.symbol as BIOENTITY, CONCAT('gene', g.gene_id) as BIOENTITY_ID, null as BIOENTITY_URI, 'gene' as BIOENTITY_TYPE_NAME, 'phenotype' as PROPERTY_TYPE, og.group_name as PROPERTY_VALUE, CONCAT('OMIA', og.omia_id) as PROPERTY_ID, CONCAT('" +
+                    Namespaces.OMIA.getURI().toString() +
+                    "/OMIA', p.omia_id, '/', p.gb_species_id) as SEMANTIC_TAG, p.date_modified as ANNOTATION_DATE " +
                     "from Phene p " +
                     "left join OMIA_Group og on p.omia_id = og.omia_id " +
                     "left join Article_Phene ap on p.phene_id = ap.phene_id " +
@@ -47,7 +50,9 @@ public class OmiaAnnotationDAO implements AnnotationDAO {
                     "left join Genes_gb g on pg.gene_id = g.gene_id " +
                     "where g.gene_id is not null " +
                     "union " +
-                    "select a.pubmed_id as STUDY, g.symbol as BIOENTITY, CONCAT('gene', g.gene_id) as BIOENTITY_ID, null as BIOENTITY_URI, 'species' as PROPERTY_TYPE, s.sci_name as PROPERTY_VALUE, null as PROPERTY_ID, CONCAT('" + Namespaces.NCBITAXON.getURI().toString() + "NCBITaxon_', s.gb_species_id) as SEMANTIC_TAG, p.date_modified as ANNOTATION_DATE " +
+                    "select a.pubmed_id as STUDY, g.symbol as BIOENTITY, CONCAT('gene', g.gene_id) as BIOENTITY_ID, null as BIOENTITY_URI,  'gene' as BIOENTITY_TYPE_NAME, 'species' as PROPERTY_TYPE, s.sci_name as PROPERTY_VALUE, null as PROPERTY_ID, CONCAT('" +
+                    Namespaces.NCBITAXON.getURI().toString() +
+                    "NCBITaxon_', s.gb_species_id) as SEMANTIC_TAG, p.date_modified as ANNOTATION_DATE " +
                     "from Phene p " +
                     "left join Species_gb s on p.gb_species_id = s.gb_species_id " +
                     "left join Article_Phene ap on p.phene_id = ap.phene_id " +
@@ -56,7 +61,11 @@ public class OmiaAnnotationDAO implements AnnotationDAO {
                     "left join Genes_gb g on pg.gene_id = g.gene_id " +
                     "where g.gene_id is not null " +
                     "union " +
-                    "select a.pubmed_id as STUDY, p.symbol as BIOENTITY, null as BIOENTITY_ID, CONCAT('" + Namespaces.OMIA_RESOURCE.getURI().toString() + "phene_', p.phene_id) as BIOENTITY_URI, 'phenotype' as PROPERTY_TYPE, og.group_name as PROPERTY_VALUE, CONCAT('OMIA', og.omia_id) as PROPERTY_ID, CONCAT('" + Namespaces.OMIA.getURI().toString() + "OMIA', p.omia_id, '/', p.gb_species_id) as SEMANTIC_TAG, p.date_modified as ANNOTATION_DATE " +
+                    "select a.pubmed_id as STUDY, p.symbol as BIOENTITY, null as BIOENTITY_ID, CONCAT('" +
+                    Namespaces.ZOOMA_RESOURCE.getURI().toString() +
+                    "omia/phene_', p.phene_id) as BIOENTITY_URI,  'phenotype' as BIOENTITY_TYPE_NAME, 'phenotype' as PROPERTY_TYPE, og.group_name as PROPERTY_VALUE, CONCAT('OMIA', og.omia_id) as PROPERTY_ID, CONCAT('" +
+                    Namespaces.OMIA.getURI().toString() +
+                    "/OMIA', p.omia_id, '/', p.gb_species_id) as SEMANTIC_TAG, p.date_modified as ANNOTATION_DATE " +
                     "from Phene p " +
                     "left join OMIA_Group og on p.omia_id = og.omia_id " +
                     "left join Article_Phene ap on p.phene_id = ap.phene_id " +
@@ -65,7 +74,11 @@ public class OmiaAnnotationDAO implements AnnotationDAO {
                     "left join Genes_gb g on pg.gene_id = g.gene_id " +
                     "where g.gene_id is null " +
                     "union " +
-                    "select a.pubmed_id as STUDY, p.symbol as BIOENTITY, null as BIOENTITY_ID, CONCAT('" + Namespaces.OMIA_RESOURCE.getURI().toString() + "phene_', p.phene_id) as BIOENTITY_URI, 'species' as PROPERTY_TYPE, s.sci_name as PROPERTY_VALUE, null as PROPERTY_ID, CONCAT('" + Namespaces.NCBITAXON.getURI().toString() + "NCBITaxon_', s.gb_species_id) as SEMANTIC_TAG, p.date_modified as ANNOTATION_DATE " +
+                    "select a.pubmed_id as STUDY, p.symbol as BIOENTITY, null as BIOENTITY_ID, CONCAT('" +
+                    Namespaces.ZOOMA_RESOURCE.getURI().toString() +
+                    "omia/phene_', p.phene_id) as BIOENTITY_URI, 'phenotype' as BIOENTITY_TYPE_NAME, 'species' as PROPERTY_TYPE, s.sci_name as PROPERTY_VALUE, null as PROPERTY_ID, CONCAT('" +
+                    Namespaces.NCBITAXON.getURI().toString() +
+                    "NCBITaxon_', s.gb_species_id) as SEMANTIC_TAG, p.date_modified as ANNOTATION_DATE " +
                     "from Phene p " +
                     "left join Species_gb s on p.gb_species_id = s.gb_species_id " +
                     "left join Article_Phene ap on p.phene_id = ap.phene_id " +
@@ -81,7 +94,7 @@ public class OmiaAnnotationDAO implements AnnotationDAO {
     public static final String ANNOTATIONS_SELECT_ALL =
             ANNOTATIONS_SELECT + ORDERING;
     public static final String ANNOTATIONS_SELECT_LIMIT =
-                    "select STUDY, BIOENTITY, BIOENTITY_ID, BIOENTITY_URI, PROPERTY_TYPE, PROPERTY_VALUE, PROPERTY_ID, SEMANTIC_TAG, ANNOTATION_DATE from (" +
+            "select STUDY, BIOENTITY, BIOENTITY_ID, BIOENTITY_URI, BIOENTITY_TYPE_NAME, PROPERTY_TYPE, PROPERTY_VALUE, PROPERTY_ID, SEMANTIC_TAG, ANNOTATION_DATE from (" +
                     ANNOTATIONS_SELECT_ALL +
                     ") as limiter " +
                     "limit ?, ?";

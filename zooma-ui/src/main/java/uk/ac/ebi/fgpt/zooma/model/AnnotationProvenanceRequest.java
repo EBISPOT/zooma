@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.model;
 
+import java.net.URI;
 import java.util.Date;
 
 /**
@@ -16,6 +17,7 @@ public class AnnotationProvenanceRequest implements AnnotationProvenance {
 
     private AnnotationSource source;
     private Evidence evidence;
+    private Accuracy accuracy;
     private String generator;
     private Date generatedDate;
     private String annotator;
@@ -69,15 +71,29 @@ public class AnnotationProvenanceRequest implements AnnotationProvenance {
         this.annotationDate = annotationDate;
     }
 
+    public Accuracy getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(Accuracy accuracy) {
+        this.accuracy = accuracy;
+    }
+
     @Override
     public String toString() {
         return "AnnotationProvenanceRequest {" +
                 "source=" + source +
                 ", evidence=" + evidence +
+                ", accuracy=" + accuracy +
                 ", generator='" + generator + '\'' +
                 ", generationDate=" + generatedDate +
                 ", annotator='" + annotator + '\'' +
                 ", annotationDate=" + annotationDate +
                 '}';
+    }
+
+    @Override
+    public URI getURI() {
+        return null;
     }
 }

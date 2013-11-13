@@ -1,0 +1,6 @@
+#!/bin/sh
+
+base=${0%/*};
+
+bsub -I -q research-rh6 -M 18000 -R "rusage[mem=18000]" $base/build-lucene-index.sh $@;
+exit $?;

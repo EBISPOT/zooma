@@ -10,8 +10,6 @@ import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenanceRequest;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationRequest;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSourceRequest;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntityRequest;
 import uk.ac.ebi.fgpt.zooma.model.Property;
@@ -46,7 +44,6 @@ public class ZoomaModule extends SimpleModule {
         SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();
         resolver.addMapping(AnnotationProvenance.class, AnnotationProvenanceRequest.class);
         resolver.addMapping(Annotation.class, AnnotationRequest.class);
-        resolver.addMapping(AnnotationSource.class, AnnotationSourceRequest.class);
         resolver.addMapping(BiologicalEntity.class, BiologicalEntityRequest.class);
         resolver.addMapping(Property.class, PropertyRequest.class);
         resolver.addMapping(Study.class, StudyRequest.class);

@@ -22,7 +22,7 @@ import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
  * @date 07/08/13
  */
 public class OWLAPIPropertySerializer extends OWLAPIZoomaSerializer<Property> {
-    private final IRI propertyClassIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "PropertyValue");
+    private final IRI propertyClassIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "Property");
 
     private final IRI propertyNamePropertyIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "propertyName");
     private final IRI propertyValuePropertyIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "propertyValue");
@@ -52,8 +52,10 @@ public class OWLAPIPropertySerializer extends OWLAPIZoomaSerializer<Property> {
         getLog().trace("Created property owl individual");
         manager.addAxiom(ontology, factory.getOWLClassAssertionAxiom(propertyClass, propertyIndividual));
 
+        String label = "";
         if (property instanceof TypedProperty) {
             String propertyType = ((TypedProperty) property).getPropertyType();
+            label = propertyType + ":";
             manager.addAxiom(ontology,
                              factory.getOWLAnnotationAssertionAxiom(propertyNameProperty,
                                                                     propertyIRI,
@@ -64,6 +66,10 @@ public class OWLAPIPropertySerializer extends OWLAPIZoomaSerializer<Property> {
                          factory.getOWLAnnotationAssertionAxiom(propertyValueProperty,
                                                                 propertyIRI,
                                                                 factory.getOWLLiteral(propertyValue)));
+        manager.addAxiom(ontology,
+                         factory.getOWLAnnotationAssertionAxiom(factory.getRDFSLabel(),
+                                                                propertyIRI,
+                                                                factory.getOWLLiteral(label + propertyValue)));
         return propertyIndividual;
     }
 }

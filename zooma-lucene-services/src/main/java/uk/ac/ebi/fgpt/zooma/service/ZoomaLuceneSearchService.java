@@ -601,13 +601,13 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         lastScoreDoc = hit;
                         Document doc = getSearcher().doc(hit.doc);
 //                        try {
-                            float summaryScore = mapper.getDocumentQuality(doc);
-                            float luceneScore = hit.score;
-                            float totalScore = summaryScore * luceneScore;
-                            getLog().debug("Next document has a quality score of: " +
-                                                   summaryScore + " x " + luceneScore + " = " +
-                                                   (summaryScore * luceneScore));
-                            results.put(mapper.mapDocument(doc), totalScore);
+                        float summaryScore = mapper.getDocumentQuality(doc);
+                        float luceneScore = hit.score;
+                        float totalScore = summaryScore * luceneScore;
+                        getLog().debug("Next document has a quality score of: " +
+                                               summaryScore + " x " + luceneScore + " = " +
+                                               (summaryScore * luceneScore));
+                        results.put(mapper.mapDocument(doc), totalScore);
 //                        }
 //                        catch (Exception e) {
 //                            results.put(mapper.mapDocument(doc), hit.score);
@@ -615,7 +615,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     }
                 }
             }
-            getLog().debug("Query '" + q.toString() + "'\n...gives the following " + results.size() + " results:\n" + results);
+            getLog().debug(
+                    "Query '" + q.toString() + "'\n...gives the following " + results.size() + " results:\n" + results);
             return results;
         }
         catch (InterruptedException e) {

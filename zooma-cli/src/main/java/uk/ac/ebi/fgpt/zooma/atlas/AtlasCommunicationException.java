@@ -7,19 +7,19 @@ package uk.ac.ebi.fgpt.zooma.atlas;
  * @date 24/11/11
  */
 public class AtlasCommunicationException extends Exception {
-  public AtlasCommunicationException() {
-    super();
-  }
+    public AtlasCommunicationException() {
+        super();
+    }
 
-  public AtlasCommunicationException(String message) {
-    super(message);
-  }
+    public AtlasCommunicationException(String message) {
+        super(message);
+    }
 
-  public AtlasCommunicationException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public AtlasCommunicationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public AtlasCommunicationException(Throwable cause) {
-    super(cause);
-  }
+    public AtlasCommunicationException(Throwable cause) {
+        super(cause);
+    }
 }

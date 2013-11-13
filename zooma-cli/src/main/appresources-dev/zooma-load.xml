@@ -38,8 +38,8 @@
     <bean name="annotationResolver" class="uk.ac.ebi.fgpt.zooma.io.TagBasedAnnotationResolver" />
     <!--<bean name="annotationResolver" class="uk.ac.ebi.fgpt.zooma.io.ContextBasedAnnotationResolver" />-->
 
-    <bean name="annotationSerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIAnnotationSerializer" />
 
     <bean name="annotationStorer" class="uk.ac.ebi.fgpt.zooma.io.UnimplementedZoomaStorer" />
+
 
 </beans>

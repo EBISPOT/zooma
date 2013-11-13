@@ -19,7 +19,7 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 24/05/12
  */
-public interface AnnotationSummary {
+public interface AnnotationSummary extends Identifiable {
     static final String ANNOTATION_SUMMARY_TYPE_ID = "/zooma/annotation_summary";
     static final String ANNOTATION_SUMMARY_TYPE_NAME = "Annotation Summary";
 

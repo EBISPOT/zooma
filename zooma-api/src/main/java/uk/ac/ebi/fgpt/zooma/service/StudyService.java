@@ -9,9 +9,9 @@ import java.util.Collection;
  * A service that allows direct retrieval of a {@link uk.ac.ebi.fgpt.zooma.model.Study} or sets of Studies from ZOOMA.
  * <p/>
  * This is a high level interface that provides some degree of abstraction over the underlying datasource
- * implementation.  Most implementations will delegate requests to an {@link uk.ac.ebi.fgpt.zooma.datasource
- * .StudyDAO} as and when required.  If any caching or indexing strategies are required, they should be
- * implemented here rather than at the DAO level.
+ * implementation.  Most implementations will delegate requests to an {@link uk.ac.ebi.fgpt.zooma.datasource .StudyDAO}
+ * as and when required.  If any caching or indexing strategies are required, they should be implemented here rather
+ * than at the DAO level.
  *
  * @author Tony Burdett
  * @date 09/07/13

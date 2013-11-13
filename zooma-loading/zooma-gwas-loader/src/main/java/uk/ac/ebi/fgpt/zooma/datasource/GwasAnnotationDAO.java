@@ -104,23 +104,24 @@ public class GwasAnnotationDAO implements AnnotationDAO {
         Collection<Annotation> annotations = new HashSet<>();
         for (Study s : biologicalEntity.getStudies()) {
             annotations.addAll(getJdbcTemplate().query(ANNOTATIONS_SELECT_BY_BIOLOGICAL_ENTITY,
-                    mapper,
-                    s.getAccession(),
-                    biologicalEntity.getName()));
+                                                       mapper,
+                                                       s.getAccession(),
+                                                       biologicalEntity.getName()));
         }
         return annotations;
     }
 
     @Override public Collection<Annotation> readByProperty(Property property) {
         return getJdbcTemplate().query(ANNOTATIONS_SELECT_BY_PROPERTY,
-                mapper,
-                property.getPropertyValue());
+                                       mapper,
+                                       property.getPropertyValue());
 
     }
 
     @Override public Collection<Annotation> readBySemanticTag(URI semanticTagURI) {
-        throw new UnsupportedOperationException("Semantic tagging is not well defined in the GWAS database, so retrieval " +
-                "of annotations using this method is not supported");
+        throw new UnsupportedOperationException(
+                "Semantic tagging is not well defined in the GWAS database, so retrieval " +
+                        "of annotations using this method is not supported");
     }
 
     @Override public int count() {
@@ -154,4 +155,5 @@ public class GwasAnnotationDAO implements AnnotationDAO {
         throw new UnsupportedOperationException(
                 getClass().getSimpleName() + " is a read-only annotation DAO, deletions not supported");
     }
+
 }

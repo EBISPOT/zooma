@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
@@ -9,10 +8,10 @@
     </appender>
 
     <appender name="zooma-log" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
-        <param name="File" value="zooma.log"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd" />
+        <param name="File" value="zooma.log" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n"/>
+            <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n" />
         </layout>
     </appender>
 
