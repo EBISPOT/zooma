@@ -710,7 +710,6 @@ public class ZoomaLuceneIndexer extends Initializable {
 
     protected IndexWriter obtainIndexWriter(Directory directory) throws IOException {
         IndexWriterConfig config = new IndexWriterConfig(VERSION, getAnalyzer());
-        // TODO - always recreates index from scratch, incremental strategy needed?
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         return new IndexWriter(directory, config);
     }
@@ -739,7 +738,6 @@ public class ZoomaLuceneIndexer extends Initializable {
     }
 
     protected int getSourceRanking(URI source) {
-        // TODO - configurable source rankings, not hard coded?
         if (source.toString().equals("http://www.ebi.ac.uk/fgpt/zooma")) {
             return 3;
         }

@@ -56,7 +56,6 @@ public class SparqlPropertyDAO implements PropertyDAO {
     }
 
     @Override public int count() {
-        // TODO - placeholder, more efficient to implement a separate count() SPARQL query
         return read().size();
     }
 
@@ -190,7 +189,7 @@ public class SparqlPropertyDAO implements PropertyDAO {
 
         Map<String, Value> bindingMap = new HashMap<>();
         ValueFactory factory = getManager().getValueFactory();
-        // TODO - how to query for properties with NO type?
+
         bindingMap.put(QueryVariables.PROPERTY_NAME.toString(), factory.createLiteral(""));
         bindingMap.put(QueryVariables.PROPERTY_VALUE.toString(), factory.createLiteral(value));
 
@@ -218,7 +217,7 @@ public class SparqlPropertyDAO implements PropertyDAO {
 
         Map<String, Value> bindingMap = new HashMap<>();
         ValueFactory factory = getManager().getValueFactory();
-        // TODO - how to query for properties with NO type?
+
         bindingMap.put(QueryVariables.PROPERTY_NAME.toString(), factory.createLiteral(""));
 
         TupleQueryResult result = manager.evaluateQuery(query, bindingMap);

@@ -307,13 +307,12 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
     }
 
     @Override public Collection<BiologicalEntity> readByStudyAndName(Study study, String bioentityName) {
-        throw new UnsupportedOperationException("Biological Entity accession/name lookup is not yet implemented");
+        throw new UnsupportedOperationException("Biological Entity lookup by study and name is not yet implemented");
     }
 
     @Override
     public Collection<BiologicalEntity> readByStudy(Study study) {
-        //ToDo Impelement the actual sparql query
-        throw new UnsupportedOperationException("The method readByStudy needs to be implemented in Sparql");
+        throw new UnsupportedOperationException("Biological Entity lookup by study is not yet implemented");
     }
 
     private Collection<BiologicalEntity> _readBySemanticTags(String query, boolean inference, URI... semanticTags) {

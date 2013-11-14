@@ -55,7 +55,6 @@ public class SparqlStudyDAO implements StudyDAO {
     }
 
     @Override public int count() {
-        // TODO - placeholder, more efficient to implement a separate count() SPARQL query
         return read().size();
     }
 

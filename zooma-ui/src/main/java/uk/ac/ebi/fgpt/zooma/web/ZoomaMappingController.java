@@ -329,11 +329,10 @@ public class ZoomaMappingController {
                                 goodAnnotations.add(getAnnotationService().getAnnotation(annotationURI));
                             }
                             else {
-                                // todo - handle this situation gracefully
-                                getLog().warn("An AnnotationSummary with no associated annotations was returned - " +
-                                                      "something probably went wrong when inferring mappings " +
-                                                      "from lexical matches");
-                                throw new RuntimeException("I've broken Jose's code, oops!");
+                                String message = "An annotation summary with no associated annotations was found - " +
+                                        "this is probably an error in inferring a new summary from lexical matches";
+                                getLog().warn(message);
+                                throw new RuntimeException(message);
                             }
 
                             // trace log each annotation summary that has generated content to be written to the report

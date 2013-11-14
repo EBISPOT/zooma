@@ -407,7 +407,6 @@ public class ZOOMAReportRenderer {
 
         StringBuilder labelStr = new StringBuilder();
         labelStr.append(acquireLabel(annotatesTo)).append(", ");
-        // TODO - append synonyms once these can be fetched from zooma
         String labels = labelStr.length() > 0
                 ? labelStr.substring(0, labelStr.length() - 2)
                 : "No Labels";
