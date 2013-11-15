@@ -506,6 +506,11 @@
 
                 <!-- OWLIM index building properties -->
                 <owlim.loader.script>/ebi/microarray/home/fgpt/test/sw/owlim-lite-loader/bin/load-owlim.sh</owlim.loader.script>
+
+
+                <virtuoso.server>rdf-hx-01.ebi.ac.uk</virtuoso.server>
+                <virtuoso.port>1113</virtuoso.port>
+                <ui.sparql.endpoint>jdbc:virtuoso://${virtuoso.server}:${virtuoso.port}</ui.sparql.endpoint>
             </properties>
 
             <modules>
