@@ -53,16 +53,6 @@ public class SparqlAnnotationProvenanceDAO implements AnnotationProvenanceDAO {
 
     private static DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-    @Override
-    public String getDatasourceName() {
-        return "zooma";
-    }
-
-    @Override
-    public int count() {
-        return 0;
-    }
-
     protected Logger getLog() {
         return log;
     }
@@ -85,7 +75,7 @@ public class SparqlAnnotationProvenanceDAO implements AnnotationProvenanceDAO {
 
 
     @Override
-    public AnnotationProvenance read(URI uri) {
+    public AnnotationProvenance readByAnnotationURI(URI uri) {
         String query = getQueryManager().getSparqlQuery("AnnotationProvenance.read");
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
@@ -252,31 +242,5 @@ public class SparqlAnnotationProvenanceDAO implements AnnotationProvenanceDAO {
         }
         return prov;
 
-    }
-
-    @Override
-    public void create(AnnotationProvenance identifiable) throws ResourceAlreadyExistsException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<AnnotationProvenance> read() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<AnnotationProvenance> read(int size, int start) {
-        throw new UnsupportedOperationException();
-    }
-
-
-    @Override
-    public void update(AnnotationProvenance object) throws NoSuchResourceException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void delete(AnnotationProvenance object) throws NoSuchResourceException {
-        throw new UnsupportedOperationException();
     }
 }

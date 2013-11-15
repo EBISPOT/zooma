@@ -127,7 +127,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query, boolean prefixed) {
-        getLog().debug("queryAndScore    Querying for " + query + " (prefixed = " + prefixed + ")");
         validate();
         return prefixed
                 ? getAnnotationSummarySearchService().searchAndScoreByPrefix(query)
@@ -135,7 +134,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query, String type, boolean prefixed) {
-        getLog().debug("queryAndScore    Querying for " + query + ", " + type + " (prefixed = " + prefixed + ")");
         validate();
         return prefixed
                 ? getAnnotationSummarySearchService().searchAndScoreByPrefix(type, query)
@@ -148,8 +146,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                                                        boolean prefixed,
                                                        int limit,
                                                        int start) {
-        getLog().debug("queryAndScore    Querying for " + query + ", " + type + ", " + limit + ", " + start +
-                               " (prefixed = " + prefixed + ")");
         validate();
         return prefixed
                 ? getAnnotationSummarySearchService().searchAndScoreByPrefix(type, query)

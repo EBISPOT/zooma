@@ -569,6 +569,14 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     complete = true;
                 }
                 else {
+                    if (getLog().isTraceEnabled()) {
+                        if (hits.length > 0) {
+                            getLog().trace("Best matched document has a lucene score of " + hits[0].score);
+                            getLog().trace("The following explanation was provided:\n" +
+                                                   getSearcher().explain(q, hits[0].doc).toString());
+                        }
+                    }
+
                     // map each document using the supplied mapper, and associate result score
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
@@ -580,8 +588,6 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                             getLog().trace("Next document has a quality score of: " +
                                                    summaryScore + " x " + luceneScore + " = " +
                                                    (summaryScore * luceneScore));
-                            getLog().trace("The following explanation was provided: " +
-                                                   getSearcher().explain(q, hit.doc).toString());
                         }
                         results.put(mapper.mapDocument(doc), totalScore);
                     }
