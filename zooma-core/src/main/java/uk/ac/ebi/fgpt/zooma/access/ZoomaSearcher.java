@@ -205,9 +205,6 @@ public class ZoomaSearcher extends SuggestEndpoint<Object, String> {
             @RequestParam(value = "indent", required = false, defaultValue = "false") final Boolean indent,
             @RequestParam(value = "mql_output", required = false) final String mql_output) {
         getLog().debug("ZOOMA search engine received search request (query '" + query + "')");
-
-        getLog().debug("Zooma Searcher... ZOOMA search engine received search request (query '" + query + "')");
-        System.out.println("Zooma Searcher...");
         try {
             // delegate requests to each search engine
             List<SearchResponse> responses = new ArrayList<>();

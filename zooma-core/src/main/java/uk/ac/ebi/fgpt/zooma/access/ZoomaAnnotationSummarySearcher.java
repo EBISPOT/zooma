@@ -127,8 +127,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query, boolean prefixed) {
-
-        System.out.println("queryAndScore    Querying for " + query + " (prefixed = " + prefixed + ")");
         getLog().debug("queryAndScore    Querying for " + query + " (prefixed = " + prefixed + ")");
         validate();
         return prefixed
@@ -137,8 +135,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query, String type, boolean prefixed) {
-        System.out.println("queryAndScore    Querying for " + query + " (prefixed = " + prefixed + ")");
-
         getLog().debug("queryAndScore    Querying for " + query + ", " + type + " (prefixed = " + prefixed + ")");
         validate();
         return prefixed
@@ -152,9 +148,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                                                        boolean prefixed,
                                                        int limit,
                                                        int start) {
-
-        System.out.println("queryAndScore    Querying for " + query + " (prefixed = " + prefixed + ")");
-
         getLog().debug("queryAndScore    Querying for " + query + ", " + type + ", " + limit + ", " + start +
                                " (prefixed = " + prefixed + ")");
         validate();
@@ -203,11 +196,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
             @RequestParam(value = "type_strict", required = false) String type_strict,
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "start", required = false) Integer start) {
-
-        //System.out.println("****suggest");
-
-        getLog().debug("****suggest");
-
         // check each non-required argument and defer to appropriate query form
         // NB. we don't use type_strict param anywhere
         if (type != null) {
@@ -250,16 +238,10 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
             @RequestParam(value = "mql_output", required = false) final String mql_output,
             @RequestParam(value = "semanticTag", required = false) String[] semanticTags) {
         validateArguments(query, type, exact, limit, start, prefixed, semanticTags);
-
-        getLog().debug("****search RequestMapping");
-        System.out.println("****search RequestMapping");
-
         if (semanticTags != null) {
             return searchBySemanticTags(semanticTags);
         }
         else {
-            getLog().debug("****calling search()");
-
             return search(query,
                           type,
                           exact,
@@ -288,11 +270,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                                  final Boolean html_escape,
                                  final Boolean indent,
                                  final String mql_output) {
-
-
-        getLog().debug("****search noRequestMapping");
-        System.out.println("****search noRequestMapping");
-
         // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
         if (type != null) {
             if (limit != null) {
