@@ -168,15 +168,23 @@ public class ZOOMA2LuceneIndexDriver {
 
                     Path oldZoomaHome = zoomaHome.toPath();
                     Path newZoomaHome = backupFile.toPath();
-                    System.out.print(
-                            "Backing up " + oldZoomaHome.toString() + " to " + newZoomaHome.toString() + "...");
-                    Files.move(oldZoomaHome,
-                               newZoomaHome,
-                               StandardCopyOption.REPLACE_EXISTING,
-                               StandardCopyOption.ATOMIC_MOVE);
-                    System.out.println("ok!");
-                    System.out.println("ZOOMA lucene indices will now be created afresh in " +
-                                               zoomaHome.getAbsolutePath());
+
+                    if (Files.exists(newZoomaHome))  {
+                        System.out.print(
+                                "Backing up " + oldZoomaHome.toString() + " to " + newZoomaHome.toString() + "...");
+                        Files.move(oldZoomaHome,
+                                newZoomaHome,
+                                StandardCopyOption.REPLACE_EXISTING,
+                                StandardCopyOption.ATOMIC_MOVE);
+                        System.out.println("ok!");
+                        System.out.println("ZOOMA lucene indices will now be created afresh in " +
+                                zoomaHome.getAbsolutePath());
+                    }
+                    else {
+                        System.out.println("Backup already exists for today, clearing " + oldZoomaHome.toString());
+                    }
+
+
                 }
                 else {
                     System.out.println("ZOOMA lucene indices will be created in " + zoomaHome.getAbsolutePath());
@@ -184,7 +192,7 @@ public class ZOOMA2LuceneIndexDriver {
             }
             else {
                 System.out.println("ZOOMA lucene indices will be created in a new directory, " +
-                                           zoomaHome.getAbsolutePath());
+                        zoomaHome.getAbsolutePath());
             }
             zoomaStatusService.reinitialize();
             started = true;
