@@ -402,8 +402,8 @@
                 <!-- staging sparql endpoint (for loader resolving, indexing) -->
                 <staging.sparql.endpoint>http://orange.ebi.ac.uk:14096/openrdf-sesame/</staging.sparql.endpoint>
                 <!-- ui sparql endpoint - URL is relative to zooma server -->
-                <virtuoso.server>orange.ebi.ac.uk</virtuoso.server>
-                <virtuoso.port>1111</virtuoso.port>
+                <virtuoso.server>rdf-hx-01.ebi.ac.uk</virtuoso.server>
+                <virtuoso.port>1114</virtuoso.port>
                 <ui.sparql.endpoint>jdbc:virtuoso://${virtuoso.server}:${virtuoso.port}</ui.sparql.endpoint>
             </properties>
 
