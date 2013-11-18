@@ -23,7 +23,7 @@ public class ZOOMA2LoaderDriver {
     public static void main(String[] args) {
         if (args.length != 1) {
             System.err.println("Wrong number of arguments - this application requires a single argument, " +
-                                       "the location of the output directory to write RDF files to");
+                    "the location of the output directory to write RDF files to");
         }
         else {
             // first, try to backup old RDF directory
@@ -38,15 +38,19 @@ public class ZOOMA2LoaderDriver {
 
                     Path oldRDFHome = rdfHome.toPath();
                     Path newRDFHome = backupFile.toPath();
+                    if (!Files.exists(newRDFHome)) {
+                        System.out.print(
+                                "Backing up " + oldRDFHome.toString() + " to " + newRDFHome.toString() + "...");
 
-                    System.out.print(
-                            "Backing up " + oldRDFHome.toString() + " to " + newRDFHome.toString() + "...");
-                    Files.deleteIfExists(newRDFHome);
-                    Files.move(oldRDFHome,
-                               newRDFHome,
-                               StandardCopyOption.REPLACE_EXISTING,
-                               StandardCopyOption.ATOMIC_MOVE);
-                    System.out.println("ok!");
+                        Files.move(oldRDFHome,
+                                newRDFHome,
+                                StandardCopyOption.REPLACE_EXISTING,
+                                StandardCopyOption.ATOMIC_MOVE);
+                        System.out.println("ok!");
+                    }
+                    else {
+                        System.out.println("Backup already exists");
+                    }
                 }
             }
             catch (IOException e) {
