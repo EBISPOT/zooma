@@ -17,7 +17,7 @@ var exampleQueries = [
         shortname : "Query 2",
         description: "Get ontology annotations from all databases for property 'organism part'/liver",
         query: "SELECT DISTINCT ?propertyvalueid ?propertyname ?propertyvalue ?ontologyTerm ?ontologyTermLabel WHERE {\n\n" +
-            "?propertyvalueid rdf:type zoomaterms:PropertyValue ;\n" +
+            "?propertyvalueid rdf:type zoomaterms:Property ;\n" +
             "\t\t zoomaterms:propertyName ?propertyname ;\n" +
             "\t\t  zoomaterms:propertyValue ?propertyvalue . \n\n" +
             "filter regex (?propertyname, \"organism part\", \"i\") .\n" +
@@ -41,7 +41,7 @@ var exampleQueries = [
             "?propertyvalueid zoomaterms:propertyName ?propertyname ;\n" +
             "\t\t zoomaterms:propertyValue ?propertyvalue .\n\n" +
             "?annotationid oac:hasTarget ?assay .\n" +
-            "?assay dc:isPartOf <http://rdf.ebi.ac.uk/resources/zooma/arrayexpress/E-GEOD-13763> .\n" +
+            "?assay dc:isPartOf <http://rdf.ebi.ac.uk/resource/zooma/arrayexpress/E-GEOD-13763> .\n" +
             "?assay dc:isPartOf ?study .\n\n" +
             "OPTIONAL {?annotationid dc:source ?databaseid} .   \n" +
             "OPTIONAL {?annotationid zoomaterms:hasEvidence ?evidence} . \n" +
@@ -62,7 +62,7 @@ var exampleQueries = [
         "?propertyvalueid1 zoomaterms:propertyValue ?propertyvalue1 . \n" +
             "?annotation1 oac:hasBody ?tag1  . \n" +
         "?tag1 rdfs:label ?brainTermLabel . \n" +
-            "?tag1 rdfs:subClassOf efo:EFO_0000302 .  \n\n" +
+            "?tag1 rdfs:subClassOf obo:UBERON_0000955 .  \n\n" +
 
         "?annotation2 oac:hasBody ?propertyvalueid2 .\n" +
             "?propertyvalueid2 zoomaterms:propertyName ?propertyname2 .\n" +
