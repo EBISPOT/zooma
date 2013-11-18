@@ -263,6 +263,9 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
                     if (score > minScore) {
                         if (score > top_score * cutoffPercentage) {
                             results.put(s, scoredStrings.get(s));
+                            if (results.size() >= maxNumberOfStrings) {
+                                break;
+                            }
                         }
                     }
                 }
