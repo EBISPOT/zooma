@@ -43,7 +43,7 @@
 
     <bean id="annotationSummaryService" class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummaryService">
         <property name="analyzer" ref="analyzer" />
-        <!--<property name="similarity" ref="similarity" />-->
+        <property name="similarity" ref="similarity" />
         <property name="index" ref="annotationSummaryIndex" />
         <property name="annotationIndex" ref="annotationIndex" />
     </bean>
@@ -58,7 +58,7 @@
     <bean id="baseAnnotationSummarySearchService"
           class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummarySearchService">
         <property name="analyzer" ref="analyzer" />
-        <!--<property name="similarity" ref="similarity" />-->
+        <property name="similarity" ref="similarity" />
         <property name="index" ref="annotationSummaryIndex" />
         <property name="annotationIndex" ref="annotationIndex" />
         <property name="searchStringProcessors">
@@ -112,7 +112,7 @@
     <bean id="propertySearchService" class="uk.ac.ebi.fgpt.zooma.service.LucenePropertySearchService">
         <property name="propertyDAO" ref="lodePropertyDAO" />
         <property name="analyzer" ref="analyzer" />
-        <!--<property name="similarity" ref="similarity" />-->
+        <property name="similarity" ref="similarity" />
         <property name="index" ref="propertyIndex" />
         <property name="searchStringProcessors">
             <list>
@@ -131,7 +131,7 @@
 
     <bean id="propertyTypeSearchService" class="uk.ac.ebi.fgpt.zooma.service.LucenePropertyTypeSearchService">
         <property name="analyzer" ref="analyzer" />
-        <!--<property name="similarity" ref="similarity" />-->
+        <property name="similarity" ref="similarity" />
         <property name="index" ref="propertyTypeIndex" />
     </bean>
 

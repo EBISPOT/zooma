@@ -11,10 +11,6 @@ import org.apache.lucene.search.DefaultSimilarity;
  * @date 14/11/13
  */
 public class ZoomaSimilarity extends DefaultSimilarity {
-    @Override public float queryNorm(float sumOfSquaredWeights) {
-        return 0.0002f;
-    }
-
     @Override public float coord(int overlap, int maxOverlap) {
         return 1;
     }

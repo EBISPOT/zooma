@@ -134,7 +134,7 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
 
     @Override
     public URI getURI() {
-        return URI.create(Namespaces.ZOOMA_RESOURCE + "annotation_summary/" + getID());
+        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI() + "annotation_summary/" + getID());
     }
 
     @Override
