@@ -1,0 +1,47 @@
+gram per kilogram											http://www.ebi.ac.uk/efo/EFO_0002897		1
+g/kg														http://www.ebi.ac.uk/efo/EFO_0002897		0
+micromolar													http://purl.obolibrary.org/obo/UO_0000064	1
+µm															http://purl.obolibrary.org/obo/UO_0000064	0
+um															http://purl.obolibrary.org/obo/UO_0000064	0
+http://mged.sourceforge.net/ontologies/mgedontology.owl#um	http://purl.obolibrary.org/obo/UO_0000064	0
+millimolar													http://purl.obolibrary.org/obo/UO_0000063	1
+http://mged.sourceforge.net/ontologies/mgedontology.owl#mm	http://purl.obolibrary.org/obo/UO_0000063	0
+mm															http://purl.obolibrary.org/obo/UO_0000063	0
+picomolar													http://purl.obolibrary.org/obo/UO_0000066	1
+pm															http://purl.obolibrary.org/obo/UO_0000066	0
+http://mged.sourceforge.net/ontologies/mgedontology.owl#pm	http://purl.obolibrary.org/obo/UO_0000066	0
+microgram per kilogram										http://www.ebi.ac.uk/efo/EFO_0002899		1
+ug/kg														http://www.ebi.ac.uk/efo/EFO_0002899		0
+nanomolar													http://purl.obolibrary.org/obo/UO_0000065	1
+http://mged.sourceforge.net/ontologies/mgedontology.owl#nm	http://purl.obolibrary.org/obo/UO_0000065	0
+nm															http://purl.obolibrary.org/obo/UO_0000065	0
+nanogram per liter											http://www.ebi.ac.uk/efo/EFO_0004382		1
+microliter per liter										http://www.ebi.ac.uk/efo/EFO_0004413		1
+ul/l														http://www.ebi.ac.uk/efo/EFO_0004413		0
+molar														http://purl.obolibrary.org/obo/UO_0000062	1
+m															http://purl.obolibrary.org/obo/UO_0000062	0
+http://mged.sourceforge.net/ontologies/mgedontology.owl#m	http://purl.obolibrary.org/obo/UO_0000062	0
+microgram per square centimeter								http://www.ebi.ac.uk/efo/EFO_0004370		1
+unit molarity												http://purl.obolibrary.org/obo/UO_0000061	1
+gram per kilogram per day									http://www.ebi.ac.uk/efo/EFO_0004371		1
+femtomolar													http://purl.obolibrary.org/obo/UO_0000073	1
+fm															http://purl.obolibrary.org/obo/UO_0000073	0
+http://mged.sourceforge.net/ontologies/mgedontology.owl#fm	http://purl.obolibrary.org/obo/UO_0000073	0
+weight percent volume										http://www.ebi.ac.uk/efo/EFO_0004384		1
+nanogram per microliter										http://www.ebi.ac.uk/efo/EFO_0004383		1
+microgram per day											http://www.ebi.ac.uk/efo/EFO_0004378		1
+total particulate matter per liter							http://www.ebi.ac.uk/efo/EFO_0004386		1
+picogram per milliliter										http://www.ebi.ac.uk/efo/EFO_0004385		1
+picomole per 10^6 cells										http://www.ebi.ac.uk/efo/EFO_0004388		1
+milliliter per liter										http://purl.obolibrary.org/obo/UO_0000207	1
+ml/l														http://purl.obolibrary.org/obo/UO_0000207	0
+milligram per deciliter										http://www.ebi.ac.uk/efo/EFO_0004374		1
+milligram per square meter									http://www.ebi.ac.uk/efo/EFO_0004373		1
+milliliter per kilogram										http://purl.obolibrary.org/obo/UO_0000198	1
+ml/kg														http://purl.obolibrary.org/obo/UO_0000198	0
+milligram per liter											http://purl.obolibrary.org/obo/UO_0000273	1
+mg/l														http://purl.obolibrary.org/obo/UO_0000273	0
+milligram per kilogram										http://www.ebi.ac.uk/efo/EFO_0002902		1
+mg/kg														http://www.ebi.ac.uk/efo/EFO_0002902		0
+gram per liter												http://purl.obolibrary.org/obo/UO_0000175	1
+g/l															http://purl.obolibrary.org/obo/UO_0000175	0

@@ -141,7 +141,6 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
      */
     private Map<String, Float> findSimilarProperties(String propertyType, String propertyValuePattern) {
         Collection<String> processedStrings = new HashSet<>();
-        // todo - only use processors that are suitable based on type
         if (getSearchStringProcessor().canProcess(propertyValuePattern)) {
             processedStrings = getSearchStringProcessor().processSearchString(propertyValuePattern);
         }
@@ -310,10 +309,11 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         propertyValueDictionary = new ArrayList<>();
         for (Property p : properties) {
             String propertyValue = p.getPropertyValue();
-            String propertyType = p instanceof TypedProperty ? ((TypedProperty) p).getPropertyType() : null;
-            // todo - only use processors that are suitable based on type
             if (getSearchStringProcessor().canProcess(propertyValue)) {
                 propertyValueDictionary.addAll(getSearchStringProcessor().processSearchString(propertyValue));
+            }
+            else {
+                propertyValueDictionary.add(propertyValue);
             }
         }
         time_end = System.currentTimeMillis();

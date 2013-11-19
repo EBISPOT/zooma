@@ -12,18 +12,6 @@ import java.util.regex.Pattern;
  * @date 16/08/13
  */
 public class TimeProcessor implements SearchStringProcessor {
-    // should only be invoked if type is some derivation of 'time', 'time unit' or 'age', e.g.
-//    if (searchStringType.contentEquals("time") ||
-//            searchStringType.contentEquals("time unit") ||
-//            searchStringType.contentEquals("time_unit") ||
-//            searchStringType.contentEquals("timeunit") ||
-//            searchStringType.contentEquals("age") ||
-//            searchStringType.contentEquals("derived time unit") ||
-//            searchStringType.contentEquals("time derived unit") ||
-//            searchStringType.contentEquals("period")) {
-//        return true;
-//    }
-
     @Override
     public float getBoostFactor() {
         return 0.95f;

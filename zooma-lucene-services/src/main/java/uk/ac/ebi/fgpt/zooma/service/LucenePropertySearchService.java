@@ -5,11 +5,10 @@ import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
+import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessorProvider;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -23,7 +22,7 @@ import java.util.Map;
 public class LucenePropertySearchService extends ZoomaLuceneSearchService implements PropertySearchService {
     private PropertyDAO propertyDAO;
 
-    private Collection<SearchStringProcessor> searchStringProcessors = Collections.emptySet();
+    private SearchStringProcessorProvider searchStringProcessorProvider;
 
     public PropertyDAO getPropertyDAO() {
         return propertyDAO;
@@ -33,12 +32,12 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
         this.propertyDAO = propertyDAO;
     }
 
-    public Collection<SearchStringProcessor> getSearchStringProcessors() {
-        return searchStringProcessors;
+    public SearchStringProcessorProvider getSearchStringProcessorProvider() {
+        return searchStringProcessorProvider;
     }
 
-    public void setSearchStringProcessors(Collection<SearchStringProcessor> searchStringProcessors) {
-        this.searchStringProcessors = searchStringProcessors;
+    public void setSearchStringProcessorProvider(SearchStringProcessorProvider searchStringProcessorProvider) {
+        this.searchStringProcessorProvider = searchStringProcessorProvider;
     }
 
     @Override public Collection<Property> search(String propertyValuePattern) {
@@ -51,7 +50,9 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             // then generate a series of queries from the processed property value, using available search string processors
             Collection<Query> pqs = new HashSet<>();
             pqs.add(pq);
-            pqs.addAll(generateProcessedQueries("name", propertyValuePattern, getSearchStringProcessors()));
+            pqs.addAll(generateProcessedQueries("name",
+                                                propertyValuePattern,
+                                                getSearchStringProcessorProvider().getProcessors()));
 
             // unify processed queries into a single query
             Query q = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
@@ -83,7 +84,10 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                 // then generate a series of queries from the processed property value, using available search string processors
                 Collection<Query> pqs = new HashSet<>();
                 pqs.add(pq);
-                pqs.addAll(generateProcessedQueries("name", propertyValuePattern, getSearchStringProcessors()));
+                pqs.addAll(generateProcessedQueries("name",
+                                                    propertyValuePattern,
+                                                    getSearchStringProcessorProvider().getFilteredProcessors(
+                                                            propertyType)));
 
                 // build a property type query
                 Query ptq = formulateQueryConserveOrderIfMultiword("type", propertyType);
@@ -127,7 +131,9 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             // then generate a series of queries from the processed property value, using available search string processors
             Collection<Query> pqs = new HashSet<>();
             pqs.add(pq);
-            pqs.addAll(generateProcessedQueries("name", propertyValuePattern, getSearchStringProcessors()));
+            pqs.addAll(generateProcessedQueries("name",
+                                                propertyValuePattern,
+                                                getSearchStringProcessorProvider().getProcessors()));
 
             // unify processed queries into a single query
             Query q = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
@@ -158,7 +164,10 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                 // then generate a series of queries from the processed property value, using available search string processors
                 Collection<Query> pqs = new HashSet<>();
                 pqs.add(pq);
-                pqs.addAll(generateProcessedQueries("name", propertyValuePattern, getSearchStringProcessors()));
+                pqs.addAll(generateProcessedQueries("name",
+                                                    propertyValuePattern,
+                                                    getSearchStringProcessorProvider().getFilteredProcessors(
+                                                            propertyType)));
 
                 // build a property type query
                 Query ptq = formulateQueryConserveOrderIfMultiword("type", propertyType);

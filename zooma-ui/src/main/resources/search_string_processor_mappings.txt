@@ -1,0 +1,4 @@
+# Fully qualified class name	Comma-separated list of property types (No whitespace/underscores, all lowercase)
+uk.ac.ebi.fgpt.zooma.util.AnatomyProcessor				organismpart
+uk.ac.ebi.fgpt.zooma.util.ChemicalCompoundProcessor		compound,growthcondition
+uk.ac.ebi.fgpt.zooma.util.TimeProcessor					time,timeunit,age,derivedtimeunit,timederivedunit,period

@@ -2,11 +2,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd">
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!-- Configuration for the full suite of ZOOMA search services and utils -->
 
@@ -23,9 +25,10 @@
         <property name="propertySearchService" ref="propertySearchService" />
     </bean>
 
-    <bean id="stringProcessorBrackets" class="uk.ac.ebi.fgpt.zooma.util.ParenthesesProcessor" />
+    <!-- define search string processors used in all searches, where relevant -->
+    <bean id="parenthesesProcessor" class="uk.ac.ebi.fgpt.zooma.util.ParenthesesProcessor" />
 
-    <bean id="stringProcessorTime" class="uk.ac.ebi.fgpt.zooma.util.TimeProcessor" />
+    <bean id="timeProcessor" class="uk.ac.ebi.fgpt.zooma.util.TimeProcessor" />
 
     <bean id="chemicalCompoundProcessor" class="uk.ac.ebi.fgpt.zooma.util.ChemicalCompoundProcessor" init-method="init">
         <constructor-arg name="dictionaryResource" value="classpath:concentration_unit_dictionary.txt" />
@@ -35,6 +38,22 @@
         <constructor-arg name="dictionaryResource" value="classpath:organism_part_qualifier_dictionary.txt" />
     </bean>
 
+    <!-- define provider for the above processors, loads property type mappings from the mappings file -->
+    <bean id="searchStringProcessorProvider"
+          class="uk.ac.ebi.fgpt.zooma.util.PropertyTypeProcessorProvider"
+          init-method="init">
+        <constructor-arg name="mappingResource" value="classpath:search_string_processor_mappings.txt" />
+        <constructor-arg name="processors">
+            <util:set>
+                <ref bean="parenthesesProcessor" />
+                <ref bean="timeProcessor" />
+                <ref bean="chemicalCompoundProcessor" />
+                <ref bean="anatomyProcessor" />
+            </util:set>
+        </constructor-arg>
+    </bean>
+
+    <!-- define search string processors used explicitly in search services -->
     <bean id="splittingProcessor" class="uk.ac.ebi.fgpt.zooma.util.SplittingProcessor" />
 
     <bean id="stopwordProcessor" class="uk.ac.ebi.fgpt.zooma.util.StopwordProcessor" init-method="init">
@@ -61,14 +80,7 @@
         <property name="similarity" ref="similarity" />
         <property name="index" ref="annotationSummaryIndex" />
         <property name="annotationIndex" ref="annotationIndex" />
-        <property name="searchStringProcessors">
-            <list>
-                <ref bean="stringProcessorBrackets" />
-                <ref bean="stringProcessorTime" />
-                <ref bean="chemicalCompoundProcessor" />
-                <ref bean="anatomyProcessor" />
-            </list>
-        </property>
+        <property name="searchStringProcessorProvider" ref="searchStringProcessorProvider" />
     </bean>
 
     <!-- wraps any annotationSummarySearchService with Needleman/Jaccard decorator -->
@@ -114,14 +126,7 @@
         <property name="analyzer" ref="analyzer" />
         <property name="similarity" ref="similarity" />
         <property name="index" ref="propertyIndex" />
-        <property name="searchStringProcessors">
-            <list>
-                <ref bean="stringProcessorBrackets" />
-                <ref bean="stringProcessorTime" />
-                <ref bean="chemicalCompoundProcessor" />
-                <ref bean="anatomyProcessor" />
-            </list>
-        </property>
+        <property name="searchStringProcessorProvider" ref="searchStringProcessorProvider" />
     </bean>
 
     <bean id="propertyTypeService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedPropertyTypeService">

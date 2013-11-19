@@ -60,7 +60,6 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
             }
 
             // check if we can process the string
-            // todo - only use processors that are suitable based on type
             if (getSearchStringProcessor().canProcess(propertyValuePattern)) {
                 Collection<String> parts = getSearchStringProcessor().processSearchString(propertyValuePattern);
 
@@ -114,7 +113,6 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
             }
 
             // check if we can process the string
-            // todo - only use processors that are suitable based on type
             if (getSearchStringProcessor().canProcess(propertyValuePattern)) {
                 Collection<String> parts = getSearchStringProcessor().processSearchString(propertyValuePattern);
 
