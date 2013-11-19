@@ -66,9 +66,11 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // then generate a series of queries from the processed property value, using available search string processors
             Collection<Query> pqs = new HashSet<>();
             pqs.add(pq);
-            pqs.addAll(generateProcessedQueries("property",
-                                                propertyValuePattern,
-                                                getSearchStringProcessorProvider().getProcessors()));
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("property",
+                                                    propertyValuePattern,
+                                                    getSearchStringProcessorProvider().getProcessors()));
+            }
 
             // unify processed queries into a single query
             Query q = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
@@ -94,9 +96,12 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // then generate a series of queries from the processed property value, using available search string processors
             Collection<Query> pqs = new HashSet<>();
             pqs.add(pq);
-            pqs.addAll(generateProcessedQueries("property",
-                                                propertyValuePattern,
-                                                getSearchStringProcessorProvider().getFilteredProcessors(propertyType)));
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("property",
+                                                    propertyValuePattern,
+                                                    getSearchStringProcessorProvider().getFilteredProcessors(
+                                                            propertyType)));
+            }
 
             // build a property type query
             Query ptq = formulateQueryConserveOrderIfMultiword("propertytype", propertyType);
@@ -211,10 +216,11 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // then generate a series of queries from the processed property value, using available search string processors
             Collection<Query> pqs = new HashSet<>();
             pqs.add(pq);
-            pqs.addAll(generateProcessedQueries("property",
-                                                propertyValuePattern,
-                                                getSearchStringProcessorProvider().getProcessors()));
-
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("property",
+                                                    propertyValuePattern,
+                                                    getSearchStringProcessorProvider().getProcessors()));
+            }
             // unify processed queries into a single query
             Query q = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
 
@@ -240,9 +246,12 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // then generate a series of queries from the processed property value, using available search string processors
             Collection<Query> pqs = new HashSet<>();
             pqs.add(pq);
-            pqs.addAll(generateProcessedQueries("property",
-                                                propertyValuePattern,
-                                                getSearchStringProcessorProvider().getFilteredProcessors(propertyType)));
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("property",
+                                                    propertyValuePattern,
+                                                    getSearchStringProcessorProvider().getFilteredProcessors(
+                                                            propertyType)));
+            }
 
             // build a property type query
             Query ptq = formulateQueryConserveOrderIfMultiword("propertytype", propertyType);
