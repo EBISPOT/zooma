@@ -113,7 +113,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
                             float newScore = modifiedResults.get(as) * similarStrings.get(s) * similarStrings.get(s);
 
                             if (newScore > previousScore) {
-                                // if the lexical score is higher than the zooma score, override zooma result
+                                // if the new lexical score is higher than the previous score, update
                                 results.put(as, newScore);
                             }
                         }

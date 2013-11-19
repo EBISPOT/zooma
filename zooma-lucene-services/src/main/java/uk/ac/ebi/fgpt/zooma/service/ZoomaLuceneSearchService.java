@@ -148,7 +148,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         Query untypedQuery = (Query) valueQuery.clone();
         untypedQuery.setBoost(20f);
         Query typedQuery = formulateCombinedQuery(true, false, untypedQuery, typeQuery);
-        typedQuery.setBoost(20f);
+        typedQuery.setBoost(1f);
         Query q = formulateCombinedQuery(true, false, valueQuery, typedQuery);
         q.setBoost(boost);
         return q;
@@ -575,7 +575,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                 }
                 else {
                     if (getLog().isDebugEnabled()) {
-                        if (hits.length > 0) {
+                        if (hits.length > 0 && results.isEmpty()) {
                             getLog().debug("Best matched document has a lucene score of " + hits[0].score);
                             getLog().debug("The following explanation was provided:\n" +
                                                    getSearcher().explain(q, hits[0].doc).toString());
