@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * An abstract decorator of a {@link PropertySearchService}.  You should subclass this decorator to create
- * different decorations that add functionality to property searches.
+ * An abstract decorator of a {@link PropertySearchService}.  You should subclass this decorator to create different
+ * decorations that add functionality to property searches.
  *
  * @author Tony Burdett
  * @date 02/08/13

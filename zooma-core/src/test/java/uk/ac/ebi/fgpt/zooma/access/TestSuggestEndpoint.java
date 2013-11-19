@@ -3,7 +3,6 @@ package uk.ac.ebi.fgpt.zooma.access;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.ebi.fgpt.zooma.access.SuggestEndpoint;
 import uk.ac.ebi.fgpt.zooma.view.FlyoutResponse;
 import uk.ac.ebi.fgpt.zooma.view.SearchResponse;
 import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;

@@ -28,9 +28,30 @@
         </dependency>
     </dependencies>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.oracle</groupId>
+                <artifactId>ojdbc6</artifactId>
+                <version>11.2.0.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-dbcp</groupId>
+                <artifactId>commons-dbcp</artifactId>
+                <version>1.4</version>
+            </dependency>
+        </dependencies>
+
+    </dependencyManagement>
+
     <modules>
+        <module>zooma-atlas-loader</module>
+        <module>zooma-ae-loader</module>
         <module>zooma-csv-loader</module>
+        <module>zooma-gwas-loader</module>
         <module>zooma-owl-loader</module>
+        <module>zooma-omia-loader</module>
     </modules>
 
 </project>

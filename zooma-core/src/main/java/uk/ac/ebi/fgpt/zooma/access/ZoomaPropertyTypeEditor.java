@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
@@ -93,7 +92,7 @@ public class ZoomaPropertyTypeEditor {
             return "Successfully updated " + count + "annotations";
         }
         else {
-            return "Failed to update property: No property found matching type '" + propertyType + "'";
+            return "Failed to update property: No property found matching type '" + propertyType;
         }
     }
 

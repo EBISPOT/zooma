@@ -6,8 +6,9 @@ import uk.ac.ebi.fgpt.zooma.owl.OntologyLoader;
 import java.net.URI;
 
 /**
- * A loading session for loading ontologies from files.  This primarily acts as a wrapper around an {@link uk.ac.ebi.fgpt.zooma.owl.OntologyLoader} to
- * acquire the ontology namespace, which is used to mint URIs in the annotation model
+ * A loading session for loading ontologies from files.  This primarily acts as a wrapper around an {@link
+ * uk.ac.ebi.fgpt.zooma.owl.OntologyLoader} to acquire the ontology namespace, which is used to mint URIs in the
+ * annotation model
  *
  * @author Tony Burdett
  * @author James Malone
@@ -32,13 +33,8 @@ public class OWLLoadingSession extends AbstractAnnotationLoadingSession {
                                                         "ontology mapping does not allow for creation of bioentities.");
     }
 
-    @Override protected URI mintPropertyURI(String propertyID,
-                                            String propertyType,
-                                            String propertyValue) {
-        return URI.create(baseNamespace + "property/" + propertyID);
-    }
 
     @Override protected URI mintAnnotationURI(String annotationID) {
-        return URI.create(baseNamespace + "annotation/" + annotationID);
+        return URI.create(baseNamespace + annotationID);
     }
 }

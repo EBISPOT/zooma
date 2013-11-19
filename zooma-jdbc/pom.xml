@@ -42,4 +42,12 @@
 
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>misc-ebi-repo</id>
+            <name>Misc EBI repository (tburdett)</name>
+            <url>http://www.ebi.ac.uk/~tburdett/maven/</url>
+        </repository>
+    </repositories>
+
 </project>

@@ -4,7 +4,6 @@ import uk.ac.ebi.fgpt.zooma.model.Annotation;
 
 import java.util.Collection;
 import java.util.Map;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
 /**
  * An abstract decorator of a {@link AnnotationSearchService}.  You should subclass this decorator to create different

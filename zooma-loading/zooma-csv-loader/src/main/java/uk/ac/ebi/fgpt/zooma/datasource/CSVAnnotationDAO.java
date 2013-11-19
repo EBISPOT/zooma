@@ -108,6 +108,7 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                 // optional URI attributes with null initializers
                 URI annotationURI = null;
                 URI studyURI = null;
+                URI studyType = null;
                 URI bioentityURI = null;
                 URI propertyURI = null;
 
@@ -115,6 +116,8 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                 String annotationID = null;
                 String studyID = null;
                 String bioentityID = null;
+                String bioentityTypeName = null;
+                URI bioentityTypeURI = null;
                 String propertyID = null;
                 String annotator = null;
                 Date annotationDate = null;
@@ -193,8 +196,17 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                 if ((column = lookupColumn("STUDY_ID")) != -1) {
                     studyID = annotationElements[column];
                 }
+                if ((column = lookupColumn("STUDY_TYPE")) != -1) {
+                    studyType = URI.create(annotationElements[column]);
+                }
                 if ((column = lookupColumn("BIOENTITY_ID")) != -1) {
                     bioentityID = annotationElements[column];
+                }
+                if ((column = lookupColumn("BIOENTITY_TYPE_URI")) != -1) {
+                    bioentityTypeURI = URI.create(annotationElements[column]);
+                }
+                if ((column = lookupColumn("BIOENTITY_TYPE_NAME")) != -1) {
+                    bioentityTypeName = annotationElements[column];
                 }
                 if ((column = lookupColumn("PROPERTY_ID")) != -1) {
                     propertyID = annotationElements[column];
@@ -213,9 +225,12 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                                                                         studyAcc,
                                                                         studyURI,
                                                                         studyID,
+                                                                        studyType,
                                                                         bioentityName,
                                                                         bioentityURI,
                                                                         bioentityID,
+                                                                        bioentityTypeName,
+                                                                        bioentityTypeURI,
                                                                         propertyType,
                                                                         propertyValue,
                                                                         propertyURI,
@@ -229,7 +244,7 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
         // now close the reader
         reader.close();
         getLog().debug("Parsed file '" + getAnnotationFile().getAbsolutePath() + "' successfully, " +
-                       "read " + annotations.size() + " annotations");
+                               "read " + annotations.size() + " annotations");
     }
 
     @Override protected void doTermination() throws Exception {
@@ -328,18 +343,21 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
         // test if this is the header
         boolean isHeader = false;
         String[] allowedColumns = new String[]{"STUDY",
-                                               "BIOENTITY",
-                                               "PROPERTY_TYPE",
-                                               "PROPERTY_VALUE",
-                                               "SEMANTIC_TAG",
-                                               "ANNOTATION_URI",
-                                               "STUDY_URI",
-                                               "BIOENTITY_URI",
-                                               "PROPERTY_URI",
-                                               "ANNOTATION_ID",
-                                               "STUDY_ID",
-                                               "BIOENTITY_ID",
-                                               "PROPERTY_ID"};
+                "BIOENTITY",
+                "PROPERTY_TYPE",
+                "PROPERTY_VALUE",
+                "SEMANTIC_TAG",
+                "ANNOTATION_URI",
+                "STUDY_URI",
+                "STUDY_TYPE",
+                "BIOENTITY_URI",
+                "BIOENTITY_TYPE_NAME",
+                "BIOENTITY_TYPE_URI",
+                "PROPERTY_URI",
+                "ANNOTATION_ID",
+                "STUDY_ID",
+                "BIOENTITY_ID",
+                "PROPERTY_ID"};
         for (String allowedColumn : allowedColumns) {
             if (header[0].equalsIgnoreCase(allowedColumn)) {
                 isHeader = true;

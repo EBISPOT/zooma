@@ -15,7 +15,8 @@ import java.util.Map;
  * @date 02/08/13
  * @see AnnotationSummarySearchService
  */
-public abstract class AnnotationSummarySearchServiceDecorator extends Initializable implements AnnotationSummarySearchService {
+public abstract class AnnotationSummarySearchServiceDecorator extends Initializable
+        implements AnnotationSummarySearchService {
     private final AnnotationSummarySearchService _annotatationSummarySearchService;
 
     public AnnotationSummarySearchServiceDecorator(AnnotationSummarySearchService annotationSummarySearchService) {
@@ -49,19 +50,9 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
     @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern) {
         return _annotatationSummarySearchService.searchAndScore(propertyValuePattern);
     }
-    
-    
 
     @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyType, String propertyValuePattern) {
         return _annotatationSummarySearchService.searchAndScore(propertyType, propertyValuePattern);
-    }
-    
-    @Override public Map<AnnotationSummary, Float> searchAndScore_QueryExpansion(String propertyValuePattern) {
-        return _annotatationSummarySearchService.searchAndScore_QueryExpansion(propertyValuePattern);
-    }
-    
-    @Override public Map<AnnotationSummary, Float> searchAndScore_QueryExpansion(String propertyType, String propertyValuePattern) {
-        return _annotatationSummarySearchService.searchAndScore_QueryExpansion(propertyType, propertyValuePattern);
     }
 
     @Override public Map<AnnotationSummary, Float> searchAndScoreByPrefix(String propertyValuePrefix) {

@@ -36,6 +36,11 @@
             <version>2.0-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+
         <!-- SPI utils: available for compilation only, not required at runtime -->
         <dependency>
             <groupId>net.sourceforge.fluxion</groupId>

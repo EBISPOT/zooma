@@ -18,9 +18,9 @@ import java.util.Set;
  * <p/>
  * To annotations are considered to resolve if either a) they have the same URI as an existing annotation or b) they
  * share matching study accessions, biological entity names, and property types.  If these checks pass, then {@link
- * #resolve(uk.ac.ebi.fgpt.zooma.model.Annotation)} will return a reference to the annotation from the DAO. It
- * is also possible to perform an update check to see if the property value or semantic tag on the new annotation has
- * been altered with respect to the annotation that was acquired from the DAO, using (for example) {@link
+ * #resolve(uk.ac.ebi.fgpt.zooma.model.Annotation)} will return a reference to the annotation from the DAO. It is also
+ * possible to perform an update check to see if the property value or semantic tag on the new annotation has been
+ * altered with respect to the annotation that was acquired from the DAO, using (for example) {@link
  * #isUpdated(uk.ac.ebi.fgpt.zooma.model.Annotation, uk.ac.ebi.fgpt.zooma.model.Annotation)}.
  * <p/>
  * By default, this will create a parallelized resolver implementation with 32 worker threads.
