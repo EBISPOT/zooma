@@ -74,7 +74,9 @@ public class PropertyTypeProcessorProvider extends Initializable implements Sear
             Collection<SearchStringProcessor> results = new HashSet<>();
 
             String normalizedFilter = normalizeFilterString(filter);
-            results.addAll(filteredProcessors.get(normalizedFilter));
+            if (filteredProcessors.containsKey(normalizedFilter)) {
+                results.addAll(filteredProcessors.get(normalizedFilter));
+            }
             results.addAll(processors);
 
             return results;

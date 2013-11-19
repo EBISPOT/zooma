@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -42,8 +41,6 @@ import java.util.Set;
  * @date 03/09/12
  */
 public class ZOOMAReportRenderer {
-//    private ZOOMASearchClient searchClient;
-
     private OntologyLabelMapper labelMapper;
 
     private OutputStream out;
@@ -115,7 +112,6 @@ public class ZOOMAReportRenderer {
                     if (annotations.size() == 1 && achievedScore) {
                         // one good annotation, so render to the report with "auto" mapping
                         Annotation annotation = annotations.iterator().next();
-                        //for (URI annotatesTo : annotation.getSemanticTags()) {
                         // render one line per experiment, if known
                         if (propertyContextMap.containsKey(property)) {
                             for (String expt : propertyContextMap.get(property)) {
@@ -135,7 +131,6 @@ public class ZOOMAReportRenderer {
                                             annotation.getSemanticTags(),
                                             true);
                         }
-                        //}
                     }
                     else {
                         // multiple annotations or 1 that isn't good enough, render to the report as "requires curation"
@@ -144,27 +139,23 @@ public class ZOOMAReportRenderer {
                                 // render one line per experiment, if known
                                 for (String expt : propertyContextMap.get(property)) {
                                     if (annotation.getSemanticTags() != null) {
-                                        //for (URI annotatesTo : annotation.getSemanticTags()) {
                                         writeReportLine(writer,
                                                         property,
                                                         expt,
                                                         annotation.getProvenance().getSource().getURI().toString(),
                                                         annotation.getSemanticTags(),
                                                         false);
-                                        //}
                                     }
                                 }
                             }
                             else {
                                 if (annotation.getSemanticTags() != null) {
-                                    //for (URI annotatesTo : annotation.getSemanticTags()) {
                                     writeReportLine(writer,
                                                     property,
                                                     "[UNKNOWN EXPERIMENTS]",
                                                     annotation.getProvenance().getSource().getURI().toString(),
                                                     annotation.getSemanticTags(),
                                                     false);
-                                    //}
                                 }
                             }
                         }
@@ -289,7 +280,7 @@ public class ZOOMAReportRenderer {
                                    Property property,
                                    String experiment,
                                    String source,
-                                   Collection<URI> list_annotatesTo,
+                                   Collection<URI> semanticTags,
                                    boolean automatic) {
 
         String type = automatic ? "Automatic" : "Requires curation";
@@ -301,51 +292,44 @@ public class ZOOMAReportRenderer {
             getLog().trace(
                     "Next annotation result to render:\n\t\t" +
                             "Searched: " + property + "\t" +
-                            "Found annotation to: " + list_annotatesTo.toString());
+                            "Found annotation to: " + semanticTags.toString());
         }
 
-        String list_terms = "";
-        String list_labels = "";
-        String list_ontologys = "";
+        StringBuilder termsSB = new StringBuilder();
+        StringBuilder labelsSB = new StringBuilder();
+        StringBuilder ontologiesSB = new StringBuilder();
+        for (URI semanticTag : semanticTags) {
+            // use fragment as 'term'
+            String term = URIUtils.extractFragment(semanticTag);
+            termsSB.append(term).append(", ");
 
+            // fetch the ontology label if possible
+            String label = acquireLabel(semanticTag);
+            if (label.isEmpty()) {
+                labelsSB.append(label).append(", ");
+            }
+            else {
+                labelsSB.append("Unknown, ");
+            }
 
-        for (Iterator iter = list_annotatesTo.iterator(); iter.hasNext(); ) {
-
-            URI annotatesTo = (URI) iter.next();
-
-            // use fragment name as term
-            String term = URIUtils.extractFragment(annotatesTo);
-
-            list_terms += term + ", ";
-
-
-            StringBuilder labelStr = new StringBuilder();
-
-            labelStr.append(acquireLabel(annotatesTo)).append(", ");
-
-            String labels = labelStr.length() > 0 ? labelStr.substring(0, labelStr.length() - 2) : "No Labels";
-
-            list_labels += labels + ", ";
-
-            String ontology = annotatesTo.toString().replace(term, "");
-
-            list_ontologys += ontology + ", ";
+            String ontology = semanticTag.toString().replace(term, "");
+            ontologiesSB.append(ontology);
         }
 
-        if (!list_terms.isEmpty()) {
-            list_terms = list_terms.substring(0, list_terms.length() - 2);
+        String terms = "";
+        if (termsSB.length() > 0) {
+            terms = termsSB.substring(0, termsSB.length() - 2);
         }
-
-        if (!list_labels.isEmpty()) {
-            list_labels = list_labels.substring(0, list_labels.length() - 2);
+        String labels = "";
+        if (labelsSB.length() > 0) {
+            labels = labelsSB.substring(0, labelsSB.length() - 2);
         }
-
-        if (!list_ontologys.isEmpty()) {
-            list_ontologys = list_ontologys.substring(0, list_ontologys.length() - 2);
+        String ontologies = "";
+        if (ontologiesSB.length() > 0) {
+            ontologies = ontologiesSB.substring(0, ontologiesSB.length() - 2);
         }
-
-        writer.println(propertyType + "\t" + propertyValue + "\t" + list_labels + "\t" +
-                               type + "\t" + list_terms + "\t" + list_ontologys +
+        writer.println(propertyType + "\t" + propertyValue + "\t" + labels + "\t" +
+                               type + "\t" + terms + "\t" + ontologies +
                                "\t" + source);
     }
 
