@@ -325,20 +325,25 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      */
     protected Query formulateCombinedQuery(boolean firstMustOccur, boolean allMustOccur, Query... queries)
             throws QueryCreationException {
-        // unify them with a boolean query
-        BooleanQuery q = new BooleanQuery();
-        BooleanClause.Occur bco = allMustOccur ? BooleanClause.Occur.MUST : BooleanClause.Occur.SHOULD;
-        int index = 0;
-        for (Query nextQuery : queries) {
-            if (index == 0 && firstMustOccur) {
-                q.add(nextQuery, BooleanClause.Occur.MUST);
-            }
-            else {
-                q.add(nextQuery, bco);
-            }
-            index++;
+        if (queries.length == 1) {
+            return queries[0];
         }
-        return q;
+        else {
+            // unify them with a boolean query
+            BooleanQuery q = new BooleanQuery();
+            BooleanClause.Occur bco = allMustOccur ? BooleanClause.Occur.MUST : BooleanClause.Occur.SHOULD;
+            int index = 0;
+            for (Query nextQuery : queries) {
+                if (index == 0 && firstMustOccur) {
+                    q.add(nextQuery, BooleanClause.Occur.MUST);
+                }
+                else {
+                    q.add(nextQuery, bco);
+                }
+                index++;
+            }
+            return q;
+        }
     }
 
     /**
