@@ -326,7 +326,15 @@ public class ZoomaMappingController {
 
                             if (!goodSummary.getAnnotationURIs().isEmpty()) {
                                 URI annotationURI = goodSummary.getAnnotationURIs().iterator().next();
-                                goodAnnotations.add(getAnnotationService().getAnnotation(annotationURI));
+                                Annotation goodAnnotation = getAnnotationService().getAnnotation(annotationURI);
+                                if (goodAnnotation != null) {
+                                    goodAnnotations.add(goodAnnotation);
+                                }
+                                else {
+                                    throw new RuntimeException(
+                                            "An annotation summary referenced an annotation that " +
+                                                    "could not be found - ZOOMA's indexes may be out of date");
+                                }
                             }
                             else {
                                 String message = "An annotation summary with no associated annotations was found - " +

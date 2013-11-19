@@ -305,11 +305,11 @@ public class ZOOMAReportRenderer {
 
             // fetch the ontology label if possible
             String label = acquireLabel(semanticTag);
-            if (label.isEmpty()) {
+            if (!label.isEmpty()) {
                 labelsSB.append(label).append(", ");
             }
             else {
-                labelsSB.append("Unknown, ");
+                labelsSB.append("n/a, ");
             }
 
             String ontology = semanticTag.toString().replace(term, "");
