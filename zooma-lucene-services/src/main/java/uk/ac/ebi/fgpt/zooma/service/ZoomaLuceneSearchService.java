@@ -574,10 +574,10 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     complete = true;
                 }
                 else {
-                    if (getLog().isTraceEnabled()) {
+                    if (getLog().isDebugEnabled()) {
                         if (hits.length > 0) {
-                            getLog().trace("Best matched document has a lucene score of " + hits[0].score);
-                            getLog().trace("The following explanation was provided:\n" +
+                            getLog().debug("Best matched document has a lucene score of " + hits[0].score);
+                            getLog().debug("The following explanation was provided:\n" +
                                                    getSearcher().explain(q, hits[0].doc).toString());
                         }
                     }
