@@ -146,7 +146,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             Query q = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
 
             // do the query
-            return doQueryAndScore(q, "uri", getPropertyDAO());
+            return doQueryAndScore(q, new SingleFieldURIMapper(), getPropertyDAO());
         }
         catch (QueryCreationException | IOException e) {
             throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
@@ -186,7 +186,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             }
 
             // do the query
-            return doQueryAndScore(q, "uri", getPropertyDAO());
+            return doQueryAndScore(q, new SingleFieldURIMapper(), getPropertyDAO());
         }
         catch (QueryCreationException | IOException e) {
             throw new SearchException(

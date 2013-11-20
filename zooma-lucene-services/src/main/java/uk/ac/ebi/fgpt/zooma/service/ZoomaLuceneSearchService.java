@@ -507,47 +507,18 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
     }
 
-    protected Map<String, Float> doQueryAndScore(Query q, String fieldname) throws IOException {
-        try {
-            // init, to make sure searcher is available
-            initOrWait();
-
-            // create the list to collect results in
-            Map<String, Float> results = new HashMap<>();
-
-            // perform queries in blocks until there are no more hits
-            ScoreDoc lastScoreDoc = null;
-            boolean complete = false;
-            while (!complete) {
-                // create a collector to obtain query results
-                TopScoreDocCollector collector = lastScoreDoc == null
-                        ? TopScoreDocCollector.create(100, true)
-                        : TopScoreDocCollector.create(100, lastScoreDoc, true);
-
-                // perform query
-                getSearcher().search(q, collector);
-                ScoreDoc[] hits = collector.topDocs().scoreDocs;
-
-                if (hits.length == 0) {
-                    complete = true;
-                }
-                else {
-                    // get URI and readByProperty property, add to results
-                    for (ScoreDoc hit : hits) {
-                        lastScoreDoc = hit;
-                        Document doc = getSearcher().doc(hit.doc);
-                        String s = doc.get(fieldname);
-                        results.put(s, hit.score);
-                    }
-                }
-            }
-            return results;
-        }
-        catch (InterruptedException e) {
-            throw new IOException("Failed to perform query - indexing process was interrupted", e);
-        }
-    }
-
+    /**
+     * Performs a lucene query, and uses the supplied mapper to convert the resulting lucene document into the relevant
+     * object type.  All results that match the given query are iterated over, in batches of 100, and put into a
+     * collection of objects (of type matching the type of the mapper) that is returned.
+     * <p/>
+     * The score is obtained using the supplied scorer to evaluate the quality of the result.
+     *
+     * @param q      the lucene query to perform
+     * @param mapper the document mapper to use to generate the result objects
+     * @return a collection of results
+     * @throws IOException if reading from the index failed
+     */
     protected <T> Map<T, Float> doQueryAndScore(Query q, LuceneDocumentMapper<T> mapper) throws IOException {
         try {
             // init, to make sure searcher is available
@@ -607,7 +578,23 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
     }
 
-    protected <T extends Identifiable> Map<T, Float> doQueryAndScore(Query q, String fieldname, ZoomaDAO<T> dao)
+    /**
+     * Performs a lucene query, and obtains a collection of objects by using the supplied DAO to perform a lookup once
+     * the URI of the object has been retrieved from the index.  A document mapper capable of extracting the URI from
+     * the resulting document must be supplying; extracted URIs are then passed to the DAO.  All results that match the
+     * given query are iterated over, in batches of 100, and put into a collection of objects that is returned.  This
+     * collection is typed by the type of DAO that is supplied.
+     *
+     * @param q      the lucene query to perform
+     * @param mapper the document mapper to use to extract the URI from resulting lucene documents
+     * @param dao    the zooma dao that can be used to do the lookup of matching objects
+     * @param <T>    the type of object to lookup - the ZoomaDAO supplied declares this type
+     * @return a collection of results
+     * @throws IOException if reading from the index failed
+     */
+    protected <T extends Identifiable> Map<T, Float> doQueryAndScore(Query q,
+                                                                     LuceneDocumentMapper<URI> mapper,
+                                                                     ZoomaDAO<T> dao)
             throws IOException {
         try {
             // init, to make sure searcher is available
@@ -627,26 +614,29 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
                 // perform query
                 getSearcher().search(q, collector);
-                ScoreDoc[] hits = collector.topDocs().scoreDocs;
+                TopDocs topDocs = collector.topDocs();
+                ScoreDoc[] hits = topDocs.scoreDocs;
 
                 if (hits.length == 0) {
                     complete = true;
                 }
                 else {
-                    // get URI and readByProperty property, add to results
+                    // map each document using the supplied mapper, and associate result score
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
                         Document doc = getSearcher().doc(hit.doc);
-                        String s = doc.get(fieldname);
-                        if (s != null) {
-                            T t = dao.read(URI.create(s));
-                            if (t != null) {
-                                results.put(t, hit.score);
-                            }
-                        }
+                        float summaryScore = mapper.getDocumentQuality(doc);
+                        float luceneScore = hit.score;
+                        float totalScore = summaryScore * luceneScore;
+                        getLog().debug("Next document has a quality score of: " +
+                                               summaryScore + " x " + luceneScore + " = " +
+                                               (summaryScore * luceneScore));
+                        results.put(dao.read(mapper.mapDocument(doc)), totalScore);
                     }
                 }
             }
+            getLog().debug(
+                    "Query '" + q.toString() + "'\n...gives the following " + results.size() + " results:\n" + results);
             return results;
         }
         catch (InterruptedException e) {
