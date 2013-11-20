@@ -36,7 +36,7 @@ import java.util.Collection;
 public abstract class OWLAPIZoomaSerializer<T> implements ZoomaSerializer<T, OWLOntology, OWLIndividual> {
     private final OWLOntologyFormat outputFormat;
 
-    private Logger log = LoggerFactory.getLogger(getClass());
+    private Logger log = LoggerFactory.getLogger(OWLAPIZoomaSerializer.class);
 
     protected Logger getLog() {
         return log;

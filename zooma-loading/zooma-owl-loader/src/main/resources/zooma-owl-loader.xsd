@@ -50,7 +50,7 @@
                     <xsd:attribute name="exclusionAnnotationURI" type="xsd:anyURI">
                         <xsd:annotation>
                             <xsd:documentation>
-                               <![CDATA[The URI of the annotation property that flags classes within the loaded ontology that should be excluded when generating annotations.  If omitted, all classes will be used to generate annotations.]]>
+                                <![CDATA[The URI of the annotation property that flags classes within the loaded ontology that should be excluded when generating annotations.  If omitted, all classes will be used to generate annotations.]]>
                             </xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>

@@ -9,7 +9,7 @@ import java.net.URI;
  * @date 04/10/13
  */
 public class SimpleDatabaseAnnotationSource extends SimpleAnnotationSource {
-    public SimpleDatabaseAnnotationSource(URI source) {
-        super(source, Type.DATABASE);
+    public SimpleDatabaseAnnotationSource(URI source, String name) {
+        super(source, name, Type.DATABASE);
     }
 }

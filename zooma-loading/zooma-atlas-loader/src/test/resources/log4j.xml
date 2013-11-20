@@ -31,8 +31,8 @@
     </logger>
 
     <!--<logger name="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationDAO" additivity="false">-->
-        <!--<level value="TRACE" />-->
-        <!--<appender-ref ref="console" />-->
+    <!--<level value="TRACE" />-->
+    <!--<appender-ref ref="console" />-->
     <!--</logger>-->
 
     <logger name="uk.ac.ebi.fgpt.zooma.load.ZoomaStandaloneLoader" additivity="false">

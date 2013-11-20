@@ -7,17 +7,15 @@
 
     <!-- ArrayExpress/Atlas cross resolving DAO -->
     <bean name="aeAtlasSampleEquivalenceDAO"
-          class="uk.ac.ebi.fgpt.zooma.datasource.ArrayExpressAtlasEquivalentAnnotationsDAO"
-          > <!-- lazy init to avoid unnecessary upfront preload -->
-          <!--init-method="init">-->
+          class="uk.ac.ebi.fgpt.zooma.datasource.ArrayExpressAtlasEquivalentAnnotationsDAO"> <!-- lazy init to avoid unnecessary upfront preload -->
+        <!--init-method="init">-->
         <constructor-arg name="efoResource" value="http://www.ebi.ac.uk/efo/efo.owl" />
         <property name="arrayExpressAnnotationDAO" ref="aeSampleDAO" />
         <property name="atlasAnnotationDAO" ref="atlasSampleDAO" />
     </bean>
 
     <bean name="aeAtlasAssayEquivalenceDAO"
-          class="uk.ac.ebi.fgpt.zooma.datasource.ArrayExpressAtlasEquivalentAnnotationsDAO"
-            > <!-- lazy init to avoid unnecessary upfront preload -->
+          class="uk.ac.ebi.fgpt.zooma.datasource.ArrayExpressAtlasEquivalentAnnotationsDAO"> <!-- lazy init to avoid unnecessary upfront preload -->
         <!--init-method="init">-->
         <constructor-arg name="efoResource" value="http://www.ebi.ac.uk/efo/efo.owl" />
         <property name="arrayExpressAnnotationDAO" ref="aeAssayDAO" />

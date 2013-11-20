@@ -9,7 +9,7 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 13/03/12
  */
-public interface BiologicalEntity extends Identifiable {
+public interface BiologicalEntity extends AnnotationTarget {
     /**
      * Returns the name that was assigned to this biological entity to identify it within the context of the study in
      * which it was described.

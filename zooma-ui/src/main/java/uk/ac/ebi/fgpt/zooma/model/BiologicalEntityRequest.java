@@ -17,6 +17,7 @@ public class BiologicalEntityRequest implements BiologicalEntity {
 
     private String name;
     private Collection<Study> studies;
+    private Collection<URI> types;
 
     public URI getURI() {
         return null;
@@ -32,6 +33,15 @@ public class BiologicalEntityRequest implements BiologicalEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public Collection<URI> getTypes() {
+        return types;
+    }
+
+    public void setTypes(Collection<URI> types) {
+        this.types = types;
     }
 
     public Collection<Study> getStudies() {

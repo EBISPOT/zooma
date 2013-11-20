@@ -16,7 +16,22 @@
     </rule>
 
     <rule>
-        <condition name="Accept" type="header">text/html</condition>
+        <condition type="method" operator='equal'>POST</condition>
+        <from>/sparql$</from>
+        <to last="true">/servlet/query$1</to>
+    </rule>
+
+
+    <rule>
+        <condition name="Accept" type="header" next="or">text/html</condition>
+        <condition name="user-agent">MSIE</condition>
+        <from>/sparql$</from>
+        <to>/query.html</to>
+    </rule>
+
+
+    <rule>
+        <condition name="Accept" type="header" >text/html</condition>
         <from>/sparql$</from>
         <to>/query.html</to>
     </rule>
@@ -24,20 +39,55 @@
     <rule>
         <condition name="Accept" type="header" operator="notequal">text/html</condition>
         <from>/sparql$</from>
-        <to>/v2/api/query$1</to>
+        <to>/servlet/query$1</to>
     </rule>
 
+
+    <rule>
+        <condition name="Accept" type="header" >text/html</condition>
+        <from>/describe$</from>
+        <to>/explore.html</to>
+    </rule>
+
+
+    <rule>
+        <condition name="Accept" type="header" next="or">text/html</condition>
+        <condition name="user-agent">MSIE</condition>
+        <from>/describe$</from>
+        <to>/explore.html</to>
+    </rule>
+
+    <!-- sparql service rewriting -->
     <rule>
         <condition name="Accept" type="header">application/rdf.*</condition>
         <from>/sparql(.*)$</from>
-        <to>/v2/api/query$1</to>
+        <to>/servlet/query$1</to>
     </rule>
-
 
     <rule>
         <condition name="Accept" type="header">application/sparql.*</condition>
         <from>/sparql(.*)$</from>
-        <to>/v2/api/query$1</to>
+        <to>/servlet/query$1</to>
     </rule>
+
+    <rule>
+        <condition name="Accept" type="header">text/*</condition>
+        <from>/sparql(.*)$</from>
+        <to>/servlet/query$1</to>
+    </rule>
+
+    <!-- explore service rewriting -->
+    <rule>
+        <condition name="Accept" type="header" operator="notequal">text/html</condition>
+        <from>/describe$</from>
+        <to>/servlet/explore$1</to>
+    </rule>
+
+    <rule>
+        <condition name="Accept" type="header">application/rdf.*</condition>
+        <from>/describe(.*)$</from>
+        <to>/servlet/explore$1</to>
+    </rule>
+
 
 </urlrewrite>

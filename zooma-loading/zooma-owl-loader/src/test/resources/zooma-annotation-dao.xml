@@ -12,6 +12,6 @@
                           uri="http://www.ebi.ac.uk/efo"
                           loadFrom="http://www.ebi.ac.uk/efo/efo.owl"
                           synonymURI="http://www.ebi.ac.uk/efo/alternative_term" />
-                          <!--useReasoning="false" />-->
+    <!--useReasoning="false" />-->
 
 </beans>

@@ -1,6 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.model;
 
 import java.net.URI;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * An implementation of a Study designed to be used by jackson to deserialize annotation requests.  You should NOT use
@@ -14,6 +17,7 @@ public class StudyRequest implements Study {
     private static final long serialVersionUID = 8297260247536101633L;
 
     private String accession;
+    private Collection<URI> types;
 
     @Override public URI getURI() {
         return null;
@@ -35,5 +39,14 @@ public class StudyRequest implements Study {
         return "StudyRequest {\n" +
                 "  uri='" + getURI() + "'\n" +
                 "  accession='" + accession + "'\n}";
+    }
+
+    @Override
+    public Collection<URI> getTypes() {
+        return types;
+    }
+
+    public void setTypes (Collection<URI> types)  {
+        this.types = types;
     }
 }

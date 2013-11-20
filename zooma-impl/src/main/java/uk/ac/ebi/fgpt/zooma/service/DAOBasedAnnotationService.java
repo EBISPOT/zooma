@@ -9,7 +9,6 @@ import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotation;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.SimpleDatabaseAnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
@@ -103,12 +102,14 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
 
         // create new annotation provenance
         AnnotationSource zoomaSource =
-                new SimpleDatabaseAnnotationSource(URI.create("http://www.ebi.ac.uk/fgpt/zooma"));
+                new SimpleDatabaseAnnotationSource(URI.create("http://www.ebi.ac.uk/fgpt/zooma"), "zooma");
 
+        // todo specify annotator based on user
         AnnotationProvenance provenance =
                 new SimpleAnnotationProvenance(zoomaSource,
                                                AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                               "GENERATOR",
+                                               AnnotationProvenance.Accuracy.NOT_SPECIFIED,
+                                               "ZOOMA",
                                                new Date(),
                                                "ANNOTATOR",
                                                new Date());

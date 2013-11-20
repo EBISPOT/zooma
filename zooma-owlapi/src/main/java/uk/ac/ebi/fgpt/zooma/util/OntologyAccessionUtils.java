@@ -66,7 +66,7 @@ public class OntologyAccessionUtils {
                     }
                     else {
                         getLog().debug("Accession '" + shortform + "' cannot be mapped to " + cls.getIRI() + ", " +
-                                       "conflict with " + accessionToIRIMap.get(shortform));
+                                               "conflict with " + accessionToIRIMap.get(shortform));
                     }
                 }
                 else {

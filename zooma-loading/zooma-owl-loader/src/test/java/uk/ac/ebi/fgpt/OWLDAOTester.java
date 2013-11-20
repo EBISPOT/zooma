@@ -7,11 +7,8 @@ import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import java.util.Collection;
 
 /**
- * Created with IntelliJ IDEA.
- * Author: James Malone
- * Date: 07/11/12
- * Time: 14:22
- * To change this template use File | Settings | File Templates.
+ * Created with IntelliJ IDEA. Author: James Malone Date: 07/11/12 Time: 14:22 To change this template use File |
+ * Settings | File Templates.
  */
 public class OWLDAOTester {
     public static void main(String[] args) {

@@ -18,19 +18,30 @@ public class ArrayExpressAnnotationFactory extends AbstractAnnotationFactory {
 
     public ArrayExpressAnnotationFactory(AnnotationLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
-        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.ARRAYEXPRESS.getURI()),
-                                                         AnnotationProvenance.Evidence.SUBMITTER_PROVIDED,
-                                                         "ZOOMA",
-                                                         new Date());
+        this.provenance =
+                new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.ARRAYEXPRESS.getURI(),
+                                                                                  "arrayexpress"),
+                                               AnnotationProvenance.Evidence.SUBMITTER_PROVIDED,
+                                               "ZOOMA",
+                                               new Date());
     }
 
     @Override protected AnnotationProvenance getAnnotationProvenance() {
         return provenance;
     }
 
+    @Override
+    protected AnnotationProvenance getAnnotationProvenance(String annotator,
+                                                           AnnotationProvenance.Accuracy accuracy,
+                                                           Date annotationDate) {
+        return null; // todo
+    }
+
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.ARRAYEXPRESS.getURI()),
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.ARRAYEXPRESS.getURI(),
+                                                                                 "arrayexpress"),
                                               AnnotationProvenance.Evidence.SUBMITTER_PROVIDED,
+                                              AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                                               "ZOOMA",
                                               new Date(),
                                               annotator,

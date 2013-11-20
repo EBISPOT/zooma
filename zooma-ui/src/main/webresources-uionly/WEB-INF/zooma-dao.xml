@@ -5,19 +5,15 @@
        http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="annotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.TestAnnotationDAO" />
+    <bean id="annotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationDAO" />
 
-    <bean id="biologicalEntityDAO" class="uk.ac.ebi.fgpt.zooma.datasource.TestBiologicalEntityDAO">
-        <property name="annotationDAO" ref="annotationDAO" />
-    </bean>
+    <bean id="biologicalEntityDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO"></bean>
 
-    <bean id="ontologyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.TestOntologyDAO" />
+    <bean id="ontologyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlOntologyDAO" />
 
-    <bean id="propertyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.TestPropertyDAO" />
+    <bean id="propertyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlPropertyDAO" />
 
-    <bean id="studyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.TestStudyDAO">
-        <property name="annotationDAO" ref="annotationDAO" />
-    </bean>
+    <bean id="studyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlStudyDAO"></bean>
 
     <bean id="queryManager" class="uk.ac.ebi.fgpt.zooma.service.QueryManager">
         <property name="sparqlQueryResource" value="classpath:queries.sparql" />
@@ -31,11 +27,11 @@
         <property name="properties" ref="prefixProperties" />
     </bean>
 
-    <bean id="datasetAdder" class="uk.ac.ebi.fgpt.zooma.datasource.DatasetAdder" init-method="addData">
-        <property name="annotationDAO" ref="annotationDAO" />
-        <property name="biologicalEntityDAO" ref="biologicalEntityDAO" />
-        <property name="propertyDAO" ref="propertyDAO" />
-        <property name="studyDAO" ref="studyDAO" />
-    </bean>
+    <!--<bean id="datasetAdder" class="uk.ac.ebi.fgpt.zooma.datasource.DatasetAdder" init-method="addData">-->
+    <!--<property name="annotationDAO" ref="annotationDAO" />-->
+    <!--<property name="biologicalEntityDAO" ref="biologicalEntityDAO" />-->
+    <!--<property name="propertyDAO" ref="propertyDAO" />-->
+    <!--<property name="studyDAO" ref="studyDAO" />-->
+    <!--</bean>-->
 
 </beans>

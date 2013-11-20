@@ -12,15 +12,23 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyFormat;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
+import org.springframework.util.StringUtils;
 import uk.ac.ebi.fgpt.zooma.Namespaces;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
+import uk.ac.ebi.fgpt.zooma.model.Property;
+import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
+import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
+import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,6 +50,7 @@ public class OWLAPIAnnotationSerializer extends OWLAPIZoomaSerializer<Annotation
 
     private final IRI hasDBPropertyIRI = IRI.create(Namespaces.DC.getURI() + "source");
     private final IRI hasEvidencePropertyIRI = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "hasEvidence");
+    private final IRI hasShortName = IRI.create(Namespaces.ZOOMA_TERMS.getURI() + "shortName");
     private final IRI generationDatePropertyIRI = IRI.create(Namespaces.OAC.getURI() + "generated");
     private final IRI generatorPropertyIRI = IRI.create(Namespaces.OAC.getURI() + "generator");
 
@@ -85,6 +94,7 @@ public class OWLAPIAnnotationSerializer extends OWLAPIZoomaSerializer<Annotation
         // convert the annotated property
         OWLIndividual propertyIndividual = getPropertySerializer().serialize(annotation.getAnnotatedProperty(),
                                                                              ontology);
+
 
         // associate annotation and property
         assertAnnotationHasBody(annotationIndividual, propertyIndividual, ontology);
@@ -136,9 +146,68 @@ public class OWLAPIAnnotationSerializer extends OWLAPIZoomaSerializer<Annotation
         return annotationIndividual;
     }
 
+    private String getAnnotationLabel(Property annotatedProperty,
+                                      Collection<BiologicalEntity> annotatedBiologicalEntities,
+                                      Collection<URI> semanticTags) {
+
+        StringBuilder sb = new StringBuilder();
+
+        String pts = "";
+        if (annotatedProperty instanceof TypedProperty) {
+            pts = ((TypedProperty) annotatedProperty).getPropertyType() + ":";
+        }
+        pts += annotatedProperty.getPropertyValue();
+        sb.append(pts);
+
+        if (!semanticTags.isEmpty()) {
+            sb.append(" annotated to ");
+
+            List<String> tagUris = new ArrayList<String>();
+            for (URI u : semanticTags) {
+                if (u != null) {
+                    tagUris.add(URIUtils.extractFragment(u));
+                }
+                else {
+                    tagUris.add("something");
+                }
+            }
+            sb.append(StringUtils.collectionToCommaDelimitedString(tagUris));
+
+            if (!annotatedBiologicalEntities.isEmpty()) {
+                List<String> bes = new ArrayList<String>();
+                for (BiologicalEntity be : annotatedBiologicalEntities) {
+                    bes.add(be.getName());
+                }
+                sb.append(" in ");
+                sb.append(StringUtils.collectionToCommaDelimitedString(bes));
+            }
+        }
+
+        return sb.toString();
+    }
+
     private OWLIndividual convertAnnotation(Annotation annotation, OWLOntology ontology) {
         getLog().trace("Converting annotation '" + annotation + "' to owl instance");
-        return convertAnnotationByURI(annotation.getURI(), ontology);
+        OWLIndividual annotationInstance = convertAnnotationByURI(annotation.getURI(), ontology);
+        // set annotation label
+        String annotationLabel = getAnnotationLabel(annotation.getAnnotatedProperty(),
+                                                    annotation.getAnnotatedBiologicalEntities(),
+                                                    annotation.getSemanticTags());
+        if (!"".equals(annotationLabel)) {
+            ontology.getOWLOntologyManager().addAxiom(ontology,
+                                                      ontology.getOWLOntologyManager()
+                                                              .getOWLDataFactory()
+                                                              .getOWLAnnotationAssertionAxiom(
+                                                                      ontology.getOWLOntologyManager()
+                                                                              .getOWLDataFactory()
+                                                                              .getRDFSLabel(),
+                                                                      annotationInstance.asOWLNamedIndividual()
+                                                                              .getIRI(),
+                                                                      ontology.getOWLOntologyManager()
+                                                                              .getOWLDataFactory()
+                                                                              .getOWLLiteral(annotationLabel)));
+        }
+        return annotationInstance;
     }
 
     private OWLIndividual convertAnnotationByURI(URI annotationURI, OWLOntology ontology) {
@@ -262,23 +331,24 @@ public class OWLAPIAnnotationSerializer extends OWLAPIZoomaSerializer<Annotation
 
         // get datasource IRI
         IRI datasourceIRI;
+        IRI datasourceTypeIRI;
         synchronized (sourceProvenanceIRIMap) {
             if (!sourceProvenanceIRIMap.containsKey(provenance.getSource().getURI())) {
                 datasourceIRI = createIRI(provenance.getSource().getURI());
                 sourceProvenanceIRIMap.put(provenance.getSource().getURI(), datasourceIRI);
-
-                // TODO - datasource type not stored as RDF
             }
             else {
                 datasourceIRI = sourceProvenanceIRIMap.get(provenance.getSource().getURI());
             }
+            datasourceTypeIRI = IRI.create(URIBindingUtils.getURI(provenance.getSource().getType().name()));
         }
 
         // get evidence IRI
         IRI evidenceIRI;
         synchronized (evidenceProvenanceIRIMap) {
             if (!evidenceProvenanceIRIMap.containsKey(provenance.getEvidence().toString())) {
-                evidenceIRI = createIRI(URI.create(provenance.getEvidence().getId()));
+                evidenceIRI = createIRI(
+                        URIBindingUtils.getURI(provenance.getEvidence().name()));
                 evidenceProvenanceIRIMap.put(provenance.getEvidence().toString(), evidenceIRI);
             }
             else {
@@ -287,10 +357,31 @@ public class OWLAPIAnnotationSerializer extends OWLAPIZoomaSerializer<Annotation
         }
 
         OWLNamedIndividual datasourceIndividual = factory.getOWLNamedIndividual(datasourceIRI);
+        OWLClass datasourceTypeClass = factory.getOWLClass(datasourceTypeIRI);
         manager.addAxiom(ontology,
                          factory.getOWLObjectPropertyAssertionAxiom(hasDBProperty,
                                                                     annotationInstance,
                                                                     datasourceIndividual));
+
+        manager.addAxiom(ontology,
+                         factory.getOWLClassAssertionAxiom(datasourceTypeClass, datasourceIndividual));
+
+        String shortName = null;
+        // set shortName
+        if (provenance.getSource().getName() != null) {
+            shortName = provenance.getSource().getName();
+        }
+        else {
+            shortName = URIUtils.getShortform(provenance.getSource().getURI());
+            if (shortName == null) {
+                shortName = provenance.getSource().getURI().toString();
+            }
+        }
+        manager.addAxiom(ontology,
+                         factory.getOWLAnnotationAssertionAxiom(
+                                 factory.getOWLAnnotationProperty(hasShortName),
+                                 datasourceIRI,
+                                 factory.getOWLLiteral(shortName)));
 
         // set evidence
         OWLNamedIndividual evidenceIndividual = factory.getOWLNamedIndividual(evidenceIRI);

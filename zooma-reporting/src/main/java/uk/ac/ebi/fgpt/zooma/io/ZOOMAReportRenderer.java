@@ -116,25 +116,25 @@ public class ZOOMAReportRenderer {
                         // one good annotation, so render to the report with "auto" mapping
                         Annotation annotation = annotations.iterator().next();
                         //for (URI annotatesTo : annotation.getSemanticTags()) {
-                            // render one line per experiment, if known
-                            if (propertyContextMap.containsKey(property)) {
-                                for (String expt : propertyContextMap.get(property)) {
-                                    writeReportLine(writer,
-                                                    property,
-                                                    expt,
-                                                    annotation.getProvenance().getSource().getURI().toString(),
-                                                    annotation.getSemanticTags(),
-                                                    true);
-                                }
-                            }
-                            else {
+                        // render one line per experiment, if known
+                        if (propertyContextMap.containsKey(property)) {
+                            for (String expt : propertyContextMap.get(property)) {
                                 writeReportLine(writer,
                                                 property,
-                                                "[UNKNOWN EXPERIMENTS]",
+                                                expt,
                                                 annotation.getProvenance().getSource().getURI().toString(),
                                                 annotation.getSemanticTags(),
                                                 true);
                             }
+                        }
+                        else {
+                            writeReportLine(writer,
+                                            property,
+                                            "[UNKNOWN EXPERIMENTS]",
+                                            annotation.getProvenance().getSource().getURI().toString(),
+                                            annotation.getSemanticTags(),
+                                            true);
+                        }
                         //}
                     }
                     else {
@@ -145,12 +145,12 @@ public class ZOOMAReportRenderer {
                                 for (String expt : propertyContextMap.get(property)) {
                                     if (annotation.getSemanticTags() != null) {
                                         //for (URI annotatesTo : annotation.getSemanticTags()) {
-                                            writeReportLine(writer,
-                                                            property,
-                                                            expt,
-                                                            annotation.getProvenance().getSource().getURI().toString(),
-                                                            annotation.getSemanticTags(),
-                                                            false);
+                                        writeReportLine(writer,
+                                                        property,
+                                                        expt,
+                                                        annotation.getProvenance().getSource().getURI().toString(),
+                                                        annotation.getSemanticTags(),
+                                                        false);
                                         //}
                                     }
                                 }
@@ -158,12 +158,12 @@ public class ZOOMAReportRenderer {
                             else {
                                 if (annotation.getSemanticTags() != null) {
                                     //for (URI annotatesTo : annotation.getSemanticTags()) {
-                                        writeReportLine(writer,
-                                                        property,
-                                                        "[UNKNOWN EXPERIMENTS]",
-                                                        annotation.getProvenance().getSource().getURI().toString(),
-                                                        annotation.getSemanticTags(),
-                                                        false);
+                                    writeReportLine(writer,
+                                                    property,
+                                                    "[UNKNOWN EXPERIMENTS]",
+                                                    annotation.getProvenance().getSource().getURI().toString(),
+                                                    annotation.getSemanticTags(),
+                                                    false);
                                     //}
                                 }
                             }
@@ -291,7 +291,7 @@ public class ZOOMAReportRenderer {
                                    String source,
                                    Collection<URI> list_annotatesTo,
                                    boolean automatic) {
-        
+
         String type = automatic ? "Automatic" : "Requires curation";
         String propertyType =
                 property instanceof TypedProperty ? ((TypedProperty) property).getPropertyType() : "[NO TYPE]";
@@ -303,45 +303,45 @@ public class ZOOMAReportRenderer {
                             "Searched: " + property + "\t" +
                             "Found annotation to: " + list_annotatesTo.toString());
         }
-      
-        String list_terms="";
-        String list_labels="";
-        String list_ontologys="";
-        
-        
+
+        String list_terms = "";
+        String list_labels = "";
+        String list_ontologys = "";
+
+
         for (Iterator iter = list_annotatesTo.iterator(); iter.hasNext(); ) {
-            
-            URI annotatesTo = (URI)iter.next();
-            
+
+            URI annotatesTo = (URI) iter.next();
+
             // use fragment name as term
             String term = URIUtils.extractFragment(annotatesTo);
-            
-            list_terms += term+", ";
-            
+
+            list_terms += term + ", ";
+
 
             StringBuilder labelStr = new StringBuilder();
-            
+
             labelStr.append(acquireLabel(annotatesTo)).append(", ");
-            
-            String labels = labelStr.length() > 0 ? labelStr.substring(0, labelStr.length() - 2): "No Labels";
 
-            list_labels += labels+", ";
-            
+            String labels = labelStr.length() > 0 ? labelStr.substring(0, labelStr.length() - 2) : "No Labels";
+
+            list_labels += labels + ", ";
+
             String ontology = annotatesTo.toString().replace(term, "");
-            
-            list_ontologys += ontology+", ";
+
+            list_ontologys += ontology + ", ";
         }
 
-        if( !list_terms.isEmpty() ){
-            list_terms = list_terms.substring(0, list_terms.length()-2);
+        if (!list_terms.isEmpty()) {
+            list_terms = list_terms.substring(0, list_terms.length() - 2);
         }
-        
-        if( !list_labels.isEmpty() ){
-            list_labels = list_labels.substring(0, list_labels.length()-2);
+
+        if (!list_labels.isEmpty()) {
+            list_labels = list_labels.substring(0, list_labels.length() - 2);
         }
-        
-        if( !list_ontologys.isEmpty() ){
-            list_ontologys = list_ontologys.substring(0, list_ontologys.length()-2);
+
+        if (!list_ontologys.isEmpty()) {
+            list_ontologys = list_ontologys.substring(0, list_ontologys.length() - 2);
         }
 
         writer.println(propertyType + "\t" + propertyValue + "\t" + list_labels + "\t" +

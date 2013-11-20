@@ -154,7 +154,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                     @Override
                     protected void executeTask(int iteration) throws Exception {
                         // do next load
-                        ZoomaDAO<T> dao = syncedAnnotationDAOs.get(iteration-1);
+                        ZoomaDAO<T> dao = syncedAnnotationDAOs.get(iteration - 1);
                         getLog().debug("Delegating next load task for DAO '" + dao.getDatasourceName() + "' " +
                                                "(iteration " + iteration + ")");
                         Receipt r = load(syncedAnnotationDAOs.get(iteration - 1));

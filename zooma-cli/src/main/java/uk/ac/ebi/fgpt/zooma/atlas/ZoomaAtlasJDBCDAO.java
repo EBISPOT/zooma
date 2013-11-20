@@ -24,7 +24,7 @@ import java.util.Map;
 public class ZoomaAtlasJDBCDAO implements ZoomaAtlasDAO {
     public static final String PROPERTIES_UNMAPPED =
             "SELECT DISTINCT property, value FROM (" +
-            "SELECT 0 as propertyid, " +
+                    "SELECT 0 as propertyid, " +
                     "p.property, " +
                     "0 as propertyvalueid, " +
                     "p.value " +

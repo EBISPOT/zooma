@@ -116,7 +116,8 @@ public class ZoomaUtils {
      */
     public static Set<AnnotationSummary> filterAnnotationSummaries(Map<AnnotationSummary, Float> summaries,
                                                                    float cutoffPercentage) {
-        return filterAnnotationSummaries(summaries, cutoffPercentage, 0);
+        return filterAnnotationSummaries(summaries, 0, cutoffPercentage);
+
     }
 
 

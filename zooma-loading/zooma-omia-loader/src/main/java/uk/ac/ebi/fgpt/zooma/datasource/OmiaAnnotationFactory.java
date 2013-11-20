@@ -18,19 +18,28 @@ public class OmiaAnnotationFactory extends AbstractAnnotationFactory {
 
     public OmiaAnnotationFactory(AnnotationLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
-        this.provenance = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.OMIA.getURI()),
-                                                         AnnotationProvenance.Evidence.COMPUTED_FROM_TEXT_MATCH,
-                                                         "ZOOMA",
-                                                         new Date());
+        this.provenance =
+                new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.OMIA.getURI(), "omia"),
+                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                               "ZOOMA",
+                                               new Date());
     }
 
     @Override protected AnnotationProvenance getAnnotationProvenance() {
         return provenance;
     }
 
+    @Override
+    protected AnnotationProvenance getAnnotationProvenance(String annotator,
+                                                           AnnotationProvenance.Accuracy accuracy,
+                                                           Date annotationDate) {
+        return null; // todo
+    }
+
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.OMIA.getURI()),
-                                              AnnotationProvenance.Evidence.COMPUTED_FROM_TEXT_MATCH,
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.OMIA.getURI(), "omia"),
+                                              AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                              AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                                               "ZOOMA",
                                               new Date(),
                                               annotator,

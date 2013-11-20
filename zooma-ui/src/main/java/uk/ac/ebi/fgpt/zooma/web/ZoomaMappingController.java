@@ -33,12 +33,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -50,8 +48,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotation;
 
 /**
  * A controller stereotype that provides a REST-API endpoint to run a ZOOMA search over a series of properties.
@@ -92,7 +88,7 @@ public class ZoomaMappingController {
     }
 
     @Autowired
-    @Qualifier("splittingAnnotationSummarySearchService")        
+    @Qualifier("annotationSummarySearchService")
     public void setAnnotationSummarySearchService(AnnotationSummarySearchService annotationSummarySearchService) {
         this.annotationSummarySearchService = annotationSummarySearchService;
     }
@@ -125,19 +121,6 @@ public class ZoomaMappingController {
         float cutoffScore = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.score"));
         float cutoffPercentage = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.percentage"));
         searchZOOMA(properties, session, concurrency, cutoffScore, cutoffPercentage);
-        return "Mapping request of " + properties.size() + " properties was successfully received";
-    }
-    
-    @RequestMapping(value = "/OLD",method = RequestMethod.POST, consumes = "application/json")
-    public @ResponseBody String requestMappingOLD(@RequestBody ZoomaMappingRequest request, HttpSession session)
-            throws IOException {
-        List<Property> properties = parseMappingRequest(request);
-        session.setAttribute("properties", properties);
-        session.setAttribute("progress", 0);
-        int concurrency = Integer.parseInt(getZoomaProperties().getProperty("zooma.concurrency"));
-        float cutoffScore = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.score"));
-        float cutoffPercentage = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.percentage"));
-        searchZOOMAOLD(properties, session, concurrency, cutoffScore, cutoffPercentage);
         return "Mapping request of " + properties.size() + " properties was successfully received";
     }
 
@@ -302,236 +285,10 @@ public class ZoomaMappingController {
 
         // create a timer to time search tasks
         final ZOOMASearchTimer timer = new ZOOMASearchTimer(properties.size()).start();
-        
+
         final Map<Property, Set<Annotation>> annotations =
                 Collections.synchronizedMap(new HashMap<Property, Set<Annotation>>());
-        
-        final Map<Property, Boolean> searchAchievedScore =
-                Collections.synchronizedMap(new HashMap<Property, Boolean>());
 
-        // start searching - use 'concurrent' parallel threads
-        final Deque<Future<Integer>> jobQueue = new ConcurrentLinkedDeque<>();
-        final ExecutorService service = Executors.newFixedThreadPool(concurrency);
-        for (final Property property : properties) {
-            // simple unit of work to perform the zooma search and update annotations with results
-            jobQueue.add(service.submit(new Callable<Integer>() {
-                @Override public Integer call() throws Exception {
-                    // first, grab annotation summaries
-                    Map<AnnotationSummary, Float> summaries;
-                    if (property instanceof TypedProperty) {
-                        summaries = getAnnotationSummarySearchService().searchAndScore_QueryExpansion(
-                                ((TypedProperty) property).getPropertyType(), property.getPropertyValue());
-                    }
-                    else {
-                        summaries = getAnnotationSummarySearchService().searchAndScore_QueryExpansion(property.getPropertyValue());
-                    }
-
-                    // now use client to test and filter them
-                    if (!summaries.isEmpty()) {
-                        
-                        getLog().debug("Final Scores before filter (in the UI): ");
-                        for (AnnotationSummary as : summaries.keySet()) {
-
-                            float FinalScore = summaries.get(as);
-                            getLog().debug("\t" + FinalScore);
-                        }
-                        // get well scored annotation summaries
-                        Set<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(summaries,
-                                                                                                    cutoffPercentage);
-
-                        // for each good summary, extract an example annotation
-                        boolean achievedScore = false;
-                        Set<Annotation> goodAnnotations = new HashSet<>();
-                        
-                        for (AnnotationSummary goodSummary : goodSummaries) {
-                            
-                            
-                            
-                            System.out.println("Final score: " + summaries.get(goodSummary) + "  for the property " + property.getPropertyValue());
-                            
-                            if (!achievedScore && summaries.get(goodSummary) > cutoffScore) {
-                                achievedScore = true;
-                            }
-                            
-                            //Before Jose's changue...
-                            //URI annotationURI = goodSummary.getAnnotationURIs().iterator().next();
-                            //goodAnnotations.add(getAnnotationService().getAnnotation(annotationURI));
-                            
-                            // id is null when annotations came from partial strings
-                            if(goodSummary.getID()!=null){
-                                URI annotationURI = goodSummary.getAnnotationURIs().iterator().next();
-                                goodAnnotations.add(getAnnotationService().getAnnotation(annotationURI));
-                            
-                            }else{  
-                            
-
-                                if( goodSummary.getAnnotationURIs().size()==1 ){
-
-                                    URI annotationURI = goodSummary.getAnnotationURIs().iterator().next();
-                                    
-                                    Annotation annot = getAnnotationService().getAnnotation(annotationURI);
-      
-                                    Collection<URI> uris = annot.getSemanticTags();
-                                    
-                                    URI[] uris2 =  uris.toArray(new URI[0]);
-
-                                    //Maybe we should create a new evidence
-                                    goodAnnotations.add(new SimpleAnnotation(null,null,property,uris2,null,null,annot.getProvenance()));
-
-                                
-                                //Now, 1 AnnotationSummary could have 2 tags..    
-                                }else if (goodSummary.getAnnotationURIs().size()>1){
-
-                                    ArrayList<URI> allTags = new ArrayList();
-                                    AnnotationProvenance provenance = null;
-
-                                    for (Iterator iter = goodSummary.getAnnotationURIs().iterator(); iter.hasNext(); ) {
-
-                                        URI annotationURI = (URI)iter.next();
-                                        Annotation annot = getAnnotationService().getAnnotation(annotationURI);
-
-                                        provenance = annot.getProvenance();
-                                        
-                                        Collection<URI> uris = annot.getSemanticTags();
-
-                                        for (Iterator iter_tags = uris.iterator(); iter_tags.hasNext(); ) {
-
-                                            URI tag_aux = (URI) iter_tags.next();
-
-                                            if(!allTags.contains(tag_aux))
-                                                allTags.add(tag_aux);
-                                        }  
-                                    }
-                                    
-                                    URI[] uris2 =  allTags.toArray(new URI[0]);
-                                    
-                     
-                                    //Maybe we should create a new evidence
-                                    goodAnnotations.add(new SimpleAnnotation(null,null,property,uris2,new URI[0],new URI[0],provenance));
-
-                                }
-                            }
-                            
-                            
-                            // trace log each annotation summary that has generated content to be written to the report
-                            if (getLog().isTraceEnabled()) {
-                                getLog().trace(
-                                        "Next annotation result obtained:\n\t\t" +
-                                                "Searched: " + property + "\t" +
-                                                "Found: " + goodSummary.getAnnotatedPropertyValue() + " " +
-                                                "[" + goodSummary.getAnnotatedPropertyType() + "] " +
-                                                "-> " + goodSummary.getSemanticTags() + "\t" +
-                                                "Score: " + summaries.get(goodSummary));
-                            }
-                        }
-
-                        // and add good annotations to the annotations map
-                        synchronized (annotations) {
-                            annotations.put(property, goodAnnotations);
-                        }
-                        synchronized (searchAchievedScore) {
-                            searchAchievedScore.put(property, achievedScore);
-                        }
-                    }
-
-                    // update timing stats
-                    timer.completedNext();
-                    session.setAttribute("progress", timer.getCompletedCount());
-                    return timer.getCompletedCount();
-                }
-            }));
-        }
-
-        // create a thread to run until all ZOOMA searches have finished, then update session
-        new Thread(new Runnable() {
-            @SuppressWarnings("ConstantConditions") @Override public void run() {
-                // pop elements from the jobQueue, make sure they're done, then discard
-                Future<Integer> f = jobQueue.poll();
-                int failedCount = 0;
-                while (f != null) {
-                    try {
-                        int total = f.get();
-                        getLog().trace("There are " + total + " searches are now complete");
-                    }
-                    catch (InterruptedException e) {
-                        failedCount++;
-                        timer.completedNext(); // update here so progress doesn't stall
-                        getLog().error("Job " + f + " was interrupted whilst waiting for completion - " +
-                                               "there are " + failedCount + " fails now");
-                    }
-                    catch (ExecutionException e) {
-                        failedCount++;
-                        timer.completedNext(); // update here so progress doesn't stall
-                        getLog().error(
-                                "A job failed to execute - there are " + failedCount + " fails now.  " +
-                                        "Error was:\n", e.getCause());
-                    }
-                    catch (Exception e) {
-                        failedCount++;
-                        timer.completedNext(); // update here so progress doesn't stall
-                        getLog().error(
-                                "A job failed with an unknown exception - there are " + failedCount + " fails now.  " +
-                                        "Error was:\n", e.getCause());
-                    }
-                    f = jobQueue.poll();
-                }
-
-                getLog().debug("Shutting down executor service...");
-                service.shutdown();
-                try {
-                    service.awaitTermination(2, TimeUnit.MINUTES);
-                    getLog().debug("Executor service shutdown gracefully.");
-                }
-                catch (InterruptedException e) {
-                    getLog().error("Executor service failed to shutdown cleanly", e);
-                    throw new RuntimeException("Unable to cleanly shutdown ZOOMA.", e);
-                }
-                finally {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    ZOOMAReportRenderer renderer =
-                            new ZOOMAReportRenderer(new LabelMapper(getOntologyService()),
-                                                    out,
-                                                    out); // unmapped elements go in same report
-                    Map<Property, List<String>> propertyContexts = new HashMap<>();
-                    renderer.renderAnnotations(properties, propertyContexts, annotations, searchAchievedScore);
-                    try {
-                        renderer.close();
-                        getLog().debug("ZOOMA search complete, results will be stored in a session attribute");
-                        session.setAttribute("progress", timer.getCompletedCount());
-                        session.setAttribute("result", out.toString());
-
-                        if (failedCount > 0) {
-                            session.setAttribute("exception", new RuntimeException(
-                                    "There were " + failedCount + " ZOOMA searches that encountered problems"));
-                        }
-                    }
-                    catch (IOException e) {
-                        session.setAttribute("exception", e);
-                    }
-                    getLog().info(
-                            "Successfully generated ZOOMA report for " + timer.getCompletedCount() + " searches," +
-                                    " HTTP session '" + session.getId() + "'");
-                }
-            }
-        }).start();
-    }
-
-    private void searchZOOMAOLD(final List<Property> properties,
-                             final HttpSession session,
-                             final int concurrency,
-                             final float cutoffScore,
-                             final float cutoffPercentage) {
-        getLog().info("Searching ZOOMA for mappings.  Parameters: " +
-                              "{[concurrency:" + concurrency + "]," +
-                              "[cutoffScore:" + cutoffScore + "]," +
-                              "[cutoffPercentage:" + cutoffPercentage + "]}");
-
-        // create a timer to time search tasks
-        final ZOOMASearchTimer timer = new ZOOMASearchTimer(properties.size()).start();
-        
-        final Map<Property, Set<Annotation>> annotations =
-                Collections.synchronizedMap(new HashMap<Property, Set<Annotation>>());
-        
         final Map<Property, Boolean> searchAchievedScore =
                 Collections.synchronizedMap(new HashMap<Property, Boolean>());
 
@@ -554,13 +311,6 @@ public class ZoomaMappingController {
 
                     // now use client to test and filter them
                     if (!summaries.isEmpty()) {
-                        
-                        getLog().debug("Final Scores before filter (in the UI): ");
-                        for (AnnotationSummary as : summaries.keySet()) {
-
-                            float FinalScore = summaries.get(as);
-                            getLog().debug("\t" + FinalScore);
-                        }
                         // get well scored annotation summaries
                         Set<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(summaries,
                                                                                                     cutoffPercentage);
@@ -568,77 +318,24 @@ public class ZoomaMappingController {
                         // for each good summary, extract an example annotation
                         boolean achievedScore = false;
                         Set<Annotation> goodAnnotations = new HashSet<>();
-                        
+
                         for (AnnotationSummary goodSummary : goodSummaries) {
-                            
-                            
-                            
-                            System.out.println("Final score: " + summaries.get(goodSummary) + "  for the property " + property.getPropertyValue());
-                            
                             if (!achievedScore && summaries.get(goodSummary) > cutoffScore) {
                                 achievedScore = true;
                             }
-                            
-                            //Before Jose's changue...
-                            //URI annotationURI = goodSummary.getAnnotationURIs().iterator().next();
-                            //goodAnnotations.add(getAnnotationService().getAnnotation(annotationURI));
-                            
-                            // id is null when annotations came from partial strings
-                            if(goodSummary.getID()!=null){
+
+                            if (!goodSummary.getAnnotationURIs().isEmpty()) {
                                 URI annotationURI = goodSummary.getAnnotationURIs().iterator().next();
                                 goodAnnotations.add(getAnnotationService().getAnnotation(annotationURI));
-                            
-                            }else{  
-                            
-
-                                if( goodSummary.getAnnotationURIs().size()==1 ){
-
-                                    URI annotationURI = goodSummary.getAnnotationURIs().iterator().next();
-                                    
-                                    Annotation annot = getAnnotationService().getAnnotation(annotationURI);
-      
-                                    Collection<URI> uris = annot.getSemanticTags();
-                                    
-                                    URI[] uris2 =  uris.toArray(new URI[0]);
-
-                                    //Maybe we should create a new evidence
-                                    goodAnnotations.add(new SimpleAnnotation(null,null,property,uris2,null,null,annot.getProvenance()));
-
-                                
-                                //Now, 1 AnnotationSummary could have 2 tags..    
-                                }else if (goodSummary.getAnnotationURIs().size()>1){
-
-                                    ArrayList<URI> allTags = new ArrayList();
-                                    AnnotationProvenance provenance = null;
-
-                                    for (Iterator iter = goodSummary.getAnnotationURIs().iterator(); iter.hasNext(); ) {
-
-                                        URI annotationURI = (URI)iter.next();
-                                        Annotation annot = getAnnotationService().getAnnotation(annotationURI);
-
-                                        provenance = annot.getProvenance();
-                                        
-                                        Collection<URI> uris = annot.getSemanticTags();
-
-                                        for (Iterator iter_tags = uris.iterator(); iter_tags.hasNext(); ) {
-
-                                            URI tag_aux = (URI) iter_tags.next();
-
-                                            if(!allTags.contains(tag_aux))
-                                                allTags.add(tag_aux);
-                                        }  
-                                    }
-                                    
-                                    URI[] uris2 =  allTags.toArray(new URI[0]);
-                                    
-                     
-                                    //Maybe we should create a new evidence
-                                    goodAnnotations.add(new SimpleAnnotation(null,null,property,uris2,new URI[0],new URI[0],provenance));
-
-                                }
                             }
-                            
-                            
+                            else {
+                                // todo - handle this situation gracefully
+                                getLog().warn("An AnnotationSummary with no associated annotations was returned - " +
+                                                      "something probably went wrong when inferring mappings " +
+                                                      "from lexical matches");
+                                throw new RuntimeException("I've broken Jose's code, oops!");
+                            }
+
                             // trace log each annotation summary that has generated content to be written to the report
                             if (getLog().isTraceEnabled()) {
                                 getLog().trace(
@@ -670,7 +367,7 @@ public class ZoomaMappingController {
 
         // create a thread to run until all ZOOMA searches have finished, then update session
         new Thread(new Runnable() {
-            @SuppressWarnings("ConstantConditions") @Override public void run() {
+            @Override public void run() {
                 // pop elements from the jobQueue, make sure they're done, then discard
                 Future<Integer> f = jobQueue.poll();
                 int failedCount = 0;
@@ -741,8 +438,7 @@ public class ZoomaMappingController {
             }
         }).start();
     }
-    
-    
+
     private class LabelMapper implements OntologyLabelMapper {
         private OntologyService ontologyService;
 

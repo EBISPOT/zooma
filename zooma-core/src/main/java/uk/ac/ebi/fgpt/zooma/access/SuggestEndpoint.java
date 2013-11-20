@@ -20,8 +20,7 @@ import java.util.ServiceLoader;
  * Acts as an endpoint that offers an implementation of the google and freebase suggest API to offer search and
  * autocomplete functionality over zooma identifiable objects.
  * <p/>
- * For more information on the suggest API, see <a href="http://code.google
- * .com/p/google-refine/wiki/SuggestApi">http://code.google.com/p/google-refine/wiki/SuggestApi</a>.
+ * For more information on the suggest API, see <a href="http://code.google .com/p/google-refine/wiki/SuggestApi">http://code.google.com/p/google-refine/wiki/SuggestApi</a>.
  * Implementations of this class should return matching results using ZOOMA functionality behind the scenes.
  *
  * @param <T> the type of identifiable objects this acts as an endpoint for
@@ -93,11 +92,11 @@ public abstract class SuggestEndpoint<T, I> {
                 }
                 else {
                     getLog().error("Unexpected type-checking failure: key-class for " + renderer + " was incorrect, " +
-                                   "this renderer cannot render objects of type " +
-                                   renderingClass.getSimpleName());
+                                           "this renderer cannot render objects of type " +
+                                           renderingClass.getSimpleName());
                     throw new RuntimeException(
                             "Unexpected type-checking failure: key-class for " + renderer + " was incorrect, " +
-                            "this renderer cannot render objects of type " + renderingClass.getSimpleName());
+                                    "this renderer cannot render objects of type " + renderingClass.getSimpleName());
                 }
             }
             else {
@@ -115,7 +114,7 @@ public abstract class SuggestEndpoint<T, I> {
             // if we got to here, there is no renderer available
             getLog().warn(
                     "No HtmlRenderer available for rendering elements of class '" + renderingClass.getSimpleName() +
-                    "'");
+                            "'");
             return new SimpleFlyoutResponse(extractElementID(element),
                                             "<div class=\"fbs-flyout-content\">No preview available</div>");
         }
@@ -336,7 +335,7 @@ public abstract class SuggestEndpoint<T, I> {
                                           Boolean html_escape,
                                           Boolean indent,
                                           String mql_output);
-    
+
     /**
      * Performs a google refine-like suggest query
      *

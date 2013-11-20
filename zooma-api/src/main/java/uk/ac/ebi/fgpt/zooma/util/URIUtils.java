@@ -7,7 +7,6 @@ import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -25,6 +24,7 @@ import java.util.Properties;
  * them.
  *
  * @author Tony Burdett
+ * @author Simon Jupp
  * @date 30/05/12
  */
 public class URIUtils {
@@ -266,27 +266,30 @@ public class URIUtils {
         }
 
         // otherwise, do we have a registered prefix?
-        if (shortform.contains(":")) {    
+        if (shortform.contains(":")) {
             Iterator it = prefixMappings.entrySet().iterator();
-            
+
             while (it.hasNext()) {
-                Map.Entry e = (Map.Entry)it.next();
+                Map.Entry e = (Map.Entry) it.next();
                 String pref = (String) e.getKey();
                 String long_term = (String) e.getValue();
-                
-                if(shortform.startsWith(long_term)){
-                    shortform = shortform.replaceFirst(long_term, pref+":");
+
+                if (shortform.startsWith(long_term)) {
+                    shortform = shortform.replaceFirst(long_term, pref + ":");
                 }
             }
 
             String[] tokens = shortform.split(":");
             String prefix = tokens[0];
-            String localName = tokens[1];
+            String localName = "";
+            if (tokens.length > 1) {
+                localName = tokens[1];
+            }
 
             synchronized (prefixMappings) {
                 if (prefixMappings.containsKey(prefix)) {
                     String namespace = prefixMappings.get(prefix);
-                    if (!namespace.endsWith("/") && !namespace.endsWith("#")) {
+                    if (!namespace.endsWith("/") && !namespace.endsWith("#") && !"".equals(localName)) {
                         // no separator at end of namespace - could be / or # or something else, so just have to guess
                         namespace = namespace + "/";
                     }
@@ -460,8 +463,8 @@ public class URIUtils {
      * if it already exists, then this method will continually increment until it locates a URI that does not exist in
      * ZOOMA>
      *
-     * @param dao         the DAO to use to attempt to resolve newly created URI against (so as not to create duplicates
-     *                    by mistake)
+     * @param dao the DAO to use to attempt to resolve newly created URI against (so as not to create duplicates by
+     *            mistake)
      * @param uri the URI of the original entity that will be updated
      * @return a newly minted URI derived from the first
      */

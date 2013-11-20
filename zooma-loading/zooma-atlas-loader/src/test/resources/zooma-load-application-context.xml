@@ -32,7 +32,10 @@
         <property name="properties" ref="prefixProperties" />
     </bean>
 
-    <bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.load.ZoomaStandaloneLoader" autowire="byType" destroy-method="shutdown">
+    <bean name="zoomaLoader"
+          class="uk.ac.ebi.fgpt.zooma.load.ZoomaStandaloneLoader"
+          autowire="byType"
+          destroy-method="shutdown">
         <property name="resolvingEnabled" value="true" />
         <property name="serializingEnabled" value="true" />
 

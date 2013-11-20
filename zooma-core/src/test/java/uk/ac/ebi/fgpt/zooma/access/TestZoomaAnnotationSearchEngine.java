@@ -100,9 +100,9 @@ public class TestZoomaAnnotationSearchEngine {
 
         // create annotation search engine
         annotationSearchEngine = new ZoomaAnnotationSearcher(annotationService,
-                                                                 annotationSearchService,
-                                                                 annotationSorter,
-                                                                 annotationLimiter);
+                                                             annotationSearchService,
+                                                             annotationSorter,
+                                                             annotationLimiter);
     }
 
     @After
@@ -132,7 +132,9 @@ public class TestZoomaAnnotationSearchEngine {
             getLog().debug("Testing query for " + prefix + ", " + type);
             Collection<Annotation> searchResults = annotationSearchEngine.query(prefix, type);
             verify(annotationSearchService).searchAndScoreByPrefix(type, prefix);
-            verify(annotationSorter, times(i++)).sort(scoredAnnotations, type, property.getPropertyValue().substring(0, 3));
+            verify(annotationSorter, times(i++)).sort(scoredAnnotations,
+                                                      type,
+                                                      property.getPropertyValue().substring(0, 3));
             assertEquals("Unexpected prefix and type search results returned for " + prefix,
                          annotations,
                          searchResults);
@@ -149,7 +151,9 @@ public class TestZoomaAnnotationSearchEngine {
             getLog().debug("Testing query for " + prefix + ", " + type + ", 10, 0");
             Collection<Annotation> searchResults = annotationSearchEngine.query(prefix, type, 10, 0);
             verify(annotationSearchService).searchAndScoreByPrefix(type, prefix);
-            verify(annotationSorter, times(i)).sort(scoredAnnotations, type, property.getPropertyValue().substring(0, 3));
+            verify(annotationSorter, times(i)).sort(scoredAnnotations,
+                                                    type,
+                                                    property.getPropertyValue().substring(0, 3));
             verify(annotationLimiter, times(i++)).limit(annotations, 10, 0);
             assertEquals("Unexpected prefix, type, limit search results returned for " + prefix,
                          limitedAnnotations,

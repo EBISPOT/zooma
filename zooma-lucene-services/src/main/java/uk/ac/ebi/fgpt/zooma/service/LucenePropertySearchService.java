@@ -5,14 +5,10 @@ import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A service that allows searching over the set of {@link Property}s known to ZOOMA.  Prefix-based and pattern-based
@@ -37,7 +33,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             initOrWait();
 
             // build a query
-            Query q = formulateProcessedQuery("name", propertyValuePattern,null);
+            Query q = formulateProcessedQuery("name", propertyValuePattern);
 
             // do the query
             return doQuery(q, "uri", getPropertyDAO());
@@ -60,7 +56,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                 q = formulateQuery("type", propertyType);
             }
             else {
-                Query pq = formulateProcessedQuery("name", propertyValuePattern,propertyType);
+                Query pq = formulateProcessedQuery("name", propertyValuePattern);
                 Query ptq = formulateQuery("type", propertyType);
                 q = formulateTypedQuery(ptq, pq);
             }
@@ -95,7 +91,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             initOrWait();
 
             // build a query
-            Query q = formulateProcessedQuery("name", propertyValuePattern,null);
+            Query q = formulateProcessedQuery("name", propertyValuePattern);
 
             // do the query
             return doQueryAndScore(q, "uri", getPropertyDAO());
@@ -117,7 +113,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                 q = formulateQuery("type", propertyType);
             }
             else {
-                Query pq = formulateProcessedQuery("name", propertyValuePattern,propertyType);
+                Query pq = formulateProcessedQuery("name", propertyValuePattern);
                 Query ptq = formulateQuery("type", propertyType);
                 q = formulateTypedQuery(ptq, pq);
             }

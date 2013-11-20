@@ -30,6 +30,7 @@ import java.util.Set;
  */
 public abstract class AbstractOntologyLoader extends Initializable implements OntologyLoader {
     private URI ontologyURI;
+    private String ontologyName;
     private Resource ontologyResource;
 
     private URI synonymURI;
@@ -61,6 +62,24 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
      */
     public void setOntologyURI(URI ontologyURI) {
         this.ontologyURI = ontologyURI;
+    }
+
+    /**
+     * Sets the short name of the ontology
+     *
+     * @param ontologyName a short form name of the ontology
+     */
+    public void setOntologyName(String ontologyName) {
+        this.ontologyName = ontologyName;
+    }
+
+    /**
+     * Returns the short name of the ontology
+     *
+     * @return the short name of the ontology
+     */
+    public String getOntologyName() {
+        return ontologyName;
     }
 
     /**
