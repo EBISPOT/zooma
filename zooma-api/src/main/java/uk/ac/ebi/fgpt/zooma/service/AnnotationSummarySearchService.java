@@ -24,6 +24,16 @@ public interface AnnotationSummarySearchService {
     Collection<AnnotationSummary> search(String propertyValuePattern);
 
     /**
+     * Retrieves a collection of annotation summaries that describe annotations about the given property value, as long
+     * as they have been asserted in the supplied source.
+     *
+     * @param propertyValuePattern the property value to fetch annotation summaries for
+     * @param source               the URI of the datasource that AnnotationSummaries should be present in
+     * @return a collection of annotation summaries about the property with a value matching the given one
+     */
+    Collection<AnnotationSummary> search(String propertyValuePattern, URI source);
+
+    /**
      * Retrieves a collection of annotation summaries that describe annotations about the given property value and type
      *
      * @param propertyValuePattern the property value to fetch annotation summaries for
@@ -32,6 +42,18 @@ public interface AnnotationSummarySearchService {
      *         type
      */
     Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern);
+
+    /**
+     * Retrieves a collection of annotation summaries that describe annotations about the given property value and type,
+     * as long as they have been asserted in the supplied source.
+     *
+     * @param propertyValuePattern the property value to fetch annotation summaries for
+     * @param propertyType         the property type to fetch annotation summaries for
+     * @param source               the URI of the datasource that AnnotationSummaries should be present in
+     * @return a collection of annotation summaries about the property with a value matching the given one and matching
+     *         type
+     */
+    Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern, URI source);
 
     /**
      * Retrieves a collection of annotation summaries that describe annotations about the given property value
@@ -81,6 +103,20 @@ public interface AnnotationSummarySearchService {
     Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern);
 
     /**
+     * Retrieves a collection of annotation summaries that describe annotations about the given property value, as long
+     * as they have been asserted in the supplied source.
+     * <p/>
+     * This form returns a map of matching annotation summaries linked to a metric that describes the quality of the
+     * match.  You may need to sort results based on their score to determine the best match order
+     *
+     *
+     * @param propertyValuePattern the property value to fetch annotation summaries for
+     * @param source               the URI of the datasource that AnnotationSummaries should be present in
+     * @return a map of annotation summaries about this property, linked to the score for the match
+     */
+    Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern, URI source);
+
+    /**
      * Retrieves a collection of annotation summaries that describe annotations about the given property value and
      * type.
      * <p/>
@@ -92,6 +128,21 @@ public interface AnnotationSummarySearchService {
      * @return a map of annotation summaries about this property, linked to the score for the match
      */
     Map<AnnotationSummary, Float> searchAndScore(String propertyType, String propertyValuePattern);
+
+    /**
+     * Retrieves a collection of annotation summaries that describe annotations about the given property value and type,
+     * as long as they have been asserted in the supplied source.
+     * <p/>
+     * This form returns a map of matching annotation summaries linked to a metric that describes the quality of the
+     * match.  You may need to sort results based on their score to determine the best match order
+     *
+     *
+     * @param propertyType         the property type to fetch annotation summaries for
+     * @param propertyValuePattern the property value to fetch annotation summaries for
+     * @param source               the URI of the datasource that AnnotationSummaries should be present in
+     * @return a map of annotation summaries about this property, linked to the score for the match
+     */
+    Map<AnnotationSummary, Float> searchAndScore(String propertyType, String propertyValuePattern, URI source);
 
     /**
      * Retrieves a collection of annotation summaries that describe annotations about the given property value.

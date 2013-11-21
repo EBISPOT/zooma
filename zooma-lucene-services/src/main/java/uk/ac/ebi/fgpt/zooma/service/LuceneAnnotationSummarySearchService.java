@@ -10,8 +10,10 @@ import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessorProvider;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -86,6 +88,40 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         }
     }
 
+    @Override public Collection<AnnotationSummary> search(String propertyValuePattern, URI source) {
+        try {
+            initOrWait();
+
+            // first, formulate query for original propertyValuePattern
+            Query pq = formulateQuery("property", propertyValuePattern);
+
+            // next generate a source query
+            Query sq = formulateQuery("source", source.toString());
+
+            // then generate a series of queries from the processed property value, using available search string processors
+            List<Query> pqs = new ArrayList<>();
+            pqs.add(sq);
+            pqs.add(pq);
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("property",
+                                                    propertyValuePattern,
+                                                    getSearchStringProcessorProvider().getProcessors()));
+            }
+
+            // unify processed queries into a single query
+            Query q = formulateCombinedQuery(true, false, pqs.toArray(new Query[pqs.size()]));
+
+            // do the query
+            return doQuery(q, getMapper());
+        }
+        catch (QueryCreationException | IOException e) {
+            throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
+    }
+
     @Override public Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern) {
         try {
             initOrWait();
@@ -115,6 +151,48 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         catch (QueryCreationException | IOException e) {
             throw new SearchException(
                     "Problems creating query for '" + propertyValuePattern + "' ['" + propertyType + "']", e);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
+    }
+
+    @Override public Collection<AnnotationSummary> search(String propertyType,
+                                                          String propertyValuePattern,
+                                                          URI source) {
+        try {
+            initOrWait();
+
+            // first, formulate query for original propertyValuePattern
+            Query pq = formulateQuery("property", propertyValuePattern);
+
+            // next generate a source query
+            Query sq = formulateQuery("source", source.toString());
+
+            // then generate a series of queries from the processed property value, using available search string processors
+            List<Query> pqs = new ArrayList<>();
+            pqs.add(sq);
+            pqs.add(pq);
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("property",
+                                                    propertyValuePattern,
+                                                    getSearchStringProcessorProvider().getProcessors()));
+            }
+
+            // build a property type query
+            Query ptq = formulateQueryConserveOrderIfMultiword("propertytype", propertyType);
+
+            // unify the type query with each value query
+            Query tq = formulateTypedQuery(ptq, pqs);
+
+            // unify processed queries into a single query
+            Query q = formulateCombinedQuery(true, true, sq, tq);
+
+            // do the query
+            return doQuery(q, getMapper());
+        }
+        catch (QueryCreationException | IOException e) {
+            throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
         }
         catch (InterruptedException e) {
             throw new SearchException("Failed to perform query - indexing process was interrupted", e);
@@ -236,6 +314,40 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         }
     }
 
+    @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern, URI source) {
+        try {
+            initOrWait();
+
+            // first, formulate query for original propertyValuePattern
+            Query pq = formulateQuery("property", propertyValuePattern);
+
+            // next generate a source query
+            Query sq = formulateQuery("source", source.toString());
+
+            // then generate a series of queries from the processed property value, using available search string processors
+            List<Query> pqs = new ArrayList<>();
+            pqs.add(sq);
+            pqs.add(pq);
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("property",
+                                                    propertyValuePattern,
+                                                    getSearchStringProcessorProvider().getProcessors()));
+            }
+
+            // unify processed queries into a single query
+            Query q = formulateCombinedQuery(true, false, pqs.toArray(new Query[pqs.size()]));
+
+            // do the query
+            return doQueryAndScore(q, getMapper());
+        }
+        catch (QueryCreationException | IOException e) {
+            throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
+    }
+
     @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyType, String propertyValuePattern) {
         try {
             initOrWait();
@@ -265,6 +377,48 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         catch (QueryCreationException | IOException e) {
             throw new SearchException(
                     "Problems creating query for '" + propertyValuePattern + "' ['" + propertyType + "']", e);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
+    }
+
+    @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyType,
+                                                                  String propertyValuePattern,
+                                                                  URI source) {
+        try {
+            initOrWait();
+
+            // first, formulate query for original propertyValuePattern
+            Query pq = formulateQuery("property", propertyValuePattern);
+
+            // next generate a source query
+            Query sq = formulateQuery("source", source.toString());
+
+            // then generate a series of queries from the processed property value, using available search string processors
+            List<Query> pqs = new ArrayList<>();
+            pqs.add(sq);
+            pqs.add(pq);
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("property",
+                                                    propertyValuePattern,
+                                                    getSearchStringProcessorProvider().getProcessors()));
+            }
+
+            // build a property type query
+            Query ptq = formulateQueryConserveOrderIfMultiword("propertytype", propertyType);
+
+            // unify the type query with each value query
+            Query tq = formulateTypedQuery(ptq, pqs);
+
+            // unify processed queries into a single query
+            Query q = formulateCombinedQuery(true, true, sq, tq);
+
+            // do the query
+            return doQueryAndScore(q, getMapper());
+        }
+        catch (QueryCreationException | IOException e) {
+            throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
         }
         catch (InterruptedException e) {
             throw new SearchException("Failed to perform query - indexing process was interrupted", e);

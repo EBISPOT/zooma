@@ -27,8 +27,18 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
         return _annotatationSummarySearchService.search(propertyValuePattern);
     }
 
+    @Override public Collection<AnnotationSummary> search(String propertyValuePattern, URI source) {
+        return _annotatationSummarySearchService.search(propertyValuePattern, source);
+    }
+
     @Override public Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern) {
         return _annotatationSummarySearchService.search(propertyType, propertyValuePattern);
+    }
+
+    @Override public Collection<AnnotationSummary> search(String propertyType,
+                                                          String propertyValuePattern,
+                                                          URI source) {
+        return _annotatationSummarySearchService.search(propertyType, propertyValuePattern, source);
     }
 
     @Override public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix) {
@@ -51,8 +61,18 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
         return _annotatationSummarySearchService.searchAndScore(propertyValuePattern);
     }
 
+    @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern, URI source) {
+        return _annotatationSummarySearchService.searchAndScore(propertyValuePattern, source);
+    }
+
     @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyType, String propertyValuePattern) {
         return _annotatationSummarySearchService.searchAndScore(propertyType, propertyValuePattern);
+    }
+
+    @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyType,
+                                                                  String propertyValuePattern,
+                                                                  URI source) {
+        return _annotatationSummarySearchService.searchAndScore(propertyType, propertyValuePattern, source);
     }
 
     @Override public Map<AnnotationSummary, Float> searchAndScoreByPrefix(String propertyValuePrefix) {
