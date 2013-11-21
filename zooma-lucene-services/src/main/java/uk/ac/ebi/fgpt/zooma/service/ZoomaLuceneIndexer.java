@@ -423,6 +423,13 @@ public class ZoomaLuceneIndexer extends Initializable {
                                   Float.toString(summaryIdToMaxScore.get(summaryId)),
                                   Field.Store.YES,
                                   Field.Index.NOT_ANALYZED));
+                for (URI source : summaryIdToSourcesMap.get(summaryId)) {
+                    getLog().trace("Next source: " + source.toString());
+                    doc.add(new Field("source",
+                                      source.toString(),
+                                      Field.Store.YES,
+                                      Field.Index.NOT_ANALYZED));
+                }
                 getLog().trace("Number of times verified: " + summaryIdToSourcesMap.get(summaryId).size());
                 doc.add(new Field("timesVerified",
                                   Integer.toString(summaryIdToSourcesMap.get(summaryId).size()),
@@ -440,225 +447,11 @@ public class ZoomaLuceneIndexer extends Initializable {
 
                 // add this document to the index
                 summaryIndexWriter.addDocument(doc, getAnalyzer());
-
             }
 
         }
         getLog().info("Annotation summary lucene indexing complete!");
         summaryIndexWriter.close();
-
-    }
-
-    public void createAnnotationSummaryIndex(Collection<Annotation> annotations, IndexWriter writer)
-            throws IOException {
-        getLog().debug("Creating annotation summary lucene index...");
-
-        // key reference for any untyped properties
-        final String UNTYPED = "##zooma.untyped.property.key##";
-
-        // build the set of annotation summaries - i.e. unique combinations
-        Map<String, Map<String, Set<String>>> termToValueToSummaryIdMap = new HashMap<>();
-        Map<String, Set<URI>> summaryIdToSemanticTagsMap = new HashMap<>();
-        Map<String, Set<Annotation>> summaryIdToAnnotationsMap = new HashMap<>();
-        Map<String, Float> summaryIdToMaxScore = new HashMap<>();
-        Map<String, Set<URI>> summaryIdToSourcesMap = new HashMap<>();
-
-        getLog().debug("Evaluating unique combinations for " + annotations.size() + " annotations...");
-        for (Annotation annotation : annotations) {
-            // the summary ID for this combination
-            String summaryId = null;
-
-            // get property
-            Property property = annotation.getAnnotatedProperty();
-            // get property type
-            String propertyType =
-                    property instanceof TypedProperty ? ((TypedProperty) property).getPropertyType() : UNTYPED;
-            // get property value
-            String propertyValue = property.getPropertyValue();
-            // get semantic tags
-            Collection<URI> semanticTags = annotation.getSemanticTags();
-
-            // do type index lookup, add if absent
-            if (!termToValueToSummaryIdMap.containsKey(propertyType)) {
-                termToValueToSummaryIdMap.put(propertyType, new HashMap<String, Set<String>>());
-            }
-            Map<String, Set<String>> valueToSummaryIdMap = termToValueToSummaryIdMap.get(propertyType);
-
-            // do value index lookup, add if absent
-            if (!valueToSummaryIdMap.containsKey(propertyValue)) {
-                valueToSummaryIdMap.put(propertyValue, new HashSet<String>());
-            }
-            Set<String> summaryIdSet = valueToSummaryIdMap.get(propertyValue);
-
-            // compare all semantic tags in this annotation to those for all summary IDs - do they match?
-            boolean matchedExisting = false;
-            for (String targetSummaryId : summaryIdSet) {
-                if (summaryIdToAnnotationsMap.containsKey(targetSummaryId)) {
-                    for (Annotation targetAnnotation : summaryIdToAnnotationsMap.get(targetSummaryId)) {
-                        Collection<URI> targetSemanticTags = targetAnnotation.getSemanticTags();
-                        if (CollectionUtils.compareCollectionContents(semanticTags, targetSemanticTags)) {
-                            // this is the "same" combination, so grab ID and break
-                            getLog().trace("Annotation " + annotation + " has a combination of property and " +
-                                                   "semantic tags that match " + targetAnnotation);
-                            matchedExisting = true;
-                            summaryId = targetSummaryId;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // is this a new combination?
-            if (matchedExisting) {
-                // increment verified count
-                // this is an existing combination, so just track the source of the new annotation
-                summaryIdToSourcesMap.get(summaryId).add(annotation.getProvenance().getSource().getURI());
-                getLog().trace("Annotation summary datasource verification: " +
-                                       "property value '" + propertyValue + "', type '" + propertyType + "' " +
-                                       "maps to " + semanticTags + " (" + summaryId + ") " +
-                                       "now verified " + summaryIdToSourcesMap.get(summaryId).size() + " times");
-            }
-            else {
-                // this is a novel combination, so generate a new index entry...
-
-                // generate summary id
-                List<String> idContent = new ArrayList<>();
-                for (URI uri : semanticTags) {
-                    if (uri != null) {
-                        // append URI to ID
-                        idContent.add(uri.toString());
-                    }
-                }
-
-                // if there are annotations with NO semantic tags, generate no summary
-                if (idContent.size() > 0) {
-                    // add property type and value to id content
-                    idContent.add(0, propertyValue);
-                    idContent.add(0, propertyType);
-
-                    summaryId = generateEncodedID(idContent.toArray(new String[idContent.size()]));
-                    getLog().trace("Found new unique combination - " +
-                                           "property value '" + propertyValue + "', type '" + propertyType + "' " +
-                                           "maps to " + semanticTags + " (" + summaryId + ")");
-
-                    // add this summary id into the set of known IDs
-                    summaryIdSet.add(summaryId);
-
-                    // and add this summary id as key into the annotations map
-                    summaryIdToAnnotationsMap.put(summaryId, new HashSet<Annotation>());
-
-                    // also add this summary id as key into semantic tags map, along with a set to hold those entities
-                    summaryIdToSemanticTagsMap.put(summaryId, new HashSet<URI>());
-
-                    // also add this summary id as key into the sources map
-                    summaryIdToSourcesMap.put(summaryId, new HashSet<URI>());
-                }
-            }
-
-            // if summaryId is null, there is no summary to generate
-            if (summaryId != null) {
-                // add the new annotations and described entities to the required maps and link to annotations, indexed by the summary ID
-                summaryIdToAnnotationsMap.get(summaryId).add(annotation);
-                summaryIdToSemanticTagsMap.get(summaryId).addAll(annotation.getSemanticTags());
-                summaryIdToSourcesMap.get(summaryId).add(annotation.getProvenance().getSource().getURI());
-
-                // check annotation score against current max - if no current max, or if greater, replace
-                float annotationScore = scoreAnnotationQuality(annotation.getProvenance());
-                if (!summaryIdToMaxScore.containsKey(summaryId) ||
-                        (annotationScore > summaryIdToMaxScore.get(summaryId))) {
-                    summaryIdToMaxScore.put(summaryId, scoreAnnotationQuality(annotation.getProvenance()));
-                }
-
-                getLog().trace("Summary ID: '" + summaryId + "'\n\t" +
-                                       "now links to annotation '" + annotation + "' " +
-                                       "(annotations now: " + summaryIdToAnnotationsMap.get(summaryId).size() +
-                                       ")\n\t" +
-                                       "and semantic tags " + annotation.getSemanticTags() + " " +
-                                       "(semantic tags now: " +
-                                       summaryIdToSemanticTagsMap.get(summaryId).size() + ")");
-            }
-        }
-
-
-        // take map (containing unique combos) and build index
-        for (String propertyType : termToValueToSummaryIdMap.keySet()) {
-            getLog().trace("Next summary property type: " + propertyType);
-            Map<String, Set<String>> valueToSummaryIdMap = termToValueToSummaryIdMap.get(propertyType);
-            for (String propertyValue : valueToSummaryIdMap.keySet()) {
-                getLog().trace("Next summary property value: " + propertyValue);
-                Set<String> summaryIDs = valueToSummaryIdMap.get(propertyValue);
-                for (String summaryID : summaryIDs) {
-                    getLog().trace("Next annotation summary ID: " + summaryID);
-
-                    // build one document to index each summary combination
-                    Document doc = new Document();
-                    doc.add(new Field("id",
-                                      summaryID,
-                                      Field.Store.YES,
-                                      Field.Index.ANALYZED));
-                    doc.add(new Field("property",
-                                      propertyValue,
-                                      Field.Store.YES,
-                                      Field.Index.ANALYZED));
-                    if (!propertyType.equals(UNTYPED)) {
-                        doc.add(new Field("propertytype",
-                                          propertyType,
-                                          Field.Store.YES,
-                                          Field.Index.ANALYZED));
-                    }
-                    // add field for each semantic tag
-                    Collection<URI> semanticTags = summaryIdToSemanticTagsMap.get(summaryID);
-                    for (URI uri : semanticTags) {
-                        if (uri != null) {
-                            // add a field for this URI
-                            getLog().trace("Next summary semantic tag: " + uri);
-                            doc.add(new Field("semanticTag",
-                                              uri.toString(),
-                                              Field.Store.YES,
-                                              Field.Index.ANALYZED));
-                        }
-                    }
-                    // add field for each annotation
-                    Collection<Annotation> indexedAnnotations = summaryIdToAnnotationsMap.get(summaryID);
-                    for (Annotation annotation : indexedAnnotations) {
-                        // add a field for this URI
-                        getLog().trace("Next summary annotation: " + annotation);
-                        doc.add(new Field("annotation",
-                                          annotation.getURI().toString(),
-                                          Field.Store.YES,
-                                          Field.Index.ANALYZED));
-                    }
-                    // add a field for the frequency of use of this pattern
-                    getLog().trace("Summary frequency: " + indexedAnnotations.size());
-                    doc.add(new Field("frequency",
-                                      Integer.toString(indexedAnnotations.size()),
-                                      Field.Store.YES,
-                                      Field.Index.ANALYZED));
-                    getLog().trace("Best score: " + summaryIdToMaxScore.get(summaryID));
-                    doc.add(new Field("topScore",
-                                      Float.toString(summaryIdToMaxScore.get(summaryID)),
-                                      Field.Store.YES,
-                                      Field.Index.ANALYZED));
-                    getLog().trace("Number of times verified: " + summaryIdToSourcesMap.get(summaryID).size());
-                    doc.add(new Field("timesVerified",
-                                      Integer.toString(summaryIdToSourcesMap.get(summaryID).size()),
-                                      Field.Store.YES,
-                                      Field.Index.ANALYZED));
-
-                    getLog().trace("Annotation Summary index entry:\n\t" +
-                                           "ID: " + summaryID + ",\n\t" +
-                                           "Property: " + propertyValue + ",\n\t" +
-                                           "Property Type: " + propertyType + ",\n\t" +
-                                           "Semantic Tags: " + semanticTags.toString() + ",\n\t" +
-                                           "Summary Frequency: " + indexedAnnotations.size() + ",\n\t" +
-                                           "Best score: " + summaryIdToMaxScore.get(summaryID) + ",\n\t" +
-                                           "Times verified: " + summaryIdToSourcesMap.get(summaryID).size());
-
-                    // add this document to the index
-                    writer.addDocument(doc, getAnalyzer());
-                }
-            }
-        }
     }
 
     public void clearAnnotationSummaryIndex() {
