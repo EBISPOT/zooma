@@ -46,7 +46,7 @@ public class LucenePropertyTypeSearchService extends ZoomaLuceneSearchService im
             Query q = formulateQuery("name", propertyTypePattern);
 
             // do the query
-            return doQueryAndScore(q, "name");
+            return doQueryAndScore(q, new SingleFieldStringMapper("name"));
         }
         catch (QueryCreationException | IOException e) {
             throw new SearchException("Problems creating query for '" + propertyTypePattern + "'", e);

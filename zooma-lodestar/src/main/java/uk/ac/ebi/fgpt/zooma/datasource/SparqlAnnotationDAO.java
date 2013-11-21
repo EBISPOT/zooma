@@ -607,14 +607,13 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                             "Data error - attempting to create provenance with unrecognised annotation source type");
                 }
 
-
                 prov = new SimpleAnnotationProvenance(source,
                                                       ev,
                                                       AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                                                       generator.getLexicalForm(),
-                                                      generatedDate != null ? generatedDate.toDate() : new Date(),
+                                                      generatedDate != null ? generatedDate.toDate() : null,
                                                       annotator.getLexicalForm(),
-                                                      annotatedDate != null ? annotatedDate.toDate() : new Date());
+                                                      annotatedDate != null ? annotatedDate.toDate() : null);
 
             }
             Annotation newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov, ontoUri);

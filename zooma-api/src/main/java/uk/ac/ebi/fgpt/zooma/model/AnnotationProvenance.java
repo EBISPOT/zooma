@@ -16,7 +16,7 @@ import java.util.Date;
  * @author Simon Jupp
  * @date 13/03/12
  */
-public interface AnnotationProvenance extends Identifiable, Serializable {
+public interface AnnotationProvenance extends Serializable {
     /**
      * Returns the annotation source that contains the annotation with this provenance.
      *

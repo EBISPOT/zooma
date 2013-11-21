@@ -10,7 +10,6 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -40,7 +39,7 @@ public class URIUtils {
     /**
      * The default setting for SHORTFORM_STRICTNESS
      */
-    public static final ShortformStrictness DEFAULT_SHORTFORM_STRICTNESS = ShortformStrictness.ALLOW_SLASHES_AND_HASHES;
+    public static final ShortformStrictness DEFAULT_SHORTFORM_STRICTNESS = ShortformStrictness.ALLOW_HASHES;
     /**
      * The strictness with which these utils allow shortform creation.  Strictly, no hashes or slashes are allowed in
      * shortforms, but you can override this if required.
@@ -210,6 +209,10 @@ public class URIUtils {
             }
             else {
                 namespace = prefixMappings.get(prefix);
+                if (namespace == null && prefix.contains("resource")) {
+                    String resourcename = prefix.replace("resource", "");
+                    namespace = prefixMappings.get("zoomaresource").concat(resourcename).concat("/");
+                }
             }
 
             if (prefix != null && namespace != null) {
@@ -267,18 +270,6 @@ public class URIUtils {
 
         // otherwise, do we have a registered prefix?
         if (shortform.contains(":")) {
-            Iterator it = prefixMappings.entrySet().iterator();
-
-            while (it.hasNext()) {
-                Map.Entry e = (Map.Entry) it.next();
-                String pref = (String) e.getKey();
-                String long_term = (String) e.getValue();
-
-                if (shortform.startsWith(long_term)) {
-                    shortform = shortform.replaceFirst(long_term, pref + ":");
-                }
-            }
-
             String[] tokens = shortform.split(":");
             String prefix = tokens[0];
             String localName = "";
@@ -287,19 +278,30 @@ public class URIUtils {
             }
 
             synchronized (prefixMappings) {
+                String namespace;
                 if (prefixMappings.containsKey(prefix)) {
-                    String namespace = prefixMappings.get(prefix);
+                    namespace = prefixMappings.get(prefix);
                     if (!namespace.endsWith("/") && !namespace.endsWith("#") && !"".equals(localName)) {
                         // no separator at end of namespace - could be / or # or something else, so just have to guess
                         namespace = namespace + "/";
                     }
-                    return URI.create(namespace + localName);
+                }
+                else if (prefix.endsWith("resource")) {
+                    String resourceName = prefix.replace("resource", "");
+                    if (prefixMappings.containsKey(resourceName)) {
+                        namespace = prefixMappings.get("zoomaresource").concat(resourceName).concat("/");
+                    }
+                    else {
+                        throw new IllegalArgumentException("Unknown resource '" + resourceName + "' - it is not " +
+                                                                   "possible to reconstruct this URI");
+                    }
                 }
                 else {
                     // if we get to here, we cannot resolve prefix
                     throw new IllegalArgumentException("Unknown prefix '" + prefix + "' - it is not " +
                                                                "possible to reconstruct this URI");
                 }
+                return URI.create(namespace + localName);
             }
         }
         else {
@@ -342,9 +344,15 @@ public class URIUtils {
                 return URI.create(namespace);
             }
             else {
-                // if we get to here, we cannot resolve prefix
-                throw new IllegalArgumentException("Unknown prefix '" + prefix + "' - it is not " +
-                                                           "possible to reconstruct this URI");
+                // we can't resolve the prfix - but we might be able to infer it if it's a resource
+                if (prefix.contains("resource")) {
+                    String resourcename = prefix.replace("resource", "");
+                    return URI.create(prefixMappings.get("zoomaresource").concat(resourcename).concat("/"));
+                }
+                else {
+                    throw new IllegalArgumentException("Unknown prefix '" + prefix + "' - it is not " +
+                                                               "possible to reconstruct this URI");
+                }
             }
         }
     }
@@ -554,6 +562,14 @@ public class URIUtils {
                     if (!ineligible) {
                         prefix = nextPrefix;
                         namespace = nextNamespace;
+                    }
+                    else if (nextPrefix.equals("zoomaresource")) {
+                        // there is an exception - if prefix is zoomaresource, infer prefix from convention
+                        if (localname.contains("/")) {
+                            String resourceName = localname.substring(0, localname.indexOf("/"));
+                            prefix = resourceName.concat("resource");
+                            namespace = nextNamespace.concat(resourceName).concat("/");
+                        }
                     }
                 }
             }

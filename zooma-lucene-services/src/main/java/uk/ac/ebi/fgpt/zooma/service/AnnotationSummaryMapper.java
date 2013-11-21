@@ -74,7 +74,7 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         float freq = (float) Integer.parseInt(d.get("frequency"));
         float count = (float) totalAnnotationCount;
         float normalizedFreq = 1.0f + (freq / count);
-        getLog().debug("Document quality: " +
+        getLog().trace("Document quality: " +
                                "(" + topScore + " + " + veris + ") x (1 + " + freq + "/" + count + ") = " +
                                (topScore + veris) + " x " + normalizedFreq + " = " +
                                ((topScore + veris) * normalizedFreq));

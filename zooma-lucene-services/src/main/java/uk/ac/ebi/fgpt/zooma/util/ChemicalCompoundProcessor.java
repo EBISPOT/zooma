@@ -17,8 +17,6 @@ import java.util.regex.Pattern;
  * @date 16/08/13
  */
 public class ChemicalCompoundProcessor extends AbstractDictionaryLoadingProcessor {
-    // should only be invoked if type is some derivation of 'compound' or 'growth condition'
-
     // units dictionary contains all subclasses of "concentration unit" (UO_0000051).
     public ChemicalCompoundProcessor(String dictionaryResourceName) {
         super(dictionaryResourceName);

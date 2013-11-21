@@ -1,6 +1,5 @@
 package uk.ac.ebi.fgpt.zooma.model;
 
-import java.net.URI;
 import java.util.Date;
 
 /**
@@ -132,10 +131,5 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
                 ", annotator='" + annotator + '\'' +
                 ", annotationDate=" + annotationDate +
                 '}';
-    }
-
-    @Override
-    public URI getURI() {
-        throw new UnsupportedOperationException();
     }
 }

@@ -3,15 +3,12 @@ package uk.ac.ebi.fgpt.zooma.service;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
 import uk.ac.ebi.fgpt.zooma.util.ScoreBasedSorter;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.JaccardSimilarity;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.NeedlemanWunch;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,10 +62,10 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         // if results are empty, find lexically similar strings and requery
         if (results.isEmpty()) {
             // use "Needleman-Wunsch"  and "Jaccard similarity" to find approximate matchings
-            Map<String, Float> similarStrings = findSimilarProperties(null, propertyValuePattern);
+            Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
 
             for (String s : similarStrings.keySet()) {
-                if (areBothNegative(s, propertyValuePattern)) {
+                if (haveEqualPolarity(s, propertyValuePattern)) {
                     Map<AnnotationSummary, Float> modifiedResults = super.searchAndScore(s);
 
                     for (AnnotationSummary as : modifiedResults.keySet()) {
@@ -103,10 +100,10 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         // if results are empty, find lexically similar strings and requery
         if (results.isEmpty()) {
             // use algorithm to find matching properties
-            Map<String, Float> similarStrings = findSimilarProperties(propertyType, propertyValuePattern);
+            Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
 
             for (String s : similarStrings.keySet()) {
-                if (areBothNegative(s, propertyValuePattern)) {
+                if (haveEqualPolarity(s, propertyValuePattern)) {
                     Map<AnnotationSummary, Float> modifiedResults = super.searchAndScore(propertyType, s);
                     for (AnnotationSummary as : modifiedResults.keySet()) {
                         if (results.containsKey(as)) {
@@ -116,7 +113,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
                             float newScore = modifiedResults.get(as) * similarStrings.get(s) * similarStrings.get(s);
 
                             if (newScore > previousScore) {
-                                // if the lexical score is higher than the zooma score, override zooma result
+                                // if the new lexical score is higher than the previous score, update
                                 results.put(as, newScore);
                             }
                         }
@@ -132,24 +129,26 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
     }
 
     /**
-     * Uses Needleman-Wunsch and Jaccard similarity algorithms to find similar property values to those given.  The type
-     * is used to select which string processors are used
+     * Uses Needleman-Wunsch and Jaccard similarity algorithms to find strings similar to the one supplied.  This method
+     * requires a dictionary of terms, which is acquired during initialization by loading all property values from the
+     * property DAO
      *
-     * @param propertyType         the type of the property being used to search for similar strings
-     * @param propertyValuePattern the property value being used to expand
+     * @param string the property value being used to expand
      * @return a set of similar property values mapped to a metric indicating their similarity
      */
-    private Map<String, Float> findSimilarProperties(String propertyType, String propertyValuePattern) {
+    private Map<String, Float> findSimilarStrings(String string) {
         Collection<String> processedStrings = new HashSet<>();
-        // todo - only use processors that are suitable based on type
-        if (getSearchStringProcessor().canProcess(propertyValuePattern)) {
-            processedStrings = getSearchStringProcessor().processSearchString(propertyValuePattern);
+        if (getSearchStringProcessor().canProcess(string)) {
+            processedStrings = getSearchStringProcessor().processSearchString(string);
         }
 
         Map<String, Float> results = new HashMap<>();
         for (String processedString : processedStrings) {
             Map<String, Float> annotations = useNeedlemanWunschExpansion(processedString, 0.90f, 1, 0.0f);
             if (annotations.isEmpty()) {
+                if (getLog().isTraceEnabled()) {
+                    getLog().trace("No results from NeedlemanWunsch expansion, running Jaccard expansion...");
+                }
                 annotations = useJaccardExpansion(processedString, 0.525f, 1, 0.999f);
             }
             results.putAll(annotations);
@@ -179,18 +178,25 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         }
 
         Map<String, Float> expandedPropertyMap = new HashMap<>();
-        AbstractStringMetric metric = new NeedlemanWunch();
+        NeedlemanWunch nwSimilarity = new NeedlemanWunch();
         if (!getPropertyValueDictionary().isEmpty()) {
-            for (String property_dictionary : getPropertyValueDictionary()) {
-                float result = metric.getSimilarity(propertyValue, property_dictionary);
+            for (String comparedPropertyValue : getPropertyValueDictionary()) {
+                float result = nwSimilarity.getSimilarity(propertyValue, comparedPropertyValue);
+                if (getLog().isTraceEnabled()) {
+                    if (result > 0) {
+                        getLog().trace(
+                                "Needleman-Wunsch comparison: " + propertyValue + " <=> " + comparedPropertyValue +
+                                        " := " + result);
+                    }
+                }
                 if (result >= min_score) {
-                    expandedPropertyMap.put(property_dictionary, result);
+                    expandedPropertyMap.put(comparedPropertyValue, result);
                 }
             }
         }
 
         Map<String, Float> result = new HashMap<>();
-        if (expandedPropertyMap.size() >= 1) {
+        if (!expandedPropertyMap.isEmpty()) {
             result = filter(expandedPropertyMap, min_score, num_max_annotations, pct_cutoff);
         }
         return result;
@@ -217,18 +223,25 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         }
 
         Map<String, Float> expandedPropertyMap = new HashMap<>();
-        AbstractStringMetric metric = new JaccardSimilarity();
+        JaccardSimilarity jaccardSimilarity = new JaccardSimilarity();
         if (!getPropertyValueDictionary().isEmpty()) {
-            for (String property_dictionary : getPropertyValueDictionary()) {
-                float result = metric.getSimilarity(propertyValue, property_dictionary);
+            for (String comparedPropertyValue : getPropertyValueDictionary()) {
+                float result = jaccardSimilarity.getSimilarity(propertyValue, comparedPropertyValue);
+                if (getLog().isTraceEnabled()) {
+                    if (result > 0) {
+                        getLog().trace(
+                                "Jaccard comparison: " + propertyValue + " <=> " + comparedPropertyValue +
+                                        " := " + result);
+                    }
+                }
                 if (result >= min_score) {
-                    expandedPropertyMap.put(property_dictionary, result);
+                    expandedPropertyMap.put(comparedPropertyValue, result);
                 }
             }
         }
 
         Map<String, Float> result = new HashMap<>();
-        if (expandedPropertyMap.size() >= 1) {
+        if (!expandedPropertyMap.isEmpty()) {
             result = filter(expandedPropertyMap, min_score, num_max_annotations, pct_cutoff);
         }
         return result;
@@ -260,9 +273,12 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
                 for (int i = 0; i < maxNumberOfStrings; i++) {
                     String s = sortedStrings.get(i);
                     float score = scoredStrings.get(s);
-                    if (score > minScore) {
-                        if (score > top_score * cutoffPercentage) {
+                    if (score >= minScore) {
+                        if (score >= top_score * cutoffPercentage) {
                             results.put(s, scoredStrings.get(s));
+                            if (results.size() >= maxNumberOfStrings) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -271,6 +287,12 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         return results;
     }
 
+    /**
+     * Returns true if an only if the sentence contains a negative qualifer (e.g. "no diabetes")
+     *
+     * @param sentence the sentence to test
+     * @return true if it contains a negative assertion, false otherwise
+     */
     private boolean isNegative(String sentence) {
         if (sentence.contains(" not ") || sentence.contains(" no ") || sentence.contains(" non ") ||
                 sentence.contains(" not-") || sentence.contains(" no-") || sentence.contains(" non-") ||
@@ -287,7 +309,16 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         return false;
     }
 
-    private boolean areBothNegative(String term1, String term2) {
+    /**
+     * Returns true if both terms are positive statements or if both terms are negative statements.  So, "diabetes" and
+     * "diabetes" returns true, as does "no diabetes" and "no diabetes", whereas "diabetes" and "no diabetes" returns
+     * false
+     *
+     * @param term1 the first term to test
+     * @param term2 the second term to test
+     * @return true if both statements have an equivalent "polarity" i.e. are both positive or are both negative
+     */
+    private boolean haveEqualPolarity(String term1, String term2) {
         return isNegative(term1) == isNegative(term2);
     }
 
@@ -304,13 +335,14 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         // get all properties
         Collection<Property> properties = getPropertyDAO().read();
 
-        propertyValueDictionary = new ArrayList<>();
+        propertyValueDictionary = new HashSet<>();
         for (Property p : properties) {
             String propertyValue = p.getPropertyValue();
-            String propertyType = p instanceof TypedProperty ? ((TypedProperty) p).getPropertyType() : null;
-            // todo - only use processors that are suitable based on type
             if (getSearchStringProcessor().canProcess(propertyValue)) {
                 propertyValueDictionary.addAll(getSearchStringProcessor().processSearchString(propertyValue));
+            }
+            else {
+                propertyValueDictionary.add(propertyValue);
             }
         }
         time_end = System.currentTimeMillis();

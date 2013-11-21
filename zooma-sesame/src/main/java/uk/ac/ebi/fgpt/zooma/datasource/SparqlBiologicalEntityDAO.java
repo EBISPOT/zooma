@@ -152,7 +152,6 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
     }
 
     @Override public int count() {
-        // TODO - placeholder, more efficient to implement a separate count() SPARQL query
         return read().size();
     }
 
@@ -194,7 +193,6 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
 
     @Override
     public Collection<BiologicalEntity> readByStudy(Study study) {
-        //TODO - Implement the actual sparql query
         throw new UnsupportedOperationException("The method readByStudy needs to be implemented in Sparql");
     }
 

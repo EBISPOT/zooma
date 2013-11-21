@@ -211,9 +211,9 @@ public class TestZoomaLuceneSearchService {
             q = new SpanNearQuery(stqs.toArray(new SpanQuery[stqs.size()]), 1, false);
         }
 
-        Map<String, Float> results = null;
+        Map<String, Float> results;
         try {
-            results = searchService.doQueryAndScore(q, field);
+            results = searchService.doQueryAndScore(q, new SingleFieldStringMapper(field));
             for (String s : results.keySet()) {
                 System.out.println("Result '" + s + "' has lucene score = " + results.get(s));
             }

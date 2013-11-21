@@ -92,7 +92,6 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
     }
 
     @Override public int count() {
-        // TODO - placeholder, more efficient to implement a separate count() SPARQL query
         return read().size();
     }
 

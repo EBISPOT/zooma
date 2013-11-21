@@ -75,12 +75,13 @@ public abstract class AbstractDictionaryLoadingProcessor implements SearchString
         BufferedReader reader = new BufferedReader(new InputStreamReader(getDictionaryResource().getInputStream()));
         String line;
         while ((line = reader.readLine()) != null) {
-            String entry = line.trim();
-            String[] fields = entry.split("\t");
-            if (fields.length > 0) {
-                dictionary.add(fields[0]);
+                String entry = line.trim();
+            if (!entry.startsWith("#")) {
+                String[] fields = entry.split("\t+");
+                if (fields.length > 0) {
+                    dictionary.add(fields[0]);
+                }
             }
-
         }
         getLog().debug("Loaded dictionary from '" + getDictionaryResource().getURL() + "'. " +
                                getDictionary().size() + " entries loaded");

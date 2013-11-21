@@ -3,9 +3,11 @@ package uk.ac.ebi.fgpt.zooma.util;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import static junit.framework.Assert.*;
 
@@ -20,6 +22,8 @@ public class TestURIUtils {
     private String prefix2;
     private String prefix3;
 
+    private String inferredPrefix;
+
     private String namespace1;
     private String namespace2;
     private String namespace3;
@@ -27,8 +31,12 @@ public class TestURIUtils {
     private String namespace5;
     private String namespace6;
 
+    private String inferredNamespace;
+
     private String shortform1;
     private String shortform2;
+
+    private String inferredShortform;
 
     private URI uri1;
     private URI uri2;
@@ -40,19 +48,27 @@ public class TestURIUtils {
     private URI uri8;
     private URI uri9;
 
+    private URI inferredURI;
+
     @Before
     public void setUp() {
         prefix1 = "slash";
         prefix2 = "hash";
         prefix3 = "baz";
 
+        inferredPrefix = "fooresource";
+
         namespace1 = "http://www.test.com/";
         namespace2 = "http://www.test.com/foo/";
         namespace3 = "http://www.test.com/bar#";
         namespace4 = "http://www.test.com/foo/bar/baz#";
 
+        inferredNamespace = "http://rdf.ebi.ac.uk/resource/zooma/foo/";
+
         shortform1 = prefix1 + ":term";
         shortform2 = prefix2 + ":term";
+
+        inferredShortform = inferredPrefix + ":term";
 
         uri1 = URI.create(namespace2 + "term");
         uri2 = URI.create(namespace3 + "term");
@@ -69,6 +85,8 @@ public class TestURIUtils {
         uri8 = URI.create(namespace1);
         uri9 = URI.create(namespace2 + "bar#term");
 
+        inferredURI = URI.create(inferredNamespace + "term");
+
         // reload "clean" prefix mappings
         URIUtils.loadPrefixMappings();
     }
@@ -81,7 +99,15 @@ public class TestURIUtils {
     @Test
     public void testGetPrefixMappings() {
         Map<String, String> prefixMappings = URIUtils.getPrefixMappings();
-        assertEquals("Unexpected number of prefixes", 4, prefixMappings.size());
+        Properties properties = new Properties();
+        try {
+            properties.load(getClass().getClassLoader().getResourceAsStream("zooma/prefix.properties"));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            fail("Couldn't load prefix properties");
+        }
+        assertEquals("Unexpected number of prefixes", properties.size(), prefixMappings.size());
         assertTrue("Could not find 'slash' prefix", prefixMappings.containsKey("slash"));
         assertTrue("Could not find 'hash' prefix", prefixMappings.containsKey("hash"));
         System.out.println("Contents of prefix mappings: " + prefixMappings.toString());
@@ -223,5 +249,15 @@ public class TestURIUtils {
         System.out.println("Namespace for <" + uri4 + "> is " + result);
         assertEquals(URI.create(namespace5), result);
         assertFalse(URIUtils.isNamespaceKnown(result));
+    }
+
+    @Test
+    public void testExpandCollapseInferred() {
+        String result;
+        result = URIUtils.getShortform(inferredURI);
+        System.out.println("Shortened " + inferredURI + " -> " + result);
+        assertEquals("Unexpected shortened form", inferredPrefix + ":term", result);
+
+        assertEquals("Unexpected lengthened form", inferredURI, URIUtils.getURI(inferredShortform));
     }
 }

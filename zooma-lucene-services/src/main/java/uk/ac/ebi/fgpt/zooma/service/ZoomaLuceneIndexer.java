@@ -175,7 +175,7 @@ public class ZoomaLuceneIndexer extends Initializable {
             doc.add(new Field("uri",
                               property.getURI().toString(),
                               Field.Store.YES,
-                              Field.Index.ANALYZED));
+                              Field.Index.NOT_ANALYZED));
             doc.add(new Field("name",
                               property.getPropertyValue(),
                               Field.Store.YES,
@@ -226,7 +226,7 @@ public class ZoomaLuceneIndexer extends Initializable {
         doc.add(new Field("count",
                           Integer.toString(size),
                           Field.Store.YES,
-                          Field.Index.ANALYZED));
+                          Field.Index.NOT_ANALYZED));
 
         IndexWriter indexWriter = obtainIndexWriter(getAnnotationCountIndex());
         indexWriter.addDocument(doc);
@@ -267,7 +267,7 @@ public class ZoomaLuceneIndexer extends Initializable {
             doc.add(new Field("uri",
                               annotation.getURI().toString(),
                               Field.Store.YES,
-                              Field.Index.ANALYZED));
+                              Field.Index.NOT_ANALYZED));
             doc.add(new Field("property",
                               property.getPropertyValue(),
                               Field.Store.YES,
@@ -278,6 +278,12 @@ public class ZoomaLuceneIndexer extends Initializable {
                                   Field.Store.YES,
                                   Field.Index.ANALYZED));
             }
+            if (annotation.getProvenance() != null && annotation.getProvenance().getSource() != null) {
+                doc.add(new Field("source",
+                                  annotation.getProvenance().getSource().getURI().toString(),
+                                  Field.Store.YES,
+                                  Field.Index.NOT_ANALYZED));
+            }
             for (URI target : annotation.getSemanticTags()) {
                 // allow for null semantic tags -
                 // "null" is a positive assertion of NO mapping, but shouldn't be indexed (not searchable)
@@ -285,7 +291,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                     doc.add(new Field("target",
                                       target.toString(),
                                       Field.Store.YES,
-                                      Field.Index.ANALYZED));
+                                      Field.Index.NOT_ANALYZED));
                 }
             }
 
@@ -293,7 +299,7 @@ public class ZoomaLuceneIndexer extends Initializable {
             doc.add(new Field("quality",
                               Float.toString(scoreAnnotationQuality(annotation.getProvenance())),
                               Field.Store.YES,
-                              Field.Index.ANALYZED));
+                              Field.Index.NOT_ANALYZED));
 
             // add this document to the index
             indexWriter.addDocument(doc, getAnalyzer());
@@ -375,7 +381,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                 doc.add(new Field("id",
                                   summaryId,
                                   Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                                  Field.Index.NOT_ANALYZED));
                 doc.add(new Field("property",
                                   propertyValue,
                                   Field.Store.YES,
@@ -394,7 +400,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                         doc.add(new Field("semanticTag",
                                           uri.toString(),
                                           Field.Store.YES,
-                                          Field.Index.ANALYZED));
+                                          Field.Index.NOT_ANALYZED));
                     }
                 }
                 // add field for each annotation
@@ -404,24 +410,24 @@ public class ZoomaLuceneIndexer extends Initializable {
                     doc.add(new Field("annotation",
                                       annotationUri.toString(),
                                       Field.Store.YES,
-                                      Field.Index.ANALYZED));
+                                      Field.Index.NOT_ANALYZED));
                 }
                 // add a field for the frequency of use of this pattern
                 getLog().trace("Summary frequency: " + annotations.size());
                 doc.add(new Field("frequency",
                                   Integer.toString(annotations.size()),
                                   Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                                  Field.Index.NOT_ANALYZED));
                 getLog().trace("Best score: " + summaryIdToMaxScore.get(summaryId));
                 doc.add(new Field("topScore",
                                   Float.toString(summaryIdToMaxScore.get(summaryId)),
                                   Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                                  Field.Index.NOT_ANALYZED));
                 getLog().trace("Number of times verified: " + summaryIdToSourcesMap.get(summaryId).size());
                 doc.add(new Field("timesVerified",
                                   Integer.toString(summaryIdToSourcesMap.get(summaryId).size()),
                                   Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                                  Field.Index.NOT_ANALYZED));
 
                 getLog().trace("Annotation Summary index entry:\n\t" +
                                        "ID: " + summaryId + ",\n\t" +
@@ -681,7 +687,7 @@ public class ZoomaLuceneIndexer extends Initializable {
         int count = getMaxEntityCount() == -1 ? annotations.size() : getMaxEntityCount();
         getLog().info("Total annotation to index:" + count);
         createAnnotationCountIndex(count);
-        Map<URI, AnnotationProvenance> provenanceMap = createAnnotationIndex(new ArrayList<Annotation>(annotations));
+        Map<URI, AnnotationProvenance> provenanceMap = createAnnotationIndex(new ArrayList<>(annotations));
         createAnnotationSummaryIndex(getAnnotationSummaryDAO(), provenanceMap);
         getLog().info("Lucene indexing complete!");
     }
@@ -708,7 +714,6 @@ public class ZoomaLuceneIndexer extends Initializable {
 
     protected IndexWriter obtainIndexWriter(Directory directory) throws IOException {
         IndexWriterConfig config = new IndexWriterConfig(VERSION, getAnalyzer());
-        // TODO - always recreates index from scratch, incremental strategy needed?
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         return new IndexWriter(directory, config);
     }

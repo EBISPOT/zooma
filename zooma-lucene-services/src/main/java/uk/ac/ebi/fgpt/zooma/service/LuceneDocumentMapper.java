@@ -3,7 +3,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 import org.apache.lucene.document.Document;
 
 /**
- * A mapper itnerface for mapping lucene documents into any type of object.
+ * A mapper interface for mapping lucene documents into any type of object.
  *
  * @author Tony Burdett
  * @date 28/05/12

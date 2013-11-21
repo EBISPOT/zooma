@@ -13,6 +13,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Similarity;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
@@ -31,12 +32,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An abstract implementation of a lucene search service for ZOOMA.  This class provides a convenience method for
@@ -54,12 +55,10 @@ import java.util.Map;
 public abstract class ZoomaLuceneSearchService extends Initializable {
     private Directory index;
     private Analyzer analyzer;
+    private Similarity similarity;
 
     private IndexReader reader;
     private IndexSearcher searcher;
-
-    private Collection<SearchStringProcessor> searchStringProcessors;
-
 
     protected enum QUERY_TYPE {
         FULL,
@@ -83,12 +82,12 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         this.analyzer = analyzer;
     }
 
-    public Collection<SearchStringProcessor> getSearchStringProcessors() {
-        return searchStringProcessors;
+    public Similarity getSimilarity() {
+        return similarity;
     }
 
-    public void setSearchStringProcessors(Collection<SearchStringProcessor> searchStringProcessors) {
-        this.searchStringProcessors = searchStringProcessors;
+    public void setSimilarity(Similarity similarity) {
+        this.similarity = similarity;
     }
 
     public IndexSearcher getSearcher() {
@@ -100,11 +99,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         // initialize searcher and query parser from index
         this.reader = IndexReader.open(getIndex());
         this.searcher = new IndexSearcher(reader);
-
-        if (searchStringProcessors == null) {
-            getLog().debug("There are no search string processors registered - " +
-                                   "only the raw search string will be used");
-            searchStringProcessors = new HashSet<>();
+        if (similarity != null) {
+            this.searcher.setSimilarity(similarity);
         }
     }
 
@@ -137,64 +133,6 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     }
 
     /**
-     * Generate a lucene query from the supplied field and pattern, possibly processing the pattern first using any
-     * {@link SearchStringProcessor}s that may be able to expand the query.
-     *
-     * @param field   the field to query
-     * @param pattern the pattern to search for
-     * @return the parsed query
-     * @throws QueryCreationException if the query could not be created
-     */
-    protected Query formulateProcessedQuery(String field, String pattern)
-            throws QueryCreationException {
-        Collection<Query> queries = new HashSet<>();
-
-        // first, formulate original query
-        Query originalQuery = formulateQuery(field, pattern);
-        queries.add(originalQuery);
-
-        // combine queries for any string processors that can process our string
-        for (SearchStringProcessor processor : getSearchStringProcessors()) {
-            if (processor.canProcess(pattern)) {
-                for (String processedString : processor.processSearchString(pattern)) {
-                    if (!processedString.isEmpty()) {
-                        Query q = formulateQuery(field, processedString);
-                        q.setBoost(processor.getBoostFactor());
-                        queries.add(q);
-                    }
-                }
-            }
-        }
-
-        if (queries.isEmpty()) {
-            return originalQuery;
-        }
-        else {
-            return formulateCombinedQuery(false, false, queries.toArray(new Query[queries.size()]));
-        }
-    }
-
-    /**
-     * Generates a lucene query that unifies the multiple supplied queries into a boolean query.  If you supply a
-     * <code>compulsoryQuery</code> parameter, it is assumed that the <code>otherQueries</code> provided are optional.
-     * If <code>compulsoryQuery</code> is null, this method assumes all <code>otherQueries</code> must occur.  It is
-     * possible to combine several different common must/should occur queries using multiple invocations of this
-     * method.
-     *
-     * @param compulsoryQuery the queries that MUST occur in the results
-     * @param otherQueries    any queries that may optionally occur in the results
-     * @return the unified query
-     * @throws QueryCreationException if the query could not be created
-     */
-    protected Query formulateBooleanQuery(Query compulsoryQuery, Query... otherQueries)
-            throws QueryCreationException {
-        List<Query> queries = new ArrayList<>();
-        queries.add(compulsoryQuery);
-        queries.addAll(Arrays.asList(otherQueries));
-        return formulateCombinedQuery(true, false, queries.toArray(new Query[queries.size()]));
-    }
-
-    /**
      * Generates a lucene query that functions as a specialised form of boolean query.  The two queries are unified into
      * a boolean query, with an assumption that typing SHOULD occur, although with a boost to customize the importance
      * of typing so as not to punish too severely type mismatches.
@@ -205,9 +143,24 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @throws QueryCreationException if the query could not be created
      */
     protected Query formulateTypedQuery(Query typeQuery, Query valueQuery) throws QueryCreationException {
-        Query q = (Query) valueQuery.clone();
-        q.setBoost(20f);
-        return formulateCombinedQuery(true, false, q, typeQuery);
+        float boost = valueQuery.getBoost();
+        valueQuery.setBoost(1f);
+        Query untypedQuery = (Query) valueQuery.clone();
+        untypedQuery.setBoost(20f);
+        Query typedQuery = formulateCombinedQuery(true, false, untypedQuery, typeQuery);
+        typedQuery.setBoost(1f);
+        Query q = formulateCombinedQuery(true, false, valueQuery, typedQuery);
+        q.setBoost(boost);
+        return q;
+    }
+
+    protected Query formulateTypedQuery(Query typeQuery, Collection<Query> processedValueQueries)
+            throws QueryCreationException {
+        Set<Query> queries = new HashSet<>();
+        for (Query processedValueQuery : processedValueQueries) {
+            queries.add(formulateTypedQuery(typeQuery, processedValueQuery));
+        }
+        return formulateCombinedQuery(false, false, queries.toArray(new Query[queries.size()]));
     }
 
     protected Query formulateQueryConserveOrderIfMultiword(String field, String pattern) throws QueryCreationException {
@@ -281,6 +234,26 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
     }
 
+    protected Collection<Query> generateProcessedQueries(String fieldName,
+                                                         String fieldToProcess,
+                                                         Collection<SearchStringProcessor> searchStringProcessors)
+            throws QueryCreationException {
+        // combine queries for any string processors that can process our string
+        Collection<Query> queries = new HashSet<>();
+        for (SearchStringProcessor processor : searchStringProcessors) {
+            if (processor.canProcess(fieldToProcess)) {
+                for (String processedString : processor.processSearchString(fieldToProcess)) {
+                    if (!processedString.isEmpty()) {
+                        Query q = formulateQuery(fieldName, processedString);
+                        q.setBoost(processor.getBoostFactor());
+                        queries.add(q);
+                    }
+                }
+            }
+        }
+        return queries;
+    }
+
     /**
      * Generate a lucene query from the supplied field and pattern.  Queries are constrained to hit only documents that
      * contain the supplied pattern within the given field.  Queries are constrained by the given proximity (or lucene
@@ -352,20 +325,25 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      */
     protected Query formulateCombinedQuery(boolean firstMustOccur, boolean allMustOccur, Query... queries)
             throws QueryCreationException {
-        // unify them with a boolean query
-        BooleanQuery q = new BooleanQuery();
-        BooleanClause.Occur bco = allMustOccur ? BooleanClause.Occur.MUST : BooleanClause.Occur.SHOULD;
-        int index = 0;
-        for (Query nextQuery : queries) {
-            if (index == 0 && firstMustOccur) {
-                q.add(nextQuery, BooleanClause.Occur.MUST);
-            }
-            else {
-                q.add(nextQuery, bco);
-            }
-            index++;
+        if (queries.length == 1) {
+            return queries[0];
         }
-        return q;
+        else {
+            // unify them with a boolean query
+            BooleanQuery q = new BooleanQuery();
+            BooleanClause.Occur bco = allMustOccur ? BooleanClause.Occur.MUST : BooleanClause.Occur.SHOULD;
+            int index = 0;
+            for (Query nextQuery : queries) {
+                if (index == 0 && firstMustOccur) {
+                    q.add(nextQuery, BooleanClause.Occur.MUST);
+                }
+                else {
+                    q.add(nextQuery, bco);
+                }
+                index++;
+            }
+            return q;
+        }
     }
 
     /**
@@ -529,13 +507,25 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
     }
 
-    protected Map<String, Float> doQueryAndScore(Query q, String fieldname) throws IOException {
+    /**
+     * Performs a lucene query, and uses the supplied mapper to convert the resulting lucene document into the relevant
+     * object type.  All results that match the given query are iterated over, in batches of 100, and put into a
+     * collection of objects (of type matching the type of the mapper) that is returned.
+     * <p/>
+     * The score is obtained using the supplied scorer to evaluate the quality of the result.
+     *
+     * @param q      the lucene query to perform
+     * @param mapper the document mapper to use to generate the result objects
+     * @return a collection of results
+     * @throws IOException if reading from the index failed
+     */
+    protected <T> Map<T, Float> doQueryAndScore(Query q, LuceneDocumentMapper<T> mapper) throws IOException {
         try {
             // init, to make sure searcher is available
             initOrWait();
 
             // create the list to collect results in
-            Map<String, Float> results = new HashMap<>();
+            Map<T, Float> results = new HashMap<>();
 
             // perform queries in blocks until there are no more hits
             ScoreDoc lastScoreDoc = null;
@@ -548,21 +538,39 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
                 // perform query
                 getSearcher().search(q, collector);
-                ScoreDoc[] hits = collector.topDocs().scoreDocs;
+                TopDocs topDocs = collector.topDocs();
+                ScoreDoc[] hits = topDocs.scoreDocs;
 
                 if (hits.length == 0) {
                     complete = true;
                 }
                 else {
-                    // get URI and readByProperty property, add to results
+                    if (getLog().isDebugEnabled()) {
+                        if (hits.length > 0 && results.isEmpty()) {
+                            getLog().debug("Best matched document has a lucene score of " + hits[0].score);
+                            getLog().debug("The following explanation was provided:\n" +
+                                                   getSearcher().explain(q, hits[0].doc).toString());
+                        }
+                    }
+
+                    // map each document using the supplied mapper, and associate result score
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
                         Document doc = getSearcher().doc(hit.doc);
-                        String s = doc.get(fieldname);
-                        results.put(s, hit.score);
+                        float summaryScore = mapper.getDocumentQuality(doc);
+                        float luceneScore = hit.score;
+                        float totalScore = summaryScore * luceneScore;
+                        if (getLog().isTraceEnabled()) {
+                            getLog().trace("Next document has a quality score of: " +
+                                                   summaryScore + " x " + luceneScore + " = " +
+                                                   (summaryScore * luceneScore));
+                        }
+                        results.put(mapper.mapDocument(doc), totalScore);
                     }
                 }
             }
+            getLog().debug(
+                    "Query '" + q.toString() + "'\n...gives the following " + results.size() + " results:\n" + results);
             return results;
         }
         catch (InterruptedException e) {
@@ -570,7 +578,24 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
     }
 
-    protected <T> Map<T, Float> doQueryAndScore(Query q, LuceneDocumentMapper<T> mapper) throws IOException {
+    /**
+     * Performs a lucene query, and obtains a collection of objects by using the supplied DAO to perform a lookup once
+     * the URI of the object has been retrieved from the index.  A document mapper capable of extracting the URI from
+     * the resulting document must be supplying; extracted URIs are then passed to the DAO.  All results that match the
+     * given query are iterated over, in batches of 100, and put into a collection of objects that is returned.  This
+     * collection is typed by the type of DAO that is supplied.
+     *
+     * @param q      the lucene query to perform
+     * @param mapper the document mapper to use to extract the URI from resulting lucene documents
+     * @param dao    the zooma dao that can be used to do the lookup of matching objects
+     * @param <T>    the type of object to lookup - the ZoomaDAO supplied declares this type
+     * @return a collection of results
+     * @throws IOException if reading from the index failed
+     */
+    protected <T extends Identifiable> Map<T, Float> doQueryAndScore(Query q,
+                                                                     LuceneDocumentMapper<URI> mapper,
+                                                                     ZoomaDAO<T> dao)
+            throws IOException {
         try {
             // init, to make sure searcher is available
             initOrWait();
@@ -600,70 +625,18 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
                         Document doc = getSearcher().doc(hit.doc);
-//                        try {
                         float summaryScore = mapper.getDocumentQuality(doc);
                         float luceneScore = hit.score;
                         float totalScore = summaryScore * luceneScore;
                         getLog().debug("Next document has a quality score of: " +
                                                summaryScore + " x " + luceneScore + " = " +
                                                (summaryScore * luceneScore));
-                        results.put(mapper.mapDocument(doc), totalScore);
-//                        }
-//                        catch (Exception e) {
-//                            results.put(mapper.mapDocument(doc), hit.score);
-//                        }
+                        results.put(dao.read(mapper.mapDocument(doc)), totalScore);
                     }
                 }
             }
             getLog().debug(
                     "Query '" + q.toString() + "'\n...gives the following " + results.size() + " results:\n" + results);
-            return results;
-        }
-        catch (InterruptedException e) {
-            throw new IOException("Failed to perform query - indexing process was interrupted", e);
-        }
-    }
-
-    protected <T extends Identifiable> Map<T, Float> doQueryAndScore(Query q, String fieldname, ZoomaDAO<T> dao)
-            throws IOException {
-        try {
-            // init, to make sure searcher is available
-            initOrWait();
-
-            // create the list to collect results in
-            Map<T, Float> results = new HashMap<>();
-
-            // perform queries in blocks until there are no more hits
-            ScoreDoc lastScoreDoc = null;
-            boolean complete = false;
-            while (!complete) {
-                // create a collector to obtain query results
-                TopScoreDocCollector collector = lastScoreDoc == null
-                        ? TopScoreDocCollector.create(100, true)
-                        : TopScoreDocCollector.create(100, lastScoreDoc, true);
-
-                // perform query
-                getSearcher().search(q, collector);
-                ScoreDoc[] hits = collector.topDocs().scoreDocs;
-
-                if (hits.length == 0) {
-                    complete = true;
-                }
-                else {
-                    // get URI and readByProperty property, add to results
-                    for (ScoreDoc hit : hits) {
-                        lastScoreDoc = hit;
-                        Document doc = getSearcher().doc(hit.doc);
-                        String s = doc.get(fieldname);
-                        if (s != null) {
-                            T t = dao.read(URI.create(s));
-                            if (t != null) {
-                                results.put(t, hit.score);
-                            }
-                        }
-                    }
-                }
-            }
             return results;
         }
         catch (InterruptedException e) {

@@ -8,11 +8,11 @@
        http://www.ebi.ac.uk/fgpt/zooma/zooma-owl-loader
        http://www.ebi.ac.uk/fgpt/zooma/zooma-owl-loader.xsd">
 
-    <zooma:owlAnnotations name="efo"
-                          uri="http://www.ebi.ac.uk/efo"
-                          loadFrom="http://www.ebi.ac.uk/efo/efo.owl"
-                          synonymURI="http://www.ebi.ac.uk/efo/alternative_term"
-                          exclusionClassURI="http://www.geneontology.org/formats/oboInOwl#ObsoleteClass"
-                          exclusionAnnotationURI="http://www.ebi.ac.uk/efo/organizational_class" />
+    <!--<zooma:owlAnnotations name="efo"-->
+                          <!--uri="http://www.ebi.ac.uk/efo"-->
+                          <!--loadFrom="http://www.ebi.ac.uk/efo/efo.owl"-->
+                          <!--synonymURI="http://www.ebi.ac.uk/efo/alternative_term"-->
+                          <!--exclusionClassURI="http://www.geneontology.org/formats/oboInOwl#ObsoleteClass"-->
+                          <!--exclusionAnnotationURI="http://www.ebi.ac.uk/efo/organizational_class" />-->
 
 </beans>

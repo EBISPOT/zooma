@@ -52,7 +52,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
     private final ExecutorService loadExecutor;
 
     private ZoomaLoader<T> zoomaLoader;
-    private Collection<ZoomaDAO<T>> zoomaDAOs;
+    private Collection<ZoomaDAO<T>> zoomaDAOs = Collections.emptySet();
 
     private int maxCount;
     private int blockSize = 100_000;
@@ -83,7 +83,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         this.zoomaLoader = zoomaLoader;
     }
 
-    @Autowired
+    @Autowired(required = false)
     public void setZoomaDAOs(Collection<ZoomaDAO<T>> zoomaDAOs) {
         this.zoomaDAOs = zoomaDAOs;
     }
