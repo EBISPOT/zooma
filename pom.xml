@@ -16,22 +16,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.springframework.version>3.2.2.RELEASE</org.springframework.version>
         <org.slf4j.version>1.7.5</org.slf4j.version>
-
-        <java.location>java</java.location>
-        <java.args>-Dorg.xml.sax.driver=uk.ac.ebi.fgpt.zooma.xml.ZoomaXMLReaderProxy -Xmx512m -DentityExpansionLimit=1000000000</java.args>
-
-        <!-- zooma properties -->
-        <zooma.url>http://localhost:8080/zooma</zooma.url>
-        <zooma.sparql.endpoint>http://localhost:8080/zooma/sparql/</zooma.sparql.endpoint>
-
-        <!-- sparql properties -->
-        <sparql.repository.name>zooma</sparql.repository.name>
-        <sparql.repository.version>2.2</sparql.repository.version>
-        <sparql.repository.id>${sparql.repository.name}${sparql.repository.version}</sparql.repository.id>
-        <!-- staging sparql endpoint (for loader resolving, indexing) -->
-        <staging.sparql.endpoint>http://localhost:8080/openrdf-sesame/</staging.sparql.endpoint>
-        <!-- ui sparql endpoint (where /zooma/sparql redirects to, usually the same as staging.sparql) -->
-        <ui.sparql.endpoint>http://localhost:8080/openrdf-sesame/</ui.sparql.endpoint>
     </properties>
 
     <build>
@@ -60,6 +44,42 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>generate-buildnumber</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                        <configuration>
+                            <revisionOnScmFailure>[unknown]</revisionOnScmFailure>
+                            <buildNumberPropertyName>buildRevision</buildNumberPropertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-timestamp</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                        <configuration>
+                            <format>{0,date,dd-MM-yyyy}</format>
+                            <items>
+                                <item>timestamp</item>
+                            </items>
+                            <buildNumberPropertyName>releaseDate</buildNumberPropertyName>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                </configuration>
             </plugin>
         </plugins>
         <extensions>
@@ -125,11 +145,11 @@
     </issueManagement>
 
     <!-- Version control (GitHub) -->
-    <!--<scm>-->
-        <!--<connection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</connection>-->
-        <!--<developerConnection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</developerConnection>-->
-        <!--<url>http://bar.ebi.ac.uk:8080/trac/browser/trunk/fgpt/ontology/zooma2</url>-->
-    <!--</scm>-->
+    <scm>
+        <connection>scm:git:http://github.com/EBISPOT/zooma</connection>
+        <developerConnection>scm:git:git://github.com/EBISPOT/zooma</developerConnection>
+        <url>http://github.com/EBISPOT/zooma</url>
+    </scm>
 
     <!-- Reporting/Documentation output -->
     <reporting>
@@ -166,7 +186,6 @@
 
     <modules>
         <module>zooma-api</module>
-        <module>zooma-sparql</module>
         <module>zooma-core</module>
         <module>zooma-impl</module>
         <module>zooma-owlapi</module>
