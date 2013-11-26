@@ -230,8 +230,9 @@ public class ZoomaRESTClient {
 
         // if there *is* a zooma result, update the attribute accordingly
         else {
-            attribute.setType(zoomaAnnotationSummary.getAnnotatedPropertyType());
-            attribute.setValue(zoomaAnnotationSummary.getAnnotatedPropertyValue());
+            // NB: never update type or value fields, leave original
+//            attribute.setType(zoomaAnnotationSummary.getAnnotatedPropertyType());
+//            attribute.setValue(zoomaAnnotationSummary.getAnnotatedPropertyValue());
 
             ArrayList<String> refAndAcession = concatenateCompoundURIs(zoomaAnnotationSummary);
             attribute.setTermSourceREF(refAndAcession.get(0));
