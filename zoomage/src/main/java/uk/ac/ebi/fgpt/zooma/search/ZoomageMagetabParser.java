@@ -150,11 +150,11 @@ public class ZoomageMagetabParser {
 
                     TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
 
-                    attribute.setAttributeValue(transitionalAttribute.getValue());
+//                    attribute.setAttributeValue(transitionalAttribute.getValue());
                     attribute.termSourceREF = transitionalAttribute.getTermSourceREF();
                     attribute.termAccessionNumber = transitionalAttribute.getTermAccessionNumber();
 
-                    sourceNode.comments.put("Zoomifications", transitionalAttribute.getComments());
+//                    sourceNode.comments.put("Zoomifications", transitionalAttribute.getComments());
                 }
             }
 
@@ -167,11 +167,11 @@ public class ZoomageMagetabParser {
 
                     TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
 
-                    attribute.setAttributeValue(transitionalAttribute.getValue());
+//                    attribute.setAttributeValue(transitionalAttribute.getValue());
                     attribute.termSourceREF = transitionalAttribute.getTermSourceREF();
                     attribute.termAccessionNumber = transitionalAttribute.getTermAccessionNumber();
 
-                    sampleNode.comments.put("Zoomifications", transitionalAttribute.getComments());
+//                    sampleNode.comments.put("Zoomifications", transitionalAttribute.getComments());
                 }
             }
 
@@ -185,11 +185,11 @@ public class ZoomageMagetabParser {
 
                     TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
 
-                    attribute.setAttributeValue(transitionalAttribute.getValue());
+//                    attribute.setAttributeValue(transitionalAttribute.getValue());
                     attribute.termSourceREF = transitionalAttribute.getTermSourceREF();
                     attribute.termAccessionNumber = transitionalAttribute.getTermAccessionNumber();
 
-                    hybridizationNode.comments.put("Zoomifications", transitionalAttribute.getComments());
+//                    hybridizationNode.comments.put("Zoomifications", transitionalAttribute.getComments());
                 }
             }
 

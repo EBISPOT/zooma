@@ -129,7 +129,7 @@ public class TransitionalAttribute {
         getLog().debug(comment);
 
         // finally, append the comment
-//        comments.add(comment); // NB: don't add comments to the magetab currently
+        comments.add(comment);
     }
 
     public String getType() {
