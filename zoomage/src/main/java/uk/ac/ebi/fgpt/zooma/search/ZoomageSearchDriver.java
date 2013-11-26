@@ -36,7 +36,7 @@ public class ZoomageSearchDriver {
 
                 ZoomaRESTClient zoomaClient = new ZoomaRESTClient(_minStringLength, _cutoffPercentage, _cutoffScore, _olsShortIds, _excludedTypesResource);
                 ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
-                zoomageParser.run(_magetabAccession, zoomaClient);
+                zoomageParser.runFromFilesystem(_magetabAccession, zoomaClient);
 
                 System.out.println("Zoomage completed successfully.");
 
@@ -229,7 +229,7 @@ public class ZoomageSearchDriver {
 
             ZoomaRESTClient zoomaClient = new ZoomaRESTClient(minStringLength, cutoffPercentage, cutoffScore, olsShortIds, excludedProperties);
             ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
-            zoomageParser.run(magetabAccession, zoomaClient);
+            zoomageParser.runFromWebservice(magetabAccession, zoomaClient);
 
             System.out.println("Zoomage completed successfully.");
 
