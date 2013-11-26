@@ -181,6 +181,8 @@ public class ZoomageMagetabParser {
             // write old IDF
             idfWriter.write(investigation.IDF);
             // but write new SDRF
+            // NB: we need to force layout recalculation as we haven't added any new nodes, just changed existing ones
+            newSDRF.getLayout().calculateLocations(newSDRF);
             sdrfWriter.write(newSDRF);
 
             getLog().info("\n\n\n============================\n\n\n");
