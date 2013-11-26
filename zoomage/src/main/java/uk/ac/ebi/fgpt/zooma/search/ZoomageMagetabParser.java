@@ -22,8 +22,10 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.mged.magetab.error.ErrorItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.arrayexpress2.magetab.datamodel.MAGETABInvestigation;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.SDRF;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.HybridizationNode;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.SampleNode;
@@ -31,14 +33,20 @@ import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.SourceNode;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.CharacteristicsAttribute;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.FactorValueAttribute;
 import uk.ac.ebi.arrayexpress2.magetab.exception.ParseException;
+import uk.ac.ebi.arrayexpress2.magetab.listener.ErrorItemListener;
+import uk.ac.ebi.arrayexpress2.magetab.parser.MAGETABParser;
 import uk.ac.ebi.arrayexpress2.magetab.parser.SDRFParser;
+import uk.ac.ebi.arrayexpress2.magetab.renderer.IDFWriter;
 import uk.ac.ebi.arrayexpress2.magetab.renderer.SDRFWriter;
+import uk.ac.ebi.arrayexpress2.magetab.validator.MAGETABValidator;
 
 import java.io.*;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The overall program takes a MAGETAB accession number, parses it using the Limpopo web service and applies
@@ -70,10 +78,10 @@ public class ZoomageMagetabParser {
      * @param MAGETABaccession
      * @param zoomaClient
      */
-    public void run(String MAGETABaccession, ZoomaRESTClient zoomaClient) {
+    public void runFromWebservice(String MAGETABaccession, ZoomaRESTClient zoomaClient) {
 
         // pass the magetab accession to the service to fetch json
-        String magetabAsJson = fetchMAGETAB(MAGETABaccession);
+        String magetabAsJson = fetchMAGETABFromWebservice(MAGETABaccession);
         getLog().info("We sent a GET request to the server for " + MAGETABaccession + " and got the following response:");
         getLog().info(magetabAsJson);
         getLog().info("\n\n\n============================\n\n\n");
@@ -84,9 +92,12 @@ public class ZoomageMagetabParser {
         getLog().info("We parsed json into magetab representation");
 
         try {
+            // read string array into SDRF
+            InputStream in = convert2DStringArrayToStream(dataAs2DArrays.getSdrf());
+            SDRF sdrf = new SDRFParser().parse(in);
 
             //zoomify the sdrf
-            SDRF sdrf = zoomifyMAGETAB(dataAs2DArrays, zoomaClient);
+            SDRF newSDRF = zoomifyMAGETAB(sdrf, zoomaClient);
             getLog().info("\n\n\n============================\n\n\n");
             getLog().info("We parsed magetab and zoomified contents into sdrf representation");
 
@@ -94,14 +105,14 @@ public class ZoomageMagetabParser {
             File outfile = new File(MAGETABaccession + ".txt");
             Writer outFileWriter = new FileWriter(outfile);
             SDRFWriter sdrfWriter = new SDRFWriter(outFileWriter);
-            sdrfWriter.write(sdrf);
+            sdrfWriter.write(newSDRF);
 
             getLog().info("\n\n\n============================\n\n\n");
             getLog().info("We wrote sdrf to "+ outfile.getAbsolutePath());
 
             //todo: IDF too
 
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();  //todo
         }
 
@@ -113,6 +124,7 @@ public class ZoomageMagetabParser {
         log.info("We POSTed IDF and SDRF json objects to the server, and got the following response:");
         log.info(postJson);
         log.info("\n\n\n============================\n\n\n");
+
 
         // now, extract error items from the resulting JSON   //todo: this throws an error
 //        List<Map<String, Object>> errors = parseErrorItems(postJson);
@@ -126,20 +138,76 @@ public class ZoomageMagetabParser {
 //        }
     }
 
+    public void runFromFilesystem(String magetabAccession, ZoomaRESTClient zoomaClient) {
+        // pass the magetab accession to the service to fetch json
+        File magetabPath = fetchMAGETABFromFilesystem(magetabAccession);
+
+        try {
+            // Parse the file using limpopo
+            MAGETABParser parser = new MAGETABParser(new MAGETABValidator());
+            // add error item listener that writes to the parser log
+            final Set<String> encounteredWarnings = new HashSet<>();
+            parser.addErrorItemListener(new ErrorItemListener() {
+
+                public void errorOccurred(ErrorItem item) {
+                    log.error(item.getErrorCode() + ": " + item.getMesg() + " [line " +
+                                      item.getLine() + ", column " + item.getCol() + "] (" +
+                                      item.getComment() + ")");
+                    if (item.getErrorCode() != 501) {
+                        synchronized (encounteredWarnings) {
+                            log.debug("Error in file '" + item.getParsedFile() + "'");
+                            encounteredWarnings.add(item.getParsedFile());
+                        }
+                    }
+                }
+            });
+            MAGETABInvestigation investigation = parser.parse(magetabPath);
+
+            if (!encounteredWarnings.isEmpty()) {
+                getLog().info("\n\n\n============================\n\n\n");
+                getLog().info("Parsing " + investigation.getAccession() + " resulted in " + encounteredWarnings.size() + " warnings - result may not be reliable");
+                getLog().info("\n\n\n============================\n\n\n");
+            }
+
+            //zoomify the sdrf
+            SDRF newSDRF = zoomifyMAGETAB(investigation.SDRF, zoomaClient);
+            getLog().info("\n\n\n============================\n\n\n");
+            getLog().info("We parsed magetab and zoomified contents into sdrf representation");
+
+            //write the results to a file
+            IDFWriter idfWriter = new IDFWriter(new FileWriter(investigation.getAccession() + ".idf.txt"));
+            SDRFWriter sdrfWriter = new SDRFWriter(new FileWriter(investigation.getAccession() + ".sdrf.txt"));
+
+            // write old IDF
+            idfWriter.write(investigation.IDF);
+            // but write new SDRF
+            sdrfWriter.write(newSDRF);
+
+            getLog().info("\n\n\n============================\n\n\n");
+            getLog().info("IDF and SDRF files for " + investigation.getAccession() + " written to " + new File("").getAbsoluteFile().getParentFile().getAbsolutePath());
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();  //todo
+        }
+
+
+        log.info("\n\n\n============================\n\n\n");
+    }
+
     /**
      * Creates an SDRF (graph-based) object from the 2D String Arrays, parses the relevant nodes of this object, and
      * delegates zoomification thereof. Returns revised SDRF object.
      *
-     * @param dataAs2DArrays
+//     * @param dataAs2DArrays
+     * @param sdrf
      * @param zoomaClient
      * @return SDRF object updated with zooma annotations
      */
-    private SDRF zoomifyMAGETAB(MAGETABSpreadsheet dataAs2DArrays, ZoomaRESTClient zoomaClient) {
+//    private SDRF zoomifyMAGETAB(MAGETABSpreadsheet dataAs2DArrays, ZoomaRESTClient zoomaClient) {
+    private SDRF zoomifyMAGETAB(SDRF sdrf, ZoomaRESTClient zoomaClient) {
+//        InputStream in = convert2DStringArrayToStream(dataAs2DArrays.getSdrf());
 
-        InputStream in = convert2DStringArrayToStream(dataAs2DArrays.getSdrf());
-
-        try {
-            SDRF sdrf = new SDRFParser().parse(in);
+//        try {
+//            SDRF sdrf = new SDRFParser().parse(in);
 
             // iterate over sourceNodes fetch corresponding zooma annotation, make changes accordingly
             Collection<SourceNode> sourceNodes = sdrf.getNodes(SourceNode.class);
@@ -195,11 +263,11 @@ public class ZoomageMagetabParser {
 
             return sdrf;
 
-        } catch (ParseException e) {
-            e.printStackTrace();  //todo
-        }
-
-        return null;
+//        } catch (ParseException e) {
+//            e.printStackTrace();  //todo
+//        }
+//
+//        return null;
     }
 
     /**
@@ -229,7 +297,7 @@ public class ZoomageMagetabParser {
      * @param accession MAGETAB accession
      * @return String in json format
      */
-    public String fetchMAGETAB(String accession) {
+    public String fetchMAGETABFromWebservice(String accession) {
         // send a request to limpopo
         String getURL = "http://wwwdev.ebi.ac.uk/fgpt/limpopo/api/accessions/" + accession;
         HttpGet httpget = new HttpGet(getURL);
@@ -254,6 +322,13 @@ public class ZoomageMagetabParser {
 
         // execute the method method to retrieve json for 'accession'
         return executeGet(httpget);
+    }
+
+    public File fetchMAGETABFromFilesystem(String accession) {
+        String basePath = "/ebi/microarray/home/arrayexpress/ae2_production/data/EXPERIMENT";
+        String pipeline = accession.split("-")[1];
+        return new File(basePath + File.separator + pipeline + File.separator + accession + File.separator + accession +
+                                ".idf.txt");
     }
 
     /**
