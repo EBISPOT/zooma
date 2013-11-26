@@ -217,29 +217,35 @@ public class ZoomaRESTClient {
      * @return zoomified attribute.
      */
     public TransitionalAttribute zoomify(TransitionalAttribute attribute) {
+        // is attribute type in exclusion list?
+        String normalizedType = attribute.getType().toLowerCase().trim().replaceAll("\\s", "").replaceAll("_", "");
+        if (!inelegibleProperties.contains(normalizedType)) {
+            // fetch the best matching Zooma Annotation summary
+            AnnotationSummary zoomaAnnotationSummary = getZoomaAnnotationSummary(attribute.getType(), attribute.getValue());
 
-        // fetch the best matching Zooma Annotation summary
-        AnnotationSummary zoomaAnnotationSummary = getZoomaAnnotationSummary(attribute.getType(), attribute.getValue());
+            // if there are no zooma results, warn and return
+            if (zoomaAnnotationSummary == null) {
+                if (attribute.getValue().length() < minInputLength)
+                    log.info("Input value \"" + attribute.getValue() + "\" is below specified length of " + minInputLength + " characters.");
+                else log.warn("No Zooma Annotation found for " + attribute.getType() + ":" + attribute.getValue());
+            }
 
-        // if there are no zooma results, warn and return
-        if (zoomaAnnotationSummary == null) {
-            if (attribute.getValue().length() < minInputLength)
-                log.info("Input value \"" + attribute.getValue() + "\" is below specified length of " + minInputLength + " characters.");
-            else log.warn("No Zooma Annotation found for " + attribute.getType() + ":" + attribute.getValue());
+            // if there *is* a zooma result, update the attribute accordingly
+            else {
+                attribute.setType(zoomaAnnotationSummary.getAnnotatedPropertyType());
+                attribute.setValue(zoomaAnnotationSummary.getAnnotatedPropertyValue());
+
+                ArrayList<String> refAndAcession = concatenateCompoundURIs(zoomaAnnotationSummary);
+                attribute.setTermSourceREF(refAndAcession.get(0));
+                attribute.setTermAccessionNumber(refAndAcession.get(1));
+            }
+
+            // return updated (zoomified) attribute
+            return attribute;  //todo: Tony...bad form to return same object that was passed in?
         }
-
-        // if there *is* a zooma result, update the attribute accordingly
         else {
-            attribute.setType(zoomaAnnotationSummary.getAnnotatedPropertyType());
-            attribute.setValue(zoomaAnnotationSummary.getAnnotatedPropertyValue());
-
-            ArrayList<String> refAndAcession = concatenateCompoundURIs(zoomaAnnotationSummary);
-            attribute.setTermSourceREF(refAndAcession.get(0));
-            attribute.setTermAccessionNumber(refAndAcession.get(1));
+            return attribute;
         }
-
-        // return updated (zoomified) attribute
-        return attribute;  //todo: Tony...bad form to return same object that was passed in?
     }
 
     private HashSet parseIneligibleProperties(String excludedPropertiesResource) {
