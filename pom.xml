@@ -45,6 +45,42 @@
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.0</version>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>generate-buildnumber</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                        <configuration>
+                            <revisionOnScmFailure>[unknown]</revisionOnScmFailure>
+                            <buildNumberPropertyName>buildRevision</buildNumberPropertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-timestamp</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                        <configuration>
+                            <format>{0,date,dd-MM-yyyy}</format>
+                            <items>
+                                <item>timestamp</item>
+                            </items>
+                            <buildNumberPropertyName>releaseDate</buildNumberPropertyName>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                </configuration>
+            </plugin>
         </plugins>
         <extensions>
             <!-- Enabling the use of SCP -->
@@ -110,13 +146,6 @@
         <url>http://www.ebi.ac.uk/panda/jira/browse/FGPTO/component/10874</url>
     </issueManagement>
 
-    <!-- Version control (internal SVN) -->
-    <scm>
-        <connection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</connection>
-        <developerConnection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</developerConnection>
-        <url>http://bar.ebi.ac.uk:8080/trac/browser/trunk/fgpt/ontology/zooma2</url>
-    </scm>
-
     <!-- Maven repository deploy -->
     <distributionManagement>
         <repository>
@@ -135,6 +164,13 @@
             <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
         </site>
     </distributionManagement>
+
+    <!-- Version control (Git repository on orange) -->
+    <scm>
+        <connection>scm:git:ssh://orange.ebi.ac.uk/ebi/microarray/home/fgpt/repositories/zooma</connection>
+        <developerConnection>scm:git:ssh://orange.ebi.ac.uk/ebi/microarray/home/fgpt/repositories/zooma</developerConnection>
+        <url>http://github.com/EBISPOT/zooma</url>
+    </scm>
 
     <!-- Reporting/Documentation output -->
     <reporting>
