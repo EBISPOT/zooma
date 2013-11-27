@@ -46,6 +46,11 @@
                 <version>3.0</version>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.4.2</version>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
                 <version>1.1</version>
@@ -166,11 +171,19 @@
             <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
         </snapshotRepository>
         <site>
-            <id>coconut.ebi.ac.uk</id>
-            <name>coconut.ebi.ac.uk-snapshots</name>
-            <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
+            <id>orange.ebi.ac.uk</id>
+            <name>ZOOMA site</name>
+            <url>scp://orange.ebi.ac.uk/ebi/microarray/home/fgpt/project-web/zooma/</url>
         </site>
     </distributionManagement>
+
+    <!-- Version control (Git repository on orange) -->
+    <scm>
+        <connection>scm:git:ssh://orange.ebi.ac.uk/ebi/microarray/home/fgpt/repositories/zooma</connection>
+        <developerConnection>scm:git:ssh://orange.ebi.ac.uk/ebi/microarray/home/fgpt/repositories/zooma</developerConnection>
+        <url>http://github.com/EBISPOT/zooma</url>
+      <tag>HEAD</tag>
+  </scm>
 
     <!-- Reporting/Documentation output -->
     <reporting>

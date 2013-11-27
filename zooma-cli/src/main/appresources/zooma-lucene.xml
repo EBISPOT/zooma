@@ -19,6 +19,8 @@
         </constructor-arg>
     </bean>
 
+    <bean id="similarity" class="uk.ac.ebi.fgpt.zooma.util.ZoomaSimilarity" />
+
     <bean id="propertyIndex" class="org.apache.lucene.store.NIOFSDirectory">
         <constructor-arg value="${zooma.home}/property" />
     </bean>
