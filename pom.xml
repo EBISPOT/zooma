@@ -151,13 +151,6 @@
         <url>http://www.ebi.ac.uk/panda/jira/browse/FGPTO/component/10874</url>
     </issueManagement>
 
-    <!-- Version control (internal SVN) -->
-    <scm>
-        <connection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</connection>
-        <developerConnection>scm:svn:svn://bar.ebi.ac.uk/trunk/fgpt/ontology/zooma2</developerConnection>
-        <url>http://bar.ebi.ac.uk:8080/trac/browser/trunk/fgpt/ontology/zooma2</url>
-    </scm>
-
     <!-- Maven repository deploy -->
     <distributionManagement>
         <repository>
