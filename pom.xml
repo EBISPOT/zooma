@@ -159,9 +159,9 @@
             <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
         </snapshotRepository>
         <site>
-            <id>coconut.ebi.ac.uk</id>
-            <name>coconut.ebi.ac.uk-snapshots</name>
-            <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
+            <id>zooma-site</id>
+            <name>ZOOMA site</name>
+            <url>scp://orange.ebi.ac.uk/ebi/microarray/home/fgpt/project-web/zooma/</url>
         </site>
     </distributionManagement>
 
