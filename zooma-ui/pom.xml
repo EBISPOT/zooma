@@ -4,11 +4,11 @@
     <parent>
         <artifactId>zooma2</artifactId>
         <groupId>uk.ac.ebi.fgpt</groupId>
-        <version>2.0-beta-20131127</version>
+        <version>2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>zooma-ui</artifactId>
-    <version>2.0-beta-20131127</version>
+    <version>2.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>ZOOMA 2: Web application and interface</name>
@@ -68,46 +68,46 @@
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-core</artifactId>
-            <version>2.0-beta-20131127</version>
+            <version>2.0-SNAPSHOT</version>
         </dependency>
 
         <!-- ZOOMA tech-specific implementations -->
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-owlapi</artifactId>
-            <version>2.0-beta-20131127</version>
+            <version>2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-lucene-services</artifactId>
-            <version>2.0-beta-20131127</version>
+            <version>2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-lodestar</artifactId>
-            <version>2.0-beta-20131127</version>
+            <version>2.0-SNAPSHOT</version>
         </dependency>
 
         <!-- OWL loader enables use of zooma:owlAnnotations namespace -->
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-owl-loader</artifactId>
-            <version>2.0-beta-20131127</version>
+            <version>2.0-SNAPSHOT</version>
         </dependency>
 
         <!-- Search client and report generating modules -->
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-client</artifactId>
-            <version>2.0-beta-20131127</version>
+            <version>2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-reporting</artifactId>
-            <version>2.0-beta-20131127</version>
+            <version>2.0-SNAPSHOT</version>
         </dependency>
 
         <!-- Lode SPARQL endpoint -->
@@ -258,12 +258,12 @@
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-atlas-loader</artifactId>
-                    <version>2.0-beta-20131127</version>
+                    <version>2.0-SNAPSHOT</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-gwas-loader</artifactId>
-                    <version>2.0-beta-20131127</version>
+                    <version>2.0-SNAPSHOT</version>
                 </dependency>
             </dependencies>
         </profile>
