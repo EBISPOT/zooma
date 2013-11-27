@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.ebi.ac.uk/fgpt/zooma/zooma-csv-loader"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:beans="http://www.springframework.org/schema/beans"
+            targetNamespace="http://www.ebi.ac.uk/fgpt/zooma/zooma-csv-loader"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans" />
+
+    <xsd:element name="csvAnnotations">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:attribute name="datasourceUrl" type="xsd:anyURI" use="required">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[A URL that points at the datasource for these annotations. This name should be unique for Zooma and is used as part of the Zooma annotation provenance.]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="datasourceName" type="xsd:string" use="required">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[A shortname for the datasource typically a resource or database name, This name should be unique for Zooma and is used as part of the Zooma annotation provenance.]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="namespace" type="xsd:anyURI">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[An optional namespace used to mint URIs for resources such as bioentity and study URIs.]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="namespacePrefix" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[A shortform that forms the namespace prefix for the supplied namespace.]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="file"  type="xsd:anyURI">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[The path to a CSV file containing annotations to load]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="url"  type="xsd:anyURI">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[The URL of a CSV file containing annotations to load]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="defaultTargetType"  type="xsd:anyURI">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[The URI that will be used to type every target/biological entity]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="defaultSourceType"  type="xsd:anyURI">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[The URI that will be used to type every study/source entity]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="delimiter" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                <![CDATA[The delimeter used to spearate columns in the input file]]>
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

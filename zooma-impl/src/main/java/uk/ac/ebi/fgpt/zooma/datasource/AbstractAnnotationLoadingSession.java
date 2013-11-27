@@ -47,8 +47,8 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
     private final Map<URI, Property> propertyCache;
     private final Map<URI, Annotation> annotationCache;
 
-    private final Collection<URI> defaultTargetTypeUris;
-    private final Collection<URI> defaultTargetSourceTypeUris;
+    private final URI defaultTargetTypeUri;
+    private final URI defaultTargetSourceTypeUri;
 
     private final MessageDigest messageDigest;
 
@@ -59,47 +59,48 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
     }
 
     protected AbstractAnnotationLoadingSession() {
-        this(Collections.<URI>emptySet(), Collections.<URI>emptySet());
+        this(null, null);
     }
 
-    protected AbstractAnnotationLoadingSession(Collection<URI> defaultTargetUriTypes,
-                                               Collection<URI> defaultTargetSourceUriTypes) {
+    protected AbstractAnnotationLoadingSession(URI defaultTargetUriType,
+                                               URI defaultTargetSourceUriType) {
         this.studyCache = Collections.synchronizedMap(new HashMap<URI, Study>());
         this.biologicalEntityCache = Collections.synchronizedMap(new HashMap<URI, BiologicalEntity>());
         this.propertyCache = Collections.synchronizedMap(new HashMap<URI, Property>());
         this.annotationCache = Collections.synchronizedMap(new HashMap<URI, Annotation>());
 
         this.messageDigest = ZoomaUtils.generateMessageDigest();
-        this.defaultTargetTypeUris = defaultTargetUriTypes;
-        this.defaultTargetSourceTypeUris = defaultTargetSourceUriTypes;
+        this.defaultTargetTypeUri = defaultTargetUriType;
+        this.defaultTargetSourceTypeUri = defaultTargetSourceUriType;
 
     }
 
-    @Override public synchronized Study getOrCreateStudy(String studyAccession) {
-        return getOrCreateStudy(studyAccession, generateIDFromContent(studyAccession));
+    @Override public synchronized Study getOrCreateStudy(String studyAccession, Collection<URI> studyTypes) {
+        return getOrCreateStudy(studyAccession, generateIDFromContent(studyAccession), studyTypes);
     }
 
-    @Override public synchronized Study getOrCreateStudy(String studyAccession, String studyID) {
-        return getOrCreateStudy(studyAccession, mintStudyURI(studyAccession, studyID));
-    }
-
-    @Override public Study getOrCreateStudy(String studyAccession, URI studyURI) {
-        return getOrCreateStudy(studyAccession, studyURI, getDefaultTargetSourceTypeUris());
+    @Override public synchronized Study getOrCreateStudy(String studyAccession, String studyID, Collection<URI> studyTypes) {
+        return getOrCreateStudy(studyAccession, mintStudyURI(studyAccession, studyID), studyTypes);
     }
 
     @Override public Study getOrCreateStudy(String studyAccession, URI studyURI, Collection<URI> studyTypes) {
         if (!studyCache.containsKey(studyURI)) {
-            studyCache.put(studyURI, new SimpleStudy(studyURI, studyAccession, studyTypes));
+            if (studyTypes.isEmpty()) {
+                studyCache.put(studyURI, new SimpleStudy(studyURI, studyAccession, getDefaultTargetSourceTypeUri()));
+            }
+            else {
+                studyCache.put(studyURI, new SimpleStudy(studyURI, studyAccession, studyTypes));
+            }
         }
         return studyCache.get(studyURI);
     }
 
-    public Collection<URI> getDefaultTargetTypeUris() {
-        return defaultTargetTypeUris;
+    public URI getDefaultTargetTypeUri() {
+        return defaultTargetTypeUri;
     }
 
-    public Collection<URI> getDefaultTargetSourceTypeUris() {
-        return defaultTargetSourceTypeUris;
+    public URI getDefaultTargetSourceTypeUri() {
+        return defaultTargetSourceTypeUri;
     }
 
     @Override public synchronized BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
@@ -140,7 +141,7 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
                 biologicalEntityCache.put(bioentityURI,
                                           new SimpleBiologicalEntity(bioentityURI,
                                                                      bioentityName,
-                                                                     getDefaultTargetTypeUris(),
+                                                                     bioentityTypeURI,
                                                                      studies));
             }
             else if (!bioentityTypeName.isEmpty()) {
@@ -154,7 +155,7 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
                 biologicalEntityCache.put(bioentityURI,
                                           new SimpleBiologicalEntity(bioentityURI,
                                                                      bioentityName,
-                                                                     getDefaultTargetTypeUris(),
+                                                                     getDefaultTargetTypeUri(),
                                                                      studies));
             }
         }

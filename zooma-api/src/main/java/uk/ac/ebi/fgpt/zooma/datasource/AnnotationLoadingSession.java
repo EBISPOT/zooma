@@ -18,11 +18,11 @@ import java.util.Collection;
  * @date 28/09/12
  */
 public interface AnnotationLoadingSession {
-    Study getOrCreateStudy(String studyAccession);
+    Study getOrCreateStudy(String studyAccession, Collection<URI> studyTypes);
 
-    Study getOrCreateStudy(String studyAccession, String studyID);
+    Study getOrCreateStudy(String studyAccession, String studyID, Collection<URI> studyTypes);
 
-    Study getOrCreateStudy(String studyAccession, URI studyURI);
+//    Study getOrCreateStudy(String studyAccession, URI studyURI);
 
     Study getOrCreateStudy(String studyAccession, URI studyURI, Collection<URI> studyTypes);
 

@@ -45,6 +45,42 @@
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.0</version>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>generate-buildnumber</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                        <configuration>
+                            <revisionOnScmFailure>[unknown]</revisionOnScmFailure>
+                            <buildNumberPropertyName>buildRevision</buildNumberPropertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-timestamp</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                        <configuration>
+                            <format>{0,date,dd-MM-yyyy}</format>
+                            <items>
+                                <item>timestamp</item>
+                            </items>
+                            <buildNumberPropertyName>releaseDate</buildNumberPropertyName>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                </configuration>
+            </plugin>
         </plugins>
         <extensions>
             <!-- Enabling the use of SCP -->
@@ -253,6 +289,12 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
 
