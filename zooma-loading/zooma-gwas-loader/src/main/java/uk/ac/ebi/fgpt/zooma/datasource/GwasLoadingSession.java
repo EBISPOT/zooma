@@ -16,7 +16,7 @@ public class GwasLoadingSession extends AbstractAnnotationLoadingSession {
 
 
     protected GwasLoadingSession() {
-        super(Collections.singleton(URI.create("http://purl.obolibrary.org/obo/SO_0000694")), new HashSet<URI>());
+        super(URI.create("http://purl.obolibrary.org/obo/SO_0000694"), null);
     }
 
     @Override protected URI mintStudyURI(String studyAccession, String studyID) {

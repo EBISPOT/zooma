@@ -5,7 +5,7 @@
        http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- Configure AnnotationDAOs for this datasource -->
+    <!-- Configure AnnotationDAOs for this datasourceURL -->
     <bean name="csvAnnotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.CSVAnnotationDAO">
         <constructor-arg name="datasourceName" value="${datasource.name}" />
         <constructor-arg name="delimiter" value="${csv.delimiter}" />
@@ -14,13 +14,15 @@
     </bean>
 
     <bean name="csvAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.CSVAnnotationFactory">
-        <constructor-arg name="namespace" value="${datasource.namespace}" />
+        <constructor-arg name="datasourceURL" value="${datasource.url}" />
+        <constructor-arg name="datasourceName" value="${datasource.name}" />
         <constructor-arg name="annotationCreator" value="${datasource.annotation.creator}" />
         <constructor-arg name="annotationLoadingSession" ref="csvAnnotationLoadingSession" />
     </bean>
 
     <bean name="csvAnnotationLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.CSVLoadingSession">
         <constructor-arg name="namespace" value="${datasource.namespace}" />
+        <constructor-arg name="resourceName" value="${datasource.name}" />
     </bean>
 
 </beans>

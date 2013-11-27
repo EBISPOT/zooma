@@ -2,15 +2,33 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:zooma="http://www.ebi.ac.uk/fgpt/zooma/zooma-owl-loader"
+       xmlns:zoomacsv="http://www.ebi.ac.uk/fgpt/zooma/zooma-csv-loader"
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.ebi.ac.uk/fgpt/zooma/zooma-owl-loader
-       http://www.ebi.ac.uk/fgpt/zooma/zooma-owl-loader.xsd">
+       http://www.ebi.ac.uk/fgpt/zooma/zooma-owl-loader.xsd
+       http://www.ebi.ac.uk/fgpt/zooma/zooma-csv-loader
+       http://www.ebi.ac.uk/fgpt/zooma/zooma-csv-loader.xsd">
 
-    <zooma:owlAnnotations name="efo"
-                          uri="http://www.ebi.ac.uk/efo"
-                          loadFrom="http://www.ebi.ac.uk/efo/efo.owl"
-                          synonymURI="http://www.ebi.ac.uk/efo/alternative_term" />
+    <!--<zooma:owlAnnotations name="efo"-->
+                          <!--uri="http://www.ebi.ac.uk/efo"-->
+                          <!--loadFrom="http://www.ebi.ac.uk/efo/efo.owl"-->
+                          <!--synonymURI="http://www.ebi.ac.uk/efo/alternative_term" />-->
+
+    <zooma:owlAnnotations name="cmpo"
+                          uri="http://www.ebi.ac.uk/cmpo/cmpo.owl"
+                          loadFrom="https://raw.github.com/EBISPOT/CMPO/master/release/cmpo-simple.owl"
+                          synonymURI="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym"
+                          useReasoning="false" />
+
+    <zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/fg/sym"
+                          datasourceName="sysmicro"
+                          url="http://www.ebi.ac.uk/~jupp/downloads/zooma-cmpo.csv"
+                          defaultSourceType="http://purl.obolibrary.org/obo/OBI_0000075"
+                          defaultTargetType="http://purl.obolibrary.org/obo/OBI_0100064"
+                          delimiter="," />
+
+
 
 </beans>
