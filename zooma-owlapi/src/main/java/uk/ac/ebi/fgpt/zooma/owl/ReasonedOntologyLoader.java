@@ -15,6 +15,7 @@ import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -81,9 +82,9 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
         }
 
         OWLAnnotationProperty rdfsLabel = getFactory().getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
-        OWLAnnotationProperty synonym = null;
-        if (getSynonymURI() != null) {
-            synonym = getFactory().getOWLAnnotationProperty(IRI.create(getSynonymURI()));
+        Collection<OWLAnnotationProperty> synonyms = new HashSet<OWLAnnotationProperty>();
+        for (URI ap : getSynonymURIs()) {
+            synonyms.add(getFactory().getOWLAnnotationProperty(IRI.create(ap)));
         }
 
         int labelCount = 0;
@@ -143,7 +144,7 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
 
             // get all synonym annotations
             getLog().debug("Loading synonyms...");
-            if (synonym != null) {
+            for (OWLAnnotationProperty synonym : synonyms) {
                 Set<String> synonymVals = getStringLiteralAnnotationValues(ontology, ontologyClass, synonym);
                 if (synonymVals.isEmpty()) {
                     getLog().trace("OWLClass " + ontologyClass + " contains no synonyms. " +

@@ -12,6 +12,9 @@
         <xsd:complexType>
             <xsd:complexContent>
                 <xsd:extension base="beans:identifiedType">
+                    <xsd:sequence>
+                        <xsd:element name="synonym" minOccurs="0" maxOccurs="unbounded"  type="synonymType" />
+                    </xsd:sequence>
                     <xsd:attribute name="name" type="xsd:string" use="required">
                         <xsd:annotation>
                             <xsd:documentation>
@@ -30,13 +33,6 @@
                         <xsd:annotation>
                             <xsd:documentation>
                                 <![CDATA[The location from which the ontology should be loaded.  This is optional - if omitted, ZOOMA will attempt to load the ontology from it's logical URI.]]>
-                            </xsd:documentation>
-                        </xsd:annotation>
-                    </xsd:attribute>
-                    <xsd:attribute name="synonymURI" type="xsd:anyURI">
-                        <xsd:annotation>
-                            <xsd:documentation>
-                                <![CDATA[The URI of the annotation property that describes synonym labels within the loaded ontology.  If omitted, no synonym labels will be used to generate annotations.]]>
                             </xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>
@@ -65,5 +61,22 @@
             </xsd:complexContent>
         </xsd:complexType>
     </xsd:element>
+
+
+
+
+    <xsd:complexType name="synonymType">
+        <xsd:complexContent>
+            <xsd:extension base="beans:identifiedType">
+                <xsd:attribute name="uri" type="xsd:anyURI">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            <![CDATA[The URI of the annotation property that describes synonym labels within the loaded ontology.  If omitted, no synonym labels will be used to generate annotations.]]>
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
 
 </xsd:schema>
