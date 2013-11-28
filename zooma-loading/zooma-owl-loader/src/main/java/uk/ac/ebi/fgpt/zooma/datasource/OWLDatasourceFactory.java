@@ -8,6 +8,7 @@ import uk.ac.ebi.fgpt.zooma.owl.OntologyLoader;
 import uk.ac.ebi.fgpt.zooma.owl.ReasonedOntologyLoader;
 
 import java.net.URI;
+import java.util.Collection;
 
 /**
  * Factory class for OWL-based ZOOMA datasources.  This class can be used to generate fully formed, pre-configured
@@ -39,7 +40,7 @@ public class OWLDatasourceFactory {
     public static AnnotationDAO generateDatasource(String datasourceName,
                                                    URI ontologyURI,
                                                    String loadFrom,
-                                                   URI synonymURI,
+                                                   Collection<URI> synonymURIs,
                                                    boolean useReasoning) {
         // loadFrom is optional, may be null
         Resource ontologyResource = null;
@@ -55,8 +56,8 @@ public class OWLDatasourceFactory {
             if (ontologyResource != null) {
                 rOwlLoader.setOntologyResource(ontologyResource);
             }
-            if (synonymURI != null) {
-                rOwlLoader.setSynonymURI(synonymURI);
+            if (synonymURIs != null) {
+                rOwlLoader.getSynonymURIs().addAll(synonymURIs);
             }
             rOwlLoader.init();
             owlLoader = rOwlLoader;
@@ -67,8 +68,8 @@ public class OWLDatasourceFactory {
             if (ontologyResource != null) {
                 aOwlLoader.setOntologyResource(ontologyResource);
             }
-            if (synonymURI != null) {
-                aOwlLoader.setSynonymURI(synonymURI);
+            if (synonymURIs != null) {
+                aOwlLoader.getSynonymURIs().addAll(synonymURIs);
             }
             aOwlLoader.init();
             owlLoader = aOwlLoader;

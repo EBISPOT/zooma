@@ -1,14 +1,19 @@
 package uk.ac.ebi.fgpt.zooma.xml;
 
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionDefaults;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
+import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import uk.ac.ebi.fgpt.zooma.datasource.OWLAnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.OWLAnnotationFactory;
 import uk.ac.ebi.fgpt.zooma.datasource.OWLLoadingSession;
@@ -16,6 +21,9 @@ import uk.ac.ebi.fgpt.zooma.owl.AssertedOntologyLoader;
 import uk.ac.ebi.fgpt.zooma.owl.ReasonedOntologyLoader;
 
 import java.net.URI;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * An implementation of Spring's BeanDefinitionParser class that generates a fully preconfigured OWLAnnotationDAO by
@@ -42,14 +50,22 @@ public class OWLAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         if (StringUtils.hasText(loadFrom)) {
             ontologyResource = new DefaultResourceLoader().getResource(loadFrom);
         }
-        URI synonymURI = null;
-        String synonymURIStr = element.getAttribute("synonymURI");
-        if (StringUtils.hasText(synonymURIStr)) {
-            synonymURI = URI.create(synonymURIStr);
+        Collection<URI> synonymURIs = null;
+
+        List<Element> synonymElements = DomUtils.getChildElementsByTagName(element, "synonym");
+        if (synonymElements != null) {
+            synonymURIs = new HashSet<URI>();
+            for (Element synonymElement : synonymElements) {
+                String synonymURIStr = synonymElement.getAttribute("uri");
+                if (StringUtils.hasText(synonymURIStr)) {
+                    synonymURIs.add(URI.create(synonymURIStr));
+                }
+            }
         }
+
         URI exclusionClassURI = null;
         String exclusionClassURIStr = element.getAttribute("exclusionClassURI");
-        if (StringUtils.hasText(synonymURIStr)) {
+        if (StringUtils.hasText(exclusionClassURIStr)) {
             exclusionClassURI = URI.create(exclusionClassURIStr);
         }
         URI exclusionAnnotationURI = null;
@@ -84,8 +100,8 @@ public class OWLAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         if (ontologyResource != null) {
             owlLoader.addPropertyValue("ontologyResource", ontologyResource);
         }
-        if (synonymURI != null) {
-            owlLoader.addPropertyValue("synonymURI", synonymURI);
+        if (synonymURIs != null) {
+            owlLoader.addPropertyValue("synonymURIs", synonymURIs);
         }
         if (exclusionClassURI != null) {
             owlLoader.addPropertyValue("exclusionClassURI", exclusionClassURI);
