@@ -40,11 +40,6 @@ public class URIUtils {
      * The default setting for SHORTFORM_STRICTNESS
      */
     public static final ShortformStrictness DEFAULT_SHORTFORM_STRICTNESS = ShortformStrictness.ALLOW_HASHES;
-    /**
-     * The strictness with which these utils allow shortform creation.  Strictly, no hashes or slashes are allowed in
-     * shortforms, but you can override this if required.
-     */
-    public static volatile ShortformStrictness SHORTFORM_STRICTNESS = DEFAULT_SHORTFORM_STRICTNESS;
 
     private static final Map<String, String> prefixMappings;
     private static final String uninitializedKey = "UNINITIALIZED";
@@ -104,19 +99,35 @@ public class URIUtils {
 
     /**
      * Gets the shortened version of the given URI, using the the mappings (prefix = "namespace") in the file
-     * zooma/prefix.properties if available on the classpath. This is equivalent to calling {@link #getPrefixMappings()}
-     * and passing the results to {@link #getShortform(java.util.Map, java.net.URI)} as the first parameter.
+     * zooma/prefix.properties if available on the classpath. This is equivalent to calling {@link
+     * #getShortform(java.util.Map, java.net.URI, ShortformStrictness)} with the results of {@link #getPrefixMappings()}
+     * as the first parameter and DEFAULT_SHORTFORM_STRICTNESS as the third parameter.
      *
      * @param uri the URI to find the shortform for
      * @return the shortened, qualified name
      */
     public static String getShortform(URI uri) {
-        return getShortform(getPrefixMappings(), uri);
+        return getShortform(getPrefixMappings(), uri, DEFAULT_SHORTFORM_STRICTNESS);
+    }
+
+    /**
+     * Gets the shortened version of the given URI, using the supplied shortform strictness parameter and the mappings
+     * (prefix = "namespace") in the file zooma/prefix.properties if available on the classpath. This is equivalent to
+     * calling {@link #getPrefixMappings()} and passing the results to {@link #getShortform(java.util.Map, java.net.URI,
+     * ShortformStrictness)} as the first parameter.
+     *
+     * @param uri        the URI to find the shortform for
+     * @param strictness how strict to be when creating a shortform of the given URI
+     * @return the shortened, qualified name
+     */
+    public static String getShortform(URI uri, ShortformStrictness strictness) {
+        return getShortform(getPrefixMappings(), uri, strictness);
     }
 
     /**
      * Gets the shortened version of the given URI, using the supplied prefix mappings.  Using this form of the method,
-     * you can supply your own mappings (and develop your own caching strategies) if required.
+     * you can supply your own mappings (and develop your own caching strategies) if required, but the default shortform
+     * strictness is used.
      *
      * @param prefixMappings the prefix mappings to consider when getting the short form
      * @param uri            the URI to find the short form for
@@ -124,6 +135,21 @@ public class URIUtils {
      * @throws IllegalArgumentException if the URI cannot be shortened using the current mode and prefixMappings
      */
     public static String getShortform(final Map<String, String> prefixMappings, URI uri) {
+        return getShortform(prefixMappings, uri, DEFAULT_SHORTFORM_STRICTNESS);
+    }
+
+    /**
+     * Gets the shortened version of the given URI, using the supplied prefix mappings and strictness.  Using this form
+     * of the method, you can supply your own mappings (and develop your own caching strategies) if required.
+     *
+     * @param prefixMappings the prefix mappings to consider when getting the short form
+     * @param uri            the URI to find the short form for
+     * @return the qualified short name
+     * @throws IllegalArgumentException if the URI cannot be shortened using the current mode and prefixMappings
+     */
+    public static String getShortform(final Map<String, String> prefixMappings,
+                                      URI uri,
+                                      ShortformStrictness strictness) {
         if (uri == null) {
             return null;
         }
@@ -171,7 +197,7 @@ public class URIUtils {
                         break;
                     case DO_NOT_CREATE:
                         // test strictness
-                        switch (SHORTFORM_STRICTNESS) {
+                        switch (strictness) {
                             case STRICT:
                                 // can't do anything
                                 throw new IllegalArgumentException(
