@@ -93,7 +93,6 @@ public class TestURIUtils {
 
     public void tearDown() {
         URIUtils.PREFIX_CREATION_MODE = URIUtils.DEFAULT_PREFIX_CREATION_MODE;
-        URIUtils.SHORTFORM_STRICTNESS = URIUtils.DEFAULT_SHORTFORM_STRICTNESS;
     }
 
     @Test
@@ -169,13 +168,13 @@ public class TestURIUtils {
     public void testGetUnknownRoundTripWithCaching() {
         // this test requires strict creation of a new, cached shortform to work
         URIUtils.PREFIX_CREATION_MODE = URIUtils.PrefixCreation.CREATE_AND_CACHE;
-        URIUtils.SHORTFORM_STRICTNESS = URIUtils.ShortformStrictness.STRICT;
+        URIUtils.ShortformStrictness strictness = URIUtils.ShortformStrictness.STRICT;
 
         String shortform;
         URI uri;
 
         // first pass
-        shortform = URIUtils.getShortform(uri4);
+        shortform = URIUtils.getShortform(uri4, strictness);
         System.out.println("Shortened " + uri4 + " -> " + shortform);
         assertEquals("Unexpected shortened form", "anoth:term", shortform);
         uri = URIUtils.getURI(shortform);
@@ -183,7 +182,7 @@ public class TestURIUtils {
         assertEquals("Unexpected uri", uri4, uri);
 
         // second pass, should reuse cached prefix zooma1
-        shortform = URIUtils.getShortform(uri4);
+        shortform = URIUtils.getShortform(uri4, strictness);
         System.out.println("Shortened " + uri4 + " -> " + shortform);
         assertEquals("Unexpected shortened form", "anoth:term", shortform);
         uri = URIUtils.getURI(shortform);
@@ -191,7 +190,7 @@ public class TestURIUtils {
         assertEquals("Unexpected uri", uri4, uri);
 
         // test namespace ends in # instead of /
-        shortform = URIUtils.getShortform(uri5);
+        shortform = URIUtils.getShortform(uri5, strictness);
         System.out.println("Shortened " + uri5 + " -> " + shortform);
         assertEquals("Unexpected shortened form", "yetan:term", shortform);
         uri = URIUtils.getURI(shortform);
@@ -203,10 +202,10 @@ public class TestURIUtils {
     public void testCompoundingStrict() {
         // this tests strict creation of a new shortform
         URIUtils.PREFIX_CREATION_MODE = URIUtils.PrefixCreation.CREATE;
-        URIUtils.SHORTFORM_STRICTNESS = URIUtils.ShortformStrictness.STRICT;
+        URIUtils.ShortformStrictness strictness = URIUtils.ShortformStrictness.STRICT;
 
         String result;
-        result = URIUtils.getShortform(uri6);
+        result = URIUtils.getShortform(uri6, strictness);
         System.out.println("Shortened " + uri6 + " -> " + result);
         assertFalse("Short form results in an invalid localname", result.contains("/") || result.contains("#"));
     }
@@ -215,10 +214,10 @@ public class TestURIUtils {
     public void testCompoundingRelaxed() {
         // this tests strict creation of a new shortform
         URIUtils.PREFIX_CREATION_MODE = URIUtils.PrefixCreation.DO_NOT_CREATE;
-        URIUtils.SHORTFORM_STRICTNESS = URIUtils.ShortformStrictness.ALLOW_HASHES;
+        URIUtils.ShortformStrictness strictness = URIUtils.ShortformStrictness.ALLOW_HASHES;
 
         String result;
-        result = URIUtils.getShortform(uri9);
+        result = URIUtils.getShortform(uri9, strictness);
         System.out.println("Shortened " + uri9 + " -> " + result);
         assertFalse("Short form results in an invalid localname", result.contains("/"));
     }

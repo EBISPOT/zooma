@@ -47,7 +47,6 @@ public class ZOOMASearchClient {
     private final String zoomaBase;
 
     private final String zoomaSearchBase;
-    private final String zoomaSearchBaseOLD;
     private final String zoomaAnnotationsBase;
     private final String zoomaServicesBase;
 
@@ -62,7 +61,6 @@ public class ZOOMASearchClient {
     public ZOOMASearchClient(URL zoomaLocation) {
         this.zoomaBase = zoomaLocation.toString() + "/v2/api/";
         this.zoomaSearchBase = zoomaBase + "search?query=";
-        this.zoomaSearchBaseOLD = zoomaBase + "searchOLD?query=";
 
         this.zoomaAnnotationsBase = zoomaBase + "annotations/";
         this.zoomaServicesBase = zoomaBase + "services/";
@@ -81,25 +79,11 @@ public class ZOOMASearchClient {
     }
 
     public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score) {
-
-        getLog().trace("searchZOOMA1");
-
         return searchZOOMA(property, score, false);
     }
 
     public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score, boolean excludeType) {
-        getLog().trace("searchZOOMA2");
         return searchZOOMA(property, score, excludeType, false);
-    }
-
-    public Map<AnnotationSummary, Float> searchZOOMAOLD(Property property, float score) {
-        getLog().trace("searchZOOMAOLD1");
-        return searchZOOMAOLD(property, score, false);
-    }
-
-    public Map<AnnotationSummary, Float> searchZOOMAOLD(Property property, float score, boolean excludeType) {
-        getLog().trace("searchZOOMAOLD2");
-        return searchZOOMAOLD(property, score, excludeType, false);
     }
 
     /**
@@ -115,105 +99,12 @@ public class ZOOMASearchClient {
                                                      float score,
                                                      boolean excludeType,
                                                      boolean noEmptyResult) {
-
-        getLog().trace("searchZOOMA3");
-
         String query = property.getPropertyValue();
 
         // search for annotation summaries
         Map<AnnotationSummary, Float> summaries = new LinkedHashMap<>();
         try {
             String search = zoomaSearchBase + URLEncoder.encode(property.getPropertyValue(), "UTF-8");
-            String typedSearch = search + "&type=";
-            URL queryURL = property instanceof TypedProperty && !excludeType
-                    ? new URL(typedSearch + URLEncoder.encode(((TypedProperty) property).getPropertyType(), "UTF-8"))
-                    : new URL(search);
-            getLog().trace("Sending query [" + queryURL + "]...");
-
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode resultsNode = mapper.readValue(queryURL, JsonNode.class);
-            getLog().trace(resultsNode.toString());
-
-            int goodResultCount = 0;
-            JsonNode resultNode = resultsNode.get("result");
-            if (resultNode != null) {
-                for (JsonNode result : resultNode) {
-                    // meets significance score?
-                    float resultScore = Float.parseFloat(result.get("score").getTextValue());
-                    AnnotationSummary as = mapAnnotationSummary(result, mapper);
-                    getLog().trace(
-                            "Annotation hit:\n\t\t" +
-                                    "Searched: " + property + "\t" +
-                                    "Found: " + as.getAnnotatedPropertyValue() + " " +
-                                    "[" + as.getAnnotatedPropertyType() + "] -> " +
-                                    as.getSemanticTags() + "\tScore: " + resultScore);
-
-                    if (resultScore > score) {
-                        goodResultCount++;
-                        // this result scores highly enough to retain
-                        // so map annotation summary to score and include in results
-                        summaries.put(as, resultScore);
-                    }
-                    else {
-                        // resultScore gone below the threshold
-
-                        // low-score results starts appearing now, have we found something above it?
-                        if (goodResultCount == 0) {
-                            if (noEmptyResult) {
-                                // No, but you want something anyway, here you are
-                                summaries.put(as, resultScore);
-                            }
-                            else {
-                                // No and you don't want bad stuff, so let's stop with empty result
-                                break;
-                            }
-                        }
-                        else {
-                            // We found results above the threshold and now badly-scored summaries start to come in,
-                            // we can stop and discard them
-                            break;
-                        }
-                    }
-                }
-
-                if (goodResultCount == 0 && !summaries.isEmpty()) {
-                    getLog().debug("No good search results for '" + property + "' - " +
-                                           "some that fall below the required score have been retained " +
-                                           "and will require curation");
-                }
-            }
-        }
-        catch (IOException e) {
-            getLog().error("Failed to query ZOOMA for property '" + query + "' (" + e.getMessage() + ")");
-            throw new RuntimeException("Failed to query ZOOMA for property '" + query + "' " +
-                                               "(" + e.getMessage() + ")", e);
-        }
-
-        return summaries;
-    }
-
-    /**
-     * @param property      what you're looking for
-     * @param score         returns only the summaries above this threshold
-     * @param excludeType   generic, search, with no type specification
-     * @param noEmptyResult if true and there is no summary scored above the threshold, tries to return something
-     *                      anyway, i.e., summaries that are not so well scored. If this flag is false, the search
-     *                      returns only summaries with score above the score parameter, possibly an empty Map.
-     * @return a {@link LinkedHashMap} map, where the entries are ordered by decreasing score.
-     */
-    public Map<AnnotationSummary, Float> searchZOOMAOLD(Property property,
-                                                        float score,
-                                                        boolean excludeType,
-                                                        boolean noEmptyResult) {
-
-        getLog().trace("searchZOOMAOLD3");
-
-        String query = property.getPropertyValue();
-
-        // search for annotation summaries
-        Map<AnnotationSummary, Float> summaries = new LinkedHashMap<>();
-        try {
-            String search = zoomaSearchBaseOLD + URLEncoder.encode(property.getPropertyValue(), "UTF-8");
             String typedSearch = search + "&type=";
             URL queryURL = property instanceof TypedProperty && !excludeType
                     ? new URL(typedSearch + URLEncoder.encode(((TypedProperty) property).getPropertyType(), "UTF-8"))
@@ -419,86 +310,32 @@ public class ZOOMASearchClient {
     private AnnotationSummary mapAnnotationSummary(JsonNode result, ObjectMapper mapper) throws IOException {
         // acquire the annotation summary for this result
         String mid = result.get("mid").getTextValue();
+        float resultScore = Float.parseFloat(result.get("score").getTextValue());
 
-        if (result != null) {
+        URL summaryURL = new URL(zoomaBase + "summaries/" + mid);
+        JsonNode summaryNode = mapper.readValue(summaryURL, JsonNode.class);
 
-            if (mid != null) {
+        String propertyType = summaryNode.get("annotatedPropertyType").getTextValue();
+        String propertyValue = summaryNode.get("annotatedPropertyValue").getTextValue();
 
-                float resultScore = Float.parseFloat(result.get("score").getTextValue());
-
-                URL summaryURL = new URL(zoomaBase + "summaries/" + mid);
-                JsonNode summaryNode = mapper.readValue(summaryURL, JsonNode.class);
-
-                String propertyType = summaryNode.get("annotatedPropertyType").getTextValue();
-                String propertyValue = summaryNode.get("annotatedPropertyValue").getTextValue();
-
-                List<URI> semanticTags = new ArrayList<>();
-                JsonNode stsNode = summaryNode.get("semanticTags");
-                for (JsonNode stNode : stsNode) {
-                    semanticTags.add(lookupURI(stNode.getTextValue()));
-                }
-
-                List<URI> annotationURIs = new ArrayList<>();
-                JsonNode annsNode = summaryNode.get("annotationURIs");
-                for (JsonNode annNode : annsNode) {
-                    annotationURIs.add(URI.create(annNode.getTextValue()));
-                }
-
-
-                // collect summary into map with it's score
-                return new SimpleAnnotationSummary(mid,
-                                                   propertyType,
-                                                   propertyValue,
-                                                   semanticTags,
-                                                   annotationURIs,
-                                                   resultScore);
-
-            }
-            else {
-                
-               /* AnnotationSummary of post-coordinate terms have specific issues:
-                * mid=null 
-                * 2 semantic tags.
-                * Following lines manage it.
-                */
-
-                float resultScore = Float.parseFloat(result.get("score").getTextValue());
-
-                JsonNode node = result.get("notable");
-
-                if (node != null) {
-
-                    String node2 = node.get("name").getTextValue();
-
-                    node2 = node2.replaceAll("null; ", "");
-                    String[] uris = node2.split(", ");
-
-
-                    List<URI> semanticTags = new ArrayList<>();
-
-                    for (int i = 0; i < uris.length; i++) {
-
-                        try {
-                            semanticTags.add(new URI(URLEncoder.encode(uris[i], "UTF-8")));
-
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-
-                        }
-
-
-                    }
-
-                    return new SimpleAnnotationSummary(mid,
-                                                       "",
-                                                       "",
-                                                       semanticTags,
-                                                       null,
-                                                       resultScore);
-                }
-            }
+        List<URI> semanticTags = new ArrayList<>();
+        JsonNode stsNode = summaryNode.get("semanticTags");
+        for (JsonNode stNode : stsNode) {
+            semanticTags.add(lookupURI(stNode.getTextValue()));
         }
-        return null;
+
+        List<URI> annotationURIs = new ArrayList<>();
+        JsonNode annsNode = summaryNode.get("annotationURIs");
+        for (JsonNode annNode : annsNode) {
+            annotationURIs.add(URI.create(annNode.getTextValue()));
+        }
+
+        // collect summary into map with it's score
+        return new SimpleAnnotationSummary(mid,
+                                           propertyType,
+                                           propertyValue,
+                                           semanticTags,
+                                           annotationURIs,
+                                           resultScore);
     }
 }

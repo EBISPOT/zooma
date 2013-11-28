@@ -223,7 +223,7 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
             }
             if (bioentity.getTypes() != null) {
                 for (URI type : bioentity.getTypes()) {
-                    idContents.add(URIUtils.getShortform(type));
+                    idContents.add(URIUtils.getShortform(type, URIUtils.ShortformStrictness.ALLOW_SLASHES_AND_HASHES));
                 }
             }
         }
@@ -232,7 +232,7 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
         }
         idContents.add(p.getPropertyValue());
         if (semanticTag != null) {
-            idContents.add(URIUtils.getShortform(semanticTag));
+            idContents.add(URIUtils.getShortform(semanticTag, URIUtils.ShortformStrictness.ALLOW_SLASHES_AND_HASHES));
         }
         String annotationID = generateIDFromContent(idContents.toArray(new String[idContents.size()]));
 

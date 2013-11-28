@@ -27,13 +27,22 @@ public class ZoomaRESTClient {
     private boolean olsShortIds;     // yes if output should include term ids in their (OLS-compatible) short form rather than full URI
     private static HashMap<String, AnnotationSummary> resultsCache = new HashMap<String, AnnotationSummary>();
 
+    private final ZOOMASearchClient client;
+
     public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, boolean  olsShortIds, String excludedPropertiesResource) {
         this.minInputLength = minInputLength;
         this.cutoffPercentage = cutoffPercentage;
         this.cutoffScore = cutoffScore;
         this.olsShortIds = olsShortIds;
 
-        inelegibleProperties = parseIneligibleProperties(excludedPropertiesResource);
+        this.inelegibleProperties = parseIneligibleProperties(excludedPropertiesResource);
+
+        try {
+            this.client = new ZOOMASearchClient(URI.create("http://www.ebi.ac.uk/fgpt/zooma").toURL());
+        }
+        catch (MalformedURLException e) {
+            throw new RuntimeException("Failed to create ZOOMASearchCLient", e);
+        }
     }
 
     public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, boolean  olsShortIds, HashSet excludedProperties) {
@@ -43,6 +52,13 @@ public class ZoomaRESTClient {
         this.olsShortIds = olsShortIds;
 //
         inelegibleProperties = excludedProperties;
+
+        try {
+            this.client = new ZOOMASearchClient(URI.create("http://www.ebi.ac.uk/fgpt/zooma").toURL());
+        }
+        catch (MalformedURLException e) {
+            throw new RuntimeException("Failed to create ZOOMASearchCLient", e);
+        }
     }
 
     protected Logger getLog() {
@@ -148,7 +164,6 @@ public class ZoomaRESTClient {
 
         // if there's no result in the cache, initiate a new Zooma query
         else try {
-            ZOOMASearchClient client = new ZOOMASearchClient(new URL("http://www.ebi.ac.uk/fgpt/zooma"));
             Property property = new SimpleTypedProperty(attributeType, attributeValue);
             Map<AnnotationSummary, Float> resultMap = client.searchZOOMA(property, 0);
 
@@ -160,9 +175,8 @@ public class ZoomaRESTClient {
                 return getBestMatch(input, filteredResultSet);
             }
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();  //todo
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();  //todo
         }
 
@@ -217,33 +231,40 @@ public class ZoomaRESTClient {
      * @return zoomified attribute.
      */
     public TransitionalAttribute zoomify(TransitionalAttribute attribute) {
+        // is attribute type in exclusion list?
+        String normalizedType = attribute.getType().toLowerCase().trim().replaceAll("\\s", "").replaceAll("_", "");
+        if (!inelegibleProperties.contains(normalizedType)) {
+            // fetch the best matching Zooma Annotation summary
+            AnnotationSummary zoomaAnnotationSummary = getZoomaAnnotationSummary(attribute.getType(), attribute.getValue());
 
-        // fetch the best matching Zooma Annotation summary
-        AnnotationSummary zoomaAnnotationSummary = getZoomaAnnotationSummary(attribute.getType(), attribute.getValue());
+            // if there are no zooma results, warn and return
+            if (zoomaAnnotationSummary == null) {
+                if (attribute.getValue().length() < minInputLength)
+                    log.info("Input value \"" + attribute.getValue() + "\" is below specified length of " + minInputLength + " characters.");
+                else log.warn("No Zooma Annotation found for " + attribute.getType() + ":" + attribute.getValue());
+            }
 
-        // if there are no zooma results, warn and return
-        if (zoomaAnnotationSummary == null) {
-            if (attribute.getValue().length() < minInputLength)
-                log.info("Input value \"" + attribute.getValue() + "\" is below specified length of " + minInputLength + " characters.");
-            else log.warn("No Zooma Annotation found for " + attribute.getType() + ":" + attribute.getValue());
+            // if there *is* a zooma result, update the attribute accordingly
+            else {
+                attribute.setType(zoomaAnnotationSummary.getAnnotatedPropertyType());
+                attribute.setValue(zoomaAnnotationSummary.getAnnotatedPropertyValue());
+
+                ArrayList<String> refAndAcession = concatenateCompoundURIs(zoomaAnnotationSummary);
+                attribute.setTermSourceREF(refAndAcession.get(0));
+                attribute.setTermAccessionNumber(refAndAcession.get(1));
+            }
+
+            // return updated (zoomified) attribute
+            return attribute;  //todo: Tony...bad form to return same object that was passed in?
         }
-
-        // if there *is* a zooma result, update the attribute accordingly
         else {
-            attribute.setType(zoomaAnnotationSummary.getAnnotatedPropertyType());
-            attribute.setValue(zoomaAnnotationSummary.getAnnotatedPropertyValue());
-
-            ArrayList<String> refAndAcession = concatenateCompoundURIs(zoomaAnnotationSummary);
-            attribute.setTermSourceREF(refAndAcession.get(0));
-            attribute.setTermAccessionNumber(refAndAcession.get(1));
+            getLog().info("Property type '" + normalizedType + "' found in the exclusions list");
+            return attribute;
         }
-
-        // return updated (zoomified) attribute
-        return attribute;  //todo: Tony...bad form to return same object that was passed in?
     }
 
     private HashSet parseIneligibleProperties(String excludedPropertiesResource) {
-        HashSet excludedTypes = new HashSet<>();
+        HashSet<String> excludedTypes = new HashSet<>();
 
         // read sources from file
         try {

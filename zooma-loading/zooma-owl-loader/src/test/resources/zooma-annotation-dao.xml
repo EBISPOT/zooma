@@ -11,7 +11,10 @@
     <zooma:owlAnnotations name="efo"
                           uri="http://www.ebi.ac.uk/efo"
                           loadFrom="http://www.ebi.ac.uk/efo/efo.owl"
-                          synonymURI="http://www.ebi.ac.uk/efo/alternative_term" />
+                          synonymURI="http://www.ebi.ac.uk/efo/alternative_term"
+                          exclusionClassURI="http://www.geneontology.org/formats/oboInOwl#ObsoleteClass"
+                          exclusionAnnotationURI="http://www.ebi.ac.uk/efo/organizational_class" />
+
     <!--useReasoning="false" />-->
 
 </beans>
