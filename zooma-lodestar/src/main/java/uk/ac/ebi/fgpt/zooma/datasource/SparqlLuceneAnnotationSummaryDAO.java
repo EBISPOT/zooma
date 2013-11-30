@@ -215,7 +215,7 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
         }
 
 
-        public float getQualityScore() {
+        public float getQuality() {
             return qualityScore;
         }
 

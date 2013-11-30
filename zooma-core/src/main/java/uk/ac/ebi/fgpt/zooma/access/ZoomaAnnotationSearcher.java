@@ -151,14 +151,14 @@ public class ZoomaAnnotationSearcher extends IdentifiableSuggestEndpoint<Annotat
         getLog().trace("Querying for " + prefix + ", " + type);
         validate();
         Map<Annotation, Float> allAnnotations = getAnnotationSearchService().searchAndScoreByPrefix(type, prefix);
-        return getAnnotationSorter().sort(allAnnotations, type, prefix);
+        return getAnnotationSorter().sort(allAnnotations);
     }
 
     public Collection<Annotation> query(String prefix, String type, int limit, int start) {
         getLog().trace("Querying for " + prefix + ", " + type + ", " + limit + ", " + start);
         validate();
         Map<Annotation, Float> allAnnotations = getAnnotationSearchService().searchAndScoreByPrefix(type, prefix);
-        List<Annotation> allAnnotationsList = getAnnotationSorter().sort(allAnnotations, type, prefix);
+        List<Annotation> allAnnotationsList = getAnnotationSorter().sort(allAnnotations);
         return getAnnotationLimiter().limit(allAnnotationsList, limit, start);
     }
 

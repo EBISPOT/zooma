@@ -13,6 +13,7 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummarySearchService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummaryService;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
+import uk.ac.ebi.fgpt.zooma.util.Scorer;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
 import uk.ac.ebi.fgpt.zooma.view.FlyoutResponse;
 import uk.ac.ebi.fgpt.zooma.view.SearchResponse;
@@ -48,7 +49,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
 
     private Sorter<AnnotationSummary> annotationSummarySorter;
     private Limiter<AnnotationSummary> annotationSummaryLimiter;
-
+    private Scorer<AnnotationSummary> annotationSummaryScorer;
 
     public AnnotationSummaryService getAnnotationSummaryService() {
         return annotationSummaryService;
@@ -89,32 +90,44 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         this.annotationSummaryLimiter = annotationSummaryLimiter;
     }
 
+    public Scorer<AnnotationSummary> getAnnotationSummaryScorer() {
+        return annotationSummaryScorer;
+    }
+
+    @Autowired
+    public void setAnnotationSummaryScorer(Scorer<AnnotationSummary> annotationSummaryScorer) {
+        this.annotationSummaryScorer = annotationSummaryScorer;
+    }
+
     public Collection<AnnotationSummary> query(String query, boolean prefixed) {
         getLog().debug("Querying for " + query + " (prefixed = " + prefixed + ")");
         validate();
-        Map<AnnotationSummary, Float> allAnnotations = prefixed
-                ? getAnnotationSummarySearchService().searchAndScoreByPrefix(query)
-                : getAnnotationSummarySearchService().searchAndScore(query);
+        Collection<AnnotationSummary> annotations = prefixed
+                ? getAnnotationSummarySearchService().searchByPrefix(query)
+                : getAnnotationSummarySearchService().search(query);
+        Map<AnnotationSummary, Float> allAnnotations = getAnnotationSummaryScorer().score(annotations, query);
         return getAnnotationSummarySorter().sort(allAnnotations);
     }
 
     public Collection<AnnotationSummary> query(String query, String type, boolean prefixed) {
         getLog().debug("Querying for " + query + ", " + type + " (prefixed = " + prefixed + ")");
         validate();
-        Map<AnnotationSummary, Float> allAnnotations = prefixed
-                ? getAnnotationSummarySearchService().searchAndScoreByPrefix(type, query)
-                : getAnnotationSummarySearchService().searchAndScore(type, query);
-        return getAnnotationSummarySorter().sort(allAnnotations, type, query);
+        Collection<AnnotationSummary> annotations = prefixed
+                ? getAnnotationSummarySearchService().searchByPrefix(type, query)
+                : getAnnotationSummarySearchService().search(type, query);
+        Map<AnnotationSummary, Float> allAnnotations = getAnnotationSummaryScorer().score(annotations, query, type);
+        return getAnnotationSummarySorter().sort(allAnnotations);
     }
 
     public Collection<AnnotationSummary> query(String query, String type, int limit, int start, boolean prefixed) {
         getLog().debug("Querying for " + query + ", " + type + ", " + limit + ", " + start +
                                " (prefixed = " + prefixed + ")");
         validate();
-        Map<AnnotationSummary, Float> allAnnotations = prefixed
-                ? getAnnotationSummarySearchService().searchAndScoreByPrefix(type, query)
-                : getAnnotationSummarySearchService().searchAndScore(type, query);
-        List<AnnotationSummary> allAnnotationsList = getAnnotationSummarySorter().sort(allAnnotations, type, query);
+        Collection<AnnotationSummary> annotations = prefixed
+                ? getAnnotationSummarySearchService().searchByPrefix(type, query)
+                : getAnnotationSummarySearchService().search(type, query);
+        Map<AnnotationSummary, Float> allAnnotations = getAnnotationSummaryScorer().score(annotations, query, type);
+        List<AnnotationSummary> allAnnotationsList = getAnnotationSummarySorter().sort(allAnnotations);
         return getAnnotationSummaryLimiter().limit(allAnnotationsList, limit, start);
     }
 
@@ -128,17 +141,18 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
 
     public Map<AnnotationSummary, Float> queryAndScore(String query, boolean prefixed) {
         validate();
-        return prefixed
-                ? getAnnotationSummarySearchService().searchAndScoreByPrefix(query)
-                : getAnnotationSummarySearchService().searchAndScore(query);
+        Collection<AnnotationSummary> annotations = prefixed
+                ? getAnnotationSummarySearchService().searchByPrefix(query)
+                : getAnnotationSummarySearchService().search(query);
+        return getAnnotationSummaryScorer().score(annotations, query);
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query, String type, boolean prefixed) {
         validate();
-        return prefixed
-                ? getAnnotationSummarySearchService().searchAndScoreByPrefix(type, query)
-                : getAnnotationSummarySearchService().searchAndScore(type, query);
-
+        Collection<AnnotationSummary> annotations = prefixed
+                ? getAnnotationSummarySearchService().searchByPrefix(type, query)
+                : getAnnotationSummarySearchService().search(type, query);
+        return getAnnotationSummaryScorer().score(annotations, query, type);
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query,
@@ -147,17 +161,22 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                                                        int limit,
                                                        int start) {
         validate();
-        return prefixed
-                ? getAnnotationSummarySearchService().searchAndScoreByPrefix(type, query)
-                : getAnnotationSummarySearchService().searchAndScore(type, query);
+        Collection<AnnotationSummary> annotations = prefixed
+                ? getAnnotationSummarySearchService().searchByPrefix(type, query)
+                : getAnnotationSummarySearchService().search(type, query);
+        return getAnnotationSummaryScorer().score(annotations, query, type);
     }
 
     public Map<AnnotationSummary, Float> queryAndScoreBySemanticTags(String... semanticTagShortnames) {
-        return getAnnotationSummarySearchService().searchAndScoreBySemanticTags(semanticTagShortnames);
+        Collection<AnnotationSummary> annotations =
+                getAnnotationSummarySearchService().searchBySemanticTags(semanticTagShortnames);
+        return getAnnotationSummaryScorer().score(annotations);
     }
 
     public Map<AnnotationSummary, Float> queryAndScoreBySemanticTags(URI... semanticTags) {
-        return getAnnotationSummarySearchService().searchAndScoreBySemanticTags(semanticTags);
+        Collection<AnnotationSummary> annotations =
+                getAnnotationSummarySearchService().searchBySemanticTags(semanticTags);
+        return getAnnotationSummaryScorer().score(annotations);
     }
 
     @Override protected String extractElementID(AnnotationSummary annotationSummary) {

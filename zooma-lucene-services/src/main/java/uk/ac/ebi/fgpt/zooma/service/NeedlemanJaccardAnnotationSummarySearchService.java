@@ -56,76 +56,48 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
     }
 
     @Override
-    public Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern) {
-        Map<AnnotationSummary, Float> results = super.searchAndScore(propertyValuePattern);
+    public Collection<AnnotationSummary> search(String propertyValuePattern) {
+        Collection<AnnotationSummary> results = super.search(propertyValuePattern);
 
         // if results are empty, find lexically similar strings and requery
         if (results.isEmpty()) {
             // use "Needleman-Wunsch"  and "Jaccard similarity" to find approximate matchings
+            Collection<AnnotationSummary> expandedResults = new HashSet<>();
             Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
 
             for (String s : similarStrings.keySet()) {
                 if (haveEqualPolarity(s, propertyValuePattern)) {
-                    Map<AnnotationSummary, Float> modifiedResults = super.searchAndScore(s);
-
-                    for (AnnotationSummary as : modifiedResults.keySet()) {
-                        if (results.containsKey(as)) {
-                            // results already contains this result
-                            float previousScore = results.get(as);
-                            // so calculate the weight of the lexical score based on similarity
-                            float newScore = modifiedResults.get(as) * similarStrings.get(s) * similarStrings.get(s);
-
-                            if (newScore > previousScore) {
-                                // if the lexical score is higher than the zooma score, override zooma result
-                                results.put(as, newScore);
-                            }
-                        }
-                        else {
-                            // add the result, and weight the lexical score based on similarity
-                            results.put(as, modifiedResults.get(as) * similarStrings.get(s) * similarStrings.get(s));
-                        }
-                    }
+                    results.addAll(super.search(s));
                 }
             }
+            return expandedResults;
         }
-        return results;
+        else {
+            return results;
+        }
     }
 
     @Override
-    public Map<AnnotationSummary, Float> searchAndScore(String propertyType,
-                                                        String propertyValuePattern) {
-        // original query results
-        Map<AnnotationSummary, Float> results = super.searchAndScore(propertyType, propertyValuePattern);
+    public Collection<AnnotationSummary> search(String propertyType,
+                                                String propertyValuePattern) {
+        Collection<AnnotationSummary> results = super.search(propertyType, propertyValuePattern);
 
         // if results are empty, find lexically similar strings and requery
         if (results.isEmpty()) {
-            // use algorithm to find matching properties
+            // use "Needleman-Wunsch"  and "Jaccard similarity" to find approximate matchings
+            Collection<AnnotationSummary> expandedResults = new HashSet<>();
             Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
 
             for (String s : similarStrings.keySet()) {
                 if (haveEqualPolarity(s, propertyValuePattern)) {
-                    Map<AnnotationSummary, Float> modifiedResults = super.searchAndScore(propertyType, s);
-                    for (AnnotationSummary as : modifiedResults.keySet()) {
-                        if (results.containsKey(as)) {
-                            // results already contains this result
-                            float previousScore = results.get(as);
-                            // so calculate the weight of the lexical score based on similarity
-                            float newScore = modifiedResults.get(as) * similarStrings.get(s) * similarStrings.get(s);
-
-                            if (newScore > previousScore) {
-                                // if the new lexical score is higher than the previous score, update
-                                results.put(as, newScore);
-                            }
-                        }
-                        else {
-                            // add the result, and weight the lexical score based on similarity
-                            results.put(as, modifiedResults.get(as) * similarStrings.get(s) * similarStrings.get(s));
-                        }
-                    }
+                    results.addAll(super.search(propertyType, s));
                 }
             }
+            return expandedResults;
         }
-        return results;
+        else {
+            return results;
+        }
     }
 
     /**

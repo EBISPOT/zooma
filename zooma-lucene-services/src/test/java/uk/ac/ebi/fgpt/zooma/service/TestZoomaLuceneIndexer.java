@@ -327,15 +327,15 @@ public class TestZoomaLuceneIndexer {
         searchService.init();
 
         // do test query to verify results are valid
-        Map<AnnotationSummary, Float> results = searchService.searchAndScore("value1");
+        Collection<AnnotationSummary> results = searchService.search("value1");
 
         // assert result is as expected
-        assertEquals("Wrong number of results", 2, results.keySet().size());
+        assertEquals("Wrong number of results", 2, results.size());
 
         // get both summaries
         AnnotationSummary verifiedSummary = null;
         AnnotationSummary unverifiedSummary = null;
-        for (AnnotationSummary as : results.keySet()) {
+        for (AnnotationSummary as : results) {
             if (as.getSemanticTags().contains(verifiableSemanticTag)) {
                 verifiedSummary = as;
             }
@@ -349,6 +349,6 @@ public class TestZoomaLuceneIndexer {
         assertNotNull("Could not find an unverified annotation summary", unverifiedSummary);
 
         assertTrue("Verified summary should score higher than unverified summary",
-                   results.get(verifiedSummary) > results.get(unverifiedSummary));
+                   verifiedSummary.getQuality() > unverifiedSummary.getQuality());
     }
 }

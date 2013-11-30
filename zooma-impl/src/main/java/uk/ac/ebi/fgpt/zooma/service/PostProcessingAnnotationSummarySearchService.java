@@ -6,10 +6,8 @@ import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 
 /**
  * An {@link AnnotationSummarySearchServiceDecorator} that extends the functionality of an {@link
@@ -47,8 +45,8 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     }
 
     @Override
-    public Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern) {
-        Map<AnnotationSummary, Float> rawResults = super.searchAndScore(propertyValuePattern);
+    public Collection<AnnotationSummary> search(String propertyValuePattern) {
+        Collection<AnnotationSummary> rawResults = super.search(propertyValuePattern);
 
         // if raw results are empty, attempt to process the string and requery
         if (rawResults.isEmpty()) {
@@ -69,16 +67,16 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                         return rawResults;
                     }
                     else if (parts.size() == 1) {
-                        return super.searchAndScore(propertyValuePattern);
+                        return super.search(propertyValuePattern);
                     }
                     else {
                         Iterator<String> partsIterator = parts.iterator();
                         String firstPart = partsIterator.next();
                         String secondPart = partsIterator.next();
-                        Map<AnnotationSummary, Float> firstPartResults =
-                                super.searchAndScore(firstPart);
-                        Map<AnnotationSummary, Float> secondPartResults =
-                                super.searchAndScore(secondPart);
+                        Collection<AnnotationSummary> firstPartResults =
+                                super.search(firstPart);
+                        Collection<AnnotationSummary> secondPartResults =
+                                super.search(secondPart);
 
                         return mergeResults(propertyValuePattern,
                                             firstPart,
@@ -99,9 +97,9 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     }
 
     @Override
-    public Map<AnnotationSummary, Float> searchAndScore(String propertyType,
+    public Collection<AnnotationSummary> search(String propertyType,
                                                         String propertyValuePattern) {
-        Map<AnnotationSummary, Float> results = super.searchAndScore(propertyType, propertyValuePattern);
+        Collection<AnnotationSummary> results = super.search(propertyType, propertyValuePattern);
 
         // if raw results are empty, attempt to process the string and requery
         if (results.isEmpty()) {
@@ -122,16 +120,16 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                         return results;
                     }
                     else if (parts.size() == 1) {
-                        return super.searchAndScore(propertyType, propertyValuePattern);
+                        return super.search(propertyType, propertyValuePattern);
                     }
                     else {
                         Iterator<String> partsIterator = parts.iterator();
                         String firstPart = partsIterator.next();
                         String secondPart = partsIterator.next();
-                        Map<AnnotationSummary, Float> firstPartResults =
-                                super.searchAndScore(firstPart);
-                        Map<AnnotationSummary, Float> secondPartResults =
-                                super.searchAndScore(secondPart);
+                        Collection<AnnotationSummary> firstPartResults =
+                                super.search(firstPart);
+                        Collection<AnnotationSummary> secondPartResults =
+                                super.search(secondPart);
 
                         return mergeResults(propertyValuePattern,
                                             firstPart,
@@ -150,30 +148,27 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
         return results;
     }
 
-    protected Map<AnnotationSummary, Float> mergeResults(String propertyValuePattern,
+    protected Collection<AnnotationSummary> mergeResults(String propertyValuePattern,
                                                          String firstPart,
-                                                         Map<AnnotationSummary, Float> firstPartResults,
+                                                         Collection<AnnotationSummary> firstPartResults,
                                                          String secondPart,
-                                                         Map<AnnotationSummary, Float> secondPartResults) {
-        Map<AnnotationSummary, Float> results = new HashMap<>();
+                                                         Collection<AnnotationSummary> secondPartResults) {
+        Collection<AnnotationSummary> results = new HashSet<>();
 
         int firstPartLength = firstPart.length();
         int secondPartLength = secondPart.length();
 
-        for (AnnotationSummary firstPartSummary : firstPartResults.keySet()) {
-            Float firstPartScore = firstPartResults.get(firstPartSummary);
+        for (AnnotationSummary firstPartSummary : firstPartResults) {
+            float firstPartScore = firstPartSummary.getQuality();
             String firstPartType = firstPartSummary.getAnnotatedPropertyType();
 
-            for (AnnotationSummary secondPartSummary : secondPartResults.keySet()) {
-                Float secondPartScore = secondPartResults.get(secondPartSummary);
+            for (AnnotationSummary secondPartSummary : secondPartResults) {
+                float secondPartScore = secondPartSummary.getQuality();
                 String secondPartType = secondPartSummary.getAnnotatedPropertyType();
 
                 float scoreFinal =
                         ((firstPartLength * firstPartScore + secondPartLength * secondPartScore) /
                                 (firstPartLength + secondPartLength)) * partialStringBoost;
-                float qualityScoreFinal = ((firstPartLength * firstPartSummary.getQualityScore() +
-                        secondPartLength * secondPartSummary.getQualityScore()) /
-                        (firstPartLength + secondPartLength)) * partialStringBoost;
 
                 HashSet<URI> aggregatedTags = new HashSet<>();
                 HashSet<URI> aggregatedURIs = new HashSet<>();
@@ -209,9 +204,9 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                                                                                      propertyValuePattern,
                                                                                      aggregatedTags,
                                                                                      aggregatedURIs,
-                                                                                     qualityScoreFinal);
+                                                                                     scoreFinal);
 
-                results.put(newAnnotationSummary, scoreFinal);
+                results.add(newAnnotationSummary);
             }
         }
         return results;

@@ -10,7 +10,6 @@ import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -209,7 +208,7 @@ public class ZoomaRESTClient {
             getLog().info("Iterating over " + resultSet.size() + " filtered Zooma results to find best match.");
 
             for (AnnotationSummary aresult : resultSet) {
-                if (aresult.getQualityScore() > bestResult.getQualityScore()) bestResult = aresult;
+                if (aresult.getQuality() > bestResult.getQuality()) bestResult = aresult;
             }
         }
 
@@ -217,7 +216,7 @@ public class ZoomaRESTClient {
         if (bestResult.getSemanticTags().size() > 1) log.warn("Compound URI detected.");
         getLog().info("Input: " + input);
         getLog().info("Best ZoomaResult:" + bestResult.getID() + "\t" + bestResult.getAnnotatedPropertyType() + "\t" + bestResult.getAnnotatedPropertyValue() + "\t" + bestResult.getSemanticTags());
-        getLog().info("ZoomaResult score: " + bestResult.getQualityScore());
+        getLog().info("ZoomaResult score: " + bestResult.getQuality());
 
         // then return it
         return bestResult;

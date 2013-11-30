@@ -57,41 +57,6 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
         return _annotatationSummarySearchService.searchBySemanticTags(semanticTags);
     }
 
-    @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern) {
-        return _annotatationSummarySearchService.searchAndScore(propertyValuePattern);
-    }
-
-    @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern, URI source) {
-        return _annotatationSummarySearchService.searchAndScore(propertyValuePattern, source);
-    }
-
-    @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyType, String propertyValuePattern) {
-        return _annotatationSummarySearchService.searchAndScore(propertyType, propertyValuePattern);
-    }
-
-    @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyType,
-                                                                  String propertyValuePattern,
-                                                                  URI source) {
-        return _annotatationSummarySearchService.searchAndScore(propertyType, propertyValuePattern, source);
-    }
-
-    @Override public Map<AnnotationSummary, Float> searchAndScoreByPrefix(String propertyValuePrefix) {
-        return _annotatationSummarySearchService.searchAndScoreByPrefix(propertyValuePrefix);
-    }
-
-    @Override public Map<AnnotationSummary, Float> searchAndScoreByPrefix(String propertyType,
-                                                                          String propertyValuePrefix) {
-        return _annotatationSummarySearchService.searchAndScoreByPrefix(propertyType, propertyValuePrefix);
-    }
-
-    @Override public Map<AnnotationSummary, Float> searchAndScoreBySemanticTags(String... semanticTagShortnames) {
-        return _annotatationSummarySearchService.searchAndScoreBySemanticTags(semanticTagShortnames);
-    }
-
-    @Override public Map<AnnotationSummary, Float> searchAndScoreBySemanticTags(URI... semanticTags) {
-        return _annotatationSummarySearchService.searchAndScoreBySemanticTags(semanticTags);
-    }
-
     @Override protected void doInitialization() throws Exception {
         // do nothing by default
     }

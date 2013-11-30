@@ -53,6 +53,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>simmetrics-lib</groupId>
+            <artifactId>simmetrics</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
         <!-- test dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>

@@ -88,7 +88,7 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
         return annotationURIs;
     }
 
-    @Override public float getQualityScore() {
+    @Override public float getQuality() {
         return qualityScore;
     }
 

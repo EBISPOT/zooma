@@ -32,12 +32,4 @@ public class UnmodifyingSorter<T> implements Sorter<T> {
         }
         return list;
     }
-
-    @Override public List<T> sort(Collection<T> ts, String type, String prefix) {
-        return sort(ts);
-    }
-
-    @Override public List<T> sort(Map<T, Float> map, String type, String prefix) {
-        return sort(map);
-    }
 }
