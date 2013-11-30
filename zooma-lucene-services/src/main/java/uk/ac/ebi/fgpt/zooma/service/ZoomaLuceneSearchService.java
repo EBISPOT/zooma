@@ -90,6 +90,10 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         this.similarity = similarity;
     }
 
+    public IndexReader getReader() {
+        return reader;
+    }
+
     public IndexSearcher getSearcher() {
         return searcher;
     }
@@ -366,6 +370,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             // perform queries in blocks until there are no more hits
             ScoreDoc lastScoreDoc = null;
             boolean complete = false;
+            int rank = 1;
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector collector = lastScoreDoc == null
@@ -384,9 +389,10 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
                         Document doc = getSearcher().doc(hit.doc);
-                        results.add(mapper.mapDocument(doc));
+                        results.add(mapper.mapDocument(doc, rank));
                     }
                 }
+                rank++;
             }
             getLog().debug("Query '" + q.toString() + "' returned " + results.size() + " results");
             return results;
@@ -423,6 +429,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             // perform queries in blocks until there are no more hits
             ScoreDoc lastScoreDoc = null;
             boolean complete = false;
+            int rank = 1;
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector collector = lastScoreDoc == null
@@ -441,7 +448,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
                         Document doc = getSearcher().doc(hit.doc);
-                        URI uri = mapper.mapDocument(doc);
+                        URI uri = mapper.mapDocument(doc, rank);
                         T t = dao.read(uri);
                         if (t != null) {
                             results.add(t);
@@ -452,6 +459,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         }
                     }
                 }
+                rank++;
             }
             return results;
         }
@@ -483,6 +491,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             // perform queries in blocks until there are no more hits
             ScoreDoc lastScoreDoc = null;
             boolean complete = false;
+            int rank = 1;
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector collector = lastScoreDoc == null
@@ -518,9 +527,10 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                                                    summaryScore + " x " + luceneScore + " = " +
                                                    (summaryScore * luceneScore));
                         }
-                        results.put(mapper.mapDocument(doc), totalScore);
+                        results.put(mapper.mapDocument(doc, rank), totalScore);
                     }
                 }
+                rank++;
             }
             getLog().debug(
                     "Query '" + q.toString() + "'\n...gives the following " + results.size() + " results:\n" + results);
@@ -559,6 +569,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             // perform queries in blocks until there are no more hits
             ScoreDoc lastScoreDoc = null;
             boolean complete = false;
+            int rank = 1;
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector collector = lastScoreDoc == null
@@ -584,7 +595,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         getLog().debug("Next document has a quality score of: " +
                                                summaryScore + " x " + luceneScore + " = " +
                                                (summaryScore * luceneScore));
-                        URI uri = mapper.mapDocument(doc);
+                        URI uri = mapper.mapDocument(doc, rank);
                         T t = dao.read(uri);
                         if (t != null) {
                             results.put(t, totalScore);
@@ -595,6 +606,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         }
                     }
                 }
+                rank++;
             }
             getLog().debug(
                     "Query '" + q.toString() + "'\n...gives the following " + results.size() + " results:\n" + results);

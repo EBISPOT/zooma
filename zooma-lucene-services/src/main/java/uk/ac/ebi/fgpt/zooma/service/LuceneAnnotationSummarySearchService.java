@@ -51,11 +51,11 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     }
 
     @Override protected void doInitialization() throws IOException {
-        IndexReader reader = IndexReader.open(getAnnotationIndex());
-        getLog().debug("Total number of annotations in zooma: " + reader.numDocs());
-        this.mapper = new AnnotationSummaryMapper(reader.numDocs());
-        reader.close();
         super.doInitialization();
+        IndexReader annotationReader = IndexReader.open(getAnnotationIndex());
+        getLog().debug("Total number of annotations in zooma: " + annotationReader.numDocs());
+        this.mapper = new AnnotationSummaryMapper(annotationReader.numDocs(), getReader().numDocs());
+        annotationReader.close();
     }
 
     @Override public Collection<AnnotationSummary> search(String propertyValuePattern) {

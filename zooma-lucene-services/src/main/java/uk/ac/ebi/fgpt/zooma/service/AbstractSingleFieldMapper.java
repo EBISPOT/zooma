@@ -23,6 +23,11 @@ public abstract class AbstractSingleFieldMapper<T> implements LuceneDocumentMapp
         return convertResult(d.get(fieldname));
     }
 
+    @Override
+    public T mapDocument(Document d, int rank) {
+        return convertResult(d.get(fieldname));
+    }
+
     /**
      * This implementation returns 1 for all documents; the inherent quality of a document is not assessed in this
      * implementation.  If your document can be quality scored, you can override this implementation to tailor the
@@ -32,6 +37,18 @@ public abstract class AbstractSingleFieldMapper<T> implements LuceneDocumentMapp
      * @return 1 for all documents
      */
     @Override public float getDocumentQuality(Document d) {
+        return 1;
+    }
+
+    /**
+     * This implementation returns 1 for all documents; the inherent quality of a document is not assessed in this
+     * implementation.  If your document can be quality scored, you can override this implementation to tailor the
+     * values returned.
+     *
+     * @param d the document to score
+     * @return 1 for all documents
+     */
+    @Override public float getDocumentQuality(Document d, int rank) {
         return 1;
     }
 

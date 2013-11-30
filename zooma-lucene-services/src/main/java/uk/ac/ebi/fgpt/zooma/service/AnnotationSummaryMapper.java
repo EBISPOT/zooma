@@ -18,6 +18,7 @@ import java.util.HashSet;
  */
 public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationSummary> {
     private int totalAnnotationCount;
+    private int totalAnnotationSummaryCount;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -32,11 +33,17 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
      *
      * @param totalAnnotationCount the total number of annotations in zooma
      */
-    public AnnotationSummaryMapper(int totalAnnotationCount) {
+    public AnnotationSummaryMapper(int totalAnnotationCount, int totalAnnotationSummaryCount) {
         this.totalAnnotationCount = totalAnnotationCount;
+        this.totalAnnotationSummaryCount = totalAnnotationSummaryCount;
     }
 
     @Override public AnnotationSummary mapDocument(Document d) {
+        return mapDocument(d, 1);
+    }
+
+    @Override
+    public AnnotationSummary mapDocument(Document d, int rank) {
         getLog().trace("Mapping document '" + d.toString() + "'...");
 
         // grab single cardinality fields
@@ -57,7 +64,7 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         for (String s : aStrs) {
             annotations.add(URI.create(s));
         }
-        float score = getDocumentQuality(d);
+        float score = getDocumentQuality(d, rank);
 
         getLog().trace("\nNext Annotation summary:\n\t" +
                                "property type '" + propertyType + "',\n\t" +
@@ -69,13 +76,21 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
     }
 
     @Override public float getDocumentQuality(Document d) {
+        return getDocumentQuality(d, 1);
+    }
+
+    @Override
+    public float getDocumentQuality(Document d, int rank) {
         float topScore = Float.parseFloat(d.get("topScore"));
         int veris = Integer.parseInt(d.get("timesVerified"));
         float freq = (float) Integer.parseInt(d.get("frequency"));
-        float count = (float) totalAnnotationCount;
-        float normalizedFreq = 1.0f + (freq / count);
+        float annotationCount = (float) totalAnnotationCount;
+        float annotationSummaryCount = (float) totalAnnotationSummaryCount;
+        float normalizedFreq = 1.0f + (freq / annotationCount);
+        float normalizedRank = 1.0f - (rank / annotationSummaryCount);
+        // todo - consider normalized rank in annotation summary score
         getLog().trace("Document quality: " +
-                               "(" + topScore + " + " + veris + ") x (1 + " + freq + "/" + count + ") = " +
+                               "(" + topScore + " + " + veris + ") x (1 + " + freq + "/" + annotationCount + ") = " +
                                (topScore + veris) + " x " + normalizedFreq + " = " +
                                ((topScore + veris) * normalizedFreq));
         return (topScore + veris) * normalizedFreq;
