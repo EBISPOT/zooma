@@ -21,7 +21,6 @@ import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Search ZOOMA for {@link uk.ac.ebi.fgpt.zooma.model.Annotation}s matching the supplied property value prefix and,
@@ -143,21 +142,21 @@ public class ZoomaAnnotationSearcher extends IdentifiableSuggestEndpoint<Annotat
     public Collection<Annotation> query(String prefix) {
         getLog().trace("Querying for " + prefix);
         validate();
-        Collection<Annotation> allAnnotations = getAnnotationSearchService().searchPrefix(prefix);
+        Collection<Annotation> allAnnotations = getAnnotationSearchService().searchByPrefix(prefix);
         return getAnnotationSorter().sort(allAnnotations);
     }
 
     public Collection<Annotation> query(String prefix, String type) {
         getLog().trace("Querying for " + prefix + ", " + type);
         validate();
-        Collection<Annotation> allAnnotations = getAnnotationSearchService().searchPrefix(type, prefix);
+        Collection<Annotation> allAnnotations = getAnnotationSearchService().searchByPrefix(type, prefix);
         return getAnnotationSorter().sort(allAnnotations);
     }
 
     public Collection<Annotation> query(String prefix, String type, int limit, int start) {
         getLog().trace("Querying for " + prefix + ", " + type + ", " + limit + ", " + start);
         validate();
-        Collection<Annotation> allAnnotations = getAnnotationSearchService().searchPrefix(type, prefix);
+        Collection<Annotation> allAnnotations = getAnnotationSearchService().searchByPrefix(type, prefix);
         List<Annotation> allAnnotationsList = getAnnotationSorter().sort(allAnnotations);
         return getAnnotationLimiter().limit(allAnnotationsList, limit, start);
     }

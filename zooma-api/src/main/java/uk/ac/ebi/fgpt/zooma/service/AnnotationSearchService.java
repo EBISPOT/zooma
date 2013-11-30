@@ -46,7 +46,7 @@ public interface AnnotationSearchService {
      * @param propertyValuePrefix annotations containing this property value prefix should be searched for
      * @return a collection of annotations containing matching property type and values
      */
-    Collection<Annotation> searchPrefix(String propertyValuePrefix);
+    Collection<Annotation> searchByPrefix(String propertyValuePrefix);
 
     /**
      * Search the set of annotations known to ZOOMA for those which have a property value that matches the supplied
@@ -60,5 +60,5 @@ public interface AnnotationSearchService {
      * @param propertyValuePrefix annotations containing this property value prefix should be searched for
      * @return a collection of annotations containing matching property type and values
      */
-    Collection<Annotation> searchPrefix(String propertyType, String propertyValuePrefix);
+    Collection<Annotation> searchByPrefix(String propertyType, String propertyValuePrefix);
 }

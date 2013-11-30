@@ -71,7 +71,7 @@ public class PropertyBasedAnnotationSearchService implements AnnotationSearchSer
         return results;
     }
 
-    @Override public Collection<Annotation> searchPrefix(String propertyValuePrefix) {
+    @Override public Collection<Annotation> searchByPrefix(String propertyValuePrefix) {
         // find most relevant properties
         Collection<Property> properties = getPropertySearchService().searchByPrefix(propertyValuePrefix);
 
@@ -86,7 +86,7 @@ public class PropertyBasedAnnotationSearchService implements AnnotationSearchSer
         return results;
     }
 
-    @Override public Collection<Annotation> searchPrefix(String propertyType, String propertyValuePrefix) {
+    @Override public Collection<Annotation> searchByPrefix(String propertyType, String propertyValuePrefix) {
         // find most relevant properties
         Collection<Property> properties = getPropertySearchService().searchByPrefix(propertyType, propertyValuePrefix);
 

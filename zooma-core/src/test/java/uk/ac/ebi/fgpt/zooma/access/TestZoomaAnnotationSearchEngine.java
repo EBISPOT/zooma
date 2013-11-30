@@ -90,8 +90,8 @@ public class TestZoomaAnnotationSearchEngine {
 
         // create test stubs
         when(annotationService.getAnnotationsByProperty(one)).thenReturn(annotations);
-        when(annotationSearchService.searchPrefix(anyString())).thenReturn(annotations);
-        when(annotationSearchService.searchPrefix(anyString(), anyString())).thenReturn(annotations);
+        when(annotationSearchService.searchByPrefix(anyString())).thenReturn(annotations);
+        when(annotationSearchService.searchByPrefix(anyString(), anyString())).thenReturn(annotations);
         when(annotationSorter.sort(anyCollection())).thenReturn(annotations);
         when(annotationSorter.sort(anyMap())).thenReturn(annotations);
         when(annotationLimiter.limit(anyList(), anyInt())).thenReturn(limitedAnnotations);
@@ -119,7 +119,7 @@ public class TestZoomaAnnotationSearchEngine {
             String prefix = property.getPropertyValue().substring(0, 3);
             getLog().debug("Testing query for " + prefix);
             Collection<Annotation> searchResults = annotationSearchEngine.query(prefix);
-            verify(annotationSearchService).searchPrefix(prefix);
+            verify(annotationSearchService).searchByPrefix(prefix);
             assertEquals("Unexpected prefix search results returned for " + prefix, annotations, searchResults);
         }
     }
@@ -133,7 +133,7 @@ public class TestZoomaAnnotationSearchEngine {
             String type = ((TypedProperty) property).getPropertyType();
             getLog().debug("Testing query for " + prefix + ", " + type);
             Collection<Annotation> searchResults = annotationSearchEngine.query(prefix, type);
-            verify(annotationSearchService).searchPrefix(type, prefix);
+            verify(annotationSearchService).searchByPrefix(type, prefix);
             verify(annotationSorter, times(i++)).sort(annotations);
             assertEquals("Unexpected prefix and type search results returned for " + prefix,
                          annotations,
@@ -150,7 +150,7 @@ public class TestZoomaAnnotationSearchEngine {
             String type = ((TypedProperty) property).getPropertyType();
             getLog().debug("Testing query for " + prefix + ", " + type + ", 10, 0");
             Collection<Annotation> searchResults = annotationSearchEngine.query(prefix, type, 10, 0);
-            verify(annotationSearchService).searchPrefix(type, prefix);
+            verify(annotationSearchService).searchByPrefix(type, prefix);
             verify(annotationSorter, times(i)).sort(annotations);
             verify(annotationLimiter, times(i++)).limit(annotations, 10, 0);
             assertEquals("Unexpected prefix, type, limit search results returned for " + prefix,
