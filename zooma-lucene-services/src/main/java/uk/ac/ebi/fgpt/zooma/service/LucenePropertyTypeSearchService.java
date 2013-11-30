@@ -37,26 +37,4 @@ public class LucenePropertyTypeSearchService extends ZoomaLuceneSearchService im
     @Override public Collection<String> searchByPrefix(String propertyTypePrefix) {
         return search(propertyTypePrefix + "*");
     }
-
-    @Override public Map<String, Float> searchAndScore(String propertyTypePattern) {
-        try {
-            initOrWait();
-
-            // build a query
-            Query q = formulateQuery("name", propertyTypePattern);
-
-            // do the query
-            return doQueryAndScore(q, new SingleFieldStringMapper("name"));
-        }
-        catch (QueryCreationException | IOException e) {
-            throw new SearchException("Problems creating query for '" + propertyTypePattern + "'", e);
-        }
-        catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
-        }
-    }
-
-    @Override public Map<String, Float> searchAndScoreByPrefix(String propertyTypePrefix) {
-        return searchAndScore(propertyTypePrefix + "*");
-    }
 }

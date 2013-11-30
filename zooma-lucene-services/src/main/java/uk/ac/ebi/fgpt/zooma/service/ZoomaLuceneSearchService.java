@@ -365,7 +365,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             initOrWait();
 
             // create the list to collect results in
-            Collection<T> results = new HashSet<>();
+            Collection<T> results = new ArrayList<>();
 
             // perform queries in blocks until there are no more hits
             ScoreDoc lastScoreDoc = null;

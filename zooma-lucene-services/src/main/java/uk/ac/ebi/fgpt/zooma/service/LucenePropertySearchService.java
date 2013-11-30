@@ -87,7 +87,6 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                 Collection<Query> pqs = new HashSet<>();
                 pqs.add(pq);
                 if (getSearchStringProcessorProvider() != null) {
-
                     pqs.addAll(generateProcessedQueries("name",
                                                         propertyValuePattern,
                                                         getSearchStringProcessorProvider().getFilteredProcessors(
@@ -124,84 +123,5 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
         else {
             return search(propertyType, propertyValuePrefix + "*");
         }
-    }
-
-    @Override public Map<Property, Float> searchAndScore(String propertyValuePattern) {
-        try {
-            initOrWait();
-
-            // first, formulate query for original propertyValuePattern
-            Query pq = formulateQuery("name", propertyValuePattern);
-
-            // then generate a series of queries from the processed property value, using available search string processors
-            Collection<Query> pqs = new HashSet<>();
-            pqs.add(pq);
-            if (getSearchStringProcessorProvider() != null) {
-                pqs.addAll(generateProcessedQueries("name",
-                                                    propertyValuePattern,
-                                                    getSearchStringProcessorProvider().getProcessors()));
-            }
-
-            // unify processed queries into a single query
-            Query q = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
-
-            // do the query
-            return doQueryAndScore(q, new SingleFieldURIMapper(), getPropertyDAO());
-        }
-        catch (QueryCreationException | IOException e) {
-            throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
-        }
-        catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
-        }
-    }
-
-    @Override public Map<Property, Float> searchAndScore(String propertyType, String propertyValuePattern) {
-        try {
-            initOrWait();
-
-            Query q;
-            if (propertyValuePattern.isEmpty()) {
-                q = formulateQuery("type", propertyType);
-            }
-            else {
-                // first, formulate query for original propertyValuePattern
-                Query pq = formulateQuery("name", propertyValuePattern);
-
-                // then generate a series of queries from the processed property value, using available search string processors
-                Collection<Query> pqs = new HashSet<>();
-                pqs.add(pq);
-                if (getSearchStringProcessorProvider() != null) {
-                    pqs.addAll(generateProcessedQueries("name",
-                                                        propertyValuePattern,
-                                                        getSearchStringProcessorProvider().getFilteredProcessors(
-                                                                propertyType)));
-                }
-
-                // build a property type query
-                Query ptq = formulateQueryConserveOrderIfMultiword("type", propertyType);
-
-                // unify the type query with each value query
-                q = formulateTypedQuery(ptq, pqs);
-            }
-
-            // do the query
-            return doQueryAndScore(q, new SingleFieldURIMapper(), getPropertyDAO());
-        }
-        catch (QueryCreationException | IOException e) {
-            throw new SearchException(
-                    "Problems creating query for '" + propertyValuePattern + "' ['" + propertyType + "']", e);
-        }
-        catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
-        }
-    }
-
-    @Override public Map<Property, Float> searchAndScoreByPrefix(String propertyValuePrefix) {
-        return searchAndScore(propertyValuePrefix + "*");
-    }
-
-    @Override public Map<Property, Float> searchAndScoreByPrefix(String propertyType, String propertyValuePrefix) {
-        return searchAndScore(propertyType, propertyValuePrefix + "*");
     }
 }
