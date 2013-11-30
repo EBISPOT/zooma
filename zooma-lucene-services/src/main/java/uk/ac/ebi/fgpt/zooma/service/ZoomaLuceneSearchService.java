@@ -441,9 +441,14 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
                         Document doc = getSearcher().doc(hit.doc);
-                        T t = dao.read(mapper.mapDocument(doc));
+                        URI uri = mapper.mapDocument(doc);
+                        T t = dao.read(uri);
                         if (t != null) {
                             results.add(t);
+                        }
+                        else {
+                            getLog().warn("Failed to retrieve result for <" + uri + "> in DAO for " +
+                                                  dao.getDatasourceName());
                         }
                     }
                 }
@@ -579,9 +584,14 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         getLog().debug("Next document has a quality score of: " +
                                                summaryScore + " x " + luceneScore + " = " +
                                                (summaryScore * luceneScore));
-                        T t = dao.read(mapper.mapDocument(doc));
+                        URI uri = mapper.mapDocument(doc);
+                        T t = dao.read(uri);
                         if (t != null) {
                             results.put(t, totalScore);
+                        }
+                        else {
+                            getLog().warn("Failed to retrieve result for <" + uri + "> in DAO for " +
+                                                  dao.getDatasourceName());
                         }
                     }
                 }
