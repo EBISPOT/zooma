@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * Javadocs go here!
+ * Maps lucene documents into {@link AnnotationSummary} objects.
  *
  * @author Tony Burdett
  * @date 10/07/13
@@ -38,7 +38,8 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         this.totalAnnotationSummaryCount = totalAnnotationSummaryCount;
     }
 
-    @Override public AnnotationSummary mapDocument(Document d) {
+    @Override
+    public AnnotationSummary mapDocument(Document d) {
         return mapDocument(d, 1);
     }
 
@@ -75,7 +76,8 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         return new SimpleAnnotationSummary(id, propertyType, propertyValue, semanticTags, annotations, score);
     }
 
-    @Override public float getDocumentQuality(Document d) {
+    @Override
+    public float getDocumentQuality(Document d) {
         return getDocumentQuality(d, 1);
     }
 
@@ -93,6 +95,6 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
                                "(" + topScore + " + " + veris + ") x (1 + " + freq + "/" + annotationCount + ") = " +
                                (topScore + veris) + " x " + normalizedFreq + " = " +
                                ((topScore + veris) * normalizedFreq));
-        return (topScore + veris) * normalizedFreq;
+        return (topScore + veris) * normalizedRank * normalizedFreq;
     }
 }
