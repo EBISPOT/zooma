@@ -121,7 +121,7 @@ public class TestZoomaLuceneSearchService {
         String querystr = "foo";
         try {
             Query q = new QueryParser(version, "name", analyzer).parse(querystr);
-            Collection<String> results = searchService.doQuery(q, "name");
+            Collection<String> results = searchService.doQuery(q, new SingleFieldStringMapper("name"));
             assertEquals("Wrong number of results", 4, results.size());
             assertTrue(results.contains("foo"));
             assertTrue(results.contains("foo bar"));
@@ -129,7 +129,7 @@ public class TestZoomaLuceneSearchService {
             assertTrue(results.contains("foo baz"));
 
             q = new QueryParser(version, "uri", analyzer).parse(querystr);
-            results = searchService.doQuery(q, "uri");
+            results = searchService.doQuery(q, new SingleFieldStringMapper("uri"));
             assertEquals("Wrong number of results", 4, results.size());
             assertTrue(results.contains(convertToURI("foo").toString()));
             assertTrue(results.contains(convertToURI("foo bar").toString()));
@@ -152,19 +152,19 @@ public class TestZoomaLuceneSearchService {
         try {
             String querystr = "foo";
             Query q = new QueryParser(version, "uri", analyzer).parse(querystr);
-            Collection<Identifiable> results = searchService.doQuery(q, "uri", dao);
+            Collection<Identifiable> results = searchService.doQuery(q, new SingleFieldURIMapper("uri"), dao);
             assertEquals("Wrong number of results", 1, results.size());
             assertTrue("Identifiable 'foo' not found", results.contains(foo));
 
             querystr = "bar";
             q = new QueryParser(version, "uri", analyzer).parse(querystr);
-            results = searchService.doQuery(q, "uri", dao);
+            results = searchService.doQuery(q, new SingleFieldURIMapper("uri"), dao);
             assertEquals("Wrong number of results", 1, results.size());
             assertTrue("Identifiable 'bar' not found", results.contains(bar));
 
             querystr = "baz";
             q = new QueryParser(version, "uri", analyzer).parse(querystr);
-            results = searchService.doQuery(q, "uri", dao);
+            results = searchService.doQuery(q, new SingleFieldURIMapper("uri"), dao);
             assertEquals("Wrong number of results", 1, results.size());
             assertTrue("Identifiable 'baz' not found", results.contains(baz));
         }
