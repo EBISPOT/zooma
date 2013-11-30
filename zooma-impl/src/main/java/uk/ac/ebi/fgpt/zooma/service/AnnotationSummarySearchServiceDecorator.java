@@ -45,8 +45,18 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
         return _annotatationSummarySearchService.searchByPrefix(propertyValuePrefix);
     }
 
+    @Override
+    public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI source) {
+        return _annotatationSummarySearchService.searchByPrefix(propertyValuePrefix, source);
+    }
+
     @Override public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix) {
         return _annotatationSummarySearchService.searchByPrefix(propertyType, propertyValuePrefix);
+    }
+
+    @Override
+    public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI source) {
+        return _annotatationSummarySearchService.searchByPrefix(propertyType, propertyValuePrefix, source);
     }
 
     @Override public Collection<AnnotationSummary> searchBySemanticTags(String... semanticTagShortnames) {
@@ -55,6 +65,18 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
 
     @Override public Collection<AnnotationSummary> searchBySemanticTags(URI... semanticTags) {
         return _annotatationSummarySearchService.searchBySemanticTags(semanticTags);
+    }
+
+    @Override
+    public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern, URI... sources) {
+        return _annotatationSummarySearchService.searchByPreferredSources(propertyValuePattern, sources);
+    }
+
+    @Override
+    public Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
+                                                                  String propertyValuePattern,
+                                                                  URI... sources) {
+        return _annotatationSummarySearchService.searchByPreferredSources(propertyType, propertyValuePattern, sources);
     }
 
     @Override protected void doInitialization() throws Exception {

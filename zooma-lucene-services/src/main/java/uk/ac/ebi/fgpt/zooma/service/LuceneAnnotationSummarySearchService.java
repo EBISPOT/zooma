@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A service that allows searching over the set of {@link AnnotationSummary} objects known to ZOOMA.  Prefix-based and
@@ -216,6 +215,12 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         }
     }
 
+    @Override
+    public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI source) {
+        // todo - implement source limiting!
+        throw new UnsupportedOperationException("Searching with constrained source is not yet supported");
+    }
+
     @Override public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix) {
         try {
             initOrWait();
@@ -237,6 +242,12 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         catch (InterruptedException e) {
             throw new SearchException("Failed to perform query - indexing process was interrupted", e);
         }
+    }
+
+    @Override
+    public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI source) {
+        // todo - implement source limiting!
+        throw new UnsupportedOperationException("Searching with constrained source is not yet supported");
     }
 
     @Override public Collection<AnnotationSummary> searchBySemanticTags(String... semanticTagShortnames) {
@@ -281,5 +292,19 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         catch (InterruptedException e) {
             throw new SearchException("Failed to perform query - indexing process was interrupted", e);
         }
+    }
+
+    @Override
+    public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern, URI... sources) {
+        // todo - implement source limiting!
+        throw new UnsupportedOperationException("Searching with preferred source is not yet supported");
+    }
+
+    @Override
+    public Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
+                                                                  String propertyValuePattern,
+                                                                  URI... sources) {
+        // todo - implement source limiting!
+        throw new UnsupportedOperationException("Searching with constrained source is not yet supported");
     }
 }
