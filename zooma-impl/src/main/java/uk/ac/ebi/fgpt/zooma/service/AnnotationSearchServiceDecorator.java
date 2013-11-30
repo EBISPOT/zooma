@@ -35,20 +35,4 @@ public abstract class AnnotationSearchServiceDecorator implements AnnotationSear
     @Override public Collection<Annotation> searchPrefix(String propertyType, String propertyValuePrefix) {
         return _annotationSearchService.searchPrefix(propertyType, propertyValuePrefix);
     }
-
-    @Override public Map<Annotation, Float> searchAndScore(String propertyValuePattern) {
-        return _annotationSearchService.searchAndScore(propertyValuePattern);
-    }
-
-    @Override public Map<Annotation, Float> searchAndScore(String propertyType, String propertyValuePattern) {
-        return _annotationSearchService.searchAndScore(propertyType, propertyValuePattern);
-    }
-
-    @Override public Map<Annotation, Float> searchAndScoreByPrefix(String propertyValuePrefix) {
-        return _annotationSearchService.searchAndScoreByPrefix(propertyValuePrefix);
-    }
-
-    @Override public Map<Annotation, Float> searchAndScoreByPrefix(String propertyType, String propertyValuePrefix) {
-        return _annotationSearchService.searchAndScoreByPrefix(propertyType, propertyValuePrefix);
-    }
 }
