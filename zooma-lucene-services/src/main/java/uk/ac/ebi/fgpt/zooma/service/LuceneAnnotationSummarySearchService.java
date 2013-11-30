@@ -217,8 +217,26 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
 
     @Override
     public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI source) {
-        // todo - implement source limiting!
-        throw new UnsupportedOperationException("Searching with constrained source is not yet supported");
+        try {
+            initOrWait();
+
+            Query pq = formulatePrefixQuery("property", propertyValuePrefix);
+
+            // build a source query
+            Query sq = formulateQuery("source", source.toString());
+
+            // unify them with boolean, both must occur
+            Query q = formulateCombinedQuery(true, true, pq, sq);
+
+            // do the query
+            return doQuery(q, getMapper());
+        }
+        catch (QueryCreationException | IOException e) {
+            throw new SearchException("Problems creating query for '" + propertyValuePrefix + "'", e);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
     }
 
     @Override public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix) {
@@ -246,8 +264,32 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
 
     @Override
     public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI source) {
-        // todo - implement source limiting!
-        throw new UnsupportedOperationException("Searching with constrained source is not yet supported");
+        try {
+            initOrWait();
+
+            Query pq = formulatePrefixQuery("property", propertyValuePrefix);
+
+            // build a property type query
+            Query ptq = formulateQueryConserveOrderIfMultiword("propertytype", propertyType);
+
+            // unify them with boolean, both terms must occur
+            Query tq = formulateTypedQuery(ptq, pq);
+
+            // build a source query
+            Query sq = formulateQuery("source", source.toString());
+
+            // unify them with boolean, both must occurs
+            Query q = formulateCombinedQuery(true, true, tq, sq);
+
+            // do the query
+            return doQuery(q, getMapper());
+        }
+        catch (QueryCreationException | IOException e) {
+            throw new SearchException("Problems creating query for '" + propertyValuePrefix + "'", e);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
     }
 
     @Override public Collection<AnnotationSummary> searchBySemanticTags(String... semanticTagShortnames) {

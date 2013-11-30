@@ -17,8 +17,10 @@ import java.util.HashSet;
  * @date 10/07/13
  */
 public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationSummary> {
-    private int totalAnnotationCount;
-    private int totalAnnotationSummaryCount;
+    private final int totalAnnotationCount;
+    private final int totalAnnotationSummaryCount;
+
+    private final URI[] sourceRanking;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -36,6 +38,13 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
     public AnnotationSummaryMapper(int totalAnnotationCount, int totalAnnotationSummaryCount) {
         this.totalAnnotationCount = totalAnnotationCount;
         this.totalAnnotationSummaryCount = totalAnnotationSummaryCount;
+        this.sourceRanking = new URI[0];
+    }
+
+    public AnnotationSummaryMapper(int totalAnnotationCount, int totalAnnotationSummaryCount, URI... sourceRanking) {
+        this.totalAnnotationCount = totalAnnotationCount;
+        this.totalAnnotationSummaryCount = totalAnnotationSummaryCount;
+        this.sourceRanking = sourceRanking;
     }
 
     @Override
@@ -90,11 +99,20 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         float annotationSummaryCount = (float) totalAnnotationSummaryCount;
         float normalizedFreq = 1.0f + (freq / annotationCount);
         float normalizedRank = 1.0f - (rank / annotationSummaryCount);
-        // todo - consider normalized rank in annotation summary score
+        float sourceRank = (float) Math.sqrt((double) getSourceRanking(URI.create(d.get("source"))));
         getLog().trace("Document quality: " +
                                "(" + topScore + " + " + veris + ") x (1 + " + freq + "/" + annotationCount + ") = " +
                                (topScore + veris) + " x " + normalizedFreq + " = " +
                                ((topScore + veris) * normalizedFreq));
-        return (topScore + veris) * normalizedRank * normalizedFreq;
+        return (topScore + veris) * normalizedRank * normalizedFreq + sourceRank;
+    }
+
+    protected int getSourceRanking(URI source) {
+        for (int i = 0; i<sourceRanking.length; i++) {
+            if (sourceRanking[i].equals(source)) {
+                return sourceRanking.length - i + 1;
+            }
+        }
+        return 1;
     }
 }
