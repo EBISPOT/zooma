@@ -31,12 +31,6 @@
         </dependency>
 
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.25</version>
-        </dependency>
-
-        <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-owlapi</artifactId>
             <version>2.0-SNAPSHOT</version>
@@ -47,6 +41,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
         <dependency>
