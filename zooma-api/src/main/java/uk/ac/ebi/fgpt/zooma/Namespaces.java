@@ -40,6 +40,7 @@ public enum Namespaces {
     OWL_RESOURCE("http://rdf.ebi.ac.uk/resource/zooma/owl/"),
 
     OMIA("http://omia.angis.org.au"),
+    OMIM("http://omim.org"),
 
     EFO("http://www.ebi.ac.uk/efo/"),
     SNAP("http://www.ifomis.org/bfo/1.1/snap#"),

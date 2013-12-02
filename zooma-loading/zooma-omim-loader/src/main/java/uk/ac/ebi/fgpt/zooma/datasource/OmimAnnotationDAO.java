@@ -18,12 +18,22 @@ import java.util.List;
  * @date 02/12/13
  */
 public class OmimAnnotationDAO implements AnnotationDAO {
+    private AnnotationFactory annotationFactory;
+
+    public OmimAnnotationDAO() {
+        this(new OmimAnnotationFactory(new OmimLoadingSession()));
+    }
+
+    public OmimAnnotationDAO(AnnotationFactory annotationFactory) {
+        this.annotationFactory = annotationFactory;
+    }
+
     @Override public Collection<Annotation> readByStudy(Study study) {
-        return null;
+        throw new UnsupportedOperationException("Cannot query OMIM by study");
     }
 
     @Override public Collection<Annotation> readByBiologicalEntity(BiologicalEntity biologicalEntity) {
-        return null;
+        throw new UnsupportedOperationException("Cannot query OMIM by biological entity");
     }
 
     @Override public Collection<Annotation> readByProperty(Property property) {
@@ -35,7 +45,7 @@ public class OmimAnnotationDAO implements AnnotationDAO {
     }
 
     @Override public String getDatasourceName() {
-        return null;
+        return "omim";
     }
 
     @Override public int count() {
@@ -43,6 +53,8 @@ public class OmimAnnotationDAO implements AnnotationDAO {
     }
 
     @Override public void create(Annotation identifiable) throws ResourceAlreadyExistsException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, creation not supported");
     }
 
     @Override public Collection<Annotation> read() {
@@ -58,8 +70,12 @@ public class OmimAnnotationDAO implements AnnotationDAO {
     }
 
     @Override public void update(Annotation object) throws NoSuchResourceException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, updates not supported");
     }
 
     @Override public void delete(Annotation object) throws NoSuchResourceException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, deletions not supported");
     }
 }
