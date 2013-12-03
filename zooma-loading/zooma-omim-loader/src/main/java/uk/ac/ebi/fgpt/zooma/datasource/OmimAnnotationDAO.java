@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
+import org.biojava3.core.util.UncompressInputStream;
 import org.springframework.core.io.Resource;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
@@ -16,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 /**
  * Javadocs go here!
@@ -28,7 +28,7 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
     private final AnnotationFactory annotationFactory;
 
     private Resource omimResource;
-    private boolean isGzipped = false;
+    private boolean isCompressed = false;
 
     private boolean resourceSupportsMark;
 
@@ -50,12 +50,12 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
         this.omimResource = omimResource;
     }
 
-    public boolean isGzipped() {
-        return isGzipped;
+    public boolean isCompressed() {
+        return isCompressed;
     }
 
-    public void setGzipped(boolean gzipped) {
-        isGzipped = gzipped;
+    public void setCompressed(boolean compressed) {
+        isCompressed = compressed;
     }
 
     @Override public Collection<Annotation> readByStudy(Study study) {
@@ -211,8 +211,8 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
 
     private OmimPhenotypeEntryReader createReader() throws IOException {
         InputStream in;
-        if (isGzipped()) {
-            in = new GZIPInputStream(omimResource.getInputStream());
+        if (isCompressed()) {
+            in = new UncompressInputStream(omimResource.getInputStream());
         }
         else {
             in = omimResource.getInputStream();
@@ -223,15 +223,22 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
     private List<OmimPhenotypeEntry> readEntries() throws IOException {
         List<OmimPhenotypeEntry> entries = new ArrayList<>();
         OmimPhenotypeEntry entry;
+        int i = 0;
         while ((entry = reader.readEntry()) != null) {
             entries.add(entry);
+            i++;
+            if (getLog().isTraceEnabled()) {
+                getLog().trace("Read next OMIM entry, '" + entry.getOmimID() + "', now done " + i);
+            }
         }
         return entries;
     }
 
     private Collection<Annotation> convertEntry(OmimPhenotypeEntry entry) {
+        if (getLog().isTraceEnabled()) {
+            getLog().trace("Converting OMIM entry '" + entry.getOmimID() + "' to ZOOMA annotations...");
+        }
         Collection<Annotation> results = new HashSet<>();
-
         results.add(annotationFactory.createAnnotation(null,
                                                        null,
                                                        null,
@@ -269,6 +276,9 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
                                                            convertToSemanticTag(entry.getOmimID()),
                                                            entry.getLastAnnotator(),
                                                            entry.getLastAnnotationDate()));
+        }
+        if (getLog().isTraceEnabled()) {
+            getLog().trace("OMIM entry '" + entry.getOmimID() + "' resulted in " + results.size() + " annotations");
         }
         return results;
     }

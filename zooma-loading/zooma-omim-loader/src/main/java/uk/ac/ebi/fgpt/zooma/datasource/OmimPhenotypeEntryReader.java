@@ -40,7 +40,7 @@ public class OmimPhenotypeEntryReader extends Reader {
         };
     }
 
-    public OmimPhenotypeEntry readEntry() throws IOException {
+    public synchronized OmimPhenotypeEntry readEntry() throws IOException {
         String idString = null;
         String titleString = null;
         List<String> altTitleStrings = null;
@@ -189,11 +189,11 @@ public class OmimPhenotypeEntryReader extends Reader {
         }
     }
 
-    @Override public int read(char[] cbuf, int off, int len) throws IOException {
+    @Override public synchronized int read(char[] cbuf, int off, int len) throws IOException {
         return _reader.read(cbuf, off, len);
     }
 
-    @Override public void close() throws IOException {
+    @Override public synchronized void close() throws IOException {
         _reader.close();
         position = 0;
     }

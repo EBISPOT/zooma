@@ -12,6 +12,11 @@
         <appender-ref ref="console" />
     </logger>
 
+    <logger name="uk.ac.ebi.fgpt.zooma.datasource.OmimAnnotationDAO" additivity="false">
+        <level value="TRACE" />
+        <appender-ref ref="console" />
+    </logger>
+
     <logger name="uk.ac.ebi.fgpt.zooma" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="console" />

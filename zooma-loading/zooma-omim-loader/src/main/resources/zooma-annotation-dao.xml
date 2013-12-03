@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd">
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder />
+
+    <!-- Configure AnnotationDAOs for this datasource -->
+    <bean name="omimDAO" class="uk.ac.ebi.fgpt.zooma.datasource.OmimAnnotationDAO">
+        <constructor-arg name="annotationFactory" ref="omimAnnotationFactory" />
+        <property name="omimResource" value="ftp://anonymous:tburdett%40ebi%2Eac%2Euk@ftp.omim.org/OMIM/omim.txt.Z" />
+        <property name="compressed" value="true" />
+    </bean>
+
+    <bean name="omimAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.OmimAnnotationFactory">
+        <constructor-arg name="annotationLoadingSession" ref="omimLoadingSession" />
+    </bean>
+
+    <bean name="omimLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.OmimLoadingSession" />
 
 </beans>
