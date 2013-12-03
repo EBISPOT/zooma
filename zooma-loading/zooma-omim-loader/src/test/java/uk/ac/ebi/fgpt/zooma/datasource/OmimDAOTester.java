@@ -21,29 +21,29 @@ public class OmimDAOTester {
         tester.printAllAnnotations();
     }
 
-    private OmimAnnotationDAO omiaDAO;
-    private OWLAPIAnnotationSerializer omiaSerializer;
+    private OmimAnnotationDAO omimDAO;
+    private OWLAPIAnnotationSerializer omimSerializer;
 
     public OmimDAOTester() {
         System.out.print("Loading spring context...");
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:zooma-omim-dao.xml");
         System.out.println("done!");
-        omiaDAO = ctx.getBean("omimDAO", OmimAnnotationDAO.class);
-        omiaSerializer = ctx.getBean("annotationSerializer", OWLAPIAnnotationSerializer.class);
+        omimDAO = ctx.getBean("omimDAO", OmimAnnotationDAO.class);
+        omimSerializer = ctx.getBean("annotationSerializer", OWLAPIAnnotationSerializer.class);
     }
 
     public void printAllAnnotations() {
-        System.out.print("Reading annotations from OMIA...");
-        Collection<Annotation> annotations = omiaDAO.read();
+        System.out.print("Reading annotations from OMIM...");
+        Collection<Annotation> annotations = omimDAO.read();
         System.out.println("done!");
 
 //        for (Annotation a : annotations) {
 //            System.out.println("Next annotation: " + a);
 //        }
-        System.out.println("There are " + annotations.size() + " annotations in OMIA");
+        System.out.println("There are " + annotations.size() + " annotations in OMIM");
 
         try {
-            omiaSerializer.serialize("omia", annotations, new File("omia-annotations.rdf"));
+            omimSerializer.serialize("omim", annotations, new File("omim-annotations.rdf"));
         }
         catch (ZoomaSerializationException e) {
             e.printStackTrace();

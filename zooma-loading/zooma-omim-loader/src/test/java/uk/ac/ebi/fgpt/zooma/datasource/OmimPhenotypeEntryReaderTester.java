@@ -13,13 +13,13 @@ import java.util.List;
  * @author Tony Burdett
  * @date 02/12/13
  */
-public class OmimEntryReaderTester {
+public class OmimPhenotypeEntryReaderTester {
     public static void main(String[] args) {
         try {
             File f = new File("/home/tburdett/zooma2/omim/omim.txt");
-            OmimEntryReader reader = new OmimEntryReader(new FileInputStream(f));
-            List<OmimEntry> entries = new ArrayList<>();
-            OmimEntry entry;
+            OmimPhenotypeEntryReader reader = new OmimPhenotypeEntryReader(new FileInputStream(f));
+            List<OmimPhenotypeEntry> entries = new ArrayList<>();
+            OmimPhenotypeEntry entry;
             System.out.print("Reading from " + f.getAbsolutePath() + ".");
             while ((entry = reader.readEntry()) != null) {
                 entries.add(entry);
@@ -28,7 +28,7 @@ public class OmimEntryReaderTester {
             System.out.println("done!");
 
             System.out.println("Successfully read " + entries.size() + " entries from " + f.getAbsolutePath());
-            for (OmimEntry nextEntry : entries) {
+            for (OmimPhenotypeEntry nextEntry : entries) {
                 System.out.println(nextEntry);
             }
         }
