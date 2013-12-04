@@ -25,6 +25,8 @@ import java.util.List;
  * @date 02/12/13
  */
 public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
+    public static final int READ_AHEAD = 1024*1024;
+
     private final AnnotationFactory annotationFactory;
 
     private Resource omimResource;
@@ -173,10 +175,10 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
             if (reader == null) {
                 reader = createReader();
                 try {
-                    reader.mark(-1);
+                    reader.mark(READ_AHEAD);
                 }
                 catch (IOException e) {
-                    getLog().error("Failed to mark OMIM stream with a read-ahead of -1; " +
+                    getLog().error("Failed to mark OMIM stream with a read-ahead of " + READ_AHEAD + "; " +
                                            "marking will be disabled (" + e.getMessage() + ")");
                     resourceSupportsMark = false;
                 }
@@ -221,6 +223,7 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
     }
 
     private List<OmimPhenotypeEntry> readEntries() throws IOException {
+        resetReader();
         List<OmimPhenotypeEntry> entries = new ArrayList<>();
         OmimPhenotypeEntry entry;
         int i = 0;
