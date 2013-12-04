@@ -148,9 +148,16 @@ SELECT DISTINCT (?bioentityid AS ?_bioentityid) (?bioentityType AS ?_bioentityTy
 SELECT DISTINCT ?study ?studylabel WHERE {
     ?annotationid oac:hasTarget ?bioentityid .
     ?bioentityid dc:isPartOf ?study .
-    OPTIONAL { ?study rdfs:label ?studylabel}
+    ?study rdfs:label ?studylabel
 }
 
+^[Study.readByAccession]
+SELECT DISTINCT ?study ?studylabel WHERE {
+    ?annotationid oac:hasTarget ?bioentityid .
+    ?bioentityid dc:isPartOf ?study .
+    ?study rdfs:label ?studylabel
+    filter
+}
 
 ^[Property.read]
 SELECT DISTINCT (?propertyvalueid as ?_propertyvalueid) (?propertyname as ?_propertyname) (?propertyvalue as ?_propertyvalue) WHERE {

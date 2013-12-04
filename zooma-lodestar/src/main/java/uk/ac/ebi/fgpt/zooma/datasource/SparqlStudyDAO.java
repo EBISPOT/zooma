@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.Node_Literal;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryFactory;
@@ -12,7 +13,15 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
+import com.hp.hpl.jena.rdf.model.impl.RDFListImpl;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
+import com.hp.hpl.jena.reasoner.rulesys.builtins.Regex;
+import com.hp.hpl.jena.sparql.expr.RegexEngine;
+import com.hp.hpl.jena.sparql.expr.RegexJava;
+import com.hp.hpl.jena.sparql.expr.nodevalue.NodeValueString;
+import com.hp.hpl.jena.sparql.syntax.ElementFilter;
+import com.hp.hpl.jena.sparql.util.ExprUtils;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.slf4j.Logger;
@@ -317,7 +326,38 @@ public class SparqlStudyDAO implements StudyDAO {
     }
 
     @Override public Collection<Study> readByAccession(String accession) {
-        throw new UnsupportedOperationException("Study accession lookup is not yet implemented");
+
+        String query = getQueryManager().getSparqlQuery("Study.readByAccession");
+
+        String filter = " FILTER regex ( ?" + QueryVariables.STUDY_LABEL.toString() + ", \"" + accession + "\", \"i\")";
+        query = query.replace("filter", filter);
+
+        Graph g = getQueryService().getDefaultGraph();
+        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
+
+        QueryExecution execute = null;
+
+
+        Model m = ModelFactory.createDefaultModel();
+        Collection<Study> bes = new HashSet<Study>();
+
+        try {
+                execute = getQueryService().getQueryExecution(g, q1, false);
+                ResultSet results = execute.execSelect();
+                bes.addAll(evaluateQueryResults(results));
+                execute.close();
+
+        }
+        catch (LodeException e) {
+            throw new SPARQLQueryException("Failed to retrieve annotation", e);
+        }
+        finally {
+            if (g != null) {
+                g.close();
+            }
+        }
+        return bes;
+
     }
 
     private Collection<Study> _readBySemanticTags(String query, boolean useInference, URI... semanticTags) {

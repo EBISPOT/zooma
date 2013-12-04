@@ -29,7 +29,8 @@ public enum QueryVariables {
     ANNOTATED("annotated"),
     EVIDENCE("evidence"),
     RESOURCE("resource"),
-    RESOURCE_TYPE("resourceType");
+    RESOURCE_TYPE("resourceType"),
+    KEYWORD ("keyword");
 
     private final String variable;
 
