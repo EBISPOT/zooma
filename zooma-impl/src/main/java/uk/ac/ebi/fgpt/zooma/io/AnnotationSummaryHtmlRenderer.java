@@ -109,7 +109,7 @@ public class AnnotationSummaryHtmlRenderer implements HtmlRenderer<AnnotationSum
             // override imagepath with more specific image if available
             imagePath = getImagePath(uri);
             // append shortform to brief description
-            String shortname = URIUtils.getShortform(uri);
+            String shortname = URIUtils.getShortform(uri, URIUtils.ShortformStrictness.ALLOW_SLASHES_AND_HASHES);
             String label = LabelUtils.getPrimaryLabel(uri);
 
             // append URI to entities html
