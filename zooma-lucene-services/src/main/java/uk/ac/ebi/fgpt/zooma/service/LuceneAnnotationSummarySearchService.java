@@ -87,19 +87,15 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         }
     }
 
-    @Override public Collection<AnnotationSummary> search(String propertyValuePattern, URI source) {
+    @Override public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
         try {
             initOrWait();
 
             // first, formulate query for original propertyValuePattern
             Query pq = formulateQuery("property", propertyValuePattern);
 
-            // next generate a source query
-            Query sq = formulateQuery("source", source.toString());
-
             // then generate a series of queries from the processed property value, using available search string processors
             List<Query> pqs = new ArrayList<>();
-            pqs.add(sq);
             pqs.add(pq);
             if (getSearchStringProcessorProvider() != null) {
                 pqs.addAll(generateProcessedQueries("property",
@@ -108,7 +104,17 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             }
 
             // unify processed queries into a single query
-            Query q = formulateCombinedQuery(true, false, pqs.toArray(new Query[pqs.size()]));
+            Query uq = formulateCombinedQuery(true, false, pqs.toArray(new Query[pqs.size()]));
+
+            // next generate a series of source queries
+            List<Query> qs = new ArrayList<>();
+            qs.add(uq);
+            for (URI source : sources) {
+                qs.add(formulateQuery("source", source.toString()));
+            }
+
+            // unify queries into a single query
+            Query q = formulateCombinedQuery(true, true, qs.toArray(new Query[qs.size()]));
 
             // do the query
             return doQuery(q, getMapper());
@@ -158,19 +164,15 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
 
     @Override public Collection<AnnotationSummary> search(String propertyType,
                                                           String propertyValuePattern,
-                                                          URI source) {
+                                                          URI... sources) {
         try {
             initOrWait();
 
             // first, formulate query for original propertyValuePattern
             Query pq = formulateQuery("property", propertyValuePattern);
 
-            // next generate a source query
-            Query sq = formulateQuery("source", source.toString());
-
             // then generate a series of queries from the processed property value, using available search string processors
             List<Query> pqs = new ArrayList<>();
-            pqs.add(sq);
             pqs.add(pq);
             if (getSearchStringProcessorProvider() != null) {
                 pqs.addAll(generateProcessedQueries("property",
@@ -184,8 +186,15 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // unify the type query with each value query
             Query tq = formulateTypedQuery(ptq, pqs);
 
-            // unify processed queries into a single query
-            Query q = formulateCombinedQuery(true, true, sq, tq);
+            // next generate a series of source queries
+            List<Query> qs = new ArrayList<>();
+            qs.add(tq);
+            for (URI source : sources) {
+                qs.add(formulateQuery("source", source.toString()));
+            }
+
+            // unify queries into a single query
+            Query q = formulateCombinedQuery(true, true, qs.toArray(new Query[qs.size()]));
 
             // do the query
             return doQuery(q, getMapper());
@@ -216,17 +225,34 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     }
 
     @Override
-    public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI source) {
+    public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI... sources) {
         try {
             initOrWait();
 
+            // first, formulate query for original propertyValuePattern
             Query pq = formulatePrefixQuery("property", propertyValuePrefix);
 
-            // build a source query
-            Query sq = formulateQuery("source", source.toString());
+            // then generate a series of queries from the processed property value, using available search string processors
+            List<Query> pqs = new ArrayList<>();
+            pqs.add(pq);
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("property",
+                                                    propertyValuePrefix,
+                                                    getSearchStringProcessorProvider().getProcessors()));
+            }
 
-            // unify them with boolean, both must occur
-            Query q = formulateCombinedQuery(true, true, pq, sq);
+            // unify processed queries into a single query
+            Query uq = formulateCombinedQuery(true, false, pqs.toArray(new Query[pqs.size()]));
+
+            // next generate a series of source queries
+            List<Query> qs = new ArrayList<>();
+            qs.add(uq);
+            for (URI source : sources) {
+                qs.add(formulateQuery("source", source.toString()));
+            }
+
+            // unify queries into a single query
+            Query q = formulateCombinedQuery(true, true, qs.toArray(new Query[qs.size()]));
 
             // do the query
             return doQuery(q, getMapper());
@@ -263,23 +289,39 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     }
 
     @Override
-    public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI source) {
+    public Collection<AnnotationSummary> searchByPrefix(String propertyType,
+                                                        String propertyValuePrefix,
+                                                        URI... sources) {
         try {
             initOrWait();
 
+            // first, formulate query for original propertyValuePattern
             Query pq = formulatePrefixQuery("property", propertyValuePrefix);
+
+            // then generate a series of queries from the processed property value, using available search string processors
+            List<Query> pqs = new ArrayList<>();
+            pqs.add(pq);
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("property",
+                                                    propertyValuePrefix,
+                                                    getSearchStringProcessorProvider().getProcessors()));
+            }
 
             // build a property type query
             Query ptq = formulateQueryConserveOrderIfMultiword("propertytype", propertyType);
 
-            // unify them with boolean, both terms must occur
-            Query tq = formulateTypedQuery(ptq, pq);
+            // unify the type query with each value query
+            Query tq = formulateTypedQuery(ptq, pqs);
 
-            // build a source query
-            Query sq = formulateQuery("source", source.toString());
+            // next generate a series of source queries
+            List<Query> qs = new ArrayList<>();
+            qs.add(tq);
+            for (URI source : sources) {
+                qs.add(formulateQuery("source", source.toString()));
+            }
 
-            // unify them with boolean, both must occurs
-            Query q = formulateCombinedQuery(true, true, tq, sq);
+            // unify queries into a single query
+            Query q = formulateCombinedQuery(true, true, qs.toArray(new Query[qs.size()]));
 
             // do the query
             return doQuery(q, getMapper());
@@ -337,16 +379,32 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     }
 
     @Override
-    public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern, URI... sources) {
-        // todo - implement source limiting!
+    public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
+                                                                  List<URI> rankedSources) {
+        // todo - implement source ranking!
         throw new UnsupportedOperationException("Searching with preferred source is not yet supported");
     }
 
     @Override
     public Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
                                                                   String propertyValuePattern,
-                                                                  URI... sources) {
-        // todo - implement source limiting!
-        throw new UnsupportedOperationException("Searching with constrained source is not yet supported");
+                                                                  List<URI> rankedSources) {
+        // todo - implement source ranking!
+        throw new UnsupportedOperationException("Searching with preferred source is not yet supported");
+    }
+
+    @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
+                                                                            List<URI> rankedSources,
+                                                                            URI... requiredSources) {
+        // todo - implement source ranking!
+        throw new UnsupportedOperationException("Searching with preferred source is not yet supported");
+    }
+
+    @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
+                                                                            String propertyValuePattern,
+                                                                            List<URI> rankedSources,
+                                                                            URI... requiredSources) {
+        // todo - implement source ranking!
+        throw new UnsupportedOperationException("Searching with preferred source is not yet supported");
     }
 }

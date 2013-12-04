@@ -26,7 +26,10 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.anyMap;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TestZoomaAnnotationSearchEngine {
     private ZoomaAnnotationSearcher annotationSearchEngine;
@@ -86,7 +89,7 @@ public class TestZoomaAnnotationSearchEngine {
         // create mock sort/limiters
         annotationSorter = (Sorter<Annotation>) mock(Sorter.class);
         annotationLimiter = (Limiter<Annotation>) mock(Limiter.class);
-        annotationScorer = (Scorer<Annotation>)mock(Scorer.class);
+        annotationScorer = (Scorer<Annotation>) mock(Scorer.class);
 
         // create test stubs
         when(annotationService.getAnnotationsByProperty(one)).thenReturn(annotations);

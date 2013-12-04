@@ -10,8 +10,12 @@ import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
 import java.net.URI;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class TestSuggestEndpoint {
     private String element;
