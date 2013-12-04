@@ -19,22 +19,28 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * Javadocs go here!
+ * An annotation DAO that is capable of retrieving annotations from OMIM over FTP.  It is possible to configure this DAO
+ * to cache the results obtained from OMIM in memory for a given amount of time.
  *
  * @author Tony Burdett
  * @date 02/12/13
  */
 public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
-    public static final int READ_AHEAD = 1024*1024;
+    public static final int READ_AHEAD = 1024 * 1024;
 
     private final AnnotationFactory annotationFactory;
 
     private Resource omimResource;
-    private boolean isCompressed = false;
 
-    private boolean resourceSupportsMark;
+    private boolean isCompressed = false;
+    private boolean isCachingEnabled = true;
+    private int invalidateAfter = 24;
 
     private OmimPhenotypeEntryReader reader;
+    private boolean resourceSupportsMark;
+
+    private List<Annotation> cachedAnnotations;
+    private long cacheTimestamp = 0;
 
     public OmimAnnotationDAO() {
         this(new OmimAnnotationFactory(new OmimLoadingSession()));
@@ -48,16 +54,57 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
         return omimResource;
     }
 
+    /**
+     * Sets the location of OMIM that data will be obtained from.  FTP urls are acceptable here, but bear in mind OMIM
+     * access requires user credentials.
+     *
+     * @param omimResource the location to acquire OMIM from
+     */
     public void setOmimResource(Resource omimResource) {
         this.omimResource = omimResource;
     }
 
+    /**
+     * Sets whether to read OMIM using a compressed stream.  To decompress OMIM, this implementation uses an {@link
+     * org.biojava3.core.util.UncompressInputStream}, as OMIM is served in a form using the compress unix tool.
+     *
+     * @return a flag indicating whether the compressed version of OMIM is being accessed
+     */
     public boolean isCompressed() {
         return isCompressed;
     }
 
+    /**
+     * Sets whether to cache annotations after reading.  If enabled, annotations will be cached instead of re-streamed
+     * on each method call. This is true by default to minimize network traffic.  The cache is invalidated after an
+     * amount of time specified by {@link #getInvalidateAfter()} expires.
+     *
+     * @return whether to cache
+     */
     public void setCompressed(boolean compressed) {
         isCompressed = compressed;
+    }
+
+    public boolean isCachingEnabled() {
+        return isCachingEnabled;
+    }
+
+    public void setCachingEnabled(boolean isCachingEnabled) {
+        this.isCachingEnabled = isCachingEnabled;
+    }
+
+    public int getInvalidateAfter() {
+        return invalidateAfter;
+    }
+
+    /**
+     * Sets the amount of time, in hours, after which cached annotations should be invalidated.  This is set to 24 hours
+     * by default.
+     *
+     * @param invalidateAfter the time after which the annotation cache should be invalidated
+     */
+    public void setInvalidateAfter(int invalidateAfter) {
+        this.invalidateAfter = invalidateAfter;
     }
 
     @Override public Collection<Annotation> readByStudy(Study study) {
@@ -89,7 +136,7 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
         }
 
         try {
-            return readEntries().size();
+            return loadAnnotations().size();
         }
         catch (IOException e) {
             throw new RuntimeException("Failed to read annotations from OMIM resource", e);
@@ -110,11 +157,7 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
         }
 
         try {
-            Collection<Annotation> results = new HashSet<>();
-            for (OmimPhenotypeEntry entry : readEntries()) {
-                results.addAll(convertEntry(entry));
-            }
-            return results;
+            return loadAnnotations();
         }
         catch (IOException e) {
             throw new RuntimeException("Failed to read annotations from OMIM resource", e);
@@ -130,14 +173,9 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
         }
 
         try {
-            List<Annotation> results = new ArrayList<>();
-            List<OmimPhenotypeEntry> allEntries = readEntries();
-            int end = start + size > allEntries.size() ? allEntries.size() : start + size;
-            List<OmimPhenotypeEntry> entries = allEntries.subList(start, end);
-            for (OmimPhenotypeEntry entry : entries) {
-                results.addAll(convertEntry(entry));
-            }
-            return results;
+            List<Annotation> allAnnotations = loadAnnotations();
+            int end = start + size > allAnnotations.size() ? allAnnotations.size() : start + size;
+            return allAnnotations.subList(start, end);
         }
         catch (IOException e) {
             throw new RuntimeException("Failed to read annotations from OMIM resource", e);
@@ -220,6 +258,26 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
             in = omimResource.getInputStream();
         }
         return new OmimPhenotypeEntryReader(in);
+    }
+
+    private List<Annotation> loadAnnotations() throws IOException {
+        long timecheck = System.currentTimeMillis() - cacheTimestamp;
+        boolean invalid = timecheck > (getInvalidateAfter() * 1000 * 60 * 60);
+        if (isCachingEnabled() && cachedAnnotations != null && !invalid) {
+            return cachedAnnotations;
+        }
+        else {
+            List<OmimPhenotypeEntry> entries = readEntries();
+            List<Annotation> results = new ArrayList<>();
+            for (OmimPhenotypeEntry entry : entries) {
+                results.addAll(convertEntry(entry));
+            }
+            if (isCachingEnabled()) {
+                cachedAnnotations = results;
+                cacheTimestamp = System.currentTimeMillis();
+            }
+            return results;
+        }
     }
 
     private List<OmimPhenotypeEntry> readEntries() throws IOException {
