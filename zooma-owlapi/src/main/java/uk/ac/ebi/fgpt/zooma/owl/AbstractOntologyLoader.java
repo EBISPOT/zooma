@@ -15,10 +15,7 @@ import org.springframework.core.io.Resource;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An abstract implementation of an ontology loader.  Implementations should extend this class with the {@link
@@ -33,7 +30,7 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
     private String ontologyName;
     private Resource ontologyResource;
 
-    private URI synonymURI;
+    private Collection<URI> synonymURIs;
     private URI exclusionClassURI;
     private URI exclusionAnnotationURI;
 
@@ -111,8 +108,8 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
      *
      * @return the synonym annotation URI
      */
-    public URI getSynonymURI() {
-        return synonymURI;
+    public Collection<URI> getSynonymURIs() {
+        return synonymURIs;
     }
 
     /**
@@ -121,8 +118,8 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
      *
      * @param synonymURI the URI representing synonym annotations
      */
-    public void setSynonymURI(URI synonymURI) {
-        this.synonymURI = synonymURI;
+    public void setSynonymURIs(Collection<URI> synonymURI) {
+        this.synonymURIs = synonymURI;
     }
 
     /**

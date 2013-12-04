@@ -64,30 +64,36 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
         // monitor for cache cleanup
         cacheMonitoring();
 
+        Collection<URI> studyTypes = new HashSet<URI>();
+        if (studyType!=null) {
+            studyTypes.add(studyType);
+        }
+
         Study s;
         if (studyURI != null) {
             if (studyType != null) {
                 s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession,
                                                                    studyURI,
-                                                                   Collections.<URI>singleton(studyType));
+                                                                   studyTypes);
             }
             else {
-                s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession, studyURI);
+                s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession, studyTypes);
             }
         }
         else {
             if (studyID != null) {
-                s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession, studyID);
+                s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession, studyID, studyTypes);
             }
             else {
                 if (studyAccession != null) {
-                    s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession);
+                    s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession, studyTypes);
                 }
                 else {
                     s = null;
                 }
             }
         }
+
 
         BiologicalEntity be;
         Collection<String> bioEntityTypeNames = new HashSet<String>();
@@ -174,7 +180,7 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
                 prov = getAnnotationProvenance(annotator, annotationDate);
             }
             else {
-                throw new InvalidDataFormatException("ANNOTATOR supplied with a corresponding ANNOTATION_DATE");
+                throw new InvalidDataFormatException("ANNOTATOR supplied without a corresponding ANNOTATION_DATE");
             }
         }
         else {

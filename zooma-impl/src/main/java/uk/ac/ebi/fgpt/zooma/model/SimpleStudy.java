@@ -22,6 +22,15 @@ public class SimpleStudy extends AbstractIdentifiable implements Study {
         this(uri, accession, new HashSet<URI>());
     }
 
+    public SimpleStudy(URI uri, String accession, URI type) {
+        super(uri);
+        this.accession = accession;
+        this.types = new HashSet<URI>();
+        if (type != null) {
+            getTypes().add(type);
+        }
+    }
+
     public SimpleStudy(URI uri, String accession, Collection<URI> types) {
         super(uri);
         this.accession = accession;

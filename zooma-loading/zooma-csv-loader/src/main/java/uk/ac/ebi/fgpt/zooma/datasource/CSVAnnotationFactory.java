@@ -14,21 +14,32 @@ import java.util.Date;
  * @date 23/10/12
  */
 public class CSVAnnotationFactory extends AbstractAnnotationFactory {
-    private final String namespace;
+    private final String datasource;
     private final String generator;
-    private final String name;
+    private final String datasourceName;
     private final AnnotationProvenance provenance;
 
-    public CSVAnnotationFactory(String namespace,
-                                String name,
-                                String annotationCreator,
-                                AnnotationLoadingSession annotationLoadingSession) {
+
+    public CSVAnnotationFactory (CSVLoadingSession annotationLoadingSession) {
+        this("zooma", annotationLoadingSession);
+    }
+
+    public CSVAnnotationFactory (String datasourceURL, String datasourceName, CSVLoadingSession annotationLoadingSession) {
+        this (datasourceURL, datasourceName, "zooma", annotationLoadingSession);
+    }
+
+    public CSVAnnotationFactory (String annotationCreator, CSVLoadingSession annotationLoadingSession) {
+        this(null, null, annotationCreator, annotationLoadingSession);
+    }
+
+    public CSVAnnotationFactory (String datasourceURL, String datasourceName, String annotationCreator, CSVLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
-        this.namespace = namespace;
-        this.name = name;
+        this.datasource = datasourceURL == null ? annotationLoadingSession.getNamespace().toString() : datasourceURL;
+        this.datasourceName = datasourceURL == null ? annotationLoadingSession.getResourceName() : datasourceName;
+
         this.generator = annotationCreator;
         this.provenance =
-                new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(namespace), name),
+                new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(datasourceURL), datasourceName),
                                                AnnotationProvenance.Evidence.MANUAL_CURATED,
                                                generator,
                                                new Date());
@@ -39,7 +50,7 @@ public class CSVAnnotationFactory extends AbstractAnnotationFactory {
     }
 
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(namespace), name),
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(datasource), datasourceName),
                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
                                               AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                                               generator,
@@ -51,7 +62,7 @@ public class CSVAnnotationFactory extends AbstractAnnotationFactory {
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator,
                                                                      AnnotationProvenance.Accuracy accuracy,
                                                                      Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(namespace), name),
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(datasource), datasourceName),
                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
                                               accuracy,
                                               generator,

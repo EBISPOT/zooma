@@ -39,7 +39,9 @@ public class SimpleBiologicalEntity extends AbstractIdentifiable implements Biol
         this.name = name;
         this.studies = new HashSet<>();
         this.types = new HashSet<URI>();
-        getTypes().add(type);
+        if (type != null) {
+            getTypes().add(type);
+        }
         Collections.addAll(this.studies, studies);
     }
 

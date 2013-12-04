@@ -308,6 +308,12 @@
 
             <dependency>
                 <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
