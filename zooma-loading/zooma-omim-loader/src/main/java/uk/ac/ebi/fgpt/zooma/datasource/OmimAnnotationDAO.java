@@ -64,22 +64,15 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
         this.omimResource = omimResource;
     }
 
-    /**
-     * Sets whether to read OMIM using a compressed stream.  To decompress OMIM, this implementation uses an {@link
-     * org.biojava3.core.util.UncompressInputStream}, as OMIM is served in a form using the compress unix tool.
-     *
-     * @return a flag indicating whether the compressed version of OMIM is being accessed
-     */
     public boolean isCompressed() {
         return isCompressed;
     }
 
     /**
-     * Sets whether to cache annotations after reading.  If enabled, annotations will be cached instead of re-streamed
-     * on each method call. This is true by default to minimize network traffic.  The cache is invalidated after an
-     * amount of time specified by {@link #getInvalidateAfter()} expires.
+     * Sets whether to read OMIM using a compressed stream.  To decompress OMIM, this implementation uses an {@link
+     * org.biojava3.core.util.UncompressInputStream}, as OMIM is served in a form using the compress unix tool.
      *
-     * @return whether to cache
+     * @return a flag indicating whether the compressed version of OMIM is being accessed
      */
     public void setCompressed(boolean compressed) {
         isCompressed = compressed;
@@ -89,6 +82,13 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
         return isCachingEnabled;
     }
 
+    /**
+     * Sets whether to cache annotations after reading.  If enabled, annotations will be cached instead of re-streamed
+     * on each method call. This is true by default to minimize network traffic.  The cache is invalidated after an
+     * amount of time specified by {@link #getInvalidateAfter()} expires.
+     *
+     * @return whether to cache
+     */
     public void setCachingEnabled(boolean isCachingEnabled) {
         this.isCachingEnabled = isCachingEnabled;
     }
