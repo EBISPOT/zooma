@@ -33,6 +33,8 @@ public class OmimDAOTester {
     }
 
     public void printAllAnnotations() {
+        System.out.println("Number of annotations in OMIM = " + omimDAO.count());
+
         System.out.print("Reading annotations from OMIM...");
         Collection<Annotation> annotations = omimDAO.read();
         System.out.println("done!");

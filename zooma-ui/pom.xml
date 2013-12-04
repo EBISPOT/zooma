@@ -97,6 +97,13 @@
             <version>2.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- CSV loader enables use of zooma:csvAnnotations namespace -->
+        <dependency>
+            <groupId>uk.ac.ebi.fgpt</groupId>
+            <artifactId>zooma-csv-loader</artifactId>
+            <version>2.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- Search client and report generating modules -->
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
@@ -191,14 +198,6 @@
                     </plugin>
                 </plugins>
             </build>
-
-            <dependencies>
-                <dependency>
-                    <groupId>uk.ac.ebi.fgpt</groupId>
-                    <artifactId>zooma-test</artifactId>
-                    <version>2.0-SNAPSHOT</version>
-                </dependency>
-            </dependencies>
         </profile>
 
         <profile>
@@ -273,11 +272,6 @@
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-omim-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
-                </dependency>
-                <dependency>
-                    <groupId>uk.ac.ebi.fgpt</groupId>
-                    <artifactId>zooma-csv-loader</artifactId>
                     <version>2.0-SNAPSHOT</version>
                 </dependency>
             </dependencies>
