@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.zooma.search;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 //import org.springframework.context.support.ClassPathXmlApplicationContext;
 //import uk.ac.ebi.fgpt.zooma.atlas.ZOOMAPropertySampler;
 //import uk.ac.ebi.fgpt.zooma.atlas.ZoomaAtlasDAO;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 //import uk.ac.ebi.fgpt.zooma.util.OntologyLabelMapper;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 
 /**
@@ -27,18 +29,26 @@ public class ZoomageSearchDriver {
     private static float _cutoffPercentage;
     private static String _magetabAccession;
     private static boolean _olsShortIds;
-    private static final String _excludedTypesResource = "zoomage-exclusions.properties";
+    private static final String _excludedTypesResource = "zoomage-propertytype-exclusions.properties";
+    private static boolean _overwriteValues;
+    private static boolean _overwriteAnnotations;
+    private static final Logger log = LoggerFactory.getLogger(ZoomageSearchDriver.class);
+
+    private static boolean _addCommentsToSDRF;
+
 
     public static void main(String[] args) {
         try {
             int statusCode = parseArguments(args);
             if (statusCode == 0) {
 
-                ZoomaRESTClient zoomaClient = new ZoomaRESTClient(_minStringLength, _cutoffPercentage, _cutoffScore, _olsShortIds, _excludedTypesResource);
+                ZoomaRESTClient zoomaClient = new ZoomaRESTClient(_minStringLength, _cutoffPercentage, _cutoffScore, _olsShortIds, _overwriteAnnotations, _excludedTypesResource);
                 ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
-                zoomageParser.runFromFilesystem(_magetabAccession, zoomaClient);
+                zoomageParser.runFromFilesystem(_magetabAccession, zoomaClient, _overwriteValues, _overwriteAnnotations, _addCommentsToSDRF);
 
-                System.out.println("Zoomage completed successfully.");
+                logZoomifiedAnnotations(_magetabAccession, zoomaClient.getResultsCache(), _olsShortIds);
+
+                getLog().info("Zoomage completed successfully.");
 
             } else {
                 System.exit(statusCode);
@@ -48,6 +58,7 @@ public class ZoomageSearchDriver {
             System.exit(1);
         } catch (Exception e) {
             System.err.println("Zoomage did not complete successfully: " + e.getMessage());
+            e.printStackTrace();
             System.exit(1);
         }
     }
@@ -90,11 +101,11 @@ public class ZoomageSearchDriver {
                 assignInputsToVariables(defaults, commandlineParser);
             }
         } catch (ParseException e) {
-            System.err.println("Failed to read supplied arguments (" + e.getMessage() + ")");
+            System.out.println("Failed to read supplied arguments (" + e.getMessage() + ")");
             help.printHelp("zoomage", options, true);
             statusCode += 4;
         } catch (FileNotFoundException e) {
-            System.err.println("Failed to read supplied arguments - file not found (" + e.getMessage() + ")");
+            System.out.println("Failed to read supplied arguments - file not found (" + e.getMessage() + ")");
             help.printHelp("zoomage", options, true);
             statusCode += 5;
         }
@@ -137,7 +148,48 @@ public class ZoomageSearchDriver {
         // whether to output ols short IDs instead of full URIs
         if (cl.hasOption("o")) {
             _olsShortIds = cl.getOptionValue("o").startsWith("t") || cl.getOptionValue("o").startsWith("y");
+        } else {
+            String defaultOlsShortIDs = defaults.getProperty("zoomage.olsShortIds");
+            _olsShortIds = defaultOlsShortIDs.startsWith("t") || defaultOlsShortIDs.startsWith("y") ||
+                    defaultOlsShortIDs.startsWith("T") || defaultOlsShortIDs.startsWith("Y");
+            System.out.println("Using default ZOOMA property for using OLS short IDs, " + _olsShortIds);
         }
+
+        // whether to overwrite term source values
+        if (cl.hasOption("w")) {
+            String overwriteValues = cl.getOptionValue("w");
+            _overwriteValues = isTrue(overwriteValues);
+        } else {
+            String defaultOverwriteValues = defaults.getProperty("zoomage.overwriteValues");
+            _overwriteValues = isTrue(defaultOverwriteValues);
+            System.out.println("Using default ZOOMA property for overwriting term source values, " + _overwriteValues);
+        }
+
+        // whether to overwrite term source ref and accessions
+        if (cl.hasOption("x")) {
+            String overwriteAnnotations = cl.getOptionValue("x");
+            _overwriteAnnotations = isTrue(overwriteAnnotations);
+        } else {
+            String defaultOverwriteValues = defaults.getProperty("zoomage.overwriteAnnotations");
+            _overwriteAnnotations = isTrue(defaultOverwriteValues);
+            System.out.println("Using default ZOOMA property for overwriting term source refs and accessions, " + _overwriteAnnotations);
+        }
+
+        // whether to add comments to SDRF
+        if (cl.hasOption("l")) {
+            String addCommentsToSDRF = cl.getOptionValue("l");
+            _addCommentsToSDRF = isTrue(addCommentsToSDRF);
+        } else {
+            String defaultAddCommentsToSDRF = defaults.getProperty("zoomage.addCommentsToSDRF");
+            _addCommentsToSDRF = isTrue(defaultAddCommentsToSDRF);
+            System.out.println("Using default ZOOMA property for adding comments to SDRF, " + _addCommentsToSDRF);
+        }
+
+    }
+
+    private static boolean isTrue(String option) {
+        return option.startsWith("t") || option.startsWith("y") ||
+                option.startsWith("T") || option.startsWith("Y");
     }
 
     private static Options bindOptions() {
@@ -198,45 +250,207 @@ public class ZoomageSearchDriver {
         cutoffScoreOption.setRequired(false);
         options.addOption(olsShortIDs);
 
+        // overwrite term source values
+        Option overwriteValues = new Option(
+                "w",
+                "overwriteValues",
+                true,
+                "true or false: overwrite term source values.");
+        overwriteValues.setArgName("string");
+        overwriteValues.setRequired(false);
+        options.addOption(overwriteValues);
+
+        // overwrite term source ref and term source accession
+        Option overwriteAnnotations = new Option(
+                "x",
+                "overwriteAnnotations",
+                true,
+                "true or false: overwrite term source ref and term source accession.");
+        overwriteAnnotations.setArgName("string");
+        overwriteAnnotations.setRequired(false);
+        options.addOption(overwriteAnnotations);
+
+        // overwrite term source ref and term source accession
+        Option addCommentsToSDRF = new Option(
+                "l",
+                "addCommentsToSDRF",
+                true,
+                "true or false: add comments to SDRF file.");
+        addCommentsToSDRF.setArgName("string");
+        addCommentsToSDRF.setRequired(false);
+        options.addOption(addCommentsToSDRF);
+
         return options;
     }
+
+    protected static Logger getLog() {
+        return log;
+    }
+
+//    -----------------------------------------------------
 
     private float cutoffScore;
     private float cutoffPercentage;
     private int minStringLength;
     private HashSet excludedProperties;
     private boolean olsShortIds;
+    private boolean overwriteValues;
+    private boolean overwriteAnnotations;
+    private boolean addCommentsToSDRF;
     private String magetabAccession;
 
-    private Logger log = LoggerFactory.getLogger(getClass());
-
-    protected Logger getLog() {
-        return log;
-    }
 
     //Alternative constructor for instantiating programmatically instead of through the command line
-    public ZoomageSearchDriver(float cutoffScore, float cutoffPercentage, int minStringLength, boolean olsShortIds, HashSet excludedProperties) {
+    public ZoomageSearchDriver(float cutoffScore, float cutoffPercentage, int minStringLength, boolean olsShortIds, boolean addCommentsToSDRF,boolean overwriteAnnotations,HashSet excludedProperties) {
         this.cutoffScore = cutoffScore;
         this.cutoffPercentage = cutoffPercentage;
         this.minStringLength = minStringLength;
         this.excludedProperties = excludedProperties;
         this.olsShortIds = olsShortIds;
-        getLog().info("Zoomage Driver created, ready to execute search.");
+        this.overwriteAnnotations = overwriteAnnotations;
+        this.addCommentsToSDRF = addCommentsToSDRF;
+        System.out.println("Zoomage Driver created, ready to execute search.");
     }
 
     public void executeSearch() {
         try {
 
-            ZoomaRESTClient zoomaClient = new ZoomaRESTClient(minStringLength, cutoffPercentage, cutoffScore, olsShortIds, excludedProperties);
+            ZoomaRESTClient zoomaClient = new ZoomaRESTClient(minStringLength, cutoffPercentage, cutoffScore, olsShortIds, overwriteAnnotations, excludedProperties);
             ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
-            zoomageParser.runFromWebservice(magetabAccession, zoomaClient);
+            zoomageParser.runFromFilesystem(magetabAccession, zoomaClient, overwriteValues, overwriteAnnotations, addCommentsToSDRF);
 
             System.out.println("Zoomage completed successfully.");
 
         } catch (Exception e) {
-            System.err.println("Zoomage did not complete successfully: " + e.getMessage());
+            System.out.println("Zoomage did not complete successfully: " + e.getMessage());
             System.exit(1);
         }
+    }
+
+    private static void logZoomifiedAnnotations(String _magetabAccession, HashMap<String, AnnotationSummary> resultsCache, boolean olsShortIds) throws IOException {
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(_magetabAccession + "-zoomifications-log.tsv", false)));
+        Iterator iterator = resultsCache.entrySet().iterator();
+
+        ArrayList<String> lines = new ArrayList<String>();
+
+        while (iterator.hasNext()) {
+
+            try {
+                Map.Entry pairs = (Map.Entry) iterator.next();
+                String input = (String) pairs.getKey();
+
+                AnnotationSummary zoomaAnnotationSummary = resultsCache.get(input);
+
+                input = input.replace("|", "\t");
+                String line = "";
+
+                if (zoomaAnnotationSummary == null) {
+                    System.out.println(input + " has no corresponding annotation.");
+                    line += input + "\tnone\tnone";
+                } else {
+                    String zoomagedValue = zoomaAnnotationSummary.getAnnotatedPropertyValue();
+                    ArrayList<String> refAndAcession = concatenateCompoundURIs(zoomaAnnotationSummary, olsShortIds);
+                    String termSourceRef = refAndAcession.get(0);
+                    String termSourceAccession = refAndAcession.get(1);
+
+                    line = input + "\t" + termSourceRef + "\t" + termSourceAccession;
+                    String originalValue = input.substring(input.indexOf("\t") + 1);
+
+                    if (!zoomagedValue.equalsIgnoreCase(originalValue)) {
+                        line += "\t" + zoomagedValue;
+                    } else line += "\toriginal and zooma values identical";
+                }
+
+                lines.add(line);
+                iterator.remove(); // avoids a ConcurrentModificationException
+            } catch (EmptyStackException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        Collections.sort(lines);
+        for (String line : lines) {
+            out.println(line);
+        }
+
+        out.close();
+//        out.flush();
+
+    }
+
+    /**
+     * Zooma supports the edge case in which there is a compound term with corresponding (compound) accessions.
+     * eg: heart and lung
+     * Ultimately, the MAGETAB parser should support this edge case too, but until it does, this method
+     * will concatenate the URIs into a single string.
+     *
+     * @param zoomaAnnotationSummary
+     * @return ArrayList with two elements, the first is the reference, and the second the accession.
+     */
+    public static ArrayList<String> concatenateCompoundURIs(AnnotationSummary zoomaAnnotationSummary, boolean olsShortIds) {
+
+        // set termSourceREF and termAccessionNumber
+        Collection<URI> semanticTags = zoomaAnnotationSummary.getSemanticTags();
+        ArrayList<String> refAndAccession = new ArrayList<String>();
+
+        if (semanticTags.size() == 0) {
+            // since we've already checked to see that there is a Zooma annotation, this should never happen.
+            getLog().error("No term source ref detected for " + zoomaAnnotationSummary.getAnnotatedPropertyValue());
+            refAndAccession.add(null);
+            refAndAccession.add(null);
+            return refAndAccession;
+        }
+
+        Iterator iterator = semanticTags.iterator();
+
+
+        // 99% of the time, there will be one URI
+        if (semanticTags.size() == 1) {
+            String uri = String.valueOf(iterator.next());
+            int delimiterIndex = Math.max(uri.lastIndexOf("/"), uri.lastIndexOf("#")) + 1;
+
+            String namespace = uri.substring(0, delimiterIndex - 1);   //todo: check this!!!
+            refAndAccession.add(namespace);
+
+            if (olsShortIds) {
+                String olsShortId = uri.substring(delimiterIndex).replace("_", ":");
+                refAndAccession.add(olsShortId);
+            } else {
+                refAndAccession.add(uri);
+            }
+
+            return refAndAccession;
+        }
+
+        // for the edge cases: compound URIs
+        else if (semanticTags.size() > 1) {
+
+            String compoundTermSourceRef = "";
+            String compoundAccession = "";
+
+            //todo: MAGETAB parser to handle this ultimately
+            getLog().warn("Compound URI detected; MAGETAB parser not yet able to handle this edge case.");
+
+            // for each URI (except the last one) build up corresponding delimited strings for refs and accessions
+            for (int i = 0; i < semanticTags.size() - 1; i++) {
+                URI uri = (URI) iterator.next();
+                compoundTermSourceRef += uri.getHost() + ",";
+                compoundAccession += uri.getFragment() + ",";
+                //todo: maybe parameterize the delimiter
+            }
+
+            // for the very last URI, append to the delimited string without a trailing delimiter
+            URI lastURI = (URI) iterator.next();
+            compoundTermSourceRef += lastURI.getHost();
+            compoundAccession += lastURI.getFragment();
+
+            refAndAccession.add(compoundTermSourceRef);
+            refAndAccession.add(compoundAccession);
+        }
+
+        return refAndAccession;
     }
 
 }
