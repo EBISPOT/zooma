@@ -370,6 +370,12 @@ function renderResults(data) {
                             "<img src='images/omia.png' " +
                             "alt='OMIA' style='height: 22px;'/> OMIA</a></td>";
                 }
+                else if (result[6] == "http://omim.org") {
+                    href = result[5] + result[4];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                            "<img src='images/omim.gif' " +
+                            "alt='OMIM' style='height: 22px;'/> OMIM</a></td>";
+                }
                 else {
                     row = row + "<td>" + result[6] + "</td>";
                 }
