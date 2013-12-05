@@ -321,7 +321,7 @@ public class ZOOMASearchClient {
         List<URI> semanticTags = new ArrayList<>();
         JsonNode stsNode = summaryNode.get("semanticTags");
         for (JsonNode stNode : stsNode) {
-            semanticTags.add(lookupURI(stNode.getTextValue()));
+            semanticTags.add(URI.create(stNode.getTextValue()));
         }
 
         List<URI> annotationURIs = new ArrayList<>();
