@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -298,36 +299,31 @@ public class ZOOMAReportRenderer {
         StringBuilder termsSB = new StringBuilder();
         StringBuilder labelsSB = new StringBuilder();
         StringBuilder ontologiesSB = new StringBuilder();
-        for (URI semanticTag : semanticTags) {
+        Iterator<URI> semanticTagIterator = semanticTags.iterator();
+        while(semanticTagIterator.hasNext()) {
+            URI semanticTag = semanticTagIterator.next();
+
             // use fragment as 'term'
             String term = URIUtils.extractFragment(semanticTag);
-            termsSB.append(term).append(", ");
-
             // fetch the ontology label if possible
             String label = acquireLabel(semanticTag);
-            if (!label.isEmpty()) {
-                labelsSB.append(label).append(", ");
-            }
-            else {
-                labelsSB.append("n/a, ");
-            }
-
+            // we consider the 'ontology' to be the URI minus the 'term'
             String ontology = semanticTag.toString().replace(term, "");
+
+            termsSB.append(term);
+            labelsSB.append(!label.isEmpty() ? label : "n/a");
             ontologiesSB.append(ontology);
+
+            if (semanticTagIterator.hasNext()) {
+                termsSB.append(", ");
+                labelsSB.append(", ");
+                ontologiesSB.append(", ");
+            }
         }
 
-        String terms = "";
-        if (termsSB.length() > 0) {
-            terms = termsSB.substring(0, termsSB.length() - 2);
-        }
-        String labels = "";
-        if (labelsSB.length() > 0) {
-            labels = labelsSB.substring(0, labelsSB.length() - 2);
-        }
-        String ontologies = "";
-        if (ontologiesSB.length() > 0) {
-            ontologies = ontologiesSB.substring(0, ontologiesSB.length() - 2);
-        }
+        String terms = termsSB.toString();
+        String labels = labelsSB.toString();
+        String ontologies = ontologiesSB.toString();
         writer.println(propertyType + "\t" + propertyValue + "\t" + labels + "\t" +
                                type + "\t" + terms + "\t" + ontologies +
                                "\t" + source);
