@@ -124,13 +124,6 @@ function annotate(content) {
     });
 }
 
-function annotateOLD(content) {
-    resetSession(function(response) {
-        log(response);
-        doSearchOLD(jsonifyTextArea(content));
-    });
-}
-
 function clearAll() {
     resetSession(function(response) {
         log(response);
@@ -187,27 +180,6 @@ function doSearch(json) {
            });
 }
 
-function doSearchOLD(json) {
-    var payload = JSON.stringify(json);
-    $.ajax({
-               type: 'POST',
-               url: 'v2/api/services/map/OLD',
-               contentType: 'application/json',
-               data: payload,
-               beforeSend: function() {
-                   $("#progressbar").progressbar({value: false}).show();
-               },
-               success: function(response) {
-                   log(response);
-                   setTimeout(checkStatus, 100);
-               },
-               error: function(request, status, error) {
-                   alert(error + ": (" + request.responseText + ")");
-               }
-           });
-}
-
-
 function checkStatus() {
     $.get('v2/api/services/map/status', function(progress) {
         var value = Math.round(progress * 100);
@@ -245,13 +217,23 @@ function renderResults(data) {
     $ar = $("#annotation-results");
     $ar.html("");
 
+    // result data format:
+    /*
+      [0] - property type
+      [1] - property value
+      [2] - matched ontology term label
+      [3] - mapping type
+      [4] - matched ontology term "ID" (i.e. fragment)
+      [5] - matched ontology URI
+      [6] - datasource
+    */
+
     // render new payload
     var payload = data.data;
     if ($.isEmptyObject(payload) == false) {
         var prop_automatic = 0;
         var prop_curation = 0;
         var prop_unmapped = 0;
-        var prop_total = 0;
 
         var aux_type = "";
         var aux_value = "";
@@ -319,34 +301,33 @@ function renderResults(data) {
             row = row + "<td>" + result[2] + "</td>";
             row = row + "<td>" + result[3] + "</td>";
             if (result[4] != "N/A") {
-
-                var arrayResult4 = result[4].split(", ");
-                var arrayResult5 = result[5].split(", ");
-
-                if (arrayResult4.length == arrayResult5.length) {
-
-                    content = "";
-
-                    for (x = 0; x < arrayResult4.length; x++) {
-
-                        result4 = arrayResult4[x];
-                        result5 = arrayResult5[x];
-
-                        if (x == (arrayResult4.length - 1)) {
-                            content += linkify(result5 + result4, result4);
-                        }
-                        else {
-                            content += linkify(result5 + result4, result4) + "&nbsp;&nbsp;&nbsp;";
-                        }
-                    }
-
-                    row = row + "<td>" + content + "</td>";
-
-                }
-                else {
+                // multiple mappings will be comma separated
+                if (result[4].indexOf(", ") == -1) {
+                    // no comma separation, linkify entire field
                     row = row + "<td>" + linkify(result[5] + result[4], result[4]) + "</td>";
                 }
+                else {
+                    // comma separation, linkify each token
+                    var termIDs = result[4].split(",");
+                    var ontologyURIs = result[5].split(",");
 
+                    // should be same number of IDs and URIs
+                    if (termIDs.length != ontologyURIs.length) {
+                        alert("Failed to read mapping result row " + i + ": there is a different number " +
+                                      "of mapping results and ontologies.  Data was:\n" + result + ".");
+                    }
+                    else {
+                        var links = "";
+                        var l = termIDs.length - 1;
+                        for (var k = 0; k < l ; k++) {
+                            var termID = termIDs[k];
+                            var ontologyURI = ontologyURIs[k];
+                            links += linkify(ontologyURI + termID, termID) + "&nbsp;&nbsp;&nbsp;";
+                        }
+                        links += linkify(ontologyURIs[l] + termID[l], termID);
+                        row = row + "<td>" + links + "</td>";
+                    }
+                }
             }
             else {
                 row = row + "<td>" + result[4] + "</td>";
