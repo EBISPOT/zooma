@@ -23,6 +23,11 @@
         </layout>
     </appender>
 
+    <logger name="org.springframework" additivity="false">
+        <level value="WARN" />
+        <appender-ref ref="zooma-log" />
+    </logger>
+
     <root>
         <priority value="WARN" />
         <appender-ref ref="zooma-log" />
