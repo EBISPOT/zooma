@@ -23,14 +23,14 @@ public class ZOOMA2LoaderDriver {
     public static void main(String[] args) {
         if (args.length != 1) {
             System.err.println("Wrong number of arguments - this application requires a single argument, " +
-                    "the location of the output directory to write RDF files to");
+                                       "the location of the output directory to write RDF files to");
         }
         else {
             // first, try to backup old RDF directory
             File rdfHome = new File(args[0]);
             try {
                 if (rdfHome.exists()) {
-                    System.out.println("RDF directory " + rdfHome.getAbsolutePath() + " already exists");
+                    System.out.println("RDF directory already exists at " + rdfHome.getAbsolutePath());
                     // backup old RDF directory
                     String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
                     String backupFileName = rdfHome.getName().concat(".backup.").concat(dateStr);
@@ -38,23 +38,30 @@ public class ZOOMA2LoaderDriver {
 
                     Path oldRDFHome = rdfHome.toPath();
                     Path newRDFHome = backupFile.toPath();
+
                     if (!Files.exists(newRDFHome)) {
                         System.out.print(
                                 "Backing up " + oldRDFHome.toString() + " to " + newRDFHome.toString() + "...");
-
                         Files.move(oldRDFHome,
-                                newRDFHome,
-                                StandardCopyOption.REPLACE_EXISTING,
-                                StandardCopyOption.ATOMIC_MOVE);
+                                   newRDFHome,
+                                   StandardCopyOption.REPLACE_EXISTING,
+                                   StandardCopyOption.ATOMIC_MOVE);
                         System.out.println("ok!");
                     }
                     else {
-                        System.out.println("Backup already exists");
+                        System.out.print(
+                                "Backup already exists for today, clearing " + oldRDFHome.toString() + "...");
+                        Files.delete(oldRDFHome);
+                        System.out.println("ok!");
                     }
+                    System.out.println("RDF files will now be created afresh in " + rdfHome.getAbsolutePath());
+                }
+                else {
+                    System.out.println("RDF files will be created in a new directory, " + rdfHome.getAbsolutePath());
                 }
             }
             catch (IOException e) {
-                System.err.println("Failed to backup Load failed: " + e.getMessage());
+                System.err.println("Loading failed - failed to backup RDF directory (" + e.getMessage() + ")");
                 e.printStackTrace();
                 System.exit(1);
             }
