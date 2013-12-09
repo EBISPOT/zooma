@@ -169,7 +169,7 @@ public class ZOOMA2LuceneIndexDriver {
                     Path oldZoomaHome = zoomaHome.toPath();
                     Path newZoomaHome = backupFile.toPath();
 
-                    if (Files.exists(newZoomaHome))  {
+                    if (!Files.exists(newZoomaHome))  {
                         System.out.print(
                                 "Backing up " + oldZoomaHome.toString() + " to " + newZoomaHome.toString() + "...");
                         Files.move(oldZoomaHome,
@@ -183,8 +183,6 @@ public class ZOOMA2LuceneIndexDriver {
                     else {
                         System.out.println("Backup already exists for today, clearing " + oldZoomaHome.toString());
                     }
-
-
                 }
                 else {
                     System.out.println("ZOOMA lucene indices will be created in " + zoomaHome.getAbsolutePath());
