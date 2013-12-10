@@ -66,6 +66,25 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
         return annotationProvenance;
     }
 
+    public void addAnnotatedBiologicalEntity(BiologicalEntity biologicalEntity) {
+        if (!biologicalEntities.contains(biologicalEntity)) {
+            this.biologicalEntities.add(biologicalEntity);
+        }
+    }
+
+    public void addSemanticTag(URI semanticTag) {
+        if (!semanticTags.contains(semanticTag)) {
+            this.semanticTags.add(semanticTag);
+        }
+    }
+
+    public void addAnnotationProvenance(AnnotationProvenance annotationProvenance) {
+        // if the supplied annotation provenance has a more recent annotation date, update
+        if (this.annotationProvenance.getAnnotationDate().before(annotationProvenance.getAnnotationDate())) {
+            this.annotationProvenance = annotationProvenance;
+        }
+    }
+
     @Override public Collection<URI> replacedBy() {
         return replacingAnnotations;
     }
@@ -84,13 +103,13 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
 
     @Override public String toString() {
         return "SimpleAnnotation {\n" +
-                "  uri='" + getURI() + "'\n" +
-                "  biologicalEntities=" + biologicalEntities + "'\n" +
-                "  annotatedProperty=" + annotatedProperty + "'\n" +
-                "  semanticTags=" + semanticTags + "'\n" +
-                "  replacingAnnotations=" + replacingAnnotations + "'\n" +
-                "  replacedAnnotations=" + replacedAnnotations + "'\n" +
-                "  annotationProvenance=" + annotationProvenance + "'\n" +
-                '}';
+               "  uri='" + getURI() + "'\n" +
+               "  biologicalEntities=" + biologicalEntities + "'\n" +
+               "  annotatedProperty=" + annotatedProperty + "'\n" +
+               "  semanticTags=" + semanticTags + "'\n" +
+               "  replacingAnnotations=" + replacingAnnotations + "'\n" +
+               "  replacedAnnotations=" + replacedAnnotations + "'\n" +
+               "  annotationProvenance=" + annotationProvenance + "'\n" +
+               '}';
     }
 }

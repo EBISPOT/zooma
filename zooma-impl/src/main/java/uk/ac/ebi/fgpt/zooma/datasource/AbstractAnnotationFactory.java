@@ -12,7 +12,6 @@ import uk.ac.ebi.fgpt.zooma.model.Study;
 import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -189,51 +188,18 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
 
         // and return the complete annotation
         Annotation a;
-        if (be != null) {
-            if (annotationURI != null) {
-                a = getAnnotationLoadingSession().getOrCreateAnnotation(p,
-                                                                        prov,
-                                                                        semanticTag,
-                                                                        annotationURI,
-                                                                        be);
-            }
-            else {
-                if (annotationID != null) {
-                    a = getAnnotationLoadingSession().getOrCreateAnnotation(p,
-                                                                            prov,
-                                                                            semanticTag,
-                                                                            annotationID,
-                                                                            be);
-                }
-                else {
-                    a = getAnnotationLoadingSession().getOrCreateAnnotation(p,
-                                                                            prov,
-                                                                            semanticTag,
-                                                                            be);
-                }
-            }
+        if (annotationURI != null) {
+            a = getAnnotationLoadingSession().getOrCreateAnnotation(annotationURI, be, p, prov, semanticTag);
         }
         else {
-            if (annotationURI != null) {
-                a = getAnnotationLoadingSession().getOrCreateAnnotation(p,
-                                                                        prov,
-                                                                        semanticTag,
-                                                                        annotationURI);
+            if (annotationID != null) {
+                a = getAnnotationLoadingSession().getOrCreateAnnotation(annotationID, be, p, prov, semanticTag);
             }
             else {
-                if (annotationID != null) {
-                    a = getAnnotationLoadingSession().getOrCreateAnnotation(p,
-                                                                            prov,
-                                                                            semanticTag,
-                                                                            annotationID);
-                }
-                else {
-                    a = getAnnotationLoadingSession().getOrCreateAnnotation(p, prov, semanticTag);
-                }
+                a = getAnnotationLoadingSession().getOrCreateAnnotation(be, p, prov, semanticTag);
             }
         }
         return a;
-
     }
 
     protected abstract AnnotationProvenance getAnnotationProvenance();
