@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
@@ -455,6 +456,10 @@ public class ZoomaMappingController {
 
         @Override public String getLabel(URI uri) {
             return ontologyService.getLabel(uri);
+        }
+
+        @Override public Collection<String> getSynonyms(URI uri) {
+            return ontologyService.getSynonyms(uri);
         }
 
         @Override public URI getURI(String label) {

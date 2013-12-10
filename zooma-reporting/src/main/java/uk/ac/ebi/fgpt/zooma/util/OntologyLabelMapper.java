@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
 import java.net.URI;
+import java.util.Collection;
 
 /**
  * An interface for mapping between ontology labels and URIs.  It is assumed that a unique pairing of label to URI is
@@ -18,6 +19,14 @@ public interface OntologyLabelMapper {
      * @return the rdfs:label of this concept
      */
     String getLabel(URI uri);
+
+    /**
+     * Lookup the synonyms for the concept in an ontology with the given URI
+     *
+     * @param uri the URI of the concept
+     * @return the synonym for this concept (uses ontology designated synonym property)
+     */
+    Collection<String> getSynonyms(URI uri);
 
     /**
      * Returns the URI for the concept in the ontology with the given label
