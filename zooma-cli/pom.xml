@@ -4,11 +4,11 @@
     <parent>
         <groupId>uk.ac.ebi.fgpt</groupId>
         <artifactId>zooma2</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>2.0-beta-20131210</version>
     </parent>
 
     <artifactId>zooma-cli</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0-beta-20131210</version>
 
     <name>ZOOMA 2: Command line annotation tool</name>
     <url>http://www.ebi.ac.uk/fgpt/zooma</url>
@@ -53,53 +53,53 @@
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-core</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0-beta-20131210</version>
         </dependency>
 
         <!-- ZOOMA tech-specific implementations -->
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-owlapi</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0-beta-20131210</version>
         </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-lucene-services</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0-beta-20131210</version>
         </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-lodestar</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0-beta-20131210</version>
         </dependency>
 
         <!-- OWL loader enables use of zooma:owlAnnotations namespace -->
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-owl-loader</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0-beta-20131210</version>
         </dependency>
 
         <!-- CSV loader enables use of zoomacsv:csvAnnotations namespace -->
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-csv-loader</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0-beta-20131210</version>
         </dependency>
 
         <!-- Search client and report generating modules -->
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-client</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0-beta-20131210</version>
         </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-reporting</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0-beta-20131210</version>
         </dependency>
 
         <!-- commons-cli for command line functionality -->
@@ -178,7 +178,7 @@
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-omim-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <!--<dependency>-->
                     <!--<groupId>uk.ac.ebi.fgpt</groupId>-->
@@ -221,22 +221,22 @@
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-atlas-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-gwas-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-omia-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-omim-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
             </dependencies>
 
@@ -258,27 +258,27 @@
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-ae-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-atlas-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-gwas-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-omia-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-omim-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
             </dependencies>
 
@@ -300,27 +300,27 @@
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-ae-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-atlas-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-gwas-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-omia-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
                 <dependency>
                     <groupId>uk.ac.ebi.fgpt</groupId>
                     <artifactId>zooma-omim-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0-beta-20131210</version>
                 </dependency>
             </dependencies>
         </profile>
