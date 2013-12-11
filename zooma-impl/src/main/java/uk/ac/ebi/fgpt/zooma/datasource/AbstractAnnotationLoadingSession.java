@@ -260,8 +260,8 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
         if (!annotationCache.containsKey(annotationURI)) {
             // create and cache a new annotation
             List<BiologicalEntity> beList = biologicalEntity == null
-                                            ? Collections.<BiologicalEntity>emptyList()
-                                            : Collections.singletonList(biologicalEntity);
+                    ? Collections.<BiologicalEntity>emptyList()
+                    : Collections.singletonList(biologicalEntity);
             annotationCache.put(annotationURI, new SimpleAnnotation(annotationURI,
                                                                     beList,
                                                                     property,
@@ -269,6 +269,7 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
                                                                     semanticTag));
         }
         else {
+            getLog().debug("Annotation <" + annotationURI + "> already exists; merging additional data");
             // retrieve previous annotation and merge fields
             SimpleAnnotation annotation = annotationCache.get(annotationURI);
             // merge bioentities

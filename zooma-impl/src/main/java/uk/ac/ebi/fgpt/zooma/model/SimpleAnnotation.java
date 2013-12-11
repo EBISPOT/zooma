@@ -1,8 +1,12 @@
 package uk.ac.ebi.fgpt.zooma.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 
 /**
@@ -19,35 +23,46 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
     private Collection<URI> replacedAnnotations;
     private AnnotationProvenance annotationProvenance;
 
-    public SimpleAnnotation(URI uri,
-                            Collection<BiologicalEntity> biologicalEntities,
-                            Property annotatedProperty,
-                            AnnotationProvenance annotationProvenance,
-                            URI... semanticTags) {
-        this(uri, biologicalEntities, annotatedProperty, semanticTags, new URI[0], new URI[0], annotationProvenance);
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    protected Logger getLog() {
+        return log;
     }
 
     public SimpleAnnotation(URI uri,
                             Collection<BiologicalEntity> biologicalEntities,
                             Property annotatedProperty,
+                            AnnotationProvenance annotationProvenance,
+                            URI... semanticTags) {
+        this(uri, biologicalEntities, annotatedProperty, annotationProvenance, semanticTags, new URI[0], new URI[0]);
+    }
+
+    public SimpleAnnotation(URI uri,
+                            Collection<BiologicalEntity> biologicalEntities,
+                            Property annotatedProperty,
+                            AnnotationProvenance annotationProvenance,
                             URI[] semanticTags,
                             URI[] replacingAnnotations,
-                            URI[] replacedAnnotations,
-                            AnnotationProvenance annotationProvenance) {
+                            URI[] replacedAnnotations) {
         super(uri);
-        this.biologicalEntities = biologicalEntities;
+        this.biologicalEntities = new HashSet<>();
+        if (biologicalEntities != null) {
+            this.biologicalEntities.addAll(biologicalEntities);
+        }
         this.annotatedProperty = annotatedProperty;
+        this.annotationProvenance = annotationProvenance;
         this.semanticTags = new HashSet<>();
         if (semanticTags != null) {
-            for (URI u : semanticTags) {
-                Collections.addAll(this.semanticTags, u);
-            }
+            Collections.addAll(this.semanticTags, semanticTags);
         }
         this.replacingAnnotations = new HashSet<>();
-        Collections.addAll(this.replacingAnnotations, replacingAnnotations);
+        if (replacingAnnotations != null) {
+            Collections.addAll(this.replacingAnnotations, replacingAnnotations);
+        }
         this.replacedAnnotations = new HashSet<>();
-        Collections.addAll(this.replacedAnnotations, replacedAnnotations);
-        this.annotationProvenance = annotationProvenance;
+        if (replacedAnnotations != null) {
+            Collections.addAll(this.replacedAnnotations, replacedAnnotations);
+        }
     }
 
     @Override public Collection<BiologicalEntity> getAnnotatedBiologicalEntities() {
@@ -68,20 +83,88 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
 
     public void addAnnotatedBiologicalEntity(BiologicalEntity biologicalEntity) {
         if (!biologicalEntities.contains(biologicalEntity)) {
+            if (getLog().isTraceEnabled()) {
+                getLog().trace("Adding biological entity '" + biologicalEntity.toString() + "' " +
+                                       "to " + this.biologicalEntities + " for annotation <" + getURI() + ">");
+            }
             this.biologicalEntities.add(biologicalEntity);
         }
     }
 
     public void addSemanticTag(URI semanticTag) {
         if (!semanticTags.contains(semanticTag)) {
+            if (getLog().isTraceEnabled()) {
+                getLog().trace("Adding semantic tag <" + semanticTag.toString() + "> " +
+                                       "to " + this.semanticTags + " for annotation <" + getURI() + ">");
+            }
             this.semanticTags.add(semanticTag);
         }
     }
 
     public void addAnnotationProvenance(AnnotationProvenance annotationProvenance) {
-        // if the supplied annotation provenance has a more recent annotation date, update
-        if (this.annotationProvenance.getAnnotationDate().before(annotationProvenance.getAnnotationDate())) {
-            this.annotationProvenance = annotationProvenance;
+        boolean updated = false;
+        Date oldDate, newDate;
+        AnnotationProvenance.Evidence oldEvidence, newEvidence;
+
+        if (this.annotationProvenance != null) {
+            // if the supplied annotation provenance has a more recent annotation date, update
+            if (this.annotationProvenance.getAnnotationDate() != null) {
+                if (annotationProvenance.getAnnotationDate() != null) {
+                    oldDate = this.annotationProvenance.getAnnotationDate();
+                    newDate = annotationProvenance.getAnnotationDate();
+                    if (oldDate.before(newDate)) {
+                        updated = true;
+                        if (getLog().isTraceEnabled()) {
+                            getLog().trace("Updating annotation provenance (newer annotation date) from '" +
+                                                   this.annotationProvenance.toString() + "' to " +
+                                                   annotationProvenance.toString() + " for " +
+                                                   "annotation <" + getURI() + ">");
+                        }
+                        this.annotationProvenance = annotationProvenance;
+                    }
+                }
+            }
+
+            // if the supplied annotation provenance has a more recent generation date,
+            // and wasn't already updated, then update
+            if (!updated) {
+                if (this.annotationProvenance.getGeneratedDate() != null) {
+                    if (annotationProvenance.getGeneratedDate() != null) {
+                        oldDate = this.annotationProvenance.getGeneratedDate();
+                        newDate = annotationProvenance.getGeneratedDate();
+                        if (oldDate.before(newDate)) {
+                            updated = true;
+                            if (getLog().isTraceEnabled()) {
+                                getLog().trace("Updating annotation provenance (newer generated date) from '" +
+                                                       this.annotationProvenance.toString() + "' to " +
+                                                       annotationProvenance.toString() + " for " +
+                                                       "annotation <" + getURI() + ">");
+                            }
+                            this.annotationProvenance = annotationProvenance;
+                        }
+                    }
+                }
+            }
+
+            // if the supplied annotation provenance has a better evidence code,
+            // and wasn't already updated by date, then update
+            if (!updated) {
+                if (this.annotationProvenance.getEvidence() != null) {
+                    if (annotationProvenance.getEvidence() != null) {
+                        oldEvidence = this.annotationProvenance.getEvidence();
+                        newEvidence = annotationProvenance.getEvidence();
+                        if (oldEvidence.ordinal() > newEvidence.ordinal()) {
+                            if (getLog().isTraceEnabled()) {
+                                getLog().trace("Updating annotation provenance (better evidence) from '" +
+                                                       this.annotationProvenance.toString() + "' to " +
+                                                       annotationProvenance.toString() + " " +
+                                                       "for annotation <" + getURI() + ">");
+                            }
+                            this.annotationProvenance = annotationProvenance;
+                        }
+                    }
+                }
+            }
         }
     }
 

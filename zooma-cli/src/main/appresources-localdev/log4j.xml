@@ -23,6 +23,11 @@
         </layout>
     </appender>
 
+    <logger name="uk.ac.ebi.fgpt.zooma.model.SimpleAnnotation" additivity="false">
+        <level value="TRACE" />
+        <appender-ref ref="zooma-log" />
+    </logger>
+
     <logger name="uk.ac.ebi.fgpt.zooma.concurrent.WorkloadScheduler" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="zooma-log" />
