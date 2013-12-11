@@ -120,10 +120,10 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
         Annotation newAnnotation = new SimpleAnnotation(newURI,
                                                         annotation.getAnnotatedBiologicalEntities(),
                                                         newProperty,
-                                                        semanticTags.toArray(new URI[semanticTags.size()]),
+                                                        provenance, semanticTags.toArray(new URI[semanticTags.size()]),
                                                         new URI[0],
-                                                        new URI[]{annotation.getURI()},
-                                                        provenance);
+                                                        new URI[]{annotation.getURI()}
+        );
 
         // update annotations
         updateAnnotation(annotation, newAnnotation);

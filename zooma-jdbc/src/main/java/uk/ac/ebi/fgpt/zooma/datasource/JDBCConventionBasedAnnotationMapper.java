@@ -53,6 +53,8 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
     private final AnnotationFactory annotationFactory;
     private final Map<ResultSet, Map<String, Integer>> resultSetColumnIndexMap;
 
+    private URI lastAnnotationURI;
+    private Object[] lastRow;
 
     public JDBCConventionBasedAnnotationMapper(AnnotationFactory annotationFactory) {
         this.annotationFactory = annotationFactory;
@@ -228,24 +230,24 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         }
 
         // now we've collected fields, generate dependent objects using annotation factory
-        return getAnnotationFactory().createAnnotation(annotationURI,
-                                                       annotationID,
-                                                       studyAcc,
-                                                       studyURI,
-                                                       studyID,
-                                                       studyType,
-                                                       bioentityName,
-                                                       bioentityURI,
-                                                       bioentityID,
-                                                       bioentityTypeName,
-                                                       bioentityTypeURI,
-                                                       propertyType,
-                                                       propertyValue,
-                                                       propertyURI,
-                                                       propertyID,
-                                                       semanticTag,
-                                                       annotator,
-                                                       annotationDate);
+        return createAnnotation(annotationURI,
+                                annotationID,
+                                studyAcc,
+                                studyURI,
+                                studyID,
+                                studyType,
+                                bioentityName,
+                                bioentityURI,
+                                bioentityID,
+                                bioentityTypeName,
+                                bioentityTypeURI,
+                                propertyType,
+                                propertyValue,
+                                propertyURI,
+                                propertyID,
+                                semanticTag,
+                                annotator,
+                                annotationDate);
     }
 
     protected URI convertSemanticTagToURI(String semanticTag) {
@@ -276,6 +278,96 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
             }
         }
         return null;
+    }
+
+    protected Annotation createAnnotation(URI annotationURI,
+                                          String annotationID,
+                                          String studyAccession,
+                                          URI studyURI,
+                                          String studyID,
+                                          URI studyType,
+                                          String bioentityName,
+                                          URI bioentityURI,
+                                          String bioentityID,
+                                          String bioentityTypeName,
+                                          URI bioentityTypeURI,
+                                          String propertyType,
+                                          String propertyValue,
+                                          URI propertyURI,
+                                          String propertyID,
+                                          URI semanticTag,
+                                          String annotator,
+                                          Date annotationDate) {
+        Object[] row = new Object[]{annotationURI,
+                                     annotationID,
+                                     studyAccession,
+                                     studyURI,
+                                     studyID,
+                                     studyType,
+                                     bioentityName,
+                                     bioentityURI,
+                                     bioentityID,
+                                     bioentityTypeName,
+                                     bioentityTypeURI,
+                                     propertyType,
+                                     propertyValue,
+                                     propertyURI,
+                                     propertyID};
+
+        // have we cached a prior result?
+        if (lastRow != null && lastAnnotationURI != null) {
+            // if so, compare new data to the last data
+            if (compareRows(row, lastRow)) {
+                // data apart from semantic tags are equal, so set annotation URI equal to last annotation -
+                // this will cause a factory to update the old annotation
+                annotationURI = lastAnnotationURI;
+            }
+        }
+
+        // otherwise create and return the new annotation
+        Annotation a =  getAnnotationFactory().createAnnotation(annotationURI,
+                                                                annotationID,
+                                                                studyAccession,
+                                                                studyURI,
+                                                                studyID,
+                                                                studyType,
+                                                                bioentityName,
+                                                                bioentityURI,
+                                                                bioentityID,
+                                                                bioentityTypeName,
+                                                                bioentityTypeURI,
+                                                                propertyType,
+                                                                propertyValue,
+                                                                propertyURI,
+                                                                propertyID,
+                                                                semanticTag,
+                                                                annotator,
+                                                                annotationDate);
+        lastAnnotationURI = a.getURI();
+        lastRow = row;
+        return a;
+    }
+
+    private boolean compareRows(Object[] row, Object[] lastRow) {
+        if (row.length == lastRow.length) {
+            for (int i = 0; i < row.length; i++) {
+                // if either element is not null
+                if (row[i] != null || lastRow[i] != null) {
+                    // check for unmatchedNulls first, so we can do object comparison second
+                    boolean unmatchedNulls = (row[i] == null && lastRow[i] != null) ||
+                                             (row[i] != null && lastRow[i] == null);
+                    if (unmatchedNulls || !row[i].equals(lastRow[i])) {
+                        // at least one element unequal, so we can break
+                        return false;
+                    }
+                }
+            }
+            // all elements were equal, return true
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     private void examineMetadata(ResultSet resultSet) throws SQLException {
@@ -309,8 +401,8 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         }
         else {
             throw new RuntimeException("Unexpected metadata lookup exception: " +
-                                               "columns for metadata " + resultSet + " should be available, " +
-                                               "the shit hit the fan bad somewhere!");
+                                       "columns for metadata " + resultSet + " should be available, " +
+                                       "the shit hit the fan bad somewhere!");
         }
     }
 }
