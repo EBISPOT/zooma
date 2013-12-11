@@ -9,8 +9,9 @@
        http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
     <!-- ZOOMA SPARQL datasource access configuration -->
+    <context:annotation-config />
 
-    <context:annotation-config/>
+    <bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoExecutorService" />
 
     <bean id="queryManager" class="uk.ac.ebi.fgpt.zooma.service.QueryManager" init-method="init">
         <property name="sparqlQueryResource" value="classpath:queries.sparql" />
@@ -25,49 +26,69 @@
         <property name="properties" ref="prefixProperties" />
     </bean>
 
+    <!-- DAOs use LODEStar bridge for data access to SPARQL endpoints -->
+
     <bean id="lodeAnnotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationDAO" autowire-candidate="false">
-        <property name="queryManager" ref="queryManager"/>
-        <property name="queryService" ref="jenaVirtuosoExecutorService"/>
+        <property name="queryManager" ref="queryManager" />
+        <property name="queryService" ref="jenaVirtuosoExecutorService" />
         <property name="biologicalEntityDAO" ref="lodeBiologicalEntityDAO" />
-        <property name="annotationZoomaSerializer" ref="annotationSerializer"/>
+        <property name="annotationZoomaSerializer" ref="annotationSerializer" />
     </bean>
 
-    <bean id="lodeLuceneAnnotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlLuceneAnnotationDAO" autowire-candidate="false">
-        <property name="queryManager" ref="queryManager"/>
-        <property name="queryService" ref="jenaVirtuosoExecutorService"/>
+    <bean id="lodeLuceneAnnotationDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.SparqlLuceneAnnotationDAO"
+          autowire-candidate="false">
+        <property name="queryManager" ref="queryManager" />
+        <property name="queryService" ref="jenaVirtuosoExecutorService" />
     </bean>
 
-    <bean id="lodeBiologicalEntityDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO" autowire-candidate="false">
-        <property name="queryManager" ref="queryManager"/>
-        <property name="queryService" ref="jenaVirtuosoExecutorService"/>
-        <property name="biologicalEntityZoomaSerializer" ref="bioentitySerializer"/>
+    <bean id="lodeBiologicalEntityDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO"
+          autowire-candidate="false">
+        <property name="queryManager" ref="queryManager" />
+        <property name="queryService" ref="jenaVirtuosoExecutorService" />
+        <property name="biologicalEntityZoomaSerializer" ref="bioentitySerializer" />
     </bean>
 
     <bean id="lodeOntologyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlOntologyDAO" autowire-candidate="false">
-        <property name="queryManager" ref="queryManager"/>
-        <property name="queryService" ref="jenaVirtuosoExecutorService"/>
+        <property name="queryManager" ref="queryManager" />
+        <property name="queryService" ref="jenaVirtuosoExecutorService" />
     </bean>
 
     <bean id="lodePropertyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlPropertyDAO" autowire-candidate="false">
-        <property name="queryManager" ref="queryManager"/>
-        <property name="queryService" ref="jenaVirtuosoExecutorService"/>
-        <property name="propertyZoomaSerializer" ref="propertySerializer"/>
+        <property name="queryManager" ref="queryManager" />
+        <property name="queryService" ref="jenaVirtuosoExecutorService" />
+        <property name="propertyZoomaSerializer" ref="propertySerializer" />
     </bean>
 
     <bean id="lodeStudyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlStudyDAO" autowire-candidate="false">
-        <property name="queryManager" ref="queryManager"/>
-        <property name="queryService" ref="jenaVirtuosoExecutorService"/>
-        <property name="studyZoomaSerializer" ref="studySerializer"/>
+        <property name="queryManager" ref="queryManager" />
+        <property name="queryService" ref="jenaVirtuosoExecutorService" />
+        <property name="studyZoomaSerializer" ref="studySerializer" />
     </bean>
 
-    <bean id="lodeLuceneAnnotationSummaryDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlLuceneAnnotationSummaryDAO" autowire-candidate="false">
-        <property name="queryManager" ref="queryManager"/>
-        <property name="queryService" ref="jenaVirtuosoExecutorService"/>
+    <bean id="lodeLuceneAnnotationSummaryDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.SparqlLuceneAnnotationSummaryDAO"
+          autowire-candidate="false">
+        <property name="queryManager" ref="queryManager" />
+        <property name="queryService" ref="jenaVirtuosoExecutorService" />
     </bean>
 
-    <bean id="lodeAnnotationProvenanceDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationProvenanceDAO" autowire-candidate="false">
-        <property name="queryManager" ref="queryManager"/>
-        <property name="queryService" ref="jenaVirtuosoExecutorService"/>
+    <bean id="lodeAnnotationProvenanceDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationProvenanceDAO"
+          autowire-candidate="false">
+        <property name="queryManager" ref="queryManager" />
+        <property name="queryService" ref="jenaVirtuosoExecutorService" />
     </bean>
+
+    <!-- Serializers use OWL-API to generate RDF documents from ZOOMA objects -->
+
+    <bean name="annotationSerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIAnnotationSerializer" />
+
+    <bean id="bioentitySerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIBiologicalEntitySerializer" />
+
+    <bean id="propertySerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIPropertySerializer" />
+
+    <bean id="studySerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIStudySerializer" />
 
 </beans>

@@ -85,12 +85,12 @@ public class OmimPhenotypeEntryReader extends Reader {
                                 if (titles.length > 0) {
                                     // remove the symbol + id, if present
                                     String titlePlusSymbol = titles[0];
-                                    if (titlePlusSymbol.matches("^[#\\^\\*\\+].*")) {
+                                    if (titlePlusSymbol.matches("^[\\^\\*\\+].*")) {
                                         // this term is not a phenotype, so recurse to next entry
                                         return readEntry();
                                     }
                                     else {
-                                        titleString = titlePlusSymbol.replaceFirst("%?" + idString + "\\s", "");
+                                        titleString = titlePlusSymbol.replaceFirst("([#%])?" + idString + "\\s", "");
                                     }
                                 }
                                 if (titles.length > 1) {

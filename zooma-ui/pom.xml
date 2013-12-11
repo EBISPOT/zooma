@@ -314,7 +314,5 @@
             <!-- No loading module dependencies: this UI instance is read only -->
         </profile>
     </profiles>
-    <properties>
-        <netbeans.hint.deploy.server>gfv3ee6</netbeans.hint.deploy.server>
-    </properties>
+
 </project>

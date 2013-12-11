@@ -35,6 +35,7 @@ import java.net.URI;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
@@ -661,6 +662,16 @@ public class ZOOMA2SearchDriver {
             catch (IOException e) {
                 getLog().error("Failed to lookup label for " + uri);
                 return "N/A";
+            }
+        }
+
+        @Override public Collection<String> getSynonyms(URI uri) {
+            try {
+                return searchClient.getSynonyms(uri);
+            }
+            catch (IOException e) {
+                getLog().error("Failed to lookup synonyms for " + uri);
+                return Collections.singleton("N/A");
             }
         }
 
