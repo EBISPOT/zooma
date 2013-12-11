@@ -17,4 +17,8 @@
         <zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term"/>
     </zooma:owlAnnotations>
 
+    <!-- Serializers use OWL-API to generate RDF documents from ZOOMA objects -->
+
+    <bean name="annotationSerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIAnnotationSerializer" />
+
 </beans>

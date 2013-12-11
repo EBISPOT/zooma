@@ -273,11 +273,17 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
             // retrieve previous annotation and merge fields
             SimpleAnnotation annotation = annotationCache.get(annotationURI);
             // merge bioentities
-            annotation.addAnnotatedBiologicalEntity(biologicalEntity);
+            if (biologicalEntity != null) {
+                annotation.addAnnotatedBiologicalEntity(biologicalEntity);
+            }
             // merge semantic tags
-            annotation.addSemanticTag(semanticTag);
+            if (semanticTag != null) {
+                annotation.addSemanticTag(semanticTag);
+            }
             // update provenance
-            annotation.addAnnotationProvenance(annotationProvenance);
+            if (annotationProvenance != null) {
+                annotation.addAnnotationProvenance(annotationProvenance);
+            }
         }
         return annotationCache.get(annotationURI);
     }
