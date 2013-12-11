@@ -208,16 +208,11 @@ public class ZoomageMagetabParser {
      */
 //    private SDRF zoomifyMAGETAB(MAGETABSpreadsheet dataAs2DArrays, ZoomaRESTClient zoomaClient) {
     private SDRF zoomifyMAGETAB(SDRF sdrf, ZoomaRESTClient zoomaClient, boolean overwriteValues, boolean overwriteAnnotations, boolean addCommentsToSDRF) {
-//        InputStream in = convert2DStringArrayToStream(dataAs2DArrays.getSdrf());
-
-//        try {
-//            SDRF sdrf = new SDRFParser().parse(in);
 
         // iterate over sourceNodes fetch corresponding zooma annotation, make changes accordingly
         Collection<SourceNode> sourceNodes = sdrf.getNodes(SourceNode.class);
         for (SourceNode sourceNode : sourceNodes) {
             System.out.println("\n--------------------------------------------------------------");
-//                getLog().info("SourceNode: " + sourceNode.getNodeName());
             for (CharacteristicsAttribute attribute : sourceNode.characteristics) {
 
                 TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
@@ -691,7 +686,7 @@ public class ZoomageMagetabParser {
 
                     //ONT LABEL
                     String ontLabel = "";
-                    URI uri = zoomaAnnotationSummary.getURI();
+                    URI uri = zoomaAnnotationSummary.getSemanticTags().iterator().next();
 
                     try {
                         ontLabel = zoomaRESTClient.getClient().getLabel(uri);

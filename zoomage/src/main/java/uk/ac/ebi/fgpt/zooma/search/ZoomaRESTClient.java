@@ -347,7 +347,7 @@ public class ZoomaRESTClient {
                 attribute.setType(zoomaAnnotationSummary.getAnnotatedPropertyType());
 
                 // note that this doesn't overwrite the ORIGINAL property value, just stores the zoomified one
-                attribute.setZoomifiedValue(zoomaAnnotationSummary.getAnnotatedPropertyValue());   //Todo: Tony, these seem to be fetching inputs rather than annotated values
+                attribute.setZoomifiedValue(zoomaAnnotationSummary.getAnnotatedPropertyValue());
 
                 ArrayList<String> refAndAccession = concatenateCompoundURIs(zoomaAnnotationSummary, olsShortIds);
 
@@ -357,16 +357,14 @@ public class ZoomaRESTClient {
                 // note that this doesn't overwrite the ORIGINAL accession, but just stores the Zooma one
                 attribute.setZoomifiedTermAccessionNumber(refAndAccession.get(1));
 
-//                if(!refAndAccession.get(1).contains(":")||refAndAccession.get(0).contains(":")){
-//                    System.out.println("Stop here.");
-//                }
-
-//                try {
-//                    attribute.setZoomifiedOntologyLabel(this.client.getLabel(zoomaAnnotationSummary.getURI()));
-//                } catch (IOException e) {
-//                    log.error("Could not set ontology label for transitional attribute.");
-//                    e.printStackTrace();  //todo:
-//                }
+                try {
+                    URI uri = zoomaAnnotationSummary.getSemanticTags().iterator().next();
+                    String ontLabel = this.client.getLabel(uri);
+                    attribute.setZoomifiedOntologyLabel(ontLabel);
+                } catch (IOException e) {
+                    log.error("Could not set ontology label for transitional attribute '" + attribute.getOriginalValue());
+                    e.printStackTrace();
+                }
             }
         }
 
