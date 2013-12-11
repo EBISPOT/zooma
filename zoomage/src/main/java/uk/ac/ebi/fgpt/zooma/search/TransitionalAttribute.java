@@ -27,6 +27,7 @@ public class TransitionalAttribute {
     private String zoomifiedTermSourceREF;
     private String originalTermAccessionNumber;
     private String zoomifiedTermAccessionNumber;
+    private String zoomifiedOntologyLabel;
 //    private boolean buildComments; // for eventual incorporation in SDRF file.
 
 
@@ -132,6 +133,10 @@ public class TransitionalAttribute {
 
     public void setOriginalTermAccessionNumber(String originalTermAccessionNumber) {
         this.originalTermAccessionNumber = originalTermAccessionNumber;
+    }
+
+    public void setZoomifiedOntologyLabel(String zoomifiedOntologyLabel){
+        this.zoomifiedOntologyLabel = zoomifiedOntologyLabel;
     }
 
 

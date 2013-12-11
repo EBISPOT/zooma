@@ -39,8 +39,10 @@ import uk.ac.ebi.arrayexpress2.magetab.parser.SDRFParser;
 import uk.ac.ebi.arrayexpress2.magetab.renderer.IDFWriter;
 import uk.ac.ebi.arrayexpress2.magetab.renderer.SDRFWriter;
 import uk.ac.ebi.arrayexpress2.magetab.validator.MAGETABValidator;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 
 /**
@@ -105,7 +107,7 @@ public class ZoomageMagetabParser {
             sdrfWriter.write(newSDRF);
 
             getLog().info("\n\n\n============================\n\n\n");
-            getLog().info("We wrote sdrf to "+ outfile.getAbsolutePath());
+            getLog().info("We wrote sdrf to " + outfile.getAbsolutePath());
 
             //todo: IDF too
 
@@ -148,8 +150,8 @@ public class ZoomageMagetabParser {
 
                 public void errorOccurred(ErrorItem item) {
                     log.error(item.getErrorCode() + ": " + item.getMesg() + " [line " +
-                                      item.getLine() + ", column " + item.getCol() + "] (" +
-                                      item.getComment() + ")");
+                            item.getLine() + ", column " + item.getCol() + "] (" +
+                            item.getComment() + ")");
                     if (item.getErrorCode() != 501) {
                         synchronized (encounteredWarnings) {
                             log.debug("Error in file '" + item.getParsedFile() + "'");
@@ -196,8 +198,9 @@ public class ZoomageMagetabParser {
     /**
      * Creates an SDRF (graph-based) object from the 2D String Arrays, parses the relevant nodes of this object, and
      * delegates zoomification thereof. Returns revised SDRF object.
+     * <p/>
+     * //     * @param dataAs2DArrays
      *
-//     * @param dataAs2DArrays
      * @param sdrf
      * @param zoomaClient
      * @param addCommentsToSDRF
@@ -210,102 +213,102 @@ public class ZoomageMagetabParser {
 //        try {
 //            SDRF sdrf = new SDRFParser().parse(in);
 
-            // iterate over sourceNodes fetch corresponding zooma annotation, make changes accordingly
-            Collection<SourceNode> sourceNodes = sdrf.getNodes(SourceNode.class);
-            for (SourceNode sourceNode : sourceNodes) {
-                System.out.println("\n--------------------------------------------------------------");
+        // iterate over sourceNodes fetch corresponding zooma annotation, make changes accordingly
+        Collection<SourceNode> sourceNodes = sdrf.getNodes(SourceNode.class);
+        for (SourceNode sourceNode : sourceNodes) {
+            System.out.println("\n--------------------------------------------------------------");
 //                getLog().info("SourceNode: " + sourceNode.getNodeName());
-                for (CharacteristicsAttribute attribute : sourceNode.characteristics) {
+            for (CharacteristicsAttribute attribute : sourceNode.characteristics) {
 
-                    TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
+                TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
 
-                    // if we should overwrite the term source value, do so
-                    if (overwriteValues) {
-                        getLog().warn("Overwriting " + attribute.getAttributeValue() + " with " + transitionalAttribute.getZoomifiedValue());
-                        attribute.setAttributeValue(transitionalAttribute.getZoomifiedValue());
-                    }
+                // if we should overwrite the term source value, do so
+                if (overwriteValues) {
+                    getLog().warn("Overwriting " + attribute.getAttributeValue() + " with " + transitionalAttribute.getZoomifiedValue());
+                    attribute.setAttributeValue(transitionalAttribute.getZoomifiedValue());
+                }
 
-                    // if we should overwrite annotations, or if annotations are missing, apply zoomified annotations
-                    if (overwriteAnnotations || attribute.termSourceREF == null || attribute.termSourceREF.equals("")) {
-                        attribute.termSourceREF = transitionalAttribute.getZoomifiedTermSourceREF();
-                        attribute.termAccessionNumber = transitionalAttribute.getZoomifiedTermAccessionNumber();
-                    }
+                // if we should overwrite annotations, or if annotations are missing, apply zoomified annotations
+                if (overwriteAnnotations || attribute.termSourceREF == null || attribute.termSourceREF.equals("")) {
+                    attribute.termSourceREF = transitionalAttribute.getZoomifiedTermSourceREF();
+                    attribute.termAccessionNumber = transitionalAttribute.getZoomifiedTermAccessionNumber();
+                }
 
-                    // if we should add comments to the SDRF file
-                    if (addCommentsToSDRF) {
+                // if we should add comments to the SDRF file
+                if (addCommentsToSDRF) {
 
-                        sourceNode.comments.put("Zoomifications", comments);
-                        // reset the comments cache
-                        comments = new ArrayList<String>();
-                    }
+                    sourceNode.comments.put("Zoomifications", comments);
+                    // reset the comments cache
+                    comments = new ArrayList<String>();
+                }
 
+            }
+        }
+
+        // do the same for sampleNodes
+        Collection<SampleNode> sampleNodes = sdrf.getNodes(SampleNode.class);
+        for (SampleNode sampleNode : sampleNodes) {
+            getLog().info(sampleNode.getNodeName());
+
+            for (CharacteristicsAttribute attribute : sampleNode.characteristics) {
+
+                TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
+
+                // if we should overwrite the term source value, do so
+                if (overwriteValues) {
+                    getLog().warn("Overwriting " + attribute.getAttributeValue() + " with " + transitionalAttribute.getZoomifiedValue());
+                    attribute.setAttributeValue(transitionalAttribute.getZoomifiedValue());
+                }
+
+                // if we should overwrite annotations, or if annotations are missing, apply zoomified annotations
+                if (overwriteAnnotations || attribute.termSourceREF == null || attribute.termSourceREF.equals("")) {
+                    attribute.termSourceREF = transitionalAttribute.getZoomifiedTermSourceREF();
+                    attribute.termAccessionNumber = transitionalAttribute.getZoomifiedTermAccessionNumber();
+                }
+
+                // if we should add comments to the SDRF file
+                if (addCommentsToSDRF) {
+
+                    sampleNode.comments.put("Zoomifications", comments);
+                    // reset the comments cache
+                    comments = new ArrayList<String>();
                 }
             }
+        }
 
-            // do the same for sampleNodes
-            Collection<SampleNode> sampleNodes = sdrf.getNodes(SampleNode.class);
-            for (SampleNode sampleNode : sampleNodes) {
-                getLog().info(sampleNode.getNodeName());
+        // do the same for hybridizationNodes
+        Collection<HybridizationNode> hybridizationNodes = sdrf.getNodes(HybridizationNode.class);
 
-                for (CharacteristicsAttribute attribute : sampleNode.characteristics) {
+        for (HybridizationNode hybridizationNode : hybridizationNodes) {
+            getLog().info(hybridizationNode.getNodeName());
 
-                    TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
+            for (FactorValueAttribute attribute : hybridizationNode.factorValues) {
 
-                    // if we should overwrite the term source value, do so
-                    if (overwriteValues) {
-                        getLog().warn("Overwriting " + attribute.getAttributeValue() + " with " + transitionalAttribute.getZoomifiedValue());
-                        attribute.setAttributeValue(transitionalAttribute.getZoomifiedValue());
-                    }
+                TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
 
-                    // if we should overwrite annotations, or if annotations are missing, apply zoomified annotations
-                    if (overwriteAnnotations || attribute.termSourceREF == null || attribute.termSourceREF.equals("")) {
-                        attribute.termSourceREF = transitionalAttribute.getZoomifiedTermSourceREF();
-                        attribute.termAccessionNumber = transitionalAttribute.getZoomifiedTermAccessionNumber();
-                    }
+                // if we should overwrite the term source value, do so
+                if (overwriteValues) {
+                    getLog().warn("Overwriting " + attribute.getAttributeValue() + " with " + transitionalAttribute.getZoomifiedValue());
+                    attribute.setAttributeValue(transitionalAttribute.getZoomifiedValue());
+                }
 
-                    // if we should add comments to the SDRF file
-                    if (addCommentsToSDRF) {
+                // if we should overwrite annotations, or if annotations are missing, apply zoomified annotations
+                if (overwriteAnnotations || attribute.termSourceREF == null || attribute.termSourceREF.equals("")) {
+                    attribute.termSourceREF = transitionalAttribute.getZoomifiedTermSourceREF();
+                    attribute.termAccessionNumber = transitionalAttribute.getZoomifiedTermAccessionNumber();
+                }
 
-                        sampleNode.comments.put("Zoomifications", comments);
-                        // reset the comments cache
-                        comments = new ArrayList<String>();
-                    }
+                // if we should add comments to the SDRF file
+                if (addCommentsToSDRF) {
+
+                    hybridizationNode.comments.put("Zoomifications", comments);
+                    // reset the comments cache
+                    comments = new ArrayList<String>();
                 }
             }
+        }
 
-            // do the same for hybridizationNodes
-            Collection<HybridizationNode> hybridizationNodes = sdrf.getNodes(HybridizationNode.class);
-
-            for (HybridizationNode hybridizationNode : hybridizationNodes) {
-                getLog().info(hybridizationNode.getNodeName());
-
-                for (FactorValueAttribute attribute : hybridizationNode.factorValues) {
-
-                    TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
-
-                    // if we should overwrite the term source value, do so
-                    if (overwriteValues) {
-                        getLog().warn("Overwriting " + attribute.getAttributeValue() + " with " + transitionalAttribute.getZoomifiedValue());
-                        attribute.setAttributeValue(transitionalAttribute.getZoomifiedValue());
-                    }
-
-                    // if we should overwrite annotations, or if annotations are missing, apply zoomified annotations
-                    if (overwriteAnnotations || attribute.termSourceREF == null || attribute.termSourceREF.equals("")) {
-                        attribute.termSourceREF = transitionalAttribute.getZoomifiedTermSourceREF();
-                        attribute.termAccessionNumber = transitionalAttribute.getZoomifiedTermAccessionNumber();
-                    }
-
-                    // if we should add comments to the SDRF file
-                    if (addCommentsToSDRF) {
-
-                        hybridizationNode.comments.put("Zoomifications", comments);
-                        // reset the comments cache
-                        comments = new ArrayList<String>();
-                    }
-                }
-            }
-
-            return sdrf;
+        return sdrf;
 
 //        } catch (ParseException e) {
 //            e.printStackTrace();  //todo
@@ -398,7 +401,7 @@ public class ZoomageMagetabParser {
 //        String basePath = "/Users/jmcmurry/code/zooma/";         //todo: parameterise this
         String pipeline = accession.split("-")[1];
         return new File(basePath + File.separator + pipeline + File.separator + accession + File.separator + accession +
-                                ".idf.txt");
+                ".idf.txt");
     }
 
     /**
@@ -644,6 +647,86 @@ public class ZoomageMagetabParser {
 
     public ArrayList<String> getComments() {
         return comments;
+    }
+
+    public void logZoomifiedAnnotations(String _magetabAccession, ZoomaRESTClient zoomaRESTClient, boolean olsShortIds) throws IOException {
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(_magetabAccession + "-zoomifications-log.tsv", false)));
+
+        HashMap<String, AnnotationSummary> resultsCache = zoomaRESTClient.getResultsCache();
+        Iterator iterator = resultsCache.entrySet().iterator();
+
+        ArrayList<String> lines = new ArrayList<String>();
+        String line = "#ORIGINAL TYPE\tORIGINAL VALUE\tZOOMA VALUE\tONT LABEL\tTERM SOURCE REF\tTERM ACCESSION\tMAGETAB ACCESSION";
+        lines.add(line);
+        while (iterator.hasNext()) {
+
+            try {
+                Map.Entry pairs = (Map.Entry) iterator.next();
+                String input = (String) pairs.getKey();
+
+                AnnotationSummary zoomaAnnotationSummary = resultsCache.get(input);
+
+
+                input = input.replace("|", "\t");
+
+                //ORIGINAL TYPE & ORIGINAL VALUE
+                line = input;
+
+                if (zoomaAnnotationSummary == null) {
+                    System.out.println(input + " has no corresponding annotation.");
+                    line += "\tnone\tnone\tnone\tnone\t" + _magetabAccession;
+                    lines.add(line);
+                } else {
+                    String zoomagedValue = zoomaAnnotationSummary.getAnnotatedPropertyValue();
+                    ArrayList<String> refAndAcession = zoomaRESTClient.concatenateCompoundURIs(zoomaAnnotationSummary, olsShortIds);
+                    String termSourceRef = refAndAcession.get(0);
+                    String termSourceAccession = refAndAcession.get(1);
+
+                    String originalValue = input.substring(input.indexOf("\t") + 1);
+
+                    //ZOOMA VALUE
+                    if (!zoomagedValue.equalsIgnoreCase(originalValue)) {
+                        line += "\t" + zoomagedValue;
+                    } else line += "\toriginal and zooma values identical";
+
+                    //ONT LABEL
+                    String ontLabel = "";
+                    URI uri = zoomaAnnotationSummary.getURI();
+
+                    try {
+                        ontLabel = zoomaRESTClient.getClient().getLabel(uri);
+                        if (!zoomagedValue.equalsIgnoreCase(ontLabel)) {
+                            line += "\t" + ontLabel;
+                        } else line += "\toriginal value and ont label identical";
+                    } catch (Exception e) {
+                        line += "\t Ontology label could not be fetched";
+                        log.error("Unable to get ontology label from zoomaRESTClient.getClient().getLabel(" + uri + ").");
+//                        e.printStackTrace();
+                    }
+
+                    // TERM SOURCE REF & TERM SOURCE ACCESSION
+                    line += "\t" + termSourceRef + "\t" + termSourceAccession + "\t" + _magetabAccession;
+
+                    lines.add(line);
+
+                }
+
+                iterator.remove(); // avoids a ConcurrentModificationException
+            } catch (EmptyStackException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        Collections.sort(lines);
+        for (String eachline : lines) {
+            out.println(eachline);
+        }
+
+        out.close();
+//        out.flush();
+
     }
 
 

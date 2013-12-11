@@ -42,11 +42,10 @@ public class ZoomageSearchDriver {
             int statusCode = parseArguments(args);
             if (statusCode == 0) {
 
-                ZoomaRESTClient zoomaClient = new ZoomaRESTClient(_minStringLength, _cutoffPercentage, _cutoffScore, _olsShortIds, _overwriteAnnotations, _excludedTypesResource);
+                ZoomaRESTClient zoomaRESTClient = new ZoomaRESTClient(_minStringLength, _cutoffPercentage, _cutoffScore, _olsShortIds, _overwriteAnnotations, _excludedTypesResource);
                 ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
-                zoomageParser.runFromFilesystem(_magetabAccession, zoomaClient, _overwriteValues, _overwriteAnnotations, _addCommentsToSDRF);
-
-                logZoomifiedAnnotations(_magetabAccession, zoomaClient.getResultsCache(), _olsShortIds);
+                zoomageParser.runFromFilesystem(_magetabAccession, zoomaRESTClient, _overwriteValues, _overwriteAnnotations, _addCommentsToSDRF);
+                zoomageParser.logZoomifiedAnnotations(_magetabAccession, zoomaRESTClient, _olsShortIds);
 
                 getLog().info("Zoomage completed successfully.");
 
@@ -327,130 +326,8 @@ public class ZoomageSearchDriver {
         }
     }
 
-    private static void logZoomifiedAnnotations(String _magetabAccession, HashMap<String, AnnotationSummary> resultsCache, boolean olsShortIds) throws IOException {
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(_magetabAccession + "-zoomifications-log.tsv", false)));
-        Iterator iterator = resultsCache.entrySet().iterator();
-
-        ArrayList<String> lines = new ArrayList<String>();
-
-        while (iterator.hasNext()) {
-
-            try {
-                Map.Entry pairs = (Map.Entry) iterator.next();
-                String input = (String) pairs.getKey();
-
-                AnnotationSummary zoomaAnnotationSummary = resultsCache.get(input);
-
-                input = input.replace("|", "\t");
-                String line = "";
-
-                if (zoomaAnnotationSummary == null) {
-                    System.out.println(input + " has no corresponding annotation.");
-                    line += input + "\tnone\tnone";
-                } else {
-                    String zoomagedValue = zoomaAnnotationSummary.getAnnotatedPropertyValue();
-                    ArrayList<String> refAndAcession = concatenateCompoundURIs(zoomaAnnotationSummary, olsShortIds);
-                    String termSourceRef = refAndAcession.get(0);
-                    String termSourceAccession = refAndAcession.get(1);
-
-                    line = input + "\t" + termSourceRef + "\t" + termSourceAccession;
-                    String originalValue = input.substring(input.indexOf("\t") + 1);
-
-                    if (!zoomagedValue.equalsIgnoreCase(originalValue)) {
-                        line += "\t" + zoomagedValue;
-                    } else line += "\toriginal and zooma values identical";
-                }
-
-                lines.add(line);
-                iterator.remove(); // avoids a ConcurrentModificationException
-            } catch (EmptyStackException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        Collections.sort(lines);
-        for (String line : lines) {
-            out.println(line);
-        }
-
-        out.close();
-//        out.flush();
-
-    }
-
-    /**
-     * Zooma supports the edge case in which there is a compound term with corresponding (compound) accessions.
-     * eg: heart and lung
-     * Ultimately, the MAGETAB parser should support this edge case too, but until it does, this method
-     * will concatenate the URIs into a single string.
-     *
-     * @param zoomaAnnotationSummary
-     * @return ArrayList with two elements, the first is the reference, and the second the accession.
-     */
-    public static ArrayList<String> concatenateCompoundURIs(AnnotationSummary zoomaAnnotationSummary, boolean olsShortIds) {
-
-        // set termSourceREF and termAccessionNumber
-        Collection<URI> semanticTags = zoomaAnnotationSummary.getSemanticTags();
-        ArrayList<String> refAndAccession = new ArrayList<String>();
-
-        if (semanticTags.size() == 0) {
-            // since we've already checked to see that there is a Zooma annotation, this should never happen.
-            getLog().error("No term source ref detected for " + zoomaAnnotationSummary.getAnnotatedPropertyValue());
-            refAndAccession.add(null);
-            refAndAccession.add(null);
-            return refAndAccession;
-        }
-
-        Iterator iterator = semanticTags.iterator();
 
 
-        // 99% of the time, there will be one URI
-        if (semanticTags.size() == 1) {
-            String uri = String.valueOf(iterator.next());
-            int delimiterIndex = Math.max(uri.lastIndexOf("/"), uri.lastIndexOf("#")) + 1;
 
-            String namespace = uri.substring(0, delimiterIndex - 1);   //todo: check this!!!
-            refAndAccession.add(namespace);
-
-            if (olsShortIds) {
-                String olsShortId = uri.substring(delimiterIndex).replace("_", ":");
-                refAndAccession.add(olsShortId);
-            } else {
-                refAndAccession.add(uri);
-            }
-
-            return refAndAccession;
-        }
-
-        // for the edge cases: compound URIs
-        else if (semanticTags.size() > 1) {
-
-            String compoundTermSourceRef = "";
-            String compoundAccession = "";
-
-            //todo: MAGETAB parser to handle this ultimately
-            getLog().warn("Compound URI detected; MAGETAB parser not yet able to handle this edge case.");
-
-            // for each URI (except the last one) build up corresponding delimited strings for refs and accessions
-            for (int i = 0; i < semanticTags.size() - 1; i++) {
-                URI uri = (URI) iterator.next();
-                compoundTermSourceRef += uri.getHost() + ",";
-                compoundAccession += uri.getFragment() + ",";
-                //todo: maybe parameterize the delimiter
-            }
-
-            // for the very last URI, append to the delimited string without a trailing delimiter
-            URI lastURI = (URI) iterator.next();
-            compoundTermSourceRef += lastURI.getHost();
-            compoundAccession += lastURI.getFragment();
-
-            refAndAccession.add(compoundTermSourceRef);
-            refAndAccession.add(compoundAccession);
-        }
-
-        return refAndAccession;
-    }
 
 }

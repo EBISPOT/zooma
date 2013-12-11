@@ -1,0 +1,5 @@
+ORIGINAL TYPE	ORIGINAL VALUE	ZOOMA VALUE	ONT LABEL	TERM SOURCE REF	TERM ACCESSION	MAGETAB ACCESSION
+organism	Homo sapiens	original and zooma values identical	 Ontology label could not be fetched	NCBITaxon|NCBITaxon|	NCBITaxon:9606|NCBITaxon:10090|	E-MEXP-740
+organism part	left vastus lateralis	original and zooma values identical	 Ontology label could not be fetched	UBERON	UBERON:0001379	E-MEXP-740
+organism part	right vastus lateralis	original and zooma values identical	 Ontology label could not be fetched	UBERON	UBERON:0001379	E-MEXP-740
+sex	male	original and zooma values identical	 Ontology label could not be fetched	EFO	EFO:0001266	E-MEXP-740
