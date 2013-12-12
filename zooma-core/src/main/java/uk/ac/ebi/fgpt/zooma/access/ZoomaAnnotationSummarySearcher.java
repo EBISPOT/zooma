@@ -100,38 +100,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         this.annotationSummaryScorer = annotationSummaryScorer;
     }
 
-    public Collection<AnnotationSummary> query(String query, boolean prefixed) {
-        getLog().debug("Querying for " + query + " (prefixed = " + prefixed + ")");
-        validate();
-        Collection<AnnotationSummary> annotations = prefixed
-                ? getAnnotationSummarySearchService().searchByPrefix(query)
-                : getAnnotationSummarySearchService().search(query);
-        Map<AnnotationSummary, Float> allAnnotations = getAnnotationSummaryScorer().score(annotations, query);
-        return getAnnotationSummarySorter().sort(allAnnotations);
-    }
-
-    public Collection<AnnotationSummary> query(String query, String type, boolean prefixed) {
-        getLog().debug("Querying for " + query + ", " + type + " (prefixed = " + prefixed + ")");
-        validate();
-        Collection<AnnotationSummary> annotations = prefixed
-                ? getAnnotationSummarySearchService().searchByPrefix(type, query)
-                : getAnnotationSummarySearchService().search(type, query);
-        Map<AnnotationSummary, Float> allAnnotations = getAnnotationSummaryScorer().score(annotations, query, type);
-        return getAnnotationSummarySorter().sort(allAnnotations);
-    }
-
-    public Collection<AnnotationSummary> query(String query, String type, int limit, int start, boolean prefixed) {
-        getLog().debug("Querying for " + query + ", " + type + ", " + limit + ", " + start +
-                               " (prefixed = " + prefixed + ")");
-        validate();
-        Collection<AnnotationSummary> annotations = prefixed
-                ? getAnnotationSummarySearchService().searchByPrefix(type, query)
-                : getAnnotationSummarySearchService().search(type, query);
-        Map<AnnotationSummary, Float> allAnnotations = getAnnotationSummaryScorer().score(annotations, query, type);
-        List<AnnotationSummary> allAnnotationsList = getAnnotationSummarySorter().sort(allAnnotations);
-        return getAnnotationSummaryLimiter().limit(allAnnotationsList, limit, start);
-    }
-
     public Collection<AnnotationSummary> queryBySemanticTags(String... semanticTagShortnames) {
         return getAnnotationSummarySearchService().searchBySemanticTags(semanticTagShortnames);
     }
