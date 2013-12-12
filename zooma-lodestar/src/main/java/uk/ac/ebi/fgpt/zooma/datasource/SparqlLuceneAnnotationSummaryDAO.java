@@ -19,13 +19,17 @@ import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
+import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Simon Jupp
@@ -73,22 +77,19 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
     }
 
     public Collection<AnnotationSummary> read() {
-
         getLog().debug("Reading all annotation summaries");
         String query = getQueryManager().getSparqlQuery("AnnotationSummaries.read");
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
 
-        Map<URI, AnnotationSummary> propertyToSummary = null;
-
         QueryExecution execute = null;
         try {
             execute = getQueryService().getQueryExecution(g, q1, false);
             ResultSet results = execute.execSelect();
-            propertyToSummary = evaluateQueryResults(results);
+            return calculateSummaries(results);
         }
         catch (LodeException e) {
-            throw new SPARQLQueryException("Failed to retrieve annotation", e);
+            throw new SPARQLQueryException("Failed to retrieve annotation summaries", e);
         }
         finally {
             if (execute != null) {
@@ -98,44 +99,70 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
                 }
             }
         }
-        return propertyToSummary.values();
     }
 
-    private Map<URI, AnnotationSummary> evaluateQueryResults(ResultSet results) {
-        Map<URI, AnnotationSummary> propertyToSummary = new HashMap<URI, AnnotationSummary>();
+    private Collection<AnnotationSummary> calculateSummaries(ResultSet results) {
+        // maps annotation URI to property URI
+        Map<String, String> annotationToPropertyMap = new HashMap<>();
+        // maps property URI to property type/value {0: type, 1: value}
+        Map<String, String[]> propertyToLiteralsMap = new HashMap<>();
+        // maps annotation URI to all semantic tags
+        Map<String, Collection<String>> annotationToSemanticTagsMap = new HashMap<>();
+
+        // process results into maps
         while (results.hasNext()) {
-            QuerySolution solution = (QuerySolution) results.next();
-            getSummaryFromBindings(propertyToSummary, solution);
-        }
-        return propertyToSummary;
-    }
+            QuerySolution solution = results.next();
 
-    final static String underscore = "_";
+            Resource annotationID = solution.getResource(QueryVariables.ANNOTATION_ID.toString());
+            String annotationURI = annotationID.getURI();
 
-    public void getSummaryFromBindings(Map<URI, AnnotationSummary> propertyToSummary, QuerySolution solution) {
+            Resource propertyID = solution.getResource(QueryVariables.PROPERTY_VALUE_ID.toString());
+            Literal propertyTypeLiteral = solution.getLiteral(QueryVariables.PROPERTY_NAME.toString());
+            Literal propertyValueLiteral = solution.getLiteral(QueryVariables.PROPERTY_VALUE.toString());
+            String propertyURI = propertyID.getURI();
+            String propertyType = propertyTypeLiteral.getLexicalForm();
+            String propertyValue = propertyValueLiteral.getLexicalForm();
 
-        Resource annotationid = solution.getResource(QueryVariables.ANNOTATION_ID.toString());
-        Resource propertyvalueid = solution.getResource(QueryVariables.PROPERTY_VALUE_ID.toString());
-        Resource semantictag = solution.getResource(QueryVariables.SEMANTIC_TAG.toString());
-        Literal propertyNameValue = solution.getLiteral(QueryVariables.PROPERTY_NAME.toString());
-        Literal propertyValueValue = solution.getLiteral(QueryVariables.PROPERTY_VALUE.toString());
+            Resource semanticTagResource = solution.getResource(QueryVariables.SEMANTIC_TAG.toString());
+            String semanticTag = semanticTagResource.getURI();
 
-
-        URI annotationUri = URI.create(annotationid.getURI());
-        URI pvUri = URI.create(propertyvalueid.getURI());
-
-        if (!propertyToSummary.containsKey(pvUri)) {
-            propertyToSummary.put(pvUri, new SimpleLuceneSummary(
-                    propertyNameValue != null ? propertyNameValue.getLexicalForm() : null,
-                    propertyValueValue.getLexicalForm()));
-        }
-
-        if (semantictag != null) {
-            propertyToSummary.get(pvUri).getSemanticTags().add(URI.create(semantictag.getURI()));
+            if (!annotationToPropertyMap.containsKey(annotationURI)) {
+                annotationToPropertyMap.put(annotationURI, propertyURI);
+            }
+            if (!propertyToLiteralsMap.containsKey(propertyURI)) {
+                propertyToLiteralsMap.put(propertyURI, new String[]{propertyType, propertyValue});
+            }
+            if (!annotationToSemanticTagsMap.containsKey(annotationURI)) {
+                annotationToSemanticTagsMap.put(annotationURI, new HashSet<String>());
+            }
+            annotationToSemanticTagsMap.get(annotationURI).add(semanticTag);
         }
 
-        propertyToSummary.get(pvUri).getAnnotationURIs().add(annotationUri);
+        // now, process mapped data into summaries
+        Map<String, AnnotationSummary> hashedIDToSummaryMap = new HashMap<>();
+        for (String annotationURI : annotationToPropertyMap.keySet()) {
+            // get property URI and all semantic tag URIs, sort and hash
+            String propertyURI = annotationToPropertyMap.get(annotationURI);
+            Collection<String> semanticTagURIs = annotationToSemanticTagsMap.get(annotationURI);
+            List<String> uris = new ArrayList<>();
+            uris.add(propertyURI);
+            uris.addAll(semanticTagURIs);
+            Collections.sort(uris);
+            String hash = ZoomaUtils.generateHashEncodedID(uris.toArray(new String[uris.size()]));
 
+            if (!hashedIDToSummaryMap.containsKey(hash)) {
+                String[] propertyLiterals = propertyToLiteralsMap.get(propertyURI);
+                hashedIDToSummaryMap.put(hash, new SimpleLuceneSummary(propertyLiterals[0], propertyLiterals[1]));
+            }
+            SimpleLuceneSummary summary = (SimpleLuceneSummary) hashedIDToSummaryMap.get(hash);
+            summary.addAnnotationURI(URI.create(annotationURI));
+            for (String semanticTagURI : semanticTagURIs) {
+                summary.addSemanticTag(URI.create(semanticTagURI));
+            }
+        }
+
+        // finally, return the summaries
+        return hashedIDToSummaryMap.values();
     }
 
     @Override
@@ -164,14 +191,10 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
     }
 
     public class SimpleLuceneSummary implements AnnotationSummary {
-
-
-        private String id = null;
-        private String propertyType;
-        private String propertyValue;
-        private Collection<URI> semanticTags;
-        private Collection<URI> annotationURIs;
-        private float qualityScore = 0;
+        private final String propertyType;
+        private final String propertyValue;
+        private final Set<URI> semanticTags;
+        private final Set<URI> annotationURIs;
 
         public SimpleLuceneSummary(String propertyType, String propertyValue) {
             this.propertyType = propertyType;
@@ -182,7 +205,7 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
 
         @Override
         public String getAnnotationSummaryTypeID() {
-            return id;
+            return null;
         }
 
         @Override
@@ -205,18 +228,27 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
             return propertyType;
         }
 
+        @Override
         public Collection<URI> getSemanticTags() {
-            return semanticTags;
+            return Collections.unmodifiableCollection(semanticTags);
         }
 
+        public void addSemanticTag(URI semanticTag) {
+            this.semanticTags.add(semanticTag);
+        }
 
+        @Override
         public Collection<URI> getAnnotationURIs() {
-            return annotationURIs;
+            return Collections.unmodifiableCollection(annotationURIs);
         }
 
+        public void addAnnotationURI(URI annotationURI) {
+            this.annotationURIs.add(annotationURI);
+        }
 
+        @Override
         public float getQualityScore() {
-            return qualityScore;
+            return 0;
         }
 
         @Override
