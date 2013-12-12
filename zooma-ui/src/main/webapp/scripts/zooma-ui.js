@@ -323,7 +323,7 @@ function renderResults(data) {
                         for (var k = 0; k < l ; k++) {
                             var termID = termIDs[k];
                             var ontologyURI = ontologyURIs[k];
-                            links += linkify(ontologyURI + termID, termID) + "&nbsp;&nbsp;&nbsp;";
+                            links += linkify(ontologyURI + termID, termID) + ",<br />";
                         }
                         links += linkify(ontologyURIs[l] + termID[l], termID);
                         row = row + "<td>" + links + "</td>";
