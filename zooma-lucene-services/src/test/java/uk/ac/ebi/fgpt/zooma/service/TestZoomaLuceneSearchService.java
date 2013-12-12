@@ -213,12 +213,17 @@ public class TestZoomaLuceneSearchService {
             q = new SpanNearQuery(stqs.toArray(new SpanQuery[stqs.size()]), 1, false);
         }
 
-        Map<String, Float> results;
+        Collection<String> results;
         try {
-            results = searchService.doQueryAndScore(q, new SingleFieldStringMapper(field));
-            for (String s : results.keySet()) {
-                System.out.println("Result '" + s + "' has lucene score = " + results.get(s));
+            results = searchService.doQuery(q, new SingleFieldStringMapper(field));
+            for (String s : results) {
+                System.out.println("Next result: '" + s + "'");
             }
+            assertEquals("Wrong number of results", 4, results.size());
+            assertTrue(results.contains("foo"));
+            assertTrue(results.contains("foo bar"));
+            assertTrue(results.contains("foo bar baz"));
+            assertTrue(results.contains("foo baz"));
         }
         catch (IOException e) {
             e.printStackTrace();

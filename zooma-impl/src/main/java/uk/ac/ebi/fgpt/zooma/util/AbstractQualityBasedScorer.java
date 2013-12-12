@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Qualitative;
 
 import java.util.Collection;

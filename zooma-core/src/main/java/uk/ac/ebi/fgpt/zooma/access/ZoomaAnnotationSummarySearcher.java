@@ -96,6 +96,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
 
     @Autowired
     public void setAnnotationSummaryScorer(Scorer<AnnotationSummary> annotationSummaryScorer) {
+        setIsValidated(false);
         this.annotationSummaryScorer = annotationSummaryScorer;
     }
 
@@ -331,6 +332,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
             Assert.notNull(getAnnotationSummarySearchService(), "Annotation summary service must not be null");
             Assert.notNull(getAnnotationSummarySorter(), "Annotation summary sorter must not be null");
             Assert.notNull(getAnnotationSummaryLimiter(), "Annotation summary limiter must not be null");
+            Assert.notNull(getAnnotationSummaryScorer(), "Annotation summary scorer must not be null");
             setIsValidated(true);
         }
     }
