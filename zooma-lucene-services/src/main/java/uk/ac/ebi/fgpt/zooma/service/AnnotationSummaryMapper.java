@@ -20,6 +20,9 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
     private final int totalAnnotationCount;
     private final int totalAnnotationSummaryCount;
 
+    private float minQualityScore;
+    private float maxQualityScore;
+
     private final URI[] sourceRanking;
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -92,6 +95,16 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
 
     @Override
     public float getDocumentQuality(Document d, int rank) {
+        float normalizationFactor;
+        if (minQualityScore == -1 && maxQualityScore == -1) {
+            getLog().warn("Annotation Summary quality upper and lower bounds not set: " +
+                                  "summaries will be mapped with unnormalized scores");
+            normalizationFactor = 1;
+        }
+        else {
+            normalizationFactor = (maxQualityScore - minQualityScore) / 50;
+        }
+
         float topScore = Float.parseFloat(d.get("topScore"));
         int veris = Integer.parseInt(d.get("timesVerified"));
         float freq = (float) Integer.parseInt(d.get("frequency"));
@@ -104,7 +117,13 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
                                "(" + topScore + " + " + veris + ") x (1 + " + freq + "/" + annotationCount + ") = " +
                                (topScore + veris) + " x " + normalizedFreq + " = " +
                                ((topScore + veris) * normalizedFreq));
-        return (topScore + veris) * normalizedRank * normalizedFreq + sourceRank;
+        float score = (topScore + veris) * normalizedRank * normalizedFreq + sourceRank;
+        if (minQualityScore != -1) {
+            return 50 + ((score - minQualityScore) * normalizationFactor);
+        }
+        else {
+            return score;
+        }
     }
 
     protected int getSourceRanking(URI source) {
