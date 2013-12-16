@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A service that allows searching over the set of {@link AnnotationSummary} objects known to ZOOMA.  Prefix-based and
@@ -52,9 +54,25 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     @Override protected void doInitialization() throws IOException {
         super.doInitialization();
         IndexReader annotationReader = IndexReader.open(getAnnotationIndex());
-        getLog().debug("Total number of annotations in zooma: " + annotationReader.numDocs());
-        this.mapper = new AnnotationSummaryMapper(annotationReader.numDocs(), getReader().numDocs());
+        int numAnnotations = annotationReader.numDocs();
+        int numSummaries = getReader().numDocs();
         annotationReader.close();
+        getLog().debug("Total number of annotations in zooma: " + numAnnotations);
+        getLog().debug("Total number of summaries in zooma: " + numSummaries);
+        AnnotationSummaryMapper preMapper = new AnnotationSummaryMapper(numAnnotations, numSummaries);
+        Set<Float> allScores = new HashSet<>();
+        for (int i = 0; i < numSummaries; i++) {
+            if (getReader().isDeleted(i)) {
+                continue;
+            }
+            allScores.add(preMapper.mapDocument(getReader().document(i)).getQuality());
+        }
+        float maxScore = Collections.max(allScores);
+        getLog().debug("Maximum summary quality score = " + maxScore);
+        this.mapper = new AnnotationSummaryMapper(numAnnotations,
+                                                  numSummaries,
+                                                  maxScore);
+        getLog().debug("Annotation Summary mapper calibration complete");
     }
 
     @Override public Collection<AnnotationSummary> search(String propertyValuePattern) {

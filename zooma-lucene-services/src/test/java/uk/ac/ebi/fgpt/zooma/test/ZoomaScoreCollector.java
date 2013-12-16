@@ -13,7 +13,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +29,7 @@ public class ZoomaScoreCollector extends LuceneAnnotationSummarySearchService {
         initOrWait();
 
         List<Float> allScores = new ArrayList<>();
-        for (int i = 0; i < getReader().maxDoc(); i++) {
+        for (int i = 0; i < getReader().numDocs(); i++) {
             if (getReader().isDeleted(i)) {
                 continue;
             }
@@ -38,10 +37,12 @@ public class ZoomaScoreCollector extends LuceneAnnotationSummarySearchService {
             allScores.add(nextScore);
         }
         Collections.sort(allScores);
+        getLog().debug("Maximum score = " + Collections.max(allScores));
         return allScores;
     }
 
     public static void main(String[] args) {
+        PrintStream out = null;
         try {
             ZoomaScoreCollector collector = new ZoomaScoreCollector();
 
@@ -51,13 +52,14 @@ public class ZoomaScoreCollector extends LuceneAnnotationSummarySearchService {
             collector.setAnalyzer(analyzer);
             collector.setSimilarity(similarity);
 
-            Directory annotationIndex = new NIOFSDirectory(new File(System.getProperty("zooma.home") + File.separator + "annotation"));
-            Directory annotationSummaryIndex = new NIOFSDirectory(new File(System.getProperty("zooma.home") + File.separator + "annotation_summary"));
+            Directory annotationIndex =
+                    new NIOFSDirectory(new File(System.getProperty("zooma.home") + File.separator + "annotation"));
+            Directory annotationSummaryIndex = new NIOFSDirectory(new File(
+                    System.getProperty("zooma.home") + File.separator + "annotation_summary"));
 
             collector.setAnnotationIndex(annotationIndex);
             collector.setIndex(annotationSummaryIndex);
 
-            PrintStream out;
             if (args.length > 0) {
                 out = new PrintStream(new BufferedOutputStream(new FileOutputStream(new File(args[0]))));
             }
@@ -66,18 +68,15 @@ public class ZoomaScoreCollector extends LuceneAnnotationSummarySearchService {
             }
 
             List<Float> scores = collector.getAllScores();
-            int count = 0;
-//            out.println("Collected the following quality scores:");
+            System.out.println("Printing out scores - min = " + Collections.min(scores) + "; max = " +
+                                       Collections.max(scores));
             out.println("score");
             for (Float f : scores) {
                 out.print(f);
-//                out.print(",");
-//                if ((count % 10) == 0) {
-                    out.println();
-//                }
-                count++;
+                out.println();
             }
             out.println();
+            out.flush();
         }
         catch (IOException e) {
             System.err.println("Failed to read from lucene indexes - (" + e.getMessage() + ")");
@@ -88,6 +87,11 @@ public class ZoomaScoreCollector extends LuceneAnnotationSummarySearchService {
             System.err.println("Failed to init score collector - (" + e.getMessage() + ")");
             e.printStackTrace();
             System.exit(1);
+        }
+        finally {
+            if (out != null) {
+                out.close();
+            }
         }
     }
 }

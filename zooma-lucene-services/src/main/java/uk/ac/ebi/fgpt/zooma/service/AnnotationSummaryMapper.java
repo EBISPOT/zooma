@@ -7,7 +7,10 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationSummary;
 
 import java.net.URI;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 
 /**
@@ -20,8 +23,10 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
     private final int totalAnnotationCount;
     private final int totalAnnotationSummaryCount;
 
-    private float minQualityScore;
-    private float maxQualityScore;
+    private final boolean doNormalization;
+
+    private final float expectedMinimumQualityScore;
+    private final float maximumQualityScore;
 
     private final URI[] sourceRanking;
 
@@ -34,20 +39,67 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
     /**
      * Construct a new annotation summary mapper, supplying the total number of annotations known to ZOOMA.  This mapper
      * uses this value to calculate the score - the annotation summary score is the maximum annotation quality score,
-     * normalized by the frequency of use of this pattern.
+     * normalized by the frequency of use of this pattern.  The minimum quality score ZOOMA will use is 50, with no
+     * upper bound (unless the alternative form of the constructor is used)
      *
-     * @param totalAnnotationCount the total number of annotations in zooma
+     * @param totalAnnotationCount        the total number of annotations in zooma
+     * @param totalAnnotationSummaryCount the total number of unique annotation summaries in zooma
+     * @param sourceRanking               a configurable ranking of sources in preference order, which can be supplied
+     *                                    at search time
      */
-    public AnnotationSummaryMapper(int totalAnnotationCount, int totalAnnotationSummaryCount) {
-        this.totalAnnotationCount = totalAnnotationCount;
-        this.totalAnnotationSummaryCount = totalAnnotationSummaryCount;
-        this.sourceRanking = new URI[0];
+    public AnnotationSummaryMapper(int totalAnnotationCount, int totalAnnotationSummaryCount, URI... sourceRanking) {
+        this(totalAnnotationCount, totalAnnotationSummaryCount, -1, sourceRanking);
     }
 
-    public AnnotationSummaryMapper(int totalAnnotationCount, int totalAnnotationSummaryCount, URI... sourceRanking) {
+    /**
+     * Construct a new annotation summary mapper, supplying the total number of annotations known to ZOOMA.  This mapper
+     * uses this value to calculate the score - the annotation summary score is the maximum annotation quality score,
+     * normalized by the frequency of use of this pattern.  This form of the constructor allows for the supply of a
+     * maximum quality score, and in this case scores will be normalized to a maximum score of 100 to allow scores from
+     * ZOOMA to be more easily compared.
+     *
+     * @param totalAnnotationCount        the total number of annotations in zooma
+     * @param totalAnnotationSummaryCount the total number of unique annotation summaries in zooma
+     * @param sourceRanking               a configurable ranking of sources in preference order, which can be supplied
+     *                                    at search time
+     */
+    public AnnotationSummaryMapper(int totalAnnotationCount,
+                                   int totalAnnotationSummaryCount,
+                                   float maxQualityScore,
+                                   URI... sourceRanking) {
         this.totalAnnotationCount = totalAnnotationCount;
         this.totalAnnotationSummaryCount = totalAnnotationSummaryCount;
+        this.doNormalization = !(maxQualityScore == -1);
         this.sourceRanking = sourceRanking;
+
+        if (doNormalization) {
+            // calculate theoretical minimum quality score
+            Date y2k;
+            try {
+                y2k = new SimpleDateFormat("YYYY").parse("2000");
+            }
+            catch (ParseException e) {
+                throw new InstantiationError("Could not parse date '2000' (YYYY)");
+            }
+            float bottomScore = (float) (1.0 + Math.log10(y2k.getTime()));
+            int veris = 1;
+            float freq = 1.0f;
+            float annotationCount = (float) totalAnnotationCount;
+            float annotationSummaryCount = (float) totalAnnotationSummaryCount;
+            float normalizedFreq = 1.0f + (freq / annotationCount);
+            float normalizedRank = 1.0f - (200 / annotationSummaryCount);
+            float sourceRank = 1.0f;
+            this.expectedMinimumQualityScore = (bottomScore + veris) * normalizedRank * normalizedFreq + sourceRank;
+            getLog().debug("Expected minimum quality score = " + expectedMinimumQualityScore);
+            this.maximumQualityScore = maxQualityScore;
+            getLog().debug("Maximum quality score = " + maximumQualityScore);
+        }
+        else {
+            getLog().debug("Normalization parameters were not defined - " +
+                                   "Annotation Summaries will be mapped with raw quality scores");
+            this.expectedMinimumQualityScore = -1;
+            this.maximumQualityScore = -1;
+        }
     }
 
     @Override
@@ -95,16 +147,6 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
 
     @Override
     public float getDocumentQuality(Document d, int rank) {
-        float normalizationFactor;
-        if (minQualityScore == -1 && maxQualityScore == -1) {
-            getLog().warn("Annotation Summary quality upper and lower bounds not set: " +
-                                  "summaries will be mapped with unnormalized scores");
-            normalizationFactor = 1;
-        }
-        else {
-            normalizationFactor = (maxQualityScore - minQualityScore) / 50;
-        }
-
         float topScore = Float.parseFloat(d.get("topScore"));
         int veris = Integer.parseInt(d.get("timesVerified"));
         float freq = (float) Integer.parseInt(d.get("frequency"));
@@ -113,13 +155,23 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         float normalizedFreq = 1.0f + (freq / annotationCount);
         float normalizedRank = 1.0f - (rank / annotationSummaryCount);
         float sourceRank = (float) Math.sqrt((double) getSourceRanking(URI.create(d.get("source"))));
-        getLog().trace("Document quality: " +
-                               "(" + topScore + " + " + veris + ") x (1 + " + freq + "/" + annotationCount + ") = " +
-                               (topScore + veris) + " x " + normalizedFreq + " = " +
-                               ((topScore + veris) * normalizedFreq));
+        if (getLog().isTraceEnabled()) {
+            getLog().trace("Document quality: " +
+                                   "(" + topScore + " + " + veris + ") x " +
+                                   "(1 - " + rank + "/" + annotationSummaryCount + ") x " +
+                                   "(1 + " + freq + "/" + annotationCount + ") = " +
+                                   (topScore + veris) + " x " + normalizedFreq + " = " +
+                                   ((topScore + veris) * normalizedFreq));
+        }
         float score = (topScore + veris) * normalizedRank * normalizedFreq + sourceRank;
-        if (minQualityScore != -1) {
-            return 50 + ((score - minQualityScore) * normalizationFactor);
+        if (doNormalization) {
+            if ((score - expectedMinimumQualityScore) < 0) {
+                return 50;
+            }
+            else {
+                return 50 + (50 * (score - expectedMinimumQualityScore) /
+                        (maximumQualityScore - expectedMinimumQualityScore));
+            }
         }
         else {
             return score;
@@ -127,7 +179,7 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
     }
 
     protected int getSourceRanking(URI source) {
-        for (int i = 0; i<sourceRanking.length; i++) {
+        for (int i = 0; i < sourceRanking.length; i++) {
             if (sourceRanking[i].equals(source)) {
                 return sourceRanking.length - i + 1;
             }

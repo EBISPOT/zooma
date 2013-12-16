@@ -527,7 +527,7 @@ public class ZoomaLuceneIndexer extends Initializable {
         // creation time should then work backwards from most recent to oldest
         long age = prov.getGeneratedDate().getTime();
 
-        float score = (float) (evidenceScore + Math.log(age));
+        float score = (float) (evidenceScore + Math.log10(age));
         getLog().trace("Evaluated annotation score as " + score);
         return score;
     }
