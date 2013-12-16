@@ -67,12 +67,14 @@ public class ZoomaScoreCollector extends LuceneAnnotationSummarySearchService {
 
             List<Float> scores = collector.getAllScores();
             int count = 0;
-            out.println("Collected the following quality scores:");
+//            out.println("Collected the following quality scores:");
+            out.println("score");
             for (Float f : scores) {
-                out.print(f + ",");
-                if ((count % 10) == 0) {
+                out.print(f);
+//                out.print(",");
+//                if ((count % 10) == 0) {
                     out.println();
-                }
+//                }
                 count++;
             }
             out.println();
