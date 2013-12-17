@@ -309,8 +309,8 @@ function renderResults(data) {
                 }
                 else {
                     // comma separation, linkify each token
-                    var termIDs = result[5].split(",");
-                    var ontologyURIs = result[6].split(",");
+                    var termIDs = result[5].split(", ");
+                    var ontologyURIs = result[6].split(", ");
 
                     // should be same number of IDs and URIs
                     if (termIDs.length != ontologyURIs.length) {
@@ -321,7 +321,7 @@ function renderResults(data) {
                         var links = "";
                         var l = termIDs.length - 1;
                         for (var k = 0; k < l ; k++) {
-                            var termID = termIDs[k];
+                            var termID = termIDs[k].trim();
                             var ontologyURI = ontologyURIs[k];
                             links += linkify(ontologyURI + termID, termID) + ",<br />";
                         }
