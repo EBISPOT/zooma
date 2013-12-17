@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
+import uk.ac.ebi.fgpt.zooma.service.AnnotationSourceService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummarySearchService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummaryService;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
@@ -20,9 +22,12 @@ import uk.ac.ebi.fgpt.zooma.view.SearchResponse;
 import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Search ZOOMA for all the unique combinations of mapping between the given property values (and optional types) and
@@ -44,6 +49,7 @@ import java.util.Map;
 @RequestMapping("/summaries")
 public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSummary, String> {
     private AnnotationSummaryService annotationSummaryService;
+    private AnnotationSourceService annotationSourceService;
 
     private AnnotationSummarySearchService annotationSummarySearchService;
 
@@ -58,6 +64,15 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     @Autowired
     public void setAnnotationSummaryService(AnnotationSummaryService annotationSummaryService) {
         this.annotationSummaryService = annotationSummaryService;
+    }
+
+    public AnnotationSourceService getAnnotationSourceService() {
+        return annotationSourceService;
+    }
+
+    @Autowired
+    public void setAnnotationSourceService(AnnotationSourceService annotationSourceService) {
+        this.annotationSourceService = annotationSourceService;
     }
 
     public AnnotationSummarySearchService getAnnotationSummarySearchService() {
@@ -116,11 +131,52 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         return getAnnotationSummaryScorer().score(annotations, query);
     }
 
+    public Map<AnnotationSummary, Float> queryAndScore(String query, boolean prefixed, URI[] requiredSources) {
+        validate();
+        Collection<AnnotationSummary> annotations = prefixed
+                ? getAnnotationSummarySearchService().searchByPrefix(query, requiredSources)
+                : getAnnotationSummarySearchService().search(query, requiredSources);
+        return getAnnotationSummaryScorer().score(annotations, query);
+    }
+
+    public Map<AnnotationSummary, Float> queryAndScore(String query,
+                                                       List<URI> preferredSources,
+                                                       URI[] requiredSources) {
+        validate();
+        Collection<AnnotationSummary> annotations =
+                getAnnotationSummarySearchService().searchByPreferredSources(query, preferredSources, requiredSources);
+        return getAnnotationSummaryScorer().score(annotations, query);
+    }
+
     public Map<AnnotationSummary, Float> queryAndScore(String query, String type, boolean prefixed) {
         validate();
         Collection<AnnotationSummary> annotations = prefixed
                 ? getAnnotationSummarySearchService().searchByPrefix(type, query)
                 : getAnnotationSummarySearchService().search(type, query);
+        return getAnnotationSummaryScorer().score(annotations, query, type);
+    }
+
+    public Map<AnnotationSummary, Float> queryAndScore(String query,
+                                                       String type,
+                                                       boolean prefixed,
+                                                       URI[] requiredSources) {
+        validate();
+        Collection<AnnotationSummary> annotations = prefixed
+                ? getAnnotationSummarySearchService().searchByPrefix(type, query, requiredSources)
+                : getAnnotationSummarySearchService().search(type, query, requiredSources);
+        return getAnnotationSummaryScorer().score(annotations, query, type);
+    }
+
+    public Map<AnnotationSummary, Float> queryAndScore(String query,
+                                                       String type,
+                                                       List<URI> preferredSources,
+                                                       URI[] requiredSources) {
+        validate();
+        Collection<AnnotationSummary> annotations =
+                getAnnotationSummarySearchService().searchByPreferredSources(type,
+                                                                             query,
+                                                                             preferredSources,
+                                                                             requiredSources);
         return getAnnotationSummaryScorer().score(annotations, query, type);
     }
 
@@ -133,6 +189,34 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         Collection<AnnotationSummary> annotations = prefixed
                 ? getAnnotationSummarySearchService().searchByPrefix(type, query)
                 : getAnnotationSummarySearchService().search(type, query);
+        return getAnnotationSummaryScorer().score(annotations, query, type);
+    }
+
+    public Map<AnnotationSummary, Float> queryAndScore(String query,
+                                                       String type,
+                                                       boolean prefixed,
+                                                       int limit,
+                                                       int start,
+                                                       URI[] requiredSources) {
+        validate();
+        Collection<AnnotationSummary> annotations = prefixed
+                ? getAnnotationSummarySearchService().searchByPrefix(type, query, requiredSources)
+                : getAnnotationSummarySearchService().search(type, query, requiredSources);
+        return getAnnotationSummaryScorer().score(annotations, query, type);
+    }
+
+    public Map<AnnotationSummary, Float> queryAndScore(String query,
+                                                       String type,
+                                                       int limit,
+                                                       int start,
+                                                       List<URI> preferredSources,
+                                                       URI[] requiredSources) {
+        validate();
+        Collection<AnnotationSummary> annotations =
+                getAnnotationSummarySearchService().searchByPreferredSources(type,
+                                                                             query,
+                                                                             preferredSources,
+                                                                             requiredSources);
         return getAnnotationSummaryScorer().score(annotations, query, type);
     }
 
@@ -254,6 +338,48 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                                  final Boolean html_escape,
                                  final Boolean indent,
                                  final String mql_output) {
+        if (filter != null) {
+            return filteredSearch(query,
+                                  type,
+                                  exact,
+                                  limit,
+                                  start,
+                                  prefixed,
+                                  lang,
+                                  domain,
+                                  filter,
+                                  html_escape,
+                                  indent,
+                                  mql_output);
+        }
+        else {
+            return unfilteredSearch(query,
+                                    type,
+                                    exact,
+                                    limit,
+                                    start,
+                                    prefixed,
+                                    lang,
+                                    domain,
+                                    filter,
+                                    html_escape,
+                                    indent,
+                                    mql_output);
+        }
+    }
+
+    protected SearchResponse unfilteredSearch(final String query,
+                                              final String type,
+                                              final Boolean exact,
+                                              final Integer limit,
+                                              final Integer start,
+                                              final Boolean prefixed,
+                                              final String lang,
+                                              final String domain,
+                                              final String filter,
+                                              final Boolean html_escape,
+                                              final Boolean indent,
+                                              final String mql_output) {
         // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
         if (type != null) {
             if (limit != null) {
@@ -276,6 +402,110 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         }
         else {
             return convertToSearchResponse(query, queryAndScore(query, prefixed), getAnnotationSummarySorter());
+        }
+    }
+
+    protected SearchResponse filteredSearch(final String query,
+                                            final String type,
+                                            final Boolean exact,
+                                            final Integer limit,
+                                            final Integer start,
+                                            final Boolean prefixed,
+                                            final String lang,
+                                            final String domain,
+                                            final String filter,
+                                            final Boolean html_escape,
+                                            final Boolean indent,
+                                            final String mql_output) {
+        SearchType searchType = validateFilterArguments(filter);
+        URI[] requiredSources = parseRequiredSourcesFromFilter(filter);
+        List<URI> preferredSources = parsePreferredSourcesFromFilter(filter);
+        switch (searchType) {
+            case REQUIRED_ONLY:
+                if (type != null) {
+                    if (limit != null) {
+                        if (start != null) {
+                            return convertToSearchResponse(query,
+                                                           queryAndScore(query,
+                                                                         type,
+                                                                         prefixed,
+                                                                         limit,
+                                                                         start,
+                                                                         requiredSources),
+                                                           getAnnotationSummarySorter());
+                        }
+                        else {
+                            return convertToSearchResponse(query,
+                                                           queryAndScore(query,
+                                                                         type,
+                                                                         prefixed,
+                                                                         limit,
+                                                                         0,
+                                                                         requiredSources),
+                                                           getAnnotationSummarySorter());
+                        }
+                    }
+                    else {
+                        return convertToSearchResponse(query,
+                                                       queryAndScore(query, type, prefixed, requiredSources),
+                                                       getAnnotationSummarySorter());
+                    }
+                }
+                else {
+                    return convertToSearchResponse(query,
+                                                   queryAndScore(query, prefixed, requiredSources),
+                                                   getAnnotationSummarySorter());
+                }
+            case PREFERRED_ONLY:
+            case REQUIRED_AND_PREFERRED:
+                if (type != null) {
+                    if (limit != null) {
+                        if (start != null) {
+                            return convertToSearchResponse(query,
+                                                           queryAndScore(query,
+                                                                         type,
+                                                                         limit,
+                                                                         start,
+                                                                         preferredSources,
+                                                                         requiredSources),
+                                                           getAnnotationSummarySorter());
+                        }
+                        else {
+                            return convertToSearchResponse(query,
+                                                           queryAndScore(query,
+                                                                         type,
+                                                                         limit,
+                                                                         0,
+                                                                         preferredSources,
+                                                                         requiredSources),
+                                                           getAnnotationSummarySorter());
+                        }
+                    }
+                    else {
+                        return convertToSearchResponse(query,
+                                                       queryAndScore(query, type, preferredSources, requiredSources),
+                                                       getAnnotationSummarySorter());
+                    }
+                }
+                else {
+                    return convertToSearchResponse(query,
+                                                   queryAndScore(query, preferredSources, requiredSources),
+                                                   getAnnotationSummarySorter());
+                }
+            case UNRESTRICTED:
+            default:
+                return unfilteredSearch(query,
+                                        type,
+                                        exact,
+                                        limit,
+                                        start,
+                                        prefixed,
+                                        lang,
+                                        domain,
+                                        filter,
+                                        html_escape,
+                                        indent,
+                                        mql_output);
         }
     }
 
@@ -305,6 +535,20 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         }
     }
 
+    /**
+     * Validates that a legal combination of arguments has been passed to the search method by running some checks for
+     * conflicting search modes for the given set of parameters and returns an informative error code if the supplied
+     * set of arguments is invalid
+     *
+     * @param query        they query string
+     * @param type         a typing string
+     * @param exact        whether exact matches should be used
+     * @param limit        the maximum number of results to return
+     * @param start        the start position for results
+     * @param prefixed     whether to allow prefix searches
+     * @param semanticTags the semantic tags to restrict to
+     * @throws IllegalArgumentException the the supplied combination arguments cannot be used together in one search
+     */
     protected void validateArguments(String query,
                                      String type,
                                      Boolean exact,
@@ -321,7 +565,77 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         }
     }
 
+    protected SearchType validateFilterArguments(String filter) {
+        // filter argument should look like this:
+        // &filter=required:[x,y];preferred:[x,y,z]
+        // where required or preferred are optional and both arrays can contain any number of elements
+        if (filter.contains("required")) {
+            if (filter.contains("preferred")) {
+                return SearchType.REQUIRED_AND_PREFERRED;
+            }
+            else {
+                return SearchType.REQUIRED_ONLY;
+            }
+        }
+        else {
+            if (filter.contains("preferred")) {
+                return SearchType.PREFERRED_ONLY;
+            }
+            else {
+                return SearchType.UNRESTRICTED;
+            }
+        }
+    }
+
+    protected URI[] parseRequiredSourcesFromFilter(String filter) {
+        Matcher requiredMatcher = Pattern.compile("required:\\[(.*?)\\]").matcher(filter);
+        List<URI> requiredSources = new ArrayList<>();
+        if (requiredMatcher.matches()) {
+            String sourceNames = requiredMatcher.group(1);
+            String[] tokens = sourceNames.split(",", -1);
+            for (String sourceName : tokens) {
+                AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
+                if (nextSource != null) {
+                    requiredSources.add(nextSource.getURI());
+                }
+                else {
+                    getLog().warn("Required source '" + sourceName + "' was specified as a filter but " +
+                                          "could not be found in ZOOMA; this source will be excluded from the query");
+                }
+            }
+        }
+
+        return requiredSources.toArray(new URI[requiredSources.size()]);
+    }
+
+    protected List<URI> parsePreferredSourcesFromFilter(String filter) {
+        Matcher requiredMatcher = Pattern.compile("preferred:\\[(.*?)\\]").matcher(filter);
+        List<URI> preferredSources = new ArrayList<>();
+        if (requiredMatcher.matches()) {
+            String sourceNames = requiredMatcher.group(1);
+            String[] tokens = sourceNames.split(",", -1);
+            for (String sourceName : tokens) {
+                AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
+                if (nextSource != null) {
+                    preferredSources.add(nextSource.getURI());
+                }
+                else {
+                    getLog().warn("Required source '" + sourceName + "' was specified as a filter but " +
+                                          "could not be found in ZOOMA; this source will be excluded from the query");
+                }
+            }
+        }
+        return preferredSources;
+    }
+
     protected SearchResponse searchBySemanticTags(String[] semanticTags) {
         return convertToSearchResponse(semanticTags.length + " semantic tags", queryBySemanticTags(semanticTags));
+    }
+
+    protected enum SearchType {
+        REQUIRED_ONLY,
+        PREFERRED_ONLY,
+        REQUIRED_AND_PREFERRED,
+        UNRESTRICTED
     }
 }
