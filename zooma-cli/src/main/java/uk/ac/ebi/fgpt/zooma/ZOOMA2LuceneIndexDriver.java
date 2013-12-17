@@ -12,9 +12,12 @@ import uk.ac.ebi.fgpt.zooma.service.StatusService;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -169,22 +172,36 @@ public class ZOOMA2LuceneIndexDriver {
                     Path oldZoomaHome = zoomaHome.toPath();
                     Path newZoomaHome = backupFile.toPath();
 
-                    if (Files.exists(newZoomaHome))  {
+                    if (!Files.exists(newZoomaHome)) {
                         System.out.print(
                                 "Backing up " + oldZoomaHome.toString() + " to " + newZoomaHome.toString() + "...");
                         Files.move(oldZoomaHome,
-                                newZoomaHome,
-                                StandardCopyOption.REPLACE_EXISTING,
-                                StandardCopyOption.ATOMIC_MOVE);
+                                   newZoomaHome,
+                                   StandardCopyOption.REPLACE_EXISTING,
+                                   StandardCopyOption.ATOMIC_MOVE);
                         System.out.println("ok!");
-                        System.out.println("ZOOMA lucene indices will now be created afresh in " +
-                                zoomaHome.getAbsolutePath());
                     }
                     else {
-                        System.out.println("Backup already exists for today, clearing " + oldZoomaHome.toString());
+                        System.out.print(
+                                "Backup already exists for today, clearing " + oldZoomaHome.toString() + "...");
+                        Files.walkFileTree(oldZoomaHome, new SimpleFileVisitor<Path>() {
+                            @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                                    throws IOException {
+                                Files.delete(file);
+                                return FileVisitResult.CONTINUE;
+                            }
+
+                            @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                                    throws IOException {
+                                Files.delete(dir);
+                                return FileVisitResult.CONTINUE;
+                            }
+                        });
+                        Files.delete(oldZoomaHome);
+                        System.out.println("ok!");
                     }
-
-
+                    System.out.println("ZOOMA lucene indices will now be created afresh in " +
+                                               zoomaHome.getAbsolutePath());
                 }
                 else {
                     System.out.println("ZOOMA lucene indices will be created in " + zoomaHome.getAbsolutePath());
@@ -192,7 +209,7 @@ public class ZOOMA2LuceneIndexDriver {
             }
             else {
                 System.out.println("ZOOMA lucene indices will be created in a new directory, " +
-                        zoomaHome.getAbsolutePath());
+                                           zoomaHome.getAbsolutePath());
             }
             zoomaStatusService.reinitialize();
             started = true;

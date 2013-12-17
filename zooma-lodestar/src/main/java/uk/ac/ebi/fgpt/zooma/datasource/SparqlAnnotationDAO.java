@@ -508,6 +508,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             if (beUri != null) {
                 anno.getAnnotatedBiologicalEntities().add(getBiologicalEntityDAO().read(beUri));
             }
+            if (ontoUri != null) {
+                anno.getSemanticTags().add(ontoUri);
+            }
         }
         else {
             Set<BiologicalEntity> beSet = new HashSet<>();

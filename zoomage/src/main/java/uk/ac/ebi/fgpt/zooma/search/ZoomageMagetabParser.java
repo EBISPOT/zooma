@@ -39,14 +39,11 @@ import uk.ac.ebi.arrayexpress2.magetab.parser.SDRFParser;
 import uk.ac.ebi.arrayexpress2.magetab.renderer.IDFWriter;
 import uk.ac.ebi.arrayexpress2.magetab.renderer.SDRFWriter;
 import uk.ac.ebi.arrayexpress2.magetab.validator.MAGETABValidator;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.net.URI;
+import java.util.*;
 
 /**
  * The overall program takes a MAGETAB accession number, parses it using the Limpopo web service and applies
@@ -64,6 +61,8 @@ public class ZoomageMagetabParser {
 
     private HttpClient client = new DefaultHttpClient();
     private Logger log = LoggerFactory.getLogger(getClass());
+    private ArrayList<String> comments = new ArrayList<String>();
+
     //nb: caching Zooma results is done by the ZoomaRESTClient
 
     protected Logger getLog() {
@@ -71,14 +70,14 @@ public class ZoomageMagetabParser {
     }
 
 
-
     /**
      * Execute the program from the parameters collected in the main method
      *
      * @param MAGETABaccession
      * @param zoomaClient
+     * @param addCommentsToSDRF
      */
-    public void runFromWebservice(String MAGETABaccession, ZoomaRESTClient zoomaClient) {
+    public void runFromWebservice(String MAGETABaccession, ZoomaRESTClient zoomaClient, boolean overwriteValues, boolean overwriteAnnotations, boolean addCommentsToSDRF) {
 
         // pass the magetab accession to the service to fetch json
         String magetabAsJson = fetchMAGETABFromWebservice(MAGETABaccession);
@@ -97,18 +96,18 @@ public class ZoomageMagetabParser {
             SDRF sdrf = new SDRFParser().parse(in);
 
             //zoomify the sdrf
-            SDRF newSDRF = zoomifyMAGETAB(sdrf, zoomaClient);
+            SDRF newSDRF = zoomifyMAGETAB(sdrf, zoomaClient, overwriteValues, overwriteAnnotations, addCommentsToSDRF);
             getLog().info("\n\n\n============================\n\n\n");
             getLog().info("We parsed magetab and zoomified contents into sdrf representation");
 
             //write the results to a file
-            File outfile = new File(MAGETABaccession + ".txt");
+            File outfile = new File(MAGETABaccession + ".sdrf.txt");
             Writer outFileWriter = new FileWriter(outfile);
             SDRFWriter sdrfWriter = new SDRFWriter(outFileWriter);
             sdrfWriter.write(newSDRF);
 
             getLog().info("\n\n\n============================\n\n\n");
-            getLog().info("We wrote sdrf to "+ outfile.getAbsolutePath());
+            getLog().info("We wrote sdrf to " + outfile.getAbsolutePath());
 
             //todo: IDF too
 
@@ -117,28 +116,28 @@ public class ZoomageMagetabParser {
         }
 
 
-        log.info("\n\n\n============================\n\n\n");
+        getLog().info("\n\n\n============================\n\n\n");
 
         // now, post these 2D string arrays to the server and collect any error items
         String postJson = sendMAGETAB(dataAs2DArrays.getIdf(), dataAs2DArrays.getSdrf());
-        log.info("We POSTed IDF and SDRF json objects to the server, and got the following response:");
-        log.info(postJson);
-        log.info("\n\n\n============================\n\n\n");
+        getLog().info("We POSTed IDF and SDRF json objects to the server, and got the following response:");
+        getLog().info(postJson);
+        getLog().info("\n\n\n============================\n\n\n");
 
 
         // now, extract error items from the resulting JSON   //todo: this throws an error
-//        List<Map<String, Object>> errors = parseErrorItems(postJson);
-//        log.info("Our POST operation has returned " + errors.size() + " error items, these follow:");
-//        for (Map<String, Object> error : errors) {
-//            log.error("\t" +
-//                    error.get("code") + ":\t" +
-//                    error.get("comment") + "\t[line " +
-//                    error.get("line") + ", column" +
-//                    error.get("column") + "]");
-//        }
+        List<Map<String, Object>> errors = parseErrorItems(postJson);
+        log.info("Our POST operation has returned " + errors.size() + " error items, these follow:");
+        for (Map<String, Object> error : errors) {
+            log.error("\t" +
+                    error.get("code") + ":\t" +
+                    error.get("comment") + "\t[line " +
+                    error.get("line") + ", column" +
+                    error.get("column") + "]");
+        }
     }
 
-    public void runFromFilesystem(String magetabAccession, ZoomaRESTClient zoomaClient) {
+    public void runFromFilesystem(String magetabAccession, ZoomaRESTClient zoomaClient, boolean overwriteValues, boolean overwriteAnnotations, boolean addCommentsToSDRF) {
         // pass the magetab accession to the service to fetch json
         File magetabPath = fetchMAGETABFromFilesystem(magetabAccession);
 
@@ -151,8 +150,8 @@ public class ZoomageMagetabParser {
 
                 public void errorOccurred(ErrorItem item) {
                     log.error(item.getErrorCode() + ": " + item.getMesg() + " [line " +
-                                      item.getLine() + ", column " + item.getCol() + "] (" +
-                                      item.getComment() + ")");
+                            item.getLine() + ", column " + item.getCol() + "] (" +
+                            item.getComment() + ")");
                     if (item.getErrorCode() != 501) {
                         synchronized (encounteredWarnings) {
                             log.debug("Error in file '" + item.getParsedFile() + "'");
@@ -161,6 +160,7 @@ public class ZoomageMagetabParser {
                     }
                 }
             });
+
             MAGETABInvestigation investigation = parser.parse(magetabPath);
 
             if (!encounteredWarnings.isEmpty()) {
@@ -170,7 +170,7 @@ public class ZoomageMagetabParser {
             }
 
             //zoomify the sdrf
-            SDRF newSDRF = zoomifyMAGETAB(investigation.SDRF, zoomaClient);
+            SDRF newSDRF = zoomifyMAGETAB(investigation.SDRF, zoomaClient, overwriteValues, overwriteAnnotations, addCommentsToSDRF);
             getLog().info("\n\n\n============================\n\n\n");
             getLog().info("We parsed magetab and zoomified contents into sdrf representation");
 
@@ -181,7 +181,7 @@ public class ZoomageMagetabParser {
             // write old IDF
             idfWriter.write(investigation.IDF);
             // but write new SDRF
-            // NB: we need to force layout recalculation as we haven't added any new nodes, just changed existing ones
+            // todo: we need to force layout recalculation as we haven't added any new nodes, just changed existing ones
             newSDRF.getLayout().calculateLocations(newSDRF);
             sdrfWriter.write(newSDRF);
 
@@ -198,72 +198,112 @@ public class ZoomageMagetabParser {
     /**
      * Creates an SDRF (graph-based) object from the 2D String Arrays, parses the relevant nodes of this object, and
      * delegates zoomification thereof. Returns revised SDRF object.
+     * <p/>
+     * //     * @param dataAs2DArrays
      *
-//     * @param dataAs2DArrays
      * @param sdrf
      * @param zoomaClient
+     * @param addCommentsToSDRF
      * @return SDRF object updated with zooma annotations
      */
 //    private SDRF zoomifyMAGETAB(MAGETABSpreadsheet dataAs2DArrays, ZoomaRESTClient zoomaClient) {
-    private SDRF zoomifyMAGETAB(SDRF sdrf, ZoomaRESTClient zoomaClient) {
-//        InputStream in = convert2DStringArrayToStream(dataAs2DArrays.getSdrf());
+    private SDRF zoomifyMAGETAB(SDRF sdrf, ZoomaRESTClient zoomaClient, boolean overwriteValues, boolean overwriteAnnotations, boolean addCommentsToSDRF) {
 
-//        try {
-//            SDRF sdrf = new SDRFParser().parse(in);
+        // iterate over sourceNodes fetch corresponding zooma annotation, make changes accordingly
+        Collection<SourceNode> sourceNodes = sdrf.getNodes(SourceNode.class);
+        for (SourceNode sourceNode : sourceNodes) {
+            System.out.println("\n--------------------------------------------------------------");
+            for (CharacteristicsAttribute attribute : sourceNode.characteristics) {
 
-            // iterate over sourceNodes fetch corresponding zooma annotation, make changes accordingly
-            Collection<SourceNode> sourceNodes = sdrf.getNodes(SourceNode.class);
-            for (SourceNode sourceNode : sourceNodes) {
-                System.out.println("\n--------------------------------------------------------------");
-                getLog().info("SourceNode: " + sourceNode.getNodeName());
-                for (CharacteristicsAttribute attribute : sourceNode.characteristics) {
+                TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
 
-                    TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
+                // if we should overwrite the term source value, do so
+                if (overwriteValues) {
+                    getLog().warn("Overwriting " + attribute.getAttributeValue() + " with " + transitionalAttribute.getZoomifiedValue());
+                    attribute.setAttributeValue(transitionalAttribute.getZoomifiedValue());
+                }
 
-//                    attribute.setAttributeValue(transitionalAttribute.getValue());
-                    attribute.termSourceREF = transitionalAttribute.getTermSourceREF();
-                    attribute.termAccessionNumber = transitionalAttribute.getTermAccessionNumber();
+                // if we should overwrite annotations, or if annotations are missing, apply zoomified annotations
+                if (overwriteAnnotations || attribute.termSourceREF == null || attribute.termSourceREF.equals("")) {
+                    attribute.termSourceREF = transitionalAttribute.getZoomifiedTermSourceREF();
+                    attribute.termAccessionNumber = transitionalAttribute.getZoomifiedTermAccessionNumber();
+                }
 
-//                    sourceNode.comments.put("Zoomifications", transitionalAttribute.getComments());
+                // if we should add comments to the SDRF file
+                if (addCommentsToSDRF) {
+
+                    sourceNode.comments.put("Zoomifications", comments);
+                    // reset the comments cache
+                    comments = new ArrayList<String>();
+                }
+
+            }
+        }
+
+        // do the same for sampleNodes
+        Collection<SampleNode> sampleNodes = sdrf.getNodes(SampleNode.class);
+        for (SampleNode sampleNode : sampleNodes) {
+            getLog().info(sampleNode.getNodeName());
+
+            for (CharacteristicsAttribute attribute : sampleNode.characteristics) {
+
+                TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
+
+                // if we should overwrite the term source value, do so
+                if (overwriteValues) {
+                    getLog().warn("Overwriting " + attribute.getAttributeValue() + " with " + transitionalAttribute.getZoomifiedValue());
+                    attribute.setAttributeValue(transitionalAttribute.getZoomifiedValue());
+                }
+
+                // if we should overwrite annotations, or if annotations are missing, apply zoomified annotations
+                if (overwriteAnnotations || attribute.termSourceREF == null || attribute.termSourceREF.equals("")) {
+                    attribute.termSourceREF = transitionalAttribute.getZoomifiedTermSourceREF();
+                    attribute.termAccessionNumber = transitionalAttribute.getZoomifiedTermAccessionNumber();
+                }
+
+                // if we should add comments to the SDRF file
+                if (addCommentsToSDRF) {
+
+                    sampleNode.comments.put("Zoomifications", comments);
+                    // reset the comments cache
+                    comments = new ArrayList<String>();
                 }
             }
+        }
 
-            // do the same for sampleNodes
-            Collection<SampleNode> sampleNodes = sdrf.getNodes(SampleNode.class);
-            for (SampleNode sampleNode : sampleNodes) {
-                getLog().debug(sampleNode.getNodeName());
+        // do the same for hybridizationNodes
+        Collection<HybridizationNode> hybridizationNodes = sdrf.getNodes(HybridizationNode.class);
 
-                for (CharacteristicsAttribute attribute : sampleNode.characteristics) {
+        for (HybridizationNode hybridizationNode : hybridizationNodes) {
+            getLog().info(hybridizationNode.getNodeName());
 
-                    TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
+            for (FactorValueAttribute attribute : hybridizationNode.factorValues) {
 
-//                    attribute.setAttributeValue(transitionalAttribute.getValue());
-                    attribute.termSourceREF = transitionalAttribute.getTermSourceREF();
-                    attribute.termAccessionNumber = transitionalAttribute.getTermAccessionNumber();
+                TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
 
-//                    sampleNode.comments.put("Zoomifications", transitionalAttribute.getComments());
+                // if we should overwrite the term source value, do so
+                if (overwriteValues) {
+                    getLog().warn("Overwriting " + attribute.getAttributeValue() + " with " + transitionalAttribute.getZoomifiedValue());
+                    attribute.setAttributeValue(transitionalAttribute.getZoomifiedValue());
+                }
+
+                // if we should overwrite annotations, or if annotations are missing, apply zoomified annotations
+                if (overwriteAnnotations || attribute.termSourceREF == null || attribute.termSourceREF.equals("")) {
+                    attribute.termSourceREF = transitionalAttribute.getZoomifiedTermSourceREF();
+                    attribute.termAccessionNumber = transitionalAttribute.getZoomifiedTermAccessionNumber();
+                }
+
+                // if we should add comments to the SDRF file
+                if (addCommentsToSDRF) {
+
+                    hybridizationNode.comments.put("Zoomifications", comments);
+                    // reset the comments cache
+                    comments = new ArrayList<String>();
                 }
             }
+        }
 
-            // do the same for hybridizationNodes
-            Collection<HybridizationNode> hybridizationNodes = sdrf.getNodes(HybridizationNode.class);
-
-            for (HybridizationNode hybridizationNode : hybridizationNodes) {
-                getLog().debug(hybridizationNode.getNodeName());
-
-                for (FactorValueAttribute attribute : hybridizationNode.factorValues) {
-
-                    TransitionalAttribute transitionalAttribute = zoomifyAttribute(attribute, zoomaClient);
-
-//                    attribute.setAttributeValue(transitionalAttribute.getValue());
-                    attribute.termSourceREF = transitionalAttribute.getTermSourceREF();
-                    attribute.termAccessionNumber = transitionalAttribute.getTermAccessionNumber();
-
-//                    hybridizationNode.comments.put("Zoomifications", transitionalAttribute.getComments());
-                }
-            }
-
-            return sdrf;
+        return sdrf;
 
 //        } catch (ParseException e) {
 //            e.printStackTrace();  //todo
@@ -272,25 +312,50 @@ public class ZoomageMagetabParser {
 //        return null;
     }
 
+    private void appendComment(String varName, String oldString, String newString) {
+
+//        if (buildComments) {
+        // if there's no new string, just return
+        if (newString == null || newString.equals("")) return;
+
+        // else, initialize comment
+        String comment = "";
+
+        // if there's no original annotation, phrase the comment accordingly
+        if (oldString == null || oldString.equals("")) comment = (varName + " set to " + newString + ".");
+
+//            // otherwise if zoomification overwrites an existing annotation, phrase the comment accordingly
+//        else if (!oldString.equalsIgnoreCase(newString))
+//            comment = (varName + " " + this.type + " changed to " + type + ".");
+
+        getLog().info(comment);
+
+        // finally, append the comment
+        comments.add(comment);
+//        } else getLog().error("The 'appendComment method' was probably invoked in error.");
+    }
+
     /**
      * Takes a Factor value and returns a corresponding transitional attribute for easier manipulation by downstream methods
-     * @param attribute (Factor Value)
+     *
+     * @param attribute   (Factor Value)
      * @param zoomaClient
      * @return Transitional attribute
      */
     private TransitionalAttribute zoomifyAttribute(FactorValueAttribute attribute, ZoomaRESTClient zoomaClient) {
 
-        return zoomaClient.zoomify(new TransitionalAttribute(attribute));
+        return zoomaClient.zoomifyAttribute(new TransitionalAttribute(attribute));
     }
 
     /**
      * Takes a Characteristics Attribute and returns a corresponding transitional attribute for easier manipulation by downstream methods
-     * @param attribute (Characteristics attribute)
+     *
+     * @param attribute   (Characteristics attribute)
      * @param zoomaClient
      * @return Transitional attribute
      */
     private TransitionalAttribute zoomifyAttribute(CharacteristicsAttribute attribute, ZoomaRESTClient zoomaClient) {
-        return zoomaClient.zoomify(new TransitionalAttribute(attribute));
+        return zoomaClient.zoomifyAttribute(new TransitionalAttribute(attribute));
     }
 
     /**
@@ -328,9 +393,10 @@ public class ZoomageMagetabParser {
 
     public File fetchMAGETABFromFilesystem(String accession) {
         String basePath = "/ebi/microarray/home/arrayexpress/ae2_production/data/EXPERIMENT";
+//        String basePath = "/Users/jmcmurry/code/zooma/";         //todo: parameterise this
         String pipeline = accession.split("-")[1];
         return new File(basePath + File.separator + pipeline + File.separator + accession + File.separator + accession +
-                                ".idf.txt");
+                ".idf.txt");
     }
 
     /**
@@ -350,6 +416,7 @@ public class ZoomageMagetabParser {
 
     /**
      * Takes a 2D string array (idf or sdrf) and coverts it to json
+     *
      * @param idfOrSdrf
      * @return json as string
      */
@@ -370,6 +437,7 @@ public class ZoomageMagetabParser {
 
     /**
      * Takes a 2D string array (idf or sdrf) and coverts it to input stream
+     *
      * @param idfOrSdrf
      * @return input stream
      */
@@ -454,6 +522,7 @@ public class ZoomageMagetabParser {
 
     /**
      * Takes an HttpGet and returns the corresponding message body as a string
+     *
      * @param get
      * @return message body as a string
      */
@@ -468,9 +537,9 @@ public class ZoomageMagetabParser {
 
             // Execute the method.
             if (statusCode != HttpStatus.SC_OK) {
-                log.error("Method failed: " + response.getStatusLine());
+                getLog().error("Method failed: " + response.getStatusLine());
             } else {
-                log.info("Sent GET request to " + get.getURI() + ", response code " + statusCode);
+                getLog().info("Sent GET request to " + get.getURI() + ", response code " + statusCode);
             }
 
             // Read the response body.
@@ -484,7 +553,6 @@ public class ZoomageMagetabParser {
     }
 
     /**
-     *
      * @param post
      * @param idf
      * @param sdrf
@@ -493,13 +561,13 @@ public class ZoomageMagetabParser {
     public String executePost(HttpPost post, String[][] idf, String[][] sdrf) {
 
         // create json objects from the IDF and SDRF parts of the spreadsheet
-        String idfJson = "\"idf\":   "+ convert2DStringArrayToJSON(idf);
-        String sdrfJson = "\"sdrf\":   "+convert2DStringArrayToJSON(sdrf);
+        String idfJson = "\"idf\":   " + convert2DStringArrayToJSON(idf);
+        String sdrfJson = "\"sdrf\":   " + convert2DStringArrayToJSON(sdrf);
 
-        log.info("execute post");
-        log.info(idfJson);
+        getLog().info("execute post");
+        getLog().info(idfJson);
         System.out.println("\n\n-------------------------------------\n\n");
-        log.info(sdrfJson);
+        getLog().info(sdrfJson);
         System.out.println("\n\n-------------------------------------\n\n");
 
 
@@ -517,9 +585,9 @@ public class ZoomageMagetabParser {
 
             // Execute the method.
             if (statusCode != HttpStatus.SC_OK) {
-                log.error("Method failed: " + response.getStatusLine());
+                getLog().error("Method failed: " + response.getStatusLine());
             } else {
-                log.info("Sent post request to " + post.getURI() + ", response code " + statusCode);
+                getLog().info("Sent post request to " + post.getURI() + ", response code " + statusCode);
             }
 
             // Read the response body.
@@ -542,7 +610,7 @@ public class ZoomageMagetabParser {
                 // check we have a json response
                 if (header.getValue().contains("application/json")) {
                     // all ok, method response body and convert to json
-                    log.info("This request generated a valid response with application/json response type");
+//                    log.info("This request generated a valid response with application/json response type");
                     return true;
                 }
             }
@@ -569,6 +637,91 @@ public class ZoomageMagetabParser {
         public String[][] getSdrf() {
             return sdrf;
         }
+    }
+
+
+    public ArrayList<String> getComments() {
+        return comments;
+    }
+
+    public void logZoomifiedAnnotations(String _magetabAccession, ZoomaRESTClient zoomaRESTClient, boolean olsShortIds) throws IOException {
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(_magetabAccession + "-zoomifications-log.tsv", false)));
+
+        HashMap<String, AnnotationSummary> resultsCache = zoomaRESTClient.getResultsCache();
+        Iterator iterator = resultsCache.entrySet().iterator();
+
+        ArrayList<String> lines = new ArrayList<String>();
+        String line = "#ORIGINAL TYPE\tORIGINAL VALUE\tZOOMA VALUE\tONT LABEL\tTERM SOURCE REF\tTERM ACCESSION\tMAGETAB ACCESSION";
+        lines.add(line);
+        while (iterator.hasNext()) {
+
+            try {
+                Map.Entry pairs = (Map.Entry) iterator.next();
+                String input = (String) pairs.getKey();
+
+                AnnotationSummary zoomaAnnotationSummary = resultsCache.get(input);
+
+
+                input = input.replace("|", "\t");
+
+                //ORIGINAL TYPE & ORIGINAL VALUE
+                line = input;
+
+                if (zoomaAnnotationSummary == null) {
+                    System.out.println(input + " has no corresponding annotation.");
+                    line += "\tnone\tnone\tnone\tnone\t" + _magetabAccession;
+                    lines.add(line);
+                } else {
+                    String zoomagedValue = zoomaAnnotationSummary.getAnnotatedPropertyValue();
+                    ArrayList<String> refAndAcession = zoomaRESTClient.concatenateCompoundURIs(zoomaAnnotationSummary, olsShortIds);
+                    String termSourceRef = refAndAcession.get(0);
+                    String termSourceAccession = refAndAcession.get(1);
+
+                    String originalValue = input.substring(input.indexOf("\t") + 1);
+
+                    //ZOOMA VALUE
+                    if (!zoomagedValue.equalsIgnoreCase(originalValue)) {
+                        line += "\t" + zoomagedValue;
+                    } else line += "\toriginal and zooma values identical";
+
+                    //ONT LABEL
+                    String ontLabel = "";
+                    URI uri = zoomaAnnotationSummary.getSemanticTags().iterator().next();
+
+                    try {
+                        ontLabel = zoomaRESTClient.getClient().getLabel(uri);
+                        if (!zoomagedValue.equalsIgnoreCase(ontLabel)) {
+                            line += "\t" + ontLabel;
+                        } else line += "\toriginal value and ont label identical";
+                    } catch (Exception e) {
+                        line += "\t Ontology label could not be fetched";
+                        log.error("Unable to get ontology label from zoomaRESTClient.getClient().getLabel(" + uri + ").");
+//                        e.printStackTrace();
+                    }
+
+                    // TERM SOURCE REF & TERM SOURCE ACCESSION
+                    line += "\t" + termSourceRef + "\t" + termSourceAccession + "\t" + _magetabAccession;
+
+                    lines.add(line);
+
+                }
+
+                iterator.remove(); // avoids a ConcurrentModificationException
+            } catch (EmptyStackException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        Collections.sort(lines);
+        for (String eachline : lines) {
+            out.println(eachline);
+        }
+
+        out.close();
+//        out.flush();
+
     }
 
 

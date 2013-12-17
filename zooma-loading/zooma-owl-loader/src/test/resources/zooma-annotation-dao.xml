@@ -11,10 +11,14 @@
     <zooma:owlAnnotations name="efo"
                           uri="http://www.ebi.ac.uk/efo"
                           loadFrom="http://www.ebi.ac.uk/efo/efo.owl"
-                          synonymURI="http://www.ebi.ac.uk/efo/alternative_term"
                           exclusionClassURI="http://www.geneontology.org/formats/oboInOwl#ObsoleteClass"
-                          exclusionAnnotationURI="http://www.ebi.ac.uk/efo/organizational_class" />
+                          exclusionAnnotationURI="http://www.ebi.ac.uk/efo/organizational_class"
+                          useReasoning="false">
+        <zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term"/>
+    </zooma:owlAnnotations>
 
-    <!--useReasoning="false" />-->
+    <!-- Serializers use OWL-API to generate RDF documents from ZOOMA objects -->
+
+    <bean name="annotationSerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIAnnotationSerializer" />
 
 </beans>

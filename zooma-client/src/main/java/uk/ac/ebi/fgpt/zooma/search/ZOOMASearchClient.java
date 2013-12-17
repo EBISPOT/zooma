@@ -280,6 +280,16 @@ public class ZOOMASearchClient {
         return labelMap.get("label").iterator().next();
     }
 
+    public Collection<String> getSynonyms(URI uri) throws IOException {
+        String shortform = URIUtils.getShortform(prefixMappings, uri);
+        getLog().trace("Formulating search for synonyms of '" + shortform + "' (derived from <" + uri + ">)");
+        URL labelsURL = new URL(zoomaServicesBase + "labels/" + shortform);
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Set<String>> labelMap = mapper.readValue(labelsURL, new TypeReference<Map<String, Set<String>>>() {
+        });
+        return labelMap.get("synonyms");
+    }
+
     private URI lookupURI(String shortname) {
         // try to recover URI
         URI uri;
@@ -321,7 +331,7 @@ public class ZOOMASearchClient {
         List<URI> semanticTags = new ArrayList<>();
         JsonNode stsNode = summaryNode.get("semanticTags");
         for (JsonNode stNode : stsNode) {
-            semanticTags.add(lookupURI(stNode.getTextValue()));
+            semanticTags.add(URI.create(stNode.getTextValue()));
         }
 
         List<URI> annotationURIs = new ArrayList<>();

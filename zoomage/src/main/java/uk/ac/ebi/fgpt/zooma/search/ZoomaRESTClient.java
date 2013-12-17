@@ -17,48 +17,53 @@ import java.util.*;
  */
 public class ZoomaRESTClient {
 
-    private final HashSet inelegibleProperties;
-    private Logger log = LoggerFactory.getLogger(getClass());
+    private final HashSet excludedProperties;
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private int minInputLength;       // minimum length of a string to match for annotations
     private float cutoffPercentage;   // cutoff percentage (eg. .8 keeps only the top 20%)
     private float cutoffScore;        // minimum score to accept as a zooma hit
     private boolean olsShortIds;     // yes if output should include term ids in their (OLS-compatible) short form rather than full URI
+    private boolean overwriteAnnotations;     // yes if existing annotations should be stripped and, where available, overwritten
     private static HashMap<String, AnnotationSummary> resultsCache = new HashMap<String, AnnotationSummary>();
 
     private final ZOOMASearchClient client;
 
-    public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, boolean  olsShortIds, String excludedPropertiesResource) {
+    //    public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, boolean  olsShortIds, String excludedPropertiesResource) {
+    public static HashMap<String, AnnotationSummary> getResultsCache() {
+        return resultsCache;
+    }
+
+    public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, boolean olsShortIds, boolean overwriteAnnotations, String excludedPropertiesResource) {
         this.minInputLength = minInputLength;
         this.cutoffPercentage = cutoffPercentage;
         this.cutoffScore = cutoffScore;
         this.olsShortIds = olsShortIds;
+        this.overwriteAnnotations = overwriteAnnotations;
 
-        this.inelegibleProperties = parseIneligibleProperties(excludedPropertiesResource);
-
+        this.excludedProperties = parseExcludedProperties(excludedPropertiesResource);
         try {
             this.client = new ZOOMASearchClient(URI.create("http://www.ebi.ac.uk/fgpt/zooma").toURL());
-        }
-        catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to create ZOOMASearchCLient", e);
         }
     }
 
-    public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, boolean  olsShortIds, HashSet excludedProperties) {
+    public ZoomaRESTClient(int minInputLength, float cutoffPercentage, float cutoffScore, boolean olsShortIds, boolean overwriteAnnotations, HashSet excludedProperties) {
         this.minInputLength = minInputLength;
         this.cutoffPercentage = cutoffPercentage;
         this.cutoffScore = cutoffScore;
         this.olsShortIds = olsShortIds;
-//
-        inelegibleProperties = excludedProperties;
+        this.overwriteAnnotations = overwriteAnnotations;
 
+        this.excludedProperties = excludedProperties;
         try {
             this.client = new ZOOMASearchClient(URI.create("http://www.ebi.ac.uk/fgpt/zooma").toURL());
-        }
-        catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to create ZOOMASearchCLient", e);
         }
     }
+
 
     protected Logger getLog() {
         return log;
@@ -73,7 +78,7 @@ public class ZoomaRESTClient {
      * @param zoomaAnnotationSummary
      * @return ArrayList with two elements, the first is the reference, and the second the accession.
      */
-    private ArrayList<String> concatenateCompoundURIs(AnnotationSummary zoomaAnnotationSummary) {
+    public ArrayList<String> concatenateCompoundURIs(AnnotationSummary zoomaAnnotationSummary, boolean olsShortIds) {
 
         // set termSourceREF and termAccessionNumber
         Collection<URI> semanticTags = zoomaAnnotationSummary.getSemanticTags();
@@ -92,16 +97,13 @@ public class ZoomaRESTClient {
 
         // 99% of the time, there will be one URI
         if (semanticTags.size() == 1) {
-            String uri = String.valueOf(iterator.next());
-            int delimiterIndex = Math.max(uri.lastIndexOf("/"), uri.lastIndexOf("#")) + 1;
+            URI uri = (URI) iterator.next();
 
-            String namespace =  uri.substring(0, delimiterIndex - 1);   //todo: check this!!!
-            refAndAccession.add(namespace);
+            String accession = parseAccession(uri, olsShortIds);
+            String ref = accession.substring(0, accession.indexOf(":"));
 
-            String olsShortId = uri.substring(delimiterIndex).replace("_",":");
-            refAndAccession.add(olsShortId);
-
-            return refAndAccession;
+            refAndAccession.add(ref);
+            refAndAccession.add(accession);
         }
 
         // for the edge cases: compound URIs
@@ -113,18 +115,21 @@ public class ZoomaRESTClient {
             //todo: MAGETAB parser to handle this ultimately
             getLog().warn("Compound URI detected; MAGETAB parser not yet able to handle this edge case.");
 
-            // for each URI (except the last one) build up corresponding delimited strings for refs and accessions
-            for (int i = 0; i < semanticTags.size() - 1; i++) {
-                URI uri = (URI) iterator.next();
-                compoundTermSourceRef += uri.getHost() + ",";
-                compoundAccession += uri.getFragment() + ",";
-                //todo: maybe parameterize the delimiter
-            }
+            // for each URI build up corresponding delimited strings for refs and accessions
+            for (URI semanticTag : semanticTags) {
+                String uri = String.valueOf(semanticTag);
+                int delimiterIndex = Math.max(uri.lastIndexOf("/"), uri.lastIndexOf("#")) + 1;
+                String accession = uri.substring(delimiterIndex);
+                String shortNamespace = accession.substring(0, accession.indexOf("_"));
+                compoundTermSourceRef += shortNamespace + "|";
 
-            // for the very last URI, append to the delimited string without a trailing delimiter
-            URI lastURI = (URI) iterator.next();
-            compoundTermSourceRef += lastURI.getHost();
-            compoundAccession += lastURI.getFragment();
+                if (olsShortIds) {
+                    String olsShortId = uri.substring(delimiterIndex).replace("_", ":");
+                    compoundAccession += olsShortId + "|";
+                } else {
+                    compoundAccession += uri + "|";
+                }
+            }
 
             refAndAccession.add(compoundTermSourceRef);
             refAndAccession.add(compoundAccession);
@@ -133,55 +138,135 @@ public class ZoomaRESTClient {
         return refAndAccession;
     }
 
-    //eg: http://wwwdev.ebi.ac.uk/fgpt/zooma/v2/api/search?query=colon&type=OrganismPart
+//    public String parseTermSourceRef(URI semanticTag) {
+//        String host = semanticTag.getHost();
+//        int delimiterIndex = Math.max(host.lastIndexOf("/"), host.lastIndexOf("#")) + 1;
+//        System.out.println(semanticTag + ":" + host + "," + delimiterIndex);
+//        if (delimiterIndex == 0) return host;
+//        else return host.substring(0, delimiterIndex - 1);
+//    }
+
+    public String parseAccession(URI semanticTag, boolean olsShortIds) {
+
+        String tag = String.valueOf(semanticTag);
+
+        if (olsShortIds) {
+            int delimiterIndex = parseDelimIndex(semanticTag);
+            tag = tag.substring(delimiterIndex).replace("_", ":");
+        }
+
+        return tag;
+    }
+
+    public int parseDelimIndex(URI semanticTag) {
+        String uri = String.valueOf(semanticTag);
+        return Math.max(uri.lastIndexOf("/"), uri.lastIndexOf("#")) + 1;
+    }
 
     /**
      * Get best Zooma AnnotationSummary for specified attribute type and value
      *
-     * @param attributeType  (eg: organism)
-     * @param attributeValue (eg: human)
-     * @return corresponding best-scoring Zooma annotation
+     * @param attributeType (eg: organism)
+     * @return cleanedAttributeType
      */
-    public AnnotationSummary getZoomaAnnotationSummary(String attributeType, String attributeValue) {
+    public String cleanAndCheckType(String attributeType) {
 
         //to visually separate log output in console
         System.out.println();
 
-        // Don't proceed with zoomification unless the input meets the specified length requirement
-        if (attributeValue.length() < minInputLength) {
-            return null;
+        // Clean the attribute type of underscores, camelcasing, double spaces etc.
+        String cleanedAttributeType = cleanAttributeType(attributeType);
+
+        // Check that the cleaned type is not excluded
+        if (excludedProperties.contains(cleanedAttributeType)) {
+            getLog().info("Attribute type '" + cleanedAttributeType + "' was marked for exclusion and will be ignored.");
+            return "exclude";
         }
 
         // concatenate input to simplify storage and retrieval from map of cached results.
-        String input = attributeType + "|" + attributeValue;
+        return cleanedAttributeType;
+
+    }
+
+
+    private AnnotationSummary getZoomaAnnotationSummary(String cleanedAttributeType, String originalAttributeValue) {
+
+        if (originalAttributeValue.length() < minInputLength) {
+            getLog().info("Input '" + originalAttributeValue + "' is below the length requirement.");
+            return null;
+        }
+
+        String input = cleanedAttributeType + "|" + originalAttributeValue;
 
         // if there's a result in the cache, fetch it
         if (resultsCache.containsKey(input)) {
-            getLog().info("Fetching result from cache for \"" + input + "\"");
+            if (resultsCache.get(input) != null) getLog().info("Fetching result from cache for \"" + input + "\"");
             return resultsCache.get(input);
         }
 
         // if there's no result in the cache, initiate a new Zooma query
-        else try {
-            Property property = new SimpleTypedProperty(attributeType, attributeValue);
-            Map<AnnotationSummary, Float> resultMap = client.searchZOOMA(property, 0);
+        getLog().info("Initiating new zooma query for " + input);
 
-            // filter results based on cutoffpercentage specified by the user
-            if (resultMap.size() != 0) {
-                getLog().info("Filtering " + resultMap.size() + " Zooma result(s)");
-                Set<AnnotationSummary> filteredResultSet = ZoomaUtils.filterAnnotationSummaries(resultMap,cutoffScore, cutoffPercentage );
+        Property property = new SimpleTypedProperty(cleanedAttributeType, originalAttributeValue);
+        Map<AnnotationSummary, Float> fullResultsMap = client.searchZOOMA(property, 0);
+
+        // filter results based on cutoffpercentage specified by the user
+        if (fullResultsMap.size() != 0) {
+            getLog().info("Filtering " + fullResultsMap.size() + " Zooma result(s)");
+            Set<AnnotationSummary> filteredResultSet = ZoomaUtils.filterAnnotationSummaries(fullResultsMap, cutoffScore, cutoffPercentage);
+
+            // if more than one result for the given percentage and score params, don't automate the annotation
+            if (filteredResultSet.size() > 1) {
+                getLog().warn("More than one filtered result meets user criteria; no automatic curation applied.");
+                // For performance considerations, still put null in the cache for this input
+                resultsCache.put(input, null);
+                return null;
+
                 // from among filtered results, get the best one and return it
-                return getBestMatch(input, filteredResultSet);
+                // todo: this would be a prompt-the-user feature, not an automated curation feature
+//                return getBestMatch(input, filteredResultSet);
             }
 
+            // otherwise if there is one and only one result, cache it and then return it.
+            else if (filteredResultSet.size() == 1) {
+
+                AnnotationSummary singleZoomaResult = filteredResultSet.iterator().next();
+                getLog().info("Zooma annotation being applied...");
+
+                resultsCache.put(input, singleZoomaResult);
+                return singleZoomaResult;
+            }
+
+            // otherwise if there are no results after applying filters
+            else log.warn("None of the " + fullResultsMap.size() + " annotations meet the threshold for autocuration.");
+
+
         }
-        catch (IOException e) {
-            e.printStackTrace();  //todo
+        return null;
+    }
+
+    private String cleanAttributeType(String attributeType) {
+
+        String cleanedAttributeType = attributeType;
+
+        // handle camel cased property types and split into words separated by spaces
+        String[] attributeTypeWords = attributeType.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
+
+        // if there was camel casing
+        if (attributeTypeWords.length > 1) {
+
+            // reset this value
+            cleanedAttributeType = "";
+
+            // stitch the words back together with spaces
+            for (String word : attributeTypeWords) {
+                cleanedAttributeType += word + " ";
+            }
         }
 
-        // if there are no results from the query, still store this info in the resultsCache for expediency
-        resultsCache.put(input, null);
-        return null;
+        // further clean this value of extra spaces
+        return cleanedAttributeType.trim().toLowerCase().replaceAll("//s+", " ");
+
     }
 
     /**
@@ -213,7 +298,7 @@ public class ZoomaRESTClient {
         }
 
         // log and cache the result
-        if (bestResult.getSemanticTags().size() > 1) log.warn("Compound URI detected.");
+        if (bestResult.getSemanticTags().size() > 1) getLog().warn("Compound URI detected.");
         getLog().info("Input: " + input);
         getLog().info("Best ZoomaResult:" + bestResult.getID() + "\t" + bestResult.getAnnotatedPropertyType() + "\t" + bestResult.getAnnotatedPropertyValue() + "\t" + bestResult.getSemanticTags());
         getLog().info("ZoomaResult score: " + bestResult.getQuality());
@@ -229,41 +314,76 @@ public class ZoomaRESTClient {
      * @param attribute original (unzoomified) TransitionalAttribute
      * @return zoomified attribute.
      */
-    public TransitionalAttribute zoomify(TransitionalAttribute attribute) {
-        // is attribute type in exclusion list?
-        String normalizedType = attribute.getType().toLowerCase().trim().replaceAll("\\s", "").replaceAll("_", "");
-        if (!inelegibleProperties.contains(normalizedType)) {
-            // fetch the best matching Zooma Annotation summary
-            AnnotationSummary zoomaAnnotationSummary = getZoomaAnnotationSummary(attribute.getType(), attribute.getValue());
+    public TransitionalAttribute zoomifyAttribute(TransitionalAttribute attribute) {
 
-            // if there are no zooma results, warn and return
-            if (zoomaAnnotationSummary == null) {
-                if (attribute.getValue().length() < minInputLength)
-                    log.info("Input value \"" + attribute.getValue() + "\" is below specified length of " + minInputLength + " characters.");
-                else log.warn("No Zooma Annotation found for " + attribute.getType() + ":" + attribute.getValue());
+        getLog().debug("Zoomifying transitional attribute");
+
+        // clean and check the attribute type
+        String cleanedType = cleanAndCheckType(attribute.getType());
+
+        // if the type is not in the exclude list,
+        if (!cleanedType.equals("exclude")) {
+
+            // if overwrite annotations, first check to see if there are any
+            if (overwriteAnnotations) {
+
+                // if an annotation already exists
+                if (attribute.getOriginalTermAccessionNumber() != null && !attribute.getOriginalTermAccessionNumber().equals("")) {
+//                    getLog().warn("Existing annotation for '" + cleanedType + "|" + attribute.getOriginalValue() +"' was '"
+//                            +attribute.getOriginalTermSourceREF()+"|"+attribute.getOriginalTermAccessionNumber()+ "'. It will be removed or overwritten.");
+                    //set the annotation to null
+                    attribute.setOriginalTermSourceREF(null);
+                    attribute.setOriginalTermAccessionNumber(null);
+                }
             }
 
-            // if there *is* a zooma result, update the attribute accordingly
-            else {
+            // then get the corresponding zooma annotations summary, if any
+            AnnotationSummary zoomaAnnotationSummary = getZoomaAnnotationSummary(cleanedType, attribute.getOriginalValue());
+
+            // if there are zooma results, store them in the transitional attribute
+            if (zoomaAnnotationSummary != null) {
+
                 attribute.setType(zoomaAnnotationSummary.getAnnotatedPropertyType());
-                attribute.setValue(zoomaAnnotationSummary.getAnnotatedPropertyValue());
 
-                ArrayList<String> refAndAcession = concatenateCompoundURIs(zoomaAnnotationSummary);
-                attribute.setTermSourceREF(refAndAcession.get(0));
-                attribute.setTermAccessionNumber(refAndAcession.get(1));
+                // note that this doesn't overwrite the ORIGINAL property value, just stores the zoomified one
+                attribute.setZoomifiedValue(zoomaAnnotationSummary.getAnnotatedPropertyValue());
+
+                ArrayList<String> refAndAccession = concatenateCompoundURIs(zoomaAnnotationSummary, olsShortIds);
+
+                // note that this doesn't overwrite the ORIGINAL Term Source Ref, but just stores the Zooma one
+                attribute.setZoomifiedTermSourceREF(refAndAccession.get(0));
+
+                // note that this doesn't overwrite the ORIGINAL accession, but just stores the Zooma one
+                attribute.setZoomifiedTermAccessionNumber(refAndAccession.get(1));
+
+                try {
+                    URI uri = zoomaAnnotationSummary.getSemanticTags().iterator().next();
+                    String ontLabel = this.client.getLabel(uri);
+                    attribute.setZoomifiedOntologyLabel(ontLabel);
+                } catch (IOException e) {
+                    log.error("Could not set ontology label for transitional attribute '" + attribute.getOriginalValue());
+                    e.printStackTrace();
+                }
             }
+        }
 
-            // return updated (zoomified) attribute
-            return attribute;  //todo: Tony...bad form to return same object that was passed in?
-        }
-        else {
-            getLog().info("Property type '" + normalizedType + "' found in the exclusions list");
-            return attribute;
-        }
+        // return modified attribute
+        return attribute;
     }
 
-    private HashSet parseIneligibleProperties(String excludedPropertiesResource) {
-        HashSet<String> excludedTypes = new HashSet<>();
+    private TransitionalAttribute stripExistingAnnotations(TransitionalAttribute attribute) {
+
+        if (attribute.getOriginalTermSourceREF() != null && !attribute.getOriginalTermSourceREF().equals("")) {
+            getLog().warn("For '" + attribute.getOriginalValue() + "', existing annotation (" + attribute.getOriginalTermSourceREF() + ") is being stripped.");
+            attribute.setZoomifiedTermSourceREF(null);
+            attribute.setZoomifiedTermAccessionNumber(null);
+        }
+
+        return attribute;
+    }
+
+    private HashSet parseExcludedProperties(String excludedPropertiesResource) {
+        HashSet excludedTypes = new HashSet<>();
 
         // read sources from file
         try {
@@ -272,9 +392,10 @@ public class ZoomaRESTClient {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (!line.startsWith("#") && !line.isEmpty()) {
-                    String s = line.toLowerCase();
-                    if (s != null) {
-                        excludedTypes.add(s);
+                    String propertyType = line.toLowerCase().replaceAll("_", " ");
+
+                    if (propertyType != null) {
+                        excludedTypes.add(propertyType);
                     }
                 }
             }
@@ -287,6 +408,11 @@ public class ZoomaRESTClient {
         }
 
         return excludedTypes;
+    }
+
+
+    public ZOOMASearchClient getClient() {
+        return client;
     }
 
 

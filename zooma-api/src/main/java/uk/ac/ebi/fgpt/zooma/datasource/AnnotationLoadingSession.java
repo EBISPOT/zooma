@@ -18,11 +18,11 @@ import java.util.Collection;
  * @date 28/09/12
  */
 public interface AnnotationLoadingSession {
-    Study getOrCreateStudy(String studyAccession);
+    Study getOrCreateStudy(String studyAccession, Collection<URI> studyTypes);
 
-    Study getOrCreateStudy(String studyAccession, String studyID);
+    Study getOrCreateStudy(String studyAccession, String studyID, Collection<URI> studyTypes);
 
-    Study getOrCreateStudy(String studyAccession, URI studyURI);
+//    Study getOrCreateStudy(String studyAccession, URI studyURI);
 
     Study getOrCreateStudy(String studyAccession, URI studyURI, Collection<URI> studyTypes);
 
@@ -78,17 +78,22 @@ public interface AnnotationLoadingSession {
 
     Property getOrCreateProperty(String propertyType, String propertyValue, URI propertyURI);
 
-    Annotation getOrCreateAnnotation(Property p,
-                                     AnnotationProvenance ap, URI semanticTag, BiologicalEntity... bioentities);
-
-    Annotation getOrCreateAnnotation(Property property,
+    Annotation getOrCreateAnnotation(BiologicalEntity biologicalEntity,
+                                     Property property,
                                      AnnotationProvenance annotationProvenance,
-                                     URI semanticTag, URI annotationURI, BiologicalEntity... bioentities);
+                                     URI semanticTag);
 
-    Annotation getOrCreateAnnotation(Property p,
-                                     AnnotationProvenance ap,
-                                     URI semanticTag,
-                                     String annotationID, BiologicalEntity... bioentities);
+    Annotation getOrCreateAnnotation(String annotationID,
+                                     BiologicalEntity biologicalEntity,
+                                     Property property,
+                                     AnnotationProvenance annotationProvenance,
+                                     URI semanticTag);
+
+    Annotation getOrCreateAnnotation(URI annotationURI,
+                                     BiologicalEntity biologicalEntity,
+                                     Property property,
+                                     AnnotationProvenance annotationProvenance,
+                                     URI semanticTag);
 
     void clearCaches();
 }

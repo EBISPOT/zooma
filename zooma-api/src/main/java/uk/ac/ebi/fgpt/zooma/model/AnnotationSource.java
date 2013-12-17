@@ -14,14 +14,7 @@ import java.net.URI;
  * @author Tony Burdett
  * @date 04/10/13
  */
-public interface AnnotationSource extends Serializable {
-    /**
-     * Returns the URI of this annotation source
-     *
-     * @return the annotation source URI
-     */
-    URI getURI();
-
+public interface AnnotationSource extends Identifiable {
     /**
      * Returns the type of this annotation source
      *
@@ -32,7 +25,7 @@ public interface AnnotationSource extends Serializable {
     /**
      * Returns the short name that was assigned to this source target
      *
-     * @return the shortname for ths
+     * @return the shortname for this annotation source
      */
     String getName();
 

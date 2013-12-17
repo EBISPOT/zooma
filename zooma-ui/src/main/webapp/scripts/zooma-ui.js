@@ -124,13 +124,6 @@ function annotate(content) {
     });
 }
 
-function annotateOLD(content) {
-    resetSession(function(response) {
-        log(response);
-        doSearchOLD(jsonifyTextArea(content));
-    });
-}
-
 function clearAll() {
     resetSession(function(response) {
         log(response);
@@ -187,27 +180,6 @@ function doSearch(json) {
            });
 }
 
-function doSearchOLD(json) {
-    var payload = JSON.stringify(json);
-    $.ajax({
-               type: 'POST',
-               url: 'v2/api/services/map/OLD',
-               contentType: 'application/json',
-               data: payload,
-               beforeSend: function() {
-                   $("#progressbar").progressbar({value: false}).show();
-               },
-               success: function(response) {
-                   log(response);
-                   setTimeout(checkStatus, 100);
-               },
-               error: function(request, status, error) {
-                   alert(error + ": (" + request.responseText + ")");
-               }
-           });
-}
-
-
 function checkStatus() {
     $.get('v2/api/services/map/status', function(progress) {
         var value = Math.round(progress * 100);
@@ -245,13 +217,24 @@ function renderResults(data) {
     $ar = $("#annotation-results");
     $ar.html("");
 
+    // result data format:
+    /*
+      [0] - property type
+      [1] - property value
+      [2] - matched ontology term label
+      [3] - matched ontology term synonyms
+      [4] - mapping type
+      [5] - matched ontology term "ID" (i.e. fragment)
+      [6] - matched ontology URI
+      [7] - datasource
+    */
+
     // render new payload
     var payload = data.data;
     if ($.isEmptyObject(payload) == false) {
         var prop_automatic = 0;
         var prop_curation = 0;
         var prop_unmapped = 0;
-        var prop_total = 0;
 
         var aux_type = "";
         var aux_value = "";
@@ -262,14 +245,14 @@ function renderResults(data) {
             var result = payload[i];
             var row;
             var rowspan = 1;
-            if (result[3] == "Automatic") {
+            if (result[4] == "Automatic") {
                 row = "<tr class='automatic'>";
 
                 prop_automatic++;
                 aux_type = result[0];
                 aux_value = result[1];
             }
-            else if (result[3] == "Requires curation") {
+            else if (result[4] == "Requires curation") {
                 row = "<tr class='curation'>";
 
                 if (result[0] != aux_type || result[1] != aux_value) {
@@ -317,43 +300,42 @@ function renderResults(data) {
                 }
             }
             row = row + "<td>" + result[2] + "</td>";
-            row = row + "<td>" + result[3] + "</td>";
-            if (result[4] != "N/A") {
-
-                var arrayResult4 = result[4].split(", ");
-                var arrayResult5 = result[5].split(", ");
-
-                if (arrayResult4.length == arrayResult5.length) {
-
-                    content = "";
-
-                    for (x = 0; x < arrayResult4.length; x++) {
-
-                        result4 = arrayResult4[x];
-                        result5 = arrayResult5[x];
-
-                        if (x == (arrayResult4.length - 1)) {
-                            content += linkify(result5 + result4, result4);
-                        }
-                        else {
-                            content += linkify(result5 + result4, result4) + "&nbsp;&nbsp;&nbsp;";
-                        }
-                    }
-
-                    row = row + "<td>" + content + "</td>";
-
+            row = row + "<td>" + result[4] + "</td>";
+            if (result[5] != "N/A") {
+                // multiple mappings will be comma separated
+                if (result[5].indexOf(", ") == -1) {
+                    // no comma separation, linkify entire field
+                    row = row + "<td>" + linkify(result[6] + result[5], result[5]) + "</td>";
                 }
                 else {
-                    row = row + "<td>" + linkify(result[5] + result[4], result[4]) + "</td>";
-                }
+                    // comma separation, linkify each token
+                    var termIDs = result[5].split(", ");
+                    var ontologyURIs = result[6].split(", ");
 
+                    // should be same number of IDs and URIs
+                    if (termIDs.length != ontologyURIs.length) {
+                        alert("Failed to read mapping result row " + i + ": there is a different number " +
+                                      "of mapping results and ontologies.  Data was:\n" + result + ".");
+                    }
+                    else {
+                        var links = "";
+                        var l = termIDs.length - 1;
+                        for (var k = 0; k < l ; k++) {
+                            var termID = termIDs[k].trim();
+                            var ontologyURI = ontologyURIs[k];
+                            links += linkify(ontologyURI + termID, termID) + ",<br />";
+                        }
+                        links += linkify(ontologyURIs[l] + termIDs[l], termIDs[l]);
+                        row = row + "<td>" + links + "</td>";
+                    }
+                }
             }
             else {
-                row = row + "<td>" + result[4] + "</td>";
+                row = row + "<td>" + result[5] + "</td>";
             }
-            if (result[6] != "N/A") {
+            if (result[7] != "N/A") {
                 var href;
-                if (result[6] == "http://www.ebi.ac.uk/gxa") {
+                if (result[7] == "http://www.ebi.ac.uk/gxa") {
                     href =
                             "http://www.ebi.ac.uk/gxa/qrs?gprop_0=&gnot_0=&gval_0=%28all+genes%29&fact_1=&fexp_1=UP_DOWN&fmex_1=&fval_1=" +
                                     encodeURIComponent(result[1]) +
@@ -362,14 +344,14 @@ function renderResults(data) {
                             "<img src='http://www.ebi.ac.uk/gxa/images/ExpressionAtlas_logo_web.png' " +
                             "alt='Expression Atlas' style='height: 22px;'/> Expression Atlas</a></td>";
                 }
-                else if (result[6] == "http://www.ebi.ac.uk/arrayexpress") {
+                else if (result[7] == "http://www.ebi.ac.uk/arrayexpress") {
                     href = "http://www.ebi.ac.uk/arrayexpress/experiments/search.html?query=" +
                             encodeURIComponent(result[1]);
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='http://www.ebi.ac.uk/sites/ebi.ac.uk/files/styles/icon/public/resource/logo/aelogo.jpg' " +
                             "alt='ArrayExpress' style='height: 22px;'/> ArrayExpress</a></td>";
                 }
-                else if (result[6] == "http://www.ebi.ac.uk/efo") {
+                else if (result[7] == "http://www.ebi.ac.uk/efo") {
                     href = "http://www.ebi.ac.uk/efo/search?query=" +
                             encodeURIComponent(result[2]) +
                             "&submitSearch=Search";
@@ -377,24 +359,30 @@ function renderResults(data) {
                             "<img src='http://www.ebi.ac.uk/sites/ebi.ac.uk/files/styles/thumbnail/public/resource/logo/EFO_logo_0.png' " +
                             "alt='EFO' style='height: 22px;'/> EFO</a></td>";
                 }
-                else if (result[6] == "http://www.genome.gov/gwastudies") {
+                else if (result[7] == "http://www.genome.gov/gwastudies") {
                     href = "http://www.genome.gov/gwastudies/#searchForm";
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/nhgri.png' " +
                             "alt='GWAS' style='height: 22px;'/> GWAS</a></td>";
                 }
-                else if (result[6] == "http://omia.angis.org.au") {
+                else if (result[7] == "http://omia.angis.org.au") {
                     href = result[5] + result[4];
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/omia.png' " +
                             "alt='OMIA' style='height: 22px;'/> OMIA</a></td>";
                 }
+                else if (result[7] == "http://omim.org") {
+                    href = result[5] + result[4];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                            "<img src='images/omim.gif' " +
+                            "alt='OMIM' style='height: 22px;'/> OMIM</a></td>";
+                }
                 else {
-                    row = row + "<td>" + result[6] + "</td>";
+                    row = row + "<td>" + result[7] + "</td>";
                 }
             }
             else {
-                row = row + "<td>" + result[6] + "</td>";
+                row = row + "<td>" + result[7] + "</td>";
             }
             row = row + "</tr>";
             tableContent = tableContent + row;

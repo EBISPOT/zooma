@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -48,6 +49,7 @@ public class ZOOMAReportRenderer {
 
     // time of execution start
     private Map<URI, String> labelCache;
+    private Map<URI, Collection<String>> synonymCache;
     private String executionTime;
     private String workingDirectory;
 
@@ -73,6 +75,7 @@ public class ZOOMAReportRenderer {
         this.err = err;
 
         this.labelCache = new HashMap<>();
+        this.synonymCache = new HashMap<>();
         this.executionTime = new SimpleDateFormat("HH:mm.ss, dd.MM.yy").format(new Date());
         this.workingDirectory = System.getProperty("user.dir");
     }
@@ -297,40 +300,48 @@ public class ZOOMAReportRenderer {
 
         StringBuilder termsSB = new StringBuilder();
         StringBuilder labelsSB = new StringBuilder();
+        StringBuilder synonymsSB = new StringBuilder();
         StringBuilder ontologiesSB = new StringBuilder();
-        for (URI semanticTag : semanticTags) {
+        Iterator<URI> semanticTagIterator = semanticTags.iterator();
+        while(semanticTagIterator.hasNext()) {
+            URI semanticTag = semanticTagIterator.next();
+
             // use fragment as 'term'
             String term = URIUtils.extractFragment(semanticTag);
-            termsSB.append(term).append(", ");
-
             // fetch the ontology label if possible
             String label = acquireLabel(semanticTag);
-            if (!label.isEmpty()) {
-                labelsSB.append(label).append(", ");
-            }
-            else {
-                labelsSB.append("n/a, ");
-            }
-
+            // fetch the synonyms if possible
+            Collection<String> synonyms = acquireSynonyms(semanticTag);
+            // we consider the 'ontology' to be the URI minus the 'term'
             String ontology = semanticTag.toString().replace(term, "");
+
+            termsSB.append(term);
+            labelsSB.append(!label.isEmpty() ? label : "n/a");
+            Iterator<String> synonymsIterator = synonyms.iterator();
+            while (synonymsIterator.hasNext()) {
+                String synonym = synonymsIterator.next();
+                synonymsSB.append(!synonym.isEmpty() ? synonym : "n/a");
+                if (synonymsIterator.hasNext()) {
+                    synonymsSB.append(", ");
+                }
+            }
             ontologiesSB.append(ontology);
+
+            if (semanticTagIterator.hasNext()) {
+                termsSB.append(", ");
+                labelsSB.append(", ");
+                synonymsSB.append("; ");
+                ontologiesSB.append(", ");
+            }
         }
 
-        String terms = "";
-        if (termsSB.length() > 0) {
-            terms = termsSB.substring(0, termsSB.length() - 2);
-        }
-        String labels = "";
-        if (labelsSB.length() > 0) {
-            labels = labelsSB.substring(0, labelsSB.length() - 2);
-        }
-        String ontologies = "";
-        if (ontologiesSB.length() > 0) {
-            ontologies = ontologiesSB.substring(0, ontologiesSB.length() - 2);
-        }
+        String terms = termsSB.toString();
+        String labels = labelsSB.toString();
+        String synonyms = synonymsSB.toString();
+        String ontologies = ontologiesSB.toString();
         writer.println(propertyType + "\t" + propertyValue + "\t" + labels + "\t" +
-                               type + "\t" + terms + "\t" + ontologies +
-                               "\t" + source);
+                               synonyms + "\t" + type + "\t" + terms + "\t" +
+                               ontologies + "\t" + source);
     }
 
     protected void writeUnmappedReportLine(PrintWriter writer,
@@ -345,12 +356,13 @@ public class ZOOMAReportRenderer {
         String type = "Did not map";
         String terms = "N/A";
         String labels = "N/A";
+        String synonyms = "N/A";
         String ontologies = "N/A";
         String sources = "N/A";
 
         writer.println(propertyType + "\t" + propertyValue + "\t" + labels + "\t" +
-                               type + "\t" + terms + "\t" + ontologies +
-                               "\t" + sources);
+                               synonyms + "\t" + type + "\t" + terms + "\t" +
+                               ontologies + "\t" + sources);
     }
 
     protected void writeReportHeader(PrintWriter writer) {
@@ -363,7 +375,7 @@ public class ZOOMAReportRenderer {
         writer.flush();
 
         writer.println(
-                "PROPERTY TYPE\tPROPERTY VALUE\tONTOLOGY TERM LABEL(S)\tMAPPING TYPE\tONTOLOGY TERM(S)\tONTOLOGY(S)\tSOURCE(S)");
+                "PROPERTY TYPE\tPROPERTY VALUE\tONTOLOGY TERM LABEL(S)\tONTOLOGY TERM SYNONYM(S)\tMAPPING TYPE\tONTOLOGY TERM(S)\tONTOLOGY(S)\tSOURCE(S)");
     }
 
     protected void writeEvaluationLine(PrintWriter writer,
@@ -474,6 +486,24 @@ public class ZOOMAReportRenderer {
             }
             labelCache.put(uri, label);
             return label;
+        }
+    }
+
+    protected synchronized Collection<String> acquireSynonyms(URI uri) {
+        if (synonymCache.containsKey(uri)) {
+            return synonymCache.get(uri);
+        }
+        else {
+            Collection<String> synonyms;
+            try {
+                synonyms = labelMapper.getSynonyms(uri);
+            }
+            catch (NullPointerException e) {
+                getLog().warn("Synonyms lookup for <" + uri + "> failed: " + e.getMessage());
+                synonyms = Collections.singleton("N/A");
+            }
+            synonymCache.put(uri, synonyms);
+            return synonyms;
         }
     }
 }

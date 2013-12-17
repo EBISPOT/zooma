@@ -1,8 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.fgpt.zooma.exception.InvalidDataFormatException;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
@@ -11,11 +12,9 @@ import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.net.URI;
-import java.text.SimpleDateFormat;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,30 +35,58 @@ import java.util.Map;
  * @author Tony Burdett
  * @date 23/10/12
  */
-public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
+public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements AnnotationDAO {
     private final String datasourceName;
     private final String delimiter;
 
-    private File annotationFile;
-    private AnnotationFactory annotationFactory;
+    private InputStream inputStream;
 
     private Map<String, Integer> columnIndexMap;
     private List<Annotation> annotations;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
+    private static DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file, String datasourceName)
+            throws FileNotFoundException {
+        this(annotationFactory, new FileInputStream(file), datasourceName, "\t");
+        getLog().debug("Parsing CSV file from file: " + file.getAbsolutePath());
+    }
+
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, URL url, String datasourceName) throws IOException {
+        this(annotationFactory, url.openStream(), datasourceName, "\t");
+        getLog().debug("Parsing CSV file from URL: " + url.getPath());
+    }
+
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file, String datasourceName, String delimiter)
+            throws FileNotFoundException {
+        this(annotationFactory, new FileInputStream(file), datasourceName, delimiter);
+        getLog().debug("Parsing CSV file from file: " + file.getAbsolutePath());
+    }
+
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, URL url, String datasourceName, String delimiter)
+            throws IOException {
+        this(annotationFactory, url.openStream(), datasourceName, delimiter);
+        getLog().debug("Parsing CSV file from URL: " + url.getPath());
+    }
 
     /**
      * Create a CSV annotation DAO with a default "tab" delimiter
      */
-    private CSVAnnotationDAO(String datasourceName) {
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, InputStream stream, String datasourceName) {
         // use default delimiter of a tab
-        this(datasourceName, "\t");
+        this(annotationFactory, stream, datasourceName, "\t");
     }
 
-    public CSVAnnotationDAO(String datasourceName, String delimiter) {
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory,
+                            InputStream stream,
+                            String datasourceName,
+                            String delimiter) {
+        super(annotationFactory);
         this.datasourceName = datasourceName;
         this.delimiter = delimiter;
+        this.inputStream = stream;
 
         this.columnIndexMap = Collections.synchronizedMap(new HashMap<String, Integer>());
         this.annotations = Collections.synchronizedList(new ArrayList<Annotation>());
@@ -69,27 +96,15 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
         return log;
     }
 
-    public File getAnnotationFile() {
-        return annotationFile;
-    }
-
-    public void setAnnotationFile(File annotationFile) {
-        this.annotationFile = annotationFile;
-    }
-
-    public AnnotationFactory getAnnotationFactory() {
-        return annotationFactory;
-    }
-
-    public void setAnnotationFactory(AnnotationFactory annotationFactory) {
-        this.annotationFactory = annotationFactory;
+    public InputStream getInputStream() {
+        return inputStream;
     }
 
     @Override protected void doInitialization() throws Exception {
-        getLog().debug("Parsing CSV file from " + getAnnotationFile().getAbsolutePath());
+        getLog().debug("Parsing CSV file from input stream");
 
         // parse annotations file
-        BufferedReader reader = new BufferedReader(new FileReader(getAnnotationFile()));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStream(), "UTF-8"));
         boolean readHeader = false;
         String line;
         while ((line = reader.readLine()) != null) {
@@ -215,35 +230,34 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                     annotator = annotationElements[column];
                 }
                 if ((column = lookupColumn("ANNOTATION_DATE")) != -1) {
-                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                    annotationDate = formatter.parse(annotationElements[column]);
+                    annotationDate = formatter.parseDateTime(annotationElements[column]).toDate();
                 }
 
                 // now we've collected fields, generate annotation using annotation factory
-                annotations.add(getAnnotationFactory().createAnnotation(annotationURI,
-                                                                        annotationID,
-                                                                        studyAcc,
-                                                                        studyURI,
-                                                                        studyID,
-                                                                        studyType,
-                                                                        bioentityName,
-                                                                        bioentityURI,
-                                                                        bioentityID,
-                                                                        bioentityTypeName,
-                                                                        bioentityTypeURI,
-                                                                        propertyType,
-                                                                        propertyValue,
-                                                                        propertyURI,
-                                                                        propertyID,
-                                                                        semanticTag,
-                                                                        annotator,
-                                                                        annotationDate));
+                annotations.add(createAnnotation(annotationURI,
+                                                 annotationID,
+                                                 studyAcc,
+                                                 studyURI,
+                                                 studyID,
+                                                 studyType,
+                                                 bioentityName,
+                                                 bioentityURI,
+                                                 bioentityID,
+                                                 bioentityTypeName,
+                                                 bioentityTypeURI,
+                                                 propertyType,
+                                                 propertyValue,
+                                                 propertyURI,
+                                                 propertyID,
+                                                 semanticTag,
+                                                 annotator,
+                                                 annotationDate));
             }
         }
 
         // now close the reader
         reader.close();
-        getLog().debug("Parsed file '" + getAnnotationFile().getAbsolutePath() + "' successfully, " +
+        getLog().debug("Parsed file successfully, " +
                                "read " + annotations.size() + " annotations");
     }
 
@@ -298,6 +312,12 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
     }
 
     @Override public int count() {
+        try {
+            initOrWait();
+        }
+        catch (InterruptedException e) {
+            getLog().warn("Interrupted whilst waiting for initialization");
+        }
         return annotations.size();
     }
 
@@ -306,14 +326,37 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
     }
 
     @Override public Collection<Annotation> read() {
+        try {
+            initOrWait();
+        }
+        catch (InterruptedException e) {
+            getLog().warn("Interrupted whilst waiting for initialization");
+        }
         return Collections.unmodifiableCollection(annotations);
     }
 
     @Override public List<Annotation> read(int size, int start) {
-        return Collections.unmodifiableList(annotations.subList(start, start + size));
+        try {
+            initOrWait();
+        }
+        catch (InterruptedException e) {
+            getLog().warn("Interrupted whilst waiting for initialization");
+        }
+        if (start + size > annotations.size()) {
+            return Collections.unmodifiableList(annotations.subList(start, annotations.size()));
+        }
+        else {
+            return Collections.unmodifiableList(annotations.subList(start, start + size));
+        }
     }
 
     @Override public Annotation read(URI uri) {
+        try {
+            initOrWait();
+        }
+        catch (InterruptedException e) {
+            getLog().warn("Interrupted whilst waiting for initialization");
+        }
         for (Annotation annotation : annotations) {
             if (annotation.getURI().equals(uri)) {
                 return annotation;

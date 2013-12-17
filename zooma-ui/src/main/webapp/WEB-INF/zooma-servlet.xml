@@ -22,7 +22,7 @@
     <!-- autowire this context based on annotations, where present -->
     <context:annotation-config />
 
-    <!-- scan for controller components in uk.ac.ebi.fgpt.zooma -->
+    <!-- scan for controller components in uk.ac.ebi.fgpt.zooma and uk.ac.ebi.fgpt.lode.servlet -->
     <context:component-scan base-package="uk.ac.ebi.fgpt.zooma, uk.ac.ebi.fgpt.lode.servlet" />
 
     <!-- drive MVC setup based on @Controller, @RequestMapping annotations etc -->
