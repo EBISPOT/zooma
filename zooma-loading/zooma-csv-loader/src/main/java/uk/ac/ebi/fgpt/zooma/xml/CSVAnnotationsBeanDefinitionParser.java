@@ -91,6 +91,7 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
 
         // create the csv DAO
         BeanDefinitionBuilder csvAnnotationDao = BeanDefinitionBuilder.rootBeanDefinition(CSVAnnotationDAO.class);
+        csvAnnotationDao.addConstructorArgReference(datasourceName + "-csvFactory");
 
         if (element.hasAttribute("file")) {
             Resource fileResource = new DefaultResourceLoader().getResource(element.getAttribute("file"));
@@ -115,9 +116,6 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         if (delimiter != null) {
             csvAnnotationDao.addConstructorArgValue(delimiter);
         }
-
-        csvAnnotationDao.addPropertyReference("annotationFactory", datasourceName + "-csvFactory");
-
 
         parserContext.registerBeanComponent(new BeanComponentDefinition(csvAnnotationDao.getBeanDefinition(),
                 datasourceName + "-csvDAO"));
