@@ -325,7 +325,7 @@ function renderResults(data) {
                             var ontologyURI = ontologyURIs[k];
                             links += linkify(ontologyURI + termID, termID) + ",<br />";
                         }
-                        links += linkify(ontologyURIs[l] + termID[l], termID);
+                        links += linkify(ontologyURIs[l] + termIDs[l], termIDs[l]);
                         row = row + "<td>" + links + "</td>";
                     }
                 }
