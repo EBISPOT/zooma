@@ -234,7 +234,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
             @RequestParam(value = "indent", required = false, defaultValue = "false") final Boolean indent,
             @RequestParam(value = "mql_output", required = false) final String mql_output,
             @RequestParam(value = "semanticTag", required = false) String[] semanticTags) {
-        validateArguments(query, type, exact, limit, start, prefixed, semanticTags);
+        validateArguments(query, type, semanticTags);
         if (semanticTags != null) {
             return searchBySemanticTags(semanticTags);
         }
@@ -270,45 +270,19 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         if (filter != null) {
             return filteredSearch(query,
                                   type,
-                                  exact,
-                                  limit,
-                                  start,
                                   prefixed,
-                                  lang,
-                                  domain,
-                                  filter,
-                                  html_escape,
-                                  indent,
-                                  mql_output);
+                                  filter);
         }
         else {
             return unfilteredSearch(query,
                                     type,
-                                    exact,
-                                    limit,
-                                    start,
-                                    prefixed,
-                                    lang,
-                                    domain,
-                                    filter,
-                                    html_escape,
-                                    indent,
-                                    mql_output);
+                                    prefixed);
         }
     }
 
     protected SearchResponse unfilteredSearch(final String query,
                                               final String type,
-                                              final Boolean exact,
-                                              final Integer limit,
-                                              final Integer start,
-                                              final Boolean prefixed,
-                                              final String lang,
-                                              final String domain,
-                                              final String filter,
-                                              final Boolean html_escape,
-                                              final Boolean indent,
-                                              final String mql_output) {
+                                              final Boolean prefixed) {
         // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
         if (type != null) {
             return convertToSearchResponse(query,
@@ -322,16 +296,8 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
 
     protected SearchResponse filteredSearch(final String query,
                                             final String type,
-                                            final Boolean exact,
-                                            final Integer limit,
-                                            final Integer start,
                                             final Boolean prefixed,
-                                            final String lang,
-                                            final String domain,
-                                            final String filter,
-                                            final Boolean html_escape,
-                                            final Boolean indent,
-                                            final String mql_output) {
+                                            final String filter) {
         SearchType searchType = validateFilterArguments(filter);
         URI[] requiredSources = parseRequiredSourcesFromFilter(filter);
         List<URI> preferredSources = parsePreferredSourcesFromFilter(filter);
@@ -349,16 +315,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
             default:
                 return unfilteredSearch(query,
                                         type,
-                                        exact,
-                                        limit,
-                                        start,
-                                        prefixed,
-                                        lang,
-                                        domain,
-                                        filter,
-                                        html_escape,
-                                        indent,
-                                        mql_output);
+                                        prefixed);
         }
     }
 
@@ -395,19 +352,11 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
      *
      * @param query        they query string
      * @param type         a typing string
-     * @param exact        whether exact matches should be used
-     * @param limit        the maximum number of results to return
-     * @param start        the start position for results
-     * @param prefixed     whether to allow prefix searches
      * @param semanticTags the semantic tags to restrict to
      * @throws IllegalArgumentException the the supplied combination arguments cannot be used together in one search
      */
     protected void validateArguments(String query,
                                      String type,
-                                     Boolean exact,
-                                     Integer limit,
-                                     Integer start,
-                                     Boolean prefixed,
                                      String[] semanticTags)
             throws IllegalArgumentException {
         // test that we haven't been given query/type AND semantic tags
