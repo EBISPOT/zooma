@@ -293,3 +293,17 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
     FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Ontology")
 }
 
+^[AnnotationSource.read]
+SELECT DISTINCT ?sourcename ?sourcetype ?databaseid WHERE {
+  ?databaseid zoomaterms:shortName ?sourcename .
+  ?databaseid a ?sourcetype .
+  {
+    {?databaseid a zoomaterms:OntologySource}
+    UNION
+    {?databaseid a zoomaterms:DatabaseSource}
+  } .
+  FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#NamedIndividual")
+  FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Class")
+  FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Ontology")
+}
+

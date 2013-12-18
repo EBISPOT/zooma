@@ -24,13 +24,6 @@ public interface AnnotationSourceService {
     Collection<AnnotationSource> getAnnotationSources();
 
     /**
-     * Returns all annotation sources of the given type known to ZOOMA
-     *
-     * @return a collection of all annotation sources of the given type
-     */
-    Collection<AnnotationSource> getAnnotationSources(AnnotationSource.Type sourceType);
-
-    /**
      * Returns the annotation source with the given name
      *
      * @param sourceName a shortname representation the name of the source

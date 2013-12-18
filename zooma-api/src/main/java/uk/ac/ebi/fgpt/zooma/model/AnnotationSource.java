@@ -1,8 +1,5 @@
 package uk.ac.ebi.fgpt.zooma.model;
 
-import java.io.Serializable;
-import java.net.URI;
-
 /**
  * A representation of the "source" from which an annotation was obtained.  This will normally be a database or an
  * ontology or some other similar type of resource that contains the sort of annotation type data that ZOOMA can
