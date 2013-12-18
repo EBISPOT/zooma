@@ -341,7 +341,7 @@ function renderResults(data) {
                                     encodeURIComponent(result[1]) +
                                     "&view=hm&searchMode=simple";
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
-                            "<img src='http://www.ebi.ac.uk/gxa/images/ExpressionAtlas_logo_web.png' " +
+                            "<img src='http://www.ebi.ac.uk/gxa/resources/images/ExpressionAtlas_logo_web.png' " +
                             "alt='Expression Atlas' style='height: 22px;'/> Expression Atlas</a></td>";
                 }
                 else if (result[7] == "http://www.ebi.ac.uk/arrayexpress") {
