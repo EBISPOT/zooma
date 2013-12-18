@@ -46,7 +46,7 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
 
     @Override
     public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
-        Collection<AnnotationSummary> rawResults = super.search(propertyValuePattern);
+        Collection<AnnotationSummary> rawResults = super.search(propertyValuePattern, sources);
 
         // if raw results are empty, attempt to process the string and requery
         if (rawResults.isEmpty()) {
@@ -67,16 +67,16 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                         return rawResults;
                     }
                     else if (parts.size() == 1) {
-                        return super.search(propertyValuePattern);
+                        return super.search(propertyValuePattern, sources);
                     }
                     else {
                         Iterator<String> partsIterator = parts.iterator();
                         String firstPart = partsIterator.next();
                         String secondPart = partsIterator.next();
                         Collection<AnnotationSummary> firstPartResults =
-                                super.search(firstPart);
+                                super.search(firstPart, sources);
                         Collection<AnnotationSummary> secondPartResults =
-                                super.search(secondPart);
+                                super.search(secondPart, sources);
 
                         return mergeResults(propertyValuePattern,
                                             firstPart,
@@ -100,7 +100,7 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     public Collection<AnnotationSummary> search(String propertyType,
                                                 String propertyValuePattern,
                                                 URI... sources) {
-        Collection<AnnotationSummary> results = super.search(propertyType, propertyValuePattern);
+        Collection<AnnotationSummary> results = super.search(propertyType, propertyValuePattern, sources);
 
         // if raw results are empty, attempt to process the string and requery
         if (results.isEmpty()) {
@@ -121,16 +121,16 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                         return results;
                     }
                     else if (parts.size() == 1) {
-                        return super.search(propertyType, propertyValuePattern);
+                        return super.search(propertyType, propertyValuePattern, sources);
                     }
                     else {
                         Iterator<String> partsIterator = parts.iterator();
                         String firstPart = partsIterator.next();
                         String secondPart = partsIterator.next();
                         Collection<AnnotationSummary> firstPartResults =
-                                super.search(firstPart);
+                                super.search(firstPart, sources);
                         Collection<AnnotationSummary> secondPartResults =
-                                super.search(secondPart);
+                                super.search(secondPart, sources);
 
                         return mergeResults(propertyValuePattern,
                                             firstPart,

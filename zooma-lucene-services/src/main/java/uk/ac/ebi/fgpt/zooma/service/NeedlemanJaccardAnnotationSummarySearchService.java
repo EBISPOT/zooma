@@ -58,7 +58,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
 
     @Override
     public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
-        Collection<AnnotationSummary> results = super.search(propertyValuePattern);
+        Collection<AnnotationSummary> results = super.search(propertyValuePattern, sources);
 
         // if results are empty, find lexically similar strings and requery
         if (results.isEmpty()) {
@@ -66,7 +66,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
             Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
             for (String s : similarStrings.keySet()) {
                 if (haveEqualPolarity(s, propertyValuePattern)) {
-                    results.addAll(super.search(s));
+                    results.addAll(super.search(s, sources));
                 }
             }
         }
@@ -77,7 +77,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
     public Collection<AnnotationSummary> search(String propertyType,
                                                 String propertyValuePattern,
                                                 URI... sources) {
-        Collection<AnnotationSummary> results = super.search(propertyType, propertyValuePattern);
+        Collection<AnnotationSummary> results = super.search(propertyType, propertyValuePattern, sources);
 
         // if results are empty, find lexically similar strings and requery
         if (results.isEmpty()) {
@@ -86,7 +86,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
 
             for (String s : similarStrings.keySet()) {
                 if (haveEqualPolarity(s, propertyValuePattern)) {
-                    results.addAll(super.search(propertyType, s));
+                    results.addAll(super.search(propertyType, s, sources));
                 }
             }
         }

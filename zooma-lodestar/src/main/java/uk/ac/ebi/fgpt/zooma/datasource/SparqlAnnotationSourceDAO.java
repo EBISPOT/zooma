@@ -156,17 +156,17 @@ public class SparqlAnnotationSourceDAO implements AnnotationSourceDAO {
     }
 
     @Override public Collection<AnnotationSource> readBySourceName(String sourceName) {
-        String query = getQueryManager().getSparqlQuery("AnnotationSource.read");
+        String query = getQueryManager().getSparqlQuery("AnnotationSource.readBySourcename");
+
+        String filter = " FILTER regex ( ?" + QueryVariables.SOURCENAME.toString() + ", \"" + sourceName + "\", \"i\")";
+        query = query.replace("filter", filter);
+
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
 
-        QuerySolutionMap initialBinding = new QuerySolutionMap();
-        initialBinding.add(QueryVariables.SOURCENAME.toString(),
-                           ModelFactory.createDefaultModel().createLiteral(sourceName));
-
         QueryExecution execute = null;
         try {
-            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
+            execute = getQueryService().getQueryExecution(g, q1, false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
         }

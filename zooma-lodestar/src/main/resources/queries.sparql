@@ -307,3 +307,18 @@ SELECT DISTINCT ?sourcename ?sourcetype ?databaseid WHERE {
   FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Ontology")
 }
 
+^[AnnotationSource.readBySourcename]
+SELECT DISTINCT ?sourcename ?sourcetype ?databaseid WHERE {
+  ?databaseid zoomaterms:shortName ?sourcename .
+  ?databaseid a ?sourcetype .
+  {
+    {?databaseid a zoomaterms:OntologySource}
+    UNION
+    {?databaseid a zoomaterms:DatabaseSource}
+  } .
+  FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#NamedIndividual")
+  FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Class")
+  FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Ontology")
+  filter
+}
+
