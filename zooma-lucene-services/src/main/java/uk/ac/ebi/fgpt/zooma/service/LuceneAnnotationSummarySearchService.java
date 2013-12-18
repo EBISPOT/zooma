@@ -97,14 +97,15 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
                 Query uq = formulateCombinedQuery(true, false, pqs.toArray(new Query[pqs.size()]));
 
                 // next generate a series of source queries
-                List<Query> qs = new ArrayList<>();
-                qs.add(uq);
+                List<Query> sqs = new ArrayList<>();
                 for (URI source : sources) {
-                    qs.add(formulateQuery("source", source.toString()));
+                    sqs.add(formulateQuery("source", source.toString()));
                 }
+                // unify source queries into a single query
+                Query sq = formulateCombinedQuery(false, false, sqs.toArray(new Query[sqs.size()]));
 
-                // unify queries into a single query
-                q = formulateCombinedQuery(true, true, qs.toArray(new Query[qs.size()]));
+                // unify property and source queries into a single query
+                q = formulateCombinedQuery(true, true, uq, sq);
             }
             else {
                 // unify processed queries into a single query
@@ -154,14 +155,15 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
                 Query tq = formulateTypedQuery(ptq, pqs);
 
                 // next generate a series of source queries
-                List<Query> qs = new ArrayList<>();
-                qs.add(tq);
+                List<Query> sqs = new ArrayList<>();
                 for (URI source : sources) {
-                    qs.add(formulateQuery("source", source.toString()));
+                    sqs.add(formulateQuery("source", source.toString()));
                 }
+                // unify source queries into a single query
+                Query sq = formulateCombinedQuery(false, false, sqs.toArray(new Query[sqs.size()]));
 
-                // unify queries into a single query
-                q = formulateCombinedQuery(true, true, qs.toArray(new Query[qs.size()]));
+                // unify types property and source queries into a single query
+                q = formulateCombinedQuery(true, true, tq, sq);
             }
             else {
                 q = formulateTypedQuery(ptq, pqs);

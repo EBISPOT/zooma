@@ -390,7 +390,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     }
 
     protected URI[] parseRequiredSourcesFromFilter(String filter) {
-        Matcher requiredMatcher = Pattern.compile("required:\\[(.*?)\\]").matcher(filter);
+        Matcher requiredMatcher = Pattern.compile("required:\\[([^\\]]*)\\]").matcher(filter);
         List<URI> requiredSources = new ArrayList<>();
         if (requiredMatcher.matches()) {
             String sourceNames = requiredMatcher.group(1);
@@ -411,7 +411,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     }
 
     protected List<URI> parsePreferredSourcesFromFilter(String filter) {
-        Matcher requiredMatcher = Pattern.compile("preferred:\\[(.*?)\\]").matcher(filter);
+        Matcher requiredMatcher = Pattern.compile("preferred:\\[([^\\]]*)\\]").matcher(filter);
         List<URI> preferredSources = new ArrayList<>();
         if (requiredMatcher.matches()) {
             String sourceNames = requiredMatcher.group(1);
