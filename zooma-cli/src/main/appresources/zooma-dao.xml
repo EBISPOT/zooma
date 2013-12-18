@@ -26,7 +26,7 @@
         <property name="properties" ref="prefixProperties" />
     </bean>
 
-    <!-- DAOs use lodestar bridge for data access to SPARQL endpoints -->
+    <!-- DAOs use LODEStar bridge for data access to SPARQL endpoints -->
 
     <bean id="lodeAnnotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationDAO" autowire-candidate="false">
         <property name="queryManager" ref="queryManager" />
@@ -76,6 +76,13 @@
 
     <bean id="lodeAnnotationProvenanceDAO"
           class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationProvenanceDAO"
+          autowire-candidate="false">
+        <property name="queryManager" ref="queryManager" />
+        <property name="queryService" ref="jenaVirtuosoExecutorService" />
+    </bean>
+
+    <bean id="lodeAnnotationSourceDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationSourceDAO"
           autowire-candidate="false">
         <property name="queryManager" ref="queryManager" />
         <property name="queryService" ref="jenaVirtuosoExecutorService" />
