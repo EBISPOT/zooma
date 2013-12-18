@@ -175,7 +175,7 @@ public class ZoomaLuceneIndexer extends Initializable {
             doc.add(new Field("uri",
                               property.getURI().toString(),
                               Field.Store.YES,
-                              Field.Index.NOT_ANALYZED));
+                              Field.Index.ANALYZED));
             doc.add(new Field("name",
                               property.getPropertyValue(),
                               Field.Store.YES,
@@ -226,7 +226,7 @@ public class ZoomaLuceneIndexer extends Initializable {
         doc.add(new Field("count",
                           Integer.toString(size),
                           Field.Store.YES,
-                          Field.Index.NOT_ANALYZED));
+                          Field.Index.ANALYZED));
 
         IndexWriter indexWriter = obtainIndexWriter(getAnnotationCountIndex());
         indexWriter.addDocument(doc);
@@ -267,7 +267,7 @@ public class ZoomaLuceneIndexer extends Initializable {
             doc.add(new Field("uri",
                               annotation.getURI().toString(),
                               Field.Store.YES,
-                              Field.Index.NOT_ANALYZED));
+                              Field.Index.ANALYZED));
             doc.add(new Field("property",
                               property.getPropertyValue(),
                               Field.Store.YES,
@@ -282,7 +282,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                 doc.add(new Field("source",
                                   annotation.getProvenance().getSource().getURI().toString(),
                                   Field.Store.YES,
-                                  Field.Index.NOT_ANALYZED));
+                                  Field.Index.ANALYZED));
             }
             for (URI target : annotation.getSemanticTags()) {
                 // allow for null semantic tags -
@@ -291,7 +291,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                     doc.add(new Field("target",
                                       target.toString(),
                                       Field.Store.YES,
-                                      Field.Index.NOT_ANALYZED));
+                                      Field.Index.ANALYZED));
                 }
             }
 
@@ -299,7 +299,7 @@ public class ZoomaLuceneIndexer extends Initializable {
             doc.add(new Field("quality",
                               Float.toString(scoreAnnotationQuality(annotation.getProvenance())),
                               Field.Store.YES,
-                              Field.Index.NOT_ANALYZED));
+                              Field.Index.ANALYZED));
 
             // add this document to the index
             indexWriter.addDocument(doc, getAnalyzer());
@@ -381,7 +381,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                 doc.add(new Field("id",
                                   summaryId,
                                   Field.Store.YES,
-                                  Field.Index.NOT_ANALYZED));
+                                  Field.Index.ANALYZED));
                 doc.add(new Field("property",
                                   propertyValue,
                                   Field.Store.YES,
@@ -400,7 +400,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                         doc.add(new Field("semanticTag",
                                           uri.toString(),
                                           Field.Store.YES,
-                                          Field.Index.NOT_ANALYZED));
+                                          Field.Index.ANALYZED));
                     }
                 }
                 // add field for each annotation
@@ -410,31 +410,31 @@ public class ZoomaLuceneIndexer extends Initializable {
                     doc.add(new Field("annotation",
                                       annotationUri.toString(),
                                       Field.Store.YES,
-                                      Field.Index.NOT_ANALYZED));
+                                      Field.Index.ANALYZED));
                 }
                 // add a field for the frequency of use of this pattern
                 getLog().trace("Summary frequency: " + annotations.size());
                 doc.add(new Field("frequency",
                                   Integer.toString(annotations.size()),
                                   Field.Store.YES,
-                                  Field.Index.NOT_ANALYZED));
+                                  Field.Index.ANALYZED));
                 getLog().trace("Best score: " + summaryIdToMaxScore.get(summaryId));
                 doc.add(new Field("topScore",
                                   Float.toString(summaryIdToMaxScore.get(summaryId)),
                                   Field.Store.YES,
-                                  Field.Index.NOT_ANALYZED));
+                                  Field.Index.ANALYZED));
                 for (URI source : summaryIdToSourcesMap.get(summaryId)) {
                     getLog().trace("Next source: " + source.toString());
                     doc.add(new Field("source",
                                       source.toString(),
                                       Field.Store.YES,
-                                      Field.Index.NOT_ANALYZED));
+                                      Field.Index.ANALYZED));
                 }
                 getLog().trace("Number of times verified: " + summaryIdToSourcesMap.get(summaryId).size());
                 doc.add(new Field("timesVerified",
                                   Integer.toString(summaryIdToSourcesMap.get(summaryId).size()),
                                   Field.Store.YES,
-                                  Field.Index.NOT_ANALYZED));
+                                  Field.Index.ANALYZED));
 
                 getLog().trace("Annotation Summary index entry:\n\t" +
                                        "ID: " + summaryId + ",\n\t" +
