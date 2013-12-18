@@ -63,19 +63,14 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         // if results are empty, find lexically similar strings and requery
         if (results.isEmpty()) {
             // use "Needleman-Wunsch"  and "Jaccard similarity" to find approximate matchings
-            Collection<AnnotationSummary> expandedResults = new HashSet<>();
             Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
-
             for (String s : similarStrings.keySet()) {
                 if (haveEqualPolarity(s, propertyValuePattern)) {
                     results.addAll(super.search(s));
                 }
             }
-            return expandedResults;
         }
-        else {
-            return results;
-        }
+        return results;
     }
 
     @Override
@@ -87,7 +82,6 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         // if results are empty, find lexically similar strings and requery
         if (results.isEmpty()) {
             // use "Needleman-Wunsch"  and "Jaccard similarity" to find approximate matchings
-            Collection<AnnotationSummary> expandedResults = new HashSet<>();
             Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
 
             for (String s : similarStrings.keySet()) {
@@ -95,14 +89,9 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
                     results.addAll(super.search(propertyType, s));
                 }
             }
-            return expandedResults;
         }
-        else {
-            return results;
-        }
+        return results;
     }
-
-
 
     /**
      * Uses Needleman-Wunsch and Jaccard similarity algorithms to find strings similar to the one supplied.  This method
@@ -131,7 +120,6 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         }
         return results;
     }
-
 
     /**
      * This methods finds matching properties using "Needleman-Wunsch" distance. Here, simmetrics library is used
