@@ -166,6 +166,6 @@
 
     <bean id="limiter" class="uk.ac.ebi.fgpt.zooma.util.BasicLimiter" />
 
-    <bean id="scorer" class="uk.ac.ebi.fgpt.zooma.util.AnnotationSummaryScorer" />
+    <bean id="scorer" class="uk.ac.ebi.fgpt.zooma.util.AnnotationSummaryNeedlemanWunschScorer" />
 
 </beans>

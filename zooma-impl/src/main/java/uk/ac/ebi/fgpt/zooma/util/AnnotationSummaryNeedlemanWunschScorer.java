@@ -3,13 +3,13 @@ package uk.ac.ebi.fgpt.zooma.util;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
 /**
- * Scores annotation summaries based on their quality and a lexical match measure (using a combination of
- * Needleman-Wunsch and Jaccard algorithms) to derive the score.
+ * Scores annotation summaries based on their quality and a lexical match measure (using the Needleman-Wunsch algorithm)
+ * to derive the score.
  *
  * @author Tony Burdett
- * @date 30/11/13
+ * @date 18/12/13
  */
-public class AnnotationSummaryScorer extends AbstractNeedlemanWunschJaccardScorer<AnnotationSummary> {
+public class AnnotationSummaryNeedlemanWunschScorer extends AbstractNeedlemanWunschScorer<AnnotationSummary> {
     /**
      * Extracts the annotated property value for the matched annotation summary to compare to the search string
      *
