@@ -131,23 +131,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         return getAnnotationSummaryScorer().score(annotations, query);
     }
 
-    public Map<AnnotationSummary, Float> queryAndScore(String query, boolean prefixed, URI[] requiredSources) {
-        validate();
-        Collection<AnnotationSummary> annotations = prefixed
-                ? getAnnotationSummarySearchService().searchByPrefix(query, requiredSources)
-                : getAnnotationSummarySearchService().search(query, requiredSources);
-        return getAnnotationSummaryScorer().score(annotations, query);
-    }
-
-    public Map<AnnotationSummary, Float> queryAndScore(String query,
-                                                       List<URI> preferredSources,
-                                                       URI[] requiredSources) {
-        validate();
-        Collection<AnnotationSummary> annotations =
-                getAnnotationSummarySearchService().searchByPreferredSources(query, preferredSources, requiredSources);
-        return getAnnotationSummaryScorer().score(annotations, query);
-    }
-
     public Map<AnnotationSummary, Float> queryAndScore(String query, String type, boolean prefixed) {
         validate();
         Collection<AnnotationSummary> annotations = prefixed
@@ -169,46 +152,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
 
     public Map<AnnotationSummary, Float> queryAndScore(String query,
                                                        String type,
-                                                       List<URI> preferredSources,
-                                                       URI[] requiredSources) {
-        validate();
-        Collection<AnnotationSummary> annotations =
-                getAnnotationSummarySearchService().searchByPreferredSources(type,
-                                                                             query,
-                                                                             preferredSources,
-                                                                             requiredSources);
-        return getAnnotationSummaryScorer().score(annotations, query, type);
-    }
-
-    public Map<AnnotationSummary, Float> queryAndScore(String query,
-                                                       String type,
-                                                       boolean prefixed,
-                                                       int limit,
-                                                       int start) {
-        validate();
-        Collection<AnnotationSummary> annotations = prefixed
-                ? getAnnotationSummarySearchService().searchByPrefix(type, query)
-                : getAnnotationSummarySearchService().search(type, query);
-        return getAnnotationSummaryScorer().score(annotations, query, type);
-    }
-
-    public Map<AnnotationSummary, Float> queryAndScore(String query,
-                                                       String type,
-                                                       boolean prefixed,
-                                                       int limit,
-                                                       int start,
-                                                       URI[] requiredSources) {
-        validate();
-        Collection<AnnotationSummary> annotations = prefixed
-                ? getAnnotationSummarySearchService().searchByPrefix(type, query, requiredSources)
-                : getAnnotationSummarySearchService().search(type, query, requiredSources);
-        return getAnnotationSummaryScorer().score(annotations, query, type);
-    }
-
-    public Map<AnnotationSummary, Float> queryAndScore(String query,
-                                                       String type,
-                                                       int limit,
-                                                       int start,
                                                        List<URI> preferredSources,
                                                        URI[] requiredSources) {
         validate();
@@ -267,23 +210,9 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         // check each non-required argument and defer to appropriate query form
         // NB. we don't use type_strict param anywhere
         if (type != null) {
-            if (limit != null) {
-                if (start != null) {
-                    return convertToSuggestResponse(prefix,
-                                                    queryAndScore(prefix, type, true, limit, start),
-                                                    getAnnotationSummarySorter());
-                }
-                else {
-                    return convertToSuggestResponse(prefix,
-                                                    queryAndScore(prefix, type, true, limit, 0),
-                                                    getAnnotationSummarySorter());
-                }
-            }
-            else {
-                return convertToSuggestResponse(prefix,
-                                                queryAndScore(prefix, type, true),
-                                                getAnnotationSummarySorter());
-            }
+            return convertToSuggestResponse(prefix,
+                                            queryAndScore(prefix, type, true),
+                                            getAnnotationSummarySorter());
         }
         else {
             return convertToSuggestResponse(prefix, queryAndScore(prefix, true), getAnnotationSummarySorter());
@@ -382,23 +311,9 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                                               final String mql_output) {
         // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
         if (type != null) {
-            if (limit != null) {
-                if (start != null) {
-                    return convertToSearchResponse(query,
-                                                   queryAndScore(query, type, prefixed, limit, start),
-                                                   getAnnotationSummarySorter());
-                }
-                else {
-                    return convertToSearchResponse(query,
-                                                   queryAndScore(query, type, prefixed, limit, 0),
-                                                   getAnnotationSummarySorter());
-                }
-            }
-            else {
-                return convertToSearchResponse(query,
-                                               queryAndScore(query, type, prefixed),
-                                               getAnnotationSummarySorter());
-            }
+            return convertToSearchResponse(query,
+                                           queryAndScore(query, type, prefixed),
+                                           getAnnotationSummarySorter());
         }
         else {
             return convertToSearchResponse(query, queryAndScore(query, prefixed), getAnnotationSummarySorter());
@@ -422,76 +337,14 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         List<URI> preferredSources = parsePreferredSourcesFromFilter(filter);
         switch (searchType) {
             case REQUIRED_ONLY:
-                if (type != null) {
-                    if (limit != null) {
-                        if (start != null) {
-                            return convertToSearchResponse(query,
-                                                           queryAndScore(query,
-                                                                         type,
-                                                                         prefixed,
-                                                                         limit,
-                                                                         start,
-                                                                         requiredSources),
-                                                           getAnnotationSummarySorter());
-                        }
-                        else {
-                            return convertToSearchResponse(query,
-                                                           queryAndScore(query,
-                                                                         type,
-                                                                         prefixed,
-                                                                         limit,
-                                                                         0,
-                                                                         requiredSources),
-                                                           getAnnotationSummarySorter());
-                        }
-                    }
-                    else {
-                        return convertToSearchResponse(query,
-                                                       queryAndScore(query, type, prefixed, requiredSources),
-                                                       getAnnotationSummarySorter());
-                    }
-                }
-                else {
-                    return convertToSearchResponse(query,
-                                                   queryAndScore(query, prefixed, requiredSources),
-                                                   getAnnotationSummarySorter());
-                }
+                return convertToSearchResponse(query,
+                                               queryAndScore(query, type, prefixed, requiredSources),
+                                               getAnnotationSummarySorter());
             case PREFERRED_ONLY:
             case REQUIRED_AND_PREFERRED:
-                if (type != null) {
-                    if (limit != null) {
-                        if (start != null) {
-                            return convertToSearchResponse(query,
-                                                           queryAndScore(query,
-                                                                         type,
-                                                                         limit,
-                                                                         start,
-                                                                         preferredSources,
-                                                                         requiredSources),
-                                                           getAnnotationSummarySorter());
-                        }
-                        else {
-                            return convertToSearchResponse(query,
-                                                           queryAndScore(query,
-                                                                         type,
-                                                                         limit,
-                                                                         0,
-                                                                         preferredSources,
-                                                                         requiredSources),
-                                                           getAnnotationSummarySorter());
-                        }
-                    }
-                    else {
-                        return convertToSearchResponse(query,
-                                                       queryAndScore(query, type, preferredSources, requiredSources),
-                                                       getAnnotationSummarySorter());
-                    }
-                }
-                else {
-                    return convertToSearchResponse(query,
-                                                   queryAndScore(query, preferredSources, requiredSources),
-                                                   getAnnotationSummarySorter());
-                }
+                return convertToSearchResponse(query,
+                                               queryAndScore(query, type, preferredSources, requiredSources),
+                                               getAnnotationSummarySorter());
             case UNRESTRICTED:
             default:
                 return unfilteredSearch(query,

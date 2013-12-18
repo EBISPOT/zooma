@@ -9,13 +9,12 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.JaccardSimilarity;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.NeedlemanWunch;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 
 /**
@@ -58,7 +57,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
     }
 
     @Override
-    public Collection<AnnotationSummary> search(String propertyValuePattern) {
+    public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
         Collection<AnnotationSummary> results = super.search(propertyValuePattern);
 
         // if results are empty, find lexically similar strings and requery
@@ -81,7 +80,8 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
 
     @Override
     public Collection<AnnotationSummary> search(String propertyType,
-                                                String propertyValuePattern) {
+                                                String propertyValuePattern,
+                                                URI... sources) {
         Collection<AnnotationSummary> results = super.search(propertyType, propertyValuePattern);
 
         // if results are empty, find lexically similar strings and requery
@@ -101,6 +101,8 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
             return results;
         }
     }
+
+
 
     /**
      * Uses Needleman-Wunsch and Jaccard similarity algorithms to find strings similar to the one supplied.  This method

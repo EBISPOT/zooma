@@ -23,16 +23,8 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
         this._annotatationSummarySearchService = annotationSummarySearchService;
     }
 
-    @Override public Collection<AnnotationSummary> search(String propertyValuePattern) {
-        return _annotatationSummarySearchService.search(propertyValuePattern);
-    }
-
     @Override public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
         return _annotatationSummarySearchService.search(propertyValuePattern, sources);
-    }
-
-    @Override public Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern) {
-        return _annotatationSummarySearchService.search(propertyType, propertyValuePattern);
     }
 
     @Override public Collection<AnnotationSummary> search(String propertyType,
@@ -41,17 +33,9 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
         return _annotatationSummarySearchService.search(propertyType, propertyValuePattern, sources);
     }
 
-    @Override public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix) {
-        return _annotatationSummarySearchService.searchByPrefix(propertyValuePrefix);
-    }
-
     @Override
     public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI... sources) {
         return _annotatationSummarySearchService.searchByPrefix(propertyValuePrefix, sources);
-    }
-
-    @Override public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix) {
-        return _annotatationSummarySearchService.searchByPrefix(propertyType, propertyValuePrefix);
     }
 
     @Override
@@ -67,35 +51,21 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
         return _annotatationSummarySearchService.searchBySemanticTags(semanticTags);
     }
 
-    @Override
-    public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
-                                                                  List<URI> rankedSources) {
-        return _annotatationSummarySearchService.searchByPreferredSources(propertyValuePattern, rankedSources);
-    }
-
-    @Override
-    public Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
-                                                                  String propertyValuePattern,
-                                                                  List<URI> rankedSources) {
-        return _annotatationSummarySearchService.searchByPreferredSources(propertyType, propertyValuePattern,
-                                                                          rankedSources);
-    }
-
     @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
-                                                                            List<URI> rankedSources,
+                                                                            List<URI> preferredSources,
                                                                             URI... requiredSources) {
         return _annotatationSummarySearchService.searchByPreferredSources(propertyValuePattern,
-                                                                          rankedSources,
+                                                                          preferredSources,
                                                                           requiredSources);
     }
 
     @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
                                                                             String propertyValuePattern,
-                                                                            List<URI> rankedSources,
+                                                                            List<URI> preferredSources,
                                                                             URI... requiredSources) {
         return _annotatationSummarySearchService.searchByPreferredSources(propertyType,
                                                                           propertyValuePattern,
-                                                                          rankedSources,
+                                                                          preferredSources,
                                                                           requiredSources);
     }
 

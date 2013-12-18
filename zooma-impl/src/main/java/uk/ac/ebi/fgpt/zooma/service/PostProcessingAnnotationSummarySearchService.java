@@ -45,7 +45,7 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     }
 
     @Override
-    public Collection<AnnotationSummary> search(String propertyValuePattern) {
+    public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
         Collection<AnnotationSummary> rawResults = super.search(propertyValuePattern);
 
         // if raw results are empty, attempt to process the string and requery
@@ -98,7 +98,8 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
 
     @Override
     public Collection<AnnotationSummary> search(String propertyType,
-                                                        String propertyValuePattern) {
+                                                String propertyValuePattern,
+                                                URI... sources) {
         Collection<AnnotationSummary> results = super.search(propertyType, propertyValuePattern);
 
         // if raw results are empty, attempt to process the string and requery
