@@ -67,7 +67,6 @@ public class ZOOMA2LoaderDriver {
                                 return FileVisitResult.CONTINUE;
                             }
                         });
-                        Files.delete(oldRDFHome);
                         System.out.println("ok!");
                     }
                     System.out.println("RDF files will now be created afresh in " + rdfHome.getAbsolutePath());

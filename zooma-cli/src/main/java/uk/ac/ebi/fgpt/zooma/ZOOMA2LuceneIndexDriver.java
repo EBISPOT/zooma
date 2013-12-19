@@ -197,7 +197,6 @@ public class ZOOMA2LuceneIndexDriver {
                                 return FileVisitResult.CONTINUE;
                             }
                         });
-                        Files.delete(oldZoomaHome);
                         System.out.println("ok!");
                     }
                     System.out.println("ZOOMA lucene indices will now be created afresh in " +
