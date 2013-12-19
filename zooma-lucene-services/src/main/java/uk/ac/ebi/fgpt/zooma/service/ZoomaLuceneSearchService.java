@@ -15,7 +15,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Similarity;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.search.spans.SpanMultiTermQueryWrapper;
 import org.apache.lucene.search.spans.SpanNearQuery;
@@ -33,10 +32,9 @@ import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -61,6 +59,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     private IndexSearcher searcher;
 
     protected enum QUERY_TYPE {
+        EXACT,
         FULL,
         PREFIX,
         SUFFIX
@@ -128,13 +127,45 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         return formulateQuery(field, pattern, QUERY_TYPE.FULL, false);
     }
 
+    /**
+     * Generate a lucene query from the supplied field and string.  Queries are constrained to hit only documents that
+     * contain the full, exact string withing the given field.
+     *
+     * @param field  the field to query
+     * @param string the exact string to search for
+     * @return the parsed query
+     * @throws QueryCreationException if the query could not be created
+     */
+    protected Query formulateExactQuery(String field, String string) throws QueryCreationException {
+        return formulateQuery(field, string, QUERY_TYPE.EXACT, false);
+    }
+
+    /**
+     * Generate a lucene query from the supplied field and prefix.  Queries are constrained to hit only documents that
+     * contain the supplied pattern within the given field.
+     *
+     * @param field  the field to query
+     * @param prefix the prefix to search for
+     * @return the parsed query
+     * @throws QueryCreationException if the query could not be created
+     */
     protected Query formulatePrefixQuery(String field, String prefix) throws QueryCreationException {
         return formulateQuery(field, prefix, QUERY_TYPE.PREFIX, false);
     }
 
+    /**
+     * Generate a lucene query from the supplied field and suffix.  Queries are constrained to hit only documents that
+     * contain the supplied pattern within the given field.
+     *
+     * @param field  the field to query
+     * @param suffix the suffix to search for
+     * @return the parsed query
+     * @throws QueryCreationException if the query could not be created
+     */
     protected Query formulateSuffixQuery(String field, String suffix) throws QueryCreationException {
         return formulateQuery(field, suffix, QUERY_TYPE.SUFFIX, false);
     }
+
 
     /**
      * Generates a lucene query that functions as a specialised form of boolean query.  The two queries are unified into
@@ -190,12 +221,18 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         try {
             Query q;
 
-            // tokenize the pattern using the given analyzer
-            List<String> terms = new ArrayList<>();
-            TokenStream stream = analyzer.tokenStream(field, new StringReader(QueryParser.escape(pattern)));
-            CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
-            while (stream.incrementToken()) {
-                terms.add(termAtt.toString());
+            List<String> terms;
+            if (queryType != QUERY_TYPE.EXACT) {
+                // tokenize the pattern using the given analyzer
+                terms = new ArrayList<>();
+                TokenStream stream = analyzer.tokenStream(field, new StringReader(QueryParser.escape(pattern)));
+                CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
+                while (stream.incrementToken()) {
+                    terms.add(termAtt.toString());
+                }
+            }
+            else {
+                terms = Collections.singletonList(pattern);
             }
 
             if (terms.size() == 0) {
@@ -207,6 +244,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     // construct single term query
                     String term = terms.get(0);
                     switch (queryType) {
+                        case EXACT:
                         case FULL:
                             q = new TermQuery(new Term(field, term));
                             break;
@@ -409,10 +447,10 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * 100, and put into a collection of objects that is returned.  This collection is typed by the type of DAO that is
      * supplied.
      *
-     * @param q         the lucene query to perform
+     * @param q      the lucene query to perform
      * @param mapper the document mapper to use to extract the URI from resulting lucene documents
-     * @param dao       the zooma dao that can be used to do the lookup of matching objects
-     * @param <T>       the type of object to lookup - the ZoomaDAO supplied declares this type
+     * @param dao    the zooma dao that can be used to do the lookup of matching objects
+     * @param <T>    the type of object to lookup - the ZoomaDAO supplied declares this type
      * @return a collection of results
      * @throws IOException if reading from the index failed
      */

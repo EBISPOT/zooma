@@ -111,12 +111,11 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
                 List<Query> qs = new ArrayList<>();
                 qs.add(pq);
                 for (URI source : sources) {
-                    qs.add(formulateQuery("source", source.toString()));
+                    qs.add(formulateExactQuery("source", source.toString()));
                 }
 
                 // unify queries into a single query
                 q = formulateCombinedQuery(true, true, qs.toArray(new Query[qs.size()]));
-
             }
             else {
                 q = pq;
@@ -159,7 +158,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
                 List<Query> qs = new ArrayList<>();
                 qs.add(tq);
                 for (URI source : sources) {
-                    qs.add(formulateQuery("source", source.toString()));
+                    qs.add(formulateExactQuery("source", source.toString()));
                 }
 
                 // unify queries into a single query
@@ -290,7 +289,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
                 // next generate a series of source queries
                 List<Query> sqs = new ArrayList<>();
                 for (URI source : sources) {
-                    sqs.add(formulateQuery("source", source.toString()));
+                    sqs.add(formulateExactQuery("source", source.toString()));
                 }
                 // unify source queries into a single query
                 Query sq = formulateCombinedQuery(false, false, sqs.toArray(new Query[sqs.size()]));
@@ -344,7 +343,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
                 // next generate a series of source queries
                 List<Query> sqs = new ArrayList<>();
                 for (URI source : sources) {
-                    sqs.add(formulateQuery("source", source.toString()));
+                    sqs.add(formulateExactQuery("source", source.toString()));
                 }
                 // unify source queries into a single query
                 Query sq = formulateCombinedQuery(false, false, sqs.toArray(new Query[sqs.size()]));

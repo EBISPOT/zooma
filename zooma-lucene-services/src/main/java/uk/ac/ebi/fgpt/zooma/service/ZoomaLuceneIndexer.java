@@ -16,7 +16,6 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
-import uk.ac.ebi.fgpt.zooma.util.CollectionUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -175,7 +174,7 @@ public class ZoomaLuceneIndexer extends Initializable {
             doc.add(new Field("uri",
                               property.getURI().toString(),
                               Field.Store.YES,
-                              Field.Index.ANALYZED));
+                              Field.Index.NOT_ANALYZED));
             doc.add(new Field("name",
                               property.getPropertyValue(),
                               Field.Store.YES,
@@ -267,7 +266,7 @@ public class ZoomaLuceneIndexer extends Initializable {
             doc.add(new Field("uri",
                               annotation.getURI().toString(),
                               Field.Store.YES,
-                              Field.Index.ANALYZED));
+                              Field.Index.NOT_ANALYZED));
             doc.add(new Field("property",
                               property.getPropertyValue(),
                               Field.Store.YES,
@@ -282,7 +281,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                 doc.add(new Field("source",
                                   annotation.getProvenance().getSource().getURI().toString(),
                                   Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                                  Field.Index.NOT_ANALYZED));
             }
             for (URI target : annotation.getSemanticTags()) {
                 // allow for null semantic tags -
@@ -291,7 +290,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                     doc.add(new Field("target",
                                       target.toString(),
                                       Field.Store.YES,
-                                      Field.Index.ANALYZED));
+                                      Field.Index.NOT_ANALYZED));
                 }
             }
 
@@ -381,7 +380,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                 doc.add(new Field("id",
                                   summaryId,
                                   Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                                  Field.Index.NOT_ANALYZED));
                 doc.add(new Field("property",
                                   propertyValue,
                                   Field.Store.YES,
@@ -428,7 +427,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                     doc.add(new Field("source",
                                       source.toString(),
                                       Field.Store.YES,
-                                      Field.Index.ANALYZED));
+                                      Field.Index.NOT_ANALYZED));
                 }
                 getLog().trace("Number of times verified: " + summaryIdToSourcesMap.get(summaryId).size());
                 doc.add(new Field("timesVerified",

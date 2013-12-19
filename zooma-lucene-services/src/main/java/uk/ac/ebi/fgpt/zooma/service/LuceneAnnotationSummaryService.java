@@ -97,7 +97,7 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
             initOrWait();
 
             // build a query
-            Query q = formulateQuery("id", annotationSummaryID);
+            Query q = formulateExactQuery("id", annotationSummaryID);
 
             // do the query
             Collection<AnnotationSummary> results = doQuery(q, getMapper());
