@@ -102,6 +102,19 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         }
     }
 
+    /**
+     * Returns a clone of this mapper, but using the given source rankings instead of the originals
+     *
+     * @param sourceRanking the new set of source rankings to use
+     * @return an annotation summary mapper identical to this one, but with new ranking orders
+     */
+    public AnnotationSummaryMapper withRankings(URI... sourceRanking) {
+        return new AnnotationSummaryMapper(this.totalAnnotationCount,
+                                           this.totalAnnotationSummaryCount,
+                                           this.maximumQualityScore,
+                                           sourceRanking);
+    }
+
     @Override
     public AnnotationSummary mapDocument(Document d) {
         return mapDocument(d, 1);
