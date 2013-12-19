@@ -95,54 +95,54 @@ public class TestZoomaLuceneIndexer {
             verifiableSemanticTag = semanticTag1;
             unverifiableSemanticTag = semanticTag3;
 
-            AnnotationProvenance prov1 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
-                    "http://www.test.com/source1"), "source1"),
-                                                                        AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                                                        "TEST",
-                                                                        new Date());
+            AnnotationProvenance prov1 = new SimpleAnnotationProvenance(
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source1"), "source1"),
+                    AnnotationProvenance.Evidence.MANUAL_CURATED,
+                    "TEST",
+                    new Date());
             Annotation anno1 = new SimpleAnnotation(new URI("http://www.test.com/annotation1"),
                                                     Collections.<BiologicalEntity>emptySet(),
                                                     property1,
                                                     prov1,
                                                     semanticTag1);
-            AnnotationProvenance prov2 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
-                    "http://www.test.com/source2"), "source2"),
-                                                                        AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                                                        "TEST",
-                                                                        new Date());
+            AnnotationProvenance prov2 = new SimpleAnnotationProvenance(
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2"), "source2"),
+                    AnnotationProvenance.Evidence.MANUAL_CURATED,
+                    "TEST",
+                    new Date());
             Annotation anno2 = new SimpleAnnotation(new URI("http://www.test.com/annotation2"),
                                                     Collections.<BiologicalEntity>emptySet(),
                                                     property2,
                                                     prov2,
                                                     semanticTag2);
             // anno3 is alternate mapping for property1
-            AnnotationProvenance prov3 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
-                    "http://www.test.com/source3"), "source3"),
-                                                                        AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                                                        "TEST",
-                                                                        new Date());
+            AnnotationProvenance prov3 = new SimpleAnnotationProvenance(
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3"), "source3"),
+                    AnnotationProvenance.Evidence.MANUAL_CURATED,
+                    "TEST",
+                    new Date());
             Annotation anno3 = new SimpleAnnotation(new URI("http://www.test.com/annotation3"),
                                                     Collections.<BiologicalEntity>emptySet(),
                                                     property1,
                                                     prov3,
                                                     semanticTag3);
             // anno4 verifies anno1 from different source
-            AnnotationProvenance prov4 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
-                    "http://www.test.com/source2"), "source2"),
-                                                                        AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                                                        "TEST",
-                                                                        new Date());
+            AnnotationProvenance prov4 = new SimpleAnnotationProvenance(
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2"), "source2"),
+                    AnnotationProvenance.Evidence.MANUAL_CURATED,
+                    "TEST",
+                    new Date());
             Annotation anno4 = new SimpleAnnotation(new URI("http://www.test.com/annotation4"),
                                                     Collections.<BiologicalEntity>emptySet(),
                                                     property1,
                                                     prov4,
                                                     semanticTag1);
             // anno5 verifies anno3 from same source
-            AnnotationProvenance prov5 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
-                    "http://www.test.com/source3"), "source3"),
-                                                                        AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                                                        "TEST",
-                                                                        new Date());
+            AnnotationProvenance prov5 = new SimpleAnnotationProvenance(
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3"), "source3"),
+                    AnnotationProvenance.Evidence.MANUAL_CURATED,
+                    "TEST",
+                    new Date());
             Annotation anno5 = new SimpleAnnotation(new URI("http://www.test.com/annotation5"),
                                                     Collections.<BiologicalEntity>emptySet(),
                                                     property1,

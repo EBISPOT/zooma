@@ -76,13 +76,25 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     }
 
     @Override public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
-        return doSearch(getMapper(), propertyValuePattern, sources);
+        try {
+            initOrWait();
+            return doSearch(getMapper(), propertyValuePattern, sources);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
     }
 
     @Override public Collection<AnnotationSummary> search(String propertyType,
                                                           String propertyValuePattern,
                                                           URI... sources) {
-        return doSearch(getMapper(), propertyType, propertyValuePattern, sources);
+        try {
+            initOrWait();
+            return doSearch(getMapper(), propertyType, propertyValuePattern, sources);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
     }
 
     @Override
@@ -215,40 +227,49 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
                                                                             List<URI> preferredSources,
                                                                             URI... requiredSources) {
-        if (preferredSources.isEmpty()) {
-            return search(propertyValuePattern, requiredSources);
+        try {
+            initOrWait();
+            if (preferredSources.isEmpty()) {
+                return search(propertyValuePattern, requiredSources);
+            }
+            return doSearch(getMapper().withRankings(preferredSources.toArray(new URI[preferredSources.size()])),
+                            propertyValuePattern,
+                            requiredSources);
         }
-
-        return doSearch(getMapper().withRankings(preferredSources.toArray(new URI[preferredSources.size()])),
-                        propertyValuePattern,
-                        requiredSources);
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
     }
 
     @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
                                                                             String propertyValuePattern,
                                                                             List<URI> preferredSources,
                                                                             URI... requiredSources) {
-        // check for null type
-        if (propertyType == null) {
-            return searchByPreferredSources(propertyValuePattern, preferredSources, requiredSources);
-        }
+        try {
+            initOrWait();
+            // check for null type
+            if (propertyType == null) {
+                return searchByPreferredSources(propertyValuePattern, preferredSources, requiredSources);
+            }
 
-        if (preferredSources.isEmpty()) {
-            return search(propertyType, propertyValuePattern, requiredSources);
-        }
+            if (preferredSources.isEmpty()) {
+                return search(propertyType, propertyValuePattern, requiredSources);
+            }
 
-        return doSearch(getMapper().withRankings(preferredSources.toArray(new URI[preferredSources.size()])),
-                        propertyType,
-                        propertyValuePattern,
-                        requiredSources);
+            return doSearch(getMapper().withRankings(preferredSources.toArray(new URI[preferredSources.size()])),
+                            propertyType,
+                            propertyValuePattern,
+                            requiredSources);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
     }
 
     protected Collection<AnnotationSummary> doSearch(AnnotationSummaryMapper mapper,
                                                      String propertyValuePattern,
                                                      URI... sources) {
         try {
-            initOrWait();
-
             // first, formulate query for original propertyValuePattern
             Query pq = formulateQuery("property", propertyValuePattern);
 
@@ -288,9 +309,6 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         catch (QueryCreationException | IOException e) {
             throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
         }
-        catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
-        }
     }
 
     protected Collection<AnnotationSummary> doSearch(AnnotationSummaryMapper mapper,
@@ -298,8 +316,6 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
                                                      String propertyValuePattern,
                                                      URI... sources) {
         try {
-            initOrWait();
-
             // check for null type
             if (propertyType == null) {
                 return search(propertyValuePattern, sources);
@@ -345,9 +361,6 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         }
         catch (QueryCreationException | IOException e) {
             throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
-        }
-        catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
         }
     }
 }
