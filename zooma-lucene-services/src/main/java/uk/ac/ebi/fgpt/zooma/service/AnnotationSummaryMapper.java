@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Maps lucene documents into {@link AnnotationSummary} objects.
@@ -167,16 +168,24 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         float annotationSummaryCount = (float) totalAnnotationSummaryCount;
         float normalizedFreq = 1.0f + (annotationCount > 0 ? (freq / annotationCount) : 0);
         float normalizedRank = 1.0f - (annotationSummaryCount > 0 ? (rank / annotationSummaryCount) : 0);
-        float sourceRank = (float) Math.sqrt((double) getSourceRanking(URI.create(d.get("source"))));
+        Set<URI> sources = new HashSet<>();
+        for (String sourceString : d.getValues("source")) {
+            sources.add(URI.create(sourceString));
+        }
+        float sourceRank = 1.0f - getSourceRanking(sources);
         if (getLog().isTraceEnabled()) {
             getLog().trace("Document quality: " +
                                    "(" + topScore + " + " + veris + ") x " +
                                    "(1 - " + rank + "/" + annotationSummaryCount + ") x " +
-                                   "(1 + " + freq + "/" + annotationCount + ") = " +
-                                   (topScore + veris) + " x " + normalizedFreq + " = " +
-                                   ((topScore + veris) * normalizedFreq));
+                                   "(1 + " + freq + "/" + annotationCount + ") x " +
+                                   "(1 - " + sourceRank + ") = " +
+                                   (topScore + veris) + " x " +
+                                   normalizedRank + " x " +
+                                   normalizedFreq + " x " +
+                                   sourceRank + " = " +
+                                   ((topScore + veris) * normalizedRank * normalizedFreq * sourceRank));
         }
-        float score = (topScore + veris) * normalizedRank * normalizedFreq + sourceRank;
+        float score = (topScore + veris) * normalizedRank * normalizedFreq * sourceRank;
         if (doNormalization) {
             if ((score - expectedMinimumQualityScore) < 0) {
                 return 50;
@@ -191,12 +200,28 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         }
     }
 
-    protected int getSourceRanking(URI source) {
-        for (int i = 0; i < sourceRanking.length; i++) {
-            if (sourceRanking[i].equals(source)) {
-                return sourceRanking.length - i + 1;
-            }
+    /**
+     * Evaluates a ranking for a set of sources.  If one of the supplied sources is set in the source rankings for this
+     * mapper, the highest scoring source is used.  The score is a penalty value between 0 and 0.125; a score of 0 is
+     * returned for a top ranking source or in cases where there are no rankings defined, and 0.1 is the biggest
+     * possible penalty for a source that has been supplied in the source rankings.  Where source rankings have been
+     * supplied but the supplied sources match none of them, a penalty of 0.125 is applied.
+     *
+     * @param sources the list of sources to rank
+     * @return a penalty score; 0 if perfect or there are no source rankings, 0.1 for worst ranked match, 0.125 if
+     * outside rankings
+     */
+    protected float getSourceRanking(Set<URI> sources) {
+        if (sourceRanking.length == 0) {
+            return 0;
         }
-        return 1;
+        else {
+            for (int i = 0; i < sourceRanking.length; i++) {
+                if (sources.contains(sourceRanking[i])) {
+                    return (((float) i) / (sourceRanking.length - 1)) * 0.1f;
+                }
+            }
+            return 0.125f;
+        }
     }
 }
