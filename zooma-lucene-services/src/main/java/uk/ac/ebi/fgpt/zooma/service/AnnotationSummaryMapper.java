@@ -152,8 +152,8 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         float freq = (float) Integer.parseInt(d.get("frequency"));
         float annotationCount = (float) totalAnnotationCount;
         float annotationSummaryCount = (float) totalAnnotationSummaryCount;
-        float normalizedFreq = 1.0f + (freq / annotationCount);
-        float normalizedRank = 1.0f - (rank / annotationSummaryCount);
+        float normalizedFreq = 1.0f + (annotationCount > 0 ? (freq / annotationCount) : 0);
+        float normalizedRank = 1.0f - (annotationSummaryCount > 0 ? (rank / annotationSummaryCount) : 0);
         float sourceRank = (float) Math.sqrt((double) getSourceRanking(URI.create(d.get("source"))));
         if (getLog().isTraceEnabled()) {
             getLog().trace("Document quality: " +

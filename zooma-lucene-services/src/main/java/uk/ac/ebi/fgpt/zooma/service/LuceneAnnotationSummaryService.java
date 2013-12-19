@@ -11,6 +11,9 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A service that allows retrieval of the set of {@link AnnotationSummary} objects known to ZOOMA.  This uses a Lucene
@@ -38,10 +41,26 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
 
     @Override protected void doInitialization() throws IOException {
         super.doInitialization();
-        IndexReader reader = IndexReader.open(getAnnotationIndex());
-        getLog().debug("Total number of annotations in zooma: " + reader.numDocs());
-        this.mapper = new AnnotationSummaryMapper(reader.numDocs(), getReader().numDeletedDocs());
-        reader.close();
+        IndexReader annotationReader = IndexReader.open(getAnnotationIndex());
+        int numAnnotations = annotationReader.numDocs();
+        int numSummaries = getReader().numDocs();
+        annotationReader.close();
+        getLog().debug("Total number of annotations in zooma: " + numAnnotations);
+        getLog().debug("Total number of summaries in zooma: " + numSummaries);
+        AnnotationSummaryMapper preMapper = new AnnotationSummaryMapper(numAnnotations, numSummaries);
+        Set<Float> allScores = new HashSet<>();
+        for (int i = 0; i < numSummaries; i++) {
+            if (getReader().isDeleted(i)) {
+                continue;
+            }
+            allScores.add(preMapper.mapDocument(getReader().document(i)).getQuality());
+        }
+        float maxScore = Collections.max(allScores);
+        getLog().debug("Maximum summary quality score = " + maxScore);
+        this.mapper = new AnnotationSummaryMapper(numAnnotations,
+                                                  numSummaries,
+                                                  maxScore);
+        getLog().debug("Annotation Summary mapper calibration complete");
     }
 
     @Override public Collection<AnnotationSummary> getAnnotationSummaries() {
