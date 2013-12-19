@@ -315,13 +315,17 @@ public class ZoomaMappingController {
                     // first, grab annotation summaries
                     Map<AnnotationSummary, Float> summaries;
                     if (property instanceof TypedProperty) {
+                        String propertyType = ((TypedProperty) property).getPropertyType();
+                        String propertyValue = property.getPropertyValue();
                         summaries = getAnnotationSummaryScorer().score(
-                                getAnnotationSummarySearchService().search(
-                                        ((TypedProperty) property).getPropertyType(), property.getPropertyValue()));
+                                getAnnotationSummarySearchService().search(propertyType, propertyValue),
+                                propertyValue, propertyType);
                     }
                     else {
+                        String propertyValue = property.getPropertyValue();
                         summaries = getAnnotationSummaryScorer().score(
-                                getAnnotationSummarySearchService().search(property.getPropertyValue()));
+                                getAnnotationSummarySearchService().search(propertyValue),
+                                propertyValue);
                     }
 
                     // now use client to test and filter them
