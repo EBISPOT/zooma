@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.SimpleBiologicalEntity;
+import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSearchService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
@@ -102,12 +104,27 @@ public class ZoomaAnnotationSearcher extends IdentifiableSuggestEndpoint<Annotat
     }
 
     public Collection<Annotation> fetch() {
-        return fetch(100, 0);
+        return fetch(100, 0, null, null, null);
     }
 
     @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody Collection<Annotation> fetch(@RequestParam(value = "limit", required = false) Integer limit,
-                                                      @RequestParam(value = "start", required = false) Integer start) {
+                                                      @RequestParam(value = "start", required = false) Integer start,
+                                                      @RequestParam(value = "targetSourceUri", required = false) String targetSourceUri,
+                                                      @RequestParam(value = "targetUri", required = false) String targetUri,
+                                                      @RequestParam(value = "semanticTagUri", required = false) String semanticTagUri
+                                                      ) {
+
+        if (targetSourceUri != null) {
+            return getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(targetSourceUri), null));
+        }
+        if (targetUri != null) {
+            return getAnnotationService().getAnnotationsByBiologicalEntity(new SimpleBiologicalEntity(URI.create(targetUri), null));
+        }
+        if (semanticTagUri != null) {
+            return getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri));
+        }
+
         if (start == null) {
             if (limit == null) {
                 return getAnnotationService().getAnnotations(100, 0);
