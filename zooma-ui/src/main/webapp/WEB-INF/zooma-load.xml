@@ -20,9 +20,9 @@
     </bean>
 
     <!-- Alternative zooma loaders with different loading strategies -->
-    <!-- Pick DAO based for proper dynamic writing, or configurable for file based, tuneable writing -->
-    <bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.io.DAOBasedAnnotationLoader">
-        <property name="annotationDAO" ref="lodeAnnotationDAO" />
+    <!-- Pick service based for proper dynamic writing, or configurable for file based, tuneable writing -->
+    <bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.io.ServiceBasedAnnotationLoader">
+        <property name="annotationService" ref="annotationService" />
     </bean>
 
     <!--<bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.io.ConfigurableAnnotationLoader">-->
