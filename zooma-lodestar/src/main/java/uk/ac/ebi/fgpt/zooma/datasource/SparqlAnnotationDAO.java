@@ -1,13 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.QuerySolutionMap;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.query.*;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -253,7 +247,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         }
         QuerySolutionMap initialBinding = new QuerySolutionMap();
         initialBinding.add(QueryVariables.RESOURCE_TYPE.toString(),
-                           new ResourceImpl(Namespaces.OAC.getURI() + "DataAnnotation"));
+                new ResourceImpl(Namespaces.OAC.getURI() + "DataAnnotation"));
 
         QueryExecution execute = null;
         List<URI> uris = new ArrayList<URI>();
@@ -331,9 +325,11 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
         QuerySolutionMap initialBinding = new QuerySolutionMap();
         initialBinding.add(QueryVariables.STUDY_ID.toString(), new ResourceImpl(study.getURI().toString()));
+        ParameterizedSparqlString queryString = new ParameterizedSparqlString(q1.toString(), initialBinding);
+
         QueryExecution execute = null;
         try {
-            execute = getQueryService().getQueryExecution(null, q1.toString(), initialBinding, false);
+            execute = getQueryService().getQueryExecution(g, queryString.asQuery(), false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
         }
@@ -359,10 +355,12 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
         QuerySolutionMap initialBinding = new QuerySolutionMap();
         initialBinding.add(QueryVariables.BIOLOGICAL_ENTITY.toString(),
-                           new ResourceImpl(biologicalEntity.getURI().toString()));
+                new ResourceImpl(biologicalEntity.getURI().toString()));
+        ParameterizedSparqlString queryString = new ParameterizedSparqlString(q1.toString(), initialBinding);
+
         QueryExecution execute = null;
         try {
-            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
+            execute = getQueryService().getQueryExecution(g, queryString.asQuery(), false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
         }
@@ -388,21 +386,23 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         QuerySolutionMap initialBinding = new QuerySolutionMap();
         if (property.getURI() != null) {
             initialBinding.add(QueryVariables.PROPERTY_VALUE_ID.toString(),
-                               new ResourceImpl(property.getURI().toString()));
+                    new ResourceImpl(property.getURI().toString()));
         }
         else {
             Model m = ModelFactory.createDefaultModel();
             if (property instanceof TypedProperty) {
                 initialBinding.add(QueryVariables.PROPERTY_NAME.toString(),
-                                   m.createLiteral(((TypedProperty) property).getPropertyType()));
+                        m.createLiteral(((TypedProperty) property).getPropertyType()));
             }
             initialBinding.add(QueryVariables.PROPERTY_VALUE.toString(),
-                               m.createLiteral((property.getPropertyValue())));
+                    m.createLiteral((property.getPropertyValue())));
         }
+
+        ParameterizedSparqlString queryString = new ParameterizedSparqlString(q1.toString(), initialBinding);
 
         QueryExecution execute = null;
         try {
-            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
+            execute = getQueryService().getQueryExecution(g, queryString.asQuery(), false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
         }
@@ -426,9 +426,11 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
         QuerySolutionMap initialBinding = new QuerySolutionMap();
         initialBinding.add(QueryVariables.SEMANTIC_TAG.toString(), new ResourceImpl(semanticTagURI.toString()));
+        ParameterizedSparqlString queryString = new ParameterizedSparqlString(q1.toString(), initialBinding);
+
         QueryExecution execute = null;
         try {
-            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
+            execute = getQueryService().getQueryExecution(g, queryString.asQuery(), false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
         }
@@ -449,10 +451,11 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
     public List<Annotation> evaluateQueryResults(ResultSet result) {
         Map<URI, Annotation> annotationMap = new HashMap<>();
         while (result.hasNext()) {
-            QuerySolution solution = (QuerySolution) result.next();
+            QuerySolution solution = result.nextSolution();
             Annotation a = getAnnotationFromBindingSet(annotationMap, solution);
             annotationMap.put(a.getURI(), a);
         }
+
         List<Annotation> annotationList = new ArrayList<>();
         annotationList.addAll(annotationMap.values());
         Collections.sort(annotationList, new Comparator<Annotation>() {
@@ -502,28 +505,60 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             getLog().debug("Missing semantic tag for annotation <" + annotationUri.toString() + ">");
         }
 
+        // get biological entities
+        Map<URI, BiologicalEntity> biologicalEntityMap = new HashMap<>();
+        Map<URI, Study> studyMap = new HashMap<>();
 
         if (annotationMap.containsKey(annotationUri)) {
             Annotation anno = annotationMap.get(annotationUri);
+
             if (beUri != null) {
-                anno.getAnnotatedBiologicalEntities().add(getBiologicalEntityDAO().read(beUri));
+                // we need to store the current bioentities, get any updates and addthem back to the annotation.
+                for (BiologicalEntity biologicalEntity : anno.getAnnotatedBiologicalEntities()) {
+                    biologicalEntityMap.put(biologicalEntity.getURI(), biologicalEntity);
+                    for (Study study : biologicalEntity.getStudies()) {
+                        studyMap.put(study.getURI(), study);
+                    }
+                }
+
+                // no clear all bioenities from the annotation object
+                anno.getAnnotatedBiologicalEntities().clear();
+
+                // get any updates to the bioentities map
+                ((SparqlBiologicalEntityDAO)getBiologicalEntityDAO()).getBiologicalEntityFromBindingSet(
+                        biologicalEntityMap,
+                        studyMap,
+                        solution
+                );
+
+                // add all the updated values back to the annotation
+                anno.getAnnotatedBiologicalEntities().addAll(biologicalEntityMap.values());
             }
+
+            // add any new semantic tags
             if (ontoUri != null) {
                 anno.getSemanticTags().add(ontoUri);
             }
         }
         else {
+
+
             Set<BiologicalEntity> beSet = new HashSet<>();
             if (beUri != null) {
-                BiologicalEntity be = getBiologicalEntityDAO().read(beUri);
-                if (be != null) {
-                    beSet.add(be);
+                // get bio entity form binding map
+                BiologicalEntity entity = ((SparqlBiologicalEntityDAO)getBiologicalEntityDAO()).getBiologicalEntityFromBindingSet(
+                        new HashMap<URI, BiologicalEntity>(),
+                        new HashMap<URI, Study>(),
+                        solution
+                );
+                if (entity != null) {
+                    beSet.add(entity);
                 }
             }
             Property p =
                     new SimpleTypedProperty(pvUri,
-                                            propertyNameValue.getLexicalForm(),
-                                            propertyValueValue.getLexicalForm());
+                            propertyNameValue.getLexicalForm(),
+                            propertyValueValue.getLexicalForm());
 
             AnnotationProvenance prov = null;
             if (database != null && evidence != null) {
@@ -537,13 +572,13 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 catch (IllegalArgumentException e) {
                     ev = AnnotationProvenance.Evidence.NON_TRACEABLE;
                     getLog().warn("SPARQL query returned evidence '" + name + "' " +
-                                          "(" + evidenceUri + ") but this is not a valid evidence type.  " +
-                                          "Setting evidence to " + ev);
+                            "(" + evidenceUri + ") but this is not a valid evidence type.  " +
+                            "Setting evidence to " + ev);
                 }
                 catch (NullPointerException e) {
                     ev = AnnotationProvenance.Evidence.NON_TRACEABLE;
                     getLog().warn("No traceable evidence (" + e.getMessage() + ") for annotation " +
-                                          "<" + annotationUri.toString() + ">.  Setting evidence to " + ev);
+                            "<" + annotationUri.toString() + ">.  Setting evidence to " + ev);
                 }
 
                 if (generator == null) {
@@ -570,7 +605,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                     }
                     catch (NumberFormatException e) {
                         getLog().error("Can't read generation date '" + dateStr + "' " +
-                                               "for annotation <" + annotationUri.toString() + ">", e);
+                                "for annotation <" + annotationUri.toString() + ">", e);
 
                     }
                 }
@@ -585,7 +620,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                     }
                     catch (NumberFormatException e) {
                         getLog().error("Can't read annotation date '" + dateStr + "' " +
-                                               "for annotation <" + annotationUri.toString() + ">", e);
+                                "for annotation <" + annotationUri.toString() + ">", e);
                     }
                 }
 
@@ -597,11 +632,11 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
                     if (sourceT == AnnotationSource.Type.ONTOLOGY) {
                         source = new SimpleOntologyAnnotationSource(URI.create(database.toString()),
-                                                                    sourceName.getLexicalForm());
+                                sourceName.getLexicalForm());
                     }
                     else if (sourceT == AnnotationSource.Type.DATABASE) {
                         source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
-                                                                    sourceName.getLexicalForm());
+                                sourceName.getLexicalForm());
                     }
                 }
 
@@ -611,12 +646,12 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 }
 
                 prov = new SimpleAnnotationProvenance(source,
-                                                      ev,
-                                                      AnnotationProvenance.Accuracy.NOT_SPECIFIED,
-                                                      generator.getLexicalForm(),
-                                                      generatedDate != null ? generatedDate.toDate() : null,
-                                                      annotator.getLexicalForm(),
-                                                      annotatedDate != null ? annotatedDate.toDate() : null);
+                        ev,
+                        AnnotationProvenance.Accuracy.NOT_SPECIFIED,
+                        generator.getLexicalForm(),
+                        generatedDate != null ? generatedDate.toDate() : null,
+                        annotator.getLexicalForm(),
+                        annotatedDate != null ? annotatedDate.toDate() : null);
 
             }
             Annotation newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov, ontoUri);

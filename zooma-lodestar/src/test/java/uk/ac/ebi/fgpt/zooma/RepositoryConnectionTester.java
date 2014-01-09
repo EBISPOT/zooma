@@ -41,7 +41,7 @@ import java.util.List;
  * This is an integration test of the DAOs when connected to a triple store, by default these should be ignored unless a
  * specific backend is provided
  */
-@Ignore
+//@Ignore
 public class RepositoryConnectionTester extends TestCase {
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -121,7 +121,7 @@ public class RepositoryConnectionTester extends TestCase {
             log.info("pulling out one annotation from zooma");
 
             Annotation anno = annotationBean.read(URI.create(
-                    "http://rdf.ebi.ac.uk/resource/zooma/owl/0002A0689524B81BD09367CFF3749369"));
+                    "http://rdf.ebi.ac.uk/resource/zooma/gxa/0135D61B37A07603F707BC14A0EAF539"));
             assertTrue(anno.getURI() != null);
             log.info("got annotation with URI: " + anno.getURI().toString());
             printAnotation(anno);
@@ -191,6 +191,24 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    public void testSparqlAnnotationDao6() {
+
+        if (hasConnection) {
+
+            log.info("pulling out annotations by study");
+
+            long start = System.currentTimeMillis();
+            Collection<Annotation> annos = annotationBean.readByStudy(new SimpleStudy(URI.create("http://europepmc.org/abstract/MED/20139978"), null));
+            System.out.println("Study annos size: " + annos.size());
+            for (Annotation annotation : annos) {
+                System.out.println("annotation:  " + annotation.toString());
+            }
+            long end = System.currentTimeMillis();
+
+            System.out.println("time: " + ((end - start) / 1000) % 60 + "seconds");
+
+        }
+    }
 
     public void testSparqlAnnotationLoading() {
 

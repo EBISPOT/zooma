@@ -1,6 +1,6 @@
 
 ^[ANNOTATIONS.read]
-SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
+SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid)  (?bioentityType AS ?_bioentityType) ?bioentitylabel (?study AS ?_study) (?studyType AS ?_studyType) ?studylabel ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
     ?annotationid a oac:DataAnnotation .
     ?annotationid oac:hasBody ?propertyvalueid .
     ?propertyvalueid zoomaterms:propertyName ?propertyname .
@@ -8,7 +8,14 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
     ?propertyvalueid rdf:type zoomaterms:Property .
 
     OPTIONAL {
-        ?annotationid oac:hasTarget ?bioentityid
+        ?annotationid oac:hasTarget ?bioentityid .
+        ?bioentityid a ?bioentityType .
+        OPTIONAL {?bioentityid rdfs:label ?bioentitylabel}
+        OPTIONAL {
+            ?bioentityid dc:isPartOf ?study .
+            ?study a ?studyType .
+            OPTIONAL {?study rdfs:label ?studylabel }
+        }
     }
 
     OPTIONAL {
@@ -50,7 +57,7 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?propertyvalueid as ?_propert
 }
 
 ^[ANNOTATIONS_STUDY.read]
-SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
+SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) (?bioentityType AS ?_bioentityType) ?bioentitylabel (?studyid AS ?_study) (?studyType AS ?_studyType) ?studylabel ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
     ?annotationid a oac:DataAnnotation .
     ?annotationid oac:hasBody ?propertyvalueid .
     ?propertyvalueid zoomaterms:propertyName ?propertyname .
@@ -59,6 +66,16 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
 
     ?annotationid oac:hasTarget ?bioentityid .
     ?bioentityid dc:isPartOf ?study .
+    ?bioentityid dc:isPartOf ?studyid .
+
+    ?bioentityid a ?bioentityType .
+    OPTIONAL {?bioentityid rdfs:label ?bioentitylabel} .
+
+    ?studyid a ?studyType .
+    OPTIONAL {
+     ?studyid rdfs:label ?studylabel
+    }
+
     OPTIONAL {
         ?annotationid oac:hasBody ?semantictag .
         ?semantictag rdf:type oac:SemanticTag
@@ -119,7 +136,7 @@ SELECT ?synonym WHERE {
 }
 
 ^[BiologicalEntity.read]
-SELECT DISTINCT (?bioentityid AS ?_bioentityid) (?bioentityType AS ?_bioentityType) ?bioentitylabel ?study (?studyType AS ?_studyType) ?studylabel WHERE {
+SELECT DISTINCT (?bioentityid AS ?_bioentityid) (?bioentityType AS ?_bioentityType) ?bioentitylabel (?study AS ?_study) (?studyType AS ?_studyType) ?studylabel WHERE {
     ?annotationid rdf:type oac:DataAnnotation .
     ?annotationid oac:hasTarget ?bioentityid .
 
@@ -182,7 +199,7 @@ SELECT DISTINCT ?propertyname WHERE {
 
 
 ^[BiologicalEntity.bySemanticTag]
-SELECT DISTINCT ?bioentityid ?bioentitylabel ?study ?studylabel WHERE {
+SELECT DISTINCT ?bioentityid ?bioentitylabel (?study AS ?_study) ?studylabel WHERE {
     ?annotationid a oac:DataAnnotation .
     ?annotationid oac:hasTarget ?bioentityid .
     OPTIONAL {?bioentityid rdfs:label ?bioentitylabel }
@@ -196,7 +213,7 @@ SELECT DISTINCT ?bioentityid ?bioentitylabel ?study ?studylabel WHERE {
 }
 
 ^[BiologicalEntity.bySemanticTagInferred]
-SELECT DISTINCT ?bioentityid ?bioentitylabel ?study ?studylabel WHERE {
+SELECT DISTINCT ?bioentityid ?bioentitylabel (?study AS ?_study) ?studylabel WHERE {
     ?annotationid rdf:type oac:DataAnnotation .
     ?annotationid oac:hasTarget ?bioentityid .
     OPTIONAL {

@@ -6,16 +6,7 @@ import org.codehaus.jackson.map.module.SimpleModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenanceRequest;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationRequest;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntityRequest;
-import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.PropertyRequest;
-import uk.ac.ebi.fgpt.zooma.model.Study;
-import uk.ac.ebi.fgpt.zooma.model.StudyRequest;
+import uk.ac.ebi.fgpt.zooma.model.*;
 
 /**
  * A Jackson module that sets up any custom JSON binding required by ZOOMA.
@@ -43,6 +34,7 @@ public class ZoomaModule extends SimpleModule {
 
         SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();
         resolver.addMapping(AnnotationProvenance.class, AnnotationProvenanceRequest.class);
+        resolver.addMapping(AnnotationSource.class, AnnotationSourceRequest.class);
         resolver.addMapping(Annotation.class, AnnotationRequest.class);
         resolver.addMapping(BiologicalEntity.class, BiologicalEntityRequest.class);
         resolver.addMapping(Property.class, PropertyRequest.class);

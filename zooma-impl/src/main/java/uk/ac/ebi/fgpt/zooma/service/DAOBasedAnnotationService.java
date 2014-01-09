@@ -82,11 +82,27 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
     }
 
     public Annotation updateAnnotation(Annotation oldAnnotation, Annotation newAnnotation) {
+
+        Annotation clonedAnnotation = newAnnotation;
+        if (newAnnotation.getURI() == null) {
+            URI newUri = URIUtils.incrementURI(getAnnotationDAO(), oldAnnotation.getURI());
+            clonedAnnotation = new SimpleAnnotation(
+                    newUri,
+                    newAnnotation.getAnnotatedBiologicalEntities(),
+                    newAnnotation.getAnnotatedProperty(),
+                    newAnnotation.getProvenance(),
+                    newAnnotation.getSemanticTags().toArray(new URI[newAnnotation.getSemanticTags().size()]),
+                    new URI[0],
+                    new URI [] {oldAnnotation.getURI()});
+
+        }
+
+
         // save the newAnnotation (if it doesn't already exist)
-        newAnnotation = saveAnnotation(newAnnotation);
+        clonedAnnotation = saveAnnotation(clonedAnnotation);
 
         // and link the old one to the new
-        oldAnnotation.setReplacedBy(newAnnotation.getURI());
+        oldAnnotation.setReplacedBy(clonedAnnotation.getURI());
         getAnnotationDAO().update(oldAnnotation);
         return newAnnotation;
     }

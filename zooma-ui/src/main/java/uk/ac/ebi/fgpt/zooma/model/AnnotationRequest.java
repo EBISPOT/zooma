@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.zooma.model;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * An implementation of an Annotation designed to be used by jackson to deserialize annotation requests.  You should NOT
@@ -21,17 +22,22 @@ import java.util.Collection;
 public class AnnotationRequest implements Annotation {
     private static final long serialVersionUID = 3852368256814720528L;
 
-    private Collection<BiologicalEntity> annotatedBiologicalEntities;
+    private Collection<BiologicalEntity> annotatedBiologicalEntities = Collections.emptySet();
     private Property annotatedProperty;
-    private Collection<URI> semanticTags;
-    private Collection<URI> replacingAnnotations;
-    private Collection<URI> replacedAnnotations;
+    private Collection<URI> semanticTags = Collections.emptySet();
+    private Collection<URI> replacingAnnotations = Collections.emptySet();
+    private Collection<URI> replacedAnnotations = Collections.emptySet();
     private AnnotationProvenance provenance;
+    private URI uri;
 
     // custom getters and setters for bona-fide "bean" credentials
 
     public void setURI(URI uri) {
-        // do nothing
+       this.uri = uri;
+    }
+
+    @Override public URI getURI() {
+        return uri;
     }
 
     public Collection<URI> getReplacingAnnotations() {
@@ -102,7 +108,5 @@ public class AnnotationRequest implements Annotation {
         setReplacingAnnotations(Arrays.asList(replaces));
     }
 
-    @Override public URI getURI() {
-        return null;
-    }
+
 }
