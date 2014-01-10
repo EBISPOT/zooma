@@ -176,7 +176,7 @@ public class RepositoryConnectionTester extends TestCase {
             log.info("pulling out all annotations from zooma");
 
             long start = System.currentTimeMillis();
-            for (Annotation annotation : annotationBean.read(100, 30000)) {
+            for (Annotation annotation : annotationBean.read(25, 100)) {
                 System.out.println("annotation:  " + annotation.toString());
             }
             long end = System.currentTimeMillis();

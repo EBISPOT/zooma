@@ -7,11 +7,13 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
+import org.apache.http.params.HttpProtocolParams;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.lode.exception.LodeException;
@@ -211,8 +213,14 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             q1.setLimit(size);
         }
         if (start > -1) {
-            q1.setOffset(start);
-            q1.addOrderBy(underscore + QueryVariables.ANNOTATION_ID.toString(), Query.ORDER_DEFAULT);
+
+            List<Annotation> annos = new ArrayList<Annotation>();
+            for (URI uri : getAllAnnotationURIs(size, start)) {
+                 annos.add(read(uri));
+            }
+            return annos;
+//            q1.setOffset(start);
+//            q1.addOrderBy(underscore + QueryVariables.ANNOTATION_ID.toString(), Query.ORDER_DEFAULT);
         }
         QueryExecution execute = null;
         try {
@@ -453,7 +461,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         while (result.hasNext()) {
             QuerySolution solution = result.nextSolution();
             Annotation a = getAnnotationFromBindingSet(annotationMap, solution);
-            annotationMap.put(a.getURI(), a);
+            if (a != null) {
+                annotationMap.put(a.getURI(), a);
+            }
         }
 
         List<Annotation> annotationList = new ArrayList<>();
@@ -483,6 +493,12 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         Resource semanticTag = solution.getResource(underscore + QueryVariables.SEMANTIC_TAG.toString());
         Resource database = solution.getResource(QueryVariables.DATABASEID.toString());
         Resource sourceType = solution.getResource(QueryVariables.SOURCETYPE.toString());
+
+        // bit of an optimisation hack to avoid slow SPARQL filters, we never want the source type to be an OWLIndividual, so return null at this point
+        if (sourceType.getURI().equals(OWLRDFVocabulary.OWL_NAMED_INDIVIDUAL.getIRI().toString())) { return null; }
+
+        Resource replaces = solution.getResource(QueryVariables.REPLACES.toString());
+        Resource replacedBy = solution.getResource(QueryVariables.REPLACEDBY.toString());
         Literal sourceName = solution.getLiteral(QueryVariables.SOURCENAME.toString());
         Resource evidence = solution.getResource(QueryVariables.EVIDENCE.toString());
         Literal generator = solution.getLiteral(QueryVariables.GENERATOR.toString());
@@ -638,6 +654,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                         source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
                                 sourceName.getLexicalForm());
                     }
+
                 }
 
                 if (source == null) {
@@ -657,6 +674,17 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             Annotation newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov, ontoUri);
             annotationMap.put(newAnno.getURI(), newAnno);
         }
+
+        // set replaces and replaced
+        if (replaces != null) {
+            URI replacesUri = URI.create(replaces.getURI());
+            annotationMap.get(annotationUri).replaces().add(replacesUri);
+        }
+        if (replacedBy != null) {
+            URI replacedByUri = URI.create(replacedBy.getURI());
+            annotationMap.get(annotationUri).replacedBy().add(replacedByUri);
+        }
+
         return annotationMap.get(annotationUri);
 
     }

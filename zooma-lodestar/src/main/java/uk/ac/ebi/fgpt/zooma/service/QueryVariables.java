@@ -30,6 +30,8 @@ public enum QueryVariables {
     EVIDENCE("evidence"),
     RESOURCE("resource"),
     RESOURCE_TYPE("resourceType"),
+    REPLACES("replaces"),
+    REPLACEDBY("replacedBy"),
     KEYWORD ("keyword");
 
     private final String variable;
