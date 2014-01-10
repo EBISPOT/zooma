@@ -356,11 +356,11 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         QuerySolutionMap initialBinding = new QuerySolutionMap();
         initialBinding.add(QueryVariables.BIOLOGICAL_ENTITY.toString(),
                 new ResourceImpl(biologicalEntity.getURI().toString()));
-        ParameterizedSparqlString queryString = new ParameterizedSparqlString(q1.toString(), initialBinding);
+//        ParameterizedSparqlString queryString = new ParameterizedSparqlString(q1.toString(), initialBinding);
 
         QueryExecution execute = null;
         try {
-            execute = getQueryService().getQueryExecution(g, queryString.asQuery(), false);
+            execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
         }

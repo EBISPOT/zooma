@@ -139,6 +139,36 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    public void testSparqlAnnotationDao2b() {
+
+        if (hasConnection) {
+
+            log.info("pulling out one annotation from zooma checking biological entities read");
+
+            Annotation anno = annotationBean.read(URI.create(
+                    "http://rdf.ebi.ac.uk/resource/zooma/gxa/0135D61B37A07603F707BC14A0EAF539"));
+            assertTrue(anno.getURI() != null);
+            log.info("got annotation with URI: " + anno.getURI().toString());
+            printAnotation(anno);
+
+
+            log.info("Getting biological entities");
+            for (BiologicalEntity be : anno.getAnnotatedBiologicalEntities()) {
+                printBiologicalEntity(be);
+
+                // check we can retrieve this annotation by biological entity
+                boolean contains = false;
+                for (Annotation ba : annotationBean.readByBiologicalEntity(be)) {
+                    if (ba.getURI().equals(URI.create("http://rdf.ebi.ac.uk/resource/zooma/gxa/0135D61B37A07603F707BC14A0EAF539"))) {
+                        contains = true;
+                    }
+                }
+                assertTrue(contains);
+
+            }
+        }
+    }
+
     public void testSparqlAnnotationDao3() {
 
         if (hasConnection) {
