@@ -76,7 +76,7 @@
         <property name="analyzer" ref="analyzer" />
         <property name="similarity" ref="similarity" />
         <property name="index" ref="annotationSummaryIndex" />
-        <property name="annotationIndex" ref="annotationIndex" />
+        <property name="annotationDAO" ref="lodeAnnotationDAO" />
     </bean>
 
     <!--
@@ -91,7 +91,7 @@
         <property name="analyzer" ref="analyzer" />
         <property name="similarity" ref="similarity" />
         <property name="index" ref="annotationSummaryIndex" />
-        <property name="annotationIndex" ref="annotationIndex" />
+        <property name="annotationDAO" ref="lodeAnnotationDAO" />
         <property name="searchStringProcessorProvider" ref="searchStringProcessorProvider" />
     </bean>
 

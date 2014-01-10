@@ -4,6 +4,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
+import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
@@ -24,15 +25,15 @@ import java.util.Set;
  */
 public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
         implements AnnotationSummaryService {
-    private Directory annotationIndex;
+    private AnnotationDAO annotationDAO;
     private AnnotationSummaryMapper mapper;
 
-    public void setAnnotationIndex(Directory annotationIndex) {
-        this.annotationIndex = annotationIndex;
+    public AnnotationDAO getAnnotationDAO() {
+        return annotationDAO;
     }
 
-    public Directory getAnnotationIndex() {
-        return annotationIndex;
+    public void setAnnotationDAO(AnnotationDAO annotationDAO) {
+        this.annotationDAO = annotationDAO;
     }
 
     public AnnotationSummaryMapper getMapper() {
@@ -41,10 +42,8 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
 
     @Override protected void doInitialization() throws IOException {
         super.doInitialization();
-        IndexReader annotationReader = IndexReader.open(getAnnotationIndex());
-        int numAnnotations = annotationReader.numDocs();
+        int numAnnotations = getAnnotationDAO().count();
         int numSummaries = getReader().numDocs();
-        annotationReader.close();
         getLog().debug("Total number of annotations in zooma: " + numAnnotations);
         getLog().debug("Total number of summaries in zooma: " + numSummaries);
         AnnotationSummaryMapper preMapper = new AnnotationSummaryMapper(numAnnotations, numSummaries);
@@ -72,7 +71,7 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
             initOrWait();
 
             Collection<AnnotationSummary> results = new ArrayList<>();
-            IndexReader reader = IndexReader.open(getAnnotationIndex());
+            IndexReader reader = IndexReader.open(getIndex());
             for (int i = start; i < limit && i < reader.maxDoc(); i++) {
                 if (reader.isDeleted(i)) {
                     continue;
