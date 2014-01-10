@@ -1,8 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
-import sun.plugin.liveconnect.SecurityContextHelper;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.AnnotationFactory;
+import uk.ac.ebi.fgpt.zooma.datasource.TransactionalAnnotationFactory;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
@@ -31,7 +30,7 @@ import java.util.Date;
 public class DAOBasedAnnotationService extends AbstractShortnameResolver implements AnnotationService {
     private AnnotationDAO annotationDAO;
 
-    private AnnotationFactory annotationFactory;
+    private TransactionalAnnotationFactory annotationFactory;
 
     public AnnotationDAO getAnnotationDAO() {
         return annotationDAO;
@@ -41,11 +40,11 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
         this.annotationDAO = annotationDAO;
     }
 
-    public AnnotationFactory getAnnotationFactory() {
+    public TransactionalAnnotationFactory getAnnotationFactory() {
         return annotationFactory;
     }
 
-    public void setAnnotationFactory(AnnotationFactory annotationFactory) {
+    public void setAnnotationFactory(TransactionalAnnotationFactory annotationFactory) {
         this.annotationFactory = annotationFactory;
     }
 
@@ -85,17 +84,26 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
         return getAnnotationDAO().read(uri);
     }
 
-    @Override public Annotation saveAnnotation(Annotation annotation) {
-        if (annotation.getURI() != null && getAnnotationDAO().read(annotation.getURI()) != null) {
-            getAnnotationDAO().update(annotation);
+    @Override public Annotation saveAnnotation(Annotation annotation) throws ZoomaUpdateException {
+        try {
+            getAnnotationFactory().acquire(annotation.getProvenance().getSource());
+            if (annotation.getURI() != null && getAnnotationDAO().read(annotation.getURI()) != null) {
+                getAnnotationDAO().update(annotation);
+            }
+            else {
+                getAnnotationDAO().create(mintNewAnnotationFromRequest(annotation));
+            }
+            return annotation;
         }
-        else {
-            getAnnotationDAO().create(mintNewAnnotationFromRequest(annotation));
+        catch (InterruptedException e) {
+            throw new ZoomaUpdateException("Save operation was interrupted", e);
         }
-        return annotation;
+        finally {
+            getAnnotationFactory().release();
+        }
     }
 
-    public Annotation updateAnnotation(Annotation oldAnnotation, Annotation newAnnotation) {
+    public Annotation updateAnnotation(Annotation oldAnnotation, Annotation newAnnotation) throws ZoomaUpdateException {
         // save the newAnnotation (if it doesn't already exist)
         newAnnotation = saveAnnotation(newAnnotation);
 
@@ -110,7 +118,8 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
         getAnnotationDAO().delete(annotation);
     }
 
-    @Override public void replacePropertyForAnnotation(Annotation annotation, Property newProperty) {
+    @Override public void replacePropertyForAnnotation(Annotation annotation, Property newProperty)
+            throws ZoomaUpdateException {
         // get the list of old semantic tags
         Collection<URI> semanticTags = annotation.getSemanticTags();
 
@@ -186,7 +195,8 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                                     propertyURI,
                                     null,
                                     semanticTag,
-                                    request.getProvenance().getAnnotator(), // todo - obtain annotator from security context?
+                                    request.getProvenance().getAnnotator(),
+                                    // todo - obtain annotator from security context?
                                     new Date());
                         }
                     }
