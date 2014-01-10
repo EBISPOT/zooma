@@ -87,13 +87,27 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
     @Override public Annotation saveAnnotation(Annotation annotation) throws ZoomaUpdateException {
         try {
             getAnnotationFactory().acquire(annotation.getProvenance().getSource());
-            if (annotation.getURI() != null && getAnnotationDAO().read(annotation.getURI()) != null) {
-                getAnnotationDAO().update(annotation);
+            Annotation newAnnotation = mintNewAnnotationFromRequest(annotation);
+            if (!annotation.replaces().isEmpty()) {
+                for (URI replacedAnnotationURI : annotation.replaces()) {
+                    Annotation replacedAnnotation = getAnnotationDAO().read(replacedAnnotationURI);
+                    if (replacedAnnotation == null) {
+                        throw new ZoomaUpdateException("New annotation replaces an annotation that does not exist");
+                    }
+                    else {
+                        if (replacedAnnotation.replacedBy().isEmpty()) {
+                            replacedAnnotation.setReplacedBy(newAnnotation.getURI());
+                        }
+                        else {
+                            replacedAnnotation.replacedBy().add(newAnnotation.getURI());
+                        }
+                        newAnnotation.setReplaces(replacedAnnotation.getURI());
+                    }
+                    getAnnotationDAO().update(replacedAnnotation);
+                }
             }
-            else {
-                getAnnotationDAO().create(mintNewAnnotationFromRequest(annotation));
-            }
-            return annotation;
+            getAnnotationDAO().create(newAnnotation);
+            return newAnnotation;
         }
         catch (InterruptedException e) {
             throw new ZoomaUpdateException("Save operation was interrupted", e);
