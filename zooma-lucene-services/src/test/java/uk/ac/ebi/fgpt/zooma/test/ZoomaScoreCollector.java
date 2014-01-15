@@ -52,12 +52,12 @@ public class ZoomaScoreCollector extends LuceneAnnotationSummarySearchService {
             collector.setAnalyzer(analyzer);
             collector.setSimilarity(similarity);
 
-            Directory annotationIndex =
-                    new NIOFSDirectory(new File(System.getProperty("zooma.home") + File.separator + "annotation"));
+//            Directory annotationIndex =
+//                    new NIOFSDirectory(new File(System.getProperty("zooma.home") + File.separator + "annotation"));
             Directory annotationSummaryIndex = new NIOFSDirectory(new File(
                     System.getProperty("zooma.home") + File.separator + "annotation_summary"));
 
-            collector.setAnnotationIndex(annotationIndex);
+//            collector.setAnnotationIndex(annotationIndex); // todo - fix to use AnnotationDAO
             collector.setIndex(annotationSummaryIndex);
 
             if (args.length > 0) {

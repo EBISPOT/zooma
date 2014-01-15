@@ -115,6 +115,32 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         this.annotationSummaryScorer = annotationSummaryScorer;
     }
 
+    public Collection<AnnotationSummary> fetch() {
+        return fetch(100, 0);
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public @ResponseBody Collection<AnnotationSummary> fetch(
+            @RequestParam(value = "limit", required = false) Integer limit,
+            @RequestParam(value = "start", required = false) Integer start) {
+        if (start == null) {
+            if (limit == null) {
+                return getAnnotationSummaryService().getAnnotationSummaries(100, 0);
+            }
+            else {
+                return getAnnotationSummaryService().getAnnotationSummaries(limit, 0);
+            }
+        }
+        else {
+            if (limit == null) {
+                return getAnnotationSummaryService().getAnnotationSummaries(100, start);
+            }
+            else {
+                return getAnnotationSummaryService().getAnnotationSummaries(limit, start);
+            }
+        }
+    }
+
     public Collection<AnnotationSummary> queryBySemanticTags(String... semanticTagShortnames) {
         return getAnnotationSummarySearchService().searchBySemanticTags(semanticTagShortnames);
     }

@@ -122,7 +122,7 @@ public class OWLAPIAnnotationSerializer extends OWLAPIZoomaSerializer<Annotation
             }
         }
 
-        for (URI replaces : annotation.replaces()) {
+        for (URI replaces : annotation.getReplaces()) {
             // convert replaces annotation
             OWLIndividual replacesIndividual = convertAnnotationByURI(replaces, ontology);
 
@@ -130,7 +130,7 @@ public class OWLAPIAnnotationSerializer extends OWLAPIZoomaSerializer<Annotation
             assertAnnotationReplaces(annotationIndividual, replacesIndividual, ontology);
         }
 
-        for (URI replacedBy : annotation.replacedBy()) {
+        for (URI replacedBy : annotation.getReplacedBy()) {
             // convert replaced by annotation
             OWLIndividual replacedByIndividual = convertAnnotationByURI(replacedBy, ontology);
 

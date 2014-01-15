@@ -1,12 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.query.*;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Resource;
 import org.slf4j.Logger;
@@ -20,6 +15,9 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
+import virtuoso.jena.driver.VirtGraph;
+import virtuoso.jena.driver.VirtuosoQueryExecution;
+import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -81,11 +79,10 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
         getLog().debug("Reading all annotation summaries");
         String query = getQueryManager().getSparqlQuery("AnnotationSummaries.read");
         Graph g = getQueryService().getDefaultGraph();
-        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
 
         QueryExecution execute = null;
         try {
-            execute = getQueryService().getQueryExecution(g, q1, false);
+            execute = getQueryService().getQueryExecution(g, query, new QuerySolutionMap(), false);
             ResultSet results = execute.execSelect();
             return calculateSummaries(results);
         }
@@ -124,6 +121,11 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
             String propertyType = propertyTypeLiteral.getLexicalForm();
             String propertyValue = propertyValueLiteral.getLexicalForm();
 
+            Resource oldAnnotationID = solution.getResource(QueryVariables.PREV_ANNOTATION_ID.toString());
+            Resource oldPropertyID = solution.getResource(QueryVariables.PREV_PROPERTY_ID.toString());
+            Literal oldPropertyTypeLiteral = solution.getLiteral(QueryVariables.PREV_PROPERTY_NAME.toString());
+            Literal oldPropertyValueLiteral = solution.getLiteral(QueryVariables.PREV_PROPERTY_VALUE.toString());
+
             Resource semanticTagResource = solution.getResource(QueryVariables.SEMANTIC_TAG.toString());
             String semanticTag = semanticTagResource.getURI();
 
@@ -136,6 +138,22 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
             if (!annotationToSemanticTagsMap.containsKey(annotationURI)) {
                 annotationToSemanticTagsMap.put(annotationURI, new HashSet<String>());
             }
+
+            // handle previous terms that have mapped to this semantic tag
+            if (oldPropertyID != null) {
+                if (!annotationToPropertyMap.containsKey(oldAnnotationID.getURI())) {
+                    annotationToPropertyMap.put(oldAnnotationID.getURI(), oldPropertyID.getURI());
+                }
+                if (!propertyToLiteralsMap.containsKey(oldPropertyID.getURI())) {
+                    propertyToLiteralsMap.put(oldPropertyID.getURI(), new String[]{oldPropertyTypeLiteral.getLexicalForm(), oldPropertyValueLiteral.getLexicalForm()});
+                }
+                if (!annotationToSemanticTagsMap.containsKey(oldAnnotationID.getURI())) {
+                    annotationToSemanticTagsMap.put(oldAnnotationID.getURI(), new HashSet<String>());
+                }
+                annotationToSemanticTagsMap.get(oldAnnotationID.getURI()).add(semanticTag);
+
+            }
+
             annotationToSemanticTagsMap.get(annotationURI).add(semanticTag);
         }
 

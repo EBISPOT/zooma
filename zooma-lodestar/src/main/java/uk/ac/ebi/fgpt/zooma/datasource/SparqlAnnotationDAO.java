@@ -7,7 +7,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
-import org.apache.http.params.HttpProtocolParams;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -40,6 +39,7 @@ import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
 import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
+import virtuoso.jena.driver.VirtDataSetGraph;
 
 import java.io.IOException;
 import java.io.PipedInputStream;
@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -127,9 +126,10 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Graph g = getQueryService().getDefaultGraph();
+
+                    Graph g = getQueryService().getNamedGraph("http://rdf.ebi.ac.uk/dataset/zooma");
                     Model m = ModelFactory.createModelForGraph(g);
-                    m.read(pis, "http://www.ebi.ac.uk/fgpt/zooma/create");
+                    m.read(pis, "http://rdf.ebi.ac.uk/dataset/zooma");
                     m.close();
                     g.close();
                 }
@@ -152,9 +152,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                     "Can't update annotation with URI " + annotation.getURI() + " no such annotation exists");
         }
 
-        Graph g = getQueryService().getDefaultGraph();
-        Model m = ModelFactory.createModelForGraph(g);
-        m.remove(new ResourceImpl(annotation.getURI().toString()), null, null);
+//        Graph g = getQueryService().getDefaultGraph();
+//        Model m = ModelFactory.createModelForGraph(g);
+//        m.removeAll(new ResourceImpl(annotation.getURI().toString()), null, null);
 
         try {
             final PipedInputStream pis = new PipedInputStream();
@@ -163,9 +163,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Graph g = getQueryService().getDefaultGraph();
+                    Graph g = getQueryService().getNamedGraph("http://rdf.ebi.ac.uk/dataset/zooma");
                     Model m = ModelFactory.createModelForGraph(g);
-                    m.read(pis, "http://www.ebi.ac.uk/fgpt/zooma/update");
+                    m.read(pis, "http://rdf.ebi.ac.uk/dataset/zooma");
                     m.close();
                     g.close();
                 }
@@ -189,11 +189,10 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         }
 
         getLog().debug("Triggered annotation delete request...\n\n" + annotation.toString());
-        Graph g = getQueryService().getDefaultGraph();
+        Graph g = getQueryService().getNamedGraph("http://rdf.ebi.ac.uk/dataset/zooma");
         Model m = ModelFactory.createModelForGraph(g);
         m.removeAll(new ResourceImpl(annotation.getURI().toString()), null, null);
         m.close();
-        g.close();
     }
 
     @Override public Collection<Annotation> read() {
@@ -512,13 +511,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             beUri = URI.create(beIdValue.getURI());
         }
         URI pvUri = URI.create(propertyValueIdValue.getURI());
-        URI ontoUri;
+        URI ontoUri = null;
         if (semanticTag != null) {
             ontoUri = URI.create(semanticTag.getURI());
-        }
-        else {
-            ontoUri = null;
-            getLog().debug("Missing semantic tag for annotation <" + annotationUri.toString() + ">");
         }
 
         // get biological entities
@@ -671,18 +666,24 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                         annotatedDate != null ? annotatedDate.toDate() : null);
 
             }
-            Annotation newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov, ontoUri);
+            Annotation newAnno = null;
+            if (ontoUri == null) {
+              newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov);
+            }
+            else {
+                newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov, ontoUri);
+            }
             annotationMap.put(newAnno.getURI(), newAnno);
         }
 
-        // set replaces and replaced
+        // set getReplaces and replaced
         if (replaces != null) {
             URI replacesUri = URI.create(replaces.getURI());
-            annotationMap.get(annotationUri).replaces().add(replacesUri);
+            annotationMap.get(annotationUri).getReplaces().add(replacesUri);
         }
         if (replacedBy != null) {
             URI replacedByUri = URI.create(replacedBy.getURI());
-            annotationMap.get(annotationUri).replacedBy().add(replacedByUri);
+            annotationMap.get(annotationUri).getReplacedBy().add(replacedByUri);
         }
 
         return annotationMap.get(annotationUri);

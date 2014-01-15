@@ -6,8 +6,9 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
     ?propertyvalueid zoomaterms:propertyName ?propertyname .
     ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
     ?propertyvalueid rdf:type zoomaterms:Property .
+
+    OPTIONAL {?annotationid zoomaterms:replaces ?replaces }
     OPTIONAL {?annotationid zoomaterms:isReplacedBy ?replacedBy }
-    OPTIONAL {?replaces zoomaterms:replaces ?annotationid }
 
     OPTIONAL {
         ?annotationid oac:hasTarget ?bioentityid .
@@ -63,10 +64,9 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
     ?propertyvalueid zoomaterms:propertyName ?propertyname .
     ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
     ?propertyvalueid a zoomaterms:Property .
-    OPTIONAL {?annotationid zoomaterms:isReplacedBy ?replacedBy }
-    OPTIONAL {?replaces zoomaterms:replaces ?annotationid }
 
     ?annotationid oac:hasTarget ?bioentityid .
+
     ?bioentityid dc:isPartOf ?study .
     ?bioentityid dc:isPartOf ?studyid .
 
@@ -87,6 +87,9 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
     ?databaseid a ?sourcetype .
     ?databaseid zoomaterms:shortName ?sourcename .
 
+    OPTIONAL {?annotationid zoomaterms:replaces ?replaces }
+    OPTIONAL {?annotationid zoomaterms:isReplacedBy ?replacedBy }
+
     OPTIONAL {?annotationid zoomaterms:hasEvidence ?evidence}
     OPTIONAL {?annotationid oac:annotator ?annotator}
     OPTIONAL {?annotationid oac:annotated ?annotated}
@@ -104,8 +107,8 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentity as ?_bioentityid) 
     ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
     ?propertyvalueid a zoomaterms:Property .
 
+    OPTIONAL {?annotationid zoomaterms:replaces ?replaces }
     OPTIONAL {?annotationid zoomaterms:isReplacedBy ?replacedBy }
-    OPTIONAL {?replaces zoomaterms:replaces ?annotationid }
 
     ?annotationid oac:hasTarget ?bioentityid .
     ?annotationid oac:hasTarget ?bioentity .
@@ -286,7 +289,7 @@ SELECT DISTINCT ?annotationid WHERE {
 }
 
 ^[AnnotationSummaries.read]
-SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?semantictag ?oldPropertyname ?oldPropertyvalue WHERE {
+SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?semantictag ?oldAnnotationid ?oldPropertyvalueid ?oldPropertyname ?oldPropertyvalue WHERE {
      ?annotationid a oac:DataAnnotation .
      ?annotationid oac:hasBody ?propertyvalueid .
      OPTIONAL {?propertyvalueid zoomaterms:propertyName ?propertyname }
@@ -296,8 +299,8 @@ SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?sem
      ?semantictag rdf:type oac:SemanticTag
 
    	 OPTIONAL {
-        ?annotationid zoomaterms:replaces* ?oldAnnotationId .
-		?oldAnnotationId oac:hasBody ?oldPropertyvalueid .
+        ?annotationid zoomaterms:replaces ?oldAnnotationid option (transitive).
+		?oldAnnotationid oac:hasBody ?oldPropertyvalueid .
 
      	OPTIONAL {?oldPropertyvalueid zoomaterms:propertyName ?oldPropertyname }
      	?oldPropertyvalueid zoomaterms:propertyValue ?oldPropertyvalue .

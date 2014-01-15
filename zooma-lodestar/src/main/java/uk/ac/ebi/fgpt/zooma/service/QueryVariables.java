@@ -32,6 +32,10 @@ public enum QueryVariables {
     RESOURCE_TYPE("resourceType"),
     REPLACES("replaces"),
     REPLACEDBY("replacedBy"),
+    PREV_ANNOTATION_ID("oldAnnotationid"),
+    PREV_PROPERTY_ID("oldPropertyvalueid"),
+    PREV_PROPERTY_NAME("oldPropertyname"),
+    PREV_PROPERTY_VALUE("oldPropertyvalue"),
     KEYWORD ("keyword");
 
     private final String variable;

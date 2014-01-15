@@ -21,6 +21,7 @@ import uk.ac.ebi.fgpt.zooma.view.SearchResponse;
 import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -104,7 +105,7 @@ public class ZoomaAnnotationSearcher extends IdentifiableSuggestEndpoint<Annotat
     }
 
     public Collection<Annotation> fetch() {
-        return fetch(100, 0, null, null, null);
+        return fetch(100, 0, null, null, null, false);
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -112,37 +113,66 @@ public class ZoomaAnnotationSearcher extends IdentifiableSuggestEndpoint<Annotat
                                                       @RequestParam(value = "start", required = false) Integer start,
                                                       @RequestParam(value = "targetSourceUri", required = false) String targetSourceUri,
                                                       @RequestParam(value = "targetUri", required = false) String targetUri,
-                                                      @RequestParam(value = "semanticTagUri", required = false) String semanticTagUri
-                                                      ) {
+                                                      @RequestParam(value = "semanticTagUri", required = false) String semanticTagUri,
+                                                      @RequestParam(value = "latestOnly", required = false, defaultValue = "false") boolean latest
+    ) {
 
         if (targetSourceUri != null) {
-            return getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(targetSourceUri), null));
+            return latest ?
+                    getLatestAnnotations(getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(targetSourceUri), null)))
+                    : getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(targetSourceUri), null));
         }
         if (targetUri != null) {
-            return getAnnotationService().getAnnotationsByBiologicalEntity(new SimpleBiologicalEntity(URI.create(targetUri), null));
+            return latest ?
+                    getLatestAnnotations(getAnnotationService().getAnnotationsByBiologicalEntity(new SimpleBiologicalEntity(URI.create(targetUri), null)))
+                    : getAnnotationService().getAnnotationsByBiologicalEntity(new SimpleBiologicalEntity(URI.create(targetUri), null));
         }
         if (semanticTagUri != null) {
-            return getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri));
+            return latest ?
+                    getLatestAnnotations(getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri)))
+                    : getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri));
         }
 
         if (start == null) {
             if (limit == null) {
-                return getAnnotationService().getAnnotations(100, 0);
+                return latest ?
+                        getLatestAnnotations(getAnnotationService().getAnnotations(100, 0))
+                        : getAnnotationService().getAnnotations(100, 0);
             }
             else {
-                return getAnnotationService().getAnnotations(limit, 0);
+                return latest ?
+                        getLatestAnnotations(getAnnotationService().getAnnotations(limit, 0))
+                        : getAnnotationService().getAnnotations(limit, 0);
             }
         }
         else {
             if (limit == null) {
-                return getAnnotationService().getAnnotations(100, start);
+                return latest ?
+                        getLatestAnnotations(getAnnotationService().getAnnotations(100, start))
+                        : getAnnotationService().getAnnotations(100, start);
             }
             else {
-                return getAnnotationService().getAnnotations(limit, start);
+                return latest ?
+                        getLatestAnnotations(getAnnotationService().getAnnotations(limit, start))
+                        : getAnnotationService().getAnnotations(limit, start);
             }
         }
     }
 
+    /**
+     * Annotation is considered to be the latest if it is not replaced by any other annotations
+     * @param annotations collection of annotations to filter
+     * @return list of latest annotations
+     */
+    private Collection<Annotation> getLatestAnnotations(Collection<Annotation> annotations) {
+        List<Annotation> filtered = new ArrayList<Annotation>();
+        for (Annotation a : annotations) {
+            if (a.getReplacedBy().isEmpty()) {
+                filtered.add(a);
+            }
+        }
+        return filtered;
+    }
     /**
      * Retrieves an annotation with the given URI.
      *

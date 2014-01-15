@@ -175,11 +175,11 @@
             </properties>
 
             <dependencies>
-                <dependency>
-                    <groupId>uk.ac.ebi.fgpt</groupId>
-                    <artifactId>zooma-omim-loader</artifactId>
-                    <version>2.0-SNAPSHOT</version>
-                </dependency>
+                <!--<dependency>-->
+                    <!--<groupId>uk.ac.ebi.fgpt</groupId>-->
+                    <!--<artifactId>zooma-omim-loader</artifactId>-->
+                    <!--<version>2.0-SNAPSHOT</version>-->
+                <!--</dependency>-->
                 <!--<dependency>-->
                     <!--<groupId>uk.ac.ebi.fgpt</groupId>-->
                     <!--<artifactId>zooma-atlas-loader</artifactId>-->

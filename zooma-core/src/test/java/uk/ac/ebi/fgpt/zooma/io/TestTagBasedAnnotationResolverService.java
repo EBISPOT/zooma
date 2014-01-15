@@ -214,12 +214,12 @@ public class TestTagBasedAnnotationResolverService {
                                    "\n\tResult:  \t" + result.toString() +
                                    "\n\tOriginal:\t" + updatedAnnotation.toString());
             assertTrue("Result is not replaced by updatedAnnotation",
-                       result.replaces().contains(resolvableAnnotation.getURI()));
+                       result.getReplaces().contains(resolvableAnnotation.getURI()));
 
             // if annotation doesn't exist but is a modified version of an old one, we should get back our original annotation, but linked to an old one
             result = resolver.resolve(modifiedAnnotation);
             assertTrue("No relation between result and resolvableAnnotation",
-                       result.replaces().contains(resolvableAnnotation.getURI()));
+                       result.getReplaces().contains(resolvableAnnotation.getURI()));
         }
         catch (Exception e) {
             e.printStackTrace();

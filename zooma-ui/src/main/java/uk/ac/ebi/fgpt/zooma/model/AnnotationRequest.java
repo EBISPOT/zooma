@@ -25,8 +25,8 @@ public class AnnotationRequest implements Annotation {
     private Collection<BiologicalEntity> annotatedBiologicalEntities = Collections.emptySet();
     private Property annotatedProperty;
     private Collection<URI> semanticTags = Collections.emptySet();
-    private Collection<URI> replacingAnnotations = Collections.emptySet();
-    private Collection<URI> replacedAnnotations = Collections.emptySet();
+    private Collection<URI> replaces = Collections.emptySet();
+    private Collection<URI> replacedBy = Collections.emptySet();
     private AnnotationProvenance provenance;
     private URI uri;
 
@@ -40,21 +40,21 @@ public class AnnotationRequest implements Annotation {
         return uri;
     }
 
-    public Collection<URI> getReplacingAnnotations() {
-        return replacingAnnotations;
+    public Collection<URI> getReplaces() {
+        return replaces;
     }
 
-    public void setReplacingAnnotations(Collection<URI> replacingAnnotations) {
-        this.replacingAnnotations = replacingAnnotations;
+//    public void setReplaces(Collection<URI> replaces) {
+//        this.replaces = replaces;
+//    }
+
+    public Collection<URI> getReplacedBy() {
+        return replacedBy;
     }
 
-    public Collection<URI> getReplacedAnnotations() {
-        return replacedAnnotations;
-    }
-
-    public void setReplacedAnnotations(Collection<URI> replacedAnnotations) {
-        this.replacedAnnotations = replacedAnnotations;
-    }
+//    public void setReplacedBy(Collection<URI> replacedBy) {
+//        this.replacedBy = replacedBy;
+//    }
 
     // getters and setters that fit the interface
 
@@ -90,22 +90,12 @@ public class AnnotationRequest implements Annotation {
         this.provenance = provenance;
     }
 
-    // compatibility wrappers, delegate to "proper" getters and setters
-
-    @Override public Collection<URI> replacedBy() {
-        return getReplacedAnnotations();
-    }
-
     @Override public void setReplacedBy(URI... replacedBy) {
-        setReplacedAnnotations(Arrays.asList(replacedBy));
-    }
-
-    @Override public Collection<URI> replaces() {
-        return getReplacingAnnotations();
+        this.replacedBy = Arrays.asList(replacedBy);
     }
 
     @Override public void setReplaces(URI... replaces) {
-        setReplacingAnnotations(Arrays.asList(replaces));
+        this.replaces = Arrays.asList(replaces);
     }
 
 

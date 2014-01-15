@@ -66,18 +66,22 @@ public class ZoomaAnnotationEditor {
     @RequestMapping(value = "/{shortAnnotationURI}", method = RequestMethod.PUT)
     public @ResponseBody String replaceAnnotation(@PathVariable String shortAnnotationURI,
                                                   @RequestBody Annotation newAnnotation) throws ZoomaUpdateException {
-        URI annotationURI = URIUtils.getURI(shortAnnotationURI);
-        Annotation oldAnnotation = getAnnotationService().getAnnotation(annotationURI);
 
-        // search for all instances of properties matching "oldAnnotationValue" - (so e.g. "cancer")
-        if (oldAnnotation != null) {
-            getAnnotationService().updateAnnotation(oldAnnotation, newAnnotation);
-            return "Successfully updated annotation '" + annotationURI + "'";
-        }
-        else {
-            throw new IllegalArgumentException(
-                    "Failed to update annotation: No annotation found with URI '" + annotationURI + "'.");
-        }
+        throw new UnsupportedOperationException("This operation is not supported.");
+
+        // todo - need to think about what is supported for this operation
+//        URI annotationURI = URIUtils.getURI(shortAnnotationURI);
+//        Annotation oldAnnotation = getAnnotationService().getAnnotation(annotationURI);
+//
+//        // search for all instances of properties matching "oldAnnotationValue" - (so e.g. "cancer")
+//        if (oldAnnotation != null) {
+//            getAnnotationService().updateAnnotation(oldAnnotation, newAnnotation);
+//            return "Successfully updated annotation '" + annotationURI + "'";
+//        }
+//        else {
+//            throw new IllegalArgumentException(
+//                    "Failed to update annotation: No annotation found with URI '" + annotationURI + "'.");
+//        }
     }
 
     @RequestMapping(value = "/{shortAnnotationURI}", method = RequestMethod.DELETE)

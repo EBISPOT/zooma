@@ -177,6 +177,7 @@ public class TestZoomaLuceneIndexer {
             verifiedAnnotations.add(anno4);
             verifiedAnnotations.add(anno5);
             when(verifiedAnnotationDAO.read()).thenReturn(verifiedAnnotations);
+            when(verifiedAnnotationDAO.count()).thenReturn(4);
 
             verifiedProvenanceMap = new HashMap<>();
             verifiedProvenanceMap.put(anno1.getURI(), prov1);
@@ -314,7 +315,6 @@ public class TestZoomaLuceneIndexer {
 
         // reopen indexed directories
         try {
-            annotationDir = new NIOFSDirectory(annotationIndexPath.toFile());
             summaryDir = new NIOFSDirectory(summaryIndexPath.toFile());
         }
         catch (IOException e) {
@@ -326,7 +326,7 @@ public class TestZoomaLuceneIndexer {
         LuceneAnnotationSummarySearchService searchService = new LuceneAnnotationSummarySearchService();
         searchService.setAnalyzer(analyzer);
         searchService.setIndex(summaryDir);
-        searchService.setAnnotationIndex(annotationDir);
+        searchService.setAnnotationDAO(verifiedAnnotationDAO);
         searchService.init();
 
         // do test query to verify results are valid

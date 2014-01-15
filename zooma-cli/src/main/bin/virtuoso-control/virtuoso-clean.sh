@@ -28,7 +28,7 @@ while getopts "r:d:h" opt; do
 done
 
     if [ ! $VIRTUOSO_HOME ] ; then
-        echo "VIRTUOSO_HOME variable not set"
+        echo "VIRTUOSO_HOME variable not set, set it to where virtuoso is installed"
         exit 1
     fi
     if [ ! -f $VIRTUOSO_HOME/bin/isql ] ; then

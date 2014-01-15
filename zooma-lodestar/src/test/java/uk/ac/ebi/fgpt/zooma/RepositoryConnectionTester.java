@@ -121,7 +121,7 @@ public class RepositoryConnectionTester extends TestCase {
             log.info("pulling out one annotation from zooma");
 
             Annotation anno = annotationBean.read(URI.create(
-                    "http://rdf.ebi.ac.uk/resource/zooma/gxa/0135D61B37A07603F707BC14A0EAF539"));
+                    "http://rdf.ebi.ac.uk/resource/zooma/sysmicro/340066072AF7666080DC96A1DBF2DF73"));
             assertTrue(anno.getURI() != null);
             log.info("got annotation with URI: " + anno.getURI().toString());
             printAnotation(anno);
@@ -194,7 +194,8 @@ public class RepositoryConnectionTester extends TestCase {
             log.info("pulling out all annotations summaries from zooma");
 
             for (AnnotationSummary summary : annotationSummaryBean.read()) {
-                if (summary.getAnnotationURIs().size() > 1) {
+                if (summary.getAnnotatedPropertyType().contains("phenotype")) {
+
                     System.out.println(summary.toString());
                 }
             }
@@ -228,7 +229,7 @@ public class RepositoryConnectionTester extends TestCase {
             log.info("pulling out annotations by study");
 
             long start = System.currentTimeMillis();
-            Collection<Annotation> annos = annotationBean.readByStudy(new SimpleStudy(URI.create("http://europepmc.org/abstract/MED/20139978"), null));
+            Collection<Annotation> annos = annotationBean.readByStudy(new SimpleStudy(URI.create("http://rdf.ebi.ac.uk/resource/zooma/sysmicro/C1_SyM"), null));
             System.out.println("Study annos size: " + annos.size());
             for (Annotation annotation : annos) {
                 System.out.println("annotation:  " + annotation.toString());
@@ -299,6 +300,18 @@ public class RepositoryConnectionTester extends TestCase {
 
             annotationBean.delete(newanno);
         }
+
+    }
+
+    public void testSparqlAnnotationDeleting2 ()  {
+        Annotation newanno = new SimpleAnnotation(URI.create("http://rdf.ebi.ac.uk/resource/zooma/arrayexpress/002E4969CFD3C4B1E829912ABB3FE706-test"),
+                                                  null,
+                                                  null,
+                                                  null,
+                                                  null);
+
+        annotationBean.delete(newanno);
+
 
     }
 
