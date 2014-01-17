@@ -19,6 +19,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 
 /**
  * An annotation service that uses an implementation of {@link uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO} to
@@ -88,6 +89,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
         try {
             getAnnotationFactory().acquire(annotation.getProvenance().getSource());
             Annotation newAnnotation = mintNewAnnotationFromRequest(annotation);
+            Collection<Annotation> annotationsToUpdate = new HashSet<Annotation>();
             if (!annotation.getReplaces().isEmpty()) {
                 for (URI replacedAnnotationURI : annotation.getReplaces()) {
                     Annotation replacedAnnotation = getAnnotationDAO().read(replacedAnnotationURI);
@@ -108,10 +110,14 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                             newAnnotation.getReplaces().add(replacedAnnotation.getURI());
                         }
                     }
-                    getAnnotationDAO().update(replacedAnnotation);
+                    annotationsToUpdate.add(replacedAnnotation);
                 }
             }
             getAnnotationDAO().create(newAnnotation);
+            // assuming the new annotation is created successfully, now update any of the previous annotations.
+            for (Annotation replacedAnnotation : annotationsToUpdate) {
+                getAnnotationDAO().update(replacedAnnotation);
+            }
             return newAnnotation;
         }
         catch (InterruptedException e) {
