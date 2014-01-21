@@ -289,14 +289,18 @@ SELECT DISTINCT ?annotationid WHERE {
 }
 
 ^[AnnotationSummaries.read]
-SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?semantictag ?oldAnnotationid ?oldPropertyvalueid ?oldPropertyname ?oldPropertyvalue WHERE {
+SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?semantictag ?databaseid ?sourcename ?sourcetype ?oldAnnotationid ?oldPropertyvalueid ?oldPropertyname ?oldPropertyvalue WHERE {
      ?annotationid a oac:DataAnnotation .
      ?annotationid oac:hasBody ?propertyvalueid .
      OPTIONAL {?propertyvalueid zoomaterms:propertyName ?propertyname }
      ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
      ?propertyvalueid rdf:type zoomaterms:Property .
      ?annotationid oac:hasBody ?semantictag .
-     ?semantictag rdf:type oac:SemanticTag
+     ?semantictag rdf:type oac:SemanticTag .
+
+     ?annotationid dc:source ?databaseid .
+     ?databaseid a ?sourcetype .
+     ?databaseid zoomaterms:shortName ?sourcename .
 
    	 OPTIONAL {
         ?annotationid zoomaterms:replaces ?oldAnnotationid option (transitive).

@@ -21,6 +21,8 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
     private String propertyValue;
     private Collection<URI> semanticTags;
     private Collection<URI> annotationURIs;
+
+    private Collection<URI> annotationSourceURIs;
     private float qualityScore;
 
 
@@ -29,13 +31,15 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
                                    String propertyValue,
                                    Collection<URI> semanticTags,
                                    Collection<URI> annotationURIs,
-                                   float qualityScore) {
+                                   float qualityScore,
+                                   Collection<URI> annotationSourceURIs) {
         this.id = id;
         this.propertyType = propertyType;
         this.propertyValue = propertyValue;
         this.semanticTags = semanticTags;
         this.annotationURIs = annotationURIs;
         this.qualityScore = qualityScore;
+        this.annotationSourceURIs = annotationSourceURIs;
     }
 
     @Override public String getAnnotationSummaryTypeID() {
@@ -92,6 +96,8 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
         return qualityScore;
     }
 
+    @Override public Collection<URI> getAnnotationSourceURIs() { return annotationSourceURIs; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -113,6 +119,11 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
                 : that.semanticTags != null) {
             return false;
         }
+        if (annotationSourceURIs != null
+                ? !CollectionUtils.compareCollectionContents(annotationSourceURIs, that.annotationSourceURIs)
+                : that.annotationSourceURIs != null) {
+            return false;
+        }
         if (propertyType != null ? !propertyType.equals(that.propertyType) : that.propertyType != null) {
             return false;
         }
@@ -129,6 +140,7 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
         result = 31 * result + (propertyValue != null ? propertyValue.hashCode() : 0);
         result = 31 * result + (semanticTags != null ? semanticTags.hashCode() : 0);
         result = 31 * result + (annotationURIs != null ? annotationURIs.hashCode() : 0);
+        result = 31 * result + (annotationSourceURIs != null ? annotationSourceURIs.hashCode() : 0);
         return result;
     }
 
@@ -136,6 +148,7 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
     public URI getURI() {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI() + "annotation_summary/" + getID());
     }
+
 
     @Override
     public String toString() {
@@ -146,6 +159,7 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
                 ", semanticTags=" + semanticTags +
                 ", annotationURIs=" + annotationURIs +
                 ", qualityScore=" + qualityScore +
+                ", sources=" + annotationSourceURIs +
                 '}';
     }
 
