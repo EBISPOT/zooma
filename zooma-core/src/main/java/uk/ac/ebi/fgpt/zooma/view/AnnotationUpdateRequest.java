@@ -11,14 +11,14 @@ import java.util.Collections;
  * @date 20/01/2014
  * Functional Genomics Group EMBL-EBI
  */
-public class AnnotationBatchUpdateRequest {
+public class AnnotationUpdateRequest {
 
     String propertyType;
     String propertyValue;
     Collection<URI> semanticTags;
     boolean retainSemanticTags;
 
-    public AnnotationBatchUpdateRequest () {
+    public AnnotationUpdateRequest() {
         this.semanticTags = Collections.emptySet();
         this.retainSemanticTags = true;
     }

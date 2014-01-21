@@ -108,35 +108,4 @@ public interface AnnotationService {
      */
     Annotation saveAnnotation(Annotation annotation) throws ZoomaUpdateException;
 
-    /**
-     * Updates a annotation in ZOOMA, replacing it with the new one.  Depending on the implementation, the old
-     * annotation may or may not be deleted straight away, and the URI of the old annotation may or may not be reused.
-     * You should always assume the new annotation will be assigned a new URI and use the returned reference once the
-     * update is completed.
-     *
-     * @param oldAnnotation the annotation to update
-     * @param newAnnotation the new annotation to update to
-     * @return a reference to the new annotation after the update has completed
-     * @throws ZoomaUpdateException if something went wrong during the update
-     */
-    Annotation updateAnnotation(Annotation oldAnnotation, Annotation newAnnotation) throws ZoomaUpdateException;
-
-    /**
-     * Delete a annotation from ZOOMA.  This is a batch update operation that should remove the annotation instance from
-     * ZOOMA and update any annotations that use this annotation.  Implementations are free to define how this operation
-     * happens, but normally you would expect that annotations using the deleted annotation are also removed.
-     *
-     * @param annotation the annotation that needs to be deleted
-     * @throws ZoomaUpdateException if something went wrong during the update
-     */
-    void deleteAnnotation(Annotation annotation) throws ZoomaUpdateException;
-
-    /**
-     * Replaces the property associated with the supplied annotation with the new property supplied
-     *
-     * @param annotation  the annotation to update
-     * @param newProperty the property to replace the existing property with
-     * @throws ZoomaUpdateException if something went wrong during the update
-     */
-    void replacePropertyForAnnotation(Annotation annotation, Property newProperty) throws ZoomaUpdateException;
 }

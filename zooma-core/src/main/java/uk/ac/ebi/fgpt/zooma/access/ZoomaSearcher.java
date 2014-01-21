@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * This class represents the standard endpoint for all zooma searches.  This will only delegate searches to a {@link
  * ZoomaAnnotationSummarySearcher} by default, although you can enable wider searches using the supplied flags to
- * "switch on" a {@link ZoomaAnnotationSearcher}, {@link ZoomaPropertySearcher} and {@link ZoomaPropertyTypeSearcher}.
+ * "switch on" a {@link ZoomaAnnotations}, {@link ZoomaPropertySearcher} and {@link ZoomaPropertyTypeSearcher}.
  * <p/>
  * By enabling each search service, the results returned from a search become composited.  The order used when
  * compositing is always {@link uk.ac.ebi.fgpt.zooma.model.AnnotationSummary} &lt; {@link
@@ -31,7 +31,7 @@ import java.util.List;
 @Controller
 @RequestMapping
 public class ZoomaSearcher extends SuggestEndpoint<Object, String> {
-    private ZoomaAnnotationSearcher annotationSearchEngine;
+    private ZoomaAnnotations annotationSearchEngine;
     private ZoomaAnnotationSummarySearcher annotationSummarySearchEngine;
     private ZoomaPropertySearcher propertySearchEngine;
     private ZoomaPropertyTypeSearcher propertyTypeSearchEngine;
@@ -72,12 +72,12 @@ public class ZoomaSearcher extends SuggestEndpoint<Object, String> {
         this.annotationSummarySearchingEnabled = annotationSummarySearchingEnabled;
     }
 
-    public ZoomaAnnotationSearcher getAnnotationSearchEngine() {
+    public ZoomaAnnotations getAnnotationSearchEngine() {
         return annotationSearchEngine;
     }
 
     @Autowired
-    public void setAnnotationSearchEngine(ZoomaAnnotationSearcher annotationSearchEngine) {
+    public void setAnnotationSearchEngine(ZoomaAnnotations annotationSearchEngine) {
         this.annotationSearchEngine = annotationSearchEngine;
     }
 
