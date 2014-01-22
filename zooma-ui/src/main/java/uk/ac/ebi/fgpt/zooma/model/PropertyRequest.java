@@ -16,14 +16,16 @@ public class PropertyRequest implements TypedProperty {
 
     private String propertyType;
     private String propertyValue;
-
-    public URI getURI() {
-        return null;
-    }
+    private URI uri;
 
     public void setURI(URI uri) {
-        // do nothing
+        this.uri = uri;
     }
+
+    @Override public URI getURI() {
+        return uri;
+    }
+
 
     public String getPropertyType() {
         return propertyType;

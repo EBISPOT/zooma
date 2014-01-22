@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.SimpleBiologicalEntity;
+import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSearchService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
@@ -19,9 +21,9 @@ import uk.ac.ebi.fgpt.zooma.view.SearchResponse;
 import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Search ZOOMA for {@link uk.ac.ebi.fgpt.zooma.model.Annotation}s matching the supplied property value prefix and,
@@ -103,30 +105,74 @@ public class ZoomaAnnotationSearcher extends IdentifiableSuggestEndpoint<Annotat
     }
 
     public Collection<Annotation> fetch() {
-        return fetch(100, 0);
+        return fetch(100, 0, null, null, null, false);
     }
 
     @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody Collection<Annotation> fetch(@RequestParam(value = "limit", required = false) Integer limit,
-                                                      @RequestParam(value = "start", required = false) Integer start) {
+                                                      @RequestParam(value = "start", required = false) Integer start,
+                                                      @RequestParam(value = "targetSourceUri", required = false) String targetSourceUri,
+                                                      @RequestParam(value = "targetUri", required = false) String targetUri,
+                                                      @RequestParam(value = "semanticTagUri", required = false) String semanticTagUri,
+                                                      @RequestParam(value = "latestOnly", required = false, defaultValue = "false") boolean latest
+    ) {
+
+        if (targetSourceUri != null) {
+            return latest ?
+                    getLatestAnnotations(getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(targetSourceUri), null)))
+                    : getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(targetSourceUri), null));
+        }
+        if (targetUri != null) {
+            return latest ?
+                    getLatestAnnotations(getAnnotationService().getAnnotationsByBiologicalEntity(new SimpleBiologicalEntity(URI.create(targetUri), null)))
+                    : getAnnotationService().getAnnotationsByBiologicalEntity(new SimpleBiologicalEntity(URI.create(targetUri), null));
+        }
+        if (semanticTagUri != null) {
+            return latest ?
+                    getLatestAnnotations(getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri)))
+                    : getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri));
+        }
+
         if (start == null) {
             if (limit == null) {
-                return getAnnotationService().getAnnotations(100, 0);
+                return latest ?
+                        getLatestAnnotations(getAnnotationService().getAnnotations(100, 0))
+                        : getAnnotationService().getAnnotations(100, 0);
             }
             else {
-                return getAnnotationService().getAnnotations(limit, 0);
+                return latest ?
+                        getLatestAnnotations(getAnnotationService().getAnnotations(limit, 0))
+                        : getAnnotationService().getAnnotations(limit, 0);
             }
         }
         else {
             if (limit == null) {
-                return getAnnotationService().getAnnotations(100, start);
+                return latest ?
+                        getLatestAnnotations(getAnnotationService().getAnnotations(100, start))
+                        : getAnnotationService().getAnnotations(100, start);
             }
             else {
-                return getAnnotationService().getAnnotations(limit, start);
+                return latest ?
+                        getLatestAnnotations(getAnnotationService().getAnnotations(limit, start))
+                        : getAnnotationService().getAnnotations(limit, start);
             }
         }
     }
 
+    /**
+     * Annotation is considered to be the latest if it is not replaced by any other annotations
+     * @param annotations collection of annotations to filter
+     * @return list of latest annotations
+     */
+    private Collection<Annotation> getLatestAnnotations(Collection<Annotation> annotations) {
+        List<Annotation> filtered = new ArrayList<Annotation>();
+        for (Annotation a : annotations) {
+            if (a.getReplacedBy().isEmpty()) {
+                filtered.add(a);
+            }
+        }
+        return filtered;
+    }
     /**
      * Retrieves an annotation with the given URI.
      *
@@ -143,22 +189,22 @@ public class ZoomaAnnotationSearcher extends IdentifiableSuggestEndpoint<Annotat
     public Collection<Annotation> query(String prefix) {
         getLog().trace("Querying for " + prefix);
         validate();
-        Map<Annotation, Float> allAnnotations = getAnnotationSearchService().searchAndScoreByPrefix(prefix);
+        Collection<Annotation> allAnnotations = getAnnotationSearchService().searchByPrefix(prefix);
         return getAnnotationSorter().sort(allAnnotations);
     }
 
     public Collection<Annotation> query(String prefix, String type) {
         getLog().trace("Querying for " + prefix + ", " + type);
         validate();
-        Map<Annotation, Float> allAnnotations = getAnnotationSearchService().searchAndScoreByPrefix(type, prefix);
-        return getAnnotationSorter().sort(allAnnotations, type, prefix);
+        Collection<Annotation> allAnnotations = getAnnotationSearchService().searchByPrefix(type, prefix);
+        return getAnnotationSorter().sort(allAnnotations);
     }
 
     public Collection<Annotation> query(String prefix, String type, int limit, int start) {
         getLog().trace("Querying for " + prefix + ", " + type + ", " + limit + ", " + start);
         validate();
-        Map<Annotation, Float> allAnnotations = getAnnotationSearchService().searchAndScoreByPrefix(type, prefix);
-        List<Annotation> allAnnotationsList = getAnnotationSorter().sort(allAnnotations, type, prefix);
+        Collection<Annotation> allAnnotations = getAnnotationSearchService().searchByPrefix(type, prefix);
+        List<Annotation> allAnnotationsList = getAnnotationSorter().sort(allAnnotations);
         return getAnnotationLimiter().limit(allAnnotationsList, limit, start);
     }
 

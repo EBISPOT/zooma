@@ -24,6 +24,7 @@ import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummarySearchService;
 import uk.ac.ebi.fgpt.zooma.service.OntologyService;
 import uk.ac.ebi.fgpt.zooma.util.OntologyLabelMapper;
+import uk.ac.ebi.fgpt.zooma.util.Scorer;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import javax.servlet.http.HttpSession;
@@ -68,6 +69,8 @@ public class ZoomaMappingController {
     private AnnotationService annotationService;
     private OntologyService ontologyService;
 
+    private Scorer<AnnotationSummary> annotationSummaryScorer;
+
     private Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {
@@ -110,6 +113,15 @@ public class ZoomaMappingController {
     @Autowired
     public void setOntologyService(OntologyService ontologyService) {
         this.ontologyService = ontologyService;
+    }
+
+    public Scorer<AnnotationSummary> getAnnotationSummaryScorer() {
+        return annotationSummaryScorer;
+    }
+
+    @Autowired
+    public void setAnnotationSummaryScorer(Scorer<AnnotationSummary> annotationSummaryScorer) {
+        this.annotationSummaryScorer = annotationSummaryScorer;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = "application/json")
@@ -303,11 +315,17 @@ public class ZoomaMappingController {
                     // first, grab annotation summaries
                     Map<AnnotationSummary, Float> summaries;
                     if (property instanceof TypedProperty) {
-                        summaries = getAnnotationSummarySearchService().searchAndScore(
-                                ((TypedProperty) property).getPropertyType(), property.getPropertyValue());
+                        String propertyType = ((TypedProperty) property).getPropertyType();
+                        String propertyValue = property.getPropertyValue();
+                        summaries = getAnnotationSummaryScorer().score(
+                                getAnnotationSummarySearchService().search(propertyType, propertyValue),
+                                propertyValue, propertyType);
                     }
                     else {
-                        summaries = getAnnotationSummarySearchService().searchAndScore(property.getPropertyValue());
+                        String propertyValue = property.getPropertyValue();
+                        summaries = getAnnotationSummaryScorer().score(
+                                getAnnotationSummarySearchService().search(propertyValue),
+                                propertyValue);
                     }
 
                     // now use client to test and filter them

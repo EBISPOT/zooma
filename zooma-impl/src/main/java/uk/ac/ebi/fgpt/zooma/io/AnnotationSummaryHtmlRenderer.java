@@ -60,7 +60,7 @@ public class AnnotationSummaryHtmlRenderer implements HtmlRenderer<AnnotationSum
         Collection<URI> annotations = annotationSummary.getAnnotationURIs();
         Collection<URI> semanticTags = annotationSummary.getSemanticTags();
 
-        float topScore = annotationSummary.getQualityScore();
+        float topScore = annotationSummary.getQuality();
         getLog().debug("Annotation summary top score: " + topScore);
 
         String quality;

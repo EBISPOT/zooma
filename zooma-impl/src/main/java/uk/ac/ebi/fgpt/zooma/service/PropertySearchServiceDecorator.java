@@ -34,20 +34,4 @@ public abstract class PropertySearchServiceDecorator implements PropertySearchSe
     @Override public Collection<Property> searchByPrefix(String propertyType, String propertyValuePrefix) {
         return _propertySearchService.searchByPrefix(propertyType, propertyValuePrefix);
     }
-
-    @Override public Map<Property, Float> searchAndScore(String propertyValuePattern) {
-        return _propertySearchService.searchAndScore(propertyValuePattern);
-    }
-
-    @Override public Map<Property, Float> searchAndScore(String propertyType, String propertyValuePattern) {
-        return _propertySearchService.searchAndScore(propertyType, propertyValuePattern);
-    }
-
-    @Override public Map<Property, Float> searchAndScoreByPrefix(String propertyValuePrefix) {
-        return _propertySearchService.searchAndScoreByPrefix(propertyValuePrefix);
-    }
-
-    @Override public Map<Property, Float> searchAndScoreByPrefix(String propertyType, String propertyValuePrefix) {
-        return _propertySearchService.searchAndScoreByPrefix(propertyType, propertyValuePrefix);
-    }
 }

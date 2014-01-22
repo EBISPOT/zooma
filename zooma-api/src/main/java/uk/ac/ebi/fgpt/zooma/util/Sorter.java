@@ -32,29 +32,4 @@ public interface Sorter<T> {
      * @return a sorted list, sorted by score
      */
     List<T> sort(Map<T, Float> map);
-
-    /**
-     * Sorts a collection of objects with reference to a user supplied type and prefix.  Results should be sorted by
-     * some sort of relevance to the user supplied type and prefix, although implementations are free to define how this
-     * happens.
-     *
-     * @param collection the collection of objects to sort
-     * @param type       the type string supplied by the user query
-     * @param prefix     the value prefix supplied by the user query
-     * @return a sorted list of objects, ordered by relevance to the supplied query strings
-     */
-    List<T> sort(Collection<T> collection, String type, String prefix);
-
-    /**
-     * Sorts a collection of objects into a order based on a score associated with each object in the supplied map, with
-     * reference to the supplied type and prefix. Calling this method utilises the score for sorting instead of sorting
-     * by a natural sort order.  However, if the scores for two objects are the same, they may be sorted according to
-     * the outcome of comparing two objects if they implement {@link Comparable}.
-     *
-     * @param map    the map of objects to sort, where each object is associated with a score
-     * @param type   the type string supplied by the user query
-     * @param prefix the value prefix supplied by the user query
-     * @return a sorted list, sorted by score and relevance to the supplied query strings
-     */
-    List<T> sort(Map<T, Float> map, String type, String prefix);
 }

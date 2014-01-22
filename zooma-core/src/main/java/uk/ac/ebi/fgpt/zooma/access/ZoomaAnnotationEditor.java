@@ -5,20 +5,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.Property;
+import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
+import uk.ac.ebi.fgpt.zooma.service.DataLoadingService;
+import uk.ac.ebi.fgpt.zooma.service.PropertySearchService;
+import uk.ac.ebi.fgpt.zooma.service.PropertyService;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Edits, replaces and deletes {@link uk.ac.ebi.fgpt.zooma.model.Annotation}s inside ZOOMA to support curator
@@ -66,18 +66,8 @@ public class ZoomaAnnotationEditor {
     @RequestMapping(value = "/{shortAnnotationURI}", method = RequestMethod.PUT)
     public @ResponseBody String replaceAnnotation(@PathVariable String shortAnnotationURI,
                                                   @RequestBody Annotation newAnnotation) throws ZoomaUpdateException {
-        URI annotationURI = URIUtils.getURI(shortAnnotationURI);
-        Annotation oldAnnotation = getAnnotationService().getAnnotation(annotationURI);
 
-        // search for all instances of properties matching "oldAnnotationValue" - (so e.g. "cancer")
-        if (oldAnnotation != null) {
-            getAnnotationService().updateAnnotation(oldAnnotation, newAnnotation);
-            return "Successfully updated annotation '" + annotationURI + "'";
-        }
-        else {
-            throw new IllegalArgumentException(
-                    "Failed to update annotation: No annotation found with URI '" + annotationURI + "'.");
-        }
+        throw new UnsupportedOperationException("This operation is not supported.");
     }
 
     @RequestMapping(value = "/{shortAnnotationURI}", method = RequestMethod.DELETE)
@@ -96,22 +86,22 @@ public class ZoomaAnnotationEditor {
     }
 
     @RequestMapping(method = RequestMethod.PUT,
-                    value = "/{studyAccession}/assays/{assayAccession}/properties")
+            value = "/{studyAccession}/assays/{assayAccession}/properties")
     public @ResponseBody String addProperties(@RequestBody Property property,
                                               @PathVariable String studyAccession,
                                               @PathVariable String assayAccession) {
         getLog().debug("Request received to update property values for the following Study -" + studyAccession +
-                               " and the following assay - " + assayAccession);
+                " and the following assay - " + assayAccession);
         throw new UnsupportedOperationException("This operation is not supported.");
     }
 
     @RequestMapping(method = RequestMethod.DELETE,
-                    value = "/{studyAccession}/assays/{assayAccession}/properties")
+            value = "/{studyAccession}/assays/{assayAccession}/properties")
     public @ResponseBody String deleteProperties(@RequestBody Property property,
                                                  @PathVariable String studyAccession,
                                                  @PathVariable String assayAccession) {
         getLog().debug("Request received to update property values for the following Study -" + studyAccession +
-                               " and the following assay - " + assayAccession);
+                " and the following assay - " + assayAccession);
         throw new UnsupportedOperationException("This operation is not supported.");
     }
 

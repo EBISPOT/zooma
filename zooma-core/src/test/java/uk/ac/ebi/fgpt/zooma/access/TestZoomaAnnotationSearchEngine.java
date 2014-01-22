@@ -11,6 +11,7 @@ import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSearchService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
+import uk.ac.ebi.fgpt.zooma.util.Scorer;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
 
 import java.util.ArrayList;
@@ -25,7 +26,10 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.anyMap;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TestZoomaAnnotationSearchEngine {
     private ZoomaAnnotationSearcher annotationSearchEngine;
@@ -34,6 +38,7 @@ public class TestZoomaAnnotationSearchEngine {
 
     private Sorter<Annotation> annotationSorter;
     private Limiter<Annotation> annotationLimiter;
+    private Scorer<Annotation> annotationScorer;
 
     private List<Annotation> annotations;
     private List<Annotation> limitedAnnotations;
@@ -84,19 +89,19 @@ public class TestZoomaAnnotationSearchEngine {
         // create mock sort/limiters
         annotationSorter = (Sorter<Annotation>) mock(Sorter.class);
         annotationLimiter = (Limiter<Annotation>) mock(Limiter.class);
+        annotationScorer = (Scorer<Annotation>) mock(Scorer.class);
 
         // create test stubs
         when(annotationService.getAnnotationsByProperty(one)).thenReturn(annotations);
-        when(annotationSearchService.searchPrefix(anyString())).thenReturn(annotations);
-        when(annotationSearchService.searchPrefix(anyString(), anyString())).thenReturn(annotations);
-        when(annotationSearchService.searchAndScoreByPrefix(anyString())).thenReturn(scoredAnnotations);
-        when(annotationSearchService.searchAndScoreByPrefix(anyString(), anyString())).thenReturn(scoredAnnotations);
+        when(annotationSearchService.searchByPrefix(anyString())).thenReturn(annotations);
+        when(annotationSearchService.searchByPrefix(anyString(), anyString())).thenReturn(annotations);
         when(annotationSorter.sort(anyCollection())).thenReturn(annotations);
         when(annotationSorter.sort(anyMap())).thenReturn(annotations);
-        when(annotationSorter.sort(anyCollection(), anyString(), anyString())).thenReturn(annotations);
-        when(annotationSorter.sort(anyMap(), anyString(), anyString())).thenReturn(annotations);
         when(annotationLimiter.limit(anyList(), anyInt())).thenReturn(limitedAnnotations);
         when(annotationLimiter.limit(anyList(), anyInt(), anyInt())).thenReturn(limitedAnnotations);
+        when(annotationScorer.score(anyCollection())).thenReturn(scoredAnnotations);
+        when(annotationScorer.score(anyCollection(), anyString())).thenReturn(scoredAnnotations);
+        when(annotationScorer.score(anyCollection(), anyString(), anyString())).thenReturn(scoredAnnotations);
 
         // create annotation search engine
         annotationSearchEngine = new ZoomaAnnotationSearcher(annotationService,
@@ -117,7 +122,7 @@ public class TestZoomaAnnotationSearchEngine {
             String prefix = property.getPropertyValue().substring(0, 3);
             getLog().debug("Testing query for " + prefix);
             Collection<Annotation> searchResults = annotationSearchEngine.query(prefix);
-            verify(annotationSearchService).searchAndScoreByPrefix(prefix);
+            verify(annotationSearchService).searchByPrefix(prefix);
             assertEquals("Unexpected prefix search results returned for " + prefix, annotations, searchResults);
         }
     }
@@ -131,10 +136,8 @@ public class TestZoomaAnnotationSearchEngine {
             String type = ((TypedProperty) property).getPropertyType();
             getLog().debug("Testing query for " + prefix + ", " + type);
             Collection<Annotation> searchResults = annotationSearchEngine.query(prefix, type);
-            verify(annotationSearchService).searchAndScoreByPrefix(type, prefix);
-            verify(annotationSorter, times(i++)).sort(scoredAnnotations,
-                                                      type,
-                                                      property.getPropertyValue().substring(0, 3));
+            verify(annotationSearchService).searchByPrefix(type, prefix);
+            verify(annotationSorter, times(i++)).sort(annotations);
             assertEquals("Unexpected prefix and type search results returned for " + prefix,
                          annotations,
                          searchResults);
@@ -150,10 +153,8 @@ public class TestZoomaAnnotationSearchEngine {
             String type = ((TypedProperty) property).getPropertyType();
             getLog().debug("Testing query for " + prefix + ", " + type + ", 10, 0");
             Collection<Annotation> searchResults = annotationSearchEngine.query(prefix, type, 10, 0);
-            verify(annotationSearchService).searchAndScoreByPrefix(type, prefix);
-            verify(annotationSorter, times(i)).sort(scoredAnnotations,
-                                                    type,
-                                                    property.getPropertyValue().substring(0, 3));
+            verify(annotationSearchService).searchByPrefix(type, prefix);
+            verify(annotationSorter, times(i)).sort(annotations);
             verify(annotationLimiter, times(i++)).limit(annotations, 10, 0);
             assertEquals("Unexpected prefix, type, limit search results returned for " + prefix,
                          limitedAnnotations,

@@ -4,6 +4,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
+import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
@@ -11,6 +12,9 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A service that allows retrieval of the set of {@link AnnotationSummary} objects known to ZOOMA.  This uses a Lucene
@@ -21,15 +25,15 @@ import java.util.Collection;
  */
 public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
         implements AnnotationSummaryService {
-    private Directory annotationIndex;
+    private AnnotationDAO annotationDAO;
     private AnnotationSummaryMapper mapper;
 
-    public void setAnnotationIndex(Directory annotationIndex) {
-        this.annotationIndex = annotationIndex;
+    public AnnotationDAO getAnnotationDAO() {
+        return annotationDAO;
     }
 
-    public Directory getAnnotationIndex() {
-        return annotationIndex;
+    public void setAnnotationDAO(AnnotationDAO annotationDAO) {
+        this.annotationDAO = annotationDAO;
     }
 
     public AnnotationSummaryMapper getMapper() {
@@ -37,11 +41,25 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
     }
 
     @Override protected void doInitialization() throws IOException {
-        IndexReader reader = IndexReader.open(getAnnotationIndex());
-        getLog().debug("Total number of annotations in zooma: " + reader.numDocs());
-        this.mapper = new AnnotationSummaryMapper(reader.numDocs());
-        reader.close();
         super.doInitialization();
+        int numAnnotations = getAnnotationDAO().count();
+        int numSummaries = getReader().numDocs();
+        getLog().debug("Total number of annotations in zooma: " + numAnnotations);
+        getLog().debug("Total number of summaries in zooma: " + numSummaries);
+        AnnotationSummaryMapper preMapper = new AnnotationSummaryMapper(numAnnotations, numSummaries);
+        Set<Float> allScores = new HashSet<>();
+        for (int i = 0; i < numSummaries; i++) {
+            if (getReader().isDeleted(i)) {
+                continue;
+            }
+            allScores.add(preMapper.mapDocument(getReader().document(i)).getQuality());
+        }
+        float maxScore = Collections.max(allScores);
+        getLog().debug("Maximum summary quality score = " + maxScore);
+        this.mapper = new AnnotationSummaryMapper(numAnnotations,
+                                                  numSummaries,
+                                                  maxScore);
+        getLog().debug("Annotation Summary mapper calibration complete");
     }
 
     @Override public Collection<AnnotationSummary> getAnnotationSummaries() {
@@ -53,7 +71,7 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
             initOrWait();
 
             Collection<AnnotationSummary> results = new ArrayList<>();
-            IndexReader reader = IndexReader.open(getAnnotationIndex());
+            IndexReader reader = IndexReader.open(getIndex());
             for (int i = start; i < limit && i < reader.maxDoc(); i++) {
                 if (reader.isDeleted(i)) {
                     continue;
@@ -78,7 +96,7 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
             initOrWait();
 
             // build a query
-            Query q = formulateQuery("id", annotationSummaryID);
+            Query q = formulateExactQuery("id", annotationSummaryID);
 
             // do the query
             Collection<AnnotationSummary> results = doQuery(q, getMapper());

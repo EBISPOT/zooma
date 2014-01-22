@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.model;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,14 +18,15 @@ public class StudyRequest implements Study {
     private static final long serialVersionUID = 8297260247536101633L;
 
     private String accession;
-    private Collection<URI> types;
-
-    @Override public URI getURI() {
-        return null;
-    }
+    private Collection<URI> types = Collections.emptySet();
+    private URI uri;
 
     public void setURI(URI uri) {
-        // do nothing
+        this.uri = uri;
+    }
+
+    @Override public URI getURI() {
+        return uri;
     }
 
     @Override public String getAccession() {

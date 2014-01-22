@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.model;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * An implementation of a BiologicalEntity designed to be used by jackson to deserialize annotation requests.  You
@@ -16,15 +17,16 @@ public class BiologicalEntityRequest implements BiologicalEntity {
     private static final long serialVersionUID = -1243514391866115657L;
 
     private String name;
-    private Collection<Study> studies;
-    private Collection<URI> types;
-
-    public URI getURI() {
-        return null;
-    }
+    private Collection<Study> studies = Collections.emptySet();
+    private Collection<URI> types = Collections.emptySet();
+    private URI uri;
 
     public void setURI(URI uri) {
-        // do nothing
+        this.uri = uri;
+    }
+
+    @Override public URI getURI() {
+        return uri;
     }
 
     public String getName() {

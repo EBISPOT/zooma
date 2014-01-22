@@ -26,7 +26,10 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.anyMap;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TestZoomaPropertySearchEngine {
     private ZoomaPropertySearcher propertySearchEngine;
@@ -127,10 +130,6 @@ public class TestZoomaPropertySearchEngine {
                 .thenReturn(numbers);
         when(propertySearchService.searchByPrefix(argThat(new PropertyPrefixMatcher(numbers)), anyString()))
                 .thenReturn(numbers);
-        when(propertySearchService.searchAndScoreByPrefix(argThat(new PropertyPrefixMatcher(numbers))))
-                .thenReturn(scoredNumbers);
-        when(propertySearchService.searchAndScoreByPrefix(argThat(new PropertyPrefixMatcher(numbers)), anyString()))
-                .thenReturn(scoredNumbers);
         when(propertySorter.sort(anyCollection()))
                 .thenReturn(numbers);
         when(propertySorter.sort(anyMap()))
@@ -186,8 +185,8 @@ public class TestZoomaPropertySearchEngine {
             assertSame("Unexpected prefix, type, limit search results returned for " + prefix,
                        limitedProperties,
                        searchResults);
-            verify(propertySearchService).searchAndScoreByPrefix(prefix, type);
-            verify(propertySorter, times(i)).sort(scoredNumbers);
+            verify(propertySearchService).searchByPrefix(prefix, type);
+            verify(propertySorter, times(i)).sort(numbers);
             verify(propertyLimiter, times(i++)).limit(numbers, 10, 0);
         }
     }

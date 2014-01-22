@@ -262,6 +262,12 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
             List<BiologicalEntity> beList = biologicalEntity == null
                     ? Collections.<BiologicalEntity>emptyList()
                     : Collections.singletonList(biologicalEntity);
+            if (semanticTag == null) {
+                annotationCache.put(annotationURI, new SimpleAnnotation(annotationURI,
+                                                                        beList,
+                                                                        property,
+                                                                        annotationProvenance));
+            }
             annotationCache.put(annotationURI, new SimpleAnnotation(annotationURI,
                                                                     beList,
                                                                     property,

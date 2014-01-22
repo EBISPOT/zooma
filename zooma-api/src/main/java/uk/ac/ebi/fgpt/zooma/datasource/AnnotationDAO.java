@@ -35,7 +35,7 @@ public interface AnnotationDAO extends ZoomaDAO<Annotation> {
     Collection<Annotation> readByBiologicalEntity(BiologicalEntity biologicalEntity);
 
     /**
-     * Retrieves a collection of annotations from a zooma datasource, limited to those which declare are liunked to the
+     * Retrieves a collection of annotations from a zooma datasource, limited to those which declare are linked to the
      * supplied property
      *
      * @param property the property linked to the required annotations

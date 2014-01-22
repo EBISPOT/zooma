@@ -19,8 +19,8 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
     private Collection<BiologicalEntity> biologicalEntities;
     private Property annotatedProperty;
     private Collection<URI> semanticTags;
-    private Collection<URI> replacingAnnotations;
-    private Collection<URI> replacedAnnotations;
+    private Collection<URI> replacedBy;
+    private Collection<URI> replaces;
     private AnnotationProvenance annotationProvenance;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -42,8 +42,8 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
                             Property annotatedProperty,
                             AnnotationProvenance annotationProvenance,
                             URI[] semanticTags,
-                            URI[] replacingAnnotations,
-                            URI[] replacedAnnotations) {
+                            URI[] replacedBy,
+                            URI[] replaces) {
         super(uri);
         this.biologicalEntities = new HashSet<>();
         if (biologicalEntities != null) {
@@ -55,13 +55,13 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
         if (semanticTags != null) {
             Collections.addAll(this.semanticTags, semanticTags);
         }
-        this.replacingAnnotations = new HashSet<>();
-        if (replacingAnnotations != null) {
-            Collections.addAll(this.replacingAnnotations, replacingAnnotations);
+        this.replacedBy = new HashSet<>();
+        if (replacedBy != null) {
+            Collections.addAll(this.replacedBy, replacedBy);
         }
-        this.replacedAnnotations = new HashSet<>();
-        if (replacedAnnotations != null) {
-            Collections.addAll(this.replacedAnnotations, replacedAnnotations);
+        this.replaces = new HashSet<>();
+        if (replaces != null) {
+            Collections.addAll(this.replaces, replaces);
         }
     }
 
@@ -168,20 +168,20 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
         }
     }
 
-    @Override public Collection<URI> replacedBy() {
-        return replacingAnnotations;
+    @Override public Collection<URI> getReplacedBy() {
+        return replacedBy;
     }
 
     @Override public void setReplacedBy(URI... replacedBy) {
-        Collections.addAll(this.replacingAnnotations, replacedBy);
+        Collections.addAll(this.replacedBy, replacedBy);
     }
 
-    @Override public Collection<URI> replaces() {
-        return replacedAnnotations;
+    @Override public Collection<URI> getReplaces() {
+        return replaces;
     }
 
     @Override public void setReplaces(URI... replaces) {
-        Collections.addAll(this.replacedAnnotations, replaces);
+        Collections.addAll(this.replaces, replaces);
     }
 
     @Override public String toString() {
@@ -190,8 +190,8 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
                "  biologicalEntities=" + biologicalEntities + "'\n" +
                "  annotatedProperty=" + annotatedProperty + "'\n" +
                "  semanticTags=" + semanticTags + "'\n" +
-               "  replacingAnnotations=" + replacingAnnotations + "'\n" +
-               "  replacedAnnotations=" + replacedAnnotations + "'\n" +
+               "  isReplacedBy=" + replacedBy + "'\n" +
+               "  replaces=" + replaces + "'\n" +
                "  annotationProvenance=" + annotationProvenance + "'\n" +
                '}';
     }

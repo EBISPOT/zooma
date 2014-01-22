@@ -41,7 +41,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -92,59 +95,59 @@ public class TestZoomaLuceneIndexer {
             verifiableSemanticTag = semanticTag1;
             unverifiableSemanticTag = semanticTag3;
 
-            AnnotationProvenance prov1 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
-                    "http://www.test.com/source1"), "source1"),
-                                                                        AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                                                        "TEST",
-                                                                        new Date());
+            AnnotationProvenance prov1 = new SimpleAnnotationProvenance(
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source1"), "source1"),
+                    AnnotationProvenance.Evidence.MANUAL_CURATED,
+                    "TEST",
+                    new Date());
             Annotation anno1 = new SimpleAnnotation(new URI("http://www.test.com/annotation1"),
-                                                    Collections.<BiologicalEntity>emptySet(),
-                                                    property1,
-                                                    prov1,
-                                                    semanticTag1);
-            AnnotationProvenance prov2 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
-                    "http://www.test.com/source2"), "source2"),
-                                                                        AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                                                        "TEST",
-                                                                        new Date());
+                    Collections.<BiologicalEntity>emptySet(),
+                    property1,
+                    prov1,
+                    semanticTag1);
+            AnnotationProvenance prov2 = new SimpleAnnotationProvenance(
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2"), "source2"),
+                    AnnotationProvenance.Evidence.MANUAL_CURATED,
+                    "TEST",
+                    new Date());
             Annotation anno2 = new SimpleAnnotation(new URI("http://www.test.com/annotation2"),
-                                                    Collections.<BiologicalEntity>emptySet(),
-                                                    property2,
-                                                    prov2,
-                                                    semanticTag2);
+                    Collections.<BiologicalEntity>emptySet(),
+                    property2,
+                    prov2,
+                    semanticTag2);
             // anno3 is alternate mapping for property1
-            AnnotationProvenance prov3 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
-                    "http://www.test.com/source3"), "source3"),
-                                                                        AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                                                        "TEST",
-                                                                        new Date());
+            AnnotationProvenance prov3 = new SimpleAnnotationProvenance(
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3"), "source3"),
+                    AnnotationProvenance.Evidence.MANUAL_CURATED,
+                    "TEST",
+                    new Date());
             Annotation anno3 = new SimpleAnnotation(new URI("http://www.test.com/annotation3"),
-                                                    Collections.<BiologicalEntity>emptySet(),
-                                                    property1,
-                                                    prov3,
-                                                    semanticTag3);
+                    Collections.<BiologicalEntity>emptySet(),
+                    property1,
+                    prov3,
+                    semanticTag3);
             // anno4 verifies anno1 from different source
-            AnnotationProvenance prov4 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
-                    "http://www.test.com/source2"), "source2"),
-                                                                        AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                                                        "TEST",
-                                                                        new Date());
+            AnnotationProvenance prov4 = new SimpleAnnotationProvenance(
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2"), "source2"),
+                    AnnotationProvenance.Evidence.MANUAL_CURATED,
+                    "TEST",
+                    new Date());
             Annotation anno4 = new SimpleAnnotation(new URI("http://www.test.com/annotation4"),
-                                                    Collections.<BiologicalEntity>emptySet(),
-                                                    property1,
-                                                    prov4,
-                                                    semanticTag1);
+                    Collections.<BiologicalEntity>emptySet(),
+                    property1,
+                    prov4,
+                    semanticTag1);
             // anno5 verifies anno3 from same source
-            AnnotationProvenance prov5 = new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(new URI(
-                    "http://www.test.com/source3"), "source3"),
-                                                                        AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                                                        "TEST",
-                                                                        new Date());
+            AnnotationProvenance prov5 = new SimpleAnnotationProvenance(
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3"), "source3"),
+                    AnnotationProvenance.Evidence.MANUAL_CURATED,
+                    "TEST",
+                    new Date());
             Annotation anno5 = new SimpleAnnotation(new URI("http://www.test.com/annotation5"),
-                                                    Collections.<BiologicalEntity>emptySet(),
-                                                    property1,
-                                                    prov5,
-                                                    semanticTag3);
+                    Collections.<BiologicalEntity>emptySet(),
+                    property1,
+                    prov5,
+                    semanticTag3);
 
 
             // create mocked DAOs
@@ -174,6 +177,7 @@ public class TestZoomaLuceneIndexer {
             verifiedAnnotations.add(anno4);
             verifiedAnnotations.add(anno5);
             when(verifiedAnnotationDAO.read()).thenReturn(verifiedAnnotations);
+            when(verifiedAnnotationDAO.count()).thenReturn(4);
 
             verifiedProvenanceMap = new HashMap<>();
             verifiedProvenanceMap.put(anno1.getURI(), prov1);
@@ -199,7 +203,8 @@ public class TestZoomaLuceneIndexer {
                     property1.getPropertyValue(),
                     Collections.singleton(semanticTag1),
                     Arrays.asList(anno1.getURI(), anno4.getURI()),
-                    0);
+                    0,
+                    new HashSet<URI>());
 
             AnnotationSummary summary2 = new SimpleAnnotationSummary(
                     null,
@@ -207,14 +212,16 @@ public class TestZoomaLuceneIndexer {
                     property1.getPropertyValue(),
                     Collections.singleton(semanticTag3),
                     Arrays.asList(anno3.getURI(), anno5.getURI()),
-                    0);
+                    0,
+                    new HashSet<URI>());
 
             AnnotationSummary summary3 = new SimpleAnnotationSummary(
                     null,
                     ((TypedProperty) property2).getPropertyType(),
                     property2.getPropertyValue(),
                     Collections.singleton(semanticTag2),
-                    Collections.singleton(anno2.getURI()), 0);
+                    Collections.singleton(anno2.getURI()), 0,
+                    new HashSet<URI>());
 
             verifiedSummaries.add(summary1);
             verifiedSummaries.add(summary2);
@@ -311,7 +318,6 @@ public class TestZoomaLuceneIndexer {
 
         // reopen indexed directories
         try {
-            annotationDir = new NIOFSDirectory(annotationIndexPath.toFile());
             summaryDir = new NIOFSDirectory(summaryIndexPath.toFile());
         }
         catch (IOException e) {
@@ -323,19 +329,19 @@ public class TestZoomaLuceneIndexer {
         LuceneAnnotationSummarySearchService searchService = new LuceneAnnotationSummarySearchService();
         searchService.setAnalyzer(analyzer);
         searchService.setIndex(summaryDir);
-        searchService.setAnnotationIndex(annotationDir);
+        searchService.setAnnotationDAO(verifiedAnnotationDAO);
         searchService.init();
 
         // do test query to verify results are valid
-        Map<AnnotationSummary, Float> results = searchService.searchAndScore("value1");
+        Collection<AnnotationSummary> results = searchService.search("value1");
 
         // assert result is as expected
-        assertEquals("Wrong number of results", 2, results.keySet().size());
+        assertEquals("Wrong number of results", 2, results.size());
 
         // get both summaries
         AnnotationSummary verifiedSummary = null;
         AnnotationSummary unverifiedSummary = null;
-        for (AnnotationSummary as : results.keySet()) {
+        for (AnnotationSummary as : results) {
             if (as.getSemanticTags().contains(verifiableSemanticTag)) {
                 verifiedSummary = as;
             }
@@ -349,6 +355,6 @@ public class TestZoomaLuceneIndexer {
         assertNotNull("Could not find an unverified annotation summary", unverifiedSummary);
 
         assertTrue("Verified summary should score higher than unverified summary",
-                   results.get(verifiedSummary) > results.get(unverifiedSummary));
+                verifiedSummary.getQuality() > unverifiedSummary.getQuality());
     }
 }

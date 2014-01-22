@@ -56,33 +56,4 @@ public class DAOBasedStudySearchService extends AbstractShortnameResolver implem
     @Override public Collection<Study> searchByStudyAccession(String accession) {
         return getStudyDAO().readByAccession(accession);
     }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(String... semanticTagShortnames) {
-        return addScores(searchBySemanticTags(semanticTagShortnames));
-    }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(URI... semanticTags) {
-        return addScores(searchBySemanticTags(semanticTags));
-    }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(boolean useInference,
-                                                                    String... semanticTagShortnames) {
-        return addScores(searchBySemanticTags(useInference, semanticTagShortnames));
-    }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(boolean useInference, URI... semanticTags) {
-        return addScores(searchBySemanticTags(useInference, semanticTags));
-    }
-
-    @Override public Map<Study, Float> searchAndScoreByStudyAccession(String accession) {
-        return addScores(searchByStudyAccession(accession));
-    }
-
-    private Map<Study, Float> addScores(Collection<Study> studies) {
-        Map<Study, Float> results = new HashMap<>();
-        for (Study study : studies) {
-            results.put(study, 1.0f);
-        }
-        return results;
-    }
 }

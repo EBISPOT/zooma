@@ -60,6 +60,10 @@
         <constructor-arg name="dictionaryResource" value="classpath:stopword_dictionary.txt" />
     </bean>
 
+    <bean id="annotationSourceService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedAnnotationSourceService">
+        <property name="annotationSourceDAO" ref="lodeAnnotationSourceDAO" />
+    </bean>
+
     <bean id="annotationSummaryService" class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummaryService">
         <property name="analyzer" ref="analyzer" />
         <property name="similarity" ref="similarity" />
@@ -161,5 +165,7 @@
     <bean id="sorter" class="uk.ac.ebi.fgpt.zooma.util.ScoreBasedSorter" />
 
     <bean id="limiter" class="uk.ac.ebi.fgpt.zooma.util.BasicLimiter" />
+
+    <bean id="scorer" class="uk.ac.ebi.fgpt.zooma.util.AnnotationSummaryNeedlemanWunschScorer" />
 
 </beans>

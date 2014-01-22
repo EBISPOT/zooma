@@ -4,7 +4,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.fgpt.zooma.exception.InvalidDataFormatException;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
@@ -16,7 +15,6 @@ import uk.ac.ebi.fgpt.zooma.model.Study;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,12 +35,11 @@ import java.util.Map;
  * @author Tony Burdett
  * @date 23/10/12
  */
-public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
+public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements AnnotationDAO {
     private final String datasourceName;
     private final String delimiter;
 
     private InputStream inputStream;
-    private AnnotationFactory annotationFactory;
 
     private Map<String, Integer> columnIndexMap;
     private List<Annotation> annotations;
@@ -51,35 +48,42 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
 
     private static DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
-    public CSVAnnotationDAO(File file, String datasourceName) throws FileNotFoundException {
-        this(new FileInputStream(file), datasourceName, "\t");
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file, String datasourceName)
+            throws FileNotFoundException {
+        this(annotationFactory, new FileInputStream(file), datasourceName, "\t");
         getLog().debug("Parsing CSV file from file: " + file.getAbsolutePath());
     }
 
-    public CSVAnnotationDAO(URL url, String datasourceName) throws IOException {
-        this(url.openStream(), datasourceName, "\t");
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, URL url, String datasourceName) throws IOException {
+        this(annotationFactory, url.openStream(), datasourceName, "\t");
         getLog().debug("Parsing CSV file from URL: " + url.getPath());
     }
 
-    public CSVAnnotationDAO(File file, String datasourceName, String delimiter) throws FileNotFoundException {
-        this(new FileInputStream(file), datasourceName, delimiter);
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file, String datasourceName, String delimiter)
+            throws FileNotFoundException {
+        this(annotationFactory, new FileInputStream(file), datasourceName, delimiter);
         getLog().debug("Parsing CSV file from file: " + file.getAbsolutePath());
     }
 
-    public CSVAnnotationDAO(URL url, String datasourceName, String delimiter) throws IOException {
-        this(url.openStream(), datasourceName, delimiter);
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, URL url, String datasourceName, String delimiter)
+            throws IOException {
+        this(annotationFactory, url.openStream(), datasourceName, delimiter);
         getLog().debug("Parsing CSV file from URL: " + url.getPath());
     }
 
     /**
      * Create a CSV annotation DAO with a default "tab" delimiter
      */
-    public CSVAnnotationDAO(InputStream stream, String datasourceName) {
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, InputStream stream, String datasourceName) {
         // use default delimiter of a tab
-        this(stream, datasourceName, "\t");
+        this(annotationFactory, stream, datasourceName, "\t");
     }
 
-    public CSVAnnotationDAO(InputStream stream, String datasourceName, String delimiter) {
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory,
+                            InputStream stream,
+                            String datasourceName,
+                            String delimiter) {
+        super(annotationFactory);
         this.datasourceName = datasourceName;
         this.delimiter = delimiter;
         this.inputStream = stream;
@@ -94,14 +98,6 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
 
     public InputStream getInputStream() {
         return inputStream;
-    }
-
-    public AnnotationFactory getAnnotationFactory() {
-        return annotationFactory;
-    }
-
-    public void setAnnotationFactory(AnnotationFactory annotationFactory) {
-        this.annotationFactory = annotationFactory;
     }
 
     @Override protected void doInitialization() throws Exception {
@@ -238,24 +234,24 @@ public class CSVAnnotationDAO extends Initializable implements AnnotationDAO {
                 }
 
                 // now we've collected fields, generate annotation using annotation factory
-                annotations.add(getAnnotationFactory().createAnnotation(annotationURI,
-                                                                        annotationID,
-                                                                        studyAcc,
-                                                                        studyURI,
-                                                                        studyID,
-                                                                        studyType,
-                                                                        bioentityName,
-                                                                        bioentityURI,
-                                                                        bioentityID,
-                                                                        bioentityTypeName,
-                                                                        bioentityTypeURI,
-                                                                        propertyType,
-                                                                        propertyValue,
-                                                                        propertyURI,
-                                                                        propertyID,
-                                                                        semanticTag,
-                                                                        annotator,
-                                                                        annotationDate));
+                annotations.add(createAnnotation(annotationURI,
+                                                 annotationID,
+                                                 studyAcc,
+                                                 studyURI,
+                                                 studyID,
+                                                 studyType,
+                                                 bioentityName,
+                                                 bioentityURI,
+                                                 bioentityID,
+                                                 bioentityTypeName,
+                                                 bioentityTypeURI,
+                                                 propertyType,
+                                                 propertyValue,
+                                                 propertyURI,
+                                                 propertyID,
+                                                 semanticTag,
+                                                 annotator,
+                                                 annotationDate));
             }
         }
 

@@ -5,27 +5,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.exception.AmbiguousResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.SimpleBiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
-import uk.ac.ebi.fgpt.zooma.model.Study;
+import uk.ac.ebi.fgpt.zooma.model.*;
+import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
 import uk.ac.ebi.fgpt.zooma.service.DataLoadingService;
+import uk.ac.ebi.fgpt.zooma.service.PropertyService;
+import uk.ac.ebi.fgpt.zooma.view.AnnotationBatchUpdateRequest;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Load data into ZOOMA from available datasources.
@@ -41,10 +36,32 @@ import java.util.Collection;
 public class ZoomaAnnotationLoader {
     private DataLoadingService<Annotation> dataLoadingService;
 
+    private AnnotationService annotationService;
+
+    private PropertyService propertyService;
+
     private Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {
         return log;
+    }
+
+    public AnnotationService getAnnotationService() {
+        return annotationService;
+    }
+
+    @Autowired
+    public void setAnnotationService(AnnotationService annotationService) {
+        this.annotationService = annotationService;
+    }
+
+    public PropertyService getPropertyService() {
+        return propertyService;
+    }
+
+    @Autowired
+    public void setPropertyService(PropertyService propertyService) {
+        this.propertyService = propertyService;
     }
 
     public DataLoadingService<Annotation> getDataLoadingService() {
@@ -59,6 +76,73 @@ public class ZoomaAnnotationLoader {
     @RequestMapping(value = "/annotations", method = RequestMethod.POST)
     public @ResponseBody DataLoadingService.Receipt loadAnnotations(@RequestBody Collection<Annotation> annotations) {
         return getDataLoadingService().load(annotations);
+    }
+
+    @RequestMapping(value = "/annotations/batchUpdate", method = RequestMethod.POST)
+    public @ResponseBody DataLoadingService.Receipt loadBatchOfAnnotations(
+            @RequestBody AnnotationBatchUpdateRequest annotations,
+            @RequestParam(value = "oldPropertyUriFilter", required = false) String oldPropertyUri,
+            @RequestParam(value = "semanticTagUriFilter", required = false) String semanticTagUri,
+            @RequestParam(value = "studyUriFilter", required = false) String studyUri,
+            @RequestParam(value = "dataSourceFilter", required = true) String datasoureUri
+    )  throws ZoomaUpdateException {
+
+        // todo - check datasource and that user is authorised to edit
+
+        // check old property URI exists.
+        Collection<Annotation> annotationsToUpdate = new HashSet<Annotation>();
+
+
+        if (oldPropertyUri != null) {
+            Property oldProperty = getPropertyService().getProperty(oldPropertyUri);
+
+            if (oldProperty != null) {
+
+                if (semanticTagUri != null) {
+                    for (Annotation annoByStudy : getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri))) {
+                        if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
+                            if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                annotationsToUpdate.add(annoByStudy);
+                            }
+                        }
+                    }
+                }
+                else if (studyUri != null) {
+                    for (Annotation annoByStudy : getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(studyUri), null))) {
+                        if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
+                            if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                annotationsToUpdate.add(annoByStudy);
+                            }
+                        }
+                    }
+                }
+                else {
+                    for (Annotation annoByProp : getAnnotationService().getAnnotationsByProperty(oldProperty)) {
+                        if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                            annotationsToUpdate.add(annoByProp);
+                        }
+                    }
+                }
+            }
+            else {
+                throw new IllegalArgumentException(
+                        "Failed to update property: No property found with URI '" + oldPropertyUri + "'.");
+            }
+
+
+        }
+        else if (semanticTagUri != null) {
+            for (Annotation annoByStudy : getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri))) {
+                if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                    annotationsToUpdate.add(annoByStudy);
+                }
+            }
+        }
+
+        return null;
+
+//        Collection<Annotation> newAnnos = getAnnotationService().updateAnnotation(annotationsToUpdate, annotations);
+
     }
 
     @RequestMapping(value = "/datasources", method = RequestMethod.GET)
@@ -98,7 +182,7 @@ public class ZoomaAnnotationLoader {
                 getLog().debug("Fetching data from datasource '" + datasourceName + "', study '" + study + "'");
                 Collection<Annotation> annotationsToLoad = ((AnnotationDAO) loaderDAO).readByStudy(study);
                 getLog().debug("Loading " + annotationsToLoad.size() + " data items from " +
-                                       loaderDAO.getDatasourceName());
+                        loaderDAO.getDatasourceName());
                 String datasetName = datasourceName.concat(".").concat(studyFilter);
                 DataLoadingService.Receipt receipt = getDataLoadingService().load(annotationsToLoad, datasetName);
                 getLog().debug("Load request sent, received receipt ID " + receipt.getID());
@@ -117,7 +201,7 @@ public class ZoomaAnnotationLoader {
     }
 
     @RequestMapping(value = "/{datasourceName}/study/{studyFilter}/biologicalEntity/{bioentityFilter}",
-                    method = RequestMethod.PUT)
+            method = RequestMethod.PUT)
     public @ResponseBody DataLoadingService.Receipt loadFromDatasourceWithStudyAndBioentityFilter(
             @PathVariable String datasourceName,
             @PathVariable String studyFilter,
@@ -128,7 +212,7 @@ public class ZoomaAnnotationLoader {
                 Study study = new SimpleStudy(null, studyFilter);
                 BiologicalEntity be = new SimpleBiologicalEntity(null, bioentityFilter, study);
                 getLog().debug("Fetching data from datasource '" + datasourceName + "', " +
-                                       "study '" + study + "', bioentity '" + be + "'");
+                        "study '" + study + "', bioentity '" + be + "'");
                 Collection<Annotation> annotationsToLoad = ((AnnotationDAO) loaderDAO).readByBiologicalEntity(be);
                 getLog().debug("Loading " + annotationsToLoad + " data items from " + loaderDAO.getDatasourceName());
                 String datasetName = datasourceName.concat(".").concat(studyFilter).concat(".").concat(bioentityFilter);

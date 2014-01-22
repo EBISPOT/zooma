@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.zooma.model;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * An implementation of an Annotation designed to be used by jackson to deserialize annotation requests.  You should NOT
@@ -21,34 +22,39 @@ import java.util.Collection;
 public class AnnotationRequest implements Annotation {
     private static final long serialVersionUID = 3852368256814720528L;
 
-    private Collection<BiologicalEntity> annotatedBiologicalEntities;
+    private Collection<BiologicalEntity> annotatedBiologicalEntities = Collections.emptySet();
     private Property annotatedProperty;
-    private Collection<URI> semanticTags;
-    private Collection<URI> replacingAnnotations;
-    private Collection<URI> replacedAnnotations;
+    private Collection<URI> semanticTags = Collections.emptySet();
+    private Collection<URI> replaces = Collections.emptySet();
+    private Collection<URI> replacedBy = Collections.emptySet();
     private AnnotationProvenance provenance;
+    private URI uri;
 
     // custom getters and setters for bona-fide "bean" credentials
 
     public void setURI(URI uri) {
-        // do nothing
+       this.uri = uri;
     }
 
-    public Collection<URI> getReplacingAnnotations() {
-        return replacingAnnotations;
+    @Override public URI getURI() {
+        return uri;
     }
 
-    public void setReplacingAnnotations(Collection<URI> replacingAnnotations) {
-        this.replacingAnnotations = replacingAnnotations;
+    public Collection<URI> getReplaces() {
+        return replaces;
     }
 
-    public Collection<URI> getReplacedAnnotations() {
-        return replacedAnnotations;
+//    public void setReplaces(Collection<URI> replaces) {
+//        this.replaces = replaces;
+//    }
+
+    public Collection<URI> getReplacedBy() {
+        return replacedBy;
     }
 
-    public void setReplacedAnnotations(Collection<URI> replacedAnnotations) {
-        this.replacedAnnotations = replacedAnnotations;
-    }
+//    public void setReplacedBy(Collection<URI> replacedBy) {
+//        this.replacedBy = replacedBy;
+//    }
 
     // getters and setters that fit the interface
 
@@ -84,25 +90,13 @@ public class AnnotationRequest implements Annotation {
         this.provenance = provenance;
     }
 
-    // compatibility wrappers, delegate to "proper" getters and setters
-
-    @Override public Collection<URI> replacedBy() {
-        return getReplacedAnnotations();
-    }
-
     @Override public void setReplacedBy(URI... replacedBy) {
-        setReplacedAnnotations(Arrays.asList(replacedBy));
-    }
-
-    @Override public Collection<URI> replaces() {
-        return getReplacingAnnotations();
+        this.replacedBy = Arrays.asList(replacedBy);
     }
 
     @Override public void setReplaces(URI... replaces) {
-        setReplacingAnnotations(Arrays.asList(replaces));
+        this.replaces = Arrays.asList(replaces);
     }
 
-    @Override public URI getURI() {
-        return null;
-    }
+
 }

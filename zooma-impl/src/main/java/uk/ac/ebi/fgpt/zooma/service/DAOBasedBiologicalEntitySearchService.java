@@ -56,30 +56,4 @@ public class DAOBasedBiologicalEntitySearchService
                                                                        URI... semanticTags) {
         return getBiologicalEntityDAO().readBySemanticTags(useInference, semanticTags);
     }
-
-    @Override public Map<BiologicalEntity, Float> searchAndScoreBySemanticTags(String... semanticTagShortnames) {
-        return addScores(searchBySemanticTags(semanticTagShortnames));
-    }
-
-    @Override public Map<BiologicalEntity, Float> searchAndScoreBySemanticTags(URI... semanticTags) {
-        return addScores(searchBySemanticTags(semanticTags));
-    }
-
-    @Override public Map<BiologicalEntity, Float> searchAndScoreBySemanticTags(boolean useInference,
-                                                                               String... semanticTagShortnames) {
-        return addScores(searchBySemanticTags(useInference, semanticTagShortnames));
-    }
-
-    @Override public Map<BiologicalEntity, Float> searchAndScoreBySemanticTags(boolean useInference,
-                                                                               URI... semanticTags) {
-        return addScores(searchBySemanticTags(useInference, semanticTags));
-    }
-
-    private Map<BiologicalEntity, Float> addScores(Collection<BiologicalEntity> biologicalEntities) {
-        Map<BiologicalEntity, Float> results = new HashMap<>();
-        for (BiologicalEntity be : biologicalEntities) {
-            results.put(be, 1.0f);
-        }
-        return results;
-    }
 }

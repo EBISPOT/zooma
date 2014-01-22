@@ -134,7 +134,7 @@ public class ZoomaPropertyTypeSearcher extends SuggestEndpoint<String, String> {
 
     public Collection<String> query(String prefix, int limit, int start) {
         validate();
-        Map<String, Float> allTypes = getPropertyTypeSearchService().searchAndScoreByPrefix(prefix);
+        Collection<String> allTypes = getPropertyTypeSearchService().searchByPrefix(prefix);
         List<String> allTypesList = getPropertyTypeSorter().sort(allTypes);
         return getPropertyTypeLimiter().limit(allTypesList, limit, start);
     }

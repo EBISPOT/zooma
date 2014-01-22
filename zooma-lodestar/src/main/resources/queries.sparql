@@ -1,14 +1,24 @@
 
 ^[ANNOTATIONS.read]
-SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
+SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid)  (?bioentityType AS ?_bioentityType) ?bioentitylabel (?study AS ?_study) (?studyType AS ?_studyType) ?studylabel ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename ?replacedBy ?replaces WHERE {
     ?annotationid a oac:DataAnnotation .
     ?annotationid oac:hasBody ?propertyvalueid .
     ?propertyvalueid zoomaterms:propertyName ?propertyname .
     ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
     ?propertyvalueid rdf:type zoomaterms:Property .
 
+    OPTIONAL {?annotationid zoomaterms:replaces ?replaces }
+    OPTIONAL {?annotationid zoomaterms:isReplacedBy ?replacedBy }
+
     OPTIONAL {
-        ?annotationid oac:hasTarget ?bioentityid
+        ?annotationid oac:hasTarget ?bioentityid .
+        ?bioentityid a ?bioentityType .
+        OPTIONAL {?bioentityid rdfs:label ?bioentitylabel}
+        OPTIONAL {
+            ?bioentityid dc:isPartOf ?study .
+            ?study a ?studyType .
+            OPTIONAL {?study rdfs:label ?studylabel }
+        }
     }
 
     OPTIONAL {
@@ -25,9 +35,7 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
     OPTIONAL {?annotationid oac:annotated ?annotated} .
     OPTIONAL {?annotationid oac:generator ?generator} .
     OPTIONAL {?annotationid oac:generated ?generated} .
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#NamedIndividual")
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Class")
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Ontology")
+
 }
 
 ^[ANNOTATIONS.lucene.read]
@@ -50,7 +58,7 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?propertyvalueid as ?_propert
 }
 
 ^[ANNOTATIONS_STUDY.read]
-SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename WHERE {
+SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) (?bioentityType AS ?_bioentityType) ?bioentitylabel (?studyid AS ?_study) (?studyType AS ?_studyType) ?studylabel ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename ?replacedBy ?replaces WHERE {
     ?annotationid a oac:DataAnnotation .
     ?annotationid oac:hasBody ?propertyvalueid .
     ?propertyvalueid zoomaterms:propertyName ?propertyname .
@@ -58,7 +66,62 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
     ?propertyvalueid a zoomaterms:Property .
 
     ?annotationid oac:hasTarget ?bioentityid .
+
     ?bioentityid dc:isPartOf ?study .
+    ?bioentityid dc:isPartOf ?studyid .
+
+    ?bioentityid a ?bioentityType .
+    OPTIONAL {?bioentityid rdfs:label ?bioentitylabel} .
+
+    ?studyid a ?studyType .
+    OPTIONAL {
+     ?studyid rdfs:label ?studylabel
+    }
+
+    OPTIONAL {
+        ?annotationid oac:hasBody ?semantictag .
+        ?semantictag rdf:type oac:SemanticTag
+    }
+
+    ?annotationid dc:source ?databaseid .
+    ?databaseid a ?sourcetype .
+    ?databaseid zoomaterms:shortName ?sourcename .
+
+    OPTIONAL {?annotationid zoomaterms:replaces ?replaces }
+    OPTIONAL {?annotationid zoomaterms:isReplacedBy ?replacedBy }
+
+    OPTIONAL {?annotationid zoomaterms:hasEvidence ?evidence}
+    OPTIONAL {?annotationid oac:annotator ?annotator}
+    OPTIONAL {?annotationid oac:annotated ?annotated}
+    OPTIONAL {?annotationid oac:generator ?generator}
+    OPTIONAL {?annotationid oac:generated ?generated}
+
+}
+
+
+^[ANNOTATIONS_BIOENTITY.read]
+SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentity as ?_bioentityid) (?bioentityType AS ?_bioentityType) ?bioentitylabel (?studyid AS ?_study) (?studyType AS ?_studyType) ?studylabel ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype ?sourcename ?replacedBy ?replaces  WHERE {
+    ?annotationid a oac:DataAnnotation .
+    ?annotationid oac:hasBody ?propertyvalueid .
+    ?propertyvalueid zoomaterms:propertyName ?propertyname .
+    ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
+    ?propertyvalueid a zoomaterms:Property .
+
+    OPTIONAL {?annotationid zoomaterms:replaces ?replaces }
+    OPTIONAL {?annotationid zoomaterms:isReplacedBy ?replacedBy }
+
+    ?annotationid oac:hasTarget ?bioentityid .
+    ?annotationid oac:hasTarget ?bioentity .
+    ?bioentity dc:isPartOf ?studyid .
+
+    ?bioentity a ?bioentityType .
+    OPTIONAL {?bioentity rdfs:label ?bioentitylabel} .
+
+    ?studyid a ?studyType .
+    OPTIONAL {
+     ?studyid rdfs:label ?studylabel
+    }
+
     OPTIONAL {
         ?annotationid oac:hasBody ?semantictag .
         ?semantictag rdf:type oac:SemanticTag
@@ -73,39 +136,6 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
     OPTIONAL {?annotationid oac:annotated ?annotated}
     OPTIONAL {?annotationid oac:generator ?generator}
     OPTIONAL {?annotationid oac:generated ?generated}
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#NamedIndividual")
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Class")
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Ontology")
-
-}
-
-
-^[ANNOTATIONS_BIOENTITY.read]
-SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid) ?databaseid ?evidence (?propertyvalueid as ?_propertyvalueid) (?propertyname  as ?_propertyname) (?propertyvalue as ?_propertyvalue) (?semantictag as ?_semantictag) ?annotator ?annotated ?generator ?generated ?sourcetype  ?sourcename WHERE {
-    ?annotationid rdf:type oac:DataAnnotation .
-    ?annotationid oac:hasBody ?propertyvalueid .
-    ?propertyvalueid zoomaterms:propertyName ?propertyname .
-    ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
-    ?propertyvalueid rdf:type zoomaterms:Property .
-
-    ?annotationid oac:hasTarget ?bioentityid .
-
-    OPTIONAL {
-        ?annotationid oac:hasBody ?semantictag .
-        ?semantictag rdf:type oac:SemanticTag
-    }
-    ?annotationid dc:source ?databaseid .
-    ?databaseid a ?sourcetype .
-    ?databaseid zoomaterms:shortName ?sourcename .
-    OPTIONAL {?annotationid zoomaterms:hasEvidence ?evidence} .
-    OPTIONAL {?annotationid oac:annotator ?annotator} .
-    OPTIONAL {?annotationid oac:annotated ?annotated} .
-    OPTIONAL {?annotationid oac:generator ?generator} .
-    OPTIONAL {?annotationid oac:generated ?generated} .
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#NamedIndividual")
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Class")
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Ontology")
-
 }
 
 ^[ANNOTATIONS.label]
@@ -119,7 +149,7 @@ SELECT ?synonym WHERE {
 }
 
 ^[BiologicalEntity.read]
-SELECT DISTINCT (?bioentityid AS ?_bioentityid) (?bioentityType AS ?_bioentityType) ?bioentitylabel ?study (?studyType AS ?_studyType) ?studylabel WHERE {
+SELECT DISTINCT (?bioentityid AS ?_bioentityid) (?bioentityType AS ?_bioentityType) ?bioentitylabel (?study AS ?_study) (?studyType AS ?_studyType) ?studylabel WHERE {
     ?annotationid rdf:type oac:DataAnnotation .
     ?annotationid oac:hasTarget ?bioentityid .
 
@@ -135,13 +165,6 @@ SELECT DISTINCT (?bioentityid AS ?_bioentityid) (?bioentityType AS ?_bioentityTy
      }
     }
     OPTIONAL {?bioentityid  rdfs:label ?bioentitylabel }
-
-    FILTER (str(?studyType) != "http://www.w3.org/2002/07/owl#NamedIndividual")
-    FILTER (str(?studyType) != "http://www.w3.org/2002/07/owl#Class")
-    FILTER (str(?studyType) != "http://www.w3.org/2002/07/owl#Ontology")
-    FILTER (str(?bioentityType) != "http://www.w3.org/2002/07/owl#NamedIndividual")
-    FILTER (str(?bioentityType) != "http://www.w3.org/2002/07/owl#Class")
-    FILTER (str(?bioentityType) != "http://www.w3.org/2002/07/owl#Ontology")
 }
 
 ^[Study.read]
@@ -182,7 +205,7 @@ SELECT DISTINCT ?propertyname WHERE {
 
 
 ^[BiologicalEntity.bySemanticTag]
-SELECT DISTINCT ?bioentityid ?bioentitylabel ?study ?studylabel WHERE {
+SELECT DISTINCT ?bioentityid ?bioentitylabel (?study AS ?_study) ?studylabel WHERE {
     ?annotationid a oac:DataAnnotation .
     ?annotationid oac:hasTarget ?bioentityid .
     OPTIONAL {?bioentityid rdfs:label ?bioentitylabel }
@@ -196,7 +219,7 @@ SELECT DISTINCT ?bioentityid ?bioentitylabel ?study ?studylabel WHERE {
 }
 
 ^[BiologicalEntity.bySemanticTagInferred]
-SELECT DISTINCT ?bioentityid ?bioentitylabel ?study ?studylabel WHERE {
+SELECT DISTINCT ?bioentityid ?bioentitylabel (?study AS ?_study) ?studylabel WHERE {
     ?annotationid rdf:type oac:DataAnnotation .
     ?annotationid oac:hasTarget ?bioentityid .
     OPTIONAL {
@@ -266,14 +289,27 @@ SELECT DISTINCT ?annotationid WHERE {
 }
 
 ^[AnnotationSummaries.read]
-SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?semantictag WHERE {
+SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?semantictag ?databaseid ?sourcename ?sourcetype ?oldAnnotationid ?oldPropertyvalueid ?oldPropertyname ?oldPropertyvalue WHERE {
      ?annotationid a oac:DataAnnotation .
      ?annotationid oac:hasBody ?propertyvalueid .
      OPTIONAL {?propertyvalueid zoomaterms:propertyName ?propertyname }
      ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
      ?propertyvalueid rdf:type zoomaterms:Property .
      ?annotationid oac:hasBody ?semantictag .
-     ?semantictag rdf:type oac:SemanticTag
+     ?semantictag rdf:type oac:SemanticTag .
+
+     ?annotationid dc:source ?databaseid .
+     ?databaseid a ?sourcetype .
+     ?databaseid zoomaterms:shortName ?sourcename .
+
+   	 OPTIONAL {
+        ?annotationid zoomaterms:replaces ?oldAnnotationid option (transitive).
+		?oldAnnotationid oac:hasBody ?oldPropertyvalueid .
+
+     	OPTIONAL {?oldPropertyvalueid zoomaterms:propertyName ?oldPropertyname }
+     	?oldPropertyvalueid zoomaterms:propertyValue ?oldPropertyvalue .
+     }
+     FILTER NOT EXISTS { ?annotationid zoomaterms:isReplacedBy ?someanno }
 }
 
 ^[AnnotationProvenance.read]
@@ -288,8 +324,28 @@ SELECT DISTINCT (?annotationid as ?_annotationid) (?bioentityid as ?_bioentityid
     OPTIONAL {?annotationid oac:annotated ?annotated} .
     OPTIONAL {?annotationid oac:generator ?generator} .
     OPTIONAL {?annotationid oac:generated ?generated} .
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#NamedIndividual")
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Class")
-    FILTER (str(?sourcetype) != "http://www.w3.org/2002/07/owl#Ontology")
+}
+
+^[AnnotationSource.read]
+SELECT DISTINCT ?sourcename ?sourcetype ?databaseid WHERE {
+  ?databaseid zoomaterms:shortName ?sourcename .
+  ?databaseid a ?sourcetype .
+  {
+    {?databaseid a zoomaterms:OntologySource}
+    UNION
+    {?databaseid a zoomaterms:DatabaseSource}
+  } .
+}
+
+^[AnnotationSource.readBySourcename]
+SELECT DISTINCT ?sourcename ?sourcetype ?databaseid WHERE {
+  ?databaseid zoomaterms:shortName ?sourcename .
+  ?databaseid a ?sourcetype .
+  {
+    {?databaseid a zoomaterms:OntologySource}
+    UNION
+    {?databaseid a zoomaterms:DatabaseSource}
+  } .
+  filter
 }
 

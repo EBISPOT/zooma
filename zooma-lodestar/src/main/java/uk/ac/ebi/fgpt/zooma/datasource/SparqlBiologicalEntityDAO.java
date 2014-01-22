@@ -387,7 +387,7 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
             label = sampleLabelValue.getLexicalForm();
         }
 
-        Resource studyIdValue = solution.getResource(QueryVariables.STUDY_ID.toString());
+        Resource studyIdValue = solution.getResource(underscore + QueryVariables.STUDY_ID.toString());
         Resource studyTypeValue = solution.getResource(underscore + QueryVariables.STUDY_TYPE.toString());
         URI studyUri = null;
         URI studyType = null;

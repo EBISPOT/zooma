@@ -39,25 +39,4 @@ public abstract class StudySearchServiceDecorator implements StudySearchService 
     @Override public Collection<Study> searchByStudyAccession(String accession) {
         return _studySearchService.searchByStudyAccession(accession);
     }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(String... semanticTagShortnames) {
-        return _studySearchService.searchAndScoreBySemanticTags(semanticTagShortnames);
-    }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(URI... semanticTags) {
-        return _studySearchService.searchAndScoreBySemanticTags(semanticTags);
-    }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(boolean useInference,
-                                                                    String... semanticTagShortnames) {
-        return _studySearchService.searchAndScoreBySemanticTags(useInference, semanticTagShortnames);
-    }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(boolean useInference, URI... semanticTags) {
-        return _studySearchService.searchAndScoreBySemanticTags(useInference, semanticTags);
-    }
-
-    @Override public Map<Study, Float> searchAndScoreByStudyAccession(String accession) {
-        return _studySearchService.searchAndScoreByStudyAccession(accession);
-    }
 }

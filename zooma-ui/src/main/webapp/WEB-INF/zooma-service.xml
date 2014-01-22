@@ -17,8 +17,16 @@
 
     <bean id="annotationService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedAnnotationService">
         <property name="annotationDAO" ref="lodeAnnotationDAO" />
+        <property name="annotationFactory" ref="transactionalAnnotationFactory" />
         <property name="propertiesMapAdapter" ref="propertiesMapAdapter" />
     </bean>
+
+    <bean id="transactionalAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.TransactionalAnnotationFactory">
+        <constructor-arg name="annotationLoadingSession" ref="transactionalAnnotationLoadingSession" />
+    </bean>
+
+    <bean id="transactionalAnnotationLoadingSession"
+          class="uk.ac.ebi.fgpt.zooma.datasource.TransactionalAnnotationLoadingSession" />
 
     <bean id="annotationSearchService" class="uk.ac.ebi.fgpt.zooma.service.PropertyBasedAnnotationSearchService">
         <property name="annotationService" ref="annotationService" />
@@ -60,11 +68,15 @@
         <constructor-arg name="dictionaryResource" value="classpath:stopword_dictionary.txt" />
     </bean>
 
+    <bean id="annotationSourceService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedAnnotationSourceService">
+        <property name="annotationSourceDAO" ref="lodeAnnotationSourceDAO" />
+    </bean>
+
     <bean id="annotationSummaryService" class="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummaryService">
         <property name="analyzer" ref="analyzer" />
         <property name="similarity" ref="similarity" />
         <property name="index" ref="annotationSummaryIndex" />
-        <property name="annotationIndex" ref="annotationIndex" />
+        <property name="annotationDAO" ref="lodeAnnotationDAO" />
     </bean>
 
     <!--
@@ -79,7 +91,7 @@
         <property name="analyzer" ref="analyzer" />
         <property name="similarity" ref="similarity" />
         <property name="index" ref="annotationSummaryIndex" />
-        <property name="annotationIndex" ref="annotationIndex" />
+        <property name="annotationDAO" ref="lodeAnnotationDAO" />
         <property name="searchStringProcessorProvider" ref="searchStringProcessorProvider" />
     </bean>
 
@@ -161,5 +173,7 @@
     <bean id="sorter" class="uk.ac.ebi.fgpt.zooma.util.ScoreBasedSorter" />
 
     <bean id="limiter" class="uk.ac.ebi.fgpt.zooma.util.BasicLimiter" />
+
+    <bean id="scorer" class="uk.ac.ebi.fgpt.zooma.util.AnnotationSummaryNeedlemanWunschScorer" />
 
 </beans>

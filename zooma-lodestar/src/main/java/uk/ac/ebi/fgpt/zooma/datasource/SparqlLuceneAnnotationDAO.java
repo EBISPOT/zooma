@@ -298,7 +298,9 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
         if (!annotationMap.containsKey(annotationUri)) {
             Annotation newAnno = new SimpleLuceneAnnotation(annotationUri, p);
             annotationMap.put(newAnno.getURI(), newAnno);
-            annotationMap.get(annotationUri).getSemanticTags().add(ontoUri);
+            if (ontoUri != null) {
+                annotationMap.get(annotationUri).getSemanticTags().add(ontoUri);
+            }
         }
 
         if (ontoUri != null) {
@@ -394,7 +396,7 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
         }
 
         @Override
-        public Collection<URI> replacedBy() {
+        public Collection<URI> getReplacedBy() {
             throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
         }
 
@@ -405,7 +407,7 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
         }
 
         @Override
-        public Collection<URI> replaces() {
+        public Collection<URI> getReplaces() {
             throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
         }
 

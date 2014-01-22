@@ -22,7 +22,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertSame;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -208,12 +214,12 @@ public class TestTagBasedAnnotationResolverService {
                                    "\n\tResult:  \t" + result.toString() +
                                    "\n\tOriginal:\t" + updatedAnnotation.toString());
             assertTrue("Result is not replaced by updatedAnnotation",
-                       result.replaces().contains(resolvableAnnotation.getURI()));
+                       result.getReplaces().contains(resolvableAnnotation.getURI()));
 
             // if annotation doesn't exist but is a modified version of an old one, we should get back our original annotation, but linked to an old one
             result = resolver.resolve(modifiedAnnotation);
             assertTrue("No relation between result and resolvableAnnotation",
-                       result.replaces().contains(resolvableAnnotation.getURI()));
+                       result.getReplaces().contains(resolvableAnnotation.getURI()));
         }
         catch (Exception e) {
             e.printStackTrace();
