@@ -58,10 +58,15 @@ function init() {
                                     }
                                 });
 
+        // retrieve datasources
+        populateDatasources();
+
         // render table contents if there are results in session
         getResults();
 
         $("#zooma-explorebox").zooma({'api_base_url': ''});
+
+        $("#zooma-datasource-sorter").sortable({update: setDatasourceOrder});
     });
 }
 
@@ -117,6 +122,27 @@ function populateExamples() {
                                      "peripheral ganglion\torganism part\nleft tibia\torganism part");
 }
 
+function populateDatasources() {
+    // todo - get datasources from rest api endpoint
+    // retrieve datasources
+    var datasources = ['gxa', 'gwas'];
+
+    // populate checkboxes and sorters
+    var selectorContent = "<label>";
+    var sorterContent = "<ul id=\"zooma-datasource-sorter\" class=\"sortable ui-sortable\">";
+    for (var i = 0; i < datasources.length; i++) {
+        var datasource = datasources[i];
+        selectorContent = selectorContent + "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\">" +
+                datasource + "<br />";
+        sorterContent = sorterContent + "<li class=\"ui-state-default\" id=\"" + datasource + "\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>" + datasource + "</li>";
+    }
+    selectorContent = selectorContent + "</label>";
+    sorterContent = sorterContent + "</ul>";
+    $("#datasource-selector").html(selectorContent);
+    $("#datasource-sorter").html(sorterContent);
+
+}
+
 function annotate(content) {
     resetSession(function(response) {
         log(response);
@@ -137,6 +163,10 @@ function clearAll() {
 
 function resetSession(callback) {
     $.get('v2/api/services/map/reset', callback);
+}
+
+function setDatasourceOrder() {
+    alert("Reordering datasources");
 }
 
 function jsonifyTextArea(content) {
@@ -219,15 +249,15 @@ function renderResults(data) {
 
     // result data format:
     /*
-      [0] - property type
-      [1] - property value
-      [2] - matched ontology term label
-      [3] - matched ontology term synonyms
-      [4] - mapping type
-      [5] - matched ontology term "ID" (i.e. fragment)
-      [6] - matched ontology URI
-      [7] - datasource
-    */
+     [0] - property type
+     [1] - property value
+     [2] - matched ontology term label
+     [3] - matched ontology term synonyms
+     [4] - mapping type
+     [5] - matched ontology term "ID" (i.e. fragment)
+     [6] - matched ontology URI
+     [7] - datasource
+     */
 
     // render new payload
     var payload = data.data;
@@ -320,7 +350,7 @@ function renderResults(data) {
                     else {
                         var links = "";
                         var l = termIDs.length - 1;
-                        for (var k = 0; k < l ; k++) {
+                        for (var k = 0; k < l; k++) {
                             var termID = termIDs[k].trim();
                             var ontologyURI = ontologyURIs[k];
                             links += linkify(ontologyURI + termID, termID) + ",<br />";

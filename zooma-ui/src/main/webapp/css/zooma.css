@@ -35,6 +35,23 @@
     cursor: pointer;
 }
 
+.sortable {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sortable li {
+    margin-bottom: 1px;
+    padding: 1px 1px 1px 16px;
+}
+
+.sortable li span {
+    position: absolute;
+    margin-top: -3px;
+    margin-left: -16px;
+}
+
 .eg-description {
     font-style: italic;
     color: #999;

@@ -236,21 +236,42 @@
         </form>
     </div>
 
-    <div id="zooma-exploration" class="grid_12 omega">
+    <!--<div id="zooma-exploration" class="grid_12 omega">-->
+        <!--<form>-->
+            <!--<fieldset style="padding-top: 10px; margin: 20px; height: 50px;">-->
+                <!--<div style="float:left; font-size: 0.7em">-->
+                    <!--...or just start typing to explore annotations in ZOOMA-->
+                <!--</div>-->
+                <!--<div>-->
+                    <!--<label>-->
+                        <!--<input type="text" name="first" id="zooma-explorebox" style="width:98%">-->
+                    <!--</label>-->
+                <!--</div>-->
+            <!--</fieldset>-->
+        <!--</form>-->
+
+        <!--<div id="zooma-flyout" style="padding: 0 9px; margin: 20px 20px 0px 20px; min-height: 180px;"></div>-->
+    <!--</div>-->
+
+    <div id="zooma-prefs" class="grid_12 omega">
         <form>
-            <fieldset style="padding-top: 10px; margin: 20px; height: 50px;">
-                <div style="float:left; font-size: 0.7em">
-                    ...or just start typing to explore annotations in ZOOMA
+            <fieldset style="padding-top: 10px; margin: 20px; height: 250px;">
+                <div id="required-datasources" style="font-size: 0.7em; height:120px; margin-bottom: 10px;">
+                    <div>
+                        Searches include the following datasources:
+                    </div>
+                    <div id="datasource-selector">
+                    </div>
                 </div>
-                <div>
-                    <label>
-                        <input type="text" name="first" id="zooma-explorebox" style="width:98%">
-                    </label>
+                <div id="ranked-datasources" style="font-size: 0.7em; height:120px; margin-top: 10px;">
+                    <div>
+                        Preferred datasource order (Drag datasources into the right window to rank by preference)
+                    </div>
+                    <div id="datasource-sorter">
+                    </div>
                 </div>
             </fieldset>
         </form>
-
-        <div id="zooma-flyout" style="padding: 0 9px; margin: 20px 20px 0px 20px; min-height: 180px;"></div>
     </div>
 </div>
 
