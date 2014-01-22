@@ -24,6 +24,7 @@ import java.util.Set;
  * @author Tony Burdett
  * @date 05/06/13
  */
+@Deprecated
 public abstract class AbstractAnnotationResolver implements ZoomaResolver<Annotation> {
     private AnnotationDAO zoomaAnnotationDAO;
 

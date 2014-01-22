@@ -11,6 +11,7 @@ import java.io.InputStream;
  * @author Tony Burdett
  * @date 06/06/13
  */
+@Deprecated
 public interface ZoomaStorer {
     /**
      * Takes a serialized collection of ZOOMA model objects in the supplied file and stores them in the underlying
@@ -20,6 +21,7 @@ public interface ZoomaStorer {
      * @throws IOException if there was a problem reading from the file or storing the serialized objects in the
      *                     underlying datasource
      */
+    @Deprecated
     void store(File serializedObjects) throws IOException;
 
     /**
@@ -30,5 +32,6 @@ public interface ZoomaStorer {
      * @throws IOException if there was a problem reading from the input stream or storing the serialized objects in the
      *                     underlying datasource
      */
+    @Deprecated
     void store(InputStream serializedObjects) throws IOException;
 }
