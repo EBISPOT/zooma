@@ -108,4 +108,26 @@ public interface AnnotationService {
      */
     Annotation saveAnnotation(Annotation annotation) throws ZoomaUpdateException;
 
+    /**
+     * Saves the given annotations in ZOOMA.  Returns the updated annotations reference (which should now include an
+     * assigned URI, if there wasn't one already)
+     *
+     * @param annotations the annotations to save (will be created if it doesn't already exist)
+     * @return an updated reference to the annotation, if necessary
+     * @throws ZoomaUpdateException if something went wrong during the update
+     */
+    Collection<Annotation> saveAnnotations(Collection<Annotation> annotations) throws ZoomaUpdateException;
+
+    /**
+     *
+     * Create a new collection of annotations which replace every annotations in the annotations to update
+     * with a new property and/or new semantic tags
+     *
+     * @param annotationsToUpdate the annotations to be replaced
+     * @param newProperty the property for the new annotations, if null the property on the annotation to update will be used
+     * @param newSemanticTags the semantic tags for the new annotations, can be null or empty. Behaviour depends on retainPreviousSemanticTags parameter
+     * @param retainPreviousSemanticTags if true the semantic tags on the old annotations will be added to the new annotation, the default behaviour is true
+     * @return A collection of newly created semantic tags
+     */
+    Collection<Annotation> updatePreviousAnnotations(Collection<Annotation> annotationsToUpdate, Property newProperty, Collection<URI> newSemanticTags, boolean retainPreviousSemanticTags) throws ZoomaUpdateException;
 }

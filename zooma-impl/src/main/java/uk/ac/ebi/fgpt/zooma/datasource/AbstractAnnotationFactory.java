@@ -42,6 +42,11 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
         return log;
     }
 
+    @Override
+    public Annotation createAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities, Property annotatedProperty, Collection<URI> semanticTags, Collection<URI> replaces, String annotator, Date annotationDate) {
+        return null;
+    }
+
     @Override public Annotation createAnnotation(URI annotationURI,
                                                  String annotationID,
                                                  String studyAccession,

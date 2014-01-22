@@ -113,10 +113,17 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
     @Override public void create(Annotation annotation) throws ResourceAlreadyExistsException {
         getLog().debug("Triggered annotation create request...\n\n" + annotation.toString());
+        create(Collections.singleton(annotation));
+    }
 
-        if (read(annotation.getURI()) != null) {
-            throw new ResourceAlreadyExistsException(
-                    "Can't create new annotation with " + annotation.getURI() + ", URI already exists");
+    @Override public void create(Collection<Annotation> annotations) throws ResourceAlreadyExistsException {
+        getLog().debug("Triggered create annotations request for " + annotations.size() + " annotations\n\n");
+
+        for (Annotation a : annotations) {
+            if (read(a.getURI()) != null) {
+                throw new ResourceAlreadyExistsException(
+                        "Can't create new annotation with " + a.getURI() + ", URI already exists");
+            }
         }
 
         try {
@@ -135,13 +142,13 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 }
             });
             thread.start();
-            getAnnotationZoomaSerializer().serialize(getDatasourceName(), Collections.singleton(annotation), pos);
+            getAnnotationZoomaSerializer().serialize(getDatasourceName(), annotations, pos);
         }
         catch (IOException e) {
-            log.error("Couldn't create annotation " + annotation.toString(), e);
+            log.error("Couldn't create annotations ", e);
         }
         catch (ZoomaSerializationException e) {
-            log.error("Couldn't create annotation " + annotation.toString(), e);
+            log.error("Couldn't create annotation ", e);
         }
     }
 

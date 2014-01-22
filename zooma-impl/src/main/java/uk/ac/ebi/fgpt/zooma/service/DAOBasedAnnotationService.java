@@ -17,10 +17,7 @@ import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * An annotation service that uses an implementation of {@link uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO} to
@@ -87,57 +84,171 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
     }
 
     @Override public Annotation saveAnnotation(Annotation annotation) throws ZoomaUpdateException {
+        Collection<Annotation> newAnnotations = saveAnnotations(Collections.singleton(annotation));
+        if (newAnnotations.size() == 1) {
+            return newAnnotations.iterator().next();
+        }
+        throw new ZoomaUpdateException("Saving annotation " + annotation.getURI() + " returned " + newAnnotations.size() + " when only 1 was expected");
+    }
+
+    @Override
+    public Collection<Annotation> saveAnnotations(Collection<Annotation> annotations) throws ZoomaUpdateException {
+
+        List<Annotation> annotationsList = new ArrayList<>(annotations);
+        Collections.sort(annotationsList, new Comparator<Annotation>() {
+            @Override
+            public int compare(Annotation o1, Annotation o2) {
+                return o1.getProvenance().getSource().getURI().compareTo(o2.getProvenance().getSource().getURI());
+            }
+        });
+
+        Collection<Annotation> newAnnotations = new HashSet<>();
+        Collection<Annotation> previousAnnotations = new HashSet<>();
+
         try {
-            getAnnotationFactory().acquire(annotation.getProvenance().getSource());
-            Annotation newAnnotation = mintNewAnnotationFromRequest(annotation);
-            Collection<Annotation> annotationsToUpdate = new HashSet<Annotation>();
-            if (!annotation.getReplaces().isEmpty()) {
-                for (URI replacedAnnotationURI : annotation.getReplaces()) {
-                    Annotation replacedAnnotation = getAnnotationDAO().read(replacedAnnotationURI);
-                    if (replacedAnnotation == null) {
-                        throw new ZoomaUpdateException("New annotation replaces an annotation that does not exist");
-                    }
-                    else {
-                        if (replacedAnnotation.getReplacedBy().isEmpty()) {
-                            replacedAnnotation.setReplacedBy(newAnnotation.getURI());
-                        }
-                        else {
-                            replacedAnnotation.getReplacedBy().add(newAnnotation.getURI());
-                        }
-                        if (newAnnotation.getReplaces().isEmpty()) {
-                            newAnnotation.setReplaces(replacedAnnotation.getURI());
-                        }
-                        else {
-                            newAnnotation.getReplaces().add(replacedAnnotation.getURI());
-                        }
-                    }
-                    annotationsToUpdate.add(replacedAnnotation);
+
+            AnnotationSource currentSource = annotationsList.get(0).getProvenance().getSource();
+            getAnnotationFactory().acquire(currentSource);
+
+            for (Annotation annotation : annotationsList) {
+
+                if (!annotation.getProvenance().getSource().getURI().equals(currentSource.getURI())) {
+                    getAnnotationFactory().release();
+                    currentSource = annotation.getProvenance().getSource();
+                    getAnnotationFactory().acquire(currentSource);
                 }
-            }
-            try {
-                getAnnotationDAO().create(newAnnotation);
-            }
-            catch (ResourceAlreadyExistsException e) {
-                URI newURI = URIUtils.incrementURI(getAnnotationDAO(), annotation.getURI());
-                newAnnotation = new SimpleAnnotation(newURI,
-                        newAnnotation.getAnnotatedBiologicalEntities(),
-                        newAnnotation.getAnnotatedProperty(),
-                        newAnnotation.getProvenance(), newAnnotation.getSemanticTags().toArray(new URI[newAnnotation.getSemanticTags().size()]),
-                        new URI[0],
-                        new URI[]{annotation.getURI()});
+
+                Annotation newAnnotation = getAnnotationFactory().createAnnotation(
+                        annotation.getAnnotatedBiologicalEntities(),
+                        annotation.getAnnotatedProperty(),
+                        annotation.getSemanticTags(),
+                        annotation.getReplaces(),
+                        "unknown",
+                        // todo get from authenticated user
+                        new Date());
+                newAnnotations.add(newAnnotation);
+
+                for (URI previousAnnotationUri : annotation.getReplaces()) {
+                    Annotation previousAnnotation = getAnnotationDAO().read(previousAnnotationUri);
+                    crossLinkAnnotations(previousAnnotation, newAnnotation);
+                    previousAnnotations.add(previousAnnotation);
+                }
 
             }
-            // assuming the new annotation is created successfully, now update any of the previous annotations.
-            for (Annotation replacedAnnotation : annotationsToUpdate) {
-                getAnnotationDAO().update(replacedAnnotation);
-            }
-            return newAnnotation;
-        }
-        catch (InterruptedException e) {
-            throw new ZoomaUpdateException("Save operation was interrupted", e);
+
+            // save new and update old
+            getAnnotationDAO().create(newAnnotations);
+            // todo update collection of previousAnnotations
+
+
+        } catch (InterruptedException e) {
+            throw new ZoomaUpdateException("Update previous annotation operation was interrupted", e);
         }
         finally {
             getAnnotationFactory().release();
+        }
+        return newAnnotations;
+    }
+
+
+
+
+    private Annotation cloneIfExists(Annotation annotation) {
+        URI newURI = URIUtils.incrementURI(getAnnotationDAO(), annotation.getURI());
+        if(!newURI.equals(annotation.getURI())) {
+            return new SimpleAnnotation(newURI,
+                    annotation.getAnnotatedBiologicalEntities(),
+                    annotation.getAnnotatedProperty(),
+                    annotation.getProvenance(), annotation.getSemanticTags().toArray(new URI[annotation.getSemanticTags().size()]),
+                    new URI[0],
+                    new URI[]{annotation.getURI()});
+        }
+        return annotation;
+    }
+
+
+    @Override
+    public Collection<Annotation> updatePreviousAnnotations(Collection<Annotation> annotationsToUpdate, Property newProperty, Collection<URI> newSemanticTags, boolean retainPreviousSemanticTags) throws ZoomaUpdateException {
+
+        List<Annotation> annotationsList = new ArrayList<>(annotationsToUpdate);
+        Collections.sort(annotationsList, new Comparator<Annotation>() {
+            @Override
+            public int compare(Annotation o1, Annotation o2) {
+                return o1.getProvenance().getSource().getURI().compareTo(o2.getProvenance().getSource().getURI());
+            }
+        });
+
+        Collection<Annotation> newAnnotations = new HashSet<>();
+
+        try {
+
+            AnnotationSource currentSource = annotationsList.get(0).getProvenance().getSource();
+            getAnnotationFactory().acquire(currentSource);
+
+            for (Annotation previousAnnotation : annotationsList) {
+
+                if (!previousAnnotation.getProvenance().getSource().getURI().equals(currentSource.getURI())) {
+                    getAnnotationFactory().release();
+                    currentSource = previousAnnotation.getProvenance().getSource();
+                    getAnnotationFactory().acquire(currentSource);
+                }
+
+                Property property = newProperty == null ? previousAnnotation.getAnnotatedProperty(): newProperty;
+                Collection<URI> semanticTags = new HashSet<>();
+                if (retainPreviousSemanticTags) {
+                    semanticTags.addAll(previousAnnotation.getSemanticTags());
+                }
+                if (newSemanticTags != null) {
+                    semanticTags.addAll(newSemanticTags);
+                }
+
+                Annotation newAnnotation = getAnnotationFactory().createAnnotation(
+                        previousAnnotation.getAnnotatedBiologicalEntities(),
+                        property,
+                        semanticTags,
+                        Collections.singleton(previousAnnotation.getURI()),
+                        "unknown",
+                        // todo get from authenticated user
+                        new Date());
+                newAnnotations.add(newAnnotation);
+
+                crossLinkAnnotations(previousAnnotation, newAnnotation);
+
+
+            }
+
+            // save new and update old
+            getAnnotationDAO().create(newAnnotations);
+            // todo update collection of previousAnnotations
+
+
+        } catch (InterruptedException e) {
+            throw new ZoomaUpdateException("Update previous annotation operation was interrupted", e);
+        }
+        finally {
+            getAnnotationFactory().release();
+        }
+        return newAnnotations;
+    }
+
+
+    private void crossLinkAnnotations (Annotation replacedAnnotation,Annotation newAnnotation) throws ZoomaUpdateException {
+        if (replacedAnnotation == null) {
+            throw new ZoomaUpdateException("New annotation replaces an annotation that does not exist");
+        }
+        else {
+            if (replacedAnnotation.getReplacedBy().isEmpty()) {
+                replacedAnnotation.setReplacedBy(newAnnotation.getURI());
+            }
+            else {
+                replacedAnnotation.getReplacedBy().add(newAnnotation.getURI());
+            }
+            if (newAnnotation.getReplaces().isEmpty()) {
+                newAnnotation.setReplaces(replacedAnnotation.getURI());
+            }
+            else {
+                newAnnotation.getReplaces().add(replacedAnnotation.getURI());
+            }
         }
     }
 

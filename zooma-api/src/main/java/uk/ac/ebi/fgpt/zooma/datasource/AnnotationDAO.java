@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
+import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
@@ -53,4 +54,15 @@ public interface AnnotationDAO extends ZoomaDAO<Annotation> {
      * @return the collection of annotations declared to link to the supplied ontology term
      */
     Collection<Annotation> readBySemanticTag(URI semanticTagURI);
+
+    /**
+     * Inserts the supplied annotations into the zooma datasource.  The provided annotations must all be new
+     * annotations that zooma has not seen before.  If an identifiable with the same URI as the supplied one already
+     * exists in zooma, this operation will fail with an {@link uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException}.
+     *
+     * @param annotations the annotations to add to zooma
+     * @throws uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException
+     *          if an identifiable with a matching URI to the supplied identifiable already exists
+     */
+    void create(Collection<Annotation> annotations) throws ResourceAlreadyExistsException;
 }

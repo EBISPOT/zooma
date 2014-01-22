@@ -133,6 +133,11 @@ public class GwasAnnotationDAO implements AnnotationDAO {
                 getClass().getSimpleName() + " is a read-only annotation DAO, creation not supported");
     }
 
+    @Override public void create(Collection<Annotation> identifiable) throws ResourceAlreadyExistsException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, creation not supported");
+    }
+
     @Override public Collection<Annotation> read() {
         return getJdbcTemplate().query(ANNOTATIONS_SELECT_ALL, mapper);
     }

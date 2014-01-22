@@ -1,8 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.*;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -62,4 +63,26 @@ public interface AnnotationFactory {
                                 URI semanticTag,
                                 String annotator,
                                 Date annotationDate);
+
+    /**
+     * Generates a fully formed annotation object (including any associated studies, bioentities, properties, semantic
+     * tags and provenance objects) given the supplied objects.
+     * <p/>
+     * Some of the arguments taken by this method are optional and can be null, others are required.
+     * Bioentity, replaces, replacedBy and semantic tags are all optional and, if absent from the dataset, can be null.
+     * Property and AnnotationProvenance are required.
+     * @param annotatedBiologicalEntities collection of biological entities being annotated, can be null
+     * @param annotatedProperty property that form the main body of the annotation, not null
+     * @param semanticTags optional collection of semantic tags for the annotation
+     * @param replaces collection of URI for annotations this new annotation replaces
+     * @param annotator        the person or algorithm that generated this annotation. Can be null
+     * @param annotationDate   the data this annotation was generated. Can be null.
+     * @return
+     */
+    Annotation createAnnotation (Collection<BiologicalEntity> annotatedBiologicalEntities,
+                                 Property annotatedProperty,
+                                 Collection<URI> semanticTags,
+                                 Collection<URI> replaces,
+                                 String annotator,
+                                 Date annotationDate);
 }

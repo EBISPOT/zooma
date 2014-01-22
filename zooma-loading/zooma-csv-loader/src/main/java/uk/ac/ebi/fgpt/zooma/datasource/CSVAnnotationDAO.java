@@ -325,6 +325,11 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         throw new UnsupportedOperationException(getClass().getSimpleName() + " is a read-only DAO over a text file");
     }
 
+    @Override public void create(Collection<Annotation> identifiable) throws ResourceAlreadyExistsException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, creation not supported");
+    }
+
     @Override public Collection<Annotation> read() {
         try {
             initOrWait();

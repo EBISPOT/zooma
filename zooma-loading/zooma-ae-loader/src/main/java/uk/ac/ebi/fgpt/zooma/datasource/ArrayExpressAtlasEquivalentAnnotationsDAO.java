@@ -149,6 +149,11 @@ public class ArrayExpressAtlasEquivalentAnnotationsDAO extends Initializable imp
         throw new UnsupportedOperationException("This operation is not supported in this DAO implementation");
     }
 
+    @Override public void create(Collection<Annotation> identifiable) throws ResourceAlreadyExistsException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, creation not supported");
+    }
+
     @Override public Collection<Annotation> read() {
         try {
             initOrWait();
@@ -260,9 +265,9 @@ public class ArrayExpressAtlasEquivalentAnnotationsDAO extends Initializable imp
                         AnnotationProvenance originalProvenance = annotation.getProvenance();
                         AnnotationProvenance resultProvenance =
                                 new SimpleAnnotationProvenance(originalProvenance.getSource(),
-                                                               AnnotationProvenance.Evidence.ZOOMA_INFERRED_FROM_CURATED,
-                                                               "ZOOMA",
-                                                               originalProvenance.getGeneratedDate());
+                                        AnnotationProvenance.Evidence.ZOOMA_INFERRED_FROM_CURATED,
+                                        "ZOOMA",
+                                        originalProvenance.getGeneratedDate());
 
                         Set<URI> semanticTags = new HashSet<>();
                         for (URI uri : atlasAnnotation.getSemanticTags()) {
@@ -277,17 +282,17 @@ public class ArrayExpressAtlasEquivalentAnnotationsDAO extends Initializable imp
                         URI[] resultSemanticTags = semanticTags.toArray(new URI[semanticTags.size()]);
                         if (resultSemanticTags.length > 0) {
                             resultAnnotation = new SimpleAnnotation(annotation.getURI(),
-                                                                    annotation.getAnnotatedBiologicalEntities(),
-                                                                    annotation.getAnnotatedProperty(),
-                                                                    resultProvenance,
-                                                                    resultSemanticTags);
+                                    annotation.getAnnotatedBiologicalEntities(),
+                                    annotation.getAnnotatedProperty(),
+                                    resultProvenance,
+                                    resultSemanticTags);
                             getLog().debug("Generated new annotation using mapping to atlas...\n\t" +
-                                                   "Study: " + study + ",\n\t" +
-                                                   "Biological Entity: " + biologicalEntity + ",\n\t" +
-                                                   "Property Type: " + propertyType + ",\n\t" +
-                                                   "Property Value: " + propertyValue + ",\n\t" +
-                                                   "Semantic Tags: " + Arrays.toString(resultSemanticTags) + "\n" +
-                                                   "Annotation: " + resultAnnotation);
+                                    "Study: " + study + ",\n\t" +
+                                    "Biological Entity: " + biologicalEntity + ",\n\t" +
+                                    "Property Type: " + propertyType + ",\n\t" +
+                                    "Property Value: " + propertyValue + ",\n\t" +
+                                    "Semantic Tags: " + Arrays.toString(resultSemanticTags) + "\n" +
+                                    "Annotation: " + resultAnnotation);
                         }
                     }
                 }

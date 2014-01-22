@@ -89,6 +89,10 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
         throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
     }
 
+    @Override public void create(Collection<Annotation> annotations) throws ResourceAlreadyExistsException {
+        throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+    }
+
     @Override public void update(Annotation annotation) throws NoSuchResourceException {
         getLog().debug("Triggered annotation update request...\n\n" + annotation.toString());
         throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
