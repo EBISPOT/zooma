@@ -483,6 +483,12 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
     final static String underscore = "_";
 
     public Annotation getAnnotationFromBindingSet(Map<URI, Annotation> annotationMap, QuerySolution solution) {
+        Resource sourceType = solution.getResource(QueryVariables.SOURCETYPE.toString());
+        if (!URIBindingUtils.validateNamesExist(URI.create(sourceType.getURI()))) {
+            getLog().debug("QuerySolution binding failed: unrecognised type <" + sourceType.getURI() + ">. " +
+                                   "Result will be null.");
+            return null;
+        }
 
         Resource annotationIdValue = solution.getResource(underscore + QueryVariables.ANNOTATION_ID.toString());
         Resource beIdValue = solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY.toString());
@@ -491,7 +497,6 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         Literal propertyValueValue = solution.getLiteral(underscore + QueryVariables.PROPERTY_VALUE.toString());
         Resource semanticTag = solution.getResource(underscore + QueryVariables.SEMANTIC_TAG.toString());
         Resource database = solution.getResource(QueryVariables.DATABASEID.toString());
-        Resource sourceType = solution.getResource(QueryVariables.SOURCETYPE.toString());
 
         // bit of an optimisation hack to avoid slow SPARQL filters, we never want the source type to be an OWLIndividual, so return null at this point
         if (sourceType.getURI().equals(OWLRDFVocabulary.OWL_NAMED_INDIVIDUAL.getIRI().toString())) { return null; }
