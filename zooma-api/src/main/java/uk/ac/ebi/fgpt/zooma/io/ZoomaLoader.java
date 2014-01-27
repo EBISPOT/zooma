@@ -17,6 +17,7 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 11/06/13
  */
+@Deprecated
 public interface ZoomaLoader<T> {
     /**
      * Loads the collection of supplied zooma objects into ZOOMA by resolving, serializing and storing (as required by
@@ -27,6 +28,7 @@ public interface ZoomaLoader<T> {
      * @param zoomaObjects   the collection of objects being loaded
      * @throws ZoomaLoadingException
      */
+    @Deprecated
     void load(String datasourceName, Collection<T> zoomaObjects) throws ZoomaLoadingException;
 
     /**
@@ -36,6 +38,7 @@ public interface ZoomaLoader<T> {
      * @param zoomaObject the object being loaded
      * @throws ZoomaLoadingException
      */
+    @Deprecated
     void load(T zoomaObject) throws ZoomaLoadingException;
 
     /**

@@ -1,9 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.search;
 
 import org.apache.commons.cli.*;
+import org.omg.PortableInterceptor.ORBIdHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 //import org.springframework.context.support.ClassPathXmlApplicationContext;
 //import uk.ac.ebi.fgpt.zooma.atlas.ZOOMAPropertySampler;
 //import uk.ac.ebi.fgpt.zooma.atlas.ZoomaAtlasDAO;
@@ -12,7 +12,6 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 //import uk.ac.ebi.fgpt.zooma.util.OntologyLabelMapper;
 
 import java.io.*;
-import java.net.URI;
 import java.util.*;
 
 /**
@@ -29,11 +28,16 @@ public class ZoomageSearchDriver {
     private static float _cutoffPercentage;
     private static String _magetabAccession;
     private static boolean _olsShortIds;
-    private static final String _excludedTypesResource = "zoomage-propertytype-exclusions.properties";
+    private static String _compoundAnnotationDelimiter;
+    private static String _logFileDelimiter;
+
+    //    private static final String _excludedTypesResource = "zoomage-propertytype-exclusions.properties";
+    private static final String exclusionProfilesResource = "zoomage-exclusions.csv";
+    private static final String mageTabAccessionsResource = "zoomage-accessions.txt";
     private static boolean _overwriteValues;
     private static boolean _overwriteAnnotations;
-    private static final Logger log = LoggerFactory.getLogger(ZoomageSearchDriver.class);
 
+    private static final Logger log = LoggerFactory.getLogger(ZoomageSearchDriver.class);
     private static boolean _addCommentsToSDRF;
 
 
@@ -42,12 +46,28 @@ public class ZoomageSearchDriver {
             int statusCode = parseArguments(args);
             if (statusCode == 0) {
 
-                ZoomaRESTClient zoomaRESTClient = new ZoomaRESTClient(_minStringLength, _cutoffPercentage, _cutoffScore, _olsShortIds, _overwriteAnnotations, _excludedTypesResource);
-                ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
-                zoomageParser.runFromFilesystem(_magetabAccession, zoomaRESTClient, _overwriteValues, _overwriteAnnotations, _addCommentsToSDRF);
-                zoomageParser.logZoomifiedAnnotations(_magetabAccession, zoomaRESTClient, _olsShortIds);
+                ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser(_minStringLength, _cutoffPercentage, _cutoffScore, _olsShortIds, _compoundAnnotationDelimiter, _logFileDelimiter, _overwriteValues, _overwriteAnnotations, _addCommentsToSDRF);
+                zoomageParser.setExclusionProfiles(parseExclusionProfiles(exclusionProfilesResource));
 
-                getLog().info("Zoomage completed successfully.");
+                if (_magetabAccession == null || _magetabAccession.equals("")) {
+                    HashSet<String> mageTabAccessions = parseMagetabAccessions(mageTabAccessionsResource);
+
+                    for (String accession : mageTabAccessions) {
+                        System.out.println("------------------------------------");
+                        log.info("Processing " + accession+"...");
+
+                        zoomageParser.runFromFilesystem(accession);
+                        printLog(zoomageParser);
+
+                        getLog().info("Zoomage completed successfully for " + accession);
+                    }
+
+                } else {
+                    zoomageParser.runFromFilesystem(_magetabAccession);
+                    printLog(zoomageParser);
+
+                    getLog().info("Zoomage completed successfully for " + _magetabAccession);
+                }
 
             } else {
                 System.exit(statusCode);
@@ -184,6 +204,33 @@ public class ZoomageSearchDriver {
             System.out.println("Using default ZOOMA property for adding comments to SDRF, " + _addCommentsToSDRF);
         }
 
+        // what delimiter to use between annotations of a single compound annotation (eg. for heart and lung)
+        if (cl.hasOption("d")) {
+            _compoundAnnotationDelimiter = cl.getOptionValue("d");
+            if (cl.getOptionValue("d").length() > 1) getLog().warn("Delimiter is more than a single character.");
+
+        } else {
+            _compoundAnnotationDelimiter = defaults.getProperty("zoomage.compoundAnnotationDelimiter");
+            System.out.println("Using default ZOOMA property for delimiting compound annotations, " + _compoundAnnotationDelimiter);
+
+            if (defaults.getProperty("zoomage.compoundAnnotationDelimiter").length() > 1)
+                getLog().warn("Delimiter is more than a single character.");
+        }
+
+
+        // what delimiter to use between annotations of a single compound annotation (eg. for heart and lung)
+        // todo: check for tab    @tony?
+        if (cl.hasOption("f")) {
+            _logFileDelimiter = cl.getOptionValue("f");
+            if (cl.getOptionValue("f").length() > 1)
+                getLog().warn("Delimiter must be a single character; only the first character will be used.");
+        } else {
+            _logFileDelimiter = defaults.getProperty("zoomage.logFileDelimiter");
+            System.out.println("Using default ZOOMA property for delimiting log file, " + _logFileDelimiter);
+            if (defaults.getProperty("zoomage.logFileDelimiter").length() > 1)
+                getLog().warn("Delimiter is more than one character.");
+        }
+
     }
 
     private static boolean isTrue(String option) {
@@ -205,7 +252,7 @@ public class ZoomageSearchDriver {
                 true,
                 "MAGEtab accession number eg. M-EXP-3678.");
         magetabAccession.setArgName("String");
-        magetabAccession.setRequired(true);
+        magetabAccession.setRequired(false);
         options.addOption(magetabAccession);
 
         //min string length to parse
@@ -279,6 +326,26 @@ public class ZoomageSearchDriver {
         addCommentsToSDRF.setRequired(false);
         options.addOption(addCommentsToSDRF);
 
+        // delimiter for compound annotations
+        Option compoundAnnotationDelimiter = new Option(
+                "d",
+                "delimiterForCompoundAnnotations",
+                true,
+                "The character used to delimit compound annotations.");
+        compoundAnnotationDelimiter.setArgName("char");
+        compoundAnnotationDelimiter.setRequired(false);
+        options.addOption(compoundAnnotationDelimiter);
+
+        // delimiter for logFile
+        Option logFileDelimiter = new Option(
+                "f",
+                "delimiterForLogFile",
+                true,
+                "The character used to delimit the log file.");
+        logFileDelimiter.setArgName("char");
+        logFileDelimiter.setRequired(false);
+        options.addOption(logFileDelimiter);
+
         return options;
     }
 
@@ -292,6 +359,7 @@ public class ZoomageSearchDriver {
     private float cutoffPercentage;
     private int minStringLength;
     private HashSet excludedProperties;
+    private HashSet exclusionProfiles;
     private boolean olsShortIds;
     private boolean overwriteValues;
     private boolean overwriteAnnotations;
@@ -300,34 +368,212 @@ public class ZoomageSearchDriver {
 
 
     //Alternative constructor for instantiating programmatically instead of through the command line
-    public ZoomageSearchDriver(float cutoffScore, float cutoffPercentage, int minStringLength, boolean olsShortIds, boolean addCommentsToSDRF,boolean overwriteAnnotations,HashSet excludedProperties) {
+    public ZoomageSearchDriver(float cutoffScore, float cutoffPercentage, int minStringLength, boolean olsShortIds, boolean addCommentsToSDRF, boolean overwriteAnnotations, HashSet excludedProperties, HashSet exclusionProfiles) {
         this.cutoffScore = cutoffScore;
         this.cutoffPercentage = cutoffPercentage;
         this.minStringLength = minStringLength;
         this.excludedProperties = excludedProperties;
+        this.exclusionProfiles = exclusionProfiles;
         this.olsShortIds = olsShortIds;
         this.overwriteAnnotations = overwriteAnnotations;
         this.addCommentsToSDRF = addCommentsToSDRF;
         System.out.println("Zoomage Driver created, ready to execute search.");
     }
 
-    public void executeSearch() {
+//    public void executeSearch() {
+//        try {
+//
+//            ZoomaRESTClient zoomaClient = new ZoomaRESTClient(minStringLength, cutoffPercentage, cutoffScore);
+//            ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser(zoomaClient, magetabAccession, olsShortIds, overwriteAnnotations, excludedProperties, exclusionProfiles);
+//            zoomageParser.runFromFilesystem(overwriteValues, overwriteAnnotations, addCommentsToSDRF);
+//
+//            System.out.println("Zoomage completed successfully.");
+//
+//        } catch (Exception e) {
+//            System.out.println("Zoomage did not complete successfully: " + e.getMessage());
+//            System.exit(1);
+//        }
+//    }
+
+    private static HashSet<String> parseExclusionProfiles(String exclusionProfilesResource) {
+        HashSet<String> exclusionProfiles = new HashSet<String>();
+
+        // read sources from file
         try {
+            InputStream in = ZoomageSearchDriver.class.getClassLoader().getResourceAsStream(exclusionProfilesResource);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String exclusionLine;
+            while ((exclusionLine = reader.readLine()) != null) {
+                if (!exclusionLine.startsWith("#") && !exclusionLine.isEmpty()) {
+                    int indexFirstDelim = exclusionLine.indexOf(_logFileDelimiter);
+                    if (indexFirstDelim != 0) {
+                        String type = exclusionLine.substring(0, indexFirstDelim);
+                        String normalisedType = ZoomageTextUtils.normaliseType(type);
 
-            ZoomaRESTClient zoomaClient = new ZoomaRESTClient(minStringLength, cutoffPercentage, cutoffScore, olsShortIds, overwriteAnnotations, excludedProperties);
-            ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser();
-            zoomageParser.runFromFilesystem(magetabAccession, zoomaClient, overwriteValues, overwriteAnnotations, addCommentsToSDRF);
-
-            System.out.println("Zoomage completed successfully.");
-
-        } catch (Exception e) {
-            System.out.println("Zoomage did not complete successfully: " + e.getMessage());
-            System.exit(1);
+                        if (!type.equalsIgnoreCase(normalisedType)) {
+                            //todo: check that this doesn't replace more than the type
+                            exclusionLine = exclusionLine.replace(type + _logFileDelimiter, normalisedType + _logFileDelimiter);
+                        }
+                    }
+                    exclusionProfiles.add(exclusionLine);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            getLog().error("Failed to load properties: could not locate file '" + exclusionProfilesResource + "'.  " +
+                    "No properties will be excluded");
+        } catch (IOException e) {
+            getLog().error("Failed to load properties: could not read file '" + exclusionProfilesResource + "'.  " +
+                    "No properties will be excluded");
         }
+
+        return exclusionProfiles;
     }
 
+    private static HashSet<String> parseMagetabAccessions(String mageTabAccessionsResource) {
+        HashSet<String> mageTabAccessions = new HashSet<String>();
+
+        // read sources from file
+        try {
+            InputStream in = ZoomageSearchDriver.class.getClassLoader().getResourceAsStream(mageTabAccessionsResource);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String accession;
+            while ((accession = reader.readLine()) != null) {
+                if (!accession.startsWith("#") && !accession.isEmpty()) {
+                    mageTabAccessions.add(accession);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            getLog().error("Failed to load properties: could not locate file '" + mageTabAccessionsResource + "'.  ");
+        } catch (IOException e) {
+            getLog().error("Failed to load properties: could not read file '" + mageTabAccessionsResource + "'.  ");
+        }
+
+        return mageTabAccessions;
+    }
+
+    public static void printLog(ZoomageMagetabParser zoomageParser) throws IOException {
+
+        ArrayList<String> zoomificationsApplied = zoomageParser.getCacheOfZoomificationsApplied();
+        ArrayList<String> exclusionsApplied = zoomageParser.getCacheOfExclusionsApplied();
+        ArrayList<String> itemsRequiringCuration = zoomageParser.getCacheOfItemsRequiringCuration();
+        HashSet<String> legacyAnnotations = zoomageParser.getCacheOfLegacyAnnotations();
+        HashSet<String> noResults = zoomageParser.getCacheOfItemsWithNoResults();
+
+        String d = _logFileDelimiter;
+        String header = "ORIGINAL TYPE" + d + "ORIGINAL VALUE" + d + "ZOOMA VALUE" + d + "ONT LABEL" + d + "TERM SOURCE REF" + d + "TERM ACCESSION" + d + "MAGETAB ACCESSION";
+        String blankLine = (d + d + d + d + d + d + d);
+
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(_magetabAccession + "-zoomifications-log.txt", false))); //todo: change file ending
+
+        // print zoomifications log
+
+        if (zoomificationsApplied.size() == 0) out.println("NO ZOOMIFICATIONS APPLIED" + d + d + d + d + d + d);
+        else {
+            if (_overwriteValues)
+                out.println("ZOOMIFICATIONS APPLIED" + d + "original values overwritten" + d + d + d + d + d);
+            else out.println("ZOOMIFICATIONS APPLIED" + d + "original values retained" + d + d + d + d + d);
+            out.println(header);
+
+            for (String eachline : zoomificationsApplied) {
+                out.println(eachline);
+            }
+        }
+
+        out.println(blankLine);
 
 
+        // print legacy annotations, if applicable
+
+        if (_overwriteAnnotations) {
+
+            if (legacyAnnotations.size() == 0) out.println("NO ANNOTATIONS WERE OVERWRITTEN" + d + d + d + d + d + d);
+            else {
+                out.println("ORIGINAL ANNOTATIONS OVERWRITTEN" + d + d + d + d + d + d);
+
+                out.println(header);
+
+                for (String eachline : legacyAnnotations) {
+                    out.println(eachline);
+                }
+            }
+        } else {
+            if (legacyAnnotations.size() == 0) out.println("NO LEGACY ANNOTATIONS WERE FOUND" + d + d + d + d + d + d);
+            else {
+
+                out.println("ORIGINAL ANNOTATIONS PRESERVED" + d + d + d + d + d + d);
+
+                out.println(header + d + "NUMBER OF ZOOMA RESULTS");
+
+                for (String eachline : legacyAnnotations) {
+                    out.println(eachline);
+                }
+            }
+        }
+
+        out.println(blankLine);
+
+        // print log of items with no results
+
+        if (noResults.size() == 0)
+            out.println("There was no input for which Zooma returned no results" + d + d + d + d + d + d);
+
+        else {
+            out.println("ITEMS WITH NO ZOOMA RESULTS" + d + d + d + d + d + d);
+            out.println(header);
+
+            for (String eachline : noResults) {
+                out.println(eachline);
+            }
+        }
+
+        out.println(blankLine);
 
 
+        // print exclusions log
+
+        if (exclusionsApplied.size() == 0) out.println("NO EXCLUSIONS APPLIED" + d + d + d + d + d + d);
+
+        else {
+            // print exclusions log
+            out.println("EXCLUSIONS APPLIED" + d + "asterisk indicates reason" + d + d + d + d + d);
+            out.println(header);
+
+            for (String eachline : exclusionsApplied) {
+                out.println(eachline);
+            }
+        }
+
+        out.println(blankLine);
+
+        // print curation log
+
+        if (itemsRequiringCuration.size() == 0) out.println("NO ITEMS REQUIRE CURATION" + d + d + d + d + d + d);
+
+        else {
+            out.println("ITEMS REQUIRING CURATION" + d + d + d + d + d + d);
+            out.println(header + d + "Number of Zooma Results");
+
+            for (String eachline : itemsRequiringCuration) {
+                out.println(eachline);
+            }
+        }
+
+        out.println(blankLine);
+
+        // print settings log
+        out.println("SETTINGS USED" + d + d + d + d + d + d);
+        out.println("Date run" + d + new Date());
+        out.println("Cutoff score" + d + _cutoffScore);
+        out.println("Cutoff percentage" + d + _cutoffPercentage);
+        out.println("Minimum string length" + d + _minStringLength);
+        out.println("Use OLS Short ID format" + d + _olsShortIds);
+        out.println("Overwrite values" + d + _overwriteValues);
+        out.println("Overwrite annotations" + d + _overwriteAnnotations);
+        out.println("Add comments to SDRF file" + d + _addCommentsToSDRF);
+
+        out.println(blankLine);
+
+
+        out.close();
+    }
 }

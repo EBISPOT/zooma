@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @author Tony Burdett
  * @date 05/06/13
  */
+@Deprecated
 public abstract class AbstractParallelAnnotationResolver extends AbstractAnnotationResolver {
     private final ExecutorService executor;
 

@@ -20,19 +20,50 @@ import java.util.ArrayList;
  */
 public class TransitionalAttribute {
 
-    private String type;
-    private String originalValue;
-    private String zoomifiedvalue;
+    //    "#ORIGINAL TYPE","ORIGINAL VALUE","ZOOMA VALUE","ONT LABEL","TERM SOURCE REF","TERM ACCESSION","MAGETAB ACCESSION"
+    private String type = "";
+    private String originalValue = "";
+    private String zoomifiedOntologyLabel = "";
+    private String zoomifiedTermSourceREF = "";
+    private String zoomifiedTermAccessionNumber = "";
+    private String magetabAccession = "";
+
+
+    public String[] getFields() {
+        return new String[]{type, originalValue, zoomifiedValue, zoomifiedOntologyLabel, zoomifiedTermSourceREF, zoomifiedTermAccessionNumber, magetabAccession};
+    }
+
+
     private String originalTermSourceREF;
-    private String zoomifiedTermSourceREF;
     private String originalTermAccessionNumber;
-    private String zoomifiedTermAccessionNumber;
-    private String zoomifiedOntologyLabel;
 //    private boolean buildComments; // for eventual incorporation in SDRF file.
 
 
     private Logger log = LoggerFactory.getLogger(getClass());
     private String zoomifiedValue;
+
+    public TransitionalAttribute(String delimitedString, String delimiter) {
+        String[] exclusions = {"", "", "", "", "", "", ""};
+        if (delimitedString.indexOf(delimiter) == -1) {
+            getLog().error("Delimiter '" + delimiter + "' was not found in '" + delimitedString + "'");
+            System.exit(0);
+        }
+        String[] exclusionsTemp = delimitedString.split(delimiter);
+
+        for (int i = 0; i < exclusionsTemp.length; i++) {
+            exclusions[i] = (exclusionsTemp[i] != null) ? exclusionsTemp[i] : "";
+        }
+
+        this.setType(exclusions[0].replace("_", " "));
+        this.setOriginalValue(exclusions[1]);
+        this.setZoomifiedValue(exclusions[2]);
+        this.setZoomifiedOntologyLabel(exclusions[3]);
+        this.setZoomifiedTermSourceREF(exclusions[4]);
+        this.setZoomifiedTermAccessionNumber(exclusions[5]);
+        this.setMagetabAccession(exclusions[6]);
+
+    }
+
 
     protected Logger getLog() {
         return log;
@@ -44,7 +75,7 @@ public class TransitionalAttribute {
      * @param attribute CharacteristicsAttribute
      *                  //     * @param addCommentsToSDRF
      */
-    public TransitionalAttribute(CharacteristicsAttribute attribute) {
+    public TransitionalAttribute(String magetabAccession, CharacteristicsAttribute attribute) {
 //        this.buildComments = addCommentsToSDRF;
         this.type =
                 (
@@ -65,6 +96,8 @@ public class TransitionalAttribute {
                 (
                         attribute.termAccessionNumber == null || attribute.termAccessionNumber.equals("") ? null :
                                 attribute.termAccessionNumber);
+
+        this.magetabAccession = magetabAccession;
     }
 
     /**
@@ -72,7 +105,11 @@ public class TransitionalAttribute {
      *
      * @param attribute FactorValueAttribute
      */
-    public TransitionalAttribute(FactorValueAttribute attribute) {
+    public TransitionalAttribute(String magetabAccession, FactorValueAttribute attribute) {
+
+        if (attribute.type.equalsIgnoreCase("organism part")) {
+            System.out.println("stop here");
+        }
 
         // if type is null or blank, then set this type to null, else attribute type
         this.type = (
@@ -95,6 +132,7 @@ public class TransitionalAttribute {
                                 attribute.termAccessionNumber);
 
 //        this.buildComments = addCommentsToSDRF;
+        this.magetabAccession = magetabAccession;
     }
 
     public void setOriginalValue(String originalValue) {
@@ -104,7 +142,7 @@ public class TransitionalAttribute {
 
     public void setZoomifiedValue(String zoomifiedvalue) {
         // since this is only invoked when the originalValue is being overwritten, capture this event through appending a comment
-        this.zoomifiedvalue = zoomifiedvalue;
+        this.zoomifiedValue = zoomifiedvalue;
 //        if (buildComments) appendComment("Value", this.originalValue, zoomifiedvalue);
     }
 
@@ -139,6 +177,10 @@ public class TransitionalAttribute {
         this.zoomifiedOntologyLabel = zoomifiedOntologyLabel;
     }
 
+    public String getZoomifiedOntologyLabel() {
+        return zoomifiedOntologyLabel;
+    }
+
 
     public String getType() {
         return type;
@@ -168,4 +210,42 @@ public class TransitionalAttribute {
     public String getZoomifiedTermAccessionNumber() {
         return zoomifiedTermAccessionNumber;
     }
+
+    public String getMagetabAccession() {
+        return magetabAccession;
+    }
+
+    public void setMagetabAccession(String magetabAccession) {
+        this.magetabAccession = magetabAccession;
+    }
+
+
+//    public static String printCompareAttributes(TransitionalAttribute attribute, TransitionalAttribute exclusionProfile) {
+//
+//        String[] headers = {"type", "originalValue", "zoomifiedValue", "zoomifiedOntologyLabel", "zoomifiedTermSourceREF", "zoomifiedTermAccessionNumber", "magetabAccession"};
+//
+//        String result = "\n " + "   |   " + "header" + "" + "   |   " + "exclusions" + "   |   " + "attribute";
+//        result += "\n " + "   |   " + "---------------------------------------------------";
+//        String[] exclusionFields = exclusionProfile.getFields();
+//        String[] attributeFields = attribute.getFields();
+//
+//        for (int i = 0; i < exclusionFields.length; i++) {
+//            result += "\n" + i + "   |   " + headers[i] + "   |   " + exclusionFields[i] + "   |   " + attributeFields[i];
+//        }
+//
+//        return result;
+//    }
+//
+//    public static String printAttribute(TransitionalAttribute attribute) {
+//        String[] headers = {"type", "originalValue", "zoomifiedValue", "zoomifiedOntologyLabel", "zoomifiedTermSourceREF", "zoomifiedTermAccessionNumber", "magetabAccession"};
+//
+//        String result = "\n ";
+//        String[] attributeFields = attribute.getFields();
+//
+//        for (int i = 0; i < attributeFields.length; i++) {
+//            result += "\n" + i + "   |   " + headers[i] + "   |   " + attributeFields[i];
+//        }
+//
+//        return result;
+//    }
 }
