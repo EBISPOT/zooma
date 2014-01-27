@@ -62,7 +62,7 @@ public class DAOBasedPropertyService extends AbstractShortnameResolver implement
         return getPropertyDAO().read(uri);
     }
 
-    @Override public Property getMatchedTypedProperty(String type, String value) {
+    @Override public Collection<Property> getMatchedTypedProperty(String type, String value) {
         return getPropertyDAO().readByTypeAndValue(type, value);
     }
 

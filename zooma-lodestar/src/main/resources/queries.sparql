@@ -189,6 +189,15 @@ SELECT DISTINCT (?propertyvalueid as ?_propertyvalueid) (?propertyname as ?_prop
     ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
 }
 
+^[Property.search]
+SELECT DISTINCT (?propertyvalueid as ?_propertyvalueid) (?propertynameVar as ?_propertyname) (?propertyvalueVar as ?_propertyvalue) WHERE {
+    ?propertyvalueid a zoomaterms:Property .
+    ?propertyvalueid zoomaterms:propertyName ?propertyname .
+    ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
+    ?propertyvalueid zoomaterms:propertyName ?propertynameVar .
+    ?propertyvalueid zoomaterms:propertyValue ?propertyvalueVar .
+}
+
 ^[Property.readNoType]
 SELECT DISTINCT ?propertyvalueid ?propertyvalue WHERE {
     ?propertyvalueid rdf:type zoomaterms:Property .
@@ -310,6 +319,25 @@ SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?sem
      	?oldPropertyvalueid zoomaterms:propertyValue ?oldPropertyvalue .
      }
      FILTER NOT EXISTS { ?annotationid zoomaterms:isReplacedBy ?someanno }
+     filter
+}
+
+^[AnnotationSummaries.matchByProperty]
+SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?semantictag ?databaseid ?sourcename ?sourcetype WHERE {
+     ?annotationid a oac:DataAnnotation .
+     ?annotationid oac:hasBody ?propertyvalueid .
+     OPTIONAL {?propertyvalueid zoomaterms:propertyName ?propertyname }
+     ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
+     ?propertyvalueid rdf:type zoomaterms:Property .
+     ?annotationid oac:hasBody ?semantictag .
+     ?semantictag rdf:type oac:SemanticTag .
+
+     ?annotationid dc:source ?databaseid .
+     ?databaseid a ?sourcetype .
+     ?databaseid zoomaterms:shortName ?sourcename .
+
+     FILTER NOT EXISTS { ?annotationid zoomaterms:isReplacedBy ?someanno }
+     filter
 }
 
 ^[AnnotationProvenance.read]

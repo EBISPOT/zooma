@@ -189,6 +189,11 @@ public class ArrayExpressAtlasEquivalentAnnotationsDAO extends Initializable imp
         throw new UnsupportedOperationException("This operation is not supported in this DAO implementation");
     }
 
+    @Override public void update(Collection<Annotation> object) throws NoSuchResourceException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, updates not supported");
+    }
+
     @Override public void delete(Annotation object) throws NoSuchResourceException {
         throw new UnsupportedOperationException("This operation is not supported in this DAO implementation");
     }

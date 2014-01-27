@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.io;
 
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
+import uk.ac.ebi.fgpt.zooma.model.Update;
 
 import java.util.Collection;
 
@@ -36,4 +37,13 @@ public interface ZoomaLoader<T> {
      * @throws ZoomaLoadingException
      */
     void load(T zoomaObject) throws ZoomaLoadingException;
+
+    /**
+     * Updtaes the supplied zooma objects into ZOOMA by resolving, serializing and storing (as required by the
+     * implementation)
+     *
+     * @param zoomaObject the object being loaded
+     * @throws ZoomaLoadingException
+     */
+    void update(Collection<T> zoomaObject, Update<T> update) throws ZoomaLoadingException;
 }

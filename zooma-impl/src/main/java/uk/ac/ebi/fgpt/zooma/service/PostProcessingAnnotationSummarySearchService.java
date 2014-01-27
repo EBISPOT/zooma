@@ -211,6 +211,7 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                 }
 
                 AnnotationSummary newAnnotationSummary = new SimpleAnnotationSummary(null,
+                                                                                     null,
                                                                                      type,
                                                                                      propertyValuePattern,
                                                                                      aggregatedTags,

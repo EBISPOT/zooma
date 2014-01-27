@@ -166,6 +166,10 @@
         <property name="propertiesMapAdapter" ref="propertiesMapAdapter" />
     </bean>
 
+    <bean id="simpleAnnotationSummarySearchService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedAnnotationSummarySearchService">
+        <property name="annotationSummaryDAO" ref="lodeLuceneAnnotationSummaryDAO" />
+    </bean>
+
     <bean id="efoLabelUtils" class="uk.ac.ebi.fgpt.zooma.util.LabelUtils">
         <property name="ontologyDAO" ref="lodeOntologyDAO" />
     </bean>

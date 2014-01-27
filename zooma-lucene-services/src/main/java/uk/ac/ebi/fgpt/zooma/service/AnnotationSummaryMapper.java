@@ -127,6 +127,7 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
 
         // grab single cardinality fields
         String id = d.get("id");
+        URI propertyUri = d.get("propertyuri") != null ? URI.create(d.get("propertyuri")) : null;
         String propertyType = d.get("propertytype");
         String propertyValue = d.get("property");
         // grab multi-cardinality fields
@@ -152,13 +153,14 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         float score = getDocumentQuality(d, rank);
 
         getLog().trace("\nNext Annotation summary:\n\t" +
+                               "property uri '" + propertyUri + "',\n\t" +
                                "property type '" + propertyType + "',\n\t" +
                                "property value '" + propertyValue + "',\n\t" +
                                "semantic tags " + semanticTags + ",\n\t" +
                                "annotation URIs " + annotations + "\n\t" +
                                "annotation source URIs " + annotationSourceURIs + "\n\t" +
                                "Quality Score: " + score);
-        return new SimpleAnnotationSummary(id, propertyType, propertyValue, semanticTags, annotations, score, annotationSourceURIs);
+        return new SimpleAnnotationSummary(id, propertyUri, propertyType, propertyValue, semanticTags, annotations, score, annotationSourceURIs);
     }
 
     @Override

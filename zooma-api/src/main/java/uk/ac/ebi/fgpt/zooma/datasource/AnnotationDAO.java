@@ -65,4 +65,15 @@ public interface AnnotationDAO extends ZoomaDAO<Annotation> {
      *          if an identifiable with a matching URI to the supplied identifiable already exists
      */
     void create(Collection<Annotation> annotations) throws ResourceAlreadyExistsException;
+
+    /**
+     * Updates the supplied annotations into the zooma datasource.  The provided annotations must all be new
+     * annotations that zooma has not seen before.  If an identifiable with the same URI as the supplied one already
+     * exists in zooma, this operation will fail with an {@link uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException}.
+     *
+     * @param annotations the annotations to add to zooma
+     * @throws uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException
+     *          if an identifiable with a matching URI to the supplied identifiable already exists
+     */
+    void update(Collection<Annotation> annotations) throws ResourceAlreadyExistsException;
 }

@@ -4,6 +4,7 @@ import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.*;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.lode.exception.LodeException;
@@ -11,10 +12,7 @@ import uk.ac.ebi.fgpt.lode.service.JenaQueryExecutionService;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
-import uk.ac.ebi.fgpt.zooma.model.SimpleDatabaseAnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.SimpleOntologyAnnotationSource;
+import uk.ac.ebi.fgpt.zooma.model.*;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
 import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
@@ -84,6 +82,10 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
         String query = getQueryManager().getSparqlQuery("AnnotationSummaries.read");
         Graph g = getQueryService().getDefaultGraph();
 
+        // no filter
+        String filter = "";
+        query = query.replace("filter", filter);
+
         QueryExecution execute = null;
         try {
             execute = getQueryService().getQueryExecution(g, query, new QuerySolutionMap(), false);
@@ -101,6 +103,78 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
                 }
             }
         }
+    }
+
+    @Override
+    public Collection<AnnotationSummary> readByProperty(Property property) {
+        getLog().debug("Reading all annotation summaries by property " + property.toString());
+
+        if (property.getURI() == null) {
+            return Collections.emptySet();
+        }
+
+        String query = getQueryManager().getSparqlQuery("AnnotationSummaries.read");
+        Graph g = getQueryService().getDefaultGraph();
+
+        // no filter
+        String filter = "FILTER (str(?" + QueryVariables.PROPERTY_VALUE_ID.toString() + ") = '" + property.getURI() + "')";
+        query = query.replace("filter", filter);
+        QueryExecution execute = null;
+        try {
+            execute = getQueryService().getQueryExecution(g, query, new QuerySolutionMap(), false);
+            ResultSet results = execute.execSelect();
+            return calculateSummaries(results);
+        }
+        catch (LodeException e) {
+            throw new SPARQLQueryException("Failed to retrieve annotation summaries", e);
+        }
+        finally {
+            if (execute != null) {
+                execute.close();
+                if (g != null) {
+                    g.close();
+                }
+            }
+        }
+    }
+
+    @Override
+    public Collection<AnnotationSummary> matchByProperty(String type, String value) {
+        getLog().debug("Reading all annotation summaries by property value " + value);
+
+        String query = getQueryManager().getSparqlQuery("AnnotationSummaries.matchByProperty");
+        Graph g = getQueryService().getDefaultGraph();
+
+        String filter = "?" + QueryVariables.PROPERTY_VALUE.toString() + " bif:contains '\"" + value + "\"' . \n" ;
+        if (type != null) {
+            filter += "FILTER (str(?" + QueryVariables.PROPERTY_NAME.toString() + ") = '" + type + "')";
+        }
+                // no filter
+        query = query.replace("filter", filter);
+
+        System.out.println(query);
+        QueryExecution execute = null;
+        try {
+            execute = getQueryService().getQueryExecution(g, query, new QuerySolutionMap(), false);
+            ResultSet results = execute.execSelect();
+            return calculateSummaries(results);
+        }
+        catch (LodeException e) {
+            throw new SPARQLQueryException("Failed to retrieve annotation summaries", e);
+        }
+        finally {
+            if (execute != null) {
+                execute.close();
+                if (g != null) {
+                    g.close();
+                }
+            }
+        }
+    }
+
+    @Override
+    public Collection<AnnotationSummary> matchByProperty(String value) {
+        return matchByProperty(null, value);
     }
 
     private Collection<AnnotationSummary> calculateSummaries(ResultSet results) {
@@ -134,7 +208,6 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
 
             Resource database = solution.getResource(QueryVariables.DATABASEID.toString());
 
-
             Resource semanticTagResource = solution.getResource(QueryVariables.SEMANTIC_TAG.toString());
             String semanticTag = semanticTagResource.getURI();
 
@@ -152,8 +225,8 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
                 annotationsToSourceMap.put(annotationURI, database.getURI());
             }
 
-            // handle previous terms that have mapped to this semantic tag
-            if (oldPropertyID != null) {
+            // handle previous terms that have mapped to this semantic tag if the property is different
+            if (oldPropertyID != null && !propertyID.equals(oldPropertyID)) {
                 if (!annotationToPropertyMap.containsKey(oldAnnotationID.getURI())) {
                     annotationToPropertyMap.put(oldAnnotationID.getURI(), oldPropertyID.getURI());
                 }
@@ -164,7 +237,9 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
                     annotationToSemanticTagsMap.put(oldAnnotationID.getURI(), new HashSet<String>());
                 }
                 annotationToSemanticTagsMap.get(oldAnnotationID.getURI()).add(semanticTag);
-
+                if (database != null) {
+                    annotationsToSourceMap.put(oldAnnotationID.getURI(), database.getURI());
+                }
             }
 
             annotationToSemanticTagsMap.get(annotationURI).add(semanticTag);
@@ -184,7 +259,7 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
 
             if (!hashedIDToSummaryMap.containsKey(hash)) {
                 String[] propertyLiterals = propertyToLiteralsMap.get(propertyURI);
-                hashedIDToSummaryMap.put(hash, new SimpleLuceneSummary(propertyLiterals[0], propertyLiterals[1]));
+                hashedIDToSummaryMap.put(hash, new SimpleLuceneSummary(URI.create(propertyURI), propertyLiterals[0], propertyLiterals[1]));
             }
             SimpleLuceneSummary summary = (SimpleLuceneSummary) hashedIDToSummaryMap.get(hash);
             summary.addAnnotationURI(URI.create(annotationURI));
@@ -224,13 +299,15 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
     }
 
     public class SimpleLuceneSummary implements AnnotationSummary {
+        private final URI propertyUri;
         private final String propertyType;
         private final String propertyValue;
         private final Set<URI> semanticTags;
         private final Set<URI> annotationURIs;
         private final Set<URI> annotationSourceURIs;
 
-        public SimpleLuceneSummary(String propertyType, String propertyValue) {
+        public SimpleLuceneSummary(URI propertyUri, String propertyType, String propertyValue) {
+            this.propertyUri = propertyUri;
             this.propertyType = propertyType;
             this.propertyValue = propertyValue;
             this.semanticTags = new HashSet<>();
@@ -251,6 +328,11 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
         @Override
         public String getID() {
             return null;
+        }
+
+        @Override
+        public URI getAnnotatedPropertyUri() {
+            return propertyUri;
         }
 
         @Override
@@ -303,6 +385,7 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
         @Override
         public String toString() {
             return "SimpleLuceneSummary{" +
+                    ", propertyUri='" + propertyUri + '\'' +
                     ", propertyType='" + propertyType + '\'' +
                     ", propertyValue='" + propertyValue + '\'' +
                     ", semanticTags=" + semanticTags +

@@ -52,13 +52,13 @@ public interface PropertyService {
     Property getProperty(URI uri);
 
     /**
-     * Returns a property from ZOOMA, assuming an exact match on property type and value
+     * Returns a property from ZOOMA, assuming an exact match on property type and/or value
      *
      * @param type  the type of the property to fetch (can be empty or null)
-     * @param value the value of the property to fetch
+     * @param value the value of the property to fetch (can be null if a type is supplied)
      * @return a single matching property, if one is present, or null otherwise
      */
-    Property getMatchedTypedProperty(String type, String value);
+    Collection<Property> getMatchedTypedProperty(String type, String value);
 
     /**
      * Returns a property from ZOOMA, assuming an exact match on property value.  Typed properties will not be returned

@@ -3,15 +3,12 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.exception.InvalidDataFormatException;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.Study;
+import uk.ac.ebi.fgpt.zooma.model.*;
 
 import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -44,7 +41,38 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
 
     @Override
     public Annotation createAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities, Property annotatedProperty, Collection<URI> semanticTags, Collection<URI> replaces, String annotator, Date annotationDate) {
-        return null;
+
+        for (BiologicalEntity be : annotatedBiologicalEntities) {
+            if (be.getURI() == null) {
+                throw new IllegalArgumentException("A biological entity without a URI was submitted, can't create annotation");
+                // todo handle this case better
+            }
+        }
+
+        // create new property using regular URI minting strategy
+        Property newProperty = annotatedProperty instanceof TypedProperty ?
+                getAnnotationLoadingSession().getOrCreateProperty( ((TypedProperty) annotatedProperty).getPropertyType(), annotatedProperty.getPropertyValue())
+                : getAnnotationLoadingSession().getOrCreateProperty("", annotatedProperty.getPropertyValue());
+
+        AnnotationProvenance prov;
+        if (annotator != null) {
+            if (annotationDate != null) {
+                prov = getAnnotationProvenance(annotator, annotationDate);
+            }
+            else {
+                throw new InvalidDataFormatException("ANNOTATOR supplied without a corresponding ANNOTATION_DATE");
+            }
+        }
+        else {
+            prov = getAnnotationProvenance();
+        }
+
+        // and return the complete annotation
+        return getAnnotationLoadingSession().getOrCreateAnnotation(
+                annotatedBiologicalEntities,
+                newProperty,
+                prov,
+                semanticTags);
     }
 
     @Override public Annotation createAnnotation(URI annotationURI,
@@ -194,14 +222,28 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
         // and return the complete annotation
         Annotation a;
         if (annotationURI != null) {
-            a = getAnnotationLoadingSession().getOrCreateAnnotation(annotationURI, be, p, prov, semanticTag);
+            a = getAnnotationLoadingSession().getOrCreateAnnotation(
+                    annotationURI,
+                    be != null ? Collections.singleton(be) : Collections.<BiologicalEntity>emptySet(),
+                    p,
+                    prov,
+                    semanticTag !=null ? Collections.singleton(semanticTag) : Collections.<URI>emptySet());
         }
         else {
             if (annotationID != null) {
-                a = getAnnotationLoadingSession().getOrCreateAnnotation(annotationID, be, p, prov, semanticTag);
+                a = getAnnotationLoadingSession().getOrCreateAnnotation(
+                        annotationID,
+                        be != null ? Collections.singleton(be) : Collections.<BiologicalEntity>emptySet(),
+                        p,
+                        prov,
+                        semanticTag !=null ? Collections.singleton(semanticTag) : Collections.<URI>emptySet());
             }
             else {
-                a = getAnnotationLoadingSession().getOrCreateAnnotation(be, p, prov, semanticTag);
+                a = getAnnotationLoadingSession().getOrCreateAnnotation(
+                        be != null ? Collections.singleton(be) : Collections.<BiologicalEntity>emptySet(),
+                        p,
+                        prov,
+                        semanticTag !=null ? Collections.singleton(semanticTag) : Collections.<URI>emptySet());
             }
         }
         return a;

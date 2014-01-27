@@ -12,20 +12,7 @@ import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationSummaryDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotation;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.SimpleBiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
-import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
-import uk.ac.ebi.fgpt.zooma.model.Study;
-import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
+import uk.ac.ebi.fgpt.zooma.model.*;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
@@ -169,6 +156,29 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    public void testSparqlAnnotationDao2c() {
+
+        if (hasConnection) {
+
+            log.info("pulling out one annotation from zooma checking biological entities read");
+
+            for (Annotation anno : annotationBean.readByProperty(new SimpleUntypedProperty(URI.create(
+                    "http://rdf.ebi.ac.uk/resource/zooma/E954DFB9E760DE1C06C6BDD30497A40E"), ""))) {
+
+                assertTrue(anno.getURI() != null);
+                log.info("got annotation with URI: " + anno.getURI().toString());
+                printAnotation(anno);
+
+
+                log.info("Getting biological entities");
+                for (BiologicalEntity be : anno.getAnnotatedBiologicalEntities()) {
+                    printBiologicalEntity(be);
+                }
+
+            }
+        }
+    }
+
     public void testSparqlAnnotationDao3() {
 
         if (hasConnection) {
@@ -202,6 +212,44 @@ public class RepositoryConnectionTester extends TestCase {
 
         }
     }
+
+    public void testSparqlSummaryAnnotationDao3a() {
+
+        if (hasConnection) {
+
+            log.info("pulling out all annotations summaries from zooma");
+
+            for (AnnotationSummary summary : annotationSummaryBean.readByProperty(new SimpleUntypedProperty(URI.create(
+                                "http://rdf.ebi.ac.uk/resource/zooma/74508E1D7B9250A775F594005564392B"), ""))) {
+                    System.out.println(summary.toString());
+            }
+        }
+    }
+
+    public void testSparqlSummaryAnnotationDao3b() {
+
+        if (hasConnection) {
+
+            log.info("pulling out all annotations summaries from zooma");
+
+            for (AnnotationSummary summary : annotationSummaryBean.matchByProperty("migration")) {
+                    System.out.println(summary.toString());
+            }
+        }
+    }
+
+    public void testSparqlSummaryAnnotationDao3c() {
+
+        if (hasConnection) {
+
+            log.info("pulling out all annotations summaries from zooma");
+
+            for (AnnotationSummary summary : annotationSummaryBean.matchByProperty("phenotype", "migration")) {
+                    System.out.println(summary.toString());
+            }
+        }
+    }
+
 
     public void testSparqlAnnotationDao5() {
 
@@ -313,6 +361,44 @@ public class RepositoryConnectionTester extends TestCase {
         annotationBean.delete(newanno);
 
 
+    }
+
+    public void testSparqlPropertyDao() {
+
+        if (hasConnection) {
+
+            log.info("pulling out annotations by study");
+
+            long start = System.currentTimeMillis();
+            Collection<Property> props = propertyBean.readByTypeAndValue("phenotype", null);
+            System.out.println("Property size: " + props.size());
+            for (Property p : props) {
+                System.out.println("property:  " + p.toString());
+            }
+            long end = System.currentTimeMillis();
+
+            System.out.println("time: " + ((end - start) / 1000) % 60 + "seconds");
+
+        }
+    }
+
+    public void testSparqlPropertyDao2() {
+
+        if (hasConnection) {
+
+            log.info("pulling out annotations by study");
+
+            long start = System.currentTimeMillis();
+            Collection<Property> props = propertyBean.readByTypeAndValue(null, "Cell shape variable");
+            System.out.println("Property size: " + props.size());
+            for (Property p : props) {
+                System.out.println("property:  " + p.toString());
+            }
+            long end = System.currentTimeMillis();
+
+            System.out.println("time: " + ((end - start) / 1000) % 60 + "seconds");
+
+        }
     }
 
     public void printAnotation(Annotation anno) {

@@ -78,22 +78,22 @@ public interface AnnotationLoadingSession {
 
     Property getOrCreateProperty(String propertyType, String propertyValue, URI propertyURI);
 
-    Annotation getOrCreateAnnotation(BiologicalEntity biologicalEntity,
+    Annotation getOrCreateAnnotation(Collection<BiologicalEntity> biologicalEntity,
                                      Property property,
                                      AnnotationProvenance annotationProvenance,
-                                     URI semanticTag);
+                                     Collection<URI> semanticTag);
 
     Annotation getOrCreateAnnotation(String annotationID,
-                                     BiologicalEntity biologicalEntity,
+                                     Collection<BiologicalEntity> biologicalEntity,
                                      Property property,
                                      AnnotationProvenance annotationProvenance,
-                                     URI semanticTag);
+                                     Collection<URI> semanticTag);
 
     Annotation getOrCreateAnnotation(URI annotationURI,
-                                     BiologicalEntity biologicalEntity,
+                                     Collection<BiologicalEntity> biologicalEntity,
                                      Property property,
                                      AnnotationProvenance annotationProvenance,
-                                     URI semanticTag);
+                                     Collection<URI> semanticTag);
 
     void clearCaches();
 }

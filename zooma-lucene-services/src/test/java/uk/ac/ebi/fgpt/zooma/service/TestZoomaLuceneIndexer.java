@@ -199,6 +199,7 @@ public class TestZoomaLuceneIndexer {
 
             AnnotationSummary summary1 = new SimpleAnnotationSummary(
                     null,
+                    property1.getURI(),
                     ((TypedProperty) property1).getPropertyType(),
                     property1.getPropertyValue(),
                     Collections.singleton(semanticTag1),
@@ -208,6 +209,7 @@ public class TestZoomaLuceneIndexer {
 
             AnnotationSummary summary2 = new SimpleAnnotationSummary(
                     null,
+                    property1.getURI(),
                     ((TypedProperty) property1).getPropertyType(),
                     property1.getPropertyValue(),
                     Collections.singleton(semanticTag3),
@@ -217,6 +219,7 @@ public class TestZoomaLuceneIndexer {
 
             AnnotationSummary summary3 = new SimpleAnnotationSummary(
                     null,
+                    property2.getURI(),
                     ((TypedProperty) property2).getPropertyType(),
                     property2.getPropertyValue(),
                     Collections.singleton(semanticTag2),

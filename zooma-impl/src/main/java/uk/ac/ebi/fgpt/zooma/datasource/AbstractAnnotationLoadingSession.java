@@ -21,12 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * An annotation loading session that caches objects that have been previously seen so as to avoid creating duplicates
@@ -126,9 +121,9 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
             studyAccs[i] = studies[i].getAccession();
         }
         return getOrCreateBiologicalEntity(bioentityName,
-                                           mintBioentityURI(bioentityID, bioentityName, studyAccs),
-                                           bioentityTypeName, bioentityTypeURI,
-                                           studies);
+                mintBioentityURI(bioentityID, bioentityName, studyAccs),
+                bioentityTypeName, bioentityTypeURI,
+                studies);
     }
 
     @Override public BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
@@ -139,24 +134,24 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
         if (!biologicalEntityCache.containsKey(bioentityURI)) {
             if (!bioentityTypeURI.isEmpty()) {
                 biologicalEntityCache.put(bioentityURI,
-                                          new SimpleBiologicalEntity(bioentityURI,
-                                                                     bioentityName,
-                                                                     bioentityTypeURI,
-                                                                     studies));
+                        new SimpleBiologicalEntity(bioentityURI,
+                                bioentityName,
+                                bioentityTypeURI,
+                                studies));
             }
             else if (!bioentityTypeName.isEmpty()) {
                 biologicalEntityCache.put(bioentityURI,
-                                          new SimpleBiologicalEntity(bioentityURI,
-                                                                     bioentityName,
-                                                                     mintBioentityURITypes(bioentityTypeName),
-                                                                     studies));
+                        new SimpleBiologicalEntity(bioentityURI,
+                                bioentityName,
+                                mintBioentityURITypes(bioentityTypeName),
+                                studies));
             }
             else {
                 biologicalEntityCache.put(bioentityURI,
-                                          new SimpleBiologicalEntity(bioentityURI,
-                                                                     bioentityName,
-                                                                     getDefaultTargetTypeUri(),
-                                                                     studies));
+                        new SimpleBiologicalEntity(bioentityURI,
+                                bioentityName,
+                                getDefaultTargetTypeUri(),
+                                studies));
             }
         }
         return biologicalEntityCache.get(bioentityURI);
@@ -166,13 +161,13 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
         if (propertyType != null && !propertyType.equals("")) {
             String normalizedType = ZoomaUtils.normalizePropertyTypeString(propertyType);
             return getOrCreateProperty(propertyType,
-                                       propertyValue,
-                                       generateIDFromContent(normalizedType, propertyValue));
+                    propertyValue,
+                    generateIDFromContent(normalizedType, propertyValue));
         }
         else {
             return getOrCreateProperty(null,
-                                       propertyValue,
-                                       generateIDFromContent(propertyValue));
+                    propertyValue,
+                    generateIDFromContent(propertyValue));
         }
     }
 
@@ -182,13 +177,13 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
         if (propertyType != null && !propertyType.equals("")) {
             String normalizedType = ZoomaUtils.normalizePropertyTypeString(propertyType);
             return getOrCreateProperty(propertyType,
-                                       propertyValue,
-                                       mintPropertyURI(propertyID, normalizedType, propertyValue));
+                    propertyValue,
+                    mintPropertyURI(propertyID, normalizedType, propertyValue));
         }
         else {
             return getOrCreateProperty(null,
-                                       propertyValue,
-                                       mintPropertyURI(propertyID, null, propertyValue));
+                    propertyValue,
+                    mintPropertyURI(propertyID, null, propertyValue));
         }
     }
 
@@ -210,12 +205,12 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
         return propertyCache.get(propertyURI);
     }
 
-    @Override public synchronized Annotation getOrCreateAnnotation(BiologicalEntity biologicalEntity,
+    @Override public synchronized Annotation getOrCreateAnnotation(Collection<BiologicalEntity> biologicalEntities,
                                                                    Property property,
                                                                    AnnotationProvenance annotationProvenance,
-                                                                   URI semanticTag) {
+                                                                   Collection<URI> semanticTags) {
         List<String> idContents = new ArrayList<>();
-        if (biologicalEntity != null) {
+        for (BiologicalEntity biologicalEntity : biologicalEntities) {
             for (Study s : biologicalEntity.getStudies()) {
                 idContents.add(s.getAccession());
             }
@@ -232,60 +227,59 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
             idContents.add(((TypedProperty) property).getPropertyType());
         }
         idContents.add(property.getPropertyValue());
-        if (semanticTag != null) {
+        for (URI semanticTag : semanticTags) {
             idContents.add(URIUtils.getShortform(semanticTag, URIUtils.ShortformStrictness.ALLOW_SLASHES_AND_HASHES));
         }
+        idContents.add(annotationProvenance.getAnnotator() != null ? annotationProvenance.getAnnotator() : "");
+        idContents.add(annotationProvenance.getGeneratedDate() != null ? annotationProvenance.getGeneratedDate().toString() : "");
+        idContents.add(annotationProvenance.getAnnotationDate() != null ? annotationProvenance.getAnnotationDate().toString() : "");
+        idContents.add(annotationProvenance.getEvidence() != null ? annotationProvenance.getEvidence().toString() : "");
+        idContents.add(annotationProvenance.getSource() != null ? annotationProvenance.getSource().getURI().toString() : "");
+
         String annotationID = generateIDFromContent(idContents.toArray(new String[idContents.size()]));
 
-        return getOrCreateAnnotation(annotationID, biologicalEntity, property, annotationProvenance, semanticTag);
+        return getOrCreateAnnotation(annotationID, biologicalEntities, property, annotationProvenance, semanticTags);
     }
 
     @Override public synchronized Annotation getOrCreateAnnotation(String annotationID,
-                                                                   BiologicalEntity biologicalEntity,
+                                                                   Collection<BiologicalEntity> biologicalEntities,
                                                                    Property property,
                                                                    AnnotationProvenance annotationProvenance,
-                                                                   URI semanticTag) {
+                                                                   Collection<URI> semanticTags) {
         return getOrCreateAnnotation(mintAnnotationURI(annotationID),
-                                     biologicalEntity,
-                                     property,
-                                     annotationProvenance,
-                                     semanticTag);
+                biologicalEntities,
+                property,
+                annotationProvenance,
+                semanticTags);
     }
 
     @Override public Annotation getOrCreateAnnotation(URI annotationURI,
-                                                      BiologicalEntity biologicalEntity,
+                                                      Collection<BiologicalEntity> biologicalEntities,
                                                       Property property,
                                                       AnnotationProvenance annotationProvenance,
-                                                      URI semanticTag) {
+                                                      Collection<URI> semanticTags) {
         if (!annotationCache.containsKey(annotationURI)) {
             // create and cache a new annotation
-            List<BiologicalEntity> beList = biologicalEntity == null
-                    ? Collections.<BiologicalEntity>emptyList()
-                    : Collections.singletonList(biologicalEntity);
-            if (semanticTag == null) {
+            if (semanticTags.isEmpty()) {
                 annotationCache.put(annotationURI, new SimpleAnnotation(annotationURI,
-                                                                        beList,
-                                                                        property,
-                                                                        annotationProvenance));
+                        biologicalEntities,
+                        property,
+                        annotationProvenance));
             }
             annotationCache.put(annotationURI, new SimpleAnnotation(annotationURI,
-                                                                    beList,
-                                                                    property,
-                                                                    annotationProvenance,
-                                                                    semanticTag));
+                    biologicalEntities,
+                    property,
+                    annotationProvenance,
+                    semanticTags.toArray(new URI[semanticTags.size()])));
         }
         else {
             getLog().debug("Annotation <" + annotationURI + "> already exists; merging additional data");
             // retrieve previous annotation and merge fields
             SimpleAnnotation annotation = annotationCache.get(annotationURI);
             // merge bioentities
-            if (biologicalEntity != null) {
-                annotation.addAnnotatedBiologicalEntity(biologicalEntity);
-            }
+            annotation.getAnnotatedBiologicalEntities().addAll(biologicalEntities);
             // merge semantic tags
-            if (semanticTag != null) {
-                annotation.addSemanticTag(semanticTag);
-            }
+            annotation.getSemanticTags().addAll(semanticTags);
             // update provenance
             if (annotationProvenance != null) {
                 annotation.addAnnotationProvenance(annotationProvenance);
@@ -321,6 +315,7 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
 
     // mint URI based on bioEntityType Name
     protected Collection<URI> mintBioentityURITypes(Collection<String> bioentityTypeName) {
+
         return Collections.emptySet();
     }
 

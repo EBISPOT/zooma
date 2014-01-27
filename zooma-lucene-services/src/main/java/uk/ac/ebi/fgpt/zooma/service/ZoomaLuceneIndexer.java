@@ -332,6 +332,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                     summary.getAnnotatedPropertyType() != null ? summary.getAnnotatedPropertyType() : UNTYPED;
             String propertyValue = summary.getAnnotatedPropertyValue();
             // get semantic tags
+            URI propertyUri = summary.getAnnotatedPropertyUri();
             Collection<URI> semanticTags = summary.getSemanticTags();
             Collection<URI> annotations = summary.getAnnotationURIs();
 
@@ -379,6 +380,10 @@ public class ZoomaLuceneIndexer extends Initializable {
                 Document doc = new Document();
                 doc.add(new Field("id",
                                   summaryId,
+                                  Field.Store.YES,
+                                  Field.Index.NOT_ANALYZED));
+                doc.add(new Field("propertyuri",
+                                  propertyUri.toString(),
                                   Field.Store.YES,
                                   Field.Index.NOT_ANALYZED));
                 doc.add(new Field("property",

@@ -4,16 +4,7 @@ import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.TransactionalAnnotationFactory;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotation;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.SimpleDatabaseAnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.Study;
-import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
+import uk.ac.ebi.fgpt.zooma.model.*;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
@@ -118,12 +109,17 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                     getAnnotationFactory().acquire(currentSource);
                 }
 
+                String user = "unknown";
+                if (annotation.getProvenance().getAnnotator() != null) {
+                    user = annotation.getProvenance().getAnnotator();
+                }
+
                 Annotation newAnnotation = getAnnotationFactory().createAnnotation(
                         annotation.getAnnotatedBiologicalEntities(),
                         annotation.getAnnotatedProperty(),
                         annotation.getSemanticTags(),
                         annotation.getReplaces(),
-                        "unknown",
+                        user,
                         // todo get from authenticated user
                         new Date());
                 newAnnotations.add(newAnnotation);
@@ -137,9 +133,12 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
             }
 
             // save new and update old
-            getAnnotationDAO().create(newAnnotations);
-            // todo update collection of previousAnnotations
-
+            try {
+                getAnnotationDAO().create(newAnnotations);
+                getAnnotationDAO().update(previousAnnotations);
+            } catch (ResourceAlreadyExistsException e) {
+                throw new ZoomaUpdateException("Couldn't create new annotation as the annotation URI already existed", e);
+            }
 
         } catch (InterruptedException e) {
             throw new ZoomaUpdateException("Update previous annotation operation was interrupted", e);
@@ -168,7 +167,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
 
 
     @Override
-    public Collection<Annotation> updatePreviousAnnotations(Collection<Annotation> annotationsToUpdate, Property newProperty, Collection<URI> newSemanticTags, boolean retainPreviousSemanticTags) throws ZoomaUpdateException {
+    public Collection<Annotation> updatePreviousAnnotations(Collection<Annotation> annotationsToUpdate, AnnotationUpdate update) throws ZoomaUpdateException {
 
         List<Annotation> annotationsList = new ArrayList<>(annotationsToUpdate);
         Collections.sort(annotationsList, new Comparator<Annotation>() {
@@ -193,18 +192,39 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                     getAnnotationFactory().acquire(currentSource);
                 }
 
-                Property property = newProperty == null ? previousAnnotation.getAnnotatedProperty(): newProperty;
+                Property newProperty = null;
+                if (update.getPropertyType() != null && update.getPropertyValue() != null) {
+                    // both fields have changed
+                    newProperty = new SimpleTypedProperty(update.getPropertyType(), update.getPropertyValue());
+                }
+                else if (update.getPropertyType() != null && update.getPropertyValue() == null) {
+                    // if just the property type has changed
+                    newProperty = new SimpleTypedProperty(update.getPropertyType(), previousAnnotation.getAnnotatedProperty().getPropertyValue());
+                }
+                else if (update.getPropertyValue() != null) {
+                    // if just the property has changed, get the old property value
+                    newProperty =
+                            previousAnnotation.getAnnotatedProperty() instanceof TypedProperty ?
+                                    new SimpleTypedProperty(((TypedProperty) previousAnnotation.getAnnotatedProperty()).getPropertyType(), update.getPropertyValue())
+                            : new SimpleUntypedProperty(update.getPropertyValue());
+                }
+                else {
+                    // if  both are null, use the old property as it is
+                    newProperty = previousAnnotation.getAnnotatedProperty();
+                }
+
                 Collection<URI> semanticTags = new HashSet<>();
-                if (retainPreviousSemanticTags) {
+                if (update.isRetainSemanticTags() && previousAnnotation.getSemanticTags() != null) {
                     semanticTags.addAll(previousAnnotation.getSemanticTags());
                 }
-                if (newSemanticTags != null) {
-                    semanticTags.addAll(newSemanticTags);
+
+                if (update.getSemanticTags() != null) {
+                    semanticTags.addAll(update.getSemanticTags());
                 }
 
                 Annotation newAnnotation = getAnnotationFactory().createAnnotation(
                         previousAnnotation.getAnnotatedBiologicalEntities(),
-                        property,
+                        newProperty,
                         semanticTags,
                         Collections.singleton(previousAnnotation.getURI()),
                         "unknown",
@@ -218,8 +238,12 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
             }
 
             // save new and update old
-            getAnnotationDAO().create(newAnnotations);
-            // todo update collection of previousAnnotations
+            try {
+                getAnnotationDAO().create(newAnnotations);
+                getAnnotationDAO().update(annotationsToUpdate);
+            } catch (ResourceAlreadyExistsException e) {
+                throw new ZoomaUpdateException("Couldn't create new annotation as the annotation URI already existed", e);
+            }
 
 
         } catch (InterruptedException e) {

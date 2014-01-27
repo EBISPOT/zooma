@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
+import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSourceService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummarySearchService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummaryService;
+import uk.ac.ebi.fgpt.zooma.service.PropertyService;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
 import uk.ac.ebi.fgpt.zooma.util.Scorer;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
@@ -22,10 +24,7 @@ import uk.ac.ebi.fgpt.zooma.view.SearchResponse;
 import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,6 +51,8 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     private AnnotationSourceService annotationSourceService;
 
     private AnnotationSummarySearchService annotationSummarySearchService;
+
+    private AnnotationSummarySearchService simpleAnnotationSummarySearchService;
 
     private Sorter<AnnotationSummary> annotationSummarySorter;
     private Limiter<AnnotationSummary> annotationSummaryLimiter;
@@ -113,6 +114,15 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     public void setAnnotationSummaryScorer(Scorer<AnnotationSummary> annotationSummaryScorer) {
         setIsValidated(false);
         this.annotationSummaryScorer = annotationSummaryScorer;
+    }
+
+    public AnnotationSummarySearchService getSimpleAnnotationSummarySearchService() {
+        return simpleAnnotationSummarySearchService;
+    }
+
+    @Autowired
+    public void setSimpleAnnotationSummarySearchService(AnnotationSummarySearchService simpleAnnotationSummarySearchService) {
+        this.simpleAnnotationSummarySearchService = simpleAnnotationSummarySearchService;
     }
 
     public Collection<AnnotationSummary> fetch() {
@@ -183,9 +193,9 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         validate();
         Collection<AnnotationSummary> annotations =
                 getAnnotationSummarySearchService().searchByPreferredSources(type,
-                                                                             query,
-                                                                             preferredSources,
-                                                                             requiredSources);
+                        query,
+                        preferredSources,
+                        requiredSources);
         return getAnnotationSummaryScorer().score(annotations, query, type);
     }
 
@@ -225,6 +235,23 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         return AnnotationSummary.ANNOTATION_SUMMARY_TYPE_NAME;
     }
 
+    @RequestMapping(value = "/simplesearch", method = RequestMethod.GET)
+    public @ResponseBody Collection<AnnotationSummary> basicSearch(
+            @RequestParam(value = "query", required = false)  String query,
+            @RequestParam(value = "type", required = false)  String type,
+            @RequestParam(value = "exact", required = false, defaultValue = "false") final Boolean exact,
+            @RequestParam(value = "source", required = false) Collection<String> sources) {
+
+        if (!exact) {
+            query = query + "*";
+        }
+        Collection<URI> sourcesURI = new HashSet<>();
+        for (String s : sources) {
+            sourcesURI.add(URI.create(s));
+        }
+        return  getSimpleAnnotationSummarySearchService().search(type, query, sourcesURI.toArray( new URI [sourcesURI.size()]));
+    }
+
     @Override
     @RequestMapping(value = "/suggest", method = RequestMethod.GET)
     public @ResponseBody SuggestResponse suggest(
@@ -237,8 +264,8 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         // NB. we don't use type_strict param anywhere
         if (type != null) {
             return convertToSuggestResponse(prefix,
-                                            queryAndScore(prefix, type, true),
-                                            getAnnotationSummarySorter());
+                    queryAndScore(prefix, type, true),
+                    getAnnotationSummarySorter());
         }
         else {
             return convertToSuggestResponse(prefix, queryAndScore(prefix, true), getAnnotationSummarySorter());
@@ -266,17 +293,17 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         }
         else {
             return search(query,
-                          type,
-                          exact,
-                          limit,
-                          start,
-                          prefixed,
-                          lang,
-                          domain,
-                          filter,
-                          html_escape,
-                          indent,
-                          mql_output);
+                    type,
+                    exact,
+                    limit,
+                    start,
+                    prefixed,
+                    lang,
+                    domain,
+                    filter,
+                    html_escape,
+                    indent,
+                    mql_output);
         }
     }
 
@@ -295,14 +322,14 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                                  final String mql_output) {
         if (filter != null) {
             return filteredSearch(query,
-                                  type,
-                                  prefixed,
-                                  filter);
+                    type,
+                    prefixed,
+                    filter);
         }
         else {
             return unfilteredSearch(query,
-                                    type,
-                                    prefixed);
+                    type,
+                    prefixed);
         }
     }
 
@@ -312,8 +339,8 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
         if (type != null) {
             return convertToSearchResponse(query,
-                                           queryAndScore(query, type, prefixed),
-                                           getAnnotationSummarySorter());
+                    queryAndScore(query, type, prefixed),
+                    getAnnotationSummarySorter());
         }
         else {
             return convertToSearchResponse(query, queryAndScore(query, prefixed), getAnnotationSummarySorter());
@@ -331,20 +358,20 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
             case REQUIRED_ONLY:
                 requiredSources = parseRequiredSourcesFromFilter(filter);
                 return convertToSearchResponse(query,
-                                               queryAndScore(query, type, prefixed, requiredSources),
-                                               getAnnotationSummarySorter());
+                        queryAndScore(query, type, prefixed, requiredSources),
+                        getAnnotationSummarySorter());
             case REQUIRED_AND_PREFERRED:
                 requiredSources = parseRequiredSourcesFromFilter(filter);
             case PREFERRED_ONLY:
                 preferredSources = parsePreferredSourcesFromFilter(filter);
                 return convertToSearchResponse(query,
-                                               queryAndScore(query, type, preferredSources, requiredSources),
-                                               getAnnotationSummarySorter());
+                        queryAndScore(query, type, preferredSources, requiredSources),
+                        getAnnotationSummarySorter());
             case UNRESTRICTED:
             default:
                 return unfilteredSearch(query,
-                                        type,
-                                        prefixed);
+                        type,
+                        prefixed);
         }
     }
 
@@ -431,7 +458,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                 }
                 else {
                     getLog().warn("Required source '" + sourceName + "' was specified as a filter but " +
-                                          "could not be found in ZOOMA; this source will be excluded from the query");
+                            "could not be found in ZOOMA; this source will be excluded from the query");
                 }
             }
         }
@@ -452,7 +479,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                 }
                 else {
                     getLog().warn("Required source '" + sourceName + "' was specified as a filter but " +
-                                          "could not be found in ZOOMA; this source will be excluded from the query");
+                            "could not be found in ZOOMA; this source will be excluded from the query");
                 }
             }
         }

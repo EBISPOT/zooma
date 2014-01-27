@@ -154,14 +154,18 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
     @Override public void update(Annotation annotation) throws NoSuchResourceException {
         getLog().debug("Triggered annotation update request...\n\n" + annotation.toString());
-        if (read(annotation.getURI()) == null) {
-            throw new NoSuchResourceException(
-                    "Can't update annotation with URI " + annotation.getURI() + " no such annotation exists");
-        }
+        update(Collections.singleton(annotation));
+    }
 
-//        Graph g = getQueryService().getDefaultGraph();
-//        Model m = ModelFactory.createModelForGraph(g);
-//        m.removeAll(new ResourceImpl(annotation.getURI().toString()), null, null);
+    @Override public void update(Collection<Annotation> annotations) throws NoSuchResourceException {
+        getLog().debug("Triggered annotation update request for " + annotations.size() + " annotations \n\n");
+
+        for (Annotation a : annotations) {
+            if (read(a.getURI()) == null) {
+                throw new NoSuchResourceException(
+                        "Can't update annotation with URI " + a.getURI() + " no such annotation exists");
+            }
+        }
 
         try {
             final PipedInputStream pis = new PipedInputStream();
@@ -178,14 +182,14 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 }
             });
             thread.start();
-            getAnnotationZoomaSerializer().serialize(getDatasourceName(), Collections.singleton(annotation), pos);
+            getAnnotationZoomaSerializer().serialize(getDatasourceName(), annotations, pos);
         }
         catch (IOException e) {
-            log.error("Couldn't create annotation " + annotation.toString(), e);
+            log.error("Couldn't update annotations ", e);
+        } catch (ZoomaSerializationException e) {
+            log.error("Couldn't serialise update annotations ", e);
         }
-        catch (ZoomaSerializationException e) {
-            log.error("Couldn't create annotation " + annotation.toString(), e);
-        }
+
 
     }
 
@@ -500,9 +504,6 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         Resource database = solution.getResource(QueryVariables.DATABASEID.toString());
         Resource sourceType = solution.getResource(QueryVariables.SOURCETYPE.toString());
 
-        // bit of an optimisation hack to avoid slow SPARQL filters, we never want the source type to be an OWLIndividual, so return null at this point
-        if (sourceType.getURI().equals(OWLRDFVocabulary.OWL_NAMED_INDIVIDUAL.getIRI().toString())) { return null; }
-
         Resource replaces = solution.getResource(QueryVariables.REPLACES.toString());
         Resource replacedBy = solution.getResource(QueryVariables.REPLACEDBY.toString());
         Literal sourceName = solution.getLiteral(QueryVariables.SOURCENAME.toString());
@@ -645,16 +646,30 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 AnnotationSource source = null;
                 if (sourceType != null) {
                     URI sourceAsUri = URI.create(sourceType.getURI());
-                    String sourceTypeName = URIBindingUtils.getName(sourceAsUri);
-                    AnnotationSource.Type sourceT = AnnotationSource.Type.lookup(sourceTypeName);
+                    try {
+                        String sourceTypeName = URIBindingUtils.getName(sourceAsUri);
+                        AnnotationSource.Type sourceT = AnnotationSource.Type.lookup(sourceTypeName);
 
-                    if (sourceT == AnnotationSource.Type.ONTOLOGY) {
-                        source = new SimpleOntologyAnnotationSource(URI.create(database.toString()),
-                                sourceName.getLexicalForm());
+                        if (sourceT == AnnotationSource.Type.ONTOLOGY) {
+                            source = new SimpleOntologyAnnotationSource(URI.create(database.toString()),
+                                    sourceName.getLexicalForm());
+                        }
+                        else if (sourceT == AnnotationSource.Type.DATABASE) {
+                            source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
+                                    sourceName.getLexicalForm());
+                        }
                     }
-                    else if (sourceT == AnnotationSource.Type.DATABASE) {
-                        source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
-                                sourceName.getLexicalForm());
+                    catch (IllegalArgumentException e) {
+                        // this may be thrown if query returns additional types for resource that we don't care about
+                        // in which case we might set the type incorrectly. todo consider removing source type from the model completely as we don't use it
+                        if (sourceAsUri.equals(OWLRDFVocabulary.OWL_ONTOLOGY.getIRI().toURI())) {
+                            source = new SimpleOntologyAnnotationSource(URI.create(database.toString()),
+                                    sourceName.getLexicalForm());
+                        }
+                        else {
+                            source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
+                                    sourceName.getLexicalForm());
+                        }
                     }
 
                 }

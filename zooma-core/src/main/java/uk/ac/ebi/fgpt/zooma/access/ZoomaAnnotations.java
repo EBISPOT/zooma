@@ -5,18 +5,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.SimpleBiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
-import uk.ac.ebi.fgpt.zooma.service.AnnotationSearchService;
-import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
-import uk.ac.ebi.fgpt.zooma.service.DataLoadingService;
-import uk.ac.ebi.fgpt.zooma.service.PropertyService;
+import uk.ac.ebi.fgpt.zooma.model.*;
+import uk.ac.ebi.fgpt.zooma.service.*;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
-import uk.ac.ebi.fgpt.zooma.view.AnnotationUpdateRequest;
 import uk.ac.ebi.fgpt.zooma.view.FlyoutResponse;
 import uk.ac.ebi.fgpt.zooma.view.SearchResponse;
 import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
@@ -321,8 +314,8 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
 
     @RequestMapping(value = "/batchUpdate", method = RequestMethod.POST)
     public @ResponseBody DataLoadingService.Receipt updateAnnotations(
-            @RequestBody AnnotationUpdateRequest annotations,
-            @RequestParam(value = "oldPropertyUriFilter", required = false) String oldPropertyUri,
+            @RequestBody AnnotationUpdate update,
+            @RequestParam(value = "oldPropertyUriFilter", required = false) Collection<String> oldPropertyUris,
             @RequestParam(value = "semanticTagUriFilter", required = false) String semanticTagUri,
             @RequestParam(value = "studyUriFilter", required = false) String studyUri,
             @RequestParam(value = "dataSourceFilter", required = true) String datasoureUri
@@ -333,56 +326,101 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
         // check old property URI exists.
         Collection<Annotation> annotationsToUpdate = new HashSet<Annotation>();
 
+        if (oldPropertyUris != null) {
+            for (String oldPropertyUri : oldPropertyUris) {
+                System.out.println("am i here? " + oldPropertyUri);
+                Property oldProperty = getPropertyService().getProperty(URI.create(oldPropertyUri));
 
-        if (oldPropertyUri != null) {
-            Property oldProperty = getPropertyService().getProperty(oldPropertyUri);
+                if (oldProperty != null) {
 
-            if (oldProperty != null) {
-
-                if (semanticTagUri != null) {
-                    for (Annotation annoByStudy : getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri))) {
-                        if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
-                            if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
-                                annotationsToUpdate.add(annoByStudy);
+                    System.out.println("am i here? 2 " + oldProperty.getURI());
+                    // update semantic tags for old properties annotated to the tag filter
+                    if (semanticTagUri != null) {
+                        for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri)))) {
+                            if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
+                                if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                    annotationsToUpdate.add(annoByStudy);
+                                }
                             }
                         }
                     }
-                }
-                else if (studyUri != null) {
-                    for (Annotation annoByStudy : getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(studyUri), null))) {
-                        if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
-                            if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
-                                annotationsToUpdate.add(annoByStudy);
+                    else if (studyUri != null) {
+                        // update all properties in this study with the new supplied info
+                        for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(studyUri), null)))) {
+                            if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
+                                if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                    annotationsToUpdate.add(annoByStudy);
+                                }
                             }
                         }
+                    }
+                    else {
+                        // if a new property type and value is supplied update the old property to the new one
+                        if (update.getPropertyType() != null && update.getPropertyValue() != null) {
+                            System.out.println("am i here? 3 " + oldProperty.getURI());
+                            for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(oldProperty))) {
+                                if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                    annotationsToUpdate.add(annoByProp);
+                                }
+                            }
+                        }
+                        // if only a property type is supplied, get all the properties with that type and update them with the supplied type (e.g organimspart to organism_part)
+                        // old property must already have a type
+                        else if (update.getPropertyType() != null) {
+                            System.out.println("am i here? 4 " + oldProperty.getURI());
+                            if (oldProperty instanceof TypedProperty) {
+                                String oldType = ((TypedProperty) oldProperty).getPropertyType();
+                                for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(oldType, null)) {
+                                    for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(matchedProperty))) {
+                                        if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                            annotationsToUpdate.add(annoByProp);
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                        // otherwise we are updating the property value for all properties with the old property type(e.g. human to homo sapiens)
+                        else if (update.getPropertyValue() != null) {
+                            System.out.println("am i here? 5 " + oldProperty.getURI());
+                            for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(null, oldProperty.getPropertyValue())) {
+                                for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(matchedProperty))) {
+                                    if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                        annotationsToUpdate.add(annoByProp);
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            System.out.println("am i here? 6 " + oldProperty.getURI());
+
+                            // both update property type and value are null so preserve
+                            for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(oldProperty))) {
+                                System.out.println("am i here? 7 " + oldProperty.getURI());
+                                if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                    annotationsToUpdate.add(annoByProp);
+                                }
+                            }
+                        }
+
                     }
                 }
                 else {
-                    for (Annotation annoByProp : getAnnotationService().getAnnotationsByProperty(oldProperty)) {
-                        if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
-                            annotationsToUpdate.add(annoByProp);
-                        }
-                    }
+                    throw new IllegalArgumentException(
+                            "Failed to update property: No property found with URI '" + oldPropertyUri + "'.");
                 }
             }
-            else {
-                throw new IllegalArgumentException(
-                        "Failed to update property: No property found with URI '" + oldPropertyUri + "'.");
-            }
-
 
         }
         else if (semanticTagUri != null) {
-            for (Annotation annoByStudy : getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri))) {
+            for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri)))) {
                 if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
                     annotationsToUpdate.add(annoByStudy);
                 }
             }
         }
 
-        return null;
-
-//        Collection<Annotation> newAnnos = getAnnotationService().updateAnnotation(annotationsToUpdate, annotations);
+        return getDataLoadingService().update(annotationsToUpdate, update);
 
     }
 

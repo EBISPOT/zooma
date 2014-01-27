@@ -1,10 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.Study;
+import uk.ac.ebi.fgpt.zooma.model.*;
 
 import java.net.URI;
 import java.util.Collection;
@@ -21,7 +18,7 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 23/03/12
  */
-public interface AnnotationService {
+public interface AnnotationService extends Service<Annotation> {
     /**
      * Returns the collection of all annotations in ZOOMA
      *
@@ -124,10 +121,8 @@ public interface AnnotationService {
      * with a new property and/or new semantic tags
      *
      * @param annotationsToUpdate the annotations to be replaced
-     * @param newProperty the property for the new annotations, if null the property on the annotation to update will be used
-     * @param newSemanticTags the semantic tags for the new annotations, can be null or empty. Behaviour depends on retainPreviousSemanticTags parameter
-     * @param retainPreviousSemanticTags if true the semantic tags on the old annotations will be added to the new annotation, the default behaviour is true
+     * @param update the annotation update to be performed
      * @return A collection of newly created semantic tags
      */
-    Collection<Annotation> updatePreviousAnnotations(Collection<Annotation> annotationsToUpdate, Property newProperty, Collection<URI> newSemanticTags, boolean retainPreviousSemanticTags) throws ZoomaUpdateException;
+    Collection<Annotation> updatePreviousAnnotations(Collection<Annotation> annotationsToUpdate, AnnotationUpdate update) throws ZoomaUpdateException;
 }

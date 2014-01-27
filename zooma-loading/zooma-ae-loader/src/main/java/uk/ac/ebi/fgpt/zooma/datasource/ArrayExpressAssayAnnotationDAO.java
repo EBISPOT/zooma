@@ -158,6 +158,11 @@ public class ArrayExpressAssayAnnotationDAO implements AnnotationDAO {
                 getClass().getSimpleName() + " is a read-only annotation DAO, updates not supported");
     }
 
+    @Override public void update(Collection<Annotation> object) throws NoSuchResourceException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, updates not supported");
+    }
+
     @Override public void delete(Annotation object) throws NoSuchResourceException {
         throw new UnsupportedOperationException(
                 getClass().getSimpleName() + " is a read-only annotation DAO, deletions not supported");

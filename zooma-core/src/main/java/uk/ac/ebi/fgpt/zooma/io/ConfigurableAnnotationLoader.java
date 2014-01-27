@@ -6,6 +6,7 @@ import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaResolutionException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.Update;
 
 import java.io.File;
 import java.io.IOException;
@@ -179,5 +180,10 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
     @Override
     public void load(Annotation annotation) throws ZoomaLoadingException {
         load("single-annotation", Collections.singleton(annotation));
+    }
+
+    @Override
+    public void update(Collection<Annotation> zoomaObject, Update<Annotation> update) throws ZoomaLoadingException {
+        throw new UnsupportedOperationException("Can't update annotations from configurable loader");
     }
 }

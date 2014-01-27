@@ -374,6 +374,10 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         throw new UnsupportedOperationException(getClass().getSimpleName() + " is a read-only DAO over a text file");
     }
 
+    @Override public void update(Collection<Annotation> object) throws NoSuchResourceException {
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " is a read-only DAO over a text file");
+    }
+
     @Override public void delete(Annotation object) throws NoSuchResourceException {
         throw new UnsupportedOperationException(getClass().getSimpleName() + " is a read-only DAO over a text file");
     }
