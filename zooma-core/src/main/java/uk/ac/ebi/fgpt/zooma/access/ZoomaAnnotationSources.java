@@ -71,8 +71,8 @@ public class ZoomaAnnotationSources {
         return getAnnotationSourceService().getAnnotationSources();
     }
 
-    @RequestMapping(value = "/loaders")
-    public Collection<String> getLoaders() {
+    @RequestMapping(value = "/loaders", method = RequestMethod.GET)
+    public @ResponseBody Collection<String> getLoaders() {
         Collection<String> results = new ArrayList<>();
         Collection<ZoomaDAO<Annotation>> datasources = getDataLoadingService().getAvailableDatasources();
         for (ZoomaDAO dao : datasources) {
