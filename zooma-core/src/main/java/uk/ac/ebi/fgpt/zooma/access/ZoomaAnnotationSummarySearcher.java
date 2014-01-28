@@ -129,10 +129,10 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         return fetch(100, 0);
     }
 
-    @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody Collection<AnnotationSummary> fetch(
             @RequestParam(value = "limit", required = false) Integer limit,
-            @RequestParam(value = "start", required = false) Integer start) {
+            @RequestParam(value = "start", required = false) Integer start)
+    {
         if (start == null) {
             if (limit == null) {
                 return getAnnotationSummaryService().getAnnotationSummaries(100, 0);
@@ -149,6 +149,30 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                 return getAnnotationSummaryService().getAnnotationSummaries(limit, start);
             }
         }
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public @ResponseBody Collection<AnnotationSummary> basicSearch(
+            @RequestParam(value = "query", required = false)  String query,
+            @RequestParam(value = "type", required = false)  String type,
+            @RequestParam(value = "exact", required = false, defaultValue = "false") final Boolean exact,
+            @RequestParam(value = "source", required = false) Collection<String> sources) {
+
+        if (!exact) {
+            query = query + "*";
+        }
+        Collection<URI> sourcesURI = new HashSet<>();
+        for (String s : sources) {
+            sourcesURI.add(URI.create(s));
+        }
+
+        if (query == null && type ==null) {
+            //
+            return getAnnotationSummaryService().getAnnotationSummaries(100, 0);
+        }
+
+        return  getSimpleAnnotationSummarySearchService().search(type, query, sourcesURI.toArray( new URI [sourcesURI.size()]));
+
     }
 
     public Collection<AnnotationSummary> queryBySemanticTags(String... semanticTagShortnames) {
@@ -235,22 +259,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         return AnnotationSummary.ANNOTATION_SUMMARY_TYPE_NAME;
     }
 
-    @RequestMapping(value = "/simplesearch", method = RequestMethod.GET)
-    public @ResponseBody Collection<AnnotationSummary> basicSearch(
-            @RequestParam(value = "query", required = false)  String query,
-            @RequestParam(value = "type", required = false)  String type,
-            @RequestParam(value = "exact", required = false, defaultValue = "false") final Boolean exact,
-            @RequestParam(value = "source", required = false) Collection<String> sources) {
-
-        if (!exact) {
-            query = query + "*";
-        }
-        Collection<URI> sourcesURI = new HashSet<>();
-        for (String s : sources) {
-            sourcesURI.add(URI.create(s));
-        }
-        return  getSimpleAnnotationSummarySearchService().search(type, query, sourcesURI.toArray( new URI [sourcesURI.size()]));
-    }
 
     @Override
     @RequestMapping(value = "/suggest", method = RequestMethod.GET)
