@@ -159,13 +159,13 @@ public class ZoomaPropertySearcher extends IdentifiableSuggestEndpoint<Property>
     public Collection<Property> query(String prefix, String type) {
         getLog().trace("Querying for '" + prefix + "', '" + type + "'");
         validate();
-        return getPropertySearchService().searchByPrefix(prefix, type);
+        return getPropertySearchService().searchByPrefix(type, prefix);
     }
 
     public Collection<Property> query(String prefix, String type, int limit, int start) {
         getLog().trace("Querying for '" + prefix + "', '" + type + "', " + limit + ", " + start);
         validate();
-        Collection<Property> allProperties = getPropertySearchService().searchByPrefix(prefix, type);
+        Collection<Property> allProperties = getPropertySearchService().searchByPrefix(type, prefix);
         List<Property> allPropertiesList = getPropertySorter().sort(allProperties);
         return getPropertyLimiter().limit(allPropertiesList, limit, start);
     }

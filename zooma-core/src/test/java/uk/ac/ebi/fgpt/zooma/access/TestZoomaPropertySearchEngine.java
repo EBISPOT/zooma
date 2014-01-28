@@ -128,7 +128,7 @@ public class TestZoomaPropertySearchEngine {
         // create test stubs
         when(propertySearchService.searchByPrefix(argThat(new PropertyPrefixMatcher(numbers))))
                 .thenReturn(numbers);
-        when(propertySearchService.searchByPrefix(argThat(new PropertyPrefixMatcher(numbers)), anyString()))
+        when(propertySearchService.searchByPrefix(anyString(), argThat(new PropertyPrefixMatcher(numbers))))
                 .thenReturn(numbers);
         when(propertySorter.sort(anyCollection()))
                 .thenReturn(numbers);
@@ -170,7 +170,7 @@ public class TestZoomaPropertySearchEngine {
             getLog().debug("Testing query for " + prefix + ", " + type);
             Collection<Property> searchResults = propertySearchEngine.query(prefix, type);
             assertSame("Unexpected prefix and type search results returned for " + prefix, numbers, searchResults);
-            verify(propertySearchService).searchByPrefix(prefix, type);
+            verify(propertySearchService).searchByPrefix(type, prefix);
         }
     }
 
@@ -185,7 +185,7 @@ public class TestZoomaPropertySearchEngine {
             assertSame("Unexpected prefix, type, limit search results returned for " + prefix,
                        limitedProperties,
                        searchResults);
-            verify(propertySearchService).searchByPrefix(prefix, type);
+            verify(propertySearchService).searchByPrefix(type, prefix);
             verify(propertySorter, times(i)).sort(numbers);
             verify(propertyLimiter, times(i++)).limit(numbers, 10, 0);
         }

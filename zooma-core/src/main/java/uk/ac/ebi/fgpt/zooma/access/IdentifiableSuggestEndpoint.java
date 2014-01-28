@@ -1,6 +1,11 @@
 package uk.ac.ebi.fgpt.zooma.access;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.Identifiable;
 import uk.ac.ebi.fgpt.zooma.util.PropertiesMapAdapter;
 
@@ -31,5 +36,12 @@ public abstract class IdentifiableSuggestEndpoint<T extends Identifiable> extend
 
     @Override protected String extractElementID(T t) {
         return t.getURI().toString();
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(SearchException.class)
+    private @ResponseBody String handleException(SearchException e) {
+        getLog().error("A search exception occurred: " + e.getMessage(), e);
+        return "There was a problem performing your search - " + e.getMessage() + "";
     }
 }
