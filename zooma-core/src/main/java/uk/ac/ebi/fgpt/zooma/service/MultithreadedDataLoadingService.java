@@ -410,4 +410,34 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
             getLog().debug("...all subtask receipts have been marked complete, this receipt has completed");
         }
     }
+
+    private class ReceiptStatusImpl implements ReceiptStatus {
+        private final String receiptID;
+        private final boolean complete;
+        private final boolean successful;
+        private final String errorMessage;
+
+        private ReceiptStatusImpl(String receiptID, boolean complete, boolean successful, String errorMessage) {
+            this.receiptID = receiptID;
+            this.complete = complete;
+            this.successful = successful;
+            this.errorMessage = errorMessage;
+        }
+
+        public String getReceiptID() {
+            return receiptID;
+        }
+
+        public boolean isComplete() {
+            return complete;
+        }
+
+        public boolean isSuccessful() {
+            return successful;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+    }
 }

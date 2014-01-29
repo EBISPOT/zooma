@@ -102,6 +102,16 @@ public interface DataLoadingService<T extends Identifiable> {
         Date getCompletionDate();
     }
 
+    public interface ReceiptStatus {
+        String getReceiptID();
+
+        boolean isComplete();
+
+        boolean isSuccessful();
+
+        String getErrorMessage();
+    }
+
     /**
      * The type of load submitted to an {@link DataLoadingService}
      */
