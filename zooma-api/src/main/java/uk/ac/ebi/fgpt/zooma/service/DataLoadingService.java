@@ -82,6 +82,15 @@ public interface DataLoadingService<T extends Identifiable> {
     String getServiceStatus();
 
     /**
+     * Returns a receipt status describing the current status of the task that the receipt with the given ID was issued
+     * for
+     *
+     * @param receiptID the ID of the receipt that was issued as a result of a load request
+     * @return the receipt status
+     */
+    ReceiptStatus getReceiptStatus(String receiptID);
+
+    /**
      * A receipt confirming that a request to load data via a {@link DataLoadingService} has been received.  Acquisition
      * of a receipt confirms that some data will be loaded, although this may be at some point in the future.  A receipt
      * is not the same as a {@link java.util.concurrent.Future} as it does not contain a result of any computational
@@ -102,6 +111,12 @@ public interface DataLoadingService<T extends Identifiable> {
         Date getCompletionDate();
     }
 
+    /**
+     * A lightweight object that allows a lookup of the progress of a task for which a {@link
+     * uk.ac.ebi.fgpt.zooma.service.DataLoadingService.Receipt} was issued.  Once client code has issued a request that
+     * returns a receipt, subsequent lookups by receipt ID can return a ReceiptStatus that indicates whether the task
+     * the receipt was issued for is complete or not.
+     */
     public interface ReceiptStatus {
         String getReceiptID();
 
@@ -110,6 +125,29 @@ public interface DataLoadingService<T extends Identifiable> {
         boolean isSuccessful();
 
         String getErrorMessage();
+    }
+
+    /**
+     * A service that can be used to lookup the progress of a task for which a {@link
+     * uk.ac.ebi.fgpt.zooma.service.DataLoadingService.Receipt} was issued.
+     */
+    public interface ReceiptService {
+        /**
+         * Register an issued {@link Receipt} with this receipt service, so that it's status can subsequently be looked
+         * up.
+         *
+         * @param receipt the receipt to register
+         */
+        void registerReceipt(Receipt receipt);
+
+        /**
+         * Get the status of a task for which a receipt was issued, encapsulated as a {@link
+         * uk.ac.ebi.fgpt.zooma.service.DataLoadingService.ReceiptStatus}
+         *
+         * @param receiptID the ID of the receipt to check the status for
+         * @return the ReceiptStatus that indicates the current progress of the task for this receipt
+         */
+        ReceiptStatus getReceiptStatus(String receiptID);
     }
 
     /**
