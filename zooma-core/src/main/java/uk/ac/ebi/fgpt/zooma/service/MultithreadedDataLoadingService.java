@@ -7,12 +7,9 @@ import uk.ac.ebi.fgpt.zooma.concurrent.WorkloadScheduler;
 import uk.ac.ebi.fgpt.zooma.concurrent.ZoomaThreadFactory;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.io.ZoomaLoader;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.Identifiable;
-import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Update;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,6 +52,8 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
     private final ExecutorService daoExecutor;
     private final ExecutorService loadExecutor;
 
+    private final ReceiptService receiptService;
+
     private ZoomaLoader<T> zoomaLoader;
     private Collection<ZoomaDAO<T>> zoomaDAOs = Collections.emptySet();
 
@@ -74,9 +73,11 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
     public MultithreadedDataLoadingService(int numberOfDatasourceThreads,
                                            int numberOfLoaderThreads) {
         this.daoExecutor = Executors.newFixedThreadPool(numberOfDatasourceThreads,
-                new ZoomaThreadFactory("ZOOMA-DAO"));
+                                                        new ZoomaThreadFactory("ZOOMA-DAO"));
         this.loadExecutor = Executors.newFixedThreadPool(numberOfLoaderThreads,
-                new ZoomaThreadFactory("ZOOMA-Loader"));
+                                                         new ZoomaThreadFactory("ZOOMA-Loader"));
+
+        this.receiptService = new InMemoryReceiptService();
     }
 
     public ZoomaLoader<T> getZoomaLoader() {
@@ -145,6 +146,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
 
         // create a receipt to track nested loads
         final CompositingReceipt receipt = new CompositingReceipt("All Available", LoadType.LOAD_ALL);
+        receiptService.registerReceipt(receipt);
 
         // create a counter to keep track of the number of loads that have been invoked
         final AtomicInteger counter = new AtomicInteger(1);
@@ -160,7 +162,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                         // do next load
                         ZoomaDAO<T> dao = syncedAnnotationDAOs.get(iteration - 1);
                         getLog().debug("Delegating next load task for DAO '" + dao.getDatasourceName() + "' " +
-                                "(iteration " + iteration + ")");
+                                               "(iteration " + iteration + ")");
                         Receipt r = load(syncedAnnotationDAOs.get(iteration - 1));
 
                         // add next receipt to compositing receipt tracker
@@ -169,7 +171,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                         // is this last iteration? if so, finish
                         if (counter.getAndIncrement() == syncedAnnotationDAOs.size()) {
                             getLog().debug("Finished scheduling load task for DAO '" + dao.getDatasourceName() + "' " +
-                                    "(iteration " + iteration + "). This is the last task.");
+                                                   "(iteration " + iteration + "). This is the last task.");
                             receipt.finish();
                         }
                     }
@@ -188,7 +190,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         }
 
         getLog().info("Retrieving data items from " + datasource.getDatasourceName() + " using " +
-                datasource.getClass().getSimpleName());
+                              datasource.getClass().getSimpleName());
 
         int count = datasource.count();
         int total = getMaxCount() > 0 && getMaxCount() < count ? getMaxCount() : count;
@@ -196,8 +198,8 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         // create a workload scheduler to queue load tasks for tihs DAO
         final int iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
         getLog().debug("Scheduling workload for " + datasource.getDatasourceName() + ".  " +
-                "Loading will take place in " + iterations + " rounds " +
-                "of " + getBlockSize() + " data items each.");
+                               "Loading will take place in " + iterations + " rounds " +
+                               "of " + getBlockSize() + " data items each.");
         final WorkloadScheduler scheduler =
                 new WorkloadScheduler(loadExecutor, iterations, datasource.getDatasourceName()) {
                     @Override
@@ -218,6 +220,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         // create a receipt
         final SingleWorkloadReceipt receipt =
                 new SingleWorkloadReceipt(datasource.getDatasourceName(), LoadType.LOAD_DATASOURCE, scheduler);
+        receiptService.registerReceipt(receipt);
 
         // start up the scheduler
         scheduler.start();
@@ -272,15 +275,15 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         }
 
         getLog().info("Loading " + dataItems.size() + " supplied data items, " +
-                "the assigned dataset name is " + datasetName);
+                              "the assigned dataset name is " + datasetName);
 
         int total = getMaxCount() > 0 ? getMaxCount() : dataItems.size();
 
-        // create a workload scheduler to queue load tasks for this DAO
+        // create a workload scheduler to queue load tasks for tihs DAO
         final int iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
         getLog().debug("Scheduling workload for " + datasetName + ".  " +
-                "Loading will take place in " + iterations + " rounds " +
-                "of " + getBlockSize() + " data items each.");
+                               "Loading will take place in " + iterations + " rounds " +
+                               "of " + getBlockSize() + " data items each.");
         final WorkloadScheduler scheduler =
                 new WorkloadScheduler(loadExecutor, iterations, datasetName) {
                     @Override
@@ -297,6 +300,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         // create a receipt
         final SingleWorkloadReceipt receipt =
                 new SingleWorkloadReceipt(datasetName, LoadType.LOAD_DATAITEMS, scheduler);
+        receiptService.registerReceipt(receipt);
 
         // start up the scheduler
         scheduler.start();
@@ -316,6 +320,10 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         else {
             return getClass().getSimpleName() + " is running";
         }
+    }
+
+    @Override public ReceiptStatus getReceiptStatus(String receiptID) {
+        return receiptService.getReceiptStatus(receiptID);
     }
 
     private final AtomicInteger receiptNumber = new AtomicInteger(1);
@@ -378,7 +386,6 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
             this.scheduler = scheduler;
         }
 
-
         @Override public void waitUntilCompletion() throws InterruptedException {
             scheduler.waitUntilComplete();
             getLog().debug("Single workload is complete, completed receipt ID = " + getID());
@@ -403,7 +410,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
             }
 
             getLog().debug("Adding receipt to composite: " + receipt + "\n" +
-                    "(Posted by thread " + Thread.currentThread().getName() + ")");
+                                   "(Posted by thread " + Thread.currentThread().getName() + ")");
             synchronized (receipts) {
                 getLog().debug("Thread " + Thread.currentThread().getName() + " acquired lock on receipts");
                 this.receipts.add(receipt);
@@ -417,7 +424,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
          */
         public void finish() {
             getLog().debug("Thread " + Thread.currentThread().getName() + " is designating " +
-                    "receipt " + getID() + " as complete");
+                                   "receipt " + getID() + " as complete");
             finished = true;
             synchronized (this) {
                 notifyAll();
@@ -437,16 +444,16 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
             }
 
             getLog().debug("Collecting " + receipts.size() + " subtask receipts, " +
-                    "waiting until all have completed...");
+                                   "waiting until all have completed...");
             synchronized (receipts) {
                 getLog().debug("Thread " + Thread.currentThread().getName() +
-                        " acquired lock on receipts to test for completion");
+                                       " acquired lock on receipts to test for completion");
                 for (Receipt receipt : receipts) {
                     receipt.waitUntilCompletion();
                 }
             }
             getLog().debug("Thread " + Thread.currentThread().getName() +
-                    " released lock on receipts, testing for completion finished");
+                                   " released lock on receipts, testing for completion finished");
             getLog().debug("...all subtask receipts have been marked complete, this receipt has completed");
         }
     }

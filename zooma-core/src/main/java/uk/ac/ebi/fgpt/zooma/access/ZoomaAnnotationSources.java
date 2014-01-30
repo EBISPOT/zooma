@@ -158,6 +158,12 @@ public class ZoomaAnnotationSources {
         }
     }
 
+    @RequestMapping(value = "/receipts/{receiptID}", method = RequestMethod.GET)
+    public @ResponseBody DataLoadingService.ReceiptStatus getReceiptStatus(@PathVariable String receiptID) {
+        // note that this exposes all receipts from this data loading service - ZoomaAnnotationLoaders also uses this class
+        return getDataLoadingService().getReceiptStatus(receiptID);
+    }
+
     private ZoomaDAO<Annotation> lookupLoader(String loaderName) {
         ZoomaDAO<Annotation> result = null;
         for (ZoomaDAO<Annotation> dao : getDataLoadingService().getAvailableDatasources()) {
