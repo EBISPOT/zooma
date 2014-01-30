@@ -82,10 +82,6 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
         String query = getQueryManager().getSparqlQuery("AnnotationSummaries.read");
         Graph g = getQueryService().getDefaultGraph();
 
-        // no filter
-        String filter = "";
-        query = query.replace("filter", filter);
-
         QueryExecution execute = null;
         try {
             execute = getQueryService().getQueryExecution(g, query, new QuerySolutionMap(), false);
@@ -103,78 +99,6 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
                 }
             }
         }
-    }
-
-    @Override
-    public Collection<AnnotationSummary> readByProperty(Property property) {
-        getLog().debug("Reading all annotation summaries by property " + property.toString());
-
-        if (property.getURI() == null) {
-            return Collections.emptySet();
-        }
-
-        String query = getQueryManager().getSparqlQuery("AnnotationSummaries.read");
-        Graph g = getQueryService().getDefaultGraph();
-
-        // no filter
-        String filter = "FILTER (str(?" + QueryVariables.PROPERTY_VALUE_ID.toString() + ") = '" + property.getURI() + "')";
-        query = query.replace("filter", filter);
-        QueryExecution execute = null;
-        try {
-            execute = getQueryService().getQueryExecution(g, query, new QuerySolutionMap(), false);
-            ResultSet results = execute.execSelect();
-            return calculateSummaries(results);
-        }
-        catch (LodeException e) {
-            throw new SPARQLQueryException("Failed to retrieve annotation summaries", e);
-        }
-        finally {
-            if (execute != null) {
-                execute.close();
-                if (g != null) {
-                    g.close();
-                }
-            }
-        }
-    }
-
-    @Override
-    public Collection<AnnotationSummary> matchByProperty(String type, String value) {
-        getLog().debug("Reading all annotation summaries by property value " + value);
-
-        String query = getQueryManager().getSparqlQuery("AnnotationSummaries.matchByProperty");
-        Graph g = getQueryService().getDefaultGraph();
-
-        String filter = "?" + QueryVariables.PROPERTY_VALUE.toString() + " bif:contains '\"" + value + "\"' . \n" ;
-        if (type != null) {
-            filter += "FILTER (str(?" + QueryVariables.PROPERTY_NAME.toString() + ") = '" + type + "')";
-        }
-                // no filter
-        query = query.replace("filter", filter);
-
-        System.out.println(query);
-        QueryExecution execute = null;
-        try {
-            execute = getQueryService().getQueryExecution(g, query, new QuerySolutionMap(), false);
-            ResultSet results = execute.execSelect();
-            return calculateSummaries(results);
-        }
-        catch (LodeException e) {
-            throw new SPARQLQueryException("Failed to retrieve annotation summaries", e);
-        }
-        finally {
-            if (execute != null) {
-                execute.close();
-                if (g != null) {
-                    g.close();
-                }
-            }
-        }
-    }
-
-    @Override
-    public Collection<AnnotationSummary> matchByProperty(String value) {
-        return matchByProperty(null, value);
     }
 
     private Collection<AnnotationSummary> calculateSummaries(ResultSet results) {

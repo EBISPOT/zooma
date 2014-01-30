@@ -8,10 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import uk.ac.ebi.fgpt.lode.service.SparqlService;
 import uk.ac.ebi.fgpt.lode.utils.TupleQueryFormats;
-import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.AnnotationSummaryDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO;
+import uk.ac.ebi.fgpt.zooma.datasource.*;
 import uk.ac.ebi.fgpt.zooma.model.*;
 
 import java.io.ByteArrayOutputStream;
@@ -37,6 +34,7 @@ public class RepositoryConnectionTester extends TestCase {
     private AnnotationDAO annotationLuceneBean;
     private PropertyDAO propertyBean;
     private AnnotationSummaryDAO annotationSummaryBean;
+    private AnnotationPatternDAO annotationPatternBean;
 
     private SparqlBiologicalEntityDAO bioentityBean;
 
@@ -60,6 +58,7 @@ public class RepositoryConnectionTester extends TestCase {
             this.annotationLuceneBean = (AnnotationDAO) context.getBean("lodeLuceneAnnotationDAO");
             this.propertyBean = (PropertyDAO) context.getBean("lodePropertyDAO");
             this.annotationSummaryBean = (AnnotationSummaryDAO) context.getBean("lodeAnnotationSummaryDAO");
+            this.annotationPatternBean = (AnnotationPatternDAO) context.getBean("lodeAnnotationPatternDAO");
             this.bioentityBean = (SparqlBiologicalEntityDAO) context.getBean("lodeBiologicalEntityDAO");
         }
         catch (Exception e) {
@@ -219,9 +218,9 @@ public class RepositoryConnectionTester extends TestCase {
 
             log.info("pulling out all annotations summaries from zooma");
 
-            for (AnnotationSummary summary : annotationSummaryBean.readByProperty(new SimpleUntypedProperty(URI.create(
+            for (AnnotationPattern pattern : annotationPatternBean.readByProperty(new SimpleUntypedProperty(URI.create(
                                 "http://rdf.ebi.ac.uk/resource/zooma/74508E1D7B9250A775F594005564392B"), ""))) {
-                    System.out.println(summary.toString());
+                    System.out.println(pattern.toString());
             }
         }
     }
@@ -232,8 +231,15 @@ public class RepositoryConnectionTester extends TestCase {
 
             log.info("pulling out all annotations summaries from zooma");
 
-            for (AnnotationSummary summary : annotationSummaryBean.matchByProperty("migration")) {
-                    System.out.println(summary.toString());
+            for (AnnotationPattern pattern : annotationPatternBean.matchByProperty("migration")) {
+
+                System.out.println(
+                        pattern.getPropertyType() + "\t" +
+                        pattern.getPropertyValue() + "\t" +
+                        pattern.getSemanticTags() + "\t" +
+                        pattern.getAnnotationSource().getName() + "\t" +
+                        pattern.isReplaced()
+                );
             }
         }
     }
@@ -244,8 +250,14 @@ public class RepositoryConnectionTester extends TestCase {
 
             log.info("pulling out all annotations summaries from zooma");
 
-            for (AnnotationSummary summary : annotationSummaryBean.matchByProperty("phenotype", "migration")) {
-                    System.out.println(summary.toString());
+            for (AnnotationPattern pattern : annotationPatternBean.matchByProperty("phenotype", "migration")) {
+                System.out.println(
+                        pattern.getPropertyType() + "\t" +
+                        pattern.getPropertyValue() + "\t" +
+                        pattern.getSemanticTags() + "\t" +
+                        pattern.getAnnotationSource().getName() + "\t" +
+                        pattern.isReplaced()
+                );
             }
         }
     }

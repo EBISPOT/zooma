@@ -11,11 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
-import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSourceService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummarySearchService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummaryService;
-import uk.ac.ebi.fgpt.zooma.service.PropertyService;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
 import uk.ac.ebi.fgpt.zooma.util.Scorer;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
@@ -51,8 +49,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     private AnnotationSourceService annotationSourceService;
 
     private AnnotationSummarySearchService annotationSummarySearchService;
-
-    private AnnotationSummarySearchService simpleAnnotationSummarySearchService;
 
     private Sorter<AnnotationSummary> annotationSummarySorter;
     private Limiter<AnnotationSummary> annotationSummaryLimiter;
@@ -116,23 +112,14 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         this.annotationSummaryScorer = annotationSummaryScorer;
     }
 
-    public AnnotationSummarySearchService getSimpleAnnotationSummarySearchService() {
-        return simpleAnnotationSummarySearchService;
-    }
-
-    @Autowired
-    public void setSimpleAnnotationSummarySearchService(AnnotationSummarySearchService simpleAnnotationSummarySearchService) {
-        this.simpleAnnotationSummarySearchService = simpleAnnotationSummarySearchService;
-    }
-
     public Collection<AnnotationSummary> fetch() {
         return fetch(100, 0);
     }
 
+    @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody Collection<AnnotationSummary> fetch(
             @RequestParam(value = "limit", required = false) Integer limit,
-            @RequestParam(value = "start", required = false) Integer start)
-    {
+            @RequestParam(value = "start", required = false) Integer start) {
         if (start == null) {
             if (limit == null) {
                 return getAnnotationSummaryService().getAnnotationSummaries(100, 0);
@@ -149,30 +136,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                 return getAnnotationSummaryService().getAnnotationSummaries(limit, start);
             }
         }
-    }
-
-    @RequestMapping(method = RequestMethod.GET)
-    public @ResponseBody Collection<AnnotationSummary> basicSearch(
-            @RequestParam(value = "query", required = false)  String query,
-            @RequestParam(value = "type", required = false)  String type,
-            @RequestParam(value = "exact", required = false, defaultValue = "false") final Boolean exact,
-            @RequestParam(value = "source", required = false) Collection<String> sources) {
-
-        if (!exact) {
-            query = query + "*";
-        }
-        Collection<URI> sourcesURI = new HashSet<>();
-        for (String s : sources) {
-            sourcesURI.add(URI.create(s));
-        }
-
-        if (query == null && type ==null) {
-            //
-            return getAnnotationSummaryService().getAnnotationSummaries(100, 0);
-        }
-
-        return  getSimpleAnnotationSummarySearchService().search(type, query, sourcesURI.toArray( new URI [sourcesURI.size()]));
-
     }
 
     public Collection<AnnotationSummary> queryBySemanticTags(String... semanticTagShortnames) {
@@ -258,7 +221,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     @Override protected String extractElementTypeName() {
         return AnnotationSummary.ANNOTATION_SUMMARY_TYPE_NAME;
     }
-
 
     @Override
     @RequestMapping(value = "/suggest", method = RequestMethod.GET)

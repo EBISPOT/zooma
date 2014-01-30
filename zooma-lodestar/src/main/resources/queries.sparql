@@ -319,24 +319,24 @@ SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?sem
      	?oldPropertyvalueid zoomaterms:propertyValue ?oldPropertyvalue .
      }
      FILTER NOT EXISTS { ?annotationid zoomaterms:isReplacedBy ?someanno }
-     filter
 }
 
-^[AnnotationSummaries.matchByProperty]
-SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?semantictag ?databaseid ?sourcename ?sourcetype WHERE {
+^[AnnotationPatterns.read]
+SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?semantictag ?databaseid ?sourcename ?sourcetype (COALESCE(str(?replacedByAnnotationId), "false") AS ?nextAnnotationid) WHERE {
      ?annotationid a oac:DataAnnotation .
      ?annotationid oac:hasBody ?propertyvalueid .
-     OPTIONAL {?propertyvalueid zoomaterms:propertyName ?propertyname }
+     ?propertyvalueid zoomaterms:propertyName ?propertyname .
      ?propertyvalueid zoomaterms:propertyValue ?propertyvalue .
      ?propertyvalueid rdf:type zoomaterms:Property .
-     ?annotationid oac:hasBody ?semantictag .
-     ?semantictag rdf:type oac:SemanticTag .
-
      ?annotationid dc:source ?databaseid .
      ?databaseid a ?sourcetype .
      ?databaseid zoomaterms:shortName ?sourcename .
+     OPTIONAL {
+           ?annotationid oac:hasBody ?semantictag .
+           ?semantictag rdf:type oac:SemanticTag .
+     }
 
-     FILTER NOT EXISTS { ?annotationid zoomaterms:isReplacedBy ?someanno }
+     OPTIONAL { ?annotationid zoomaterms:isReplacedBy ?replacedByAnnotationId }
      filter
 }
 

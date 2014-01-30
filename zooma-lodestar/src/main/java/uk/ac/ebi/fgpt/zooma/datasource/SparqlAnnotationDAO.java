@@ -226,7 +226,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
             List<Annotation> annos = new ArrayList<Annotation>();
             for (URI uri : getAllAnnotationURIs(size, start)) {
-                 annos.add(read(uri));
+                annos.add(read(uri));
             }
             return annos;
 //            q1.setOffset(start);
@@ -497,7 +497,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         Resource sourceType = solution.getResource(QueryVariables.SOURCETYPE.toString());
         if (!URIBindingUtils.validateNamesExist(URI.create(sourceType.getURI()))) {
             getLog().debug("QuerySolution binding failed: unrecognised type <" + sourceType.getURI() + ">. " +
-                                   "Result will be null.");
+                    "Result will be null.");
             return null;
         }
 
@@ -651,32 +651,17 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 AnnotationSource source = null;
                 if (sourceType != null) {
                     URI sourceAsUri = URI.create(sourceType.getURI());
-                    try {
-                        String sourceTypeName = URIBindingUtils.getName(sourceAsUri);
-                        AnnotationSource.Type sourceT = AnnotationSource.Type.lookup(sourceTypeName);
+                    String sourceTypeName = URIBindingUtils.getName(sourceAsUri);
+                    AnnotationSource.Type sourceT = AnnotationSource.Type.lookup(sourceTypeName);
 
-                        if (sourceT == AnnotationSource.Type.ONTOLOGY) {
-                            source = new SimpleOntologyAnnotationSource(URI.create(database.toString()),
-                                    sourceName.getLexicalForm());
-                        }
-                        else if (sourceT == AnnotationSource.Type.DATABASE) {
-                            source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
-                                    sourceName.getLexicalForm());
-                        }
+                    if (sourceT == AnnotationSource.Type.ONTOLOGY) {
+                        source = new SimpleOntologyAnnotationSource(URI.create(database.toString()),
+                                sourceName.getLexicalForm());
                     }
-                    catch (IllegalArgumentException e) {
-                        // this may be thrown if query returns additional types for resource that we don't care about
-                        // in which case we might set the type incorrectly. todo consider removing source type from the model completely as we don't use it
-                        if (sourceAsUri.equals(OWLRDFVocabulary.OWL_ONTOLOGY.getIRI().toURI())) {
-                            source = new SimpleOntologyAnnotationSource(URI.create(database.toString()),
-                                    sourceName.getLexicalForm());
-                        }
-                        else {
-                            source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
-                                    sourceName.getLexicalForm());
-                        }
+                    else if (sourceT == AnnotationSource.Type.DATABASE) {
+                        source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
+                                sourceName.getLexicalForm());
                     }
-
                 }
 
                 if (source == null) {
@@ -695,7 +680,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             }
             Annotation newAnno = null;
             if (ontoUri == null) {
-              newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov);
+                newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov);
             }
             else {
                 newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov, ontoUri);

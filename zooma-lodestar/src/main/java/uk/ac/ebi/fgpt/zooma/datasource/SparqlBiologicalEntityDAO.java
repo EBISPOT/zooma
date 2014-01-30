@@ -373,17 +373,12 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
             Map<URI, BiologicalEntity> biologicalEntityMap,
             Map<URI, Study> studyMap,
             QuerySolution solution) {
-        Resource studyTypeValue = solution.getResource(underscore + QueryVariables.STUDY_TYPE.toString());
-        Resource sampleTypeUriValue =
-                solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY_TYPE.toString());
-        if (!URIBindingUtils.validateNamesExist(URI.create(studyTypeValue.getURI()), URI.create(sampleTypeUriValue.getURI()))) {
-            getLog().debug("QuerySolution binding failed: found an unrecognised type <" + studyTypeValue.getURI() + ">, " +
-                                   "<" + sampleTypeUriValue.getURI() + ">. Result will be null.");
-            return null;
-        }
 
+        Resource studyTypeValue = solution.getResource(underscore + QueryVariables.STUDY_TYPE.toString());
         Resource sampleUriValue = solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY.toString());
         URI uri = URI.create(sampleUriValue.getURI());
+        Resource sampleTypeUriValue =
+                solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY_TYPE.toString());
 
         URI sampleTypeUri = null;
 //        Resource sampleTypeUriValue =

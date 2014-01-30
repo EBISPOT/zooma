@@ -37,6 +37,7 @@ public class ZoomaModule extends SimpleModule {
         resolver.addMapping(AnnotationSource.class, AnnotationSourceRequest.class);
         resolver.addMapping(Annotation.class, AnnotationRequest.class);
         resolver.addMapping(AnnotationUpdate.class, SimpleAnnotationUpdate.class);
+        resolver.addMapping(AnnotationPattern.class, SimpleAnnotationPattern.class);
         resolver.addMapping(BiologicalEntity.class, BiologicalEntityRequest.class);
         resolver.addMapping(Property.class, PropertyRequest.class);
         resolver.addMapping(Study.class, StudyRequest.class);
