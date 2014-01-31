@@ -187,7 +187,7 @@ public interface DataLoadingService<T extends Identifiable> {
          */
         LOAD_DATAITEMS,
         /**
-         * @see uk.ac.ebi.fgpt.zooma.service.DataLoadingService#update(java.util.Collection, uk.ac.ebi.fgpt.zooma.model.Property, java.util.Collection, boolean)
+         * @see uk.ac.ebi.fgpt.zooma.service.DataLoadingService#update(java.util.Collection, uk.ac.ebi.fgpt.zooma.model.Update)
          */
         UPDATE_DATAITEMS
     }

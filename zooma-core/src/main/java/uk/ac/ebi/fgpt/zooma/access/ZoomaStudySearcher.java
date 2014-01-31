@@ -80,7 +80,7 @@ public class ZoomaStudySearcher {
     }
 
     /**
-     * Retrieves a biological entity with the given URI.
+     * Retrieves a study with the given URI.
      *
      * @param shortStudyURI the shortened form of the URI of the study to fetch
      * @return the study with the given URI

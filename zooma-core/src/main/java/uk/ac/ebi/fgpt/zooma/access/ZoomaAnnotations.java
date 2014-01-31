@@ -328,12 +328,9 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
 
         if (oldPropertyUris != null) {
             for (String oldPropertyUri : oldPropertyUris) {
-                System.out.println("am i here? " + oldPropertyUri);
                 Property oldProperty = getPropertyService().getProperty(URI.create(oldPropertyUri));
 
                 if (oldProperty != null) {
-
-                    System.out.println("am i here? 2 " + oldProperty.getURI());
                     // update semantic tags for old properties annotated to the tag filter
                     if (semanticTagUri != null) {
                         for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri)))) {
@@ -357,7 +354,6 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
                     else {
                         // if a new property type and value is supplied update the old property to the new one
                         if (update.getPropertyType() != null && update.getPropertyValue() != null) {
-                            System.out.println("am i here? 3 " + oldProperty.getURI());
                             for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(oldProperty))) {
                                 if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
                                     annotationsToUpdate.add(annoByProp);
@@ -367,7 +363,6 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
                         // if only a property type is supplied, get all the properties with that type and update them with the supplied type (e.g organimspart to organism_part)
                         // old property must already have a type
                         else if (update.getPropertyType() != null) {
-                            System.out.println("am i here? 4 " + oldProperty.getURI());
                             if (oldProperty instanceof TypedProperty) {
                                 String oldType = ((TypedProperty) oldProperty).getPropertyType();
                                 for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(oldType, null)) {
@@ -382,7 +377,6 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
                         }
                         // otherwise we are updating the property value for all properties with the old property type(e.g. human to homo sapiens)
                         else if (update.getPropertyValue() != null) {
-                            System.out.println("am i here? 5 " + oldProperty.getURI());
                             for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(null, oldProperty.getPropertyValue())) {
                                 for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(matchedProperty))) {
                                     if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
@@ -392,11 +386,8 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
                             }
                         }
                         else {
-                            System.out.println("am i here? 6 " + oldProperty.getURI());
-
                             // both update property type and value are null so preserve
                             for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(oldProperty))) {
-                                System.out.println("am i here? 7 " + oldProperty.getURI());
                                 if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
                                     annotationsToUpdate.add(annoByProp);
                                 }

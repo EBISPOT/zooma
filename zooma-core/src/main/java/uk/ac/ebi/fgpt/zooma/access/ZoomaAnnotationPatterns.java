@@ -65,12 +65,12 @@ public class ZoomaAnnotationPatterns {
             sourcesURI.add(URI.create(s));
         }
 
-        if (query == null && type == null) {
-            return  filterLatest(latestOnly, getAnnotationPatternService().read(sourcesURI.toArray(new URI[sourcesURI.size()])));
-        }
-
         if (semanticTag != null) {
             return  filterLatest(latestOnly, getAnnotationPatternService().readBySemanticTag(URI.create(semanticTag), sourcesURI.toArray(new URI[sourcesURI.size()])));
+        }
+
+        if (query == null && type == null) {
+            return  filterLatest(latestOnly, getAnnotationPatternService().read(sourcesURI.toArray(new URI[sourcesURI.size()])));
         }
 
         if (exact) {

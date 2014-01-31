@@ -133,13 +133,17 @@ public class SparqlAnnotationPatternDAO implements AnnotationPatternDAO {
         String query = getQueryManager().getSparqlQuery("AnnotationPatterns.read");
         Graph g = getQueryService().getDefaultGraph();
 
-        String filter = "?" + QueryVariables.PROPERTY_VALUE.toString() + " bif:contains '\"" + value + "\"' . \n" ;
+        String filter = "";
+        if (value != null) {
+            // todo filter seems to be faster than searching the text index
+//            filter = "?" + QueryVariables.PROPERTY_VALUE.toString() + " bif:contains '\"" + value + "\"' . \n" ;
+            filter = "FILTER regex(?" + QueryVariables.PROPERTY_VALUE.toString() + ", \"" + value + "\", \"i\")\n";
+        }
         if (type != null) {
             filter += "FILTER (str(?" + QueryVariables.PROPERTY_NAME.toString() + ") = '" + type + "')";
         }
         // no filter
         query = query.replace("filter", filter);
-        System.out.println(query);
         QueryExecution execute = null;
         try {
             execute = getQueryService().getQueryExecution(g, query, new QuerySolutionMap(), false);
@@ -229,7 +233,6 @@ public class SparqlAnnotationPatternDAO implements AnnotationPatternDAO {
             Literal sourceName = solution.getLiteral(QueryVariables.SOURCENAME.toString());
 
             Resource semanticTagResource = solution.getResource(QueryVariables.SEMANTIC_TAG.toString());
-            String semanticTag = semanticTagResource.getURI();
 
             Literal newAnnotationId = solution.getLiteral(QueryVariables.NEXT_ANNOTATION_ID.toString());
             if (!newAnnotationId.getLexicalForm().equals("false")) {
@@ -261,7 +264,9 @@ public class SparqlAnnotationPatternDAO implements AnnotationPatternDAO {
                 }
                 annotationsToSourceMap.put(annotationURI, source);
             }
-            annotationToSemanticTagsMap.get(annotationURI).add(semanticTag);
+            if (semanticTagResource != null) {
+                annotationToSemanticTagsMap.get(annotationURI).add(semanticTagResource.getURI());
+            }
         }
 
 

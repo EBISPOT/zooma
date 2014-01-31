@@ -262,6 +262,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         // create a receipt
         final SingleWorkloadReceipt receipt =
                 new SingleWorkloadReceipt("zooma-update", LoadType.LOAD_DATAITEMS, scheduler);
+        receiptService.registerReceipt(receipt);
 
         // start up the scheduler
         scheduler.start();
