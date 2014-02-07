@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Tony Burdett
  * @date 11/06/13
  */
+@Deprecated
 public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
     private final String outputPath;
     private final String fileNameBase;

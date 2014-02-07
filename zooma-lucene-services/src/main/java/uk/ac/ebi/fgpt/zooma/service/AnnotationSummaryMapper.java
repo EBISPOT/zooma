@@ -132,16 +132,22 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         // grab multi-cardinality fields
         String[] deStrs = d.getValues("semanticTag");
         String[] aStrs = d.getValues("annotation");
+        String[] sourceStrs = d.getValues("source");
         // tokenise on spaces
         getLog().trace("Annotation search has " + aStrs.length + " results");
         getLog().trace("Semantic tag search has " + deStrs.length + " results");
+        getLog().trace("Annotation search has " + sourceStrs.length + " sources");
         Collection<URI> semanticTags = new HashSet<>();
         Collection<URI> annotations = new HashSet<>();
+        Collection<URI> annotationSourceURIs = new HashSet<>();
         for (String s : deStrs) {
             semanticTags.add(URI.create(s));
         }
         for (String s : aStrs) {
             annotations.add(URI.create(s));
+        }
+        for (String s : sourceStrs) {
+            annotationSourceURIs.add(URI.create(s));
         }
         float score = getDocumentQuality(d, rank);
 
@@ -150,8 +156,9 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
                                "property value '" + propertyValue + "',\n\t" +
                                "semantic tags " + semanticTags + ",\n\t" +
                                "annotation URIs " + annotations + "\n\t" +
+                               "annotation source URIs " + annotationSourceURIs + "\n\t" +
                                "Quality Score: " + score);
-        return new SimpleAnnotationSummary(id, propertyType, propertyValue, semanticTags, annotations, score);
+        return new SimpleAnnotationSummary(id, propertyType, propertyValue, semanticTags, annotations, score, annotationSourceURIs);
     }
 
     @Override

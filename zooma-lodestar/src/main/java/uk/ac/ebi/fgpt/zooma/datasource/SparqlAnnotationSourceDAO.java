@@ -9,7 +9,6 @@ import com.hp.hpl.jena.query.QuerySolutionMap;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 import org.slf4j.Logger;
@@ -196,7 +195,10 @@ public class SparqlAnnotationSourceDAO implements AnnotationSourceDAO {
         List<AnnotationSource> annotationSources = new ArrayList<>();
         while (result.hasNext()) {
             QuerySolution solution = result.next();
-            annotationSources.add(getAnnotationSourceFromBindingSet(solution));
+            AnnotationSource annotationSource = getAnnotationSourceFromBindingSet(solution);
+            if (annotationSource != null) {
+                annotationSources.add(annotationSource);
+            }
         }
         Collections.sort(annotationSources, new Comparator<AnnotationSource>() {
             @Override public int compare(AnnotationSource o1, AnnotationSource o2) {
@@ -207,8 +209,14 @@ public class SparqlAnnotationSourceDAO implements AnnotationSourceDAO {
     }
 
     private AnnotationSource getAnnotationSourceFromBindingSet(QuerySolution solution) {
-        Resource database = solution.getResource(QueryVariables.DATABASEID.toString());
         Resource sourceType = solution.getResource(QueryVariables.SOURCETYPE.toString());
+        if (!URIBindingUtils.validateNamesExist(URI.create(sourceType.getURI()))) {
+            getLog().debug("QuerySolution binding failed: unrecognised type <" + sourceType.getURI() + ">. " +
+                                   "Result will be null.");
+            return null;
+        }
+
+        Resource database = solution.getResource(QueryVariables.DATABASEID.toString());
         Literal sourceName = solution.getLiteral(QueryVariables.SOURCENAME.toString());
 
         AnnotationSource source = null;

@@ -101,20 +101,20 @@ public class TestZoomaLuceneIndexer {
                     "TEST",
                     new Date());
             Annotation anno1 = new SimpleAnnotation(new URI("http://www.test.com/annotation1"),
-                                                    Collections.<BiologicalEntity>emptySet(),
-                                                    property1,
-                                                    prov1,
-                                                    semanticTag1);
+                    Collections.<BiologicalEntity>emptySet(),
+                    property1,
+                    prov1,
+                    semanticTag1);
             AnnotationProvenance prov2 = new SimpleAnnotationProvenance(
                     new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2"), "source2"),
                     AnnotationProvenance.Evidence.MANUAL_CURATED,
                     "TEST",
                     new Date());
             Annotation anno2 = new SimpleAnnotation(new URI("http://www.test.com/annotation2"),
-                                                    Collections.<BiologicalEntity>emptySet(),
-                                                    property2,
-                                                    prov2,
-                                                    semanticTag2);
+                    Collections.<BiologicalEntity>emptySet(),
+                    property2,
+                    prov2,
+                    semanticTag2);
             // anno3 is alternate mapping for property1
             AnnotationProvenance prov3 = new SimpleAnnotationProvenance(
                     new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3"), "source3"),
@@ -122,10 +122,10 @@ public class TestZoomaLuceneIndexer {
                     "TEST",
                     new Date());
             Annotation anno3 = new SimpleAnnotation(new URI("http://www.test.com/annotation3"),
-                                                    Collections.<BiologicalEntity>emptySet(),
-                                                    property1,
-                                                    prov3,
-                                                    semanticTag3);
+                    Collections.<BiologicalEntity>emptySet(),
+                    property1,
+                    prov3,
+                    semanticTag3);
             // anno4 verifies anno1 from different source
             AnnotationProvenance prov4 = new SimpleAnnotationProvenance(
                     new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2"), "source2"),
@@ -133,10 +133,10 @@ public class TestZoomaLuceneIndexer {
                     "TEST",
                     new Date());
             Annotation anno4 = new SimpleAnnotation(new URI("http://www.test.com/annotation4"),
-                                                    Collections.<BiologicalEntity>emptySet(),
-                                                    property1,
-                                                    prov4,
-                                                    semanticTag1);
+                    Collections.<BiologicalEntity>emptySet(),
+                    property1,
+                    prov4,
+                    semanticTag1);
             // anno5 verifies anno3 from same source
             AnnotationProvenance prov5 = new SimpleAnnotationProvenance(
                     new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3"), "source3"),
@@ -144,10 +144,10 @@ public class TestZoomaLuceneIndexer {
                     "TEST",
                     new Date());
             Annotation anno5 = new SimpleAnnotation(new URI("http://www.test.com/annotation5"),
-                                                    Collections.<BiologicalEntity>emptySet(),
-                                                    property1,
-                                                    prov5,
-                                                    semanticTag3);
+                    Collections.<BiologicalEntity>emptySet(),
+                    property1,
+                    prov5,
+                    semanticTag3);
 
 
             // create mocked DAOs
@@ -203,7 +203,8 @@ public class TestZoomaLuceneIndexer {
                     property1.getPropertyValue(),
                     Collections.singleton(semanticTag1),
                     Arrays.asList(anno1.getURI(), anno4.getURI()),
-                    0);
+                    0,
+                    new HashSet<URI>());
 
             AnnotationSummary summary2 = new SimpleAnnotationSummary(
                     null,
@@ -211,14 +212,16 @@ public class TestZoomaLuceneIndexer {
                     property1.getPropertyValue(),
                     Collections.singleton(semanticTag3),
                     Arrays.asList(anno3.getURI(), anno5.getURI()),
-                    0);
+                    0,
+                    new HashSet<URI>());
 
             AnnotationSummary summary3 = new SimpleAnnotationSummary(
                     null,
                     ((TypedProperty) property2).getPropertyType(),
                     property2.getPropertyValue(),
                     Collections.singleton(semanticTag2),
-                    Collections.singleton(anno2.getURI()), 0);
+                    Collections.singleton(anno2.getURI()), 0,
+                    new HashSet<URI>());
 
             verifiedSummaries.add(summary1);
             verifiedSummaries.add(summary2);
@@ -352,6 +355,6 @@ public class TestZoomaLuceneIndexer {
         assertNotNull("Could not find an unverified annotation summary", unverifiedSummary);
 
         assertTrue("Verified summary should score higher than unverified summary",
-                   verifiedSummary.getQuality() > unverifiedSummary.getQuality());
+                verifiedSummary.getQuality() > unverifiedSummary.getQuality());
     }
 }

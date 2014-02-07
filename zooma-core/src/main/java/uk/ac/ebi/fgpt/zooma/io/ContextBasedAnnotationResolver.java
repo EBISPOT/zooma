@@ -28,6 +28,7 @@ import java.util.Set;
  * @author Tony Burdett
  * @date 01/10/12
  */
+@Deprecated
 public class ContextBasedAnnotationResolver extends AbstractParallelAnnotationResolver {
     private BiologicalEntityDAO zoomaBiologicalEntityDAO;
 

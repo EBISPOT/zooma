@@ -32,6 +32,7 @@ import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
+import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.io.IOException;
@@ -352,7 +353,9 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
         while (result.hasNext()) {
             QuerySolution solution = result.nextSolution();
             BiologicalEntity a = getBiologicalEntityFromBindingSet(beMap, studyMap, solution);
-            beMap.put(a.getURI(), a);
+            if (a != null) {
+                beMap.put(a.getURI(), a);
+            }
         }
         List<BiologicalEntity> beList = new ArrayList<>();
         beList.addAll(beMap.values());
@@ -370,12 +373,21 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
             Map<URI, BiologicalEntity> biologicalEntityMap,
             Map<URI, Study> studyMap,
             QuerySolution solution) {
+        Resource studyTypeValue = solution.getResource(underscore + QueryVariables.STUDY_TYPE.toString());
+        Resource sampleTypeUriValue =
+                solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY_TYPE.toString());
+        if (!URIBindingUtils.validateNamesExist(URI.create(studyTypeValue.getURI()), URI.create(sampleTypeUriValue.getURI()))) {
+            getLog().debug("QuerySolution binding failed: found an unrecognised type <" + studyTypeValue.getURI() + ">, " +
+                                   "<" + sampleTypeUriValue.getURI() + ">. Result will be null.");
+            return null;
+        }
+
         Resource sampleUriValue = solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY.toString());
         URI uri = URI.create(sampleUriValue.getURI());
 
         URI sampleTypeUri = null;
-        Resource sampleTypeUriValue =
-                solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY_TYPE.toString());
+//        Resource sampleTypeUriValue =
+//                solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY_TYPE.toString());
         if (sampleTypeUriValue != null) {
             sampleTypeUri = URI.create(sampleTypeUriValue.getURI());
         }
@@ -388,7 +400,7 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
         }
 
         Resource studyIdValue = solution.getResource(underscore + QueryVariables.STUDY_ID.toString());
-        Resource studyTypeValue = solution.getResource(underscore + QueryVariables.STUDY_TYPE.toString());
+//        Resource studyTypeValue = solution.getResource(underscore + QueryVariables.STUDY_TYPE.toString());
         URI studyUri = null;
         URI studyType = null;
         String studyLabel = "";

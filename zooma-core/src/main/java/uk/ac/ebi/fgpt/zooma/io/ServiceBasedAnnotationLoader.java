@@ -15,6 +15,7 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 09/01/14
  */
+@Deprecated
 public class ServiceBasedAnnotationLoader implements ZoomaLoader<Annotation> {
     private AnnotationService annotationService;
 

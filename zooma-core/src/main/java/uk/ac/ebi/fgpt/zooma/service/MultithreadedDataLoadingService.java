@@ -51,6 +51,8 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
     private final ExecutorService daoExecutor;
     private final ExecutorService loadExecutor;
 
+    private final ReceiptService receiptService;
+
     private ZoomaLoader<T> zoomaLoader;
     private Collection<ZoomaDAO<T>> zoomaDAOs = Collections.emptySet();
 
@@ -73,6 +75,8 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                                                         new ZoomaThreadFactory("ZOOMA-DAO"));
         this.loadExecutor = Executors.newFixedThreadPool(numberOfLoaderThreads,
                                                          new ZoomaThreadFactory("ZOOMA-Loader"));
+
+        this.receiptService = new InMemoryReceiptService();
     }
 
     public ZoomaLoader<T> getZoomaLoader() {
@@ -141,6 +145,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
 
         // create a receipt to track nested loads
         final CompositingReceipt receipt = new CompositingReceipt("All Available", LoadType.LOAD_ALL);
+        receiptService.registerReceipt(receipt);
 
         // create a counter to keep track of the number of loads that have been invoked
         final AtomicInteger counter = new AtomicInteger(1);
@@ -214,6 +219,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         // create a receipt
         final SingleWorkloadReceipt receipt =
                 new SingleWorkloadReceipt(datasource.getDatasourceName(), LoadType.LOAD_DATASOURCE, scheduler);
+        receiptService.registerReceipt(receipt);
 
         // start up the scheduler
         scheduler.start();
@@ -257,6 +263,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         // create a receipt
         final SingleWorkloadReceipt receipt =
                 new SingleWorkloadReceipt(datasetName, LoadType.LOAD_DATAITEMS, scheduler);
+        receiptService.registerReceipt(receipt);
 
         // start up the scheduler
         scheduler.start();
@@ -276,6 +283,10 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         else {
             return getClass().getSimpleName() + " is running";
         }
+    }
+
+    @Override public ReceiptStatus getReceiptStatus(String receiptID) {
+        return receiptService.getReceiptStatus(receiptID);
     }
 
     private final AtomicInteger receiptNumber = new AtomicInteger(1);
@@ -337,7 +348,6 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
             super(datasourceName, loadType);
             this.scheduler = scheduler;
         }
-
 
         @Override public void waitUntilCompletion() throws InterruptedException {
             scheduler.waitUntilComplete();

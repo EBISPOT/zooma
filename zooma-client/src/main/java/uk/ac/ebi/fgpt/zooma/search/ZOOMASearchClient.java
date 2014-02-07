@@ -340,12 +340,19 @@ public class ZOOMASearchClient {
             annotationURIs.add(URI.create(annNode.getTextValue()));
         }
 
+        List<URI> annotationSourceURIs = new ArrayList<>();
+        JsonNode annsSourceNode = summaryNode.get("annotationSourceURIs");
+        for (JsonNode annSourceNode : annsSourceNode) {
+            annotationSourceURIs.add(URI.create(annSourceNode.getTextValue()));
+        }
+
         // collect summary into map with it's score
         return new SimpleAnnotationSummary(mid,
                                            propertyType,
                                            propertyValue,
                                            semanticTags,
                                            annotationURIs,
-                                           resultScore);
+                                           resultScore,
+                                           annotationSourceURIs);
     }
 }

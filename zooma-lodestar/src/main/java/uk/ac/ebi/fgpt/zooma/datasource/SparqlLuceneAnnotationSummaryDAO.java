@@ -11,9 +11,13 @@ import uk.ac.ebi.fgpt.lode.service.JenaQueryExecutionService;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
+import uk.ac.ebi.fgpt.zooma.model.SimpleDatabaseAnnotationSource;
+import uk.ac.ebi.fgpt.zooma.model.SimpleOntologyAnnotationSource;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
+import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
@@ -106,6 +110,8 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
         Map<String, String[]> propertyToLiteralsMap = new HashMap<>();
         // maps annotation URI to all semantic tags
         Map<String, Collection<String>> annotationToSemanticTagsMap = new HashMap<>();
+        // maps annotations to their sources
+        Map<String, String> annotationsToSourceMap = new HashMap<>();
 
         // process results into maps
         while (results.hasNext()) {
@@ -126,6 +132,9 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
             Literal oldPropertyTypeLiteral = solution.getLiteral(QueryVariables.PREV_PROPERTY_NAME.toString());
             Literal oldPropertyValueLiteral = solution.getLiteral(QueryVariables.PREV_PROPERTY_VALUE.toString());
 
+            Resource database = solution.getResource(QueryVariables.DATABASEID.toString());
+
+
             Resource semanticTagResource = solution.getResource(QueryVariables.SEMANTIC_TAG.toString());
             String semanticTag = semanticTagResource.getURI();
 
@@ -137,6 +146,10 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
             }
             if (!annotationToSemanticTagsMap.containsKey(annotationURI)) {
                 annotationToSemanticTagsMap.put(annotationURI, new HashSet<String>());
+            }
+
+            if (database != null) {
+                annotationsToSourceMap.put(annotationURI, database.getURI());
             }
 
             // handle previous terms that have mapped to this semantic tag
@@ -175,6 +188,7 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
             }
             SimpleLuceneSummary summary = (SimpleLuceneSummary) hashedIDToSummaryMap.get(hash);
             summary.addAnnotationURI(URI.create(annotationURI));
+            summary.addAnnotationSourceURIs(URI.create(annotationsToSourceMap.get(annotationURI)));
             for (String semanticTagURI : semanticTagURIs) {
                 summary.addSemanticTag(URI.create(semanticTagURI));
             }
@@ -214,12 +228,14 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
         private final String propertyValue;
         private final Set<URI> semanticTags;
         private final Set<URI> annotationURIs;
+        private final Set<URI> annotationSourceURIs;
 
         public SimpleLuceneSummary(String propertyType, String propertyValue) {
             this.propertyType = propertyType;
             this.propertyValue = propertyValue;
             this.semanticTags = new HashSet<>();
             this.annotationURIs = new HashSet<>();
+            this.annotationSourceURIs = new HashSet<>();
         }
 
         @Override
@@ -271,6 +287,15 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
         }
 
         @Override
+        public Collection<URI> getAnnotationSourceURIs() {
+            return Collections.unmodifiableCollection(annotationSourceURIs);
+        }
+
+        public void addAnnotationSourceURIs(URI sourceUri) {
+            this.annotationSourceURIs.add(sourceUri);
+        }
+
+        @Override
         public URI getURI() {
             return null;
         }
@@ -282,6 +307,7 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
                     ", propertyValue='" + propertyValue + '\'' +
                     ", semanticTags=" + semanticTags +
                     ", annotationURIs=" + annotationURIs +
+                    ", annotationSources=" + annotationSourceURIs +
                     '}';
         }
     }

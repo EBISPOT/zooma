@@ -92,4 +92,10 @@ public interface AnnotationSummary extends Identifiable, Qualitative {
      * @return a float representing the maximum single annotation score for this summary
      */
     float getQuality();
+
+    /**
+     * Returns the collection of sources where this annotation summary holds
+     */
+
+    Collection<URI> getAnnotationSourceURIs();
 }

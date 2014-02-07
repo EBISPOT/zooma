@@ -173,12 +173,14 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
 
                 HashSet<URI> aggregatedTags = new HashSet<>();
                 HashSet<URI> aggregatedURIs = new HashSet<>();
+                HashSet<URI> aggregatedSourceURIs = new HashSet<>();
 
                 Collection<URI> firstPartSemanticTags = firstPartSummary.getSemanticTags();
                 Collection<URI> secondPartSemanticTags = secondPartSummary.getSemanticTags();
                 Collection<URI> firstPartAnnotationURIs = firstPartSummary.getAnnotationURIs();
                 Collection<URI> secondPartAnnotationURIs = secondPartSummary.getAnnotationURIs();
-
+                Collection<URI> firstPartAnnotationSourceRIs = firstPartSummary.getAnnotationSourceURIs();
+                Collection<URI> secondPartAnnotationSourceURIs = secondPartSummary.getAnnotationSourceURIs();
                 if (firstPartSemanticTags != null && !firstPartSemanticTags.isEmpty()) {
                     aggregatedTags.addAll(firstPartSemanticTags);
                 }
@@ -195,6 +197,14 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                     aggregatedURIs.addAll(secondPartAnnotationURIs);
                 }
 
+                if (firstPartAnnotationSourceRIs != null && !firstPartAnnotationSourceRIs.isEmpty()) {
+                    aggregatedSourceURIs.addAll(firstPartAnnotationSourceRIs);
+                }
+
+                if (secondPartAnnotationSourceURIs != null && !secondPartAnnotationSourceURIs.isEmpty()) {
+                    aggregatedSourceURIs.addAll(secondPartAnnotationSourceURIs);
+                }
+
                 String type = null;
                 if (firstPartType.contentEquals(secondPartType)) {
                     type = firstPartType;
@@ -205,7 +215,8 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                                                                                      propertyValuePattern,
                                                                                      aggregatedTags,
                                                                                      aggregatedURIs,
-                                                                                     scoreFinal);
+                                                                                     scoreFinal,
+                                                                                     aggregatedSourceURIs);
 
                 results.add(newAnnotationSummary);
             }

@@ -104,7 +104,32 @@ public class URIBindingUtils {
     }
 
     /**
-     * Gets the Zooma name for a given URI declaed in a type.properties file/ This is equivalent to calling {@link
+     * Check the supplied array of URIs, and if any of them do not have a corresponding name binding in the known prefix
+     * mappings file then return false.  Otherwise, if all URIs are recognised, return true.  You cna use this method to
+     * validate that all URIs in a SPARQL query are recognised bindings before attempting to map the result to avoid
+     * exceptions.
+     * <p/>
+     * This is equivalent to calling {@link #getPrefixMappings()} and passing the results to {@link
+     * #validateNamesExist(java.util.Map, java.net.URI...)} as the first parameter.
+     *
+     * @param uris the URIs to validate
+     * @return true if all URIs supplied have name bindings, false otherwise
+     */
+    public static boolean validateNamesExist(URI... uris) {
+        return validateNamesExist(getPrefixMappings(), uris);
+    }
+
+    public static boolean validateNamesExist(final Map<String, String> prefixMappings, URI... uris) {
+        for (URI uri : uris) {
+            if (!prefixMappings.containsValue(uri.toString())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Gets the Zooma name for a given URI declared in a type.properties file. This is equivalent to calling {@link
      * #getPrefixMappings()} and passing the results to {@link #getName(java.util.Map, java.net.URI)} as the first
      * parameter.
      *

@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.TransactionalAnnotationFactory;
+import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
@@ -113,7 +114,19 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                     annotationsToUpdate.add(replacedAnnotation);
                 }
             }
-            getAnnotationDAO().create(newAnnotation);
+            try {
+                getAnnotationDAO().create(newAnnotation);
+            }
+            catch (ResourceAlreadyExistsException e) {
+                URI newURI = URIUtils.incrementURI(getAnnotationDAO(), annotation.getURI());
+                newAnnotation = new SimpleAnnotation(newURI,
+                        newAnnotation.getAnnotatedBiologicalEntities(),
+                        newAnnotation.getAnnotatedProperty(),
+                        newAnnotation.getProvenance(), newAnnotation.getSemanticTags().toArray(new URI[newAnnotation.getSemanticTags().size()]),
+                        new URI[0],
+                        new URI[]{annotation.getURI()});
+
+            }
             // assuming the new annotation is created successfully, now update any of the previous annotations.
             for (Annotation replacedAnnotation : annotationsToUpdate) {
                 getAnnotationDAO().update(replacedAnnotation);
@@ -173,22 +186,22 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
         // todo specify annotator based on user
         AnnotationProvenance provenance =
                 new SimpleAnnotationProvenance(zoomaSource,
-                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                               AnnotationProvenance.Accuracy.NOT_SPECIFIED,
-                                               "ZOOMA",
-                                               new Date(),
-                                               "ANNOTATOR",
-                                               new Date());
+                        AnnotationProvenance.Evidence.MANUAL_CURATED,
+                        AnnotationProvenance.Accuracy.NOT_SPECIFIED,
+                        "ZOOMA",
+                        new Date(),
+                        "ANNOTATOR",
+                        new Date());
 
 
         // create the new annotation
         URI newURI = URIUtils.incrementURI(getAnnotationDAO(), annotation.getURI());
         Annotation newAnnotation = new SimpleAnnotation(newURI,
-                                                        annotation.getAnnotatedBiologicalEntities(),
-                                                        newProperty,
-                                                        provenance, semanticTags.toArray(new URI[semanticTags.size()]),
-                                                        new URI[0],
-                                                        new URI[]{annotation.getURI()}
+                annotation.getAnnotatedBiologicalEntities(),
+                newProperty,
+                provenance, semanticTags.toArray(new URI[semanticTags.size()]),
+                new URI[0],
+                new URI[]{annotation.getURI()}
         );
 
         // update annotations
