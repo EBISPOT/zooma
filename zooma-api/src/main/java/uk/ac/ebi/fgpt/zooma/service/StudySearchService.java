@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
+import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 
 import java.net.URI;
@@ -59,7 +60,7 @@ public interface StudySearchService {
     Collection<Study> searchBySemanticTags(boolean useInference, URI... semanticTags);
 
     /**
-     * Search the set of studies in ZOOMA for those with a matching accession.  Accession matches are exact.  Note that
+     * Search the set of studies in ZOOMA for those with a matching accession. Accession matches are partial matches.  Note that
      * accessions in ZOOMA are not unique, as ZOOMA subsumes several different datasources.  It is reasonable to assume
      * that a study accession is unique within a single datasource, but this assumption may not hold across the whole
      * dataset in ZOOMA, and as such this method returns a collection of results.
@@ -68,4 +69,12 @@ public interface StudySearchService {
      * @return a collection of studies that have a matching accession
      */
     Collection<Study> searchByStudyAccession(String accession);
+
+    /**
+     * Search the set of studies in ZOOMA for those with a matching properties.  Property matches are exact.
+     *
+     * @param property the properties to search for
+     * @return a collection of studies that have a matching accession
+     */
+    Collection<Study> searchByProperty(Property... property);
 }

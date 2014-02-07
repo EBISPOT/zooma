@@ -34,6 +34,7 @@ import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
 import uk.ac.ebi.fgpt.zooma.exception.TooManyResultsException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
 import uk.ac.ebi.fgpt.zooma.io.ZoomaSerializer;
+import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
@@ -325,6 +326,7 @@ public class SparqlStudyDAO implements StudyDAO {
         return _readBySemanticTags(query, useInference, semanticTags);
     }
 
+
     @Override public Collection<Study> readByAccession(String accession) {
 
         String query = getQueryManager().getSparqlQuery("Study.readByAccession");
@@ -342,10 +344,10 @@ public class SparqlStudyDAO implements StudyDAO {
         Collection<Study> bes = new HashSet<Study>();
 
         try {
-                execute = getQueryService().getQueryExecution(g, q1, false);
-                ResultSet results = execute.execSelect();
-                bes.addAll(evaluateQueryResults(results));
-                execute.close();
+            execute = getQueryService().getQueryExecution(g, q1, false);
+            ResultSet results = execute.execSelect();
+            bes.addAll(evaluateQueryResults(results));
+            execute.close();
 
         }
         catch (LodeException e) {
@@ -360,16 +362,51 @@ public class SparqlStudyDAO implements StudyDAO {
 
     }
 
+    @Override public Collection<Study> readByProperty(Property... property) {
+
+        String query = getQueryManager().getSparqlQuery("Study.readByProperty");
+
+        Graph g = getQueryService().getDefaultGraph();
+        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
+
+        Collection<Study> bes = new HashSet<Study>();
+        try {
+
+            for (Property p : property) {
+                if (p.getURI() != null)  {
+                    QueryExecution execute = null;
+                    QuerySolutionMap initialBinding = new QuerySolutionMap();
+                    initialBinding.add(QueryVariables.PROPERTY_VALUE_ID.toString(), new ResourceImpl(p.getURI().toString()));
+                    execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
+                    ResultSet results = execute.execSelect();
+                    bes.addAll(evaluateQueryResults(results));
+                    execute.close();
+                }
+            }
+
+        }
+        catch (LodeException e) {
+            throw new SPARQLQueryException("Failed to retrieve annotation", e);
+        }
+        finally {
+            if (g != null) {
+                g.close();
+            }
+        }
+        return bes;
+    }
+
+
     private Collection<Study> _readBySemanticTags(String query, boolean useInference, URI... semanticTags) {
 
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
         List<Study> bes = new ArrayList<>();
 
-        QuerySolutionMap initialBinding = new QuerySolutionMap();
         QueryExecution execute = null;
         try {
             for (URI uri : semanticTags) {
+                QuerySolutionMap initialBinding = new QuerySolutionMap();
                 initialBinding.add(QueryVariables.SEMANTIC_TAG.toString(), new ResourceImpl(uri.toString()));
                 execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, useInference);
                 ResultSet results = execute.execSelect();

@@ -30,6 +30,7 @@ public class RepositoryConnectionTester extends TestCase {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
+    private StudyDAO studyBean;
     private AnnotationDAO annotationBean;
     private AnnotationDAO annotationLuceneBean;
     private PropertyDAO propertyBean;
@@ -60,6 +61,7 @@ public class RepositoryConnectionTester extends TestCase {
             this.annotationSummaryBean = (AnnotationSummaryDAO) context.getBean("lodeAnnotationSummaryDAO");
             this.annotationPatternBean = (AnnotationPatternDAO) context.getBean("lodeAnnotationPatternDAO");
             this.bioentityBean = (SparqlBiologicalEntityDAO) context.getBean("lodeBiologicalEntityDAO");
+            this.studyBean = (SparqlStudyDAO) context.getBean("lodeStudyDAO");
         }
         catch (Exception e) {
             log.info("Failed to create beans for Repository connection test, no tests run");
@@ -396,15 +398,36 @@ public class RepositoryConnectionTester extends TestCase {
 
     public void testSparqlPropertyDao2() {
 
+            if (hasConnection) {
+
+                log.info("pulling out annotations by study");
+
+                long start = System.currentTimeMillis();
+                Collection<Property> props = propertyBean.readByTypeAndValue(null, "Cell shape variable");
+                System.out.println("Property size: " + props.size());
+                for (Property p : props) {
+                    System.out.println("property:  " + p.toString());
+                }
+                long end = System.currentTimeMillis();
+
+                System.out.println("time: " + ((end - start) / 1000) % 60 + "seconds");
+
+            }
+        }
+
+
+    public void testSparqlStudyDao1() {
+
         if (hasConnection) {
 
-            log.info("pulling out annotations by study");
+            log.info("pulling out study by property");
 
             long start = System.currentTimeMillis();
-            Collection<Property> props = propertyBean.readByTypeAndValue(null, "Cell shape variable");
-            System.out.println("Property size: " + props.size());
-            for (Property p : props) {
-                System.out.println("property:  " + p.toString());
+            Collection<Property> properties = propertyBean.readByTypeAndValue(null, "SM phenotype");
+            Collection<Study> studies = studyBean.readByProperty(properties.toArray(new Property[properties.size()]));
+            System.out.println("Study size: " + studies.size());
+            for (Study s : studies) {
+                System.out.println("study:  " + s.toString());
             }
             long end = System.currentTimeMillis();
 

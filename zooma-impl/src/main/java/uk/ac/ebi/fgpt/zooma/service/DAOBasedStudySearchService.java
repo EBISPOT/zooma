@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
 import uk.ac.ebi.fgpt.zooma.datasource.StudyDAO;
+import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 
 import java.net.URI;
@@ -55,5 +56,10 @@ public class DAOBasedStudySearchService extends AbstractShortnameResolver implem
 
     @Override public Collection<Study> searchByStudyAccession(String accession) {
         return getStudyDAO().readByAccession(accession);
+    }
+
+    @Override
+    public Collection<Study> searchByProperty(Property... property) {
+        return getStudyDAO().readByProperty(property);
     }
 }

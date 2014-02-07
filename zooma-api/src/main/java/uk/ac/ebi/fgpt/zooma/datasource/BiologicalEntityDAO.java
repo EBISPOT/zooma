@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
+import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 
 import java.net.URI;
@@ -61,4 +62,5 @@ public interface BiologicalEntityDAO extends ZoomaDAO<BiologicalEntity> {
      * @return the collection of biological entities that satisfy the query
      */
     Collection<BiologicalEntity> readByStudyAndName(Study study, String bioentityName);
+
 }

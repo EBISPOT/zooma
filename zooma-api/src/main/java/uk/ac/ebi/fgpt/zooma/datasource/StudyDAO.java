@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
+import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 
 import java.net.URI;
@@ -49,4 +50,11 @@ public interface StudyDAO extends ZoomaDAO<Study> {
      * @return the studies with this accession
      */
     Collection<Study> readByAccession(String accession);
+
+    /**
+     * Retrives a collection of studies by properties.
+     * @param property
+     * @return
+     */
+    Collection<Study> readByProperty(Property... property);
 }

@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
+import uk.ac.ebi.fgpt.zooma.service.PropertyService;
 import uk.ac.ebi.fgpt.zooma.service.StudySearchService;
 import uk.ac.ebi.fgpt.zooma.service.StudyService;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
@@ -32,11 +34,21 @@ import java.util.Collection;
 public class ZoomaStudySearcher {
     private StudyService studyService;
     private StudySearchService studySearchService;
+    private PropertyService propertyService;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {
         return log;
+    }
+
+    public PropertyService getPropertyService() {
+        return propertyService;
+    }
+
+    @Autowired
+    public void setPropertyService(PropertyService propertyService) {
+        this.propertyService = propertyService;
     }
 
     public StudyService getStudyService() {
@@ -103,6 +115,8 @@ public class ZoomaStudySearcher {
     public @ResponseBody Collection<Study> search(
             @RequestParam(value = "semanticTag", required = false) String[] semanticTags,
             @RequestParam(value = "accession", required = false) String accession,
+            @RequestParam(value = "propertyType", required = false) String propertyType,
+            @RequestParam(value = "propertyValue", required = false) String propertyValue,
             @RequestParam(value = "useInference", required = false, defaultValue = "false") boolean useInference) {
         if (semanticTags != null) {
             if (accession == null) {
@@ -133,8 +147,13 @@ public class ZoomaStudySearcher {
                 getLog().trace("Acquired " + results.size() + " studies");
                 return results;
             }
+            else if (propertyType != null || propertyValue !=null) {
+                getLog().trace("Retrieving studies with property '" + propertyType + "'" + "/'" + propertyValue + "'");
+                Collection<Property> properties = getPropertyService().getMatchedTypedProperty(propertyType, propertyValue);
+                return getStudySearchService().searchByProperty(properties.toArray(new Property[properties.size()]));
+            }
             else {
-                throw new IllegalArgumentException("Please supply either a semanticTag or accession argument to search");
+                throw new IllegalArgumentException("Please supply either a semanticTag, property values or accession argument to search");
             }
         }
     }

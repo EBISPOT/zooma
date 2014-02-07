@@ -26,10 +26,7 @@ import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
 import uk.ac.ebi.fgpt.zooma.exception.TooManyResultsException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
 import uk.ac.ebi.fgpt.zooma.io.ZoomaSerializer;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.SimpleBiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
-import uk.ac.ebi.fgpt.zooma.model.Study;
+import uk.ac.ebi.fgpt.zooma.model.*;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
 import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
@@ -229,8 +226,8 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
             });
             thread.start();
             getBiologicalEntityZoomaSerializer().serialize(getDatasourceName(),
-                                                           Collections.singleton(biologicalEntity),
-                                                           pos);
+                    Collections.singleton(biologicalEntity),
+                    pos);
         }
         catch (IOException e) {
             log.error("Couldn't create biological entity " + biologicalEntity.toString(), e);
@@ -244,7 +241,7 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
         getLog().debug("Triggered biological entity update request...\n\n" + biologicalEntity.toString());
         if (read(biologicalEntity.getURI()) == null) {
             throw new NoSuchResourceException("Can't update biological entity with URI " + biologicalEntity.getURI() +
-                                                      " no such biological entity exists");
+                    " no such biological entity exists");
         }
 
         Graph g = getQueryService().getDefaultGraph();
@@ -265,8 +262,8 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
             });
             thread.start();
             getBiologicalEntityZoomaSerializer().serialize(getDatasourceName(),
-                                                           Collections.singleton(biologicalEntity),
-                                                           pos);
+                    Collections.singleton(biologicalEntity),
+                    pos);
         }
         catch (IOException e) {
             log.error("Couldn't create biological entity " + biologicalEntity.toString(), e);
@@ -280,7 +277,7 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
     @Override public void delete(BiologicalEntity biologicalEntity) throws NoSuchResourceException {
         if (read(biologicalEntity.getURI()) == null) {
             throw new NoSuchResourceException("Can't delete biological entity with URI " + biologicalEntity.getURI() +
-                                                      " no such biological entity exists");
+                    " no such biological entity exists");
         }
 
         getLog().debug("Triggered biological entity delete request...\n\n" + biologicalEntity.toString());

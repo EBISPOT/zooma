@@ -167,6 +167,7 @@ SELECT DISTINCT (?bioentityid AS ?_bioentityid) (?bioentityType AS ?_bioentityTy
     OPTIONAL {?bioentityid  rdfs:label ?bioentitylabel }
 }
 
+
 ^[Study.read]
 SELECT DISTINCT ?study ?studylabel WHERE {
     ?annotationid oac:hasTarget ?bioentityid .
@@ -240,6 +241,16 @@ SELECT DISTINCT ?bioentityid ?bioentitylabel (?study AS ?_study) ?studylabel WHE
     ?annotationid oac:hasBody ?semantictags .
     ?semantictags rdf:type oac:SemanticTag .
     ?semantictags rdfs:subClassOf* ?semantictag
+}
+
+^[Study.readByProperty]
+SELECT DISTINCT ?study ?studylabel WHERE {
+    ?annotationid rdf:type oac:DataAnnotation .
+    ?annotationid oac:hasTarget ?bioentityid .
+    ?bioentityid dc:isPartOf ?study .
+    OPTIONAL { ?study rdfs:label ?studylabel} .
+    ?annotationid oac:hasBody ?propertyvalueid .
+    ?propertyvalueid a zoomaterms:Property .
 }
 
 ^[Study.bySemanticTag]
