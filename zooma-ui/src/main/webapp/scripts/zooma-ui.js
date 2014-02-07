@@ -123,24 +123,27 @@ function populateExamples() {
 }
 
 function populateDatasources() {
-    // todo - get datasources from rest api endpoint
     // retrieve datasources
-    var datasources = ['gxa', 'gwas'];
+    $.get('v2/api/sources', function(sources) {
+        var datasourceNames = [];
+        for (var i = 0; i < sources.length; i++){
+            datasourceNames.push(sources[i].name);
+        }
 
-    // populate checkboxes and sorters
-    var selectorContent = "<label>";
-    var sorterContent = "<ul id=\"zooma-datasource-sorter\" class=\"sortable ui-sortable\">";
-    for (var i = 0; i < datasources.length; i++) {
-        var datasource = datasources[i];
-        selectorContent = selectorContent + "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\">" +
+        // populate checkboxes and sorters
+        var selectorContent = "<label>";
+        var sorterContent = "<ul id=\"zooma-datasource-sorter\" class=\"sortable ui-sortable\">";
+        for (var j = 0; j < datasourceNames.length; j++) {
+            var datasource = datasourceNames[j];
+            selectorContent = selectorContent + "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\">" +
                 datasource + "<br />";
-        sorterContent = sorterContent + "<li class=\"ui-state-default\" id=\"" + datasource + "\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>" + datasource + "</li>";
-    }
-    selectorContent = selectorContent + "</label>";
-    sorterContent = sorterContent + "</ul>";
-    $("#datasource-selector").html(selectorContent);
-    $("#datasource-sorter").html(sorterContent);
-
+            sorterContent = sorterContent + "<li class=\"ui-state-default\" id=\"" + datasource + "\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>" + datasource + "</li>";
+        }
+        selectorContent = selectorContent + "</label>";
+        sorterContent = sorterContent + "</ul>";
+        $("#datasource-selector").html(selectorContent);
+        $("#datasource-sorter").html(sorterContent);
+    });
 }
 
 function annotate(content) {
