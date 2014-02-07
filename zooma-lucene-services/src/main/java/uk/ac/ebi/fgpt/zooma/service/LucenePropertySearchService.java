@@ -8,9 +8,8 @@ import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessorProvider;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
+import java.net.URI;
+import java.util.*;
 
 /**
  * A service that allows searching over the set of {@link Property}s known to ZOOMA.  Prefix-based and pattern-based
@@ -40,7 +39,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
         this.searchStringProcessorProvider = searchStringProcessorProvider;
     }
 
-    @Override public Collection<Property> search(String propertyValuePattern) {
+    @Override public Collection<Property> search(String propertyValuePattern, URI... sources) {
         try {
             initOrWait();
 
@@ -52,12 +51,18 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             pqs.add(pq);
             if (getSearchStringProcessorProvider() != null) {
                 pqs.addAll(generateProcessedQueries("name",
-                                                    propertyValuePattern,
-                                                    getSearchStringProcessorProvider().getProcessors()));
+                        propertyValuePattern,
+                        getSearchStringProcessorProvider().getProcessors()));
             }
 
-            // unify processed queries into a single query
-            Query q = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
+            Query q;
+            if (sources.length > 0) {
+                q = formulateExactCombinedQuery(pqs.toArray(new Query[pqs.size()]), "source", sources);
+            }
+            else {
+                // unify processed queries into a single query
+                q = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
+            }
 
             // do the query
             return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
@@ -70,7 +75,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
         }
     }
 
-    @Override public Collection<Property> search(String propertyType, String propertyValuePattern) {
+    @Override public Collection<Property> search(String propertyType, String propertyValuePattern, URI... sources) {
         try {
             initOrWait();
 
@@ -88,9 +93,9 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                 pqs.add(pq);
                 if (getSearchStringProcessorProvider() != null) {
                     pqs.addAll(generateProcessedQueries("name",
-                                                        propertyValuePattern,
-                                                        getSearchStringProcessorProvider().getFilteredProcessors(
-                                                                propertyType)));
+                            propertyValuePattern,
+                            getSearchStringProcessorProvider().getFilteredProcessors(
+                                    propertyType)));
                 }
 
                 // build a property type query
@@ -99,6 +104,11 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                 // unify the type query with each value query
                 q = formulateTypedQuery(ptq, pqs);
             }
+
+            if (sources.length > 0) {
+                q = formulateExactCombinedQuery(new Query[] {q}, "source", sources);
+            }
+
 
             // do the query
             return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
@@ -112,16 +122,96 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
         }
     }
 
-    @Override public Collection<Property> searchByPrefix(String propertyValuePrefix) {
-        return search(propertyValuePrefix + "*");
+    @Override public Collection<Property> searchByPrefix(String propertyValuePrefix, URI... sources) {
+        try {
+            initOrWait();
+
+            // first, formulate query for original propertyValuePattern
+            Query pq = formulatePrefixQuery("name", propertyValuePrefix);
+
+            // then generate a series of queries from the processed property value, using available search string processors
+            Collection<Query> pqs = new HashSet<>();
+            pqs.add(pq);
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("name",
+                        propertyValuePrefix,
+                        getSearchStringProcessorProvider().getProcessors()));
+            }
+
+            Query q;
+            if (sources.length > 0) {
+                q = formulateExactCombinedQuery(pqs.toArray(new Query[pqs.size()]), "source", sources);
+            }
+            else {
+                // unify processed queries into a single query
+                q = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
+            }
+
+            // do the query
+            return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
+        }
+        catch (IOException | QueryCreationException e) {
+            throw new SearchException("Problems creating query for '" + propertyValuePrefix + "'", e);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
     }
 
-    @Override public Collection<Property> searchByPrefix(String propertyType, String propertyValuePrefix) {
+    @Override public Collection<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources) {
+
         if (propertyValuePrefix.isEmpty()) {
-            return search(propertyType, "");
+            return search(propertyType, "", sources);
+        }
+        else if (propertyType.isEmpty()) {
+            return searchByPrefix(propertyValuePrefix, sources);
+
         }
         else {
-            return search(propertyType, propertyValuePrefix + "*");
+            try {
+                initOrWait();
+
+                // build a query
+                Query q;
+                if (propertyValuePrefix.isEmpty()) {
+                    q = formulateQuery("type", propertyType);
+                }
+                else {
+                    // first, formulate query for original propertyValuePattern
+                    Query pq = formulatePrefixQuery("name", propertyValuePrefix);
+
+                    // then generate a series of queries from the processed property value, using available search string processors
+                    Collection<Query> pqs = new HashSet<>();
+                    pqs.add(pq);
+                    if (getSearchStringProcessorProvider() != null) {
+                        pqs.addAll(generateProcessedQueries("name",
+                                propertyValuePrefix,
+                                getSearchStringProcessorProvider().getFilteredProcessors(
+                                        propertyType)));
+                    }
+
+                    // build a property type query
+                    Query ptq = formulateQueryConserveOrderIfMultiword("type", propertyType);
+
+                    // unify the type query with each value query
+                    q = formulateTypedQuery(ptq, pqs);
+                }
+
+                if (sources.length > 0) {
+                    q = formulateExactCombinedQuery(new Query[] {q}, "source", sources);
+                }
+
+
+                // do the query
+                return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
+            }
+            catch (QueryCreationException | IOException e) {
+                throw new SearchException(
+                        "Problems creating query for '" + propertyValuePrefix + "' ['" + propertyType + "']", e);
+            }
+            catch (InterruptedException e) {
+                throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+            }
         }
     }
 }

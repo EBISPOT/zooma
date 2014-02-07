@@ -17,6 +17,7 @@ import uk.ac.ebi.fgpt.zooma.view.SearchResponse;
 import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.List;
@@ -38,7 +39,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/properties/types")
-public class ZoomaPropertyTypeSearcher extends SuggestEndpoint<String, String> {
+public class ZoomaPropertyTypeSearcher extends SourceFilteredSuggestEndpoint<String, String> {
     private PropertyTypeService propertyTypeService;
     private PropertyTypeSearchService propertyTypeSearchService;
 
@@ -132,6 +133,11 @@ public class ZoomaPropertyTypeSearcher extends SuggestEndpoint<String, String> {
         return getPropertyTypeSearchService().searchByPrefix(prefix);
     }
 
+    public Collection<String> query(String prefix, URI[] requiredSources) {
+        validate();
+        return getPropertyTypeSearchService().searchByPrefix(prefix, requiredSources);
+    }
+
     public Collection<String> query(String prefix, int limit, int start) {
         validate();
         Collection<String> allTypes = getPropertyTypeSearchService().searchByPrefix(prefix);
@@ -201,16 +207,32 @@ public class ZoomaPropertyTypeSearcher extends SuggestEndpoint<String, String> {
             @RequestParam(value = "indent", required = false, defaultValue = "false") Boolean indent,
             @RequestParam(value = "mql_output", required = false) String mql_output) {
         // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
-        if (limit != null) {
-            if (start != null) {
-                return convertToSearchResponse(query, query(query, limit, start));
-            }
-            else {
-                return convertToSearchResponse(query, query(query, limit, 0));
-            }
+
+        if (query == null) {
+            query = "";
+        }
+        if (filter != null) {
+            return filteredSearch(query, filter);
         }
         else {
             return convertToSearchResponse(query, query(query));
+        }
+    }
+
+    protected SearchResponse filteredSearch(final String query,
+                                            final String filter) {
+        SearchType searchType = validateFilterArguments(filter);
+        URI[] requiredSources = new URI[0];
+        switch (searchType) {
+            case REQUIRED_ONLY:
+                requiredSources = parseRequiredSourcesFromFilter(filter);
+                return convertToSearchResponse(query, query(query, requiredSources));
+            case REQUIRED_AND_PREFERRED:
+            case PREFERRED_ONLY:
+                throw new UnsupportedOperationException();
+            case UNRESTRICTED:
+            default:
+                return convertToSearchResponse(query, query(query));
         }
     }
 

@@ -44,9 +44,8 @@ import java.util.regex.Pattern;
  */
 @Controller
 @RequestMapping("/summaries")
-public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSummary, String> {
+public class ZoomaAnnotationSummarySearcher extends SourceFilteredSuggestEndpoint<AnnotationSummary, String> {
     private AnnotationSummaryService annotationSummaryService;
-    private AnnotationSourceService annotationSourceService;
 
     private AnnotationSummarySearchService annotationSummarySearchService;
 
@@ -61,15 +60,6 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     @Autowired
     public void setAnnotationSummaryService(AnnotationSummaryService annotationSummaryService) {
         this.annotationSummaryService = annotationSummaryService;
-    }
-
-    public AnnotationSourceService getAnnotationSourceService() {
-        return annotationSourceService;
-    }
-
-    @Autowired
-    public void setAnnotationSourceService(AnnotationSourceService annotationSourceService) {
-        this.annotationSourceService = annotationSourceService;
     }
 
     public AnnotationSummarySearchService getAnnotationSummarySearchService() {
@@ -393,77 +383,11 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
         }
     }
 
-    protected SearchType validateFilterArguments(String filter) {
-        // filter argument should look like this:
-        // &filter=required:[x,y];preferred:[x,y,z]
-        // where required or preferred are optional and both arrays can contain any number of elements
-        if (filter.contains("required")) {
-            if (filter.contains("preferred")) {
-                return SearchType.REQUIRED_AND_PREFERRED;
-            }
-            else {
-                return SearchType.REQUIRED_ONLY;
-            }
-        }
-        else {
-            if (filter.contains("preferred")) {
-                return SearchType.PREFERRED_ONLY;
-            }
-            else {
-                return SearchType.UNRESTRICTED;
-            }
-        }
-    }
 
-    protected URI[] parseRequiredSourcesFromFilter(String filter) {
-        Matcher requiredMatcher = Pattern.compile("required:\\[([^\\]]+)\\]").matcher(filter);
-        List<URI> requiredSources = new ArrayList<>();
-        if (requiredMatcher.find(filter.indexOf("required:"))) {
-            String sourceNames = requiredMatcher.group(1);
-            String[] tokens = sourceNames.split(",", -1);
-            for (String sourceName : tokens) {
-                AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
-                if (nextSource != null) {
-                    requiredSources.add(nextSource.getURI());
-                }
-                else {
-                    getLog().warn("Required source '" + sourceName + "' was specified as a filter but " +
-                            "could not be found in ZOOMA; this source will be excluded from the query");
-                }
-            }
-        }
-
-        return requiredSources.toArray(new URI[requiredSources.size()]);
-    }
-
-    protected List<URI> parsePreferredSourcesFromFilter(String filter) {
-        Matcher requiredMatcher = Pattern.compile("preferred:\\[([^\\]]+)\\]").matcher(filter);
-        List<URI> preferredSources = new ArrayList<>();
-        if (requiredMatcher.find(filter.indexOf("preferred:"))) {
-            String sourceNames = requiredMatcher.group(1);
-            String[] tokens = sourceNames.split(",", -1);
-            for (String sourceName : tokens) {
-                AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
-                if (nextSource != null) {
-                    preferredSources.add(nextSource.getURI());
-                }
-                else {
-                    getLog().warn("Required source '" + sourceName + "' was specified as a filter but " +
-                            "could not be found in ZOOMA; this source will be excluded from the query");
-                }
-            }
-        }
-        return preferredSources;
-    }
 
     protected SearchResponse searchBySemanticTags(String[] semanticTags) {
         return convertToSearchResponse(semanticTags.length + " semantic tags", queryBySemanticTags(semanticTags));
     }
 
-    protected enum SearchType {
-        REQUIRED_ONLY,
-        PREFERRED_ONLY,
-        REQUIRED_AND_PREFERRED,
-        UNRESTRICTED
-    }
+
 }

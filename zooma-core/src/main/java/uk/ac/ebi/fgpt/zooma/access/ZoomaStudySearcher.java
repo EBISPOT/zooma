@@ -112,7 +112,7 @@ public class ZoomaStudySearcher {
                     String s = semanticTags[i];
                     URI uri = URIUtils.getURI(s);
                     getLog().trace(
-                            "Next request element: " + s + " (type = " + s.getClass() + ") -> URI '" + uri + "'");
+                             "Next request element: " + s + " (type = " + s.getClass() + ") -> URI '" + uri + "'");
                     deArray[i] = uri;
                 }
 

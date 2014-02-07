@@ -289,7 +289,7 @@ public class ZoomaSearcher extends SuggestEndpoint<Object, String> {
             }
             catch (NullPointerException npe2) {
                 try {
-                    return getPropertySearchEngine().flyout(URI.create(id));
+                    return getPropertySearchEngine().flyout(id);
                 }
                 catch (NullPointerException npe3) {
                     try {

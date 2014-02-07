@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public interface PropertyTypeSearchService {
      * @param propertyTypePattern the property type that should be searched for
      * @return a collection of matching property type strings
      */
-    Collection<String> search(String propertyTypePattern);
+    Collection<String> search(String propertyTypePattern, URI... sources);
 
     /**
      * Search the set of properties known to ZOOMA to identify those property types that match the supplied pattern
@@ -27,5 +28,5 @@ public interface PropertyTypeSearchService {
      * @param propertyTypePrefix the property value that should be searched for
      * @return a collection of matching property type strings
      */
-    Collection<String> searchByPrefix(String propertyTypePrefix);
+    Collection<String> searchByPrefix(String propertyTypePrefix, URI... sources);
 }

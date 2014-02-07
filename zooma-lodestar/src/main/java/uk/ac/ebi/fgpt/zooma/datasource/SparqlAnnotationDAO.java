@@ -496,7 +496,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
     public Annotation getAnnotationFromBindingSet(Map<URI, Annotation> annotationMap, QuerySolution solution) {
         Resource sourceType = solution.getResource(QueryVariables.SOURCETYPE.toString());
         if (!URIBindingUtils.validateNamesExist(URI.create(sourceType.getURI()))) {
-            getLog().debug("QuerySolution binding failed: unrecognised type <" + sourceType.getURI() + ">. " +
+            getLog().trace("QuerySolution binding failed: unrecognised type <" + sourceType.getURI() + ">. " +
                     "Result will be null.");
             return null;
         }

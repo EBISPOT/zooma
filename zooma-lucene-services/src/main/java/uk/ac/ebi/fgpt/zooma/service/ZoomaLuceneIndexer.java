@@ -3,8 +3,10 @@ package uk.ac.ebi.fgpt.zooma.service;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexDeletionPolicy;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.MergePolicy;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Version;
 import uk.ac.ebi.fgpt.zooma.Initializable;
@@ -63,6 +65,9 @@ public class ZoomaLuceneIndexer extends Initializable {
     private Directory annotationCountIndex;
     private Directory annotationIndex;
     private Directory annotationSummaryIndex;
+    private Map<URI, Collection<URI>> propertyUriToSourcesMap = new HashMap<>();
+    private Map<String, Collection<URI>> propertyTypeToSourcesMap = new HashMap<>();
+
 
     public Analyzer getAnalyzer() {
         return analyzer;
@@ -172,21 +177,22 @@ public class ZoomaLuceneIndexer extends Initializable {
             Document doc = new Document();
 
             doc.add(new Field("uri",
-                              property.getURI().toString(),
-                              Field.Store.YES,
-                              Field.Index.NOT_ANALYZED));
+                    property.getURI().toString(),
+                    Field.Store.YES,
+                    Field.Index.NOT_ANALYZED));
             doc.add(new Field("name",
-                              property.getPropertyValue(),
-                              Field.Store.YES,
-                              Field.Index.ANALYZED));
+                    property.getPropertyValue(),
+                    Field.Store.YES,
+                    Field.Index.ANALYZED));
             if (property instanceof TypedProperty) {
                 String propertyType = ((TypedProperty) property).getPropertyType();
 
                 // add type field to property index
                 doc.add(new Field("type",
-                                  propertyType,
-                                  Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                        propertyType,
+                        Field.Store.YES,
+                        Field.Index.ANALYZED));
+
 
                 // add type document to property type index if not a duplicate
                 if (!uniquePropertyTypes.contains(propertyType)) {
@@ -196,11 +202,27 @@ public class ZoomaLuceneIndexer extends Initializable {
                     // and index
                     Document typeDoc = new Document();
                     typeDoc.add(new Field("name",
-                                          propertyType,
-                                          Field.Store.YES,
-                                          Field.Index.ANALYZED));
+                            propertyType,
+                            Field.Store.YES,
+                            Field.Index.ANALYZED));
+                    // add any sources where this property type is used
+                    for (URI sourceUri : propertyTypeToSourcesMap.get(propertyType)) {
+                        typeDoc.add(new Field("source",
+                                sourceUri.toString(),
+                                Field.Store.YES,
+                                Field.Index.NOT_ANALYZED));
+                    }
                     propertyTypeIndexWriter.addDocument(typeDoc, getAnalyzer());
+
                 }
+            }
+
+            // add any sources where this property is used
+            for (URI sourceUri : propertyUriToSourcesMap.get(property.getURI())) {
+                doc.add(new Field("source",
+                        sourceUri.toString(),
+                        Field.Store.YES,
+                        Field.Index.NOT_ANALYZED));
             }
 
             // add this document to the index
@@ -214,7 +236,6 @@ public class ZoomaLuceneIndexer extends Initializable {
     }
 
     public void clearPropertyIndices() {
-
     }
 
     public void createAnnotationCountIndex(int size) throws IOException {
@@ -223,9 +244,9 @@ public class ZoomaLuceneIndexer extends Initializable {
         // build the document to index total count of annotations
         Document doc = new Document();
         doc.add(new Field("count",
-                          Integer.toString(size),
-                          Field.Store.YES,
-                          Field.Index.ANALYZED));
+                Integer.toString(size),
+                Field.Store.YES,
+                Field.Index.ANALYZED));
 
         IndexWriter indexWriter = obtainIndexWriter(getAnnotationCountIndex());
         indexWriter.addDocument(doc);
@@ -264,42 +285,58 @@ public class ZoomaLuceneIndexer extends Initializable {
             // build the document to index text data and store URIs
             Document doc = new Document();
             doc.add(new Field("uri",
-                              annotation.getURI().toString(),
-                              Field.Store.YES,
-                              Field.Index.NOT_ANALYZED));
+                    annotation.getURI().toString(),
+                    Field.Store.YES,
+                    Field.Index.NOT_ANALYZED));
             doc.add(new Field("property",
-                              property.getPropertyValue(),
-                              Field.Store.YES,
-                              Field.Index.ANALYZED));
+                    property.getPropertyValue(),
+                    Field.Store.YES,
+                    Field.Index.ANALYZED));
             if (property instanceof TypedProperty) {
+                String propertyType = ((TypedProperty) property).getPropertyType();
                 doc.add(new Field("propertytype",
-                                  ((TypedProperty) property).getPropertyType(),
-                                  Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                        propertyType,
+                        Field.Store.YES,
+                        Field.Index.ANALYZED));
+
+                // keep a map of types to sources
+                if (!propertyTypeToSourcesMap.containsKey(propertyType)) {
+                    propertyTypeToSourcesMap.put(propertyType, new HashSet<URI>());
+                }
+                propertyTypeToSourcesMap.get(propertyType).add(annotation.getProvenance().getSource().getURI());
+
             }
             if (annotation.getProvenance() != null && annotation.getProvenance().getSource() != null) {
                 doc.add(new Field("source",
-                                  annotation.getProvenance().getSource().getURI().toString(),
-                                  Field.Store.YES,
-                                  Field.Index.NOT_ANALYZED));
+                        annotation.getProvenance().getSource().getURI().toString(),
+                        Field.Store.YES,
+                        Field.Index.NOT_ANALYZED));
             }
             for (URI target : annotation.getSemanticTags()) {
                 // allow for null semantic tags -
                 // "null" is a positive assertion of NO mapping, but shouldn't be indexed (not searchable)
                 if (target != null) {
                     doc.add(new Field("target",
-                                      target.toString(),
-                                      Field.Store.YES,
-                                      Field.Index.NOT_ANALYZED));
+                            target.toString(),
+                            Field.Store.YES,
+                            Field.Index.NOT_ANALYZED));
                 }
             }
 
             provenanceMap.put(annotation.getURI(), annotation.getProvenance());
             doc.add(new Field("quality",
-                              Float.toString(scoreAnnotationQuality(annotation.getProvenance())),
-                              Field.Store.YES,
-                              Field.Index.ANALYZED));
+                    Float.toString(scoreAnnotationQuality(annotation.getProvenance())),
+                    Field.Store.YES,
+                    Field.Index.ANALYZED));
 
+
+
+
+            // we want to keep a map of property uris to sources for the property index
+            if (!propertyUriToSourcesMap.containsKey(property.getURI())) {
+                propertyUriToSourcesMap.put(property.getURI(), new HashSet<URI>());
+            }
+            propertyUriToSourcesMap.get(property.getURI()).add(annotation.getProvenance().getSource().getURI());
             // add this document to the index
             indexWriter.addDocument(doc, getAnalyzer());
         }
@@ -352,8 +389,8 @@ public class ZoomaLuceneIndexer extends Initializable {
 
                 summaryId = generateEncodedID(idContent.toArray(new String[idContent.size()]));
                 getLog().trace("Found new unique combination - " +
-                                       "property value '" + propertyValue + "', type '" + propertyType + "' " +
-                                       "maps to " + semanticTags + " (" + summaryId + ")");
+                        "property value '" + propertyValue + "', type '" + propertyType + "' " +
+                        "maps to " + semanticTags + " (" + summaryId + ")");
 
             }
 
@@ -379,22 +416,22 @@ public class ZoomaLuceneIndexer extends Initializable {
                 // build one document to index each summary combination
                 Document doc = new Document();
                 doc.add(new Field("id",
-                                  summaryId,
-                                  Field.Store.YES,
-                                  Field.Index.NOT_ANALYZED));
+                        summaryId,
+                        Field.Store.YES,
+                        Field.Index.NOT_ANALYZED));
                 doc.add(new Field("propertyuri",
-                                  propertyUri.toString(),
-                                  Field.Store.YES,
-                                  Field.Index.NOT_ANALYZED));
+                        propertyUri.toString(),
+                        Field.Store.YES,
+                        Field.Index.NOT_ANALYZED));
                 doc.add(new Field("property",
-                                  propertyValue,
-                                  Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                        propertyValue,
+                        Field.Store.YES,
+                        Field.Index.ANALYZED));
                 if (!propertyType.equals(UNTYPED)) {
                     doc.add(new Field("propertytype",
-                                      propertyType,
-                                      Field.Store.YES,
-                                      Field.Index.ANALYZED));
+                            propertyType,
+                            Field.Store.YES,
+                            Field.Index.ANALYZED));
                 }
                 // add field for each semantic tag
                 for (URI uri : semanticTags) {
@@ -402,9 +439,9 @@ public class ZoomaLuceneIndexer extends Initializable {
                         // add a field for this URI
                         getLog().trace("Next summary semantic tag: " + uri);
                         doc.add(new Field("semanticTag",
-                                          uri.toString(),
-                                          Field.Store.YES,
-                                          Field.Index.ANALYZED));
+                                uri.toString(),
+                                Field.Store.YES,
+                                Field.Index.ANALYZED));
                     }
                 }
                 // add field for each annotation
@@ -412,42 +449,44 @@ public class ZoomaLuceneIndexer extends Initializable {
                     // add a field for this URI
                     getLog().trace("Next summary annotation: " + annotationUri.toString());
                     doc.add(new Field("annotation",
-                                      annotationUri.toString(),
-                                      Field.Store.YES,
-                                      Field.Index.ANALYZED));
+                            annotationUri.toString(),
+                            Field.Store.YES,
+                            Field.Index.ANALYZED));
                 }
                 // add a field for the frequency of use of this pattern
                 getLog().trace("Summary frequency: " + annotations.size());
                 doc.add(new Field("frequency",
-                                  Integer.toString(annotations.size()),
-                                  Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                        Integer.toString(annotations.size()),
+                        Field.Store.YES,
+                        Field.Index.ANALYZED));
                 getLog().trace("Best score: " + summaryIdToMaxScore.get(summaryId));
                 doc.add(new Field("topScore",
-                                  Float.toString(summaryIdToMaxScore.get(summaryId)),
-                                  Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                        Float.toString(summaryIdToMaxScore.get(summaryId)),
+                        Field.Store.YES,
+                        Field.Index.ANALYZED));
                 for (URI source : summaryIdToSourcesMap.get(summaryId)) {
                     getLog().trace("Next source: " + source.toString());
                     doc.add(new Field("source",
-                                      source.toString(),
-                                      Field.Store.YES,
-                                      Field.Index.NOT_ANALYZED));
+                            source.toString(),
+                            Field.Store.YES,
+                            Field.Index.NOT_ANALYZED));
+
                 }
+
                 getLog().trace("Number of times verified: " + summaryIdToSourcesMap.get(summaryId).size());
                 doc.add(new Field("timesVerified",
-                                  Integer.toString(summaryIdToSourcesMap.get(summaryId).size()),
-                                  Field.Store.YES,
-                                  Field.Index.ANALYZED));
+                        Integer.toString(summaryIdToSourcesMap.get(summaryId).size()),
+                        Field.Store.YES,
+                        Field.Index.ANALYZED));
 
                 getLog().trace("Annotation Summary index entry:\n\t" +
-                                       "ID: " + summaryId + ",\n\t" +
-                                       "Property: " + propertyValue + ",\n\t" +
-                                       "Property Type: " + propertyType + ",\n\t" +
-                                       "Semantic Tags: " + semanticTags.toString() + ",\n\t" +
-                                       "Summary Frequency: " + annotations.size() + ",\n\t" +
-                                       "Best score: " + summaryIdToMaxScore.get(summaryId) + ",\n\t" +
-                                       "Times verified: " + summaryIdToSourcesMap.get(summaryId).size());
+                        "ID: " + summaryId + ",\n\t" +
+                        "Property: " + propertyValue + ",\n\t" +
+                        "Property Type: " + propertyType + ",\n\t" +
+                        "Semantic Tags: " + semanticTags.toString() + ",\n\t" +
+                        "Summary Frequency: " + annotations.size() + ",\n\t" +
+                        "Best score: " + summaryIdToMaxScore.get(summaryId) + ",\n\t" +
+                        "Times verified: " + summaryIdToSourcesMap.get(summaryId).size());
 
                 // add this document to the index
                 summaryIndexWriter.addDocument(doc, getAnalyzer());
@@ -470,14 +509,7 @@ public class ZoomaLuceneIndexer extends Initializable {
         clearAnnotationIndex();
         clearAnnotationCountIndex();
         clearPropertyIndices();
-        getLog().info("Querying underlying datasources for properties to index...");
-        Collection<Property> properties = getMaxEntityCount() == -1
-                ? getPropertyDAO().read()
-                : getPropertyDAO().read(getMaxEntityCount(), 0);
-        getLog().info("Building lucene indices...");
-        createPropertyIndices(properties);
         getLog().info("Querying underlying datasources for annotations to index...");
-
         Collection<Annotation> annotations = getAnnotationDAO().read();
         getLog().info("Total annotations:" + annotations.size());
 
@@ -486,6 +518,14 @@ public class ZoomaLuceneIndexer extends Initializable {
         createAnnotationCountIndex(count);
         Map<URI, AnnotationProvenance> provenanceMap = createAnnotationIndex(new ArrayList<>(annotations));
         createAnnotationSummaryIndex(getAnnotationSummaryDAO(), provenanceMap);
+
+        getLog().info("Querying underlying datasources for properties to index...");
+        Collection<Property> properties = getMaxEntityCount() == -1
+                ? getPropertyDAO().read()
+                : getPropertyDAO().read(getMaxEntityCount(), 0);
+        getLog().info("Building lucene indices...");
+        createPropertyIndices(properties);
+
         getLog().info("Lucene indexing complete!");
     }
 
