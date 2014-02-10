@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import uk.ac.ebi.fgpt.zooma.io.ZOOMAReportRenderer;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
@@ -21,6 +23,7 @@ import uk.ac.ebi.fgpt.zooma.model.SimpleUntypedProperty;
 import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
 import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchTimer;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
+import uk.ac.ebi.fgpt.zooma.service.AnnotationSourceService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummarySearchService;
 import uk.ac.ebi.fgpt.zooma.service.OntologyService;
 import uk.ac.ebi.fgpt.zooma.util.OntologyLabelMapper;
@@ -50,6 +53,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A controller stereotype that provides a REST-API endpoint to run a ZOOMA search over a series of properties.
@@ -67,6 +72,7 @@ public class ZoomaMappingController {
 
     private AnnotationSummarySearchService annotationSummarySearchService;
     private AnnotationService annotationService;
+    private AnnotationSourceService annotationSourceService;
     private OntologyService ontologyService;
 
     private Scorer<AnnotationSummary> annotationSummaryScorer;
@@ -106,6 +112,15 @@ public class ZoomaMappingController {
         this.annotationService = annotationService;
     }
 
+    public AnnotationSourceService getAnnotationSourceService() {
+        return annotationSourceService;
+    }
+
+    @Autowired
+    public void setAnnotationSourceService(AnnotationSourceService annotationSourceService) {
+        this.annotationSourceService = annotationSourceService;
+    }
+
     public OntologyService getOntologyService() {
         return ontologyService;
     }
@@ -125,15 +140,21 @@ public class ZoomaMappingController {
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = "application/json")
-    public @ResponseBody String requestMapping(@RequestBody ZoomaMappingRequest request, HttpSession session)
+    public @ResponseBody String requestMapping(@RequestParam(required = false) String filter,
+                                               @RequestBody ZoomaMappingRequest request,
+                                               HttpSession session)
             throws IOException {
         List<Property> properties = parseMappingRequest(request);
         session.setAttribute("properties", properties);
         session.setAttribute("progress", 0);
+
+        URI[] requiredSources = parseRequiredSourcesFromFilter(filter);
+        List<URI> preferredSources = parsePreferredSourcesFromFilter(filter);
+
         int concurrency = Integer.parseInt(getZoomaProperties().getProperty("zooma.concurrency"));
         float cutoffScore = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.score"));
         float cutoffPercentage = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.percentage"));
-        searchZOOMA(properties, session, concurrency, cutoffScore, cutoffPercentage);
+        searchZOOMA(properties, requiredSources, preferredSources, session, concurrency, cutoffScore, cutoffPercentage);
         return "Mapping request of " + properties.size() + " properties was successfully received";
     }
 
@@ -149,12 +170,14 @@ public class ZoomaMappingController {
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public @ResponseBody String test(HttpSession session) throws IOException {
         List<Property> properties = getSampleData();
+        URI[] requiredSources = new URI[]{};
+        List<URI> preferredSources = new ArrayList<>();
         session.setAttribute("properties", properties);
         session.setAttribute("progress", 0f);
         int concurrency = Integer.parseInt(getZoomaProperties().getProperty("zooma.concurrency"));
         float cutoffScore = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.score"));
         float cutoffPercentage = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.percentage"));
-        searchZOOMA(properties, session, concurrency, cutoffScore, cutoffPercentage);
+        searchZOOMA(properties, requiredSources, preferredSources, session, concurrency, cutoffScore, cutoffPercentage);
         return "Doing ZOOMA search";
     }
 
@@ -286,7 +309,54 @@ public class ZoomaMappingController {
         return results;
     }
 
+    private URI[] parseRequiredSourcesFromFilter(String filter) {
+        List<URI> requiredSources = new ArrayList<>();
+        if (filter != null && !filter.isEmpty()) {
+            Matcher requiredMatcher = Pattern.compile("required:\\[([^\\]]+)\\]").matcher(filter);
+            if (requiredMatcher.find(filter.indexOf("required:"))) {
+                String sourceNames = requiredMatcher.group(1);
+                String[] tokens = sourceNames.split(",", -1);
+                for (String sourceName : tokens) {
+                    AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
+                    if (nextSource != null) {
+                        requiredSources.add(nextSource.getURI());
+                    }
+                    else {
+                        getLog().warn("Required source '" + sourceName + "' was specified as a filter but " +
+                                              "could not be found in ZOOMA; this source will be excluded from the query");
+                    }
+                }
+            }
+        }
+
+        return requiredSources.toArray(new URI[requiredSources.size()]);
+    }
+
+    private List<URI> parsePreferredSourcesFromFilter(String filter) {
+        List<URI> preferredSources = new ArrayList<>();
+        if (filter != null && !filter.isEmpty()) {
+            Matcher requiredMatcher = Pattern.compile("preferred:\\[([^\\]]+)\\]").matcher(filter);
+            if (requiredMatcher.find(filter.indexOf("preferred:"))) {
+                String sourceNames = requiredMatcher.group(1);
+                String[] tokens = sourceNames.split(",", -1);
+                for (String sourceName : tokens) {
+                    AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
+                    if (nextSource != null) {
+                        preferredSources.add(nextSource.getURI());
+                    }
+                    else {
+                        getLog().warn("Preferred source '" + sourceName + "' was specified as a filter but " +
+                                              "could not be found in ZOOMA; this source will be excluded from the query");
+                    }
+                }
+            }
+        }
+        return preferredSources;
+    }
+
     private void searchZOOMA(final List<Property> properties,
+                             final URI[] requiredSources,
+                             final List<URI> preferredSources,
                              final HttpSession session,
                              final int concurrency,
                              final float cutoffScore,
@@ -313,20 +383,7 @@ public class ZoomaMappingController {
             jobQueue.add(service.submit(new Callable<Integer>() {
                 @Override public Integer call() throws Exception {
                     // first, grab annotation summaries
-                    Map<AnnotationSummary, Float> summaries;
-                    if (property instanceof TypedProperty) {
-                        String propertyType = ((TypedProperty) property).getPropertyType();
-                        String propertyValue = property.getPropertyValue();
-                        summaries = getAnnotationSummaryScorer().score(
-                                getAnnotationSummarySearchService().search(propertyType, propertyValue),
-                                propertyValue, propertyType);
-                    }
-                    else {
-                        String propertyValue = property.getPropertyValue();
-                        summaries = getAnnotationSummaryScorer().score(
-                                getAnnotationSummarySearchService().search(propertyValue),
-                                propertyValue);
-                    }
+                    Map<AnnotationSummary, Float> summaries = doSearch(property, requiredSources, preferredSources);
 
                     // now use client to test and filter them
                     if (!summaries.isEmpty()) {
@@ -463,6 +520,43 @@ public class ZoomaMappingController {
                 }
             }
         }).start();
+    }
+
+    private Map<AnnotationSummary, Float> doSearch(Property property,
+                                                   URI[] requiredSources,
+                                                   List<URI> preferredSources) {
+        if (property instanceof TypedProperty) {
+            String propertyType = ((TypedProperty) property).getPropertyType();
+            String propertyValue = property.getPropertyValue();
+            if (preferredSources.isEmpty()) {
+                return getAnnotationSummaryScorer().score(
+                        getAnnotationSummarySearchService().search(propertyType, propertyValue, requiredSources),
+                        propertyValue, propertyType);
+            }
+            else {
+                return getAnnotationSummaryScorer().score(
+                        getAnnotationSummarySearchService().searchByPreferredSources(propertyType,
+                                                                                     propertyValue,
+                                                                                     preferredSources,
+                                                                                     requiredSources),
+                        propertyValue, propertyType);
+            }
+        }
+        else {
+            String propertyValue = property.getPropertyValue();
+            if (preferredSources.isEmpty()) {
+                return getAnnotationSummaryScorer().score(
+                        getAnnotationSummarySearchService().search(propertyValue, requiredSources),
+                        propertyValue);
+            }
+            else {
+                return getAnnotationSummaryScorer().score(
+                        getAnnotationSummarySearchService().searchByPreferredSources(propertyValue,
+                                                                                     preferredSources,
+                                                                                     requiredSources),
+                        propertyValue);
+            }
+        }
     }
 
     private class LabelMapper implements OntologyLabelMapper {

@@ -65,8 +65,6 @@ function init() {
         getResults();
 
         $("#zooma-explorebox").zooma({'api_base_url': ''});
-
-        $("#zooma-datasource-sorter").sortable({update: setDatasourceOrder});
     });
 }
 
@@ -123,6 +121,11 @@ function populateExamples() {
 }
 
 function populateDatasources() {
+    // clear sorter element if already exists
+    var $sorter = $("#zooma-datasource-sorter");
+    $sorter.sortable('disable');
+    $sorter.html("");
+
     // retrieve datasources
     $.get('v2/api/sources', function(sources) {
         var datasourceNames = [];
@@ -132,7 +135,7 @@ function populateDatasources() {
 
         // populate checkboxes and sorters
         var selectorContent = "<label>";
-        var sorterContent = "<ul id=\"zooma-datasource-sorter\" class=\"sortable ui-sortable\">";
+        var sorterContent = "<ul id=\"zooma-datasource-sorter\" class=\"sortable\">";
         for (var j = 0; j < datasourceNames.length; j++) {
             var datasource = datasourceNames[j];
             selectorContent = selectorContent + "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\">" +
@@ -143,6 +146,9 @@ function populateDatasources() {
         sorterContent = sorterContent + "</ul>";
         $("#datasource-selector").html(selectorContent);
         $("#datasource-sorter").html(sorterContent);
+
+        // make sorter component sortable
+        $("#zooma-datasource-sorter").sortable({update: setDatasourceOrder});
     });
 }
 
@@ -193,11 +199,32 @@ function jsonifyTextArea(content) {
     return json;
 }
 
+function getRequiredSourcesParam() {
+    return null;
+}
+
+function getPreferredSourcesParam() {
+    return null;
+}
+
 function doSearch(json) {
     var payload = JSON.stringify(json);
+    var requiredSources = getRequiredSourcesParam();
+    var preferredSources = getPreferredSourcesParam();
+    var url = 'v2/api/services/map'
+    if (requiredSources || preferredSources) {
+        url = url + '?filter='
+        if (requiredSources) {
+            url = url + requiredSources;
+        }
+        if (preferredSources) {
+            url = url + preferredSources;
+        }
+    }
+
     $.ajax({
                type: 'POST',
-               url: 'v2/api/services/map',
+               url: url,
                contentType: 'application/json',
                data: payload,
                beforeSend: function() {

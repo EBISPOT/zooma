@@ -451,7 +451,7 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
                     preferredSources.add(nextSource.getURI());
                 }
                 else {
-                    getLog().warn("Required source '" + sourceName + "' was specified as a filter but " +
+                    getLog().warn("Preferred source '" + sourceName + "' was specified as a filter but " +
                                           "could not be found in ZOOMA; this source will be excluded from the query");
                 }
             }
