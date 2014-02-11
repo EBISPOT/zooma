@@ -421,7 +421,8 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     protected URI[] parseRequiredSourcesFromFilter(String filter) {
         Matcher requiredMatcher = Pattern.compile("required:\\[([^\\]]+)\\]").matcher(filter);
         List<URI> requiredSources = new ArrayList<>();
-        if (requiredMatcher.find(filter.indexOf("required:"))) {
+        int loc = filter.indexOf("required:");
+        if (loc != -1 && requiredMatcher.find(loc)) {
             String sourceNames = requiredMatcher.group(1);
             String[] tokens = sourceNames.split(",", -1);
             for (String sourceName : tokens) {
@@ -442,7 +443,8 @@ public class ZoomaAnnotationSummarySearcher extends SuggestEndpoint<AnnotationSu
     protected List<URI> parsePreferredSourcesFromFilter(String filter) {
         Matcher requiredMatcher = Pattern.compile("preferred:\\[([^\\]]+)\\]").matcher(filter);
         List<URI> preferredSources = new ArrayList<>();
-        if (requiredMatcher.find(filter.indexOf("preferred:"))) {
+        int loc = filter.indexOf("preferred:");
+        if (loc != -1 && requiredMatcher.find(loc)) {
             String sourceNames = requiredMatcher.group(1);
             String[] tokens = sourceNames.split(",", -1);
             for (String sourceName : tokens) {

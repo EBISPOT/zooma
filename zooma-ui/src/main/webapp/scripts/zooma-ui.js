@@ -148,7 +148,7 @@ function populateDatasources() {
         $("#datasource-sorter").html(sorterContent);
 
         // make sorter component sortable
-        $("#zooma-datasource-sorter").sortable({update: setDatasourceOrder});
+        $("#zooma-datasource-sorter").sortable();
     });
 }
 
@@ -172,10 +172,6 @@ function clearAll() {
 
 function resetSession(callback) {
     $.get('v2/api/services/map/reset', callback);
-}
-
-function setDatasourceOrder() {
-    alert("Reordering datasources");
 }
 
 function jsonifyTextArea(content) {
@@ -202,9 +198,8 @@ function jsonifyTextArea(content) {
 function getRequiredSourcesParam() {
     var selected = [];
     // get child, selected input elements of 'datasource-selector'
-    $("#datasource-selector > input:checked").each(function(index, element) {
-        console.log(element.id + " is selected");
-        selected.push(element.id);
+    $("#datasource-selector input:checked").each(function(index) {
+        selected.push($(this).prop("value"));
     });
 
     var required = "";
@@ -215,17 +210,15 @@ function getRequiredSourcesParam() {
         }
         required = required + selected[i] + "]";
     }
-    console.log("Required param: " + required);
     return required;
 }
 
 function getPreferredSourcesParam() {
     var sorted = [];
     // get child, selected input elements of 'datasource-selector'
-    $("#datasource-sorter li").each(function(index, element) {
+    $("#datasource-sorter li").each(function(index) {
         // get the text content of this list item
-        console.log(element.text() + " is sorted next");
-        sorted.push(element.text());
+        sorted.push($(this).text());
     });
 
     var preferred = "";
@@ -236,7 +229,6 @@ function getPreferredSourcesParam() {
         }
         preferred = preferred + sorted[i] + "]";
     }
-    console.log("Preferred param: " + preferred);
     return preferred;
 }
 

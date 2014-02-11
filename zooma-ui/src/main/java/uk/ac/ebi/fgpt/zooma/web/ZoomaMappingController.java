@@ -313,7 +313,8 @@ public class ZoomaMappingController {
         List<URI> requiredSources = new ArrayList<>();
         if (filter != null && !filter.isEmpty()) {
             Matcher requiredMatcher = Pattern.compile("required:\\[([^\\]]+)\\]").matcher(filter);
-            if (requiredMatcher.find(filter.indexOf("required:"))) {
+            int loc = filter.indexOf("required:");
+            if (loc != -1 && requiredMatcher.find(loc)) {
                 String sourceNames = requiredMatcher.group(1);
                 String[] tokens = sourceNames.split(",", -1);
                 for (String sourceName : tokens) {
@@ -336,7 +337,8 @@ public class ZoomaMappingController {
         List<URI> preferredSources = new ArrayList<>();
         if (filter != null && !filter.isEmpty()) {
             Matcher requiredMatcher = Pattern.compile("preferred:\\[([^\\]]+)\\]").matcher(filter);
-            if (requiredMatcher.find(filter.indexOf("preferred:"))) {
+            int loc = filter.indexOf("preferred:");
+            if (loc != -1 && requiredMatcher.find(loc)) {
                 String sourceNames = requiredMatcher.group(1);
                 String[] tokens = sourceNames.split(",", -1);
                 for (String sourceName : tokens) {
