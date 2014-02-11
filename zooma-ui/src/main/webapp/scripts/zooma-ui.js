@@ -200,11 +200,44 @@ function jsonifyTextArea(content) {
 }
 
 function getRequiredSourcesParam() {
-    return null;
+    var selected = [];
+    // get child, selected input elements of 'datasource-selector'
+    $("#datasource-selector > input:checked").each(function(index, element) {
+        console.log(element.id + " is selected");
+        selected.push(element.id);
+    });
+
+    var required = "";
+    if (selected.length > 0) {
+        required = "required:[";
+        for (var i = 0; i < selected.length - 1; i++) {
+            required = required + selected[i] + ",";
+        }
+        required = required + selected[i] + "]";
+    }
+    console.log("Required param: " + required);
+    return required;
 }
 
 function getPreferredSourcesParam() {
-    return null;
+    var sorted = [];
+    // get child, selected input elements of 'datasource-selector'
+    $("#datasource-sorter li").each(function(index, element) {
+        // get the text content of this list item
+        console.log(element.text() + " is sorted next");
+        sorted.push(element.text());
+    });
+
+    var preferred = "";
+    if (sorted.length > 0) {
+        preferred = "preferred:[";
+        for (var i = 0; i < sorted.length - 1; i++) {
+            preferred = preferred + sorted[i] + ",";
+        }
+        preferred = preferred + sorted[i] + "]";
+    }
+    console.log("Preferred param: " + preferred);
+    return preferred;
 }
 
 function doSearch(json) {
