@@ -227,7 +227,12 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         else {
             for (int i = 0; i < sourceRanking.length; i++) {
                 if (sources.contains(sourceRanking[i])) {
-                    return (((float) i) / (sourceRanking.length - 1)) * 0.1f;
+                    if (sourceRanking.length == 1) {
+                        return 0;
+                    }
+                    else {
+                        return (((float) i) / (sourceRanking.length - 1)) * 0.1f;
+                    }
                 }
             }
             return 0.125f;
