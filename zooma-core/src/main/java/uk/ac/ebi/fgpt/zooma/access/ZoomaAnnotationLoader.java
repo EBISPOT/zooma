@@ -15,7 +15,6 @@ import uk.ac.ebi.fgpt.zooma.model.*;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
 import uk.ac.ebi.fgpt.zooma.service.DataLoadingService;
 import uk.ac.ebi.fgpt.zooma.service.PropertyService;
-import uk.ac.ebi.fgpt.zooma.view.AnnotationBatchUpdateRequest;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -36,32 +35,10 @@ import java.util.HashSet;
 public class ZoomaAnnotationLoader {
     private DataLoadingService<Annotation> dataLoadingService;
 
-    private AnnotationService annotationService;
-
-    private PropertyService propertyService;
-
     private Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {
         return log;
-    }
-
-    public AnnotationService getAnnotationService() {
-        return annotationService;
-    }
-
-    @Autowired
-    public void setAnnotationService(AnnotationService annotationService) {
-        this.annotationService = annotationService;
-    }
-
-    public PropertyService getPropertyService() {
-        return propertyService;
-    }
-
-    @Autowired
-    public void setPropertyService(PropertyService propertyService) {
-        this.propertyService = propertyService;
     }
 
     public DataLoadingService<Annotation> getDataLoadingService() {
@@ -73,77 +50,6 @@ public class ZoomaAnnotationLoader {
         this.dataLoadingService = dataLoadingService;
     }
 
-    @RequestMapping(value = "/annotations", method = RequestMethod.POST)
-    public @ResponseBody DataLoadingService.Receipt loadAnnotations(@RequestBody Collection<Annotation> annotations) {
-        return getDataLoadingService().load(annotations);
-    }
-
-    @RequestMapping(value = "/annotations/batchUpdate", method = RequestMethod.POST)
-    public @ResponseBody DataLoadingService.Receipt loadBatchOfAnnotations(
-            @RequestBody AnnotationBatchUpdateRequest annotations,
-            @RequestParam(value = "oldPropertyUriFilter", required = false) String oldPropertyUri,
-            @RequestParam(value = "semanticTagUriFilter", required = false) String semanticTagUri,
-            @RequestParam(value = "studyUriFilter", required = false) String studyUri,
-            @RequestParam(value = "dataSourceFilter", required = true) String datasoureUri
-    )  throws ZoomaUpdateException {
-
-        // todo - check datasource and that user is authorised to edit
-
-        // check old property URI exists.
-        Collection<Annotation> annotationsToUpdate = new HashSet<Annotation>();
-
-
-        if (oldPropertyUri != null) {
-            Property oldProperty = getPropertyService().getProperty(oldPropertyUri);
-
-            if (oldProperty != null) {
-
-                if (semanticTagUri != null) {
-                    for (Annotation annoByStudy : getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri))) {
-                        if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
-                            if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
-                                annotationsToUpdate.add(annoByStudy);
-                            }
-                        }
-                    }
-                }
-                else if (studyUri != null) {
-                    for (Annotation annoByStudy : getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(studyUri), null))) {
-                        if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
-                            if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
-                                annotationsToUpdate.add(annoByStudy);
-                            }
-                        }
-                    }
-                }
-                else {
-                    for (Annotation annoByProp : getAnnotationService().getAnnotationsByProperty(oldProperty)) {
-                        if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
-                            annotationsToUpdate.add(annoByProp);
-                        }
-                    }
-                }
-            }
-            else {
-                throw new IllegalArgumentException(
-                        "Failed to update property: No property found with URI '" + oldPropertyUri + "'.");
-            }
-
-
-        }
-        else if (semanticTagUri != null) {
-            for (Annotation annoByStudy : getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri))) {
-                if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
-                    annotationsToUpdate.add(annoByStudy);
-                }
-            }
-        }
-
-        return null;
-
-//        Collection<Annotation> newAnnos = getAnnotationService().updateAnnotation(annotationsToUpdate, annotations);
-
-    }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(AmbiguousResourceException.class)

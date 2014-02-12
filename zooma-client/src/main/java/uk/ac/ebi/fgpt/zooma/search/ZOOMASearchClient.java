@@ -325,6 +325,7 @@ public class ZOOMASearchClient {
         URL summaryURL = new URL(zoomaBase + "summaries/" + mid);
         JsonNode summaryNode = mapper.readValue(summaryURL, JsonNode.class);
 
+        URI propertyUri = summaryNode.get("annotatedPropertyUri") != null ? URI.create(summaryNode.get("annotatedPropertyUri").getTextValue()) : null;
         String propertyType = summaryNode.get("annotatedPropertyType").getTextValue();
         String propertyValue = summaryNode.get("annotatedPropertyValue").getTextValue();
 
@@ -348,6 +349,7 @@ public class ZOOMASearchClient {
 
         // collect summary into map with it's score
         return new SimpleAnnotationSummary(mid,
+                                           propertyUri,
                                            propertyType,
                                            propertyValue,
                                            semanticTags,

@@ -12,6 +12,7 @@ import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.service.PropertySearchService;
 import uk.ac.ebi.fgpt.zooma.service.PropertyService;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
+import uk.ac.ebi.fgpt.zooma.util.PropertiesMapAdapter;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 import uk.ac.ebi.fgpt.zooma.view.FlyoutResponse;
@@ -40,12 +41,23 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/properties")
-public class ZoomaPropertySearcher extends IdentifiableSuggestEndpoint<Property> {
+public class ZoomaPropertySearcher extends SourceFilteredSuggestEndpoint<Property, String> {
     private PropertyService propertyService;
     private PropertySearchService propertySearchService;
 
     private Sorter<Property> propertySorter;
     private Limiter<Property> propertyLimiter;
+
+    private PropertiesMapAdapter propertiesMapAdapter;
+
+    public PropertiesMapAdapter getPropertiesMapAdapter() {
+        return propertiesMapAdapter;
+    }
+
+    @Autowired
+    public void setPropertiesMapAdapter(PropertiesMapAdapter propertiesMapAdapter) {
+        this.propertiesMapAdapter = propertiesMapAdapter;
+    }
 
     public ZoomaPropertySearcher() {
         // default constructor - callers must set required properties
@@ -162,6 +174,12 @@ public class ZoomaPropertySearcher extends IdentifiableSuggestEndpoint<Property>
         return getPropertySearchService().searchByPrefix(type, prefix);
     }
 
+    public Collection<Property> query(String prefix, String type, URI[] requiredSources) {
+        getLog().trace("Querying for '" + prefix + "', '" + type + "'");
+        validate();
+        return getPropertySearchService().searchByPrefix(type, prefix, requiredSources);
+    }
+
     public Collection<Property> query(String prefix, String type, int limit, int start) {
         getLog().trace("Querying for '" + prefix + "', '" + type + "', " + limit + ", " + start);
         validate();
@@ -184,6 +202,8 @@ public class ZoomaPropertySearcher extends IdentifiableSuggestEndpoint<Property>
     protected String extractElementTypeName() {
         return Property.PROPERTY_TYPE_NAME;
     }
+
+
 
     @Override
     @RequestMapping(value = "suggest", method = RequestMethod.GET)
@@ -230,34 +250,61 @@ public class ZoomaPropertySearcher extends IdentifiableSuggestEndpoint<Property>
             @RequestParam(value = "indent", required = false, defaultValue = "false") Boolean indent,
             @RequestParam(value = "mql_output", required = false) String mql_output) {
         // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
+
         if (query == null) {
             query = "";
         }
+        if (type == null) {
+            type = "";
+        }
 
+        if (filter != null) {
+            return filteredSearch(query,
+                    type,
+                    filter);
+        }
+        else {
+            return unfilteredSearch(query,
+                    type);
+        }
+    }
+
+    protected SearchResponse unfilteredSearch(final String query,
+                                              final String type) {
+        // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
         if (type != null) {
-            if (limit != null) {
-                if (start != null) {
-                    return convertToSearchResponse(query, query(query, type, limit, start));
-                }
-                else {
-                    return convertToSearchResponse(query, query(query, type, limit, 0));
-                }
-            }
-            else {
-                return convertToSearchResponse(query, query(query, type));
-            }
+            return convertToSearchResponse(query,
+                    query(query, type));
         }
         else {
             return convertToSearchResponse(query, query(query));
         }
     }
 
-    @Override
-    @RequestMapping(value = "/flyout", method = RequestMethod.GET)
-    public @ResponseBody FlyoutResponse flyout(@RequestParam(value = "id") final URI shortURI) {
-        return convertToFlyoutResponse(fetchByURI(shortURI.toString()));
+    protected SearchResponse filteredSearch(final String query,
+                                            final String type,
+                                            final String filter) {
+        SearchType searchType = validateFilterArguments(filter);
+        URI[] requiredSources = new URI[0];
+        switch (searchType) {
+            case REQUIRED_ONLY:
+                requiredSources = parseRequiredSourcesFromFilter(filter);
+                return convertToSearchResponse(query, query(query, type, requiredSources));
+            case REQUIRED_AND_PREFERRED:
+            case PREFERRED_ONLY:
+                throw new UnsupportedOperationException();
+            case UNRESTRICTED:
+            default:
+                return unfilteredSearch(query,
+                        type);
+        }
     }
 
+    @Override
+    @RequestMapping(value = "/flyout", method = RequestMethod.GET)
+    public @ResponseBody FlyoutResponse flyout(@RequestParam(value = "id") final String shortURI) {
+        return convertToFlyoutResponse(fetchByURI(shortURI));
+    }
     /**
      * Validates that this class has been correctly set up, with all required properties set to non-null values.
      *
@@ -271,5 +318,11 @@ public class ZoomaPropertySearcher extends IdentifiableSuggestEndpoint<Property>
             Assert.notNull(getPropertyLimiter(), "Property limiter must not be null");
             setIsValidated(true);
         }
+    }
+
+    @Override
+    protected String extractElementID(Property property) {
+        return property.getURI().toString();
+
     }
 }

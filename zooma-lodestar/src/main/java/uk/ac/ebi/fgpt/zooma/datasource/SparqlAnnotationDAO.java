@@ -113,10 +113,17 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
     @Override public void create(Annotation annotation) throws ResourceAlreadyExistsException {
         getLog().debug("Triggered annotation create request...\n\n" + annotation.toString());
+        create(Collections.singleton(annotation));
+    }
 
-        if (read(annotation.getURI()) != null) {
-            throw new ResourceAlreadyExistsException(
-                    "Can't create new annotation with " + annotation.getURI() + ", URI already exists");
+    @Override public void create(Collection<Annotation> annotations) throws ResourceAlreadyExistsException {
+        getLog().debug("Triggered create annotations request for " + annotations.size() + " annotations\n\n");
+
+        for (Annotation a : annotations) {
+            if (read(a.getURI()) != null) {
+                throw new ResourceAlreadyExistsException(
+                        "Can't create new annotation with " + a.getURI() + ", URI already exists");
+            }
         }
 
         try {
@@ -135,26 +142,30 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 }
             });
             thread.start();
-            getAnnotationZoomaSerializer().serialize(getDatasourceName(), Collections.singleton(annotation), pos);
+            getAnnotationZoomaSerializer().serialize(getDatasourceName(), annotations, pos);
         }
         catch (IOException e) {
-            log.error("Couldn't create annotation " + annotation.toString(), e);
+            log.error("Couldn't create annotations ", e);
         }
         catch (ZoomaSerializationException e) {
-            log.error("Couldn't create annotation " + annotation.toString(), e);
+            log.error("Couldn't create annotation ", e);
         }
     }
 
     @Override public void update(Annotation annotation) throws NoSuchResourceException {
         getLog().debug("Triggered annotation update request...\n\n" + annotation.toString());
-        if (read(annotation.getURI()) == null) {
-            throw new NoSuchResourceException(
-                    "Can't update annotation with URI " + annotation.getURI() + " no such annotation exists");
-        }
+        update(Collections.singleton(annotation));
+    }
 
-//        Graph g = getQueryService().getDefaultGraph();
-//        Model m = ModelFactory.createModelForGraph(g);
-//        m.removeAll(new ResourceImpl(annotation.getURI().toString()), null, null);
+    @Override public void update(Collection<Annotation> annotations) throws NoSuchResourceException {
+        getLog().debug("Triggered annotation update request for " + annotations.size() + " annotations \n\n");
+
+        for (Annotation a : annotations) {
+            if (read(a.getURI()) == null) {
+                throw new NoSuchResourceException(
+                        "Can't update annotation with URI " + a.getURI() + " no such annotation exists");
+            }
+        }
 
         try {
             final PipedInputStream pis = new PipedInputStream();
@@ -171,14 +182,14 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 }
             });
             thread.start();
-            getAnnotationZoomaSerializer().serialize(getDatasourceName(), Collections.singleton(annotation), pos);
+            getAnnotationZoomaSerializer().serialize(getDatasourceName(), annotations, pos);
         }
         catch (IOException e) {
-            log.error("Couldn't create annotation " + annotation.toString(), e);
+            log.error("Couldn't update annotations ", e);
+        } catch (ZoomaSerializationException e) {
+            log.error("Couldn't serialise update annotations ", e);
         }
-        catch (ZoomaSerializationException e) {
-            log.error("Couldn't create annotation " + annotation.toString(), e);
-        }
+
 
     }
 
@@ -215,7 +226,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
             List<Annotation> annos = new ArrayList<Annotation>();
             for (URI uri : getAllAnnotationURIs(size, start)) {
-                 annos.add(read(uri));
+                annos.add(read(uri));
             }
             return annos;
 //            q1.setOffset(start);
@@ -485,8 +496,8 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
     public Annotation getAnnotationFromBindingSet(Map<URI, Annotation> annotationMap, QuerySolution solution) {
         Resource sourceType = solution.getResource(QueryVariables.SOURCETYPE.toString());
         if (!URIBindingUtils.validateNamesExist(URI.create(sourceType.getURI()))) {
-            getLog().debug("QuerySolution binding failed: unrecognised type <" + sourceType.getURI() + ">. " +
-                                   "Result will be null.");
+            getLog().trace("QuerySolution binding failed: unrecognised type <" + sourceType.getURI() + ">. " +
+                    "Result will be null.");
             return null;
         }
 
@@ -497,9 +508,6 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         Literal propertyValueValue = solution.getLiteral(underscore + QueryVariables.PROPERTY_VALUE.toString());
         Resource semanticTag = solution.getResource(underscore + QueryVariables.SEMANTIC_TAG.toString());
         Resource database = solution.getResource(QueryVariables.DATABASEID.toString());
-
-        // bit of an optimisation hack to avoid slow SPARQL filters, we never want the source type to be an OWLIndividual, so return null at this point
-        if (sourceType.getURI().equals(OWLRDFVocabulary.OWL_NAMED_INDIVIDUAL.getIRI().toString())) { return null; }
 
         Resource replaces = solution.getResource(QueryVariables.REPLACES.toString());
         Resource replacedBy = solution.getResource(QueryVariables.REPLACEDBY.toString());
@@ -654,7 +662,6 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                         source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
                                 sourceName.getLexicalForm());
                     }
-
                 }
 
                 if (source == null) {
@@ -673,7 +680,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             }
             Annotation newAnno = null;
             if (ontoUri == null) {
-              newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov);
+                newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov);
             }
             else {
                 newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov, ontoUri);

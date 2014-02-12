@@ -8,6 +8,7 @@ import uk.ac.ebi.fgpt.zooma.concurrent.ZoomaThreadFactory;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.io.ZoomaLoader;
 import uk.ac.ebi.fgpt.zooma.model.Identifiable;
+import uk.ac.ebi.fgpt.zooma.model.Update;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -229,6 +230,43 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
     @Override
     public Receipt load(final Collection<T> dataItems) {
         return load(dataItems, Integer.toString(dataItems.hashCode()));
+    }
+
+    @Override
+    public Receipt update(final Collection<T> dataItems, final Update<T> update) {
+        // check the relevant executor service is alive
+        if (loadExecutor.isShutdown()) {
+            throw new IllegalStateException("Cannot update data - loading services have been shutdown");
+        }
+
+        getLog().info("Updating " + dataItems.size() + " supplied data items");
+
+        int total = getMaxCount() > 0 ? getMaxCount() : dataItems.size();
+
+        // create a workload scheduler to queue load tasks for tihs DAO
+        final int iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
+        getLog().debug("Scheduling workload for updating annotations will take place in " + iterations + " rounds " +
+                "of " + getBlockSize() + " data items each.");
+        final WorkloadScheduler scheduler =
+                new WorkloadScheduler(loadExecutor, iterations, "zooma-update") {
+                    @Override
+                    protected void executeTask(int iteration) throws Exception {
+                        // load data items
+                        getLog().debug(
+                                "Updating data items for round " + iteration + "/" + iterations + ", " +
+                                        "executing in " + Thread.currentThread().getName());
+                        getZoomaLoader().update(dataItems, update);
+                    }
+                };
+
+        // create a receipt
+        final SingleWorkloadReceipt receipt =
+                new SingleWorkloadReceipt("zooma-update", LoadType.LOAD_DATAITEMS, scheduler);
+        receiptService.registerReceipt(receipt);
+
+        // start up the scheduler
+        scheduler.start();
+        return receipt;
     }
 
     @Override public Receipt load(final Collection<T> dataItems, final String datasetName) {

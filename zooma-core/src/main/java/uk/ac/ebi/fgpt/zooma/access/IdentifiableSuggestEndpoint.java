@@ -23,16 +23,6 @@ import java.net.URI;
  * @date 30/03/12
  */
 public abstract class IdentifiableSuggestEndpoint<T extends Identifiable> extends SuggestEndpoint<T, URI> {
-    private PropertiesMapAdapter propertiesMapAdapter;
-
-    public PropertiesMapAdapter getPropertiesMapAdapter() {
-        return propertiesMapAdapter;
-    }
-
-    @Autowired
-    public void setPropertiesMapAdapter(PropertiesMapAdapter propertiesMapAdapter) {
-        this.propertiesMapAdapter = propertiesMapAdapter;
-    }
 
     @Override protected String extractElementID(T t) {
         return t.getURI().toString();

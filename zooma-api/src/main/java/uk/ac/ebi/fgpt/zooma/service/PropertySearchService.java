@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import uk.ac.ebi.fgpt.zooma.model.Property;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public interface PropertySearchService {
      * @param propertyValuePattern the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> search(String propertyValuePattern);
+    Collection<Property> search(String propertyValuePattern, URI... sources);
 
     /**
      * Search the set of properties known to ZOOMA for those which have a value that matches the supplied pattern. The
@@ -39,7 +40,7 @@ public interface PropertySearchService {
      * @param propertyValuePattern the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> search(String propertyType, String propertyValuePattern);
+    Collection<Property> search(String propertyType, String propertyValuePattern, URI... sources);
 
     /**
      * Search the set of properties known to ZOOMA for those which have a value that matches the supplied prefix
@@ -49,7 +50,7 @@ public interface PropertySearchService {
      * @param propertyValuePrefix the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> searchByPrefix(String propertyValuePrefix);
+    Collection<Property> searchByPrefix(String propertyValuePrefix, URI... sources);
 
     /**
      * Search the set of properties known to ZOOMA for those which have a value that matches the supplied prefix. The
@@ -63,5 +64,7 @@ public interface PropertySearchService {
      * @param propertyValuePrefix the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> searchByPrefix(String propertyType, String propertyValuePrefix);
+    Collection<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources);
+
+
 }

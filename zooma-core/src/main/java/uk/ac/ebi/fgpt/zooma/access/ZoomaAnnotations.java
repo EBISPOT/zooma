@@ -3,16 +3,10 @@ package uk.ac.ebi.fgpt.zooma.access;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.SimpleBiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
-import uk.ac.ebi.fgpt.zooma.service.AnnotationSearchService;
-import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
+import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
+import uk.ac.ebi.fgpt.zooma.model.*;
+import uk.ac.ebi.fgpt.zooma.service.*;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
@@ -23,6 +17,7 @@ import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -42,26 +37,46 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/annotations")
-public class ZoomaAnnotationSearcher extends IdentifiableSuggestEndpoint<Annotation> {
+public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
     private AnnotationService annotationService;
     private AnnotationSearchService annotationSearchService;
+    private DataLoadingService<Annotation> dataLoadingService;
+    private PropertyService propertyService;
 
     private Sorter<Annotation> annotationSorter;
     private Limiter<Annotation> annotationLimiter;
 
-    public ZoomaAnnotationSearcher() {
+    public ZoomaAnnotations() {
         // default constructor - callers must set required properties
     }
 
-    public ZoomaAnnotationSearcher(AnnotationService annotationService,
-                                   AnnotationSearchService annotationSearchService,
-                                   Sorter<Annotation> annotationSorter,
-                                   Limiter<Annotation> annotationLimiter) {
+    public ZoomaAnnotations(AnnotationService annotationService,
+                            AnnotationSearchService annotationSearchService,
+                            Sorter<Annotation> annotationSorter,
+                            Limiter<Annotation> annotationLimiter) {
         this();
         setAnnotationService(annotationService);
         setAnnotationSearchService(annotationSearchService);
         setAnnotationSorter(annotationSorter);
         setAnnotationLimiter(annotationLimiter);
+    }
+
+    public PropertyService getPropertyService() {
+        return propertyService;
+    }
+
+    @Autowired
+    public void setPropertyService(PropertyService propertyService) {
+        this.propertyService = propertyService;
+    }
+
+    public DataLoadingService<Annotation> getDataLoadingService() {
+        return dataLoadingService;
+    }
+
+    @Autowired
+    public void setDataLoadingService(DataLoadingService<Annotation> dataLoadingService) {
+        this.dataLoadingService = dataLoadingService;
     }
 
     public AnnotationService getAnnotationService() {
@@ -289,6 +304,115 @@ public class ZoomaAnnotationSearcher extends IdentifiableSuggestEndpoint<Annotat
     @RequestMapping(value = "/flyout", method = RequestMethod.GET)
     public @ResponseBody FlyoutResponse flyout(@RequestParam(value = "id") final URI shortURI) {
         return convertToFlyoutResponse(fetch(shortURI.toString()));
+    }
+
+
+    @RequestMapping(method = RequestMethod.POST)
+    public @ResponseBody DataLoadingService.Receipt loadAnnotations(@RequestBody Collection<Annotation> annotations) {
+        return getDataLoadingService().load(annotations);
+    }
+
+    @RequestMapping(value = "/batchUpdate", method = RequestMethod.POST)
+    public @ResponseBody DataLoadingService.Receipt updateAnnotations(
+            @RequestBody AnnotationUpdate update,
+            @RequestParam(value = "oldPropertyUriFilter", required = false) Collection<String> oldPropertyUris,
+            @RequestParam(value = "semanticTagUriFilter", required = false) String semanticTagUri,
+            @RequestParam(value = "studyUriFilter", required = false) String studyUri,
+            @RequestParam(value = "dataSourceFilter", required = true) String datasoureUri
+    )  throws ZoomaUpdateException {
+
+        // todo - check datasource and that user is authorised to edit
+
+        // check old property URI exists.
+        Collection<Annotation> annotationsToUpdate = new HashSet<Annotation>();
+
+        if (oldPropertyUris != null) {
+            for (String oldPropertyUri : oldPropertyUris) {
+                Property oldProperty = getPropertyService().getProperty(URI.create(oldPropertyUri));
+
+                if (oldProperty != null) {
+                    // update semantic tags for old properties annotated to the tag filter
+                    if (semanticTagUri != null) {
+                        for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri)))) {
+                            if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
+                                if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                    annotationsToUpdate.add(annoByStudy);
+                                }
+                            }
+                        }
+                    }
+                    else if (studyUri != null) {
+                        // update all properties in this study with the new supplied info
+                        for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(studyUri), null)))) {
+                            if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
+                                if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                    annotationsToUpdate.add(annoByStudy);
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        // if a new property type and value is supplied update the old property to the new one
+                        if (update.getPropertyType() != null && update.getPropertyValue() != null) {
+                            for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(oldProperty))) {
+                                if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                    annotationsToUpdate.add(annoByProp);
+                                }
+                            }
+                        }
+                        // if only a property type is supplied, get all the properties with that type and update them with the supplied type (e.g organimspart to organism_part)
+                        // old property must already have a type
+                        else if (update.getPropertyType() != null) {
+                            if (oldProperty instanceof TypedProperty) {
+                                String oldType = ((TypedProperty) oldProperty).getPropertyType();
+                                for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(oldType, null)) {
+                                    for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(matchedProperty))) {
+                                        if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                            annotationsToUpdate.add(annoByProp);
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                        // otherwise we are updating the property value for all properties with the old property type(e.g. human to homo sapiens)
+                        else if (update.getPropertyValue() != null) {
+                            for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(null, oldProperty.getPropertyValue())) {
+                                for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(matchedProperty))) {
+                                    if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                        annotationsToUpdate.add(annoByProp);
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            // both update property type and value are null so preserve
+                            for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(oldProperty))) {
+                                if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                    annotationsToUpdate.add(annoByProp);
+                                }
+                            }
+                        }
+
+                    }
+                }
+                else {
+                    throw new IllegalArgumentException(
+                            "Failed to update property: No property found with URI '" + oldPropertyUri + "'.");
+                }
+            }
+
+        }
+        else if (semanticTagUri != null) {
+            for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri)))) {
+                if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                    annotationsToUpdate.add(annoByStudy);
+                }
+            }
+        }
+
+        return getDataLoadingService().update(annotationsToUpdate, update);
+
     }
 
     protected void validate() throws IllegalArgumentException {

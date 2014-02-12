@@ -658,8 +658,8 @@ public class ZoomageMagetabParser {
     }
 
     public File fetchMAGETABFromFilesystem(String accession) {
-//        String basePath = "/ebi/microarray/home/arrayexpress/ae2_production/data/EXPERIMENT";
-        String basePath = "/Users/jmcmurry/code/zooma/";         //todo: parameterise this
+        String basePath = "/ebi/microarray/home/arrayexpress/ae2_production/data/EXPERIMENT";
+//        String basePath = "/Users/jmcmurry/code/zooma/";         //todo: parameterise this
         String pipeline = accession.split("-")[1];
         return new File(basePath + File.separator + pipeline + File.separator + accession + File.separator + accession +
                 ".idf.txt");

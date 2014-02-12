@@ -158,7 +158,7 @@ public class SparqlPropertyDAO implements PropertyDAO {
         return "";
     }
 
-    @Override public Property readByTypeAndValue(String type, String value) {
+    @Override public Collection<Property> readByTypeAndValue(String type, String value) {
         String query = getManager().getQueryManager().getSparqlQuery("Property.read");
 
         Map<String, Value> bindingMap = new HashMap<>();
@@ -167,21 +167,7 @@ public class SparqlPropertyDAO implements PropertyDAO {
         bindingMap.put(QueryVariables.PROPERTY_VALUE.toString(), factory.createLiteral(value));
 
         TupleQueryResult result = manager.evaluateQuery(query, bindingMap);
-        List<Property> ps = evaluateQueryResults(result);
-
-        if (ps.size() > 1) {
-            getLog().error("Too many results looking for property [" + type + ": " + value + "]");
-            throw new TooManyResultsException(
-                    "Expected one result, got " + ps.size() + " for property [" + type + ": " + value + "]");
-        }
-        else {
-            if (ps.size() == 0) {
-                return null;
-            }
-            else {
-                return ps.get(0);
-            }
-        }
+        return evaluateQueryResults(result);
     }
 
     @Override public Property readByValue(String value) {

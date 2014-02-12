@@ -297,6 +297,32 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     }
 
     /**
+     * Given an existing query, formulate a combined query of exact matches for the supplied items and combine with the initial query
+     * @param q Array of original queries
+     * @param fieldName the fieldname for querying extact matches in the items collection
+     * @param items collection of items to combine in the query
+     * @return new combined query
+     * @throws QueryCreationException
+     */
+    public Query formulateExactCombinedQuery(Query [] q, String fieldName, Object [] items) throws QueryCreationException {
+
+        // unify processed queries into a single query
+        Query uq = formulateCombinedQuery(true, false, q);
+
+        // next generate a series of source queries
+        List<Query> sqs = new ArrayList<>();
+        for (Object item : items) {
+            sqs.add(formulateExactQuery(fieldName, item.toString()));
+        }
+        // unify source queries into a single query
+        Query sq = formulateCombinedQuery(false, false, sqs.toArray(new Query[sqs.size()]));
+
+        // unify property and source queries into a single query
+        return formulateCombinedQuery(true, true, uq, sq);
+    }
+
+    /**
+     *
      * Generate a lucene query from the supplied field and pattern.  Queries are constrained to hit only documents that
      * contain the supplied pattern within the given field.  Queries are constrained by the given proximity (or lucene
      * "slop factor") - so only documents that contain the searched terms within <code>proximity</code> terms of each

@@ -166,6 +166,10 @@
         <property name="propertiesMapAdapter" ref="propertiesMapAdapter" />
     </bean>
 
+    <bean id="annotationPatternService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedAnnotationPatternService">
+        <property name="annotationSummaryDAO" ref="lodeAnnotationPatternDAO" />
+    </bean>
+
     <bean id="efoLabelUtils" class="uk.ac.ebi.fgpt.zooma.util.LabelUtils">
         <property name="ontologyDAO" ref="lodeOntologyDAO" />
     </bean>

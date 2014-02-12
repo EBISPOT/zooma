@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TestZoomaAnnotationSearchEngine {
-    private ZoomaAnnotationSearcher annotationSearchEngine;
+    private ZoomaAnnotations annotationSearchEngine;
 
     private AnnotationSearchService annotationSearchService;
 
@@ -104,7 +104,7 @@ public class TestZoomaAnnotationSearchEngine {
         when(annotationScorer.score(anyCollection(), anyString(), anyString())).thenReturn(scoredAnnotations);
 
         // create annotation search engine
-        annotationSearchEngine = new ZoomaAnnotationSearcher(annotationService,
+        annotationSearchEngine = new ZoomaAnnotations(annotationService,
                                                              annotationSearchService,
                                                              annotationSorter,
                                                              annotationLimiter);

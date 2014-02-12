@@ -5,7 +5,10 @@ import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 
 import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,12 +19,16 @@ import java.util.Map;
  * @date 02/04/12
  */
 public class LucenePropertyTypeSearchService extends ZoomaLuceneSearchService implements PropertyTypeSearchService {
-    @Override public Collection<String> search(String propertyTypePattern) {
+    @Override public Collection<String> search(String propertyTypePattern, URI... sources) {
         try {
             initOrWait();
 
             // build a query
             Query q = formulateQuery("name", propertyTypePattern);
+
+            if (sources.length > 0) {
+                q = formulateExactCombinedQuery(new Query[] {q}, "source", sources);
+            }
 
             // do the query
             return doQuery(q, new SingleFieldStringMapper("name"));
@@ -34,7 +41,28 @@ public class LucenePropertyTypeSearchService extends ZoomaLuceneSearchService im
         }
     }
 
-    @Override public Collection<String> searchByPrefix(String propertyTypePrefix) {
-        return search(propertyTypePrefix + "*");
+    @Override public Collection<String> searchByPrefix(String propertyTypePrefix, URI... sources) {
+
+        try {
+            initOrWait();
+
+            // build a query
+            Query q = formulatePrefixQuery("name", propertyTypePrefix);
+
+            if (sources.length > 0) {
+                q = formulateExactCombinedQuery(new Query[] {q}, "source", sources);
+            }
+
+            // do the query
+            return doQuery(q, new SingleFieldStringMapper("name"));
+        }
+        catch (QueryCreationException | IOException e) {
+            throw new SearchException("Problems creating query for '" + propertyTypePrefix + "'", e);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+        }
     }
 }
+
+

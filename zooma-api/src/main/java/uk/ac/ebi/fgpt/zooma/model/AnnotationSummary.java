@@ -54,6 +54,14 @@ public interface AnnotationSummary extends Identifiable, Qualitative {
      *
      * @return the property value text
      */
+    URI getAnnotatedPropertyUri();
+
+    /**
+     * Returns the property value that was used to describe the biological entities in the series of annotations this
+     * summary encapsulates.
+     *
+     * @return the property value text
+     */
     String getAnnotatedPropertyValue();
 
     /**

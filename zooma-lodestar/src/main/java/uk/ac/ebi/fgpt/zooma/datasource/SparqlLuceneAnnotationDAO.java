@@ -89,7 +89,16 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
         throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
     }
 
+    @Override public void create(Collection<Annotation> annotations) throws ResourceAlreadyExistsException {
+        throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+    }
+
     @Override public void update(Annotation annotation) throws NoSuchResourceException {
+        getLog().debug("Triggered annotation update request...\n\n" + annotation.toString());
+        throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
+    }
+
+    @Override public void update(Collection<Annotation> annotation) throws NoSuchResourceException {
         getLog().debug("Triggered annotation update request...\n\n" + annotation.toString());
         throw new UnsupportedOperationException("Read only DAO for optimized zooma lucene index building");
     }
@@ -156,7 +165,7 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
         }
         QuerySolutionMap initialBinding = new QuerySolutionMap();
         initialBinding.add(QueryVariables.RESOURCE_TYPE.toString(),
-                           new ResourceImpl(Namespaces.OAC.getURI() + "DataAnnotation"));
+                new ResourceImpl(Namespaces.OAC.getURI() + "DataAnnotation"));
 
         QueryExecution execute = null;
         List<URI> uris = new ArrayList<URI>();
@@ -320,13 +329,13 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
             catch (IllegalArgumentException e) {
                 ev = AnnotationProvenance.Evidence.NON_TRACEABLE;
                 getLog().warn("SPARQL query returned evidence '" + name + "' " +
-                                      "(" + evidenceUri + ") but this is not a valid evidence type.  " +
-                                      "Setting evidence to " + ev);
+                        "(" + evidenceUri + ") but this is not a valid evidence type.  " +
+                        "Setting evidence to " + ev);
             }
             catch (NullPointerException e) {
                 ev = AnnotationProvenance.Evidence.NON_TRACEABLE;
                 getLog().warn("No traceable evidence (" + e.getMessage() + ") for annotation " +
-                                      "<" + annotationUri.toString() + ">.  Setting evidence to " + ev);
+                        "<" + annotationUri.toString() + ">.  Setting evidence to " + ev);
             }
 
             DateTime generatedDate = null;
@@ -341,16 +350,16 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
                 }
                 catch (NumberFormatException e) {
                     getLog().error("Can't read generation date '" + dateStr + "' " +
-                                           "for annotation <" + annotationUri.toString() + ">", e);
+                            "for annotation <" + annotationUri.toString() + ">", e);
 
                 }
             }
 
             AnnotationSource source = new SimpleDatabaseAnnotationSource(URI.create(database.getURI()), null);
             prov = new SimpleAnnotationProvenance(source,
-                                                  ev,
-                                                  "zooma",
-                                                  generatedDate != null ? generatedDate.toDate() : new Date());
+                    ev,
+                    "zooma",
+                    generatedDate != null ? generatedDate.toDate() : new Date());
         }
 
         ((SimpleLuceneAnnotation) annotationMap.get(annotationUri)).setProvenance(prov);

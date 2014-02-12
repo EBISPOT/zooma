@@ -87,4 +87,7 @@ $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $base/templates/enable-federated
 echo `date` "Removing default Virtuoso SPARQL description graph"
 $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $base/templates/remove-sparqldesc.sql >/dev/null || exit $?
 
+#echo `date` "Enabling Virtuoso text index"
+#$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $base/templates/enable-text-index.sql >/dev/null || exit $?
+
 echo `date` "Done"

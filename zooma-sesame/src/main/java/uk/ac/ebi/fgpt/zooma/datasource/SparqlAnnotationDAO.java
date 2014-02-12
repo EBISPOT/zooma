@@ -201,6 +201,16 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         return evaluateQueryResults(result);
     }
 
+    @Override
+    public void update(Collection<Annotation> annotations) throws ResourceAlreadyExistsException {
+
+    }
+
+    @Override
+    public void create(Collection<Annotation> annotations) throws ResourceAlreadyExistsException {
+
+    }
+
     public List<Annotation> evaluateQueryResults(TupleQueryResult result) {
         try {
             Map<URI, Annotation> annotationMap = new HashMap<>();

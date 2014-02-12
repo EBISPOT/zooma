@@ -148,6 +148,12 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
                 getClass().getSimpleName() + " is a read-only annotation DAO, creation not supported");
     }
 
+    @Override
+    public void create(Collection<Annotation> annotations) throws ResourceAlreadyExistsException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, creation not supported");
+    }
+
     @Override public Collection<Annotation> read() {
         try {
             initOrWait();
@@ -188,6 +194,11 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
     }
 
     @Override public void update(Annotation object) throws NoSuchResourceException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, updates not supported");
+    }
+
+    @Override public void update(Collection<Annotation> object) throws NoSuchResourceException {
         throw new UnsupportedOperationException(
                 getClass().getSimpleName() + " is a read-only annotation DAO, updates not supported");
     }

@@ -33,6 +33,7 @@ public enum QueryVariables {
     REPLACES("replaces"),
     REPLACEDBY("replacedBy"),
     PREV_ANNOTATION_ID("oldAnnotationid"),
+    NEXT_ANNOTATION_ID("nextAnnotationid"),
     PREV_PROPERTY_ID("oldPropertyvalueid"),
     PREV_PROPERTY_NAME("oldPropertyname"),
     PREV_PROPERTY_VALUE("oldPropertyvalue"),

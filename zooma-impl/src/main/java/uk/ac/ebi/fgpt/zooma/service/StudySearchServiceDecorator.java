@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
+import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 
 import java.net.URI;
@@ -34,6 +35,11 @@ public abstract class StudySearchServiceDecorator implements StudySearchService 
 
     @Override public Collection<Study> searchBySemanticTags(boolean useInference, URI... semanticTags) {
         return _studySearchService.searchBySemanticTags(useInference, semanticTags);
+    }
+
+    @Override
+    public Collection<Study> searchByProperty(Property... property) {
+        return _studySearchService.searchByProperty(property);
     }
 
     @Override public Collection<Study> searchByStudyAccession(String accession) {

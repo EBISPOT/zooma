@@ -3,6 +3,8 @@ package uk.ac.ebi.fgpt.zooma.io;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationUpdate;
+import uk.ac.ebi.fgpt.zooma.model.Update;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
 
 import java.util.Collection;
@@ -40,6 +42,15 @@ public class ServiceBasedAnnotationLoader implements ZoomaLoader<Annotation> {
         }
         catch (ZoomaUpdateException e) {
             throw new ZoomaLoadingException("Failed to load new annotation", e);
+        }
+    }
+
+    @Override
+    public void update(Collection<Annotation> zoomaObjects, Update<Annotation> update) throws ZoomaLoadingException {
+        try {
+            update.apply(zoomaObjects, getAnnotationService());
+        } catch (ZoomaUpdateException e) {
+            throw new ZoomaLoadingException(e);
         }
     }
 }

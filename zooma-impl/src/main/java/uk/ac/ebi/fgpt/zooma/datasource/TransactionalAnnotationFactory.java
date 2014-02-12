@@ -1,9 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenance;
+import uk.ac.ebi.fgpt.zooma.model.*;
 
+import java.net.URI;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -47,4 +47,5 @@ public class TransactionalAnnotationFactory extends AbstractAnnotationFactory {
                                               annotator,
                                               annotationDate);
     }
+
 }

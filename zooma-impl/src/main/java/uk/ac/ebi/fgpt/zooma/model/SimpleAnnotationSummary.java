@@ -17,6 +17,7 @@ import java.util.Iterator;
  */
 public class SimpleAnnotationSummary implements AnnotationSummary {
     private String id;
+    private URI propertyUri;
     private String propertyType;
     private String propertyValue;
     private Collection<URI> semanticTags;
@@ -27,6 +28,7 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
 
 
     public SimpleAnnotationSummary(String id,
+                                   URI propertyUri,
                                    String propertyType,
                                    String propertyValue,
                                    Collection<URI> semanticTags,
@@ -34,6 +36,7 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
                                    float qualityScore,
                                    Collection<URI> annotationSourceURIs) {
         this.id = id;
+        this.propertyUri = propertyUri;
         this.propertyType = propertyType;
         this.propertyValue = propertyValue;
         this.semanticTags = semanticTags;
@@ -98,6 +101,8 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
 
     @Override public Collection<URI> getAnnotationSourceURIs() { return annotationSourceURIs; }
 
+    @Override public URI getAnnotatedPropertyUri() { return propertyUri; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -124,6 +129,9 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
                 : that.annotationSourceURIs != null) {
             return false;
         }
+        if (propertyUri != null ? !propertyUri.equals(that.propertyUri) : that.propertyUri != null) {
+            return false;
+        }
         if (propertyType != null ? !propertyType.equals(that.propertyType) : that.propertyType != null) {
             return false;
         }
@@ -137,6 +145,7 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
     @Override
     public int hashCode() {
         int result = propertyType != null ? propertyType.hashCode() : 0;
+        result = 31 * result + (propertyUri != null ? propertyUri.hashCode() : 0);
         result = 31 * result + (propertyValue != null ? propertyValue.hashCode() : 0);
         result = 31 * result + (semanticTags != null ? semanticTags.hashCode() : 0);
         result = 31 * result + (annotationURIs != null ? annotationURIs.hashCode() : 0);
@@ -154,6 +163,7 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
     public String toString() {
         return "SimpleAnnotationSummary{" +
                 "id='" + id + '\'' +
+                ", propertyTUri='" + propertyUri + '\'' +
                 ", propertyType='" + propertyType + '\'' +
                 ", propertyValue='" + propertyValue + '\'' +
                 ", semanticTags=" + semanticTags +

@@ -133,6 +133,11 @@ public class GwasAnnotationDAO implements AnnotationDAO {
                 getClass().getSimpleName() + " is a read-only annotation DAO, creation not supported");
     }
 
+    @Override public void create(Collection<Annotation> identifiable) throws ResourceAlreadyExistsException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, creation not supported");
+    }
+
     @Override public Collection<Annotation> read() {
         return getJdbcTemplate().query(ANNOTATIONS_SELECT_ALL, mapper);
     }
@@ -147,6 +152,11 @@ public class GwasAnnotationDAO implements AnnotationDAO {
     }
 
     @Override public void update(Annotation object) throws NoSuchResourceException {
+        throw new UnsupportedOperationException(
+                getClass().getSimpleName() + " is a read-only annotation DAO, updates not supported");
+    }
+
+    @Override public void update(Collection<Annotation> object) throws NoSuchResourceException {
         throw new UnsupportedOperationException(
                 getClass().getSimpleName() + " is a read-only annotation DAO, updates not supported");
     }

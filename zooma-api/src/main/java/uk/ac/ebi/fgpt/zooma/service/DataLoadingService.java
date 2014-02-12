@@ -1,8 +1,12 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
+import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.Identifiable;
+import uk.ac.ebi.fgpt.zooma.model.Property;
+import uk.ac.ebi.fgpt.zooma.model.Update;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 
@@ -75,6 +79,22 @@ public interface DataLoadingService<T extends Identifiable> {
      * @param dataItems the set of data items that should be loaded into ZOOMA
      */
     Receipt load(Collection<T> dataItems, String datasetName);
+
+    /**
+     * This is a special Zooma function for loading updates to annotations. All Zooma annotation updates require a
+     * set of annotations to update and information about the fields if the annotations that have changed.
+     * Zooma only allows properties and/or semantic tags to be updated for a given annotation. Un update operation involves
+     * the creation of a new Annotation with the supplied fields that links back to the previous annotation is replaces.
+     * This methods is asynchronous, and should return a {@link Receipt} as soon as the request to load data has been received.  The
+     * resulting receipt should have a load type of {@link LoadType#UPDATE_DATAITEMS}.
+     * <p/>
+     * Once the client has obtained a receipt, they can then use this receipt to wait until a load is complete using
+     * {@link uk.ac.ebi.fgpt.zooma.service.DataLoadingService.Receipt#waitUntilCompletion()}
+     *
+     * @param dataItems the set of data items that should be updated in Zooma
+     * @param update the updates to be performed
+     */
+    Receipt update(Collection<T> dataItems, Update<T> update);
 
     /**
      * Returns a message describing the current status of this data loading service
@@ -165,6 +185,10 @@ public interface DataLoadingService<T extends Identifiable> {
         /**
          * @see uk.ac.ebi.fgpt.zooma.service.DataLoadingService#load(java.util.Collection)
          */
-        LOAD_DATAITEMS
+        LOAD_DATAITEMS,
+        /**
+         * @see uk.ac.ebi.fgpt.zooma.service.DataLoadingService#update(java.util.Collection, uk.ac.ebi.fgpt.zooma.model.Update)
+         */
+        UPDATE_DATAITEMS
     }
 }

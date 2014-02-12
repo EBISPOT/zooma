@@ -34,4 +34,12 @@ public class SimpleAnnotationSource implements AnnotationSource {
         return name;
     }
 
+    @Override
+    public String toString() {
+        return "SimpleAnnotationSource{" +
+                "source=" + source +
+                ", type=" + type +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
