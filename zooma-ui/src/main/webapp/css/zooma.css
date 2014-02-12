@@ -35,18 +35,34 @@
     cursor: pointer;
 }
 
-.sortable {
-    list-style-type: none;
+.sort-container {
     margin: 0;
     padding: 0;
+    border: 2px solid #eee;
+    background: #ffffff;
+    height: 120px;
 }
 
-.sortable li {
+.sortable {
+    font-size: 0.7em;
+    list-style-type: none;
     margin-bottom: 1px;
     padding: 1px 1px 1px 16px;
 }
 
-.sortable li span {
+.sortable span {
+    position: absolute;
+    margin-top: -3px;
+    margin-left: -16px;
+}
+
+.selectable {
+    font-size: 0.7em;
+    list-style-type: none;
+    margin-bottom: 1px;
+}
+
+.selectable span {
     position: absolute;
     margin-top: -3px;
     margin-left: -16px;

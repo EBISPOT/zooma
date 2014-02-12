@@ -129,27 +129,121 @@ function populateDatasources() {
     // retrieve datasources
     $.get('v2/api/sources', function(sources) {
         var datasourceNames = [];
-        for (var i = 0; i < sources.length; i++){
+        for (var i = 0; i < sources.length; i++) {
             datasourceNames.push(sources[i].name);
         }
 
-        // populate checkboxes and sorters
-        var selectorContent = "<label>";
-        var sorterContent = "<ul id=\"zooma-datasource-sorter\" class=\"sortable\">";
-        for (var j = 0; j < datasourceNames.length; j++) {
-            var datasource = datasourceNames[j];
-            selectorContent = selectorContent + "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\">" +
-                datasource + "<br />";
-            sorterContent = sorterContent + "<li class=\"ui-state-default\" id=\"" + datasource + "\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>" + datasource + "</li>";
-        }
-        selectorContent = selectorContent + "</label>";
-        sorterContent = sorterContent + "</ul>";
-        $("#datasource-selector").html(selectorContent);
-        $("#datasource-sorter").html(sorterContent);
-
-        // make sorter component sortable
-        $("#zooma-datasource-sorter").sortable();
+        populateSelector(datasourceNames);
+        populateSorter();
     });
+}
+
+function populateSelector(datasourceNames) {
+    // populate checkboxes
+    var selectorContent = "";
+    for (var i = 0; i < datasourceNames.length; i++) {
+        var datasource = datasourceNames[i];
+        selectorContent = selectorContent +
+                "<div class=\"grid_8 selectable\">" +
+                "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\">" +
+                datasource +
+                "</div>";
+    }
+    $selector = $("#datasource-selector");
+    $selector.html(selectorContent);
+    $selector.find("input").change(function() {
+        populateSorter();
+    });
+}
+
+function populateSorter() {
+    // retrieve checked selector items
+    var datasourceNames = [];
+    $selector = $("#datasource-selector");
+    $selector.find("input:checked").each(function() {
+        datasourceNames.push($(this).prop("value"));
+    });
+
+    // if nothing checked, use all elements
+    if (datasourceNames.length == 0) {
+        $selector.find("input").each(function() {
+            datasourceNames.push($(this).prop("value"));
+        });
+    }
+
+    // generate unranked and content
+    var unrankedContent = "<div class=\"grid_12 alpha\">" +
+            "<span style=\"font-size: 0.7em\">" +
+            "Unranked Datasources:" +
+            "</span>" +
+            "<ul id=\"zooma-datasource-unranked\" class=\"sort-container\">";
+    for (var i = 0; i < datasourceNames.length; i++) {
+        var datasource = datasourceNames[i];
+        unrankedContent = unrankedContent +
+                "<li class=\"ui-state-default sortable unranked\" id=\"" + datasource + "\">" +
+                "<span class=\"ui-icon ui-icon-arrowthick-2-n-s\">" +
+                "</span>" +
+                datasource +
+                "</li>";
+    }
+    unrankedContent = unrankedContent + "</ul></div>";
+    var rankedContent = "<div class=\"grid_12 omega\">" +
+            "<span style=\"font-size: 0.7em\">" +
+            "Ranked Datasources:" +
+            "</span>" +
+            "<ul id=\"zooma-datasource-ranked\" class=\"sort-container\"></ul></div>";
+
+    // add content
+    $("#datasource-sorter").html(unrankedContent + rankedContent);
+
+    // make unranked items draggable
+    var $unranked = $("#zooma-datasource-unranked");
+    var $ranked = $("#zooma-datasource-ranked");
+    $unranked.find("li").draggable({appendTo: "body", helper: "clone", revert: "invalid"});
+//    $unranked.droppable({
+//                          activeClass: "ui-state-default",
+//                          hoverClass: "ui-state-hover",
+//                          accept: ".ranked",
+//                          drop: function(event, ui) {
+//                              // get content of dropped element
+//                              var content = $('<div>').append(ui.draggable.clone()).html();
+//                              // change ranked -> unranked and append
+//                              $(content).removeClass("ranked")
+//                                      .addClass("unranked")
+//                                      .appendTo(this);
+//                              // remove from original list
+//                              $ranked.find("li[id=" + ui.draggable.prop("id") + "]").remove();
+//                          }
+//                      });
+
+    // make ranked panel droppable
+//    $ranked.find("li").draggable({appendTo: "body", helper: "clone", revert: "invalid"});
+    $ranked.droppable({
+                          activeClass: "ui-state-default",
+                          hoverClass: "ui-state-hover",
+                          accept: ".unranked",
+                          drop: function(event, ui) {
+                              // get content of dropped element
+                              var content = $('<div>').append(ui.draggable.clone()).html();
+                              // change unranked -> ranked and append
+                              $(content).removeClass("unranked")
+                                      .addClass("ranked")
+                                      .appendTo(this);
+                              // remove from original list
+                              $unranked.find("li[id=" + ui.draggable.prop("id") + "]").remove();
+                          }
+                      });
+
+    // make ranked panel sortable
+    $ranked.sortable({
+                         items: "li:not(.placeholder)",
+                         sort: function() {
+                             // gets added unintentionally by droppable interacting with sortable
+                             // using connectWithSortable fixes this,
+                             // but doesn't allow you to customize active/hoverClass options
+                             $(this).removeClass("ui-state-default");
+                         }
+                     });
 }
 
 function annotate(content) {
@@ -198,7 +292,7 @@ function jsonifyTextArea(content) {
 function getRequiredSourcesParam() {
     var selected = [];
     // get child, selected input elements of 'datasource-selector'
-    $("#datasource-selector input:checked").each(function(index) {
+    $("#datasource-selector").find("input:checked").each(function() {
         selected.push($(this).prop("value"));
     });
 
@@ -216,7 +310,7 @@ function getRequiredSourcesParam() {
 function getPreferredSourcesParam() {
     var sorted = [];
     // get child, selected input elements of 'datasource-selector'
-    $("#datasource-sorter li").each(function(index) {
+    $("#zooma-datasource-ranked").find("li").each(function() {
         // get the text content of this list item
         sorted.push($(this).text());
     });
