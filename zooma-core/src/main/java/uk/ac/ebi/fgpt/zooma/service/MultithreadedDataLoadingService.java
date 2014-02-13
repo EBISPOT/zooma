@@ -234,12 +234,18 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                     int taskStart = (iteration - 1) * blockSize;
 
                     // fetch items
-                    getLog().debug(
-                            "Fetching data items for " + datasource.getDatasourceName() + ", " +
-                                    "round " + iteration + "/" + iterations + ", " +
-                                    "executing in " + Thread.currentThread().getName());
-                    Collection<T> items = datasource.read(blockSize, taskStart);
-                    getZoomaLoader().load(datasource.getDatasourceName(), items);
+                    try {
+                        getLog().debug(
+                                "Fetching data items for " + datasource.getDatasourceName() + ", " +
+                                        "round " + iteration + "/" + iterations + ", " +
+                                        "executing in " + Thread.currentThread().getName());
+                        Collection<T> items = datasource.read(blockSize, taskStart);
+                        getZoomaLoader().load(datasource.getDatasourceName(), items);
+                    }
+                    catch (UnsupportedOperationException e) {
+                        getLog().warn(datasource.getDatasourceName() + " does not support read(size, start).  " +
+                                              "No annotations will be loaded.");
+                    }
                 }
             };
         }
@@ -248,11 +254,17 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                 @Override
                 protected void executeTask(int iteration) throws Exception {
                     // fetch items
-                    getLog().debug(
-                            "Fetching data items for " + datasource.getDatasourceName() + " in a single round, " +
-                                    "executing in " + Thread.currentThread().getName());
-                    Collection<T> items = datasource.read();
-                    getZoomaLoader().load(datasource.getDatasourceName(), items);
+                    try {
+                        getLog().debug(
+                                "Fetching data items for " + datasource.getDatasourceName() + " in a single round, " +
+                                        "executing in " + Thread.currentThread().getName());
+                        Collection<T> items = datasource.read();
+                        getZoomaLoader().load(datasource.getDatasourceName(), items);
+                    }
+                    catch (UnsupportedOperationException e) {
+                        getLog().warn(datasource.getDatasourceName() + " does not support read().  " +
+                                              "No annotations will be loaded.");
+                    }
                 }
             };
         }
