@@ -556,6 +556,16 @@ function renderResults(data) {
                             "<img src='images/omim.gif' " +
                             "alt='OMIM' style='height: 22px;'/> OMIM</a></td>";
                 }
+                else if  (result[7] == "http://www.ebi.ac.uk/fg/sym") {
+                    href = result[7];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                            "<img src='images/CelPH_logo.gif' " +
+                            "alt='SysMicro' style='height: 22px;'/> SysMicro</a></td>";
+                }
+                else if  (result[7] == "http://www.ebi.ac.uk/fg/sym") {
+                    href = "https://www.ebi.ac.uk/ontology-lookup/browse.do?ontName=CMPO";
+                    row = row + "<td><a href='" + href + "' target='_blank'>CMPO</a></td>";
+                }
                 else {
                     row = row + "<td>" + result[7] + "</td>";
                 }
