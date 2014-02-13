@@ -1,5 +1,6 @@
-package uk.ac.ebi.fgpt.zooma;
+package uk.ac.ebi.fgpt.zooma.datasource;
 
+import uk.ac.ebi.fgpt.zooma.Namespaces;
 import uk.ac.ebi.fgpt.zooma.datasource.AbstractAnnotationFactory;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationLoadingSession;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;

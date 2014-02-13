@@ -1,8 +1,6 @@
-package uk.ac.ebi.fgpt.zooma;
+package uk.ac.ebi.fgpt.zooma.datasource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.JDBCConventionBasedAnnotationMapper;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
@@ -16,7 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * An Annotation DAO that is capable of reading sample annotations from the ArrayExpress database, ready for curation in
+ * An Annotation DAO that is capable of reading assay annotations from the ArrayExpress database, ready for curation in
  * the Expression Atlas.
  * <p/>
  * Note that this implementation returns an empty set when you attempt to recover all annotations, as this functionality
@@ -25,26 +23,28 @@ import java.util.List;
  * @author Tony Burdett
  * @date 13/02/14
  */
-public class ExpressionAtlasSampleAnnotationDAO implements AnnotationDAO {
+public class ExpressionAtlasAssayAnnotationDAO implements AnnotationDAO {
     public static final String ANNOTATIONS_SELECT =
             "select STUDY, BIOENTITY, PROPERTY_TYPE, PROPERTY_VALUE, null as SEMANTIC_TAG from (" +
                     "select x.STUDY, x.BIOENTITY, x.PROPERTY_TYPE, x.PROPERTY_VALUE from " +
                     "(select distinct s.ACC as STUDY, m.NAME as BIOENTITY, p.NAME as PROPERTY_TYPE, pv.NAME as PROPERTY_VALUE " +
                     " from STUDY s " +
                     " inner join NODE n on s.ID = n.STUDY_ID " +
+                    " inner join NODEFACTORVALUEMAP nfv on n.ID = nfv.NODE_ID " +
                     " inner join MATERIAL m on n.MATERIAL_ID = m.ID " +
-                    " inner join PROPERTY_VALUE pv on m.ID = pv.MATERIAL_ID " +
+                    " inner join PROPERTY_VALUE pv on nfv.ID = pv.NODEFACTORVALUEMAP_ID " +
                     " inner join PROPERTY p on pv.PROPERTY_ID = p.ID " +
-                    " where pv.OBJ_TYPE = 'CharacteristicValue' " +
+                    " where pv.OBJ_TYPE = 'FV' " +
                     " and pv.NAME is not null) x, " +
                     "(select STUDY, BIOENTITY, PROPERTY_TYPE, count(PROPERTY_TYPE) as FREQ from " +
                     " (select distinct s.ACC as STUDY, m.NAME as BIOENTITY, p.NAME as PROPERTY_TYPE, pv.NAME as PROPERTY_VALUE " +
                     "  from STUDY s " +
                     "  inner join NODE n on s.ID = n.STUDY_ID " +
+                    "  inner join NODEFACTORVALUEMAP nfv on n.ID = nfv.NODE_ID " +
                     "  inner join MATERIAL m on n.MATERIAL_ID = m.ID " +
-                    "  inner join PROPERTY_VALUE pv on m.ID = pv.MATERIAL_ID " +
+                    "  inner join PROPERTY_VALUE pv on nfv.ID = pv.NODEFACTORVALUEMAP_ID " +
                     "  inner join PROPERTY p on pv.PROPERTY_ID = p.ID " +
-                    "  where pv.OBJ_TYPE = 'CharacteristicValue' " +
+                    "  where pv.OBJ_TYPE = 'FV' " +
                     "  and pv.NAME is not null) " +
                     " group by STUDY, BIOENTITY, PROPERTY_TYPE) y " +
                     "where x.STUDY = y.STUDY " +
@@ -62,7 +62,7 @@ public class ExpressionAtlasSampleAnnotationDAO implements AnnotationDAO {
 
     private JdbcTemplate jdbcTemplate;
 
-    public ExpressionAtlasSampleAnnotationDAO(ExpressionAtlasLoadingSession loadingSession) {
+    public ExpressionAtlasAssayAnnotationDAO(ExpressionAtlasAssayLoadingSession loadingSession) {
         mapper = new JDBCConventionBasedAnnotationMapper(new ExpressionAtlasAnnotationFactory(loadingSession));
     }
 
@@ -75,7 +75,7 @@ public class ExpressionAtlasSampleAnnotationDAO implements AnnotationDAO {
     }
 
     @Override public String getDatasourceName() {
-        return "atlas.samples";
+        return "atlas.assays";
     }
 
     @Override public Collection<Annotation> readByStudy(Study study) {

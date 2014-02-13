@@ -1,4 +1,6 @@
-package uk.ac.ebi.fgpt.zooma;
+package uk.ac.ebi.fgpt.zooma.datasource;
+
+import uk.ac.ebi.fgpt.zooma.Namespaces;
 
 import java.net.URI;
 
