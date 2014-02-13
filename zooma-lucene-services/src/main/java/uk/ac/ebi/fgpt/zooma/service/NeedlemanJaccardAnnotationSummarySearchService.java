@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
+import uk.ac.ebi.fgpt.zooma.util.AnnotationSummarySearchCommand;
 import uk.ac.ebi.fgpt.zooma.util.ScoreBasedSorter;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.JaccardSimilarity;
@@ -23,6 +24,7 @@ import java.util.Map;
  * are included. Implementations of simMetrics library are used. http://sourceforge.net/projects/simmetrics/
  *
  * @author Jose Iglesias
+ * @author Tony Burdett
  * @date 16/08/13
  */
 public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSummarySearchServiceDecorator {
@@ -57,40 +59,53 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
     }
 
     @Override
-    public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
-        Collection<AnnotationSummary> results = super.search(propertyValuePattern, sources);
-
-        // if results are empty, find lexically similar strings and requery
-        if (results.isEmpty()) {
-            // use "Needleman-Wunsch"  and "Jaccard similarity" to find approximate matchings
-            Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
-            for (String s : similarStrings.keySet()) {
-                if (haveEqualPolarity(s, propertyValuePattern)) {
-                    results.addAll(super.search(s, sources));
-                }
+    public Collection<AnnotationSummary> search(String propertyValuePattern, final URI... sources) {
+        return doExpandedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
+            @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
+                return NeedlemanJaccardAnnotationSummarySearchService.super.search(propertyValue, sources);
             }
-        }
-        return results;
+        });
     }
 
     @Override
-    public Collection<AnnotationSummary> search(String propertyType,
+    public Collection<AnnotationSummary> search(final String propertyType,
                                                 String propertyValuePattern,
-                                                URI... sources) {
-        Collection<AnnotationSummary> results = super.search(propertyType, propertyValuePattern, sources);
-
-        // if results are empty, find lexically similar strings and requery
-        if (results.isEmpty()) {
-            // use "Needleman-Wunsch"  and "Jaccard similarity" to find approximate matchings
-            Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
-
-            for (String s : similarStrings.keySet()) {
-                if (haveEqualPolarity(s, propertyValuePattern)) {
-                    results.addAll(super.search(propertyType, s, sources));
-                }
+                                                final URI... sources) {
+        return doExpandedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
+            @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
+                return NeedlemanJaccardAnnotationSummarySearchService.super.search(propertyType,
+                                                                                   propertyValue,
+                                                                                   sources);
             }
-        }
-        return results;
+        });
+    }
+
+    @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
+                                                                            final List<URI> preferredSources,
+                                                                            final URI... requiredSources) {
+        return doExpandedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
+            @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
+                return NeedlemanJaccardAnnotationSummarySearchService.super.searchByPreferredSources(
+                        propertyValue,
+                        preferredSources,
+                        requiredSources);
+            }
+        });
+    }
+
+    @Override public Collection<AnnotationSummary> searchByPreferredSources(final String propertyType,
+                                                                            String propertyValuePattern,
+                                                                            final List<URI> preferredSources,
+                                                                            final URI... requiredSources) {
+        return doExpandedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
+            @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
+                return NeedlemanJaccardAnnotationSummarySearchService.super.searchByPreferredSources(
+                        propertyType,
+                        propertyValue,
+                        preferredSources,
+                        requiredSources);
+            }
+        });
     }
 
     /**
@@ -117,6 +132,34 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
                 annotations = useJaccardExpansion(processedString, 0.525f, 1, 0.999f);
             }
             results.putAll(annotations);
+        }
+        return results;
+    }
+
+    /**
+     * Uses the supplied annotation summary search command to execute the "original" search, followed by a search
+     * against an expanded set of property values (using NeedlemanWunsch/Jaccard algorithms) if no results were obtained
+     * from the original search.
+     *
+     * @param propertyValuePattern the property value pattern to search for
+     * @param command              a command that encapsulates the search to execute
+     * @return a collection of annotation summaries that satisfy the query
+     */
+    private Collection<AnnotationSummary> doExpandedSearch(String propertyValuePattern,
+                                                           AnnotationSummarySearchCommand command) {
+        // execute "original" search
+        Collection<AnnotationSummary> results = command.executeSearch(propertyValuePattern);
+
+        // if results are empty, find lexically similar strings and execute "expanded" query
+        if (results.isEmpty()) {
+            // use "Needleman-Wunsch"  and "Jaccard similarity" to find approximate matchings
+            Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
+
+            for (String s : similarStrings.keySet()) {
+                if (haveEqualPolarity(s, propertyValuePattern)) {
+                    results.addAll(command.executeSearch(s));
+                }
+            }
         }
         return results;
     }
