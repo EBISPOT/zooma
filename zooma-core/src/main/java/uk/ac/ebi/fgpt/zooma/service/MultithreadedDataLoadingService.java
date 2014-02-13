@@ -163,7 +163,13 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                         ZoomaDAO<T> dao = syncedAnnotationDAOs.get(iteration - 1);
                         getLog().debug("Delegating next load task for DAO '" + dao.getDatasourceName() + "' " +
                                                "(iteration " + iteration + ")");
-                        Receipt r = load(syncedAnnotationDAOs.get(iteration - 1));
+                        Receipt r;
+                        try {
+                            r = load(dao);
+                        }
+                        catch (Exception e) {
+                            r = new SchedulingFailedReceipt(dao.getDatasourceName(), LoadType.LOAD_DATASOURCE, e);
+                        }
 
                         // add next receipt to compositing receipt tracker
                         receipt.addNextReceipt(r);
@@ -246,7 +252,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         // create a workload scheduler to queue load tasks for tihs DAO
         final int iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
         getLog().debug("Scheduling workload for updating annotations will take place in " + iterations + " rounds " +
-                "of " + getBlockSize() + " data items each.");
+                               "of " + getBlockSize() + " data items each.");
         final WorkloadScheduler scheduler =
                 new WorkloadScheduler(loadExecutor, iterations, "zooma-update") {
                     @Override
@@ -375,6 +381,19 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                     "\tdatasourceName = '" + datasourceName + "',\n" +
                     "\tloadType = " + loadType + "',\n" +
                     "\tsubmissionDate = " + submissionDate.toString() + "\n}";
+        }
+    }
+
+    private class SchedulingFailedReceipt extends AbstractReceipt {
+        private final Throwable throwable;
+
+        private SchedulingFailedReceipt(String datasourceName, LoadType loadType, Throwable throwable) {
+            super(datasourceName, loadType);
+            this.throwable = throwable;
+        }
+
+        @Override public void waitUntilCompletion() throws InterruptedException {
+            throw new RuntimeException(throwable);
         }
     }
 

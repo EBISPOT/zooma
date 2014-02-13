@@ -118,7 +118,6 @@ public class ZOOMA2LoaderDriver {
             });
 
             try {
-                System.out.println("RDF files will be created in " + rdfHome.getAbsolutePath());
                 invokerRunning = true;
                 t.start();
                 invoker.invoke();
