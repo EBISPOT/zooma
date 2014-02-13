@@ -559,7 +559,7 @@ function renderResults(data) {
                 else if  (result[7] == "http://www.ebi.ac.uk/fg/sym") {
                     href = result[7];
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
-                            "<img src='images/CelPH_logo.gif' " +
+                            "<img src='images/CelPh_logo.gif' " +
                             "alt='SysMicro' style='height: 22px;'/> SysMicro</a></td>";
                 }
                 else if  (result[7] == "http://www.ebi.ac.uk/fg/sym") {
