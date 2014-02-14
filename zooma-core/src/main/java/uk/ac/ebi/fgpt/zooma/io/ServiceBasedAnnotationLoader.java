@@ -31,8 +31,11 @@ public class ServiceBasedAnnotationLoader implements ZoomaLoader<Annotation> {
 
     @Override public void load(String datasourceName, Collection<Annotation> annotations)
             throws ZoomaLoadingException {
-        for (Annotation annotation : annotations) {
-            load(annotation);
+        try {
+            getAnnotationService().saveAnnotations(annotations);
+        }
+        catch (ZoomaUpdateException e) {
+            throw new ZoomaLoadingException("Failed to load new annotation", e);
         }
     }
 

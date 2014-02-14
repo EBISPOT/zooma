@@ -198,30 +198,76 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         getLog().info("Retrieving data items from " + datasource.getDatasourceName() + " using " +
                               datasource.getClass().getSimpleName());
 
-        int count = datasource.count();
-        int total = getMaxCount() > 0 && getMaxCount() < count ? getMaxCount() : count;
+        final WorkloadScheduler scheduler;
+        final int iterations;
+        final int blockSize;
 
-        // create a workload scheduler to queue load tasks for tihs DAO
-        final int iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
-        getLog().debug("Scheduling workload for " + datasource.getDatasourceName() + ".  " +
-                               "Loading will take place in " + iterations + " rounds " +
-                               "of " + getBlockSize() + " data items each.");
-        final WorkloadScheduler scheduler =
-                new WorkloadScheduler(loadExecutor, iterations, datasource.getDatasourceName()) {
-                    @Override
-                    protected void executeTask(int iteration) throws Exception {
-                        // translate iteration count back to start value for DAO query
-                        int taskStart = (iteration - 1) * getBlockSize();
+        int count = -1;
+        try {
+            count = datasource.count();
+        }
+        catch (UnsupportedOperationException e) {
+            getLog().warn(datasource.getDatasourceName() + " does not support count() operation, " +
+                                  "loading will take place in one single round");
+        }
 
-                        // fetch items
+        if (count != -1) {
+            int total = getMaxCount() > 0 && getMaxCount() < count ? getMaxCount() : count;
+
+            // create a workload scheduler to queue load tasks for tihs DAO
+            iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
+            blockSize = getBlockSize();
+            getLog().debug("Scheduling workload for " + datasource.getDatasourceName() + ".  " +
+                                   "Loading will take place in " + iterations + " rounds " +
+                                   "of " + getBlockSize() + " data items each.");
+        }
+        else {
+            iterations = 1;
+            blockSize = -1;
+        }
+
+        if (blockSize != -1) {
+            scheduler = new WorkloadScheduler(loadExecutor, iterations, datasource.getDatasourceName()) {
+                @Override
+                protected void executeTask(int iteration) throws Exception {
+                    // translate iteration count back to start value for DAO query
+                    int taskStart = (iteration - 1) * blockSize;
+
+                    // fetch items
+                    try {
                         getLog().debug(
                                 "Fetching data items for " + datasource.getDatasourceName() + ", " +
                                         "round " + iteration + "/" + iterations + ", " +
                                         "executing in " + Thread.currentThread().getName());
-                        Collection<T> items = datasource.read(getBlockSize(), taskStart);
+                        Collection<T> items = datasource.read(blockSize, taskStart);
                         getZoomaLoader().load(datasource.getDatasourceName(), items);
                     }
-                };
+                    catch (UnsupportedOperationException e) {
+                        getLog().warn(datasource.getDatasourceName() + " does not support read(size, start).  " +
+                                              "No annotations will be loaded.");
+                    }
+                }
+            };
+        }
+        else {
+            scheduler = new WorkloadScheduler(loadExecutor, iterations, datasource.getDatasourceName()) {
+                @Override
+                protected void executeTask(int iteration) throws Exception {
+                    // fetch items
+                    try {
+                        getLog().debug(
+                                "Fetching data items for " + datasource.getDatasourceName() + " in a single round, " +
+                                        "executing in " + Thread.currentThread().getName());
+                        Collection<T> items = datasource.read();
+                        getZoomaLoader().load(datasource.getDatasourceName(), items);
+                    }
+                    catch (UnsupportedOperationException e) {
+                        getLog().warn(datasource.getDatasourceName() + " does not support read().  " +
+                                              "No annotations will be loaded.");
+                    }
+                }
+            };
+        }
 
         // create a receipt
         final SingleWorkloadReceipt receipt =
