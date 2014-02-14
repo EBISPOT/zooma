@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import uk.ac.ebi.fgpt.zooma.Namespaces;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.exception.AmbiguousResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
+import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
@@ -20,6 +22,7 @@ import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSourceService;
 import uk.ac.ebi.fgpt.zooma.service.DataLoadingService;
+import uk.ac.ebi.fgpt.zooma.service.StudyService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,7 +49,6 @@ public class ZoomaAnnotationSources {
     protected Logger getLog() {
         return log;
     }
-
 
     public AnnotationSourceService getAnnotationSourceService() {
         return annotationSourceService;
