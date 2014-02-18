@@ -180,7 +180,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         getLog().debug("Triggered annotation update request for " + annotations.size() + " annotations \n\n");
 
         for (Annotation a : annotations) {
-            if (read(a.getURI()) == null) {
+            if (!annotationExists(a.getURI())) {
                 throw new NoSuchResourceException(
                         "Can't update annotation with URI " + a.getURI() + " no such annotation exists");
             }
