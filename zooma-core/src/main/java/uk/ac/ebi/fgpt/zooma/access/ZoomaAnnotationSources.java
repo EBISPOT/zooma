@@ -109,6 +109,12 @@ public class ZoomaAnnotationSources {
                 Study study = new SimpleStudy(null, studyFilter);
                 getLog().debug("Fetching data from datasource '" + loaderName + "', study '" + study + "'");
                 Collection<Annotation> annotationsToLoad = ((AnnotationDAO) loaderDAO).readByStudy(study);
+
+                if (annotationsToLoad.size() == 0) {
+                    throw new NoSuchResourceException(
+                                       "Could not load study, no such study exists: " + studyFilter)     ;
+                }
+
                 getLog().debug("Loading " + annotationsToLoad.size() + " data items from " +
                                        loaderDAO.getDatasourceName());
                 String datasetName = loaderName.concat(".").concat(studyFilter);

@@ -120,11 +120,12 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         getLog().debug("Triggered create annotations request for " + annotations.size() + " annotations\n\n");
 
         for (Annotation a : annotations) {
-            if (read(a.getURI()) != null) {
+            if (annotationExists(a.getURI())) {
                 throw new ResourceAlreadyExistsException(
                         "Can't create new annotation with " + a.getURI() + ", URI already exists");
             }
         }
+        getLog().debug("Finished checking if any annotations exit");
 
         try {
             final PipedInputStream pis = new PipedInputStream();
@@ -139,8 +140,11 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                     m.read(pis, "http://rdf.ebi.ac.uk/dataset/zooma");
                     m.close();
                     g.close();
+                    getLog().debug("Finished serialising annotation thread");
+
                 }
             });
+            getLog().debug("Starting serialising annotation thread");
             thread.start();
             getAnnotationZoomaSerializer().serialize(getDatasourceName(), annotations, pos);
         }
@@ -150,6 +154,21 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         catch (ZoomaSerializationException e) {
             log.error("Couldn't create annotation ", e);
         }
+    }
+
+    public boolean annotationExists (URI uri) {
+        String query = "ASK {<" + uri.toString() + "> a <http://www.openannotation.org/ns/DataAnnotation>}";
+        Graph g = getQueryService().getDefaultGraph();
+        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
+        QueryExecution execute = null;
+        try {
+            execute = getQueryService().getQueryExecution(g, q1, false);
+            return execute.execAsk();
+
+        } catch (LodeException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override public void update(Annotation annotation) throws NoSuchResourceException {
