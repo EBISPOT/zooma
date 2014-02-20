@@ -1,11 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.*;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -429,10 +427,12 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             Model m = ModelFactory.createDefaultModel();
             if (property instanceof TypedProperty) {
                 initialBinding.add(QueryVariables.PROPERTY_NAME.toString(),
-                        m.createLiteral(((TypedProperty) property).getPropertyType()));
+                        m.createTypedLiteral(((TypedProperty) property).getPropertyType(), XSDDatatype.XSDstring));
             }
-            initialBinding.add(QueryVariables.PROPERTY_VALUE.toString(),
-                    m.createLiteral((property.getPropertyValue())));
+            if (property.getPropertyValue() != null) {
+                initialBinding.add(QueryVariables.PROPERTY_VALUE.toString(),
+                        m.createTypedLiteral(property.getPropertyValue(), XSDDatatype.XSDstring));
+            }
         }
 
         ParameterizedSparqlString queryString = new ParameterizedSparqlString(q1.toString(), initialBinding);

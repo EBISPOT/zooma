@@ -365,25 +365,26 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
                         else if (update.getPropertyType() != null) {
                             if (oldProperty instanceof TypedProperty) {
                                 String oldType = ((TypedProperty) oldProperty).getPropertyType();
-                                for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(oldType, null)) {
-                                    for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(matchedProperty))) {
+
+//                                for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(oldType, null)) {
+                                    for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(new SimpleTypedProperty(oldType, null)))) {
                                         if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
                                             annotationsToUpdate.add(annoByProp);
                                         }
                                     }
-                                }
+//                                }
 
                             }
                         }
                         // otherwise we are updating the property value for all properties with the old property type(e.g. human to homo sapiens)
                         else if (update.getPropertyValue() != null) {
-                            for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(null, oldProperty.getPropertyValue())) {
-                                for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(matchedProperty))) {
+//                            for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(null, oldProperty.getPropertyValue())) {
+                                for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(new SimpleUntypedProperty(update.getPropertyValue())))) {
                                     if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
                                         annotationsToUpdate.add(annoByProp);
                                     }
                                 }
-                            }
+//                            }
                         }
                         else {
                             // both update property type and value are null so preserve
