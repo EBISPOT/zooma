@@ -17,51 +17,6 @@
         <appender-ref ref="console" />
     </logger>
 
-    <logger name="uk.ac.ebi.fgpt.zooma.access.ZoomaAnnotationLoader" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-
-    <logger name="org.apache.lucene.search" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-
-    <logger name="uk.ac.ebi.fgpt.zooma.service.NeedlemanJaccardAnnotationSummarySearchService" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-
-    <logger name="uk.ac.ebi.fgpt.zooma.service.PostProcessingAnnotationSummarySearchService" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-
-    <logger name="uk.ac.ebi.fgpt.zooma.access.ZoomaAnnotationSummarySearcher" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-
-    <logger name="uk.ac.ebi.fgpt.zooma.access.ZoomaSearcher" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-
-    <logger name="uk.ac.ebi.fgpt.zooma.access.ZoomaAnnotations" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-
-    <logger name="uk.ac.ebi.fgpt.zooma.web.ZoomaMappingController" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-
-    <logger name="uk.ac.ebi.fgpt.zooma.service.MultithreadedDataLoadingService" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </logger>
-
     <root>
         <priority value="DEBUG" />
         <appender-ref ref="console" />
