@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.MAGETABInvestigation;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.SDRF;
+import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.AssayNode;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.HybridizationNode;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.SampleNode;
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.SourceNode;
@@ -62,6 +63,7 @@ import java.util.*;
  */
 public class ZoomageMagetabParser {
 
+    private final String outFileBasePath;
     private Logger log = LoggerFactory.getLogger(getClass());
     private ArrayList<String> comments = new ArrayList<String>();
 
@@ -91,10 +93,11 @@ public class ZoomageMagetabParser {
     private final String compoundAnnotationDelimiter;
 
 
-    public ZoomageMagetabParser(String zoomaPath, String limpopoPath, String magetabBasePath, int minStringLength, Float cutoffPercentage, Float cutoffScore, boolean olsShortIds, String compoundAnnotationDelimiter, String logFileDelimiter, boolean overwriteValues, boolean overwriteAnnotations, boolean addCommentsToSDRF) {
+    public ZoomageMagetabParser(String zoomaPath, String limpopoPath, String magetabBasePath, String outFileBasePath, int minStringLength, Float cutoffPercentage, Float cutoffScore, boolean olsShortIds, String compoundAnnotationDelimiter, String logFileDelimiter, boolean overwriteValues, boolean overwriteAnnotations, boolean addCommentsToSDRF) {
         this.zoomaPath = zoomaPath;
         this.limpopoPath = limpopoPath;
         this.magetabBasePath = magetabBasePath;
+        this.outFileBasePath = outFileBasePath;
         this.minStringLength = minStringLength;
         this.cutoffPercentage = cutoffPercentage;
         this.cutoffScore = cutoffScore;
@@ -152,7 +155,7 @@ public class ZoomageMagetabParser {
 
             //write the results to a file
             File outfile = new File(magetabAccession + ".sdrf.txt");
-            Writer outFileWriter = new FileWriter(outfile);
+            Writer outFileWriter = new FileWriter(outFileBasePath + outfile);
             SDRFWriter sdrfWriter = new SDRFWriter(outFileWriter);
             sdrfWriter.write(newSDRF);
 
@@ -229,8 +232,8 @@ public class ZoomageMagetabParser {
             getLog().debug("We parsed magetab and zoomified contents into sdrf representation");
 
             //write the results to a file
-            IDFWriter idfWriter = new IDFWriter(new FileWriter(investigation.getAccession() + ".idf.txt"));
-            SDRFWriter sdrfWriter = new SDRFWriter(new FileWriter(investigation.getAccession() + ".sdrf.txt"));
+            IDFWriter idfWriter = new IDFWriter(new FileWriter(outFileBasePath+investigation.getAccession() + ".idf.txt"));
+            SDRFWriter sdrfWriter = new SDRFWriter(new FileWriter(outFileBasePath+investigation.getAccession() + ".sdrf.txt"));
 
             // write old IDF
             idfWriter.write(investigation.IDF);
@@ -240,7 +243,7 @@ public class ZoomageMagetabParser {
             sdrfWriter.write(newSDRF);
 
             getLog().debug("\n\n\n============================\n\n\n");
-            getLog().info("IDF and SDRF files for " + investigation.getAccession() + " written to " + new File("").getAbsoluteFile().getParentFile().getAbsolutePath());
+            getLog().info("IDF and SDRF files for " + investigation.getAccession() + " written to " + outFileBasePath);
             log.debug("\n\n\n============================\n\n\n");
             return true;
 
@@ -337,6 +340,27 @@ public class ZoomageMagetabParser {
             if (addCommentsToSDRF) {
 
                 hybridizationNode.comments.put("Zoomifications", comments);
+                // reset the comments cache
+                comments = new ArrayList<String>();
+            }
+        }
+
+        // do the same for hybridizationNodes
+        Collection<AssayNode> assayNodes = sdrf.getNodes(AssayNode.class);
+
+        log.info("Processing " + assayNodes.size() + " Assay Nodes ...");
+
+        for (AssayNode assayNode : assayNodes) {
+            getLog().debug("Processing assay node: " + assayNode.getNodeName());
+
+            for (FactorValueAttribute attribute : assayNode.factorValues) {
+                process(attribute);
+            }
+
+            // if we should add comments to the SDRF file
+            if (addCommentsToSDRF) {
+
+                assayNode.comments.put("Zoomifications", comments);
                 // reset the comments cache
                 comments = new ArrayList<String>();
             }
@@ -677,6 +701,8 @@ public class ZoomageMagetabParser {
     }
 
     public File fetchMAGETABFromFilesystem(String accession) {
+//        String basePath = "/ebi/microarray/home/arrayexpress/ae2_production/data/EXPERIMENT";
+//        String basePath = "/Users/jmcmurry/code/zooma/";         //todo: parameterise this
         String pipeline = accession.split("-")[1];
         return new File(magetabBasePath + File.separator + pipeline + File.separator + accession + File.separator + accession +
                 ".idf.txt");

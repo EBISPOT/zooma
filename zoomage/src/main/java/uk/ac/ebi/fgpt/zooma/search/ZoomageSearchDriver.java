@@ -41,6 +41,7 @@ public class ZoomageSearchDriver {
     private static String _magetabBasePath;
     private static String _zoomaPath;
     private static String _limpopoPath;
+    private static String _outfileBasePath;
 
 
     public static void main(String[] args) {
@@ -48,7 +49,7 @@ public class ZoomageSearchDriver {
             int statusCode = parseArguments(args);
             if (statusCode == 0) {
 
-                ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser(_zoomaPath, _limpopoPath, _magetabBasePath, _minStringLength, _cutoffPercentage, _cutoffScore, _olsShortIds, _compoundAnnotationDelimiter, _logFileDelimiter, _overwriteValues, _overwriteAnnotations, _addCommentsToSDRF);
+                ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser(_zoomaPath, _limpopoPath, _magetabBasePath, _outfileBasePath, _minStringLength, _cutoffPercentage, _cutoffScore, _olsShortIds, _compoundAnnotationDelimiter, _logFileDelimiter, _overwriteValues, _overwriteAnnotations, _addCommentsToSDRF);
                 zoomageParser.setExclusionProfiles(parseExclusionProfiles(exclusionProfilesResource));
 
                 if (_magetabAccession == null || _magetabAccession.equals("")) {
@@ -231,6 +232,14 @@ public class ZoomageSearchDriver {
         }
 
         // what base path to use for magetab files.
+        if (cl.hasOption("b")) {
+            _outfileBasePath = cl.getOptionValue("b");
+        } else {
+            _outfileBasePath = defaults.getProperty("zoomage.outfileBasePath");
+            System.out.println("Using default ZOOMA property for the base path of outfiles, " + _outfileBasePath);
+        }
+
+        // what base path to use for magetab files.
         if (cl.hasOption("z")) {
             _zoomaPath = cl.getOptionValue("z");
         } else {
@@ -321,7 +330,7 @@ public class ZoomageSearchDriver {
                 "olsShortIds",
                 true,
                 "true or false: use OLS short IDs instead of full URIs.");
-        cutoffScoreOption.setArgName("string");
+        cutoffScoreOption.setArgName("String");
         cutoffScoreOption.setRequired(false);
         options.addOption(olsShortIDs);
 
@@ -331,7 +340,7 @@ public class ZoomageSearchDriver {
                 "overwriteValues",
                 true,
                 "true or false: overwrite term source values.");
-        overwriteValues.setArgName("string");
+        overwriteValues.setArgName("String");
         overwriteValues.setRequired(false);
         options.addOption(overwriteValues);
 
@@ -341,7 +350,7 @@ public class ZoomageSearchDriver {
                 "overwriteAnnotations",
                 true,
                 "true or false: overwrite term source ref and term source accession.");
-        overwriteAnnotations.setArgName("string");
+        overwriteAnnotations.setArgName("String");
         overwriteAnnotations.setRequired(false);
         options.addOption(overwriteAnnotations);
 
@@ -351,7 +360,7 @@ public class ZoomageSearchDriver {
                 "addCommentsToSDRF",
                 true,
                 "true or false: add comments to SDRF file.");
-        addCommentsToSDRF.setArgName("string");
+        addCommentsToSDRF.setArgName("String");
         addCommentsToSDRF.setRequired(false);
         options.addOption(addCommentsToSDRF);
 
@@ -381,9 +390,19 @@ public class ZoomageSearchDriver {
                 "magetabBasePath",
                 true,
                 "The base path for magetab files to parse.");
-        logFileDelimiter.setArgName("string");
+        logFileDelimiter.setArgName("String");
         logFileDelimiter.setRequired(true);
         options.addOption(mageTabBasePath);
+
+        // base file path for magetab files
+        Option outfileBasePath = new Option(
+                "b",
+                "outfileBasePath",
+                true,
+                "The base path for magetab files to parse.");
+        logFileDelimiter.setArgName("String");
+        logFileDelimiter.setRequired(true);
+        options.addOption(outfileBasePath);
 
         // URL indicating which version of zooma to use
         Option zoomaPath = new Option(
@@ -391,7 +410,7 @@ public class ZoomageSearchDriver {
                 "zoomaPath",
                 true,
                 "The zooma path eg: http://www.ebi.ac.uk/fgpt/zooma");
-        logFileDelimiter.setArgName("string");
+        logFileDelimiter.setArgName("String");
         logFileDelimiter.setRequired(true);
         options.addOption(zoomaPath);
 
@@ -401,7 +420,7 @@ public class ZoomageSearchDriver {
                 "limpopoPath",
                 true,
                 "The limpopo path eg: http://wwwdev.ebi.ac.uk/fgpt/limpopo");
-        logFileDelimiter.setArgName("string");
+        logFileDelimiter.setArgName("String");
         logFileDelimiter.setRequired(true);
         options.addOption(limpopoPath);
 
@@ -525,7 +544,7 @@ public class ZoomageSearchDriver {
         String header = "ORIGINAL TYPE" + d + "ORIGINAL VALUE" + d + "ZOOMA VALUE" + d + "ONT LABEL" + d + "TERM SOURCE REF" + d + "TERM ACCESSION" + d + "MAGETAB ACCESSION";
         String blankLine = (d + d + d + d + d + d + d);
 
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(magetabAccession + "-zoomifications-log.txt", false))); //todo: change file ending
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(_outfileBasePath + magetabAccession + "-zoomifications-log.txt", false))); //todo: change file ending
 
         // print zoomifications log
 
