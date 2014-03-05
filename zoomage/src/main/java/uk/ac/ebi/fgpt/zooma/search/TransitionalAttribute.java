@@ -107,10 +107,6 @@ public class TransitionalAttribute {
      */
     public TransitionalAttribute(String magetabAccession, FactorValueAttribute attribute) {
 
-        if (attribute.type.equalsIgnoreCase("organism part")) {
-            System.out.println("stop here");
-        }
-
         // if type is null or blank, then set this type to null, else attribute type
         this.type = (
                 attribute.type == null || attribute.type.equals("") ? null :

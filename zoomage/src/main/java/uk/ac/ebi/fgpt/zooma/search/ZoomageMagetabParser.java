@@ -76,7 +76,10 @@ public class ZoomageMagetabParser {
 
     private HashSet<String> exclusionProfiles;
 
+    private final String zoomaPath;
+    private final String limpopoPath;
     private String magetabAccession;
+    private final String magetabBasePath;
     private final float cutoffScore;
     private final float cutoffPercentage;
     private final int minStringLength;  // todo: move this to the zooma search rest httpClient
@@ -88,8 +91,10 @@ public class ZoomageMagetabParser {
     private final String compoundAnnotationDelimiter;
 
 
-    public ZoomageMagetabParser(int minStringLength, Float cutoffPercentage, Float cutoffScore, boolean olsShortIds, String compoundAnnotationDelimiter, String logFileDelimiter, boolean overwriteValues, boolean overwriteAnnotations, boolean addCommentsToSDRF) {
-//        this.magetabAccession = magetabAccession;
+    public ZoomageMagetabParser(String zoomaPath, String limpopoPath, String magetabBasePath, int minStringLength, Float cutoffPercentage, Float cutoffScore, boolean olsShortIds, String compoundAnnotationDelimiter, String logFileDelimiter, boolean overwriteValues, boolean overwriteAnnotations, boolean addCommentsToSDRF) {
+        this.zoomaPath = zoomaPath;
+        this.limpopoPath = limpopoPath;
+        this.magetabBasePath = magetabBasePath;
         this.minStringLength = minStringLength;
         this.cutoffPercentage = cutoffPercentage;
         this.cutoffScore = cutoffScore;
@@ -101,7 +106,7 @@ public class ZoomageMagetabParser {
         this.compoundAnnotationDelimiter = compoundAnnotationDelimiter;
 
         try {
-            this.zoomaClient = new ZOOMASearchClient(URI.create("http://www.ebi.ac.uk/fgpt/zooma").toURL());
+            this.zoomaClient = new ZOOMASearchClient(URI.create(zoomaPath).toURL());
         } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to create ZOOMASearchCLient", e);
         }
@@ -114,7 +119,10 @@ public class ZoomageMagetabParser {
 
     /**
      * Execute the program from the parameters collected in the main method
+     *
+     * @deprecated
      */
+    @Deprecated
     public void runFromWebservice(String magetabAccession) {
 
         initiatingCaches();
@@ -179,13 +187,13 @@ public class ZoomageMagetabParser {
         }
     }
 
-    public void runFromFilesystem(String magetabAccession) {
+    public boolean runFromFilesystem(String magetabAccession) {
 
         initiatingCaches();
 
         this.magetabAccession = magetabAccession;
         // pass the magetab accession to the service to fetch json
-        File magetabPath = fetchMAGETABFromFilesystem(magetabAccession);
+        File mageTabFile = fetchMAGETABFromFilesystem(magetabAccession);
 
         try {
             // Parse the file using limpopo
@@ -207,7 +215,7 @@ public class ZoomageMagetabParser {
                 }
             });
 
-            MAGETABInvestigation investigation = parser.parse(magetabPath);
+            MAGETABInvestigation investigation = parser.parse(mageTabFile);
 
             if (!encounteredWarnings.isEmpty()) {
                 getLog().warn("\n\n\n============================\n\n\n");
@@ -233,12 +241,16 @@ public class ZoomageMagetabParser {
 
             getLog().debug("\n\n\n============================\n\n\n");
             getLog().info("IDF and SDRF files for " + investigation.getAccession() + " written to " + new File("").getAbsoluteFile().getParentFile().getAbsolutePath());
+            log.debug("\n\n\n============================\n\n\n");
+            return true;
+
         } catch (IOException | ParseException e) {
             e.printStackTrace();  //todo
+            log.debug("\n\n\n============================\n\n\n");
+            return false;
         }
 
 
-        log.debug("\n\n\n============================\n\n\n");
     }
 
     private void initiatingCaches() {
@@ -594,11 +606,18 @@ public class ZoomageMagetabParser {
 
         String attributeFieldsAsString = "";
         for (String field : attributeFields) {
+            field = stripDelimsFromField(field, logFileDelimiter);
             attributeFieldsAsString += field + logFileDelimiter;
         }
 
         cacheOfExclusionsApplied.put(attributeFieldsAsString, basisForExclusion);
         return exclusionLog;
+    }
+
+    private String stripDelimsFromField(String field, String logFileDelimiter) {
+        if (field != null && !field.equals("") && field.contains(logFileDelimiter)) {
+            return field.replaceAll(logFileDelimiter, " ");
+        } else return field;
     }
 
     private void appendComment(String varName, String oldString, String newString) {
@@ -632,7 +651,7 @@ public class ZoomageMagetabParser {
      */
     public String fetchMAGETABFromWebservice(String accession) {
         // send a request to limpopo
-        String getURL = "http://wwwdev.ebi.ac.uk/fgpt/limpopo/api/accessions/" + accession;
+        String getURL = limpopoPath + "/api/accessions/" + accession;
         HttpGet httpget = new HttpGet(getURL);
         String responseBody = "";
 
@@ -658,10 +677,8 @@ public class ZoomageMagetabParser {
     }
 
     public File fetchMAGETABFromFilesystem(String accession) {
-        String basePath = "/ebi/microarray/home/arrayexpress/ae2_production/data/EXPERIMENT";
-//        String basePath = "/Users/jmcmurry/code/zooma/";         //todo: parameterise this
         String pipeline = accession.split("-")[1];
-        return new File(basePath + File.separator + pipeline + File.separator + accession + File.separator + accession +
+        return new File(magetabBasePath + File.separator + pipeline + File.separator + accession + File.separator + accession +
                 ".idf.txt");
     }
 
@@ -674,7 +691,7 @@ public class ZoomageMagetabParser {
      */
     public String sendMAGETAB(String[][] idf, String[][] sdrf) {
         // create post method for sending json back
-        String postURL = "http://wwwdev.ebi.ac.uk/fgpt/limpopo/api/magetab";
+        String postURL = limpopoPath + "/api/magetab";
         HttpPost post = new HttpPost(postURL);
 
         return executePost(post, idf, sdrf);
@@ -972,82 +989,98 @@ public class ZoomageMagetabParser {
 
     private AnnotationSummary getZoomaAnnotationSummary(String cleanedAttributeType, String originalAttributeValue) {
 
+        AnnotationSummary annotationSummary = null;
+
         String input = cleanedAttributeType + ":" + originalAttributeValue;
 
         // if there's a result in the cache of items requiring curation, return null
         if (cacheOfItemsRequiringCuration.containsKey(input)) {
             getLog().debug(input + " requires curation");
-            return null;
         }
 
         // if there's a result in the cache, fetch it
-        if (cacheOfZoomaResultsApplied.containsKey(input)) {
+        else if (cacheOfZoomaResultsApplied.containsKey(input)) {
             if (cacheOfZoomaResultsApplied.get(input) != null) {
                 getLog().debug("Fetching Zooma result from cache for \"" + input + "\"");
             } else getLog().debug("No Zooma result for \"" + input + "\"");
 
-            return cacheOfZoomaResultsApplied.get(input);
+            annotationSummary = cacheOfZoomaResultsApplied.get(input);
         }
 
-        getLog().debug("");
+        // if there's no result in cache and it hasn't been previously determined as needing curation
+        // initiate a new query
+        else annotationSummary = initiateZoomaQueryAndFilterResults(cleanedAttributeType, originalAttributeValue);
 
+        return annotationSummary;
+    }
+
+    private AnnotationSummary initiateZoomaQueryAndFilterResults(String cleanedAttributeType, String originalAttributeValue) {
+
+        AnnotationSummary annotationSummary = null;
+
+        String input = cleanedAttributeType + ":" + originalAttributeValue;
         // if there's no result in the results cache or curation cache, initiate a new Zooma query
         getLog().debug("Initiating new zooma query for '" + input + "'");
+
+
+        Map<AnnotationSummary, Float> resultSetBeforeFilters = getUnfilteredZoomaResults(cleanedAttributeType, originalAttributeValue);
+
+
+        if (resultSetBeforeFilters == null || resultSetBeforeFilters.size() == 0) {
+            annotationSummary = null;
+            cacheOfItemsWithNoResults.add(input);
+        }
+
+        // filter results based on cutoffpercentage specified by the user
+        else {
+            getLog().debug("Filtering " + resultSetBeforeFilters.size() + " Zooma result(s)");
+            Set<AnnotationSummary> resultSetAfterFilters = ZoomaUtils.filterAnnotationSummaries(resultSetBeforeFilters, cutoffScore, cutoffPercentage);
+
+            int numberOfResultsAfterFilters = resultSetAfterFilters.size();
+
+            //  if there are no results after applying filters
+            if (numberOfResultsAfterFilters == 0) {
+                log.debug("None of the " + resultSetBeforeFilters.size() + " annotations meet the threshold for autocuration of " + input);
+                annotationSummary = null;
+                cacheOfItemsRequiringCuration.put(input, resultSetBeforeFilters.size());
+            }
+
+            // if there is one and only one result
+            else if (numberOfResultsAfterFilters == 1) {
+                annotationSummary = resultSetAfterFilters.iterator().next();
+                cacheOfZoomaResultsApplied.put(input, annotationSummary);
+            }
+
+            // if more than one result for the given percentage and score params, don't automate the annotation
+            else if (numberOfResultsAfterFilters > 1) {
+                getLog().warn("More than one filtered result meets user criteria; no automatic curation applied to " + input);
+                // For performance considerations, still put null in the cache for this input
+                annotationSummary = null;
+                cacheOfItemsRequiringCuration.put(input, numberOfResultsAfterFilters);
+
+                // from among filtered results, get the best one and return it return getBestMatch(input, resultSetAfterFilters);
+                // todo: this would be a prompt-the-user feature, not an automated curation feature
+            }
+
+        }
+
+        return annotationSummary;
+
+    }
+
+    private Map<AnnotationSummary, Float> getUnfilteredZoomaResults(String cleanedAttributeType, String originalAttributeValue) {
 
         Property property = new SimpleTypedProperty(cleanedAttributeType, originalAttributeValue);
 
         Map<AnnotationSummary, Float> fullResultsMap = null;
-
         try {
             fullResultsMap = zoomaClient.searchZOOMA(property, 0);
         } catch (Exception e) {
             getLog().warn("Due to a Zooma error, no annotation summary could be fetched for " + cleanedAttributeType + ":" + originalAttributeValue);
-            cacheOfItemsWithNoResults.add(input);
-            e.printStackTrace();
-            return null;
+            cacheOfItemsWithNoResults.add(cleanedAttributeType + ":" + originalAttributeValue);
+//            e.printStackTrace();
         }
-
-
-        // filter results based on cutoffpercentage specified by the user
-        if (fullResultsMap.size() != 0) {
-            getLog().debug("Filtering " + fullResultsMap.size() + " Zooma result(s)");
-            Set<AnnotationSummary> filteredResultSet = ZoomaUtils.filterAnnotationSummaries(fullResultsMap, cutoffScore, cutoffPercentage);
-
-            // if more than one result for the given percentage and score params, don't automate the annotation
-            if (filteredResultSet.size() > 1) {
-                getLog().warn("More than one filtered result meets user criteria; no automatic curation applied to " + input);
-                // For performance considerations, still put null in the cache for this input
-                cacheOfItemsRequiringCuration.put(input, filteredResultSet.size());
-                return null;
-
-                // from among filtered results, get the best one and return it
-                // todo: this would be a prompt-the-user feature, not an automated curation feature
-//                return getBestMatch(input, filteredResultSet);
-            }
-
-            // otherwise if there is one and only one result, cache it and then return it.
-            else if (filteredResultSet.size() == 1) {
-
-                AnnotationSummary singleZoomaResult = filteredResultSet.iterator().next();
-
-                ArrayList<String> refAndAcession = ZoomageTextUtils.concatenateCompoundURIs(singleZoomaResult, olsShortIds, compoundAnnotationDelimiter);
-                String termSourceAccession = refAndAcession.get(1);
-
-                getLog().debug("Zooma annotation being applied..." + termSourceAccession);
-
-                cacheOfZoomaResultsApplied.put(input, singleZoomaResult);
-                return singleZoomaResult;
-            }
-
-            // otherwise if there are no results after applying filters
-            else
-                log.debug("None of the " + fullResultsMap.size() + " annotations meet the threshold for autocuration of " + input);
-            cacheOfItemsRequiringCuration.put(input, fullResultsMap.size());
-
-        } else {
-            cacheOfItemsWithNoResults.add(input);
-        }
-        return null;
+        return fullResultsMap;
     }
 
 
@@ -1128,7 +1161,7 @@ public class ZoomageMagetabParser {
                     URI uri = zoomaAnnotationSummary.getSemanticTags().iterator().next();
 
                     try {
-                        ZOOMASearchClient zoomaClient = new ZOOMASearchClient(URI.create("http://www.ebi.ac.uk/fgpt/zooma").toURL());
+                        ZOOMASearchClient zoomaClient = new ZOOMASearchClient(URI.create(zoomaPath).toURL());
                         ontLabel = zoomaClient.getLabel(uri);
                         if (!zoomagedValue.equalsIgnoreCase(ontLabel)) {
                             line += logFileDelimiter + ontLabel;
@@ -1198,8 +1231,28 @@ public class ZoomageMagetabParser {
 
     }
 
-    public HashSet<String> getCacheOfItemsWithNoResults() {
-        return cacheOfItemsWithNoResults;
+    public ArrayList<String> getCacheOfItemsWithNoResults() {
+
+        ArrayList<String> lines = new ArrayList<String>();
+        String line = "";
+
+        for (String input : cacheOfItemsWithNoResults) {
+            input = input.replace(":", logFileDelimiter);
+
+            //ORIGINAL TYPE & ORIGINAL VALUE
+            line = input;
+
+            //SKIP OTHER FIELDS
+            line += logFileDelimiter + logFileDelimiter + logFileDelimiter + logFileDelimiter + logFileDelimiter + magetabAccession + logFileDelimiter + 0;
+
+            lines.add(line);
+
+        }
+
+        Collections.sort(lines);
+
+        return lines;
+
     }
 
 
