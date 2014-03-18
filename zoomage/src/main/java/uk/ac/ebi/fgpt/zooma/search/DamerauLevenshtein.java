@@ -1,7 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.search;
 
-import org.apache.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * @author http://itssmee.wordpress.com/2010/06/28/java-example-of-damerau-levenshtein-distance/
  * Similar to Levenshtein, Damerau-Levenshtein also calculates the edit distances between two strings.
@@ -13,7 +13,7 @@ public class DamerauLevenshtein {
     private String compTwo;
     private int[][] matrix;
     private Boolean calculated = false;
-    public static final Logger log = Logger.getLogger(DamerauLevenshtein.class);
+    private Logger log = LoggerFactory.getLogger(getClass());
 
 
     public DamerauLevenshtein(String a, String b) {

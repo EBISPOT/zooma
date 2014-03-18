@@ -30,18 +30,18 @@ public class ZoomageSearchDriver {
     private static String _compoundAnnotationDelimiter;
     private static String _logFileDelimiter;
 
-    //    private static final String _excludedTypesResource = "zoomage-propertytype-exclusions.properties";
     private static final String exclusionProfilesResource = "zoomage-exclusions.csv";
     private static final String mageTabAccessionsResource = "zoomage-accessions.txt";
     private static boolean _overwriteValues;
     private static boolean _overwriteAnnotations;
 
-    private static final Logger log = LoggerFactory.getLogger(ZoomageSearchDriver.class);
     private static boolean _addCommentsToSDRF;
     private static String _magetabBasePath;
     private static String _zoomaPath;
     private static String _limpopoPath;
     private static String _outfileBasePath;
+
+    private static final Logger log = LoggerFactory.getLogger(ZoomageSearchDriver.class);
 
 
     public static void main(String[] args) {
@@ -70,7 +70,7 @@ public class ZoomageSearchDriver {
 
                 } else {
                     zoomageParser.runFromFilesystem(_magetabAccession);
-                    printLog(zoomageParser, _magetabAccession);
+//                    printLog(zoomageParser, _magetabAccession);
 
                     getLog().info("Zoomage completed successfully for " + _magetabAccession);
                 }
@@ -533,130 +533,140 @@ public class ZoomageSearchDriver {
     }
 
     public static void printLog(ZoomageMagetabParser zoomageParser, String magetabAccession) throws IOException {
-
-        ArrayList<String> zoomificationsApplied = zoomageParser.getCacheOfZoomificationsApplied();
-        ArrayList<String> exclusionsApplied = zoomageParser.getCacheOfExclusionsApplied();
-        ArrayList<String> itemsRequiringCuration = zoomageParser.getCacheOfItemsRequiringCuration();
-        HashSet<String> legacyAnnotations = zoomageParser.getCacheOfLegacyAnnotations();
-        ArrayList<String> noResults = zoomageParser.getCacheOfItemsWithNoResults();
-
-        String d = _logFileDelimiter;
-        String header = "ORIGINAL TYPE" + d + "ORIGINAL VALUE" + d + "ZOOMA VALUE" + d + "ONT LABEL" + d + "TERM SOURCE REF" + d + "TERM ACCESSION" + d + "MAGETAB ACCESSION";
-        String blankLine = (d + d + d + d + d + d + d);
+        HashMap<String, TransitionalAttribute> masterCache = zoomageParser.getMasterCache();
 
         PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(_outfileBasePath + magetabAccession + "-zoomifications-log.txt", false))); //todo: change file ending
 
-        // print zoomifications log
+        for (TransitionalAttribute attribute : masterCache.values()) {
 
-        if (zoomificationsApplied.size() == 0) out.println("NO ZOOMIFICATIONS APPLIED" + d + d + d + d + d + d);
-        else {
-            if (_overwriteValues)
-                out.println("ZOOMIFICATIONS APPLIED" + d + "original values overwritten" + d + d + d + d + d);
-            else out.println("ZOOMIFICATIONS APPLIED" + d + "original values retained" + d + d + d + d + d);
-            out.println(header);
-
-            for (String eachline : zoomificationsApplied) {
-                out.println(eachline);
-            }
         }
-
-        out.println(blankLine);
-
-
-        // print legacy annotations, if applicable
-
-        if (_overwriteAnnotations) {
-
-            if (legacyAnnotations.size() == 0) out.println("NO ANNOTATIONS WERE OVERWRITTEN" + d + d + d + d + d + d);
-            else {
-                out.println("ORIGINAL ANNOTATIONS OVERWRITTEN" + d + d + d + d + d + d);
-
-                out.println(header);
-
-                for (String eachline : legacyAnnotations) {
-                    out.println(eachline);
-                }
-            }
-        } else {
-            if (legacyAnnotations.size() == 0) out.println("NO LEGACY ANNOTATIONS WERE FOUND" + d + d + d + d + d + d);
-            else {
-
-                out.println("ORIGINAL ANNOTATIONS PRESERVED" + d + d + d + d + d + d);
-
-                out.println(header + d + "NUMBER OF ZOOMA RESULTS");
-
-                for (String eachline : legacyAnnotations) {
-                    out.println(eachline);
-                }
-            }
-        }
-
-        out.println(blankLine);
-
-        // print log of items with no results
-
-        if (noResults.size() == 0)
-            out.println("There was no input for which Zooma returned no results" + d + d + d + d + d + d);
-
-        else {
-            out.println("ITEMS WITH ZOOMA ERRORS or NO RESULTS" + d + d + d + d + d + d);
-            out.println(header);
-
-            for (String eachline : noResults) {
-                out.println(eachline);
-            }
-        }
-
-        out.println(blankLine);
-
-
-        // print exclusions log
-
-        if (exclusionsApplied.size() == 0) out.println("NO EXCLUSIONS APPLIED" + d + d + d + d + d + d);
-
-        else {
-            // print exclusions log
-            out.println("EXCLUSIONS APPLIED" + d + "asterisk indicates reason" + d + d + d + d + d);
-            out.println(header);
-
-            for (String eachline : exclusionsApplied) {
-                out.println(eachline);
-            }
-        }
-
-        out.println(blankLine);
-
-        // print curation log
-
-        if (itemsRequiringCuration.size() == 0) out.println("NO ITEMS REQUIRE CURATION" + d + d + d + d + d + d);
-
-        else {
-            out.println("ITEMS REQUIRING CURATION" + d + d + d + d + d + d);
-            out.println(header + d + "Number of Zooma Results");
-
-            for (String eachline : itemsRequiringCuration) {
-                out.println(eachline);
-            }
-        }
-
-        out.println(blankLine);
-
-        // print settings log
-        out.println("SETTINGS USED" + d + d + d + d + d + d);
-        out.println("Zooma base URL" + d + _zoomaPath);
-        out.println("Limpopo base URL" + d + _limpopoPath);
-        out.println("Date run" + d + new Date());
-        out.println("Cutoff score" + d + _cutoffScore);
-        out.println("Cutoff percentage" + d + _cutoffPercentage);
-        out.println("Minimum string length" + d + _minStringLength);
-        out.println("Use OLS Short ID format" + d + _olsShortIds);
-        out.println("Overwrite values" + d + _overwriteValues);
-        out.println("Overwrite annotations" + d + _overwriteAnnotations);
-        out.println("Add comments to SDRF file" + d + _addCommentsToSDRF);
-
-        out.println(blankLine);
-
-
-        out.close();
     }
+
+//    public static void printLog(ZoomageMagetabParser zoomageParser, String magetabAccession) throws IOException {
+//
+//        ArrayList<String> zoomificationsApplied = zoomageParser.getCacheOfZoomificationsApplied();
+//        ArrayList<String> exclusionsApplied = zoomageParser.getCacheOfExclusionsApplied();
+//        ArrayList<String> itemsRequiringCuration = zoomageParser.getCacheOfItemsRequiringCuration();
+//        HashSet<String> legacyAnnotations = zoomageParser.getCacheOfLegacyAnnotations();
+//        ArrayList<String> noResults = zoomageParser.getCacheOfItemsWithNoResults();
+//
+//        String d = _logFileDelimiter;
+//        String header = "ORIGINAL TYPE" + d + "ORIGINAL VALUE" + d + "ZOOMA VALUE" + d + "ONT LABEL" + d + "TERM SOURCE REF" + d + "TERM ACCESSION" + d + "MAGETAB ACCESSION";
+//        String blankLine = (d + d + d + d + d + d + d);
+//
+//        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(_outfileBasePath + magetabAccession + "-zoomifications-log.txt", false))); //todo: change file ending
+//
+//        // print zoomifications log
+//
+//        if (zoomificationsApplied.size() == 0) out.println("NO ZOOMIFICATIONS APPLIED" + d + d + d + d + d + d);
+//        else {
+//            if (_overwriteValues)
+//                out.println("ZOOMIFICATIONS APPLIED" + d + "original values overwritten" + d + d + d + d + d);
+//            else out.println("ZOOMIFICATIONS APPLIED" + d + "original values retained" + d + d + d + d + d);
+//            out.println(header);
+//
+//            for (String eachline : zoomificationsApplied) {
+//                out.println(eachline);
+//            }
+//        }
+//
+//        out.println(blankLine);
+//
+//
+//        // print legacy annotations, if applicable
+//
+//        if (_overwriteAnnotations) {
+//
+//            if (legacyAnnotations.size() == 0) out.println("NO ANNOTATIONS WERE OVERWRITTEN" + d + d + d + d + d + d);
+//            else {
+//                out.println("ORIGINAL ANNOTATIONS OVERWRITTEN" + d + d + d + d + d + d);
+//
+//                out.println(header);
+//
+//                for (String eachline : legacyAnnotations) {
+//                    out.println(eachline);
+//                }
+//            }
+//        } else {
+//            if (legacyAnnotations.size() == 0) out.println("NO LEGACY ANNOTATIONS WERE FOUND" + d + d + d + d + d + d);
+//            else {
+//
+//                out.println("ORIGINAL ANNOTATIONS PRESERVED" + d + d + d + d + d + d);
+//
+//                out.println(header + d + "NUMBER OF ZOOMA RESULTS");
+//
+//                for (String eachline : legacyAnnotations) {
+//                    out.println(eachline);
+//                }
+//            }
+//        }
+//
+//        out.println(blankLine);
+//
+//        // print log of items with no results
+//
+//        if (noResults.size() == 0)
+//            out.println("There was no input for which Zooma returned no results" + d + d + d + d + d + d);
+//
+//        else {
+//            out.println("ITEMS WITH ZOOMA ERRORS or NO RESULTS" + d + d + d + d + d + d);
+//            out.println(header);
+//
+//            for (String eachline : noResults) {
+//                out.println(eachline);
+//            }
+//        }
+//
+//        out.println(blankLine);
+//
+//
+//        // print exclusions log
+//
+//        if (exclusionsApplied.size() == 0) out.println("NO EXCLUSIONS APPLIED" + d + d + d + d + d + d);
+//
+//        else {
+//            // print exclusions log
+//            out.println("EXCLUSIONS APPLIED" + d + "asterisk indicates reason" + d + d + d + d + d);
+//            out.println(header);
+//
+//            for (String eachline : exclusionsApplied) {
+//                out.println(eachline);
+//            }
+//        }
+//
+//        out.println(blankLine);
+//
+//        // print curation log
+//
+//        if (itemsRequiringCuration.size() == 0) out.println("NO ITEMS REQUIRE CURATION" + d + d + d + d + d + d);
+//
+//        else {
+//            out.println("ITEMS REQUIRING CURATION" + d + d + d + d + d + d);
+//            out.println(header + d + "Number of Zooma Results");
+//
+//            for (String eachline : itemsRequiringCuration) {
+//                out.println(eachline);
+//            }
+//        }
+//
+//        out.println(blankLine);
+//
+//        // print settings log
+//        out.println("SETTINGS USED" + d + d + d + d + d + d);
+//        out.println("Zooma base URL" + d + _zoomaPath);
+//        out.println("Limpopo base URL" + d + _limpopoPath);
+//        out.println("Date run" + d + new Date());
+//        out.println("Cutoff score" + d + _cutoffScore);
+//        out.println("Cutoff percentage" + d + _cutoffPercentage);
+//        out.println("Minimum string length" + d + _minStringLength);
+//        out.println("Use OLS Short ID format" + d + _olsShortIds);
+//        out.println("Overwrite values" + d + _overwriteValues);
+//        out.println("Overwrite annotations" + d + _overwriteAnnotations);
+//        out.println("Add comments to SDRF file" + d + _addCommentsToSDRF);
+//
+//        out.println(blankLine);
+//
+//
+//        out.close();
+//    }
 }
