@@ -6,6 +6,8 @@ import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.Characteris
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.FactorValueAttribute;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
+import java.util.ArrayList;
+
 /**
  * Convenience class for minimal and *temporary* representation of an attribute of an annotation.
  * This representation takes a CharacteristicsAttribute object
@@ -19,98 +21,72 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
  */
 public class TransitionalAttribute {
 
-
-    private String accession = ""; // The accession number to which this transitional attribute applies. eg. magetab accession
-    private String type = "";
-
-    private String originalTermValue = ""; // 	This is the text value supplied as part of the submitted file.
-    private String originalTermSourceREF = ""; // If your term had a pre-existing annotation, this contains the source of this mapping.
-    private String originalTermAccessionNumber;
-
-
-    private String zoomifiedOntologyClassLabel = ""; // If your term resulted in a Zooma mapping, this contains the label of the class in the ontology that Zooma mapped to
-    private String zoomifiedTermSourceREF = ""; // If your term resulted in a Zooma mapping, this contains the source of this mapping. This is usually a dataset in which a similar property value was found annotated to the suggested ontology class.;
-    private String zoomifiedTermAccessionNumber = ""; // If your term resulted in a Zooma mapping, this contains the source of this mapping. This is usually a dataset in which a similar property value was found annotated to the suggested ontology class.;
-
-    private String categoryOfZoomaMapping;    // 	This indicates how confident ZOOMA was with the mapping. "Automatic" means ZOOMA is highly confident and "Requires curation" means ZOOMA found at least match that might fit but ZOOMA is not confident enough to automatically assert it.
-    private int numberOfZoomaResultsAfterFilter;   //  This indicates the number of results that Zooma found based on the input parameters. 0 denotes no results meet criteria, 1 denotes automated curation, >1 denotes needs curation.
-    private int numberOfZoomaResultsBeforeFilter;   //  This indicates the number of results that Zooma found before filters applied
-    private String zoomifiedTermValue;      // 	This is most often identical to the text value supplied as part of your search, but occasionally Zooma determines is close enough to a text value previously determined to map to a given ontology term.
-
-    private AnnotationSummary annotationSummary;
-
-
-    private boolean producedZoomaError = false;
-
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    public TransitionalAttribute(String magetabAccession, String cleanedAttributeType, String originalAttributeValue, int numberOfZoomaResultsBeforeFilter, AnnotationSummary annotationSummary) {
+    private String accession = ""; // The accession number to which this transitional attribute applies. eg. magetab accession
+    private String originalType = "";
+    private String normalisedType = "";
+
+    private String originalTermValue = ""; // 	This is the text preliminaryStringValue supplied as part of the submitted file.
+    private String originalTermSourceREF = ""; // If your term had a pre-existing annotation, this contains the source of this mapping.
+    private String originalTermAccessionNumber = "";
+
+    private String zoomifiedOntologyClassLabel = ""; // If your term resulted in a Zooma mapping, this contains the label of the class in the ontology that Zooma mapped to
+    private String zoomifiedTermSourceREF = ""; // If your term resulted in a Zooma mapping, this contains the source of this mapping. This is usually a dataset in which a similar property preliminaryStringValue was found annotated to the suggested ontology class.;
+    private String zoomifiedTermValue = "";      // 	This is most often identical to the text preliminaryStringValue supplied as part of your search, but occasionally Zooma determines is close enough to a text preliminaryStringValue previously determined to map to a given ontology term.
+    private String zoomifiedOntAccession = ""; // If your term resulted in a Zooma mapping, this contains the source of this mapping. This is usually a dataset in which a similar property preliminaryStringValue was found annotated to the suggested ontology class.;
+
+
+    private String categoryOfZoomaMapping = "";    // 	This indicates how confident ZOOMA was with the mapping. "Automatic" means ZOOMA is highly confident and "Requires curation" means ZOOMA found at least match that might fit but ZOOMA is not confident enough to automatically assert it.
+    private int numberOfZoomaResultsAfterFilter;   //  This indicates the number of results that Zooma found based on the input parameters. 0 denotes no results meet criteria, 1 denotes automated curation, >1 denotes needs curation.
+    private int numberOfZoomaResultsBeforeFilter;   //  This indicates the number of results that Zooma found before filters applied
+    private String basisForExclusion = "";
+
+    protected AnnotationSummary annotationSummary;
+
+    private String errorMessage = "";
+
+    protected AnnotationSummary runnerUpAnnotation;
+    private String runnerUpTermValue;
+    private String runnerUpTermSourceRef;
+    private String runnerUpOntAccession;
+    private String runnerUpTermLabel;
+
+    public TransitionalAttribute(String magetabAccession, String originalType, String originalAttributeValue, int numberOfZoomaResultsBeforeFilter, AnnotationSummary annotationSummary) {
         // if type is null or blank, then set this type to null, else attribute type
-        this.type = (cleanedAttributeType == null || cleanedAttributeType.equals("") ? null : cleanedAttributeType);
+        this.originalType = (originalType == null || originalType.equals("") ? null : originalType);
+//        this.normalisedType = norm
+        this.normalisedType = ZoomageUtils.normaliseType(originalType);
 
         this.originalTermValue = (originalAttributeValue == null || originalAttributeValue.equals("") ? null : originalAttributeValue);
 
         this.accession = magetabAccession;
-
         this.numberOfZoomaResultsBeforeFilter = numberOfZoomaResultsBeforeFilter;
-        this.numberOfZoomaResultsAfterFilter = 1;
-        this.annotationSummary = annotationSummary;
+
+        setAnnotationSummary(annotationSummary);
+
     }
 
     public String[] getFields() {
-        return new String[]{type, originalTermValue, zoomifiedTermValue, zoomifiedOntologyClassLabel, zoomifiedTermSourceREF, zoomifiedTermAccessionNumber, accession};
+        return new String[]{originalType, originalTermValue, getZoomifiedTermValue(), getZoomifiedOntologyClassLabel(), getZoomifiedTermSourceREF(), getZoomifiedOntAccession(), accession};
     }
-
-    public TransitionalAttribute(String delimitedString, String delimiter) {
-        String[] exclusions = {"", "", "", "", "", "", ""};
-        if (delimitedString.indexOf(delimiter) == -1) {
-            getLog().error("Delimiter '" + delimiter + "' was not found in '" + delimitedString + "'");
-            System.exit(0);
-        }
-        String[] exclusionsTemp = delimitedString.split(delimiter);
-
-        for (int i = 0; i < exclusionsTemp.length; i++) {
-            exclusions[i] = (exclusionsTemp[i] != null) ? exclusionsTemp[i] : "";
-        }
-
-        this.setType(exclusions[0].replace("_", " "));
-        this.setOriginalTermValue(exclusions[1]);
-        this.setZoomifiedTermValue(exclusions[2]);
-        this.setZoomifiedOntologyClassLabel(exclusions[3]);
-        this.setZoomifiedTermSourceREF(exclusions[4]);
-        this.setZoomifiedTermAccessionNumber(exclusions[5]);
-        this.setAccession(exclusions[6]);
-
-    }
-
 
     /**
      * Make a TransitionalAttribute object from an original CharacteristicsAttribute that needs to be Zoomified.
      *
      * @param attribute CharacteristicsAttribute
-     *                  //     * @param addCommentsToSDRF
      */
     public TransitionalAttribute(String magetabAccession, CharacteristicsAttribute attribute) {
-//        this.buildComments = addCommentsToSDRF;
-        this.type =
-                (
-                        attribute.type == null || attribute.type.equals("") ? null :
-                                attribute.type);
 
-        this.originalTermValue =
-                (
-                        attribute.getAttributeValue() == null || attribute.getAttributeValue().equals("") ? null :
-                                attribute.getAttributeValue());
+        this.originalType = (attribute.type == null || attribute.type.equals("") ? null : attribute.type);
 
-        this.originalTermSourceREF =
-                (
-                        attribute.termSourceREF == null || attribute.termSourceREF.equals("") ? null :
-                                attribute.termSourceREF);
+        this.normalisedType = ZoomageUtils.normaliseType(originalType);
 
-        this.originalTermAccessionNumber =
-                (
-                        attribute.termAccessionNumber == null || attribute.termAccessionNumber.equals("") ? null :
-                                attribute.termAccessionNumber);
+        this.originalTermValue = (attribute.getAttributeValue() == null || attribute.getAttributeValue().equals("") ? null : attribute.getAttributeValue());
+
+        this.originalTermSourceREF = (attribute.termSourceREF == null || attribute.termSourceREF.equals("") ? null : attribute.termSourceREF);
+
+        this.originalTermAccessionNumber = (attribute.termAccessionNumber == null || attribute.termAccessionNumber.equals("") ? null : attribute.termAccessionNumber);
 
         this.accession = magetabAccession;
     }
@@ -123,33 +99,29 @@ public class TransitionalAttribute {
     public TransitionalAttribute(String magetabAccession, FactorValueAttribute attribute) {
 
         // if type is null or blank, then set this type to null, else attribute type
-        this.type = (
-                attribute.type == null || attribute.type.equals("") ? null :
-                        attribute.type);
+        this.originalType = (attribute.type == null || attribute.type.equals("") ? null : attribute.type);
 
-        this.originalTermValue =
-                (
-                        attribute.getAttributeValue() == null || attribute.getAttributeValue().equals("") ? null :
-                                attribute.getAttributeValue());
+        this.normalisedType = ZoomageUtils.normaliseType(originalType);
+
+        this.originalTermValue = (attribute.getAttributeValue() == null || attribute.getAttributeValue().equals("") ? null : attribute.getAttributeValue());
 
         this.originalTermSourceREF =
-                (
-                        attribute.termSourceREF == null || attribute.termSourceREF.equals("") ? null :
-                                attribute.termSourceREF);
+                (attribute.termSourceREF == null || attribute.termSourceREF.equals("") ? null :
+                        attribute.termSourceREF);
 
         this.originalTermAccessionNumber =
-                (
-                        attribute.termAccessionNumber == null || attribute.termAccessionNumber.equals("") ? null :
-                                attribute.termAccessionNumber);
+                (attribute.termAccessionNumber == null || attribute.termAccessionNumber.equals("") ? null :
+                        attribute.termAccessionNumber);
 
-//        this.buildComments = addCommentsToSDRF;
         this.accession = magetabAccession;
     }
 
     public TransitionalAttribute(String magetabAccession, String type, String originalTermValue, int numberOfZoomaResultsBeforeFilter, int numberOfZoomaResultsAfterFilter) {
 
         // if type is null or blank, then set this type to null, else attribute type
-        this.type = (type == null || type.equals("") ? null : type);
+        this.originalType = (type == null || type.equals("") ? null : type);
+
+        this.normalisedType = ZoomageUtils.normaliseType(originalType);
 
         this.originalTermValue = (originalTermValue == null || originalTermValue.equals("") ? null : originalTermValue);
 
@@ -159,55 +131,9 @@ public class TransitionalAttribute {
         this.numberOfZoomaResultsAfterFilter = numberOfZoomaResultsAfterFilter;
     }
 
-    public void setOriginalTermValue(String originalTermValue) {
-        // since this is only invoked when the originalTermValue is being overwritten, capture this event through appending a comment
-        this.originalTermValue = originalTermValue;
-    }
 
-    public void setZoomifiedTermValue(String zoomifiedvalue) {
-        // since this is only invoked when the originalTermValue is being overwritten, capture this event through appending a comment
-        this.zoomifiedTermValue = zoomifiedvalue;
-//        if (buildComments) appendComment("Value", this.originalTermValue, zoomifiedvalue);
-    }
-
-    public void setType(String type) {
-        // since this is only invoked when the type is being overwritten, capture this event through appending a comment
-//        if (buildComments) appendComment("Type", this.type, type);
-        this.type = type;
-    }
-
-    public void setZoomifiedTermSourceREF(String zoomifiedTermSourceREF) {
-        // since this is only invoked when the termSourceRef is being overwritten, capture this event through appending a comment
-        this.zoomifiedTermSourceREF = zoomifiedTermSourceREF;
-//        if (buildComments) appendComment("TermSourceREF", this.originalTermSourceREF, zoomifiedTermSourceREF);
-    }
-
-    public void setOriginalTermSourceREF(String originalTermSourceREF) {
-        this.originalTermSourceREF = originalTermSourceREF;
-    }
-
-
-    public void setZoomifiedTermAccessionNumber(String zoomifiedTermAccessionNumber) {
-        // since this is only invoked when the TermAccessionNumber is being overwritten, capture this event through appending a comment
-        this.zoomifiedTermAccessionNumber = zoomifiedTermAccessionNumber;
-//        if (buildComments) appendComment("TermAccessionNumber", this.originalTermAccessionNumber, zoomifiedTermAccessionNumber);
-    }
-
-    public void setOriginalTermAccessionNumber(String originalTermAccessionNumber) {
-        this.originalTermAccessionNumber = originalTermAccessionNumber;
-    }
-
-    public void setZoomifiedOntologyClassLabel(String zoomifiedOntologyClassLabel) {
-        this.zoomifiedOntologyClassLabel = zoomifiedOntologyClassLabel;
-    }
-
-    public String getZoomifiedOntologyClassLabel() {
-        return zoomifiedOntologyClassLabel;
-    }
-
-
-    public String getType() {
-        return type;
+    public String getOriginalType() {
+        return originalType;
     }
 
     public String getOriginalTermAccessionNumber() {
@@ -222,6 +148,9 @@ public class TransitionalAttribute {
         return originalTermSourceREF;
     }
 
+    public String getZoomifiedOntologyClassLabel() {
+        return zoomifiedOntologyClassLabel;
+    }
 
     public String getZoomifiedTermValue() {
         return zoomifiedTermValue;
@@ -231,9 +160,10 @@ public class TransitionalAttribute {
         return zoomifiedTermSourceREF;
     }
 
-    public String getZoomifiedTermAccessionNumber() {
-        return zoomifiedTermAccessionNumber;
+    public String getZoomifiedOntAccession() {
+        return zoomifiedOntAccession;
     }
+
 
     public String getAccession() {
         return accession;
@@ -244,19 +174,23 @@ public class TransitionalAttribute {
     }
 
     public String getCategoryOfZoomaMapping() {
-        return categoryOfZoomaMapping;
+        if (categoryOfZoomaMapping != null && !categoryOfZoomaMapping.isEmpty())
+            return categoryOfZoomaMapping;
+        else if (!errorMessage.equals("")) return "Error";
+        else if (!basisForExclusion.equals("")) return "Excluded";
+        else if (numberOfZoomaResultsBeforeFilter == 0) return "No results at all";
+        else if (numberOfZoomaResultsAfterFilter == 0) return "No results meet criteria";
+        else if (numberOfZoomaResultsAfterFilter == 1) return "Automatic";
+        else if (numberOfZoomaResultsAfterFilter > 1) return "Requires Curation";
+        else return "other";
     }
 
-    public void setCategoryOfZoomaMapping(String categoryOfZoomaMapping) {
+    private void setCategoryOfZoomaMapping(String categoryOfZoomaMapping) {
         this.categoryOfZoomaMapping = categoryOfZoomaMapping;
     }
 
     public int getNumberOfZoomaResultsAfterFilter() {
         return numberOfZoomaResultsAfterFilter;
-    }
-
-    public void setNumberOfZoomaResultsAfterFilter(int numberOfZoomaResultsAfterFilter) {
-        this.numberOfZoomaResultsAfterFilter = numberOfZoomaResultsAfterFilter;
     }
 
     public AnnotationSummary getAnnotationSummary() {
@@ -265,47 +199,200 @@ public class TransitionalAttribute {
 
     public void setAnnotationSummary(AnnotationSummary annotationSummary) {
         this.annotationSummary = annotationSummary;
+
+        if (annotationSummary != null) {
+            this.zoomifiedTermValue = annotationSummary.getAnnotatedPropertyValue();
+            this.zoomifiedTermSourceREF = ZoomageUtils.getCompoundTermSourceRef(annotationSummary);
+            this.zoomifiedOntAccession = ZoomageUtils.getCompoundTermSourceAccession(annotationSummary);
+            this.zoomifiedOntologyClassLabel = ZoomageUtils.getLabel(annotationSummary);
+        }
     }
-
-
-//    public static String printCompareAttributes(TransitionalAttribute attribute, TransitionalAttribute exclusionProfile) {
-//
-//        String[] headers = {"type", "originalTermValue", "zoomifiedTermValue", "zoomifiedOntologyClassLabel", "zoomifiedTermSourceREF", "zoomifiedTermAccessionNumber", "accession"};
-//
-//        String result = "\n " + "   |   " + "header" + "" + "   |   " + "exclusions" + "   |   " + "attribute";
-//        result += "\n " + "   |   " + "---------------------------------------------------";
-//        String[] exclusionFields = exclusionProfile.getFields();
-//        String[] attributeFields = attribute.getFields();
-//
-//        for (int i = 0; i < exclusionFields.length; i++) {
-//            result += "\n" + i + "   |   " + headers[i] + "   |   " + exclusionFields[i] + "   |   " + attributeFields[i];
-//        }
-//
-//        return result;
-//    }
-//
-//    public static String printAttribute(TransitionalAttribute attribute) {
-//        String[] headers = {"type", "originalTermValue", "zoomifiedTermValue", "zoomifiedOntologyClassLabel", "zoomifiedTermSourceREF", "zoomifiedTermAccessionNumber", "accession"};
-//
-//        String result = "\n ";
-//        String[] attributeFields = attribute.getFields();
-//
-//        for (int i = 0; i < attributeFields.length; i++) {
-//            result += "\n" + i + "   |   " + headers[i] + "   |   " + attributeFields[i];
-//        }
-//
-//        return result;
-//    }
 
     public boolean isProducedZoomaError() {
-        return producedZoomaError;
+        return !errorMessage.isEmpty();
     }
 
-    public void setProducedZoomaError(boolean producedZoomaError) {
-        this.producedZoomaError = producedZoomaError;
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+        this.setCategoryOfZoomaMapping("ERROR. " + errorMessage);
+    }
+
+    public int getNumberOfZoomaResultsBeforeFilter() {
+        return numberOfZoomaResultsBeforeFilter;
     }
 
     protected Logger getLog() {
         return log;
+    }
+
+    public String getNormalisedType() {
+        return normalisedType;
+    }
+
+    public String getInput() {
+        return normalisedType + ":" + originalTermValue;
+    }
+
+    /**
+     * Delegates acquisition of a ZoomaAnnotationSummary based on type and preliminaryStringValue of the attribute passed in.
+     * Using the resulting best summary, update the attribute accordingly.
+     *
+     * @return zoomified attribute.
+     */
+    public void storeZoomifications(AnnotationSummary zoomaAnnotationSummary, int numberOfZoomaResultsBeforeFilter, int numberOfZoomaResultsAfterFilter) {
+        this.numberOfZoomaResultsBeforeFilter = numberOfZoomaResultsBeforeFilter;
+        this.numberOfZoomaResultsAfterFilter = numberOfZoomaResultsAfterFilter;
+        getLog().debug("Storing zoomifications in transitional attribute");
+
+        // if there are zooma results, store them in the transitional attribute
+        if (zoomaAnnotationSummary != null) {
+            setAnnotationSummary(zoomaAnnotationSummary);
+        }
+
+    }
+
+    public void setRunnerUpAnnotation(AnnotationSummary runnerUpAnnotation) {
+        this.runnerUpAnnotation = runnerUpAnnotation;
+        if (runnerUpAnnotation != null) {
+            this.runnerUpTermValue = runnerUpAnnotation.getAnnotatedPropertyValue();
+            this.runnerUpTermSourceRef = ZoomageUtils.getCompoundTermSourceRef(runnerUpAnnotation);
+            this.runnerUpOntAccession = ZoomageUtils.getCompoundTermSourceAccession(runnerUpAnnotation);
+            this.runnerUpTermLabel = ZoomageUtils.getLabel(runnerUpAnnotation);
+        }
+    }
+
+
+    public String getBasisForExclusion() {
+        return basisForExclusion;
+    }
+
+    public boolean isExcluded() {
+        return basisForExclusion.equals("");
+    }
+
+    public void setBasisForExclusion(String basisForExclusion) {
+        this.basisForExclusion = basisForExclusion;
+    }
+
+    public boolean excludeBasedOn(ExclusionProfileAttribute exclusionProfileAttribute) {
+//        #ORIGINAL TYPE,ORIGINAL VALUE,ZOOMA VALUE,ONT LABEL,TERM SOURCE REF,TERM ACCESSION,MAGETAB ACCESSION
+
+        // initialise exclusion flag
+        boolean allExclusionCriteriaMet = false;
+
+        // if the criterion applies
+        if (!exclusionProfileAttribute.getOriginalType().equals("")) {
+            // and if criterion is met
+            if (getNormalisedType().equalsIgnoreCase(exclusionProfileAttribute.getOriginalType())) {
+                allExclusionCriteriaMet = true;
+                basisForExclusion += "Type=" + getNormalisedType() + ". ";
+            }
+            // if criteria applies and is NOT met, stop
+            else {
+                allExclusionCriteriaMet = false;
+                basisForExclusion = "";
+                return allExclusionCriteriaMet;
+            }
+        }
+
+        // if the criterion applies
+        if (!exclusionProfileAttribute.getOriginalTermValue().equals("")) {
+            // and if criterion is met
+            if (getOriginalTermValue().equalsIgnoreCase(exclusionProfileAttribute.getOriginalTermValue())) {
+                allExclusionCriteriaMet = true;
+                basisForExclusion += "Value=" + getOriginalTermValue() + ". ";
+            }
+            // if criteria applies and is NOT met, stop
+            else {
+                allExclusionCriteriaMet = false;
+                basisForExclusion = "";
+                return allExclusionCriteriaMet;
+            }
+        }
+
+        // if the criterion applies
+        if (!exclusionProfileAttribute.getZoomifiedOntologyClassLabel().equals("")) {
+            // and if criterion is met
+            if (getZoomifiedOntologyClassLabel().equalsIgnoreCase(exclusionProfileAttribute.getZoomifiedOntologyClassLabel())) {
+                allExclusionCriteriaMet = true;
+                basisForExclusion += "Zooma Ont Label=" + getZoomifiedOntologyClassLabel() + ". ";
+            }
+            // if criteria applies and is NOT met, stop
+            else {
+                allExclusionCriteriaMet = false;
+                basisForExclusion = "";
+                return allExclusionCriteriaMet;
+            }
+        }
+
+
+        // if the criterion applies
+        if (!exclusionProfileAttribute.getZoomifiedTermSourceREF().equals("")) {
+            // and if criterion is met
+            if (getZoomifiedTermSourceREF().equalsIgnoreCase(exclusionProfileAttribute.getZoomifiedTermSourceREF())) {
+                allExclusionCriteriaMet = true;
+                basisForExclusion += "Zooma Ont Ref=" + getZoomifiedTermSourceREF() + ". ";
+            }
+            // if criteria applies and is NOT met, stop
+            else {
+                allExclusionCriteriaMet = false;
+                basisForExclusion = "";
+                return allExclusionCriteriaMet;
+            }
+        }
+
+        // if the criterion applies
+        if (!exclusionProfileAttribute.getZoomifiedOntAccession().equals("")) {
+            // and if criterion is met
+            if (getZoomifiedOntAccession().equalsIgnoreCase(exclusionProfileAttribute.getZoomifiedOntAccession())) {
+                allExclusionCriteriaMet = true;
+                basisForExclusion += "Zooma Ont ID=" + getZoomifiedOntAccession() + ". ";
+            }
+            // if criteria applies and is NOT met, stop
+            else {
+                allExclusionCriteriaMet = false;
+                basisForExclusion = "";
+                return allExclusionCriteriaMet;
+            }
+        }
+
+        // if the criterion applies
+        if (!exclusionProfileAttribute.getAccession().equals("")) {
+            // and if criterion is met
+            if (getAccession().equalsIgnoreCase(exclusionProfileAttribute.getAccession())) {
+                allExclusionCriteriaMet = true;
+                basisForExclusion += "Magetab Accession=" + getAccession() + ". ";
+            }
+            // if criteria applies and is NOT met, stop
+            else {
+                allExclusionCriteriaMet = false;
+                basisForExclusion = "";
+                return allExclusionCriteriaMet;
+            }
+        }
+
+        if (!allExclusionCriteriaMet) {
+            basisForExclusion = "";
+        }
+
+        return allExclusionCriteriaMet;
+
+    }
+
+    public String getRunnerUpTermLabel() {
+        return runnerUpTermLabel;
+    }
+
+
+    public String getRunnerUpTermValue() {
+        return runnerUpTermValue;
+    }
+
+    public String getRunnerUpTermSourceRef() {
+        return runnerUpTermSourceRef;
+    }
+
+    public String getRunnerUpOntAccession() {
+        return runnerUpOntAccession;
     }
 }
