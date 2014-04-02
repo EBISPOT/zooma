@@ -12,5 +12,5 @@ done
 
 classpath="$base/config$jars";
 
-$java $args -classpath $classpath uk.ac.ebi.fgpt.zooma.search.ZoomageSearchDriver $@ 2>&1;
+$java $args -classpath $classpath uk.ac.ebi.fgpt.zooma.search.ZoomageDriver $@ 2>&1;
 exit $?;
