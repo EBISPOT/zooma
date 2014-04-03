@@ -41,7 +41,7 @@ public class ZoomageDriver {
     public static void main(String[] args) {
 
         // see if user has specified a properties file path
-        String propertiesFilePath = getPropertiesFilePath(args, "-0");
+        String propertiesFilePath = getPropertiesFilePath(args, "-1");
 
         // if not, use the local properties file
         if (propertiesFilePath.equals("")) propertiesFilePath = "zoomage-defaults.properties";
@@ -98,12 +98,17 @@ public class ZoomageDriver {
         for (String accession : mageTabAccessions) {
             System.out.println("----------------------------");
             System.out.println("Processing " + accession);
-            boolean success = zoomageParser.runFromFilesystem(accession);
-            if (success) {
-                getLog().info("Zoomage completed successfully for " + accession);
-                printLog(accession);
-            } else {
+            try {
+                boolean success = zoomageParser.runFromFilesystem(accession);
+                if (success) {
+                    getLog().info("Zoomage completed successfully for " + accession);
+                    printLog(accession);
+                } else {
+                    getLog().info("Zoomage encountered errors for " + accession);
+                }
+            } catch (Error e) {
                 getLog().info("Zoomage encountered errors for " + accession);
+                e.printStackTrace();
             }
         }
     }
@@ -143,6 +148,8 @@ public class ZoomageDriver {
         zoomaPath = optionsParser.processStringOption("zoomaPath", false, true, "z", "Path for version of Zooma to use. Note that at present, the zooma API differs between prod / dev environments, so you may encounter errors.");
         limpopoPath = optionsParser.processStringOption("limpopoPath", false, true, "l", "Path for version of Limpopo to use.");
         outfileBasePath = optionsParser.processStringOption("outfileBasePath", false, true, "o", "Fully validated base path for output files. You must include the trailing slash.");
+
+        optionsParser.processStringOption("properties file path", false, false, "1", "To completely override the local default properties file, provide Fully validated path of a replacement file.");
 
         if ((magetabAccession == null || magetabAccession.isEmpty()) && (mageTabAccessionsResource == null || mageTabAccessionsResource.isEmpty())) {
             throw new IllegalArgumentException("Either a magetab accession or file of magetab accessions (magetab accession resource) must be provided.");

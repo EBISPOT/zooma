@@ -262,7 +262,6 @@ public class OptionsParser {
 
             // check for mode help option
             if (commandlineParser.hasOption("h")) {
-                System.out.println("To execute program using just properties file parameters, specify -g in program arguments");
                 // print out mode help
                 help.printHelp(defaultsPrefix, options, true);
                 statusCode = 1;

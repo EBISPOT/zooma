@@ -30,7 +30,7 @@
     </logger>
 
     <root>
-        <priority value="INFO" />
+        <priority value="debug" />
         <!--<appender-ref ref="zooma-log" />-->
         <appender-ref ref="console" />
     </root>
