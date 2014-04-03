@@ -154,32 +154,37 @@ public class OptionsParser {
         Properties defaults = new Properties();
         this.defaultsPrefix = defaultsPrefix;
 
-        URI uri = null;
-        URL url = null;
+//        URI uri = null;
+//        URL url = null;
         InputStream in = null;
 
-        // all this extra ceremony is in order to be able to override the properties file with an external one somewhere on the file system
+        // all this extra ceremony is in order to be able to override the local target properties file with
+        // an external one somewhere on the file system of the user
         try {
-            // try loading the path of the configFile assuming it is local to the package
-            url = OptionsParser.class.getClassLoader().getResource(propertiesFilePath);
-            // if this is local approach successful, cast to URI,
-            if (url != null) {
-                uri = url.toURI();
-            }
-            // if the local approach is unsuccessful, load assuming an absolute path
-            else uri = new File(propertiesFilePath).toURI();
+//            // try loading the path of the configFile assuming it is local to the package
+//            url = OptionsParser.class.getClassLoader().getResource(propertiesFilePath);
+//            // if this is local approach successful, cast to URI,
+//            if (url != null) {
+//                uri = url.toURI();
+//            }
+//            // if the local approach is unsuccessful, load assuming an absolute path
+//            else uri = new File(propertiesFilePath).toURI();
+//
+//            // switch back to URL version of it in order to open an input stream.
+//            url = uri.toURL();
+//
+//            // open the input stream
+//            if (url != null) {
+//                in = url.openStream();
+//            }
 
-            // switch back to URL version of it in order to open an input stream.
-            url = uri.toURL();
-
-            // open the input stream
-            if (url != null) {
-                in = url.openStream();
-            }
+            in = getInputStreamFromFilePath(OptionsParser.class, propertiesFilePath);
 
             if (in == null) {
                 throw new IOException("Failed to read default options from the path provided " + propertiesFilePath);
-            } else defaults.load(in);
+            } else {
+                defaults.load(in);
+            }
 
         } catch (URISyntaxException e) {
             e.printStackTrace();  //todo:
@@ -189,11 +194,39 @@ public class OptionsParser {
             e.printStackTrace();  //todo:
         }
 
-        getLog().info("Loaded properties file from '" + uri + "'.");
+
 
         return defaults;
     }
 
+    public static InputStream getInputStreamFromFilePath(Class classParam, String propertiesFilePath) throws URISyntaxException, IOException {
+        URI uri = null;
+        URL url = null;
+        InputStream in = null;
+
+        // all this extra ceremony is in order to be able to override the local target properties file with
+        // an external one somewhere on the file system of the user
+        // try loading the path of the configFile assuming it is local to the package
+        url = classParam.getClassLoader().getResource(propertiesFilePath);
+        // if this is local approach successful, cast to URI,
+        if (url != null) {
+            uri = url.toURI();
+        }
+        // if the local approach is unsuccessful, load assuming an absolute path
+        else uri = new File(propertiesFilePath).toURI();
+
+        // switch back to URL version of it in order to open an input stream.
+        url = uri.toURL();
+
+        // open the input stream
+        if (url != null) {
+            in = url.openStream();
+        }
+
+        getLog().info("Getting input stream from '" + uri + "'.");
+
+        return in;
+    }
 
     // stores commandline args in a map where the key is the letter to which the argument is bound and the value is the argument string
     private static HashMap<String, String> loadCommandLineArgs(String[] args) {
@@ -255,7 +288,7 @@ public class OptionsParser {
 
             CommandLine commandlineParser = parser.parse(options, commandLineArgs, true);
 
-            if(commandLineArgs.length==0){
+            if (commandLineArgs.length == 0) {
                 System.out.println("Executing program using properties file parameters only. " +
                         "To instead print help, restart the program using the -h option.");
             }

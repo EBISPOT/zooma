@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -13,6 +14,7 @@ import java.util.*;
  */
 public class ZoomageDriver {
 
+    private String appResourcesPath;
     private int minStringLength;  // todo: move this to the zooma search rest client
 
     private Float cutoffScoreAutomaticCuration;
@@ -25,8 +27,6 @@ public class ZoomageDriver {
     private String compoundAnnotationDelimiter;
     private String fileDelimiter;
 
-    private String exclusionProfilesResource;
-    private String mageTabAccessionsResource;
     private boolean overwriteValues;
     private boolean overwriteAnnotations;
     private boolean stripLegacyAnnotations;
@@ -40,17 +40,22 @@ public class ZoomageDriver {
 
     public static void main(String[] args) {
 
-        // see if user has specified a properties file path
-        String propertiesFilePath = getPropertiesFilePath(args, "-1");
 
-        // if not, use the local properties file
-        if (propertiesFilePath.equals("")) propertiesFilePath = "zoomage-defaults.properties";
-
-        ZoomageDriver zoomageDriver = new ZoomageDriver(args, propertiesFilePath, "zoomage");
+        ZoomageDriver zoomageDriver = new ZoomageDriver(args, "zoomage");
         zoomageDriver.run();
     }
 
-    public ZoomageDriver(String[] args, String propertiesFilePath, String programName) {
+    public ZoomageDriver(String[] args, String programName) {
+
+
+        // see if user has specified a properties file path
+        this.appResourcesPath = getAppResourcesPath(args, "-1");
+
+        if (!appResourcesPath.isEmpty() && !appResourcesPath.endsWith("/")) {
+            appResourcesPath += "/";
+        }
+
+        String propertiesFilePath = appResourcesPath + "zoomage-defaults.properties";
 
         // instantiate a new parser using the program arguments, the properties file and the name of the program
         OptionsParser optionsParser = new OptionsParser(args, propertiesFilePath, programName);
@@ -85,12 +90,12 @@ public class ZoomageDriver {
         ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser(limpopoPath, magetabBasePath,
                 outfileBasePath, overwriteValues, overwriteAnnotations, stripLegacyAnnotations, addCommentsToSDRF);
 
-        ZoomageUtils.initialise(zoomaPath, cutoffScoreAutomaticCuration, cutoffPctAutomaticCuration, minStringLength, exclusionProfilesResource, fileDelimiter, olsShortIds, compoundAnnotationDelimiter);
+        ZoomageUtils.initialise(zoomaPath, cutoffScoreAutomaticCuration, cutoffPctAutomaticCuration, minStringLength, appResourcesPath, fileDelimiter, olsShortIds, compoundAnnotationDelimiter);
 
         HashSet<String> mageTabAccessions = new HashSet<>();
 
         if (magetabAccession == null || magetabAccession.equals("")) {
-            mageTabAccessions = parseMagetabAccessions(mageTabAccessionsResource);
+            mageTabAccessions = parseMagetabAccessions(appResourcesPath + "zoomage-accessions.txt");
         } else mageTabAccessions.add(magetabAccession);
 
         System.out.println();
@@ -124,6 +129,11 @@ public class ZoomageDriver {
 
     private void createOptions(OptionsParser optionsParser) {
 
+        optionsParser.processStringOption("appResourcesFolderPath", false, false, "1", "To completely override the local default appresources folder, provide Fully validated path of a replacement folder. " +
+                "This folder must contain three documents: a properties file called zoomage-defaults.properties, an exclusions list called zoomage-exclusions.csv " +
+                "and a list of magetab accession numbers to parse (zoomage-accessions.txt). Instead of providing a list of accessions, you may optionally pass in the " +
+                "accession via commandline argument -a.");
+
         minStringLength = optionsParser.processIntOption("minStringLength", false, true, "r", "Zooma minimum string length for input, below which input is ignored from zoomifications");
 
         cutoffScoreAutomaticCuration = optionsParser.processFloatOption("cutoffScoreAutomaticCuration", false, true, "s", "Zooma cutoff score");
@@ -137,24 +147,19 @@ public class ZoomageDriver {
 
         compoundAnnotationDelimiter = optionsParser.processStringOption("compoundAnnotationDelimiter", false, true, "d", "Delimiter to use between elements of a compound annotations within a single cell. Eg (heart and lung)");
         fileDelimiter = optionsParser.processStringOption("fileDelimiter", false, true, "f", "Delimiter to use in log file output. There currently no way to offer tab output.");
-        exclusionProfilesResource = optionsParser.processStringOption("exclusionProfilesResource", false, true, "e", "Filename for exclusion profiles; this file must reside in the folder corresponding to the basepath for inputs.");
         overwriteValues = optionsParser.processBooleanOption("overwriteValues", false, true, "v", "Whether to overwrite values based on automatic zoomifications.");
         overwriteAnnotations = optionsParser.processBooleanOption("overwriteAnnotations", false, true, "t", "Whether to overwrite annotations based on zoomifications. On its own, selecting this option will only strip legacy annotations if a Zooma result is found.");
         stripLegacyAnnotations = optionsParser.processBooleanOption("stripLegacyAnnotations", false, true, "x", "This will strip all legacy annotations, whether or not a Zooma result is found.");
         addCommentsToSDRF = optionsParser.processBooleanOption("addCommentsToSDRF", false, true, "c", "Directly within SDRF output, add to comments in order to indicate what changes have been made. This value is currently ignored");
 
         magetabBasePath = optionsParser.processStringOption("magetabBasePath", false, true, "i", "Basepath where raw input magetab files can be found.");
-        mageTabAccessionsResource = optionsParser.processStringOption("mageTabAccessionsResource", false, true, "m", "Filename where raw input magetab files can be found. This file must reside in the folder corresponding to the basepath for inputs. This is required unless a single magetab accession is specified.");
         zoomaPath = optionsParser.processStringOption("zoomaPath", false, true, "z", "Path for version of Zooma to use. Note that at present, the zooma API differs between prod / dev environments, so you may encounter errors.");
         limpopoPath = optionsParser.processStringOption("limpopoPath", false, true, "l", "Path for version of Limpopo to use.");
         outfileBasePath = optionsParser.processStringOption("outfileBasePath", false, true, "o", "Fully validated base path for output files. You must include the trailing slash.");
+        if (!outfileBasePath.endsWith("/")) outfileBasePath += "/";
 
-        optionsParser.processStringOption("properties file path", false, false, "1", "To completely override the local default properties file, provide Fully validated path of a replacement file.");
 
-        if ((magetabAccession == null || magetabAccession.isEmpty()) && (mageTabAccessionsResource == null || mageTabAccessionsResource.isEmpty())) {
-            throw new IllegalArgumentException("Either a magetab accession or file of magetab accessions (magetab accession resource) must be provided.");
-        }
-
+//        mageTabAccessionsResource = optionsParser.processStringOption("mageTabAccessionsResource", false, true, "m", "Filename where raw input magetab files can be found. This file must reside in the folder corresponding to the basepath for inputs. This is required unless a single magetab accession is specified.");
     }
 
 
@@ -163,7 +168,7 @@ public class ZoomageDriver {
 
         // read sources from file
         try {
-            InputStream in = ZoomageDriver.class.getClassLoader().getResourceAsStream(mageTabAccessionsResource);
+            InputStream in = OptionsParser.getInputStreamFromFilePath(ZoomageDriver.class, mageTabAccessionsResource);
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             String accession;
             while ((accession = reader.readLine()) != null) {
@@ -175,6 +180,8 @@ public class ZoomageDriver {
             getLog().error("Failed to load properties: could not locate file '" + mageTabAccessionsResource + "'.  ");
         } catch (IOException e) {
             getLog().error("Failed to load properties: could not read file '" + mageTabAccessionsResource + "'.  ");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();  //todo:
         }
 
         return mageTabAccessions;
@@ -184,7 +191,7 @@ public class ZoomageDriver {
         return log;
     }
 
-    private static String getPropertiesFilePath(String[] args, String prefix) {
+    private static String getAppResourcesPath(String[] args, String prefix) {
 
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals(prefix)) {

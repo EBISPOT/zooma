@@ -10,6 +10,7 @@ import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -33,7 +34,8 @@ public class ZoomageUtils {
     private static final ZoomageUtils INSTANCE = new ZoomageUtils();
 
     // Private constructor prevents instantiation from other classes
-    private ZoomageUtils() {}
+    private ZoomageUtils() {
+    }
 
     public static ZoomageUtils getInstance() {
         return INSTANCE;
@@ -57,7 +59,6 @@ public class ZoomageUtils {
         exclusionProfiles = parseExclusionProfiles(exclusionProfilesResource, exclusionProfilesDelimiter);
         cacheOfExclusionsApplied = new HashMap<String, boolean[]>();
     }
-
 
 
     /**
@@ -457,12 +458,15 @@ public class ZoomageUtils {
     }
 
 
-    private static ArrayList<ExclusionProfileAttribute> parseExclusionProfiles(String exclusionProfilesResource, String delim) {
+    private static ArrayList<ExclusionProfileAttribute> parseExclusionProfiles(String appResourcesPath, String delim) {
+
+        String exclusionProfilesResource = appResourcesPath += "zoomage-exclusions.csv";
+
         ArrayList<ExclusionProfileAttribute> exclusionProfiles = new ArrayList<ExclusionProfileAttribute>();
 
         // read sources from file
         try {
-            InputStream in = ZoomageDriver.class.getClassLoader().getResourceAsStream(exclusionProfilesResource);
+            InputStream in = OptionsParser.getInputStreamFromFilePath(ZoomageUtils.class, exclusionProfilesResource);
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             String exclusionLine;
             while ((exclusionLine = reader.readLine()) != null) {
@@ -483,11 +487,13 @@ public class ZoomageUtils {
                 }
             }
         } catch (FileNotFoundException e) {
-            getLog().error("Failed to load properties: could not locate file '" + exclusionProfilesResource + "'.  " +
+            getLog().error("Failed to load stream: could not locate file '" + exclusionProfilesResource + "'.  " +
                     "No properties will be excluded");
         } catch (IOException e) {
-            getLog().error("Failed to load properties: could not read file '" + exclusionProfilesResource + "'.  " +
+            getLog().error("Failed to load stream: could not read file '" + exclusionProfilesResource + "'.  " +
                     "No properties will be excluded");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();  //todo:
         }
 
         return exclusionProfiles;
