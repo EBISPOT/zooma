@@ -66,7 +66,7 @@ public class OptionsParser {
         // if the option is required and if neither commandline nor default is specified, log the error.
         if (stringValue == null && optIsRequired) {
             getLog().error("variable: " + "-" + optShortName + " " + optLongName + " is required. ");
-            statusCode +=7;
+            statusCode += 7;
         }
 
         new EnhancedOption(optLongName, optType, optIsRequiredInCommandline, optIsRequired, optShortName, optHelpMsg, stringValue);
@@ -77,11 +77,12 @@ public class OptionsParser {
 
     /**
      * Creates an option and returns a provisional boolean value
-     * @param optLongName name of the option eg "accession"
+     *
+     * @param optLongName                name of the option eg "accession"
      * @param optIsRequiredInCommandline requires that a value be specified in the commandline when run
-     * @param optIsRequired requires that a value be specified, whether via commandline or properties file
-     * @param optShortName single letter handle used when specifying args from commandline eg. -a
-     * @param optHelpMsg message to print to the user as part of help documentation and logging
+     * @param optIsRequired              requires that a value be specified, whether via commandline or properties file
+     * @param optShortName               single letter handle used when specifying args from commandline eg. -a
+     * @param optHelpMsg                 message to print to the user as part of help documentation and logging
      * @return provisional boolean value. Finalise the OptionsParser object in order to safely proceed using this value.
      */
 
@@ -95,11 +96,12 @@ public class OptionsParser {
 
     /**
      * Creates an option and returns a provisional Integer value
-     * @param optLongName name of the option eg "accession"
+     *
+     * @param optLongName                name of the option eg "accession"
      * @param optIsRequiredInCommandline requires that a value be specified in the commandline when run
-     * @param optIsRequired requires that a value be specified, whether via commandline or properties file
-     * @param optShortName single letter handle used when specifying args from commandline eg. -a accession
-     * @param optHelpMsg message to print to the user as part of help documentation and logging
+     * @param optIsRequired              requires that a value be specified, whether via commandline or properties file
+     * @param optShortName               single letter handle used when specifying args from commandline eg. -a accession
+     * @param optHelpMsg                 message to print to the user as part of help documentation and logging
      * @return provisional Integer value. Finalise the OptionsParser object in order to safely proceed using this value.
      */
     public Integer processIntOption(String optLongName, boolean optIsRequiredInCommandline, boolean optIsRequired, String optShortName, String optHelpMsg) {
@@ -111,13 +113,14 @@ public class OptionsParser {
 
     /**
      * Creates an option and returns a provisional Float value
-     * @param optLongName name of the option eg "accession"
+     *
+     * @param optLongName                name of the option eg "accession"
      * @param optIsRequiredInCommandline requires that a value be specified in the commandline when run
-     * @param optIsRequired requires that a value be specified, whether via commandline or properties file
-     * @param optShortName single letter handle used when specifying args from commandline eg. -a accession
-     * @param optHelpMsg message to print to the user as part of help documentation and logging
+     * @param optIsRequired              requires that a value be specified, whether via commandline or properties file
+     * @param optShortName               single letter handle used when specifying args from commandline eg. -a accession
+     * @param optHelpMsg                 message to print to the user as part of help documentation and logging
      * @return provisional Float value. Will return null if String argument is null.
-     * Finalise the OptionsParser object in order to safely proceed using this value.
+     *         Finalise the OptionsParser object in order to safely proceed using this value.
      */
     public Float processFloatOption(String optLongName, boolean optIsRequiredInCommandline, boolean optIsRequired, String optShortName, String optHelpMsg) {
 
@@ -128,13 +131,14 @@ public class OptionsParser {
 
     /**
      * Creates an option and returns a provisional boolean value
-     * @param optLongName name of the option
+     *
+     * @param optLongName                name of the option
      * @param optIsRequiredInCommandline requires that a value be specified in the commandline when run
-     * @param optIsRequired requires that a value be specified, whether via commandline or properties file
-     * @param optShortName single letter handle used when specifying args from commandline eg. -a accession
-     * @param optHelpMsg message to print to the user as part of help documentation and logging
+     * @param optIsRequired              requires that a value be specified, whether via commandline or properties file
+     * @param optShortName               single letter handle used when specifying args from commandline eg. -a accession
+     * @param optHelpMsg                 message to print to the user as part of help documentation and logging
      * @return provisional boolean value based on whether the string argument starts with t or y (case insensitive).
-     * Finalise the OptionsParser object in order to safely proceed using this value.
+     *         Finalise the OptionsParser object in order to safely proceed using this value.
      */
     public boolean processBooleanOption(String optLongName, boolean optIsRequiredInCommandline, boolean optIsRequired, String optShortName, String optHelpMsg) {
 
@@ -196,16 +200,20 @@ public class OptionsParser {
 
         HashMap<String, String> argsMap = new HashMap<>();
 
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].startsWith("-") && args[i].length() == 2) {
-                String argShortName = args[i].replaceAll("-", "");
-                if (args.length > i) {
-                    String argVal = args[i + 1];
-                    if (argVal.startsWith("-")) argsMap.put(argShortName, "");
-                    else argsMap.put(argShortName, argVal);
+        if (args.length == 1 && args[0].equals("-h")) {
+            argsMap.put("h", "");
+        } else
+
+            for (int i = 0; i < args.length; i++) {
+                if (args[i].startsWith("-") && args[i].length() == 2) {
+                    String argShortName = args[i].replaceAll("-", "");
+                    if (args.length > i) {
+                        String argVal = args[i + 1];
+                        if (argVal.startsWith("-")) argsMap.put(argShortName, "");
+                        else argsMap.put(argShortName, argVal);
+                    }
                 }
             }
-        }
 
         return argsMap;
     }
@@ -244,14 +252,20 @@ public class OptionsParser {
 
         try {
 
+
             CommandLine commandlineParser = parser.parse(options, commandLineArgs, true);
 
+            if(commandLineArgs.length==0){
+                System.out.println("Executing program using properties file parameters only. " +
+                        "To instead print help, restart the program using the -h option.");
+            }
 
             // check for mode help option
-            if (commandlineParser.hasOption("") || commandlineParser.hasOption("h")) {
+            if (commandlineParser.hasOption("h")) {
+                System.out.println("To execute program using just properties file parameters, specify -g in program arguments");
                 // print out mode help
                 help.printHelp(defaultsPrefix, options, true);
-                statusCode += 1;
+                statusCode = 1;
             } else {
 
                 if (commandlineParser.getOptions().length == 0) {
@@ -312,13 +326,14 @@ public class OptionsParser {
 
         /**
          * Creates an option and returns a provisional boolean value
-         * @param optLongName name of the option
+         *
+         * @param optLongName                name of the option
          * @param optIsRequiredInCommandline requires that a value be specified in the commandline when run
-         * @param optionIsRequired requires that a value be specified, whether via commandline or properties file
-         * @param optShortName single letter handle used when specifying args from commandline eg. -a accession
-         * @param optHelpMsg message to print to the user as part of help documentation and logging
+         * @param optionIsRequired           requires that a value be specified, whether via commandline or properties file
+         * @param optShortName               single letter handle used when specifying args from commandline eg. -a accession
+         * @param optHelpMsg                 message to print to the user as part of help documentation and logging
          * @return provisional boolean value based on whether the string argument starts with t or y (case insensitive).
-         * Finalise the OptionsParser object in order to safely proceed using this value.
+         *         Finalise the OptionsParser object in order to safely proceed using this value.
          */
         public EnhancedOption(String optLongName, String optType, boolean optIsRequiredInCommandline, boolean optionIsRequired, String optShortName, String optHelpMsg, String preliminaryStringValue) {
 

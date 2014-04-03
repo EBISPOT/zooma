@@ -15,10 +15,10 @@ public class ZoomageDriver {
 
     private int minStringLength;  // todo: move this to the zooma search rest client
 
-    private Float cutoffScoreForAutomaticCuration;
-    private Float lowestCutoffScoreToAssistManualCuration;
-    private Float cutoffPercentageForAutomaticCuration;
-    private Float lowestCutoffPercentageToAssistManualCuration;
+    private Float cutoffScoreAutomaticCuration;
+    private Float cutoffScoreManualCuration;
+    private Float cutoffPctAutomaticCuration;
+    private Float cutoffPctManualCuration;
 
     private String magetabAccession;
     private boolean olsShortIds;
@@ -68,8 +68,12 @@ public class ZoomageDriver {
             // finalise the parser so that the args can be rechecked and the help can be printed if needed
             optionsParser.finalise("", args);
 
-            if(optionsParser.getStatusCode()!=0){
-                getLog().error("Errors were encountered when loading args and defaults.");
+            // if the user just wanted to print the help, discontinue the program.
+            if (optionsParser.getStatusCode() == 1) {
+                getLog().info("Exiting Zoomage.");
+                System.exit(0);
+            } else if (optionsParser.getStatusCode() != 0) {
+                getLog().error("Errors were encountered when loading args and defaults." + optionsParser.getStatusCode());
                 throw new IllegalArgumentException("Errors were encountered when loading args and defaults.");
             }
         }
@@ -81,7 +85,7 @@ public class ZoomageDriver {
         ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser(limpopoPath, magetabBasePath,
                 outfileBasePath, overwriteValues, overwriteAnnotations, stripLegacyAnnotations, addCommentsToSDRF);
 
-        ZoomageUtils.initialise(zoomaPath, cutoffScoreForAutomaticCuration, cutoffPercentageForAutomaticCuration, minStringLength, exclusionProfilesResource, fileDelimiter, olsShortIds, compoundAnnotationDelimiter);
+        ZoomageUtils.initialise(zoomaPath, cutoffScoreAutomaticCuration, cutoffPctAutomaticCuration, minStringLength, exclusionProfilesResource, fileDelimiter, olsShortIds, compoundAnnotationDelimiter);
 
         HashSet<String> mageTabAccessions = new HashSet<>();
 
@@ -108,7 +112,7 @@ public class ZoomageDriver {
 
         log.info("Printing log for " + accession + "...");
 
-        ZoomageLogger zoomageLogger = new ZoomageLogger(cutoffScoreForAutomaticCuration, minStringLength, cutoffPercentageForAutomaticCuration, olsShortIds, fileDelimiter, overwriteValues, overwriteAnnotations, stripLegacyAnnotations, addCommentsToSDRF, zoomaPath, limpopoPath);
+        ZoomageLogger zoomageLogger = new ZoomageLogger(cutoffScoreAutomaticCuration, minStringLength, cutoffPctAutomaticCuration, olsShortIds, fileDelimiter, overwriteValues, overwriteAnnotations, stripLegacyAnnotations, addCommentsToSDRF, zoomaPath, limpopoPath);
         zoomageLogger.printLog(outfileBasePath, accession);
     }
 
@@ -117,27 +121,32 @@ public class ZoomageDriver {
 
         minStringLength = optionsParser.processIntOption("minStringLength", false, true, "r", "Zooma minimum string length for input, below which input is ignored from zoomifications");
 
-        cutoffScoreForAutomaticCuration = optionsParser.processFloatOption("cutoffScoreForAutomaticCuration", false, true, "s", "Zooma cutoff score");
-        cutoffPercentageForAutomaticCuration = optionsParser.processFloatOption("cutoffPercentageForAutomaticCuration", false, true, "p", "Zooma minimum percentage, below which input is ignored from zoomifications");
-        lowestCutoffScoreToAssistManualCuration = optionsParser.processFloatOption("lowestCutoffScoreToAssistManualCuration", false, false, "w", "Zooma cutoff score");
-        lowestCutoffPercentageToAssistManualCuration = optionsParser.processFloatOption("lowestCutoffPercentageToAssistManualCuration", false, false, "b", "Zooma minimum percentage, below which input is ignored from zoomifications");
+        cutoffScoreAutomaticCuration = optionsParser.processFloatOption("cutoffScoreAutomaticCuration", false, true, "s", "Zooma cutoff score");
+        cutoffPctAutomaticCuration = optionsParser.processFloatOption("cutoffPctAutomaticCuration", false, true, "p", "Zooma minimum percentage, below which input is ignored from zoomifications");
+        cutoffScoreManualCuration = optionsParser.processFloatOption("cutoffScoreManualCuration", false, false, "w", "This value is currently ignored");
+        cutoffPctManualCuration = optionsParser.processFloatOption("cutoffPctManualCuration", false, false, "b", "This value is currently ignored");
 
-        magetabAccession = optionsParser.processStringOption("magetabAccession", false, false, "a", "MAGE-tab accession number, eg E-MTAB-513");
-        olsShortIds = optionsParser.processBooleanOption("olsShortIds", false, true, "u", "Whether to use OLS short IDs in Zoomified Magetab");
+        magetabAccession = optionsParser.processStringOption("magetabAccession", false, false, "a", "MAGE-tab accession number, eg E-MTAB-513. This value is " +
+                "required unless a file of magetab accessions is provided instead.");
+        olsShortIds = optionsParser.processBooleanOption("olsShortIds", false, true, "u", "Whether to use OLS short IDs in Zoomified Magetab. OLS ShortIDs use a colon delimiter.");
 
         compoundAnnotationDelimiter = optionsParser.processStringOption("compoundAnnotationDelimiter", false, true, "d", "Delimiter to use between elements of a compound annotations within a single cell. Eg (heart and lung)");
-        fileDelimiter = optionsParser.processStringOption("fileDelimiter", false, true, "f", "Delimiter to use in log file output");
-        exclusionProfilesResource = optionsParser.processStringOption("exclusionProfilesResource", false, true, "e", "Fully validated filepath for exclusion profiles.");
+        fileDelimiter = optionsParser.processStringOption("fileDelimiter", false, true, "f", "Delimiter to use in log file output. There currently no way to offer tab output.");
+        exclusionProfilesResource = optionsParser.processStringOption("exclusionProfilesResource", false, true, "e", "Filename for exclusion profiles; this file must reside in the folder corresponding to the basepath for inputs.");
         overwriteValues = optionsParser.processBooleanOption("overwriteValues", false, true, "v", "Whether to overwrite values based on automatic zoomifications.");
         overwriteAnnotations = optionsParser.processBooleanOption("overwriteAnnotations", false, true, "t", "Whether to overwrite annotations based on zoomifications. On its own, selecting this option will only strip legacy annotations if a Zooma result is found.");
         stripLegacyAnnotations = optionsParser.processBooleanOption("stripLegacyAnnotations", false, true, "x", "This will strip all legacy annotations, whether or not a Zooma result is found.");
-        addCommentsToSDRF = optionsParser.processBooleanOption("addCommentsToSDRF", false, true, "c", "Directly within SDRF output, add to comments in order to indicate what changes have been made.");
+        addCommentsToSDRF = optionsParser.processBooleanOption("addCommentsToSDRF", false, true, "c", "Directly within SDRF output, add to comments in order to indicate what changes have been made. This value is currently ignored");
 
         magetabBasePath = optionsParser.processStringOption("magetabBasePath", false, true, "i", "Basepath where raw input magetab files can be found.");
-        mageTabAccessionsResource = optionsParser.processStringOption("mageTabAccessionsResource", false, true, "m", "Filename where raw input magetab files can be found.");
-        zoomaPath = optionsParser.processStringOption("zoomaPath", false, true, "z", "Path for version of Zooma to use.");
+        mageTabAccessionsResource = optionsParser.processStringOption("mageTabAccessionsResource", false, true, "m", "Filename where raw input magetab files can be found. This file must reside in the folder corresponding to the basepath for inputs. This is required unless a single magetab accession is specified.");
+        zoomaPath = optionsParser.processStringOption("zoomaPath", false, true, "z", "Path for version of Zooma to use. Note that at present, the zooma API differs between prod / dev environments, so you may encounter errors.");
         limpopoPath = optionsParser.processStringOption("limpopoPath", false, true, "l", "Path for version of Limpopo to use.");
-        outfileBasePath = optionsParser.processStringOption("outfileBasePath", false, true, "o", "Base path for output files.");
+        outfileBasePath = optionsParser.processStringOption("outfileBasePath", false, true, "o", "Fully validated base path for output files. You must include the trailing slash.");
+
+        if ((magetabAccession == null || magetabAccession.isEmpty()) && (mageTabAccessionsResource == null || mageTabAccessionsResource.isEmpty())) {
+            throw new IllegalArgumentException("Either a magetab accession or file of magetab accessions (magetab accession resource) must be provided.");
+        }
 
     }
 
