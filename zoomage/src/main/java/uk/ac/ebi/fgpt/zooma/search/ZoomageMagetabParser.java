@@ -49,6 +49,7 @@ import java.util.*;
  */
 public class ZoomageMagetabParser {
 
+    private final String outFileBasePath;
     private Logger log = LoggerFactory.getLogger(getClass());
     private ArrayList<String> comments = new ArrayList<String>();
 
@@ -71,14 +72,6 @@ public class ZoomageMagetabParser {
         this.overwriteAnnotations = overwriteAnnotations;
         this.stripLegacyAnnotations = stripLegacyAnnotations;
         this.addCommentsToSDRF = addCommentsToSDRF;
-        this.logFileDelimiter = logFileDelimiter;
-        this.compoundAnnotationDelimiter = compoundAnnotationDelimiter;
-
-        try {
-            this.zoomaClient = new ZOOMASearchClient(URI.create("http://www.ebi.ac.uk/fgpt/zooma").toURL());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Failed to create ZOOMASearchCLient", e);
-        }
     }
 
     protected Logger getLog() {
@@ -87,80 +80,9 @@ public class ZoomageMagetabParser {
 
     public boolean runFromFilesystem(String magetabAccession) {
 
-    /**
-     * Execute the program from the parameters collected in the main method
-     */
-    public void runFromWebservice(String magetabAccession) {
-
-        initiatingCaches();
-
-        this.magetabAccession = magetabAccession;
-
-        // pass the magetab accession to the service to fetch json
-        String magetabAsJson = fetchMAGETABFromWebservice(magetabAccession);
-        getLog().debug("We sent a GET request to the server for " + magetabAccession + " and got the following response:");
-        getLog().debug(magetabAsJson);
-        getLog().debug("\n\n\n============================\n\n\n");
-
-        // Parse the json into a simple magetab representation (two 2D String arrays)
-        MAGETABSpreadsheet dataAs2DArrays = JSONtoMAGETAB(magetabAsJson);
-        getLog().debug("\n\n\n============================\n\n\n");
-        getLog().debug("We parsed json into magetab representation");
-
-        try {
-            // read string array into SDRF
-            InputStream in = convert2DStringArrayToStream(dataAs2DArrays.getSdrf());
-            SDRF sdrf = new SDRFParser().parse(in);
-
-            //zoomify the sdrf
-            SDRF newSDRF = zoomifyMAGETAB(sdrf);  //todo
-            getLog().debug("\n\n\n============================\n\n\n");
-            getLog().debug("We parsed magetab and zoomified contents into sdrf representation");
-
-            //write the results to a file
-            File outfile = new File(magetabAccession + ".sdrf.txt");
-            Writer outFileWriter = new FileWriter(outfile);
-            SDRFWriter sdrfWriter = new SDRFWriter(outFileWriter);
-            sdrfWriter.write(newSDRF);
-
-            getLog().info("\n\n\n============================\n\n\n");
-            getLog().info("We wrote sdrf to " + outfile.getAbsolutePath());
-
-            //todo: IDF too
-
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();  //todo
-        }
-
-
-        getLog().info("\n\n\n============================\n\n\n");
-
-        // now, post these 2D string arrays to the server and collect any error items
-        String postJson = sendMAGETAB(dataAs2DArrays.getIdf(), dataAs2DArrays.getSdrf());
-        getLog().debug("We POSTed IDF and SDRF json objects to the server, and got the following response:");
-        getLog().debug(postJson);
-        getLog().debug("\n\n\n============================\n\n\n");
-
-
-        // now, extract error items from the resulting JSON   //todo: this throws an error
-        List<Map<String, Object>> errors = parseErrorItems(postJson);
-        log.debug("Our POST operation has returned " + errors.size() + " error items, these follow:");
-        for (Map<String, Object> error : errors) {
-            log.error("\t" +
-                    error.get("code") + ":\t" +
-                    error.get("comment") + "\t[line " +
-                    error.get("line") + ", column" +
-                    error.get("column") + "]");
-        }
-    }
-
-    public void runFromFilesystem(String magetabAccession) {
-
-        initiatingCaches();
-
         this.magetabAccession = magetabAccession;
         // pass the magetab accession to the service to fetch json
-        File magetabPath = fetchMAGETABFromFilesystem(magetabAccession);
+        File mageTabFile = fetchMAGETABFromFilesystem(magetabAccession);
 
         try {
             // Parse the file using limpopo
@@ -171,8 +93,8 @@ public class ZoomageMagetabParser {
 
                 public void errorOccurred(ErrorItem item) {
                     log.error(item.getErrorCode() + ": " + item.getMesg() + " [line " +
-                            item.getLine() + ", column " + item.getCol() + "] (" +
-                            item.getComment() + ")");
+                                      item.getLine() + ", column " + item.getCol() + "] (" +
+                                      item.getComment() + ")");
                     if (item.getErrorCode() != 501) {
                         synchronized (encounteredWarnings) {
                             log.debug("Error in file '" + item.getParsedFile() + "'");
@@ -182,7 +104,7 @@ public class ZoomageMagetabParser {
                 }
             });
 
-            MAGETABInvestigation investigation = parser.parse(magetabPath);
+            MAGETABInvestigation investigation = parser.parse(mageTabFile);
 
             if (!encounteredWarnings.isEmpty()) {
                 getLog().warn("\n\n\n============================\n\n\n");
@@ -196,8 +118,8 @@ public class ZoomageMagetabParser {
             getLog().debug("We parsed magetab and zoomified contents into sdrf representation");
 
             //write the results to a file
-            IDFWriter idfWriter = new IDFWriter(new FileWriter(investigation.getAccession() + ".idf.txt"));
-            SDRFWriter sdrfWriter = new SDRFWriter(new FileWriter(investigation.getAccession() + ".sdrf.txt"));
+            IDFWriter idfWriter = new IDFWriter(new FileWriter(outFileBasePath + investigation.getAccession() + ".idf.txt"));
+            SDRFWriter sdrfWriter = new SDRFWriter(new FileWriter(outFileBasePath + investigation.getAccession() + ".sdrf.txt"));
 
             // write old IDF
             idfWriter.write(investigation.IDF);
@@ -550,7 +472,7 @@ public class ZoomageMagetabParser {
     public File fetchMAGETABFromFilesystem(String accession) {
         String pipeline = accession.split("-")[1];
         return new File(magetabBasePath + File.separator + pipeline + File.separator + accession + File.separator + accession +
-                ".idf.txt");
+                                ".idf.txt");
     }
 
     /**
