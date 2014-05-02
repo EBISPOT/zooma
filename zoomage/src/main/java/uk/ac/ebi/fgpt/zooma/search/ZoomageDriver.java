@@ -30,6 +30,7 @@ public class ZoomageDriver {
     private boolean overwriteValues;
     private boolean overwriteAnnotations;
     private boolean stripLegacyAnnotations;
+    private boolean singleLogFileForBatch;
 
     private final Logger log = LoggerFactory.getLogger(ZoomageDriver.class);
     private boolean addCommentsToSDRF;
@@ -37,6 +38,9 @@ public class ZoomageDriver {
     private String zoomaPath;
     private String limpopoPath;
     private String outfileBasePath;
+
+    private ZoomageMagetabParser zoomageParser;
+    private ZoomageLogger zoomageLogger;
 
     public static void main(String[] args) {
 
@@ -65,7 +69,7 @@ public class ZoomageDriver {
             getLog().error("Parser could not be created with the supplied information. " + Arrays.asList(args) + "zoomage-defaults.properties");
         }
 
-        // if these loaded successfully, process each of the options and assign them to variables.
+        // if these loaded successfully, getZoomaResults each of the options and assign them to variables.
         else {
 
             createOptions(optionsParser);
@@ -87,7 +91,7 @@ public class ZoomageDriver {
     // separate method so that Zoomage Driver can also be instantiated
     public void run() {
 
-        ZoomageMagetabParser zoomageParser = new ZoomageMagetabParser(limpopoPath, magetabBasePath,
+        zoomageParser = new ZoomageMagetabParser(limpopoPath, magetabBasePath,
                 outfileBasePath, overwriteValues, overwriteAnnotations, stripLegacyAnnotations, addCommentsToSDRF);
 
         ZoomageUtils.initialise(zoomaPath, cutoffScoreAutomaticCuration, cutoffPctAutomaticCuration, minStringLength, appResourcesPath, fileDelimiter, olsShortIds, compoundAnnotationDelimiter);
@@ -95,43 +99,66 @@ public class ZoomageDriver {
         HashSet<String> mageTabAccessions = new HashSet<>();
 
         if (magetabAccession == null || magetabAccession.equals("")) {
-            mageTabAccessions = parseMagetabAccessions(appResourcesPath + "zoomage-accessions.txt");
+            mageTabAccessions = parseMagetabAccessions(appResourcesPath + "zoomage-accessions.properties");
         } else mageTabAccessions.add(magetabAccession);
 
         System.out.println();
 
+        zoomageLogger = new ZoomageLogger(cutoffScoreAutomaticCuration, minStringLength, cutoffPctAutomaticCuration, olsShortIds, fileDelimiter, overwriteValues, overwriteAnnotations, stripLegacyAnnotations, addCommentsToSDRF, zoomaPath, limpopoPath);
+
+
+        // for each accession
         for (String accession : mageTabAccessions) {
-            System.out.println("----------------------------");
-            System.out.println("Processing " + accession);
-            try {
-                boolean success = zoomageParser.runFromFilesystem(accession);
-                if (success) {
-                    getLog().info("Zoomage completed successfully for " + accession);
-                    printLog(accession);
-                } else {
-                    getLog().info("Zoomage encountered errors for " + accession);
-                }
-            } catch (Error e) {
-                getLog().info("Zoomage encountered errors for " + accession);
-                e.printStackTrace();
-            }
+            processSingleAccession(accession);
+            // Whether or not logs are batched into one file,
+            // clear cache after processing each accession, otherwise log output will be cumulative each time and also suboptimal since
+            // duplicates between accessions are not stored (the key is type:value only)
+            ZoomageUtils.clearMasterCache();
+        }
+
+        if (singleLogFileForBatch) {
+            zoomageLogger.printLogRowsToFile(outfileBasePath, "Batch");
         }
     }
 
-    public void printLog(String accession) {
+    private void processSingleAccession(String accession) {
 
-        log.info("Printing log for " + accession + "...");
+        System.out.println("----------------------------");
+        System.out.println("Processing " + accession);
 
-        ZoomageLogger zoomageLogger = new ZoomageLogger(cutoffScoreAutomaticCuration, minStringLength, cutoffPctAutomaticCuration, olsShortIds, fileDelimiter, overwriteValues, overwriteAnnotations, stripLegacyAnnotations, addCommentsToSDRF, zoomaPath, limpopoPath);
-        zoomageLogger.printLog(outfileBasePath, accession);
+        boolean success = zoomageParser.runFromFilesystem(accession);
+
+        try {
+            if (success) {
+                getLog().info("Zoomage completed successfully for " + accession);
+
+                HashMap<String, TransitionalAttribute> masterCache = ZoomageUtils.getMasterCache();
+                ArrayList<String> logFileRowsForSingleAccession = zoomageLogger.formatCacheAsLogFileRows(masterCache);
+                logSingleAccession(logFileRowsForSingleAccession, accession);
+
+            } else {
+                getLog().error("Zoomage encountered errors for " + accession);
+                logSingleAccession(zoomageLogger.formatErrorAsLogFileRow(accession), accession);
+            }
+        } catch (Error e) {
+            getLog().error("Zoomage encountered errors for " + accession);
+            e.printStackTrace();
+            logSingleAccession(zoomageLogger.formatErrorAsLogFileRow(accession), accession);
+        }
+    }
+
+    private void logSingleAccession(ArrayList<String> logFileRowsForSingleAccession, String accession) {
+        if (!singleLogFileForBatch) {
+            zoomageLogger.printLogRowsToFile(outfileBasePath, accession);
+        } else zoomageLogger.addLogFileRowsForSingleAccession(logFileRowsForSingleAccession);
     }
 
 
     private void createOptions(OptionsParser optionsParser) {
 
         optionsParser.processStringOption("appResourcesFolderPath", false, false, "1", "To completely override the local default appresources folder, provide Fully validated path of a replacement folder. " +
-                "This folder must contain three documents: a properties file called zoomage-defaults.properties, an exclusions list called zoomage-exclusions.csv " +
-                "and a list of magetab accession numbers to parse (zoomage-accessions.txt). Instead of providing a list of accessions, you may optionally pass in the " +
+                "This folder must contain three documents: a properties file called zoomage-defaults.properties, an exclusions list called zoomage-exclusions.tsv " +
+                "and a list of magetab accession numbers to parse (zoomage-accessions.properties). Instead of providing a list of accessions, you may optionally pass in the " +
                 "accession via commandline argument -a.");
 
         minStringLength = optionsParser.processIntOption("minStringLength", false, true, "r", "Zooma minimum string length for input, below which input is ignored from zoomifications");
@@ -146,11 +173,13 @@ public class ZoomageDriver {
         olsShortIds = optionsParser.processBooleanOption("olsShortIds", false, true, "u", "Whether to use OLS short IDs in Zoomified Magetab. OLS ShortIDs use a colon delimiter.");
 
         compoundAnnotationDelimiter = optionsParser.processStringOption("compoundAnnotationDelimiter", false, true, "d", "Delimiter to use between elements of a compound annotations within a single cell. Eg (heart and lung)");
-        fileDelimiter = optionsParser.processStringOption("fileDelimiter", false, true, "f", "Delimiter to use in log file output. There currently no way to offer tab output.");
+        fileDelimiter = optionsParser.processStringOption("fileDelimiter", false, true, "f", "Delimiter to use in log file output. For tab, type 'tab' without quotes.");
+        if (fileDelimiter.equals("tab")) fileDelimiter = "\t";
         overwriteValues = optionsParser.processBooleanOption("overwriteValues", false, true, "v", "Whether to overwrite values based on automatic zoomifications.");
         overwriteAnnotations = optionsParser.processBooleanOption("overwriteAnnotations", false, true, "t", "Whether to overwrite annotations based on zoomifications. On its own, selecting this option will only strip legacy annotations if a Zooma result is found.");
         stripLegacyAnnotations = optionsParser.processBooleanOption("stripLegacyAnnotations", false, true, "x", "This will strip all legacy annotations, whether or not a Zooma result is found.");
         addCommentsToSDRF = optionsParser.processBooleanOption("addCommentsToSDRF", false, true, "c", "Directly within SDRF output, add to comments in order to indicate what changes have been made. This value is currently ignored");
+        singleLogFileForBatch = optionsParser.processBooleanOption("singleLogFileForBatch", false, true, "e", "Directly within SDRF output, add to comments in order to indicate what changes have been made. This value is currently ignored");
 
         magetabBasePath = optionsParser.processStringOption("magetabBasePath", false, true, "i", "Basepath where raw input magetab files can be found.");
         zoomaPath = optionsParser.processStringOption("zoomaPath", false, true, "z", "Path for version of Zooma to use. Note that at present, the zooma API differs between prod / dev environments, so you may encounter errors.");
