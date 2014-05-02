@@ -28,7 +28,7 @@ public class ZoomageUtils {
     private static float cutoffPercentageForAutomaticCuration;
     private static int minStringLength;  // todo: move this to the zooma search rest httpClient
     protected static HashMap<String, boolean[]> cacheOfExclusionsApplied;
-    protected static HashMap<String, TransitionalAttribute> masterCache;
+    private static HashMap<String, TransitionalAttribute> masterCache;
     private static ArrayList<ExclusionProfileAttribute> exclusionProfiles;
 
     private static final ZoomageUtils INSTANCE = new ZoomageUtils();
@@ -45,7 +45,7 @@ public class ZoomageUtils {
         try {
             zoomaClient = new ZOOMASearchClient(URI.create(zoomaPath).toURL());
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Failed to create ZOOMASearchCLient", e);
+            throw new RuntimeException("Failed to create ZOOMASearchClient", e);
         }
 
         ZoomageUtils.minStringLength = minStringLength;
@@ -58,6 +58,10 @@ public class ZoomageUtils {
         masterCache = new HashMap<String, TransitionalAttribute>();
         exclusionProfiles = parseExclusionProfiles(exclusionProfilesResource, exclusionProfilesDelimiter);
         cacheOfExclusionsApplied = new HashMap<String, boolean[]>();
+    }
+
+    public static void clearMasterCache() {
+        masterCache = new HashMap<String, TransitionalAttribute>();
     }
 
 
@@ -179,6 +183,11 @@ public class ZoomageUtils {
      */
     public static String normaliseType(String attributeType) {
 
+        if (attributeType == null) {
+            getLog().warn("Attribute type is null.");
+            return null;
+        }
+
         String cleanedAttributeType = attributeType;
 
         // handle camel cased property types and split into words separated by spaces
@@ -263,139 +272,45 @@ public class ZoomageUtils {
         return ontLabel;
     }
 
-    public static TransitionalAttribute initiateZoomaQueryAndFilterResults(TransitionalAttribute attribute) {
+    public static TransitionalAttribute getZoomaResults(TransitionalAttribute baselineAttribute) {
 
-        String cleanedAttributeType = attribute.getNormalisedType();
-        String originalAttributeValue = attribute.getOriginalTermValue();
-        String magetabAccession = attribute.getAccession();
+        String input = baselineAttribute.getNormalisedType() + ":" + baselineAttribute.getOriginalTermValue();
 
-        AnnotationSummary annotationSummary = null;
+        TransitionalAttribute zoomifiedAttribute = null;
 
-        // if there's no result in the results cache or curation cache, initiate a new Zooma query
-        getLog().debug("Initiating new zooma query for '" + cleanedAttributeType + ":" + originalAttributeValue + "'");
+        if (masterCache.containsKey(input)) {
 
+            zoomifiedAttribute = masterCache.get(input);
 
-        Map<AnnotationSummary, Float> resultSetBeforeFilters = getUnfilteredZoomaResults(magetabAccession, cleanedAttributeType, originalAttributeValue);
+        } else {
+            ZoomaResultsProfile zoomaResultsProfile = null;
 
-        int numberOfResultsAfterFilters = 0;
-
-
-        if (resultSetBeforeFilters == null || resultSetBeforeFilters.size() == 0) {
-            annotationSummary = null;
-            TransitionalAttribute attributeWithNoResultsBeforeFilter = new TransitionalAttribute(magetabAccession, cleanedAttributeType, originalAttributeValue, 0, 0);
-            masterCache.put(attributeWithNoResultsBeforeFilter.getInput(), attributeWithNoResultsBeforeFilter);
+            try {
+                zoomaResultsProfile = new ZoomaResultsProfile(baselineAttribute.getOriginalType(), baselineAttribute.getOriginalTermValue(), cutoffScoreForAutomaticCuration, cutoffPercentageForAutomaticCuration, zoomaClient);
+                zoomifiedAttribute = applyZoomificationsToTransitionalAttribute(baselineAttribute, zoomaResultsProfile);
+                putInMasterCacheWithoutOverwriting(input, zoomifiedAttribute);
+            } catch (ZoomaException e) {
+                getLog().warn(e.getMessage());
+            }
         }
 
-        // filter results based on cutoffpercentage specified by the user
-        else {
-            getLog().debug("Filtering " + resultSetBeforeFilters.size() + " Zooma result(s)");
-            Set<AnnotationSummary> resultSetAfterStrictFilters = ZoomaUtils.filterAnnotationSummaries(resultSetBeforeFilters, cutoffScoreForAutomaticCuration, cutoffPercentageForAutomaticCuration);
-
-            numberOfResultsAfterFilters = resultSetAfterStrictFilters.size();
-            AnnotationSummary runnerUpAnnotationSummary = null;
-
-            if (numberOfResultsAfterFilters != 1) {
-                runnerUpAnnotationSummary = getBestMatch(resultSetBeforeFilters);
-            }
-
-            //  if there are no results after applying filters
-            if (numberOfResultsAfterFilters == 0) {
-                log.debug("None of the " + resultSetBeforeFilters.size() + " annotations meet the threshold for autocuration of " + cleanedAttributeType + ":" + originalAttributeValue);
-                annotationSummary = null;
-
-                TransitionalAttribute attributeWithNoResultsAfterFilter = new TransitionalAttribute(magetabAccession, cleanedAttributeType, originalAttributeValue, resultSetBeforeFilters.size(), 0);
-                attributeWithNoResultsAfterFilter.setRunnerUpAnnotation(runnerUpAnnotationSummary);
-                masterCache.put(attributeWithNoResultsAfterFilter.getInput(), attributeWithNoResultsAfterFilter);
-            }
-
-            // if there is one and only one result
-            else if (numberOfResultsAfterFilters == 1) {
-
-                annotationSummary = resultSetAfterStrictFilters.iterator().next();
-
-                TransitionalAttribute attributeWithOneResultAfterFilter = new TransitionalAttribute(magetabAccession, cleanedAttributeType, originalAttributeValue, resultSetBeforeFilters.size(), annotationSummary);
-
-                attribute.setRunnerUpAnnotation(runnerUpAnnotationSummary);
-                masterCache.put(attributeWithOneResultAfterFilter.getInput(), attributeWithOneResultAfterFilter);
-
-            }
-
-            // if more than one result for the given percentage and score params, don't automate the annotation
-            else if (numberOfResultsAfterFilters > 1) {
-                getLog().warn("More than one filtered result meets user criteria; no automatic curation applied to " + cleanedAttributeType + ":" + originalAttributeValue);
-                // For performance considerations, still put null in the cache for this input
-                annotationSummary = null;
-                TransitionalAttribute attributeWithMultipleResultsAfterFilter = new TransitionalAttribute(magetabAccession, cleanedAttributeType, originalAttributeValue, resultSetBeforeFilters.size(), numberOfResultsAfterFilters);
-                attributeWithMultipleResultsAfterFilter.setRunnerUpAnnotation(runnerUpAnnotationSummary);
-                masterCache.put(attributeWithMultipleResultsAfterFilter.getInput(), attributeWithMultipleResultsAfterFilter);
-
-            }
-
-        }
-
-        if (annotationSummary != null && resultSetBeforeFilters != null) {
-            attribute.storeZoomifications(annotationSummary, resultSetBeforeFilters.size(), numberOfResultsAfterFilters);
-            masterCache.put(attribute.getInput(), attribute);
-        } else if (annotationSummary == null && resultSetBeforeFilters == null) {
-            masterCache.put(attribute.getInput(), attribute);
-        }
-
-        return attribute;
-
+        return zoomifiedAttribute;
     }
 
-    private static Map<AnnotationSummary, Float> getUnfilteredZoomaResults(String magetabAccession, String cleanedAttributeType, String originalAttributeValue) {
+    private static TransitionalAttribute applyZoomificationsToTransitionalAttribute(TransitionalAttribute attribute, ZoomaResultsProfile zoomaResultsProfile) {
+        TransitionalAttribute zoomifiedAttribute = attribute;
 
-        Property property = new SimpleTypedProperty(cleanedAttributeType, originalAttributeValue);
+        zoomifiedAttribute.setZoomaMappingCategory(zoomaResultsProfile.getMappingCategory());
 
-        Map<AnnotationSummary, Float> fullResultsMap = null;
-        try {
-            fullResultsMap = zoomaClient.searchZOOMA(property, 0);
-        } catch (Exception e) {
+        zoomifiedAttribute.setAnnotationSummary(zoomaResultsProfile.getAutomaticAnnotation());
+        zoomifiedAttribute.setRunnerUpAnnotation(zoomaResultsProfile.getRunnerUpAnnotation());
 
-            String errorMessage = "Due to a Zooma error, no annotation summary could be fetched for " + cleanedAttributeType + ":" + originalAttributeValue;
-            getLog().warn(errorMessage);
+        zoomifiedAttribute.setNumberOfUnfilteredResults(zoomaResultsProfile.getNumberOfUnfilteredResults());
+        zoomifiedAttribute.setNumberOfFilteredResults(zoomaResultsProfile.getNumberOfFilteredResults());
 
-            TransitionalAttribute attributeProducingError = new TransitionalAttribute(magetabAccession, cleanedAttributeType, originalAttributeValue, 0, 0);
-            attributeProducingError.setErrorMessage(errorMessage + ". " + e);
-            masterCache.put(cleanedAttributeType + ":" + originalAttributeValue, attributeProducingError);
-        }
-        return fullResultsMap;
-    }
+        zoomifiedAttribute.setErrorMessage(zoomaResultsProfile.getErrorMessage());
 
-    private static AnnotationSummary getBestMatch(Map<AnnotationSummary, Float> resultSet) {
-
-        // for good measure, check if result set is empty, but this should be checked before method is called.
-        if (resultSet == null || resultSet.isEmpty()) return null;
-
-        // else if there's at least one result, initialize best result
-        AnnotationSummary bestResult = resultSet.keySet().iterator().next();
-
-        // if there's more than one result, iterate to find best
-        if (resultSet.size() > 1) {
-
-            // if there's more than one result, iterate through to update best result
-            getLog().debug("Iterating over " + resultSet.size() + " filtered Zooma results to find best match.");
-
-            for (AnnotationSummary aresult : resultSet.keySet()) {
-                if (aresult.getQuality() > bestResult.getQuality()) bestResult = aresult;
-            }
-        }
-
-        // log and cache the result
-        if (bestResult.getSemanticTags().size() > 1) log.warn("Compound URI detected.");
-        getLog().debug("Best ZoomaResult:" + bestResult.getID() + "\t" + bestResult.getAnnotatedPropertyType() + "\t" + bestResult.getAnnotatedPropertyValue() + "\t" + bestResult.getSemanticTags());
-        getLog().debug("ZoomaResult score: " + bestResult.getQuality());
-
-        // then return it
-        return bestResult;
-    }
-
-    private AnnotationSummary getBestMatch(String accession, String cleanedAttributeType, String originalAttributeValue) {
-
-        Map<AnnotationSummary, Float> fullResultsMap = getUnfilteredZoomaResults(accession, cleanedAttributeType, originalAttributeValue);
-        AnnotationSummary bestMatch = getBestMatch(fullResultsMap);
-        return bestMatch;
+        return zoomifiedAttribute;
     }
 
     protected static boolean excludeAttribute(TransitionalAttribute transAttribute) {
@@ -415,6 +330,9 @@ public class ZoomageUtils {
             return exclude;
         }
 
+        String input = transAttribute.getNormalisedType() + ":" + transAttribute.getOriginalTermValue();
+
+
         // If it has not previously been excluded, check the string length
         if (transAttribute.getOriginalTermValue().length() < minStringLength) {
 
@@ -424,10 +342,12 @@ public class ZoomageUtils {
             // set the reason for exclusion
             transAttribute.setBasisForExclusion("minStringLength. ");
 
-            String input = transAttribute.getNormalisedType() + ":" + transAttribute.getOriginalTermValue();
 
             // cache it
-            masterCache.put(input, transAttribute);
+            if (!ZoomageUtils.getMasterCache().containsKey(input)) {
+                putInMasterCacheWithoutOverwriting(input, transAttribute);
+            }
+
             cacheOfExclusionsApplied.put(Arrays.toString(transAttribute.getFields()), null);
 
             exclude = true;
@@ -440,8 +360,11 @@ public class ZoomageUtils {
 
             if (transAttribute.excludeBasedOn(exclusionProfile)) {
 
-                // if it does, cache the exclusion
-                masterCache.put(transAttribute.getInput(), transAttribute);
+                // if it does match an exclusion profile, cache the exclusion
+                if (!ZoomageUtils.getMasterCache().containsKey(input)) {
+                    putInMasterCacheWithoutOverwriting(input, transAttribute);
+                }
+
                 cacheOfExclusionsApplied.put(Arrays.toString(transAttribute.getFields()), null);
 
                 exclude = true;
@@ -453,14 +376,9 @@ public class ZoomageUtils {
     }
 
 
-    public static HashMap<String, TransitionalAttribute> getMasterCache() {
-        return masterCache;
-    }
-
-
     private static ArrayList<ExclusionProfileAttribute> parseExclusionProfiles(String appResourcesPath, String delim) {
 
-        String exclusionProfilesResource = appResourcesPath += "zoomage-exclusions.csv";
+        String exclusionProfilesResource = appResourcesPath += "zoomage-exclusions.tsv";
 
         ArrayList<ExclusionProfileAttribute> exclusionProfiles = new ArrayList<ExclusionProfileAttribute>();
 
@@ -473,7 +391,10 @@ public class ZoomageUtils {
                 if (!exclusionLine.startsWith("#") && !exclusionLine.isEmpty()) {
                     int indexFirstDelim = exclusionLine.indexOf(delim);
                     if (indexFirstDelim != 0) {
-                        String type = exclusionLine.substring(0, indexFirstDelim);
+                        String type;
+                        if (indexFirstDelim == -1)
+                            type = exclusionLine;
+                        else type = exclusionLine.substring(0, indexFirstDelim);
                         String normalisedType = ZoomageUtils.normaliseType(type);
 
                         if (!type.equalsIgnoreCase(normalisedType)) {
@@ -497,6 +418,31 @@ public class ZoomageUtils {
         }
 
         return exclusionProfiles;
+    }
+
+
+    public static HashMap<String, TransitionalAttribute> getMasterCache() {
+        return masterCache;
+    }
+
+    private static void putInMasterCacheWithoutOverwriting(String key, TransitionalAttribute value) {
+        try {
+            if (masterCache.containsKey(key)) {
+                String errorMessage = "Overwriting item in mastercache: " + key;
+
+                log.warn(errorMessage
+                        + "\n" + ZoomageLogger.transitionalAttributeToLogRow(value, ",", "")
+                        + "\n" + ZoomageLogger.transitionalAttributeToLogRow(masterCache.get(key), ",", ""));
+
+                throw new IllegalArgumentException();
+
+            } else {
+                masterCache.put(key, value);
+                log.debug("New item now in mastercache: " + key);
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 
 
