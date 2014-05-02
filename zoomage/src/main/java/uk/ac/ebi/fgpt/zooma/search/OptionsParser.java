@@ -28,13 +28,20 @@ public class OptionsParser {
 
     private Properties defaults; // configs from properties file
     private String defaultsPrefix = "";    // name of the project (used for logging messages but also the prefix used in the properties file)
-    private Options options;
+    private Options options;  //
     private HashSet<String> usedPrefixes = new HashSet<>();
     private HashMap<String, String> provisionalCommandLineArgsMap; // provisional map of commandline arguments. May not be as fault-tolerant as the GnuParser
     private int statusCode = 0;
     private HashMap<String, EnhancedOption> enhancedOptions = new HashMap<String, EnhancedOption>();
 
-
+    /**
+     * @param commandLineArgs   Original string array of program arguments as specified by the user.
+     * @param propertiesFilePath (can be a file name only if it is to be loaded from within the resources folder in the jar,
+     *                           otherwise it should be the fully validated path + filename.
+     * @param propertiesFilePrefix the name that precedes properties within the properties files. This program assumes that there
+     *                             is only one properties file and only one name used.
+     *                             // todo: enable a string array of properties file paths so that all properties can be loaded.
+     */
     public OptionsParser(String[] commandLineArgs, String propertiesFilePath, String propertiesFilePrefix) {
         options = new Options();
         Option helpOption = new Option("h", "help", false, "Print the help");
@@ -154,30 +161,9 @@ public class OptionsParser {
         Properties defaults = new Properties();
         this.defaultsPrefix = defaultsPrefix;
 
-//        URI uri = null;
-//        URL url = null;
         InputStream in = null;
 
-        // all this extra ceremony is in order to be able to override the local target properties file with
-        // an external one somewhere on the file system of the user
         try {
-//            // try loading the path of the configFile assuming it is local to the package
-//            url = OptionsParser.class.getClassLoader().getResource(propertiesFilePath);
-//            // if this is local approach successful, cast to URI,
-//            if (url != null) {
-//                uri = url.toURI();
-//            }
-//            // if the local approach is unsuccessful, load assuming an absolute path
-//            else uri = new File(propertiesFilePath).toURI();
-//
-//            // switch back to URL version of it in order to open an input stream.
-//            url = uri.toURL();
-//
-//            // open the input stream
-//            if (url != null) {
-//                in = url.openStream();
-//            }
-
             in = getInputStreamFromFilePath(OptionsParser.class, propertiesFilePath);
 
             if (in == null) {
@@ -199,6 +185,14 @@ public class OptionsParser {
         return defaults;
     }
 
+    /**
+     *
+     * @param classParam The class from which the resource is to be loaded.
+     * @param propertiesFilePath (could be from within the jar or local drive or anywhere on the filesystem)
+     * @return input stream
+     * @throws URISyntaxException
+     * @throws IOException
+     */
     public static InputStream getInputStreamFromFilePath(Class classParam, String propertiesFilePath) throws URISyntaxException, IOException {
         URI uri = null;
         URL url = null;
@@ -229,6 +223,7 @@ public class OptionsParser {
     }
 
     // stores commandline args in a map where the key is the letter to which the argument is bound and the value is the argument string
+    // this is called before there is any knowledge of what the options are that are being instantiated.
     private static HashMap<String, String> loadCommandLineArgs(String[] args) {
 
         HashMap<String, String> argsMap = new HashMap<>();
@@ -345,7 +340,7 @@ public class OptionsParser {
     /**
      * User: jmcmurry
      * Date: 13/02/2014
-     * Inner class to wrap the Apache Option because you can't fetch an option except by short ID and setting the values is a bit weird and deprecated.
+     * Inner class to wrap the Apache Option because otherwise you can't fetch an option except by short ID and the functionality to set the value is deprecated.
      */
     public class EnhancedOption {
 
@@ -357,8 +352,6 @@ public class OptionsParser {
         protected final Option option;
 
         /**
-         * Creates an option and returns a provisional boolean value
-         *
          * @param optLongName                name of the option
          * @param optIsRequiredInCommandline requires that a value be specified in the commandline when run
          * @param optionIsRequired           requires that a value be specified, whether via commandline or properties file
