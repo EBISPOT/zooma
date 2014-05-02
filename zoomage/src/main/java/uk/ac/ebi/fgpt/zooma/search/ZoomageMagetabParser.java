@@ -257,75 +257,52 @@ public class ZoomageMagetabParser {
 
     private CharacteristicsAttribute process(CharacteristicsAttribute attribute) {
 
+
         // First create the baseline transitional attribute before stripping legacy annotations.
-        TransitionalAttribute baselineAttribute = new TransitionalAttribute(magetabAccession, attribute);
+        TransitionalAttribute baselineTransAttribute = new TransitionalAttribute(magetabAccession, attribute);
 
-        // First check exclusions based on the unmodified attribute
-        if (ZoomageUtils.excludeAttribute(baselineAttribute)) {
-            // if found in exclusions cache, item should be excluded, so return the attribute without making any changes
-            return attribute;
-        }
-
-        // then strip the legacy annotations if so indicated
+        // then strip legacy annotations if indicated
         if (stripLegacyAnnotations) {
-
             attribute.termSourceREF = null;
             attribute.termAccessionNumber = null;
         }
 
-        // Then see if there are any results in the cache
-        String input = baselineAttribute.getNormalisedType() + ":" + baselineAttribute.getOriginalTermValue();
-        TransitionalAttribute cachedAttribute = ZoomageUtils.masterCache.get(input);
-
-        // if there is a cached result
-        if (cachedAttribute != null) {
-
-            // then apply the corresponding changes
-            attribute = zoomify(cachedAttribute, attribute);
-        } else {
-            // else if is NOT in the cache, initiate a new query and apply the corresponding changes
-            TransitionalAttribute zoomifiedAttribute = ZoomageUtils.initiateZoomaQueryAndFilterResults(baselineAttribute);
-            attribute = zoomify(zoomifiedAttribute, attribute);
+        // First check exclusions based on the unmodified attribute
+        if (ZoomageUtils.excludeAttribute(baselineTransAttribute)) {
+            // if found in exclusions cache, item should be excluded,
+            //then return the attribute without making any other changes
+            return attribute;
         }
+
+        TransitionalAttribute zoomifiedTransAttribute = ZoomageUtils.getZoomaResults(baselineTransAttribute);
+        attribute = zoomify(zoomifiedTransAttribute, attribute);
+
         // return the attribute whether or not it has been modified
         return attribute;
 
     }
 
-
-
     private FactorValueAttribute process(FactorValueAttribute attribute) {
 
         // First create the baseline transitional attribute before stripping legacy annotations.
-        TransitionalAttribute baselineAttribute = new TransitionalAttribute(magetabAccession, attribute);
+        TransitionalAttribute baselineTransAttribute = new TransitionalAttribute(magetabAccession, attribute);
 
-        // First check exclusions based on the unmodified attribute
-        if (ZoomageUtils.excludeAttribute(baselineAttribute)) {
-            // if found in exclusions cache, item should be excluded, so return the attribute without making any changes
-            return attribute;
-        }
-
-        // then strip the legacy annotations if so indicated
+        // then strip legacy annotations if indicated
         if (stripLegacyAnnotations) {
-
             attribute.termSourceREF = null;
             attribute.termAccessionNumber = null;
         }
 
-        // Then see if there are any results in the cache
-        String input = baselineAttribute.getNormalisedType() + ":" + baselineAttribute.getOriginalTermValue();
-        TransitionalAttribute cachedAttribute = ZoomageUtils.masterCache.get(input);
-
-        // if there is a cached result
-        if (cachedAttribute != null) {
-
-            // then apply the corresponding changes
-            attribute = zoomify(cachedAttribute, attribute);
-        } else {
-            // else if is NOT in the cache, initiate a new query and apply the corresponding changes
-            TransitionalAttribute zoomifiedAttribute = ZoomageUtils.initiateZoomaQueryAndFilterResults(baselineAttribute);
-            attribute = zoomify(zoomifiedAttribute, attribute);
+        // First check exclusions based on the unmodified attribute
+        if (ZoomageUtils.excludeAttribute(baselineTransAttribute)) {
+            // if found in exclusions cache, item should be excluded,
+            //then return the attribute without making any other changes
+            return attribute;
         }
+
+        TransitionalAttribute zoomifiedTransAttribute = ZoomageUtils.getZoomaResults(baselineTransAttribute);
+        attribute = zoomify(zoomifiedTransAttribute, attribute);
+
         // return the attribute whether or not it has been modified
         return attribute;
     }
@@ -376,79 +353,6 @@ public class ZoomageMagetabParser {
 
         return attribute;
     }
-
-//    private CharacteristicsAttribute applyCachedResult(TransitionalAttribute cachedAttribute, CharacteristicsAttribute charAttribute) {
-//
-//
-//        int numberOfZoomaResults = cachedAttribute.getNumberOfZoomaResultsAfterFilter();
-//
-//        // if an automatic zoomification
-//        if (numberOfZoomaResults == 1) {
-//            // if there is a corresponding cached Zooma annotation
-//            log.debug(cachedAttribute.getInput() + ": Retrieved result from Zooma cache.");
-//
-//            // then apply the changes to the characteristicsAttribute
-//
-//            // if we should overwrite the term source preliminaryStringValue, do so
-//            if (overwriteValues) {
-//                getLog().warn("Overwriting " + charAttribute.getAttributeValue() + " with " + cachedAttribute.getZoomifiedOntologyClassLabel());
-//                charAttribute.setAttributeValue(cachedAttribute.getZoomifiedOntologyClassLabel());
-//            }
-//
-//            // if we should overwrite annotations, or if annotations are missing, apply zoomified annotations
-//            if (overwriteAnnotations || charAttribute.termSourceREF == null || charAttribute.termSourceREF.equals("")) {
-//
-//                // todo: check... IF the zoomified annotation is null, then this update effectively strips existing annotations
-//                charAttribute.termSourceREF = cachedAttribute.getZoomifiedTermSourceREF();
-//                charAttribute.termAccessionNumber = cachedAttribute.getZoomifiedOntAccession();
-//            }
-//
-//            return charAttribute;
-//
-//        }
-//
-//        // if there's a result in cache, and it indicates a need for curation
-//        if (numberOfZoomaResults >= 1) {
-//
-//            log.debug(cachedAttribute.getInput() + ": Retrieved result from cache of items requiring curation. Skipping Zoomifications.");
-//
-//            // if found, item requires curation, so return the charAttribute without making any changes
-//            return charAttribute;
-//        }
-//
-//        // if the cache indicates that previously, no results were found for this input
-//        if (numberOfZoomaResults == 0) {
-//            // check if this 0 results was due to an exclusion
-//            if (cachedAttribute.getBasisForExclusion().equals("")) {
-//                log.debug(cachedAttribute.getInput() + ": Retrieved result from cache of items with no results. Skipping Zoomifications.");
-//
-//                // if not due to an exclusion, return the charAttribute without making any changes
-//                return charAttribute;
-//            }
-//        }
-//
-//        return null;
-//    }
-
-//    private FactorValueAttribute applyZoomifications(TransitionalAttribute transAttribute, FactorValueAttribute valueAttribute) {
-//
-//        // if we should overwrite the attribute preliminaryStringValue, do so
-//        if (overwriteValues) {
-//            getLog().warn("Overwriting " + valueAttribute.getAttributeValue() + " with ontology label " + transAttribute.getZoomifiedOntologyClassLabel());
-//            valueAttribute.setAttributeValue(transAttribute.getZoomifiedOntologyClassLabel());
-//        }
-//
-//        // if we should overwrite annotations, or if annotations are missing, apply zoomified annotations
-//        if (overwriteAnnotations || valueAttribute.termSourceREF == null || valueAttribute.termSourceREF.equals("")) {
-//
-//            // todo: check... IF the zoomified annotation is null, then this update effectively strips existing annotations
-//            valueAttribute.termSourceREF = transAttribute.getZoomifiedTermSourceREF();
-//            valueAttribute.termAccessionNumber = transAttribute.getZoomifiedOntAccession();
-//        }
-//
-//        return valueAttribute;
-//    }
-
 
     private void appendComment(String varName, String oldString, String newString) {
 
