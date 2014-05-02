@@ -37,7 +37,7 @@ public class TransitionalAttribute {
     private String zoomifiedOntAccession = ""; // If your term resulted in a Zooma mapping, this contains the source of this mapping. This is usually a dataset in which a similar property preliminaryStringValue was found annotated to the suggested ontology class.;
 
 
-    private String categoryOfZoomaMapping = "";    // 	This indicates how confident ZOOMA was with the mapping. "Automatic" means ZOOMA is highly confident and "Requires curation" means ZOOMA found at least match that might fit but ZOOMA is not confident enough to automatically assert it.
+    private ZoomaResultsProfile.MappingCategory categoryOfZoomaMapping = null;    // 	This indicates how confident ZOOMA was with the mapping. "Automatic" means ZOOMA is highly confident and "Requires curation" means ZOOMA found at least match that might fit but ZOOMA is not confident enough to automatically assert it.
     private int numberOfZoomaResultsAfterFilter;   //  This indicates the number of results that Zooma found based on the input parameters. 0 denotes no results meet criteria, 1 denotes automated curation, >1 denotes needs curation.
     private int numberOfZoomaResultsBeforeFilter;   //  This indicates the number of results that Zooma found before filters applied
     private String basisForExclusion = "";
@@ -67,9 +67,6 @@ public class TransitionalAttribute {
 
     }
 
-    public String[] getFields() {
-        return new String[]{originalType, originalTermValue, getZoomifiedTermValue(), getZoomifiedOntologyClassLabel(), getZoomifiedTermSourceREF(), getZoomifiedOntAccession(), accession};
-    }
 
     /**
      * Make a TransitionalAttribute object from an original CharacteristicsAttribute that needs to be Zoomified.
@@ -173,19 +170,11 @@ public class TransitionalAttribute {
         this.accession = accession;
     }
 
-    public String getCategoryOfZoomaMapping() {
-        if (categoryOfZoomaMapping != null && !categoryOfZoomaMapping.isEmpty())
-            return categoryOfZoomaMapping;
-        else if (!errorMessage.equals("")) return "Error";
-        else if (!basisForExclusion.equals("")) return "Excluded";
-        else if (numberOfZoomaResultsBeforeFilter == 0) return "No results at all";
-        else if (numberOfZoomaResultsAfterFilter == 0) return "No results meet criteria";
-        else if (numberOfZoomaResultsAfterFilter == 1) return "Automatic";
-        else if (numberOfZoomaResultsAfterFilter > 1) return "Requires Curation";
-        else return "other";
+    public ZoomaResultsProfile.MappingCategory getCategoryOfZoomaMapping() {
+        return categoryOfZoomaMapping;
     }
 
-    private void setCategoryOfZoomaMapping(String categoryOfZoomaMapping) {
+    private void setCategoryOfZoomaMapping(ZoomaResultsProfile.MappingCategory categoryOfZoomaMapping) {
         this.categoryOfZoomaMapping = categoryOfZoomaMapping;
     }
 
@@ -208,13 +197,8 @@ public class TransitionalAttribute {
         }
     }
 
-    public boolean isProducedZoomaError() {
-        return !errorMessage.isEmpty();
-    }
-
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
-        this.setCategoryOfZoomaMapping("ERROR. " + errorMessage);
     }
 
     public int getNumberOfZoomaResultsBeforeFilter() {
@@ -394,5 +378,26 @@ public class TransitionalAttribute {
 
     public String getRunnerUpOntAccession() {
         return runnerUpOntAccession;
+    }
+
+
+    public String[] getFields() {
+        return new String[]{originalType, originalTermValue, getZoomifiedTermValue(), getZoomifiedOntologyClassLabel(), getZoomifiedTermSourceREF(), getZoomifiedOntAccession(), accession};
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setZoomaMappingCategory(ZoomaResultsProfile.MappingCategory mappingCategory) {
+        categoryOfZoomaMapping = mappingCategory;
+    }
+
+    public void setNumberOfFilteredResults(int size) {
+        numberOfZoomaResultsAfterFilter = size;
+    }
+
+    public void setNumberOfUnfilteredResults(int size) {
+        numberOfZoomaResultsBeforeFilter = size;
     }
 }
