@@ -93,8 +93,8 @@ public class ZoomageMagetabParser {
 
                 public void errorOccurred(ErrorItem item) {
                     log.error(item.getErrorCode() + ": " + item.getMesg() + " [line " +
-                                      item.getLine() + ", column " + item.getCol() + "] (" +
-                                      item.getComment() + ")");
+                            item.getLine() + ", column " + item.getCol() + "] (" +
+                            item.getComment() + ")");
                     if (item.getErrorCode() != 501) {
                         synchronized (encounteredWarnings) {
                             log.debug("Error in file '" + item.getParsedFile() + "'");
@@ -257,9 +257,10 @@ public class ZoomageMagetabParser {
 
     private CharacteristicsAttribute process(CharacteristicsAttribute attribute) {
 
+        String bioentity = attribute.getNodeName();
 
         // First create the baseline transitional attribute before stripping legacy annotations.
-        TransitionalAttribute baselineTransAttribute = new TransitionalAttribute(magetabAccession, attribute);
+        TransitionalAttribute baselineTransAttribute = new TransitionalAttribute(magetabAccession, bioentity, attribute);
 
         // then strip legacy annotations if indicated
         if (stripLegacyAnnotations) {
@@ -284,8 +285,10 @@ public class ZoomageMagetabParser {
 
     private FactorValueAttribute process(FactorValueAttribute attribute) {
 
+        String bioentity = attribute.getNodeName();
+
         // First create the baseline transitional attribute before stripping legacy annotations.
-        TransitionalAttribute baselineTransAttribute = new TransitionalAttribute(magetabAccession, attribute);
+        TransitionalAttribute baselineTransAttribute = new TransitionalAttribute(magetabAccession, bioentity, attribute);
 
         // then strip legacy annotations if indicated
         if (stripLegacyAnnotations) {
@@ -308,7 +311,10 @@ public class ZoomageMagetabParser {
     }
 
     private CharacteristicsAttribute zoomify(TransitionalAttribute zoomifiedAttribute, CharacteristicsAttribute attribute) {
-
+        if (zoomifiedAttribute == null) {
+            getLog().warn("Zoomified Attribute is null for " + attribute.getAttributeType()+attribute.getAttributeValue());
+            return null;
+        }
         AnnotationSummary annotationSummary = zoomifiedAttribute.getAnnotationSummary();
         if (annotationSummary == null) return attribute;
 
@@ -376,7 +382,7 @@ public class ZoomageMagetabParser {
     public File fetchMAGETABFromFilesystem(String accession) {
         String pipeline = accession.split("-")[1];
         return new File(magetabBasePath + File.separator + pipeline + File.separator + accession + File.separator + accession +
-                                ".idf.txt");
+                ".idf.txt");
     }
 
     /**

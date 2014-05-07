@@ -291,6 +291,7 @@ public class ZoomageUtils {
                 putInMasterCacheWithoutOverwriting(input, zoomifiedAttribute);
             } catch (ZoomaException e) {
                 getLog().warn(e.getMessage());
+                return baselineAttribute;
             }
         }
 
@@ -430,9 +431,7 @@ public class ZoomageUtils {
             if (masterCache.containsKey(key)) {
                 String errorMessage = "Overwriting item in mastercache: " + key;
 
-                log.warn(errorMessage
-                        + "\n" + ZoomageLogger.transitionalAttributeToLogRow(value, ",", "")
-                        + "\n" + ZoomageLogger.transitionalAttributeToLogRow(masterCache.get(key), ",", ""));
+                log.warn(errorMessage);
 
                 throw new IllegalArgumentException();
 

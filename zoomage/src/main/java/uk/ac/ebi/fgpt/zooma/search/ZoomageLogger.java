@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -34,7 +35,19 @@ public class ZoomageLogger {
     private final String zoomaPath;
     private final String limpopoPath;
     private String configLogString;
-    private ArrayList<String> combinedLogFileRows = new ArrayList<String>();
+    protected ArrayList<String> combinedLogFileRows = new ArrayList<String>();
+    private ArrayList<String> combinedCurationLogFileRows = new ArrayList<String>();
+
+    // Print the headers
+    private String[] headers = {"PROPERTY_TYPE", "PROPERTY_VALUE", "STUDY", "BIOENTITY", "Original Ont Source", "Original Ont Source Id",
+            "Matching Zooma Input", "Zooma Ont Label", "Zoomified Ont Source", "Zoomified Ont Source ID", "Category of Zooma Mapping",
+            "# Results before filter", "# Results after filter", "Basis for Exclusion", "Annotation Summary ID", "Annotation Summary Score",
+//                "RunnerUp Annotation Summary ID",
+            "RunnerUp Annotation Summary Score",
+//                "RunnerUp Matching Zooma Input",
+            "RunnerUp Zooma Ont Label",
+//                "RunnerUp Zoomified Ont Source", "RunnerUp Zoomified Ont Source ID",
+            "Zooma Error Message"};
 
 
     public ZoomageLogger(float cutoffScore, int minStringLength, float cutoffPercentage, boolean olsShortIds,
@@ -63,7 +76,7 @@ public class ZoomageLogger {
 
         HashMap<String, TransitionalAttribute> cacheErrorMap = new HashMap<>();
 
-        TransitionalAttribute errorItem = new TransitionalAttribute(accession, null, null, 0, 0);
+        TransitionalAttribute errorItem = new TransitionalAttribute(accession, "", null, null, 0, 0);
         errorItem.setErrorMessage("Accession " + accession + " could not be processed");
 
         cacheErrorMap.put(null, errorItem);
@@ -88,11 +101,65 @@ public class ZoomageLogger {
 
     }
 
+//    public ArrayList<String> formatCacheAsBulkCuration(HashMap<String, TransitionalAttribute> masterCache) {
+//
+//        ArrayList<String> curationRows = new ArrayList<>();
+//
+//        // Print store each attribute as a string.
+//        for (TransitionalAttribute attribute : masterCache.values()) {
+//
+//            if (attribute.getCategoryOfZoomaMapping() == ZoomaResultsProfile.MappingCategory.REQUIRES_CURATION) {
+//                String row = transitionalAttributeAsCurationRow(attribute);
+//                curationRows.add(row);
+//            }
+//
+//        }
+//
+//        return curationRows;
+//
+//    }
+
+//    private String transitionalAttributeAsCurationRow(TransitionalAttribute attribute) {
+//        //STUDY,BIOENTITY,PROPERTY_TYPE,PROPERTY_VALUE,SEMANTIC_TAG,ANNOTATOR,ANNOTATION_DATE
+//        String row = "";
+//
+//        // STUDY
+//        row += attribute.getStudy();
+//        row += ",";
+//
+//        // BIOENTITY
+//        row += attribute.getBioentity();
+//        row += ",";
+//
+//        //PROPERTY_TYPE
+//        row += attribute.getOriginalType();
+//        row += ",";
+//
+//        //PROPERTY_VALUE
+//        row += attribute.getorigi();
+//        row += ",";
+//
+//        //SEMANTIC_TAG
+//        row += attribute.getRunnerUpOntAccession();
+//        row += ",";
+//
+//        //ANNOTATOR (Curator's name)
+//        row += "FIRST LAST";
+//        row += ",";
+//
+//        //ANNOTATION_DATE
+//
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        row += sdf.format(new Date());
+//
+//        return row;  //To change body of created methods use File | Settings | File Templates.
+//    }
+
     public String transitionalAttributeToLogRow(TransitionalAttribute attribute) {
-        return transitionalAttributeToLogRow(attribute, logFileDelimiter, configLogString);
+        return transitionalAttributeToLogRow(attribute, configLogString);
     }
 
-    public static String transitionalAttributeToLogRow(TransitionalAttribute attribute, String logFileDelimiter, String configLogString) {
+    public String transitionalAttributeToLogRow(TransitionalAttribute attribute, String configLogString) {
         String row = "";
 
         //0
@@ -106,7 +173,7 @@ public class ZoomageLogger {
         row += (logFileDelimiter);
 
         //2
-        row += standardiseNulls(attribute.getAccession());
+        row += standardiseNulls(attribute.getStudy());
         row += (logFileDelimiter);
 
         //3
@@ -227,29 +294,7 @@ public class ZoomageLogger {
         else return string;
     }
 
-    public void printLogRowsToFile(String outfileBasePath, String magetabAccession) {
-        // sort the attributes to make it easier on the curator
-        Collections.sort(combinedLogFileRows);
-
-        System.out.println("Printing " + combinedLogFileRows.size() + " rows to file: " + outfileBasePath + magetabAccession + "-zoomifications-log.tsv");
-
-        PrintWriter out = null; //todo: change file ending
-        try {
-            out = new PrintWriter(new BufferedWriter(new FileWriter(outfileBasePath + magetabAccession + "-zoomifications-log.tsv", false)));
-        } catch (IOException e) {
-            e.printStackTrace();  //todo:
-        }
-
-        // Print the headers
-        String[] headers = {"Type", "Original Term Value", "Accession", "Original Ont Source", "Original Ont Source Id",
-                "Matching Zooma Input", "Zooma Ont Label", "Zoomified Ont Source", "Zoomified Ont Source ID", "Category of Zooma Mapping",
-                "# Results before filter", "# Results after filter", "Basis for Exclusion", "Annotation Summary ID", "Annotation Summary Score",
-//                "RunnerUp Annotation Summary ID",
-                "RunnerUp Annotation Summary Score",
-//                "RunnerUp Matching Zooma Input",
-                "RunnerUp Zooma Ont Label",
-//                "RunnerUp Zoomified Ont Source", "RunnerUp Zoomified Ont Source ID",
-                "Zooma Error Message"};
+    public void printCurationRowsToFile(String outfileBasePath, String study) {
 
         String headerLine = "";
 
@@ -259,9 +304,40 @@ public class ZoomageLogger {
 
         headerLine += (getConfigLogHeaders());
 
+        printLogRowsToFile(outfileBasePath, study, headerLine, combinedCurationLogFileRows);
+    }
+
+    public void printLogRowsToFile(String outfileBasePath, String study) {
+
+        String headerLine = "";
+
+        for (String header : headers) {
+            headerLine += (header + logFileDelimiter);
+        }
+
+        headerLine += (getConfigLogHeaders());
+
+        printLogRowsToFile(outfileBasePath, study, headerLine, combinedLogFileRows);
+
+    }
+
+    public void printLogRowsToFile(String outfileBasePath, String study, String headerLine, ArrayList<String> rows) {
+        // sort the attributes to make it easier on the curator
+        Collections.sort(rows);
+
+        System.out.println("Printing " + rows.size() + " rows to file: " + outfileBasePath + study + "-zoomifications-log.tsv");
+
+        PrintWriter out = null; //todo: change file ending
+        try {
+            out = new PrintWriter(new BufferedWriter(new FileWriter(outfileBasePath + study + "-zoomifications-log.tsv", false)));
+        } catch (IOException e) {
+            e.printStackTrace();  //todo:
+        }
+
+
         out.println(headerLine);
 
-        for (String line : combinedLogFileRows) {
+        for (String line : rows) {
             out.println(line);
         }
 
@@ -322,14 +398,17 @@ public class ZoomageLogger {
         return headersString;
     }
 
-    public void addLogFileRowsForSingleAccession(ArrayList<String> logFileRowsForSingleAccession) {
-        combinedLogFileRows.addAll(logFileRowsForSingleAccession);
-    }
+//    public void addLogFileRowsForSingleAccession(ArrayList<String> logFileRowsForSingleAccession) {
+//        combinedLogFileRows.addAll(logFileRowsForSingleAccession);
+//    }
 
     private static String compareStrings(String string1, String string2) {
         if (string1 == null || string1.equals("")) return null;
-        else return (string1.equalsIgnoreCase(string2)) ? string1 + "|ExactMatch" : string1+"|"+string2;
+        else return (string1.equalsIgnoreCase(string2)) ? string1 + "|ExactMatch" : string1 + "|" + string2;
     }
 
 
+    public void addCurationRowsForSingleAccession(ArrayList<String> curationRowsForSingleAccession) {
+        combinedCurationLogFileRows.addAll(curationRowsForSingleAccession);
+    }
 }

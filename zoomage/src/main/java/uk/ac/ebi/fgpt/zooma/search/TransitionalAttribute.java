@@ -6,8 +6,6 @@ import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.Characteris
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.FactorValueAttribute;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
-import java.util.ArrayList;
-
 /**
  * Convenience class for minimal and *temporary* representation of an attribute of an annotation.
  * This representation takes a CharacteristicsAttribute object
@@ -23,7 +21,8 @@ public class TransitionalAttribute {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    private String accession = ""; // The accession number to which this transitional attribute applies. eg. magetab accession
+    private String study = ""; // The study number to which this transitional attribute applies. eg. magetab study
+    private String bioEntity = "";
     private String originalType = "";
     private String normalisedType = "";
 
@@ -51,8 +50,9 @@ public class TransitionalAttribute {
     private String runnerUpTermSourceRef;
     private String runnerUpOntAccession;
     private String runnerUpTermLabel;
+    private String bioentity;
 
-    public TransitionalAttribute(String magetabAccession, String originalType, String originalAttributeValue, int numberOfZoomaResultsBeforeFilter, AnnotationSummary annotationSummary) {
+    public TransitionalAttribute(String study, String bioEntity, String originalType, String originalAttributeValue, int numberOfZoomaResultsBeforeFilter, AnnotationSummary annotationSummary) {
         // if type is null or blank, then set this type to null, else attribute type
         this.originalType = (originalType == null || originalType.equals("") ? null : originalType);
 //        this.normalisedType = norm
@@ -60,7 +60,8 @@ public class TransitionalAttribute {
 
         this.originalTermValue = (originalAttributeValue == null || originalAttributeValue.equals("") ? null : originalAttributeValue);
 
-        this.accession = magetabAccession;
+        this.study = study;
+        this.bioEntity = bioEntity;
         this.numberOfZoomaResultsBeforeFilter = numberOfZoomaResultsBeforeFilter;
 
         setAnnotationSummary(annotationSummary);
@@ -73,7 +74,7 @@ public class TransitionalAttribute {
      *
      * @param attribute CharacteristicsAttribute
      */
-    public TransitionalAttribute(String magetabAccession, CharacteristicsAttribute attribute) {
+    public TransitionalAttribute(String study, String bioEntity, CharacteristicsAttribute attribute) {
 
         this.originalType = (attribute.type == null || attribute.type.equals("") ? null : attribute.type);
 
@@ -85,7 +86,9 @@ public class TransitionalAttribute {
 
         this.originalTermAccessionNumber = (attribute.termAccessionNumber == null || attribute.termAccessionNumber.equals("") ? null : attribute.termAccessionNumber);
 
-        this.accession = magetabAccession;
+        this.study = study;
+        this.bioEntity = bioEntity;
+
     }
 
     /**
@@ -93,7 +96,7 @@ public class TransitionalAttribute {
      *
      * @param attribute FactorValueAttribute
      */
-    public TransitionalAttribute(String magetabAccession, FactorValueAttribute attribute) {
+    public TransitionalAttribute(String study, String bioEntity,FactorValueAttribute attribute) {
 
         // if type is null or blank, then set this type to null, else attribute type
         this.originalType = (attribute.type == null || attribute.type.equals("") ? null : attribute.type);
@@ -110,10 +113,12 @@ public class TransitionalAttribute {
                 (attribute.termAccessionNumber == null || attribute.termAccessionNumber.equals("") ? null :
                         attribute.termAccessionNumber);
 
-        this.accession = magetabAccession;
+        this.study = study;
+        this.bioEntity = bioEntity;
+
     }
 
-    public TransitionalAttribute(String magetabAccession, String type, String originalTermValue, int numberOfZoomaResultsBeforeFilter, int numberOfZoomaResultsAfterFilter) {
+    public TransitionalAttribute(String study, String bioEntity, String type, String originalTermValue, int numberOfZoomaResultsBeforeFilter, int numberOfZoomaResultsAfterFilter) {
 
         // if type is null or blank, then set this type to null, else attribute type
         this.originalType = (type == null || type.equals("") ? null : type);
@@ -122,7 +127,8 @@ public class TransitionalAttribute {
 
         this.originalTermValue = (originalTermValue == null || originalTermValue.equals("") ? null : originalTermValue);
 
-        this.accession = magetabAccession;
+        this.study = study;
+        this.bioEntity = bioEntity;
 
         this.numberOfZoomaResultsBeforeFilter = numberOfZoomaResultsBeforeFilter;
         this.numberOfZoomaResultsAfterFilter = numberOfZoomaResultsAfterFilter;
@@ -162,12 +168,12 @@ public class TransitionalAttribute {
     }
 
 
-    public String getAccession() {
-        return accession;
+    public String getStudy() {
+        return study;
     }
 
-    public void setAccession(String accession) {
-        this.accession = accession;
+    public void setStudy(String study) {
+        this.study = study;
     }
 
     public ZoomaResultsProfile.MappingCategory getCategoryOfZoomaMapping() {
@@ -259,7 +265,7 @@ public class TransitionalAttribute {
     }
 
     public boolean excludeBasedOn(ExclusionProfileAttribute exclusionProfileAttribute) {
-//        #ORIGINAL TYPE,ORIGINAL VALUE,ZOOMA VALUE,ONT LABEL,TERM SOURCE REF,TERM ACCESSION,MAGETAB ACCESSION
+//        #ORIGINAL TYPE,ORIGINAL VALUE,ZOOMA VALUE,ONT LABEL,TERM SOURCE REF,TERM ACCESSION,STUDY
 
         // initialise exclusion flag
         boolean allExclusionCriteriaMet = false;
@@ -341,11 +347,11 @@ public class TransitionalAttribute {
         }
 
         // if the criterion applies
-        if (!exclusionProfileAttribute.getAccession().equals("")) {
+        if (!exclusionProfileAttribute.getStudy().equals("")) {
             // and if criterion is met
-            if (getAccession().equalsIgnoreCase(exclusionProfileAttribute.getAccession())) {
+            if (getStudy().equalsIgnoreCase(exclusionProfileAttribute.getStudy())) {
                 allExclusionCriteriaMet = true;
-                basisForExclusion += "Magetab Accession=" + getAccession() + ". ";
+                basisForExclusion += "Magetab Accession=" + getStudy() + ". ";
             }
             // if criteria applies and is NOT met, stop
             else {
@@ -382,7 +388,7 @@ public class TransitionalAttribute {
 
 
     public String[] getFields() {
-        return new String[]{originalType, originalTermValue, getZoomifiedTermValue(), getZoomifiedOntologyClassLabel(), getZoomifiedTermSourceREF(), getZoomifiedOntAccession(), accession};
+        return new String[]{originalType, originalTermValue, getZoomifiedTermValue(), getZoomifiedOntologyClassLabel(), getZoomifiedTermSourceREF(), getZoomifiedOntAccession(), study};
     }
 
     public String getErrorMessage() {
@@ -399,5 +405,9 @@ public class TransitionalAttribute {
 
     public void setNumberOfUnfilteredResults(int size) {
         numberOfZoomaResultsBeforeFilter = size;
+    }
+
+    public String getBioentity() {
+        return bioentity;
     }
 }

@@ -18,14 +18,12 @@ public class ZoomageDriver {
     private int minStringLength;  // todo: move this to the zooma search rest client
 
     private Float cutoffScoreAutomaticCuration;
-    private Float cutoffScoreManualCuration;
     private Float cutoffPctAutomaticCuration;
-    private Float cutoffPctManualCuration;
 
     private String magetabAccession;
     private boolean olsShortIds;
     private String compoundAnnotationDelimiter;
-    private String fileDelimiter;
+    private String fileDelimiter = "\t"; // this had been a user supplied option, but it is too complex to vary it.
 
     private boolean overwriteValues;
     private boolean overwriteAnnotations;
@@ -109,16 +107,27 @@ public class ZoomageDriver {
 
         // for each accession
         for (String accession : mageTabAccessions) {
+
             processSingleAccession(accession);
             // Whether or not logs are batched into one file,
             // clear cache after processing each accession, otherwise log output will be cumulative each time and also suboptimal since
             // duplicates between accessions are not stored (the key is type:value only)
             ZoomageUtils.clearMasterCache();
+
+            if (singleLogFileForBatch) {
+
+                zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_"+accession);
+                zoomageLogger.printCurationRowsToFile(outfileBasePath,"Curation_"+accession);
+            }
         }
 
-        if (singleLogFileForBatch) {
-            zoomageLogger.printLogRowsToFile(outfileBasePath, "Batch");
+        if (!singleLogFileForBatch) {
+
+            zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_"+"Batch");
+            zoomageLogger.printCurationRowsToFile(outfileBasePath,"Curation_"+"Batch");
         }
+
+
     }
 
     private void processSingleAccession(String accession) {
@@ -134,24 +143,29 @@ public class ZoomageDriver {
 
                 HashMap<String, TransitionalAttribute> masterCache = ZoomageUtils.getMasterCache();
                 ArrayList<String> logFileRowsForSingleAccession = zoomageLogger.formatCacheAsLogFileRows(masterCache);
-                logSingleAccession(logFileRowsForSingleAccession, accession);
+//                ArrayList<String> curationFileRowsForSingleAccession = zoomageLogger.formatCacheAsBulkCuration(masterCache);
+
+                zoomageLogger.combinedLogFileRows.addAll(logFileRowsForSingleAccession);
 
             } else {
                 getLog().error("Zoomage encountered errors for " + accession);
-                logSingleAccession(zoomageLogger.formatErrorAsLogFileRow(accession), accession);
+                zoomageLogger.combinedLogFileRows.addAll(zoomageLogger.formatErrorAsLogFileRow(accession));
+
             }
         } catch (Error e) {
             getLog().error("Zoomage encountered errors for " + accession);
             e.printStackTrace();
-            logSingleAccession(zoomageLogger.formatErrorAsLogFileRow(accession), accession);
+            zoomageLogger.combinedLogFileRows.addAll(zoomageLogger.formatErrorAsLogFileRow(accession));
         }
     }
 
-    private void logSingleAccession(ArrayList<String> logFileRowsForSingleAccession, String accession) {
-        if (!singleLogFileForBatch) {
-            zoomageLogger.printLogRowsToFile(outfileBasePath, accession);
-        } else zoomageLogger.addLogFileRowsForSingleAccession(logFileRowsForSingleAccession);
-    }
+//    private void addRowsForSingleAccession(ArrayList<String> logFileRowsForSingleAccession, ArrayList<String> curationFileRowsForSingleAccession) {
+//
+//        zoomageLogger.addLogFileRowsForSingleAccession(logFileRowsForSingleAccession);
+//
+//        if (curationFileRowsForSingleAccession != null && !curationFileRowsForSingleAccession.isEmpty())
+//            zoomageLogger.addCurationRowsForSingleAccession(curationFileRowsForSingleAccession);
+//    }
 
 
     private void createOptions(OptionsParser optionsParser) {
@@ -165,16 +179,13 @@ public class ZoomageDriver {
 
         cutoffScoreAutomaticCuration = optionsParser.processFloatOption("cutoffScoreAutomaticCuration", false, true, "s", "Zooma cutoff score");
         cutoffPctAutomaticCuration = optionsParser.processFloatOption("cutoffPctAutomaticCuration", false, true, "p", "Zooma minimum percentage, below which input is ignored from zoomifications");
-        cutoffScoreManualCuration = optionsParser.processFloatOption("cutoffScoreManualCuration", false, false, "w", "This value is currently ignored");
-        cutoffPctManualCuration = optionsParser.processFloatOption("cutoffPctManualCuration", false, false, "b", "This value is currently ignored");
 
         magetabAccession = optionsParser.processStringOption("magetabAccession", false, false, "a", "MAGE-tab accession number, eg E-MTAB-513. This value is " +
                 "required unless a file of magetab accessions is provided instead.");
         olsShortIds = optionsParser.processBooleanOption("olsShortIds", false, true, "u", "Whether to use OLS short IDs in Zoomified Magetab. OLS ShortIDs use a colon delimiter.");
 
         compoundAnnotationDelimiter = optionsParser.processStringOption("compoundAnnotationDelimiter", false, true, "d", "Delimiter to use between elements of a compound annotations within a single cell. Eg (heart and lung)");
-        fileDelimiter = optionsParser.processStringOption("fileDelimiter", false, true, "f", "Delimiter to use in log file output. For tab, type 'tab' without quotes.");
-        if (fileDelimiter.equals("tab")) fileDelimiter = "\t";
+
         overwriteValues = optionsParser.processBooleanOption("overwriteValues", false, true, "v", "Whether to overwrite values based on automatic zoomifications.");
         overwriteAnnotations = optionsParser.processBooleanOption("overwriteAnnotations", false, true, "t", "Whether to overwrite annotations based on zoomifications. On its own, selecting this option will only strip legacy annotations if a Zooma result is found.");
         stripLegacyAnnotations = optionsParser.processBooleanOption("stripLegacyAnnotations", false, true, "x", "This will strip all legacy annotations, whether or not a Zooma result is found.");
