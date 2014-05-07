@@ -17,7 +17,7 @@ public class ExclusionProfileAttribute {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    private String accession = ""; // The accession number to which this transitional attribute applies. eg. magetab accession
+    private String study = ""; // The study number to which this transitional attribute applies. eg. magetab study
     private String originalType = "";
 
     private String originalTermValue = ""; // 	This is the text preliminaryStringValue supplied as part of the submitted file.
@@ -50,7 +50,7 @@ public class ExclusionProfileAttribute {
         this.zoomifiedOntologyClassLabel = (exclusions[3]);
         this.zoomifiedTermSourceREF = (exclusions[4]);
         this.zoomifiedOntAccession = (exclusions[5]);
-        this.accession = (exclusions[6]);
+        this.study = (exclusions[6]);
 
     }
 
@@ -75,8 +75,8 @@ public class ExclusionProfileAttribute {
         return zoomifiedOntAccession;
     }
 
-    public String getAccession() {
-        return accession;
+    public String getStudy() {
+        return study;
     }
 
     public String getOriginalType() {
