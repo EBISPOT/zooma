@@ -117,14 +117,14 @@ public class ZoomageDriver {
             if (singleLogFileForBatch) {
 
                 zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_"+accession);
-                zoomageLogger.printCurationRowsToFile(outfileBasePath,"Curation_"+accession);
+//                zoomageLogger.printCurationRowsToFile(outfileBasePath,"Curation_"+accession);
             }
         }
 
         if (!singleLogFileForBatch) {
 
             zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_"+"Batch");
-            zoomageLogger.printCurationRowsToFile(outfileBasePath,"Curation_"+"Batch");
+//            zoomageLogger.printCurationRowsToFile(outfileBasePath,"Curation_"+"Batch");
         }
 
 
