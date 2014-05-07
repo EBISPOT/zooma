@@ -31,7 +31,6 @@ public class ZoomageLogger {
     private boolean overwriteAnnotations;
 
     private boolean stripLegacyAnnotations;
-    private final boolean addCommentsToSDRF;
     private final String zoomaPath;
     private final String limpopoPath;
     private String configLogString;
@@ -39,20 +38,19 @@ public class ZoomageLogger {
     private ArrayList<String> combinedCurationLogFileRows = new ArrayList<String>();
 
     // Print the headers
-    private String[] headers = {"PROPERTY_TYPE", "PROPERTY_VALUE", "STUDY", "BIOENTITY", "Original Ont Source", "Original Ont Source Id",
+    private String[] headers = {
+            "PROPERTY_TYPE", "PROPERTY_VALUE", "STUDY", "BIOENTITY", "SEMANTIC_TAG", "CORRESPONDING_LABEL", "CORRESPONDING_ZOOMA_SCORE", "ANNOTATOR", "ANNOTATION_DATE",
+            "Original Ont Source", "Original Ont Source Id",
             "Matching Zooma Input", "Zooma Ont Label", "Zoomified Ont Source", "Zoomified Ont Source ID", "Category of Zooma Mapping",
             "# Results before filter", "# Results after filter", "Basis for Exclusion", "Annotation Summary ID", "Annotation Summary Score",
-//                "RunnerUp Annotation Summary ID",
             "RunnerUp Annotation Summary Score",
-//                "RunnerUp Matching Zooma Input",
             "RunnerUp Zooma Ont Label",
-//                "RunnerUp Zoomified Ont Source", "RunnerUp Zoomified Ont Source ID",
             "Zooma Error Message"};
 
 
     public ZoomageLogger(float cutoffScore, int minStringLength, float cutoffPercentage, boolean olsShortIds,
                          String logFileDelimiter, boolean overwriteValues,
-                         boolean overwriteAnnotations, boolean stripLegacyAnnotations, boolean addCommentsToSDRF,
+                         boolean overwriteAnnotations, boolean stripLegacyAnnotations,
                          String zoomaPath, String limpopoPath) {
 
         this.cutoffScore = cutoffScore;
@@ -64,7 +62,6 @@ public class ZoomageLogger {
         this.overwriteAnnotations = overwriteAnnotations;
         this.stripLegacyAnnotations = stripLegacyAnnotations;
 
-        this.addCommentsToSDRF = addCommentsToSDRF;
         this.zoomaPath = zoomaPath;
         this.limpopoPath = limpopoPath;
 
@@ -101,59 +98,6 @@ public class ZoomageLogger {
 
     }
 
-//    public ArrayList<String> formatCacheAsBulkCuration(HashMap<String, TransitionalAttribute> masterCache) {
-//
-//        ArrayList<String> curationRows = new ArrayList<>();
-//
-//        // Print store each attribute as a string.
-//        for (TransitionalAttribute attribute : masterCache.values()) {
-//
-//            if (attribute.getCategoryOfZoomaMapping() == ZoomaResultsProfile.MappingCategory.REQUIRES_CURATION) {
-//                String row = transitionalAttributeAsCurationRow(attribute);
-//                curationRows.add(row);
-//            }
-//
-//        }
-//
-//        return curationRows;
-//
-//    }
-
-//    private String transitionalAttributeAsCurationRow(TransitionalAttribute attribute) {
-//        //STUDY,BIOENTITY,PROPERTY_TYPE,PROPERTY_VALUE,SEMANTIC_TAG,ANNOTATOR,ANNOTATION_DATE
-//        String row = "";
-//
-//        // STUDY
-//        row += attribute.getStudy();
-//        row += ",";
-//
-//        // BIOENTITY
-//        row += attribute.getBioentity();
-//        row += ",";
-//
-//        //PROPERTY_TYPE
-//        row += attribute.getOriginalType();
-//        row += ",";
-//
-//        //PROPERTY_VALUE
-//        row += attribute.getorigi();
-//        row += ",";
-//
-//        //SEMANTIC_TAG
-//        row += attribute.getRunnerUpOntAccession();
-//        row += ",";
-//
-//        //ANNOTATOR (Curator's name)
-//        row += "FIRST LAST";
-//        row += ",";
-//
-//        //ANNOTATION_DATE
-//
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        row += sdf.format(new Date());
-//
-//        return row;  //To change body of created methods use File | Settings | File Templates.
-//    }
 
     public String transitionalAttributeToLogRow(TransitionalAttribute attribute) {
         return transitionalAttributeToLogRow(attribute, configLogString);
@@ -162,128 +106,133 @@ public class ZoomageLogger {
     public String transitionalAttributeToLogRow(TransitionalAttribute attribute, String configLogString) {
         String row = "";
 
-        //0
+        //
         row += standardiseNulls(attribute.getOriginalType());
-        row += (logFileDelimiter);
+        row += logFileDelimiter;
 
-        //1
+        //
         if (!attribute.getOriginalTermValue().contains(logFileDelimiter))
             row += standardiseNulls(attribute.getOriginalTermValue()); // 	This is the text preliminaryStringValue supplied as part of the submitted file.
         else row += standardiseNulls(attribute.getOriginalTermValue().replaceAll(logFileDelimiter, " "));
-        row += (logFileDelimiter);
+        row += logFileDelimiter;
 
-        //2
+        //
         row += standardiseNulls(attribute.getStudy());
-        row += (logFileDelimiter);
+        row += logFileDelimiter;
 
-        //3
+        //
+        row += standardiseNulls(attribute.getBioentity());
+        row += logFileDelimiter;
+
+        String semanticTag = standardiseNulls(attribute.getRunnerUpOntAccession());
+
+        if (semanticTag != null) {
+            // SEMANTIC_TAG
+            row += attribute.getRunnerUpOntAccession();
+            row += logFileDelimiter;
+
+            // CORRESPONDING_LABEL
+            row += attribute.getRunnerUpTermLabel();
+            row += logFileDelimiter;
+
+            // CORRESPONDING_ZOOMA_SCORE
+            row += attribute.runnerUpAnnotation.getQuality();
+            row += logFileDelimiter;
+
+            //ANNOTATOR (Curator's name)
+            row += "FIRSTNAME LASTNAME";
+            row += logFileDelimiter;
+
+            //ANNOTATION_DATE
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            row += sdf.format(new Date());
+            row += logFileDelimiter;
+        } else {
+            row += appendNull(5);
+        }
+
+        //
         row += standardiseNulls(attribute.getOriginalTermSourceREF()); // If your term had a pre-existing annotation, this contains the source of this mapping.
-        row += (logFileDelimiter);
+        row += logFileDelimiter;
 
-        //4
+        //
         row += standardiseNulls(attribute.getOriginalTermAccessionNumber());
-        row += (logFileDelimiter);
+        row += logFileDelimiter;
 
-        //5
+        //
         String zoomifiedTermValue = compareStrings(attribute.getZoomifiedTermValue(), attribute.getOriginalTermValue());
 
         row += standardiseNulls(zoomifiedTermValue);      // 	This is most often identical to the text preliminaryStringValue supplied as part of your search, but occasionally Zooma determines is close enough to a text preliminaryStringValue previously determined to map to a given ontology term.
-        row += (logFileDelimiter);
+        row += logFileDelimiter;
 
-        //6
+        //
         row += compareStrings(attribute.getZoomifiedOntologyClassLabel(), attribute.getOriginalTermValue()); // If your term resulted in a Zooma mapping, this contains the label of the class in the ontology that Zooma mapped to
-        row += (logFileDelimiter);
+        row += logFileDelimiter;
 
-        //7
+        //
         row += standardiseNulls(attribute.getZoomifiedTermSourceREF()); // If your term resulted in a Zooma mapping, this contains the source of this mapping. This is usually a dataset in which a similar property preliminaryStringValue was found annotated to the suggested ontology class.;
-        row += (logFileDelimiter);
+        row += logFileDelimiter;
 
-        //8
+        //
         row += standardiseNulls(attribute.getZoomifiedOntAccession()); // If your term resulted in a Zooma mapping, this contains the id of the class in the ontology that Zooma mapped to
-        row += (logFileDelimiter);
+        row += logFileDelimiter;
 
-        //9
-
+        //
         String mappingCategory = String.valueOf(attribute.getCategoryOfZoomaMapping());
         if (attribute.getBasisForExclusion() != null && !attribute.getBasisForExclusion().isEmpty())
             mappingCategory = "EXCLUDED";
 
         row += (mappingCategory);    // 	This indicates how confident ZOOMA was with the mapping. "Automatic" means ZOOMA is highly confident and "Requires curation" means ZOOMA found at least match that might fit but ZOOMA is not confident enough to automatically assert it.
-        row += (logFileDelimiter);
+        row += logFileDelimiter;
 
-        //10
-        row += (attribute.getNumberOfZoomaResultsBeforeFilter());   //  This indicates the number of results that Zooma found before filters applied
-        row += (logFileDelimiter);
+        //
 
-        //11
-        row += (attribute.getNumberOfZoomaResultsAfterFilter());   //  This indicates the number of results that Zooma found based on the input parameters. 0 denotes no results meet criteria, 1 denotes automated curation, >1 denotes needs curation.
-        row += (logFileDelimiter);
-
-        //12
-        row += standardiseNulls(attribute.getBasisForExclusion());   //  This indicates the number of results that Zooma found before filters applied
-        row += (logFileDelimiter);
-
-        //13-14
-        if (attribute.annotationSummary != null) {
-            row += standardiseNulls(attribute.annotationSummary.getID());
-            row += (logFileDelimiter);
-            row += (attribute.annotationSummary.getQuality());
-            row += (logFileDelimiter);
-
+        if (mappingCategory.equals("EXCLUDED")) {
+            row += appendNull(2);
         } else {
-            row += ((String) null);
-            row += (logFileDelimiter);
-            row += ((String) null);
-            row += (logFileDelimiter);
+            row += (attribute.getNumberOfZoomaResultsBeforeFilter());   //  This indicates the number of results that Zooma found before filters applied
+            row += logFileDelimiter;
+
+            //
+            row += (attribute.getNumberOfZoomaResultsAfterFilter());   //  This indicates the number of results that Zooma found based on the input parameters. 0 denotes no results meet criteria, 1 denotes automated curation, >1 denotes needs curation.
+            row += logFileDelimiter;
         }
 
-        //15-16
+        //
+        row += standardiseNulls(attribute.getBasisForExclusion());   //  This indicates the number of results that Zooma found before filters applied
+        row += logFileDelimiter;
+
+        // //
+        if (attribute.annotationSummary != null) {
+            row += standardiseNulls(attribute.annotationSummary.getID());
+            row += logFileDelimiter;
+            row += (attribute.annotationSummary.getQuality());
+            row += logFileDelimiter;
+
+        } else {
+            row += appendNull(2);
+        }
+
+        // //
         if (attribute.runnerUpAnnotation != null) {
 
-//                row += (attribute.runnerUpAnnotation.getID());
-//                row += (logFileDelimiter);
-//
             row += (attribute.runnerUpAnnotation.getQuality());
-            row += (logFileDelimiter);
-//
-//                String runnerUpTermValue = (attribute.getZoomifiedTermValue() != null && attribute.getZoomifiedTermValue().equalsIgnoreCase(attribute.getZoomifiedTermValue())) ? "~" : attribute.getZoomifiedTermValue();
-//
-//                row += (runnerUpTermValue);      // 	This is most often identical to the text preliminaryStringValue supplied as part of your search, but occasionally Zooma determines is close enough to a text preliminaryStringValue previously determined to map to a given ontology term.
-//                row += (logFileDelimiter);
+            row += logFileDelimiter;
 
             String runnerUpTermLabel = compareStrings(attribute.getRunnerUpTermLabel(), attribute.getOriginalTermValue());
 
             row += (runnerUpTermLabel); // If your term resulted in a Zooma mapping, this contains the label of the class in the ontology that Zooma mapped to
-            row += (logFileDelimiter);
-
-
-//                row += (attribute.getRunnerUpTermSourceRef()); // If your term resulted in a Zooma mapping, this contains the source of this mapping. This is usually a dataset in which a similar property preliminaryStringValue was found annotated to the suggested ontology class.
-//                row += (logFileDelimiter);
-//
-//                row += (attribute.getRunnerUpOntAccession()); // If your term resulted in a Zooma mapping, this contains the source of this mapping. This is usually a dataset in which a similar property preliminaryStringValue was found annotated to the suggested ontology class.;
-//                row += (logFileDelimiter);
-
+            row += logFileDelimiter;
 
         } else {
-            row += ((String) null);
-            row += (logFileDelimiter);
-            row += ((String) null);
-            row += (logFileDelimiter);
-//                row += ((String) null);
-//                row += (logFileDelimiter);
-//                row += ((String) null);
-//                row += (logFileDelimiter);
-//                row += ((String) null);
-//                row += (logFileDelimiter);
-//                row += ((String) null);
-//                row += (logFileDelimiter);
+            row += appendNull(2);
         }
 
-        //17
+        //
         row += standardiseNulls(attribute.getErrorMessage());
-        row += (logFileDelimiter);
+        row += logFileDelimiter;
 
-        //18
+        //
         row += (configLogString);
 
         return row;
@@ -294,18 +243,18 @@ public class ZoomageLogger {
         else return string;
     }
 
-    public void printCurationRowsToFile(String outfileBasePath, String study) {
-
-        String headerLine = "";
-
-        for (String header : headers) {
-            headerLine += (header + logFileDelimiter);
-        }
-
-        headerLine += (getConfigLogHeaders());
-
-        printLogRowsToFile(outfileBasePath, study, headerLine, combinedCurationLogFileRows);
-    }
+//    public void printCurationRowsToFile(String outfileBasePath, String study) {
+//
+//        String headerLine = "";
+//
+//        for (String header : headers) {
+//            headerLine += (header + logFileDelimiter);
+//        }
+//
+//        headerLine += (getConfigLogHeaders());
+//
+//        printLogRowsToFile(outfileBasePath, study, headerLine, combinedCurationLogFileRows);
+//    }
 
     public void printLogRowsToFile(String outfileBasePath, String study) {
 
@@ -330,19 +279,19 @@ public class ZoomageLogger {
         PrintWriter out = null; //todo: change file ending
         try {
             out = new PrintWriter(new BufferedWriter(new FileWriter(outfileBasePath + study + "-zoomifications-log.tsv", false)));
+
+            if (headerLine != null) out.println(headerLine);
+            else getLog().error("Header line is missing.");
+
+            for (String line : rows) {
+                out.println(line);
+            }
+
+            out.flush();
+            out.close();
         } catch (IOException e) {
             e.printStackTrace();  //todo:
         }
-
-
-        out.println(headerLine);
-
-        for (String line : rows) {
-            out.println(line);
-        }
-
-        out.flush();
-        out.close();
     }
 
     private String setConfigLogString() {
@@ -357,7 +306,6 @@ public class ZoomageLogger {
                 String.valueOf(overwriteValues),
                 String.valueOf(overwriteAnnotations),
                 String.valueOf(stripLegacyAnnotations),
-                String.valueOf(addCommentsToSDRF),
         };
 
         String configString = "";
@@ -383,7 +331,6 @@ public class ZoomageLogger {
                 "overwriteValues",
                 "overwriteAnnotations",
                 "stripLegacyAnnotations",
-                "addCommentsToSDRF"
         };
 
         String headersString = "";
@@ -398,17 +345,20 @@ public class ZoomageLogger {
         return headersString;
     }
 
-//    public void addLogFileRowsForSingleAccession(ArrayList<String> logFileRowsForSingleAccession) {
-//        combinedLogFileRows.addAll(logFileRowsForSingleAccession);
-//    }
-
     private static String compareStrings(String string1, String string2) {
         if (string1 == null || string1.equals("")) return null;
         else return (string1.equalsIgnoreCase(string2)) ? string1 + "|ExactMatch" : string1 + "|" + string2;
     }
 
+    protected Logger getLog() {
+        return log;
+    }
 
-    public void addCurationRowsForSingleAccession(ArrayList<String> curationRowsForSingleAccession) {
-        combinedCurationLogFileRows.addAll(curationRowsForSingleAccession);
+    private String appendNull(int iterations) {
+        String delimitedNulls = "";
+        for (int i = 0; i < iterations; i++) {
+            delimitedNulls += null + logFileDelimiter;
+        }
+        return delimitedNulls;
     }
 }

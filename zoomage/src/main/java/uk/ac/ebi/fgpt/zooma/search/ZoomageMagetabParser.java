@@ -59,19 +59,17 @@ public class ZoomageMagetabParser {
     private String magetabAccession;
     private final String magetabBasePath;
     private final boolean overwriteValues;
-    private final boolean addCommentsToSDRF;
     private final boolean overwriteAnnotations;
     private final boolean stripLegacyAnnotations;
 
 
-    public ZoomageMagetabParser(String limpopoPath, String magetabBasePath, String outFileBasePath, boolean overwriteValues, boolean overwriteAnnotations, boolean stripLegacyAnnotations, boolean addCommentsToSDRF) {
+    public ZoomageMagetabParser(String limpopoPath, String magetabBasePath, String outFileBasePath, boolean overwriteValues, boolean overwriteAnnotations, boolean stripLegacyAnnotations) {
         this.limpopoPath = limpopoPath;
         this.magetabBasePath = magetabBasePath;
         this.outFileBasePath = outFileBasePath;
         this.overwriteValues = overwriteValues;
         this.overwriteAnnotations = overwriteAnnotations;
         this.stripLegacyAnnotations = stripLegacyAnnotations;
-        this.addCommentsToSDRF = addCommentsToSDRF;
     }
 
     protected Logger getLog() {
@@ -92,12 +90,12 @@ public class ZoomageMagetabParser {
             parser.addErrorItemListener(new ErrorItemListener() {
 
                 public void errorOccurred(ErrorItem item) {
-                    log.error(item.getErrorCode() + ": " + item.getMesg() + " [line " +
+                    getLog().error(item.getErrorCode() + ": " + item.getMesg() + " [line " +
                             item.getLine() + ", column " + item.getCol() + "] (" +
                             item.getComment() + ")");
                     if (item.getErrorCode() != 501) {
                         synchronized (encounteredWarnings) {
-                            log.debug("Error in file '" + item.getParsedFile() + "'");
+                            getLog().debug("Error in file '" + item.getParsedFile() + "'");
                             encounteredWarnings.add(item.getParsedFile());
                         }
                     }
@@ -130,12 +128,12 @@ public class ZoomageMagetabParser {
 
             getLog().debug("\n\n\n============================\n\n\n");
             getLog().info("IDF and SDRF files for " + investigation.getAccession() + " written to " + outFileBasePath);
-            log.debug("\n\n\n============================\n\n\n");
+            getLog().debug("\n\n\n============================\n\n\n");
             return true;
 
         } catch (IOException | ParseException e) {
             e.printStackTrace();  //todo
-            log.debug("\n\n\n============================\n\n\n");
+            getLog().debug("\n\n\n============================\n\n\n");
             return false;
         }
 
@@ -157,107 +155,86 @@ public class ZoomageMagetabParser {
         // iterate over sourceNodes fetch corresponding zooma annotation, make changes accordingly
         Collection<SourceNode> sourceNodes = sdrf.getNodes(SourceNode.class);
 
-        log.info("Processing " + sourceNodes.size() + " Source Nodes ...");
+        getLog().info("Processing " + sourceNodes.size() + " Source Nodes ...");
 
 
         for (SourceNode sourceNode : sourceNodes) {
 
-            getLog().debug("Processing source node: " + sourceNode.getNodeName());
+            String nodeName = sourceNode.getNodeName();
+
+            getLog().info("Processing source node: " + nodeName);
 
 
             for (CharacteristicsAttribute attribute : sourceNode.characteristics) {
 
-                attribute = process(attribute);
+                attribute = process(attribute, nodeName);
                 getLog().debug("Processed attribute: " + attribute.getAttributeType() + ":" + attribute.getAttributeValue());
             }
 
-            // if we should add comments to the SDRF file
-            if (addCommentsToSDRF) {
-
-                sourceNode.comments.put("Zoomifications", comments);
-                // reset the comments cache
-                comments = new ArrayList<String>();
-            }
         }
 
 
         // do the same for sampleNodes
         Collection<SampleNode> sampleNodes = sdrf.getNodes(SampleNode.class);
 
-        log.info("Processing " + sampleNodes.size() + " Sample Nodes ...");
+        getLog().info("Processing " + sampleNodes.size() + " Sample Nodes ...");
 
         for (SampleNode sampleNode : sampleNodes) {
 
-            getLog().debug("Processing sample node: " + sampleNode.getNodeName());
+            String nodeName = sampleNode.getNodeName();
+
+            getLog().info("Processing sample node: " + nodeName);
 
             for (CharacteristicsAttribute attribute : sampleNode.characteristics) {
-                attribute = process(attribute);
+                attribute = process(attribute, nodeName);
                 getLog().debug("Processed attribute: " + attribute.getAttributeType() + ":" + attribute.getAttributeValue());
             }
 
-            // if we should add comments to the SDRF file
-            if (addCommentsToSDRF) {
-
-                sampleNode.comments.put("Zoomifications", comments);
-                // reset the comments cache
-                comments = new ArrayList<String>();
-            }
         }
 
         // do the same for hybridizationNodes
         Collection<HybridizationNode> hybridizationNodes = sdrf.getNodes(HybridizationNode.class);
 
-        log.info("Processing " + hybridizationNodes.size() + " Hybridization Nodes ...");
+        getLog().info("Processing " + hybridizationNodes.size() + " Hybridization Nodes ...");
 
 
         for (HybridizationNode hybridizationNode : hybridizationNodes) {
-            getLog().debug("Processing hybridization node: " + hybridizationNode.getNodeName());
+
+            String nodeName = hybridizationNode.getNodeName();
+
+            getLog().info("Processing hybridization node: " + nodeName);
 
             for (FactorValueAttribute attribute : hybridizationNode.factorValues) {
 
-                attribute = process(attribute);
+                attribute = process(attribute, nodeName);
                 getLog().debug("Processing attribute: " + attribute.getAttributeType() + ":" + attribute.getAttributeValue());
 
             }
 
-            // if we should add comments to the SDRF file
-            if (addCommentsToSDRF) {
-
-                hybridizationNode.comments.put("Zoomifications", comments);
-                // reset the comments cache
-                comments = new ArrayList<String>();
-            }
         }
 
         // do the same for hybridizationNodes
         Collection<AssayNode> assayNodes = sdrf.getNodes(AssayNode.class);
 
-        log.info("Processing " + assayNodes.size() + " Assay Nodes ...");
+        getLog().info("Processing " + assayNodes.size() + " Assay Nodes ...");
 
         for (AssayNode assayNode : assayNodes) {
-            getLog().debug("Processing assay node: " + assayNode.getNodeName());
+            String nodeName = assayNode.getNodeName();
+
+            getLog().info("Processing assay node: " + nodeName);
 
             for (FactorValueAttribute attribute : assayNode.factorValues) {
 
-                process(attribute);
+                process(attribute, nodeName);
             }
 
-            // if we should add comments to the SDRF file
-            if (addCommentsToSDRF) {
-
-                assayNode.comments.put("Zoomifications", comments);
-                // reset the comments cache
-                comments = new ArrayList<String>();
-            }
         }
 
         return sdrf;
 
     }
 
-    private CharacteristicsAttribute process(CharacteristicsAttribute attribute) {
-
-        String bioentity = attribute.getNodeName();
+    private CharacteristicsAttribute process(CharacteristicsAttribute attribute, String bioentity) {
 
         // First create the baseline transitional attribute before stripping legacy annotations.
         TransitionalAttribute baselineTransAttribute = new TransitionalAttribute(magetabAccession, bioentity, attribute);
@@ -283,12 +260,10 @@ public class ZoomageMagetabParser {
 
     }
 
-    private FactorValueAttribute process(FactorValueAttribute attribute) {
-
-        String bioentity = attribute.getNodeName();
+    private FactorValueAttribute process(FactorValueAttribute attribute, String nodeName) {
 
         // First create the baseline transitional attribute before stripping legacy annotations.
-        TransitionalAttribute baselineTransAttribute = new TransitionalAttribute(magetabAccession, bioentity, attribute);
+        TransitionalAttribute baselineTransAttribute = new TransitionalAttribute(magetabAccession, nodeName, attribute);
 
         // then strip legacy annotations if indicated
         if (stripLegacyAnnotations) {
@@ -596,7 +571,7 @@ public class ZoomageMagetabParser {
                 // check we have a json response
                 if (header.getValue().contains("application/json")) {
                     // all ok, method response body and convert to json
-//                    log.info("This request generated a valid response with application/json response type");
+//                     getLog().info("This request generated a valid response with application/json response type");
                     return true;
                 }
             }

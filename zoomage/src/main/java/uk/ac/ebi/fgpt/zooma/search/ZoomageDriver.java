@@ -31,7 +31,6 @@ public class ZoomageDriver {
     private boolean singleLogFileForBatch;
 
     private final Logger log = LoggerFactory.getLogger(ZoomageDriver.class);
-    private boolean addCommentsToSDRF;
     private String magetabBasePath;
     private String zoomaPath;
     private String limpopoPath;
@@ -90,7 +89,7 @@ public class ZoomageDriver {
     public void run() {
 
         zoomageParser = new ZoomageMagetabParser(limpopoPath, magetabBasePath,
-                outfileBasePath, overwriteValues, overwriteAnnotations, stripLegacyAnnotations, addCommentsToSDRF);
+                outfileBasePath, overwriteValues, overwriteAnnotations, stripLegacyAnnotations);
 
         ZoomageUtils.initialise(zoomaPath, cutoffScoreAutomaticCuration, cutoffPctAutomaticCuration, minStringLength, appResourcesPath, fileDelimiter, olsShortIds, compoundAnnotationDelimiter);
 
@@ -102,7 +101,7 @@ public class ZoomageDriver {
 
         System.out.println();
 
-        zoomageLogger = new ZoomageLogger(cutoffScoreAutomaticCuration, minStringLength, cutoffPctAutomaticCuration, olsShortIds, fileDelimiter, overwriteValues, overwriteAnnotations, stripLegacyAnnotations, addCommentsToSDRF, zoomaPath, limpopoPath);
+        zoomageLogger = new ZoomageLogger(cutoffScoreAutomaticCuration, minStringLength, cutoffPctAutomaticCuration, olsShortIds, fileDelimiter, overwriteValues, overwriteAnnotations, stripLegacyAnnotations, zoomaPath, limpopoPath);
 
 
         // for each accession
@@ -116,14 +115,14 @@ public class ZoomageDriver {
 
             if (singleLogFileForBatch) {
 
-                zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_"+accession);
+                zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_" + accession);
 //                zoomageLogger.printCurationRowsToFile(outfileBasePath,"Curation_"+accession);
             }
         }
 
         if (!singleLogFileForBatch) {
 
-            zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_"+"Batch");
+            zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_" + "Batch");
 //            zoomageLogger.printCurationRowsToFile(outfileBasePath,"Curation_"+"Batch");
         }
 
@@ -189,7 +188,6 @@ public class ZoomageDriver {
         overwriteValues = optionsParser.processBooleanOption("overwriteValues", false, true, "v", "Whether to overwrite values based on automatic zoomifications.");
         overwriteAnnotations = optionsParser.processBooleanOption("overwriteAnnotations", false, true, "t", "Whether to overwrite annotations based on zoomifications. On its own, selecting this option will only strip legacy annotations if a Zooma result is found.");
         stripLegacyAnnotations = optionsParser.processBooleanOption("stripLegacyAnnotations", false, true, "x", "This will strip all legacy annotations, whether or not a Zooma result is found.");
-        addCommentsToSDRF = optionsParser.processBooleanOption("addCommentsToSDRF", false, true, "c", "Directly within SDRF output, add to comments in order to indicate what changes have been made. This value is currently ignored");
         singleLogFileForBatch = optionsParser.processBooleanOption("singleLogFileForBatch", false, true, "e", "Directly within SDRF output, add to comments in order to indicate what changes have been made. This value is currently ignored");
 
         magetabBasePath = optionsParser.processStringOption("magetabBasePath", false, true, "i", "Basepath where raw input magetab files can be found.");
