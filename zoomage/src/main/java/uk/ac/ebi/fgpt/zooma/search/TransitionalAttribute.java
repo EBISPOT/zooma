@@ -22,7 +22,6 @@ public class TransitionalAttribute {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     private String study = ""; // The study number to which this transitional attribute applies. eg. magetab study
-    private String bioEntity = "";
     private String originalType = "";
     private String normalisedType = "";
 
@@ -52,29 +51,13 @@ public class TransitionalAttribute {
     private String runnerUpTermLabel;
     private String bioentity;
 
-    public TransitionalAttribute(String study, String bioEntity, String originalType, String originalAttributeValue, int numberOfZoomaResultsBeforeFilter, AnnotationSummary annotationSummary) {
-        // if type is null or blank, then set this type to null, else attribute type
-        this.originalType = (originalType == null || originalType.equals("") ? null : originalType);
-//        this.normalisedType = norm
-        this.normalisedType = ZoomageUtils.normaliseType(originalType);
-
-        this.originalTermValue = (originalAttributeValue == null || originalAttributeValue.equals("") ? null : originalAttributeValue);
-
-        this.study = study;
-        this.bioEntity = bioEntity;
-        this.numberOfZoomaResultsBeforeFilter = numberOfZoomaResultsBeforeFilter;
-
-        setAnnotationSummary(annotationSummary);
-
-    }
-
 
     /**
      * Make a TransitionalAttribute object from an original CharacteristicsAttribute that needs to be Zoomified.
      *
      * @param attribute CharacteristicsAttribute
      */
-    public TransitionalAttribute(String study, String bioEntity, CharacteristicsAttribute attribute) {
+    public TransitionalAttribute(String study, String bioentity, CharacteristicsAttribute attribute) {
 
         this.originalType = (attribute.type == null || attribute.type.equals("") ? null : attribute.type);
 
@@ -87,7 +70,7 @@ public class TransitionalAttribute {
         this.originalTermAccessionNumber = (attribute.termAccessionNumber == null || attribute.termAccessionNumber.equals("") ? null : attribute.termAccessionNumber);
 
         this.study = study;
-        this.bioEntity = bioEntity;
+        this.bioentity = bioentity;
 
     }
 
@@ -96,7 +79,7 @@ public class TransitionalAttribute {
      *
      * @param attribute FactorValueAttribute
      */
-    public TransitionalAttribute(String study, String bioEntity,FactorValueAttribute attribute) {
+    public TransitionalAttribute(String study, String bioentity, FactorValueAttribute attribute) {
 
         // if type is null or blank, then set this type to null, else attribute type
         this.originalType = (attribute.type == null || attribute.type.equals("") ? null : attribute.type);
@@ -114,11 +97,11 @@ public class TransitionalAttribute {
                         attribute.termAccessionNumber);
 
         this.study = study;
-        this.bioEntity = bioEntity;
+        this.bioentity = bioentity;
 
     }
 
-    public TransitionalAttribute(String study, String bioEntity, String type, String originalTermValue, int numberOfZoomaResultsBeforeFilter, int numberOfZoomaResultsAfterFilter) {
+    public TransitionalAttribute(String study, String bioentity, String type, String originalTermValue, int numberOfZoomaResultsBeforeFilter, int numberOfZoomaResultsAfterFilter) {
 
         // if type is null or blank, then set this type to null, else attribute type
         this.originalType = (type == null || type.equals("") ? null : type);
@@ -128,7 +111,7 @@ public class TransitionalAttribute {
         this.originalTermValue = (originalTermValue == null || originalTermValue.equals("") ? null : originalTermValue);
 
         this.study = study;
-        this.bioEntity = bioEntity;
+        this.bioentity = bioentity;
 
         this.numberOfZoomaResultsBeforeFilter = numberOfZoomaResultsBeforeFilter;
         this.numberOfZoomaResultsAfterFilter = numberOfZoomaResultsAfterFilter;
