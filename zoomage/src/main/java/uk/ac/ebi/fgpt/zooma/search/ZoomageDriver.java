@@ -103,7 +103,6 @@ public class ZoomageDriver {
 
         zoomageLogger = new ZoomageLogger(cutoffScoreAutomaticCuration, minStringLength, cutoffPctAutomaticCuration, olsShortIds, fileDelimiter, overwriteValues, overwriteAnnotations, stripLegacyAnnotations, zoomaPath, limpopoPath);
 
-
         // for each accession
         for (String accession : mageTabAccessions) {
 
@@ -113,17 +112,13 @@ public class ZoomageDriver {
             // duplicates between accessions are not stored (the key is type:value only)
             ZoomageUtils.clearMasterCache();
 
-            if (singleLogFileForBatch) {
-
+            if (!singleLogFileForBatch) {
                 zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_" + accession);
-//                zoomageLogger.printCurationRowsToFile(outfileBasePath,"Curation_"+accession);
             }
         }
 
-        if (!singleLogFileForBatch) {
-
+        if (singleLogFileForBatch) {
             zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_" + "Batch");
-//            zoomageLogger.printCurationRowsToFile(outfileBasePath,"Curation_"+"Batch");
         }
 
 

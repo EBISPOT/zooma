@@ -227,7 +227,6 @@ public class ZoomageMagetabParser {
 
                 process(attribute, nodeName);
             }
-
         }
 
         return sdrf;
