@@ -155,9 +155,9 @@ public class ZoomaResultsProfile {
                 System.out.println("map == null");
         } catch (Exception e) {
 
-            String errorMessage = "Due to a Zooma error results could be fetched for " + attributeType + ":" + attributeValue;
+            String errorMessage = e.getMessage().replaceAll("[^a-zA-Z ]", " ");
             getLog().warn(errorMessage);
-            this.errorMessage = e.getMessage().replaceAll("[^a-zA-Z ]", " ");
+            this.errorMessage = errorMessage;
             mappingCategory = MappingCategory.ERROR;
 
             throw new ZoomaException(e.getMessage());

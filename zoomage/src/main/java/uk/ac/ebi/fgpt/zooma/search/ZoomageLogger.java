@@ -39,10 +39,10 @@ public class ZoomageLogger {
 
     // Print the headers
     private String[] headers = {
-            "PROPERTY_TYPE", "PROPERTY_VALUE", "STUDY", "BIOENTITY", "SEMANTIC_TAG", "CORRESPONDING_LABEL", "CORRESPONDING_ZOOMA_SCORE", "ANNOTATOR", "ANNOTATION_DATE",
-            "Original Ont Source", "Original Ont Source Id",
+            "PROPERTY_TYPE", "PROPERTY_VALUE", "CORRESPONDING_LABEL", "VALUE|LABEL", "SEMANTIC_TAG","CORRESPONDING_ZOOMA_SCORE", "ANNOTATOR", "ANNOTATION_DATE",
+            "STUDY", "BIOENTITY",  "Original Ont Source", "Original Ont Source Id",
             "Matching Zooma Input", "Zooma Ont Label", "Zoomified Ont Source", "Zoomified Ont Source ID", "Category of Zooma Mapping",
-            "# Results before filter", "# Results after filter", "Basis for Exclusion", "Annotation Summary ID", "Annotation Summary Score",
+            "# Results before filter", "# Results after filter", "Basis for Exclusion", "ID of Automatic Annotation", "Summary Score of Automatic Annotation",
             "RunnerUp Annotation Summary Score",
             "RunnerUp Zooma Ont Label",
             "Zooma Error Message"};
@@ -106,33 +106,37 @@ public class ZoomageLogger {
     public String transitionalAttributeToLogRow(TransitionalAttribute attribute, String configLogString) {
         String row = "";
 
-        //
+        //"PROPERTY_TYPE", "PROPERTY_VALUE", "CORRESPONDING_LABEL","COMPARISON", "SEMANTIC_TAG", "STUDY", "BIOENTITY", "CORRESPONDING_ZOOMA_SCORE", "ANNOTATOR", "ANNOTATION_DATE",
+
         row += standardiseNulls(attribute.getOriginalType());
         row += logFileDelimiter;
 
-        //
-        if (!attribute.getOriginalTermValue().contains(logFileDelimiter))
-            row += standardiseNulls(attribute.getOriginalTermValue()); // 	This is the text preliminaryStringValue supplied as part of the submitted file.
-        else row += standardiseNulls(attribute.getOriginalTermValue().replaceAll(logFileDelimiter, " "));
-        row += logFileDelimiter;
+        // PROPERTY VALUE
 
-        //
-        row += standardiseNulls(attribute.getStudy());
-        row += logFileDelimiter;
+        String originalValue = attribute.getOriginalTermValue();
 
-        //
-        row += standardiseNulls(attribute.getBioentity());
+        row += standardiseNulls(originalValue.replaceAll(logFileDelimiter, " "));
         row += logFileDelimiter;
 
         String semanticTag = standardiseNulls(attribute.getRunnerUpOntAccession());
 
         if (semanticTag != null) {
-            // SEMANTIC_TAG
-            row += attribute.getRunnerUpOntAccession();
-            row += logFileDelimiter;
 
             // CORRESPONDING_LABEL
             row += attribute.getRunnerUpTermLabel();
+            row += logFileDelimiter;
+
+            // COMPARISON
+            String comparison = "";
+            if (originalValue.equalsIgnoreCase(attribute.getRunnerUpTermLabel())) {
+                comparison = "EXACT MATCH";
+            } else comparison = "mismatch";
+            row += comparison;
+
+            row += logFileDelimiter;
+
+            // SEMANTIC_TAG
+            row += attribute.getRunnerUpOntAccession();
             row += logFileDelimiter;
 
             // CORRESPONDING_ZOOMA_SCORE
@@ -150,6 +154,14 @@ public class ZoomageLogger {
         } else {
             row += appendNull(5);
         }
+
+        //
+        row += standardiseNulls(attribute.getStudy());
+        row += logFileDelimiter;
+
+        //
+        row += standardiseNulls(attribute.getBioentity());
+        row += logFileDelimiter;
 
         //
         row += standardiseNulls(attribute.getOriginalTermSourceREF()); // If your term had a pre-existing annotation, this contains the source of this mapping.

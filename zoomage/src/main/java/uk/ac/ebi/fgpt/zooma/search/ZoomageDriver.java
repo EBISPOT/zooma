@@ -186,13 +186,11 @@ public class ZoomageDriver {
         singleLogFileForBatch = optionsParser.processBooleanOption("singleLogFileForBatch", false, true, "e", "Directly within SDRF output, add to comments in order to indicate what changes have been made. This value is currently ignored");
 
         magetabBasePath = optionsParser.processStringOption("magetabBasePath", false, true, "i", "Basepath where raw input magetab files can be found.");
-        zoomaPath = optionsParser.processStringOption("zoomaPath", false, true, "z", "Path for version of Zooma to use. Note that at present, the zooma API differs between prod / dev environments, so you may encounter errors.");
+        zoomaPath = optionsParser.processStringOption("zoomaPath", false, true, "z", "Path for version of Zooma to use (eg: http://wwwdev.ebi.ac.uk/fgpt/zooma) Note that at present, the zooma API differs between prod / dev environments, so you may encounter errors.");
         limpopoPath = optionsParser.processStringOption("limpopoPath", false, true, "l", "Path for version of Limpopo to use.");
         outfileBasePath = optionsParser.processStringOption("outfileBasePath", false, true, "o", "Fully validated base path for output files. You must include the trailing slash.");
         if (!outfileBasePath.endsWith("/")) outfileBasePath += "/";
 
-
-//        mageTabAccessionsResource = optionsParser.processStringOption("mageTabAccessionsResource", false, true, "m", "Filename where raw input magetab files can be found. This file must reside in the folder corresponding to the basepath for inputs. This is required unless a single magetab accession is specified.");
     }
 
 
