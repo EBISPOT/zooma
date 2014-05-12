@@ -185,11 +185,12 @@ public class ZoomageDriver {
         stripLegacyAnnotations = optionsParser.processBooleanOption("stripLegacyAnnotations", false, true, "x", "This will strip all legacy annotations, whether or not a Zooma result is found.");
         singleLogFileForBatch = optionsParser.processBooleanOption("singleLogFileForBatch", false, true, "e", "Directly within SDRF output, add to comments in order to indicate what changes have been made. This value is currently ignored");
 
-        magetabBasePath = optionsParser.processStringOption("magetabBasePath", false, true, "i", "Basepath where raw input magetab files can be found.");
+        magetabBasePath = optionsParser.processStringOption("magetabBasePath", true, true, "i", "Basepath where raw input magetab files can be found.");
+        outfileBasePath = optionsParser.processStringOption("outfileBasePath", true, true, "o", "Fully validated base path for output files. You must include the trailing slash.");
+        if (!outfileBasePath.endsWith("/")) outfileBasePath += "/";
+
         zoomaPath = optionsParser.processStringOption("zoomaPath", false, true, "z", "Path for version of Zooma to use (eg: http://wwwdev.ebi.ac.uk/fgpt/zooma) Note that at present, the zooma API differs between prod / dev environments, so you may encounter errors.");
         limpopoPath = optionsParser.processStringOption("limpopoPath", false, true, "l", "Path for version of Limpopo to use.");
-        outfileBasePath = optionsParser.processStringOption("outfileBasePath", false, true, "o", "Fully validated base path for output files. You must include the trailing slash.");
-        if (!outfileBasePath.endsWith("/")) outfileBasePath += "/";
 
     }
 
