@@ -116,8 +116,13 @@ public class ZoomageMagetabParser {
             getLog().info("We parsed magetab and zoomified contents into sdrf representation");
 
             //write the results to a file
-            IDFWriter idfWriter = new IDFWriter(new FileWriter(outFileBasePath + investigation.getAccession() + ".idf.txt"));
             SDRFWriter sdrfWriter = new SDRFWriter(new FileWriter(outFileBasePath + investigation.getAccession() + ".sdrf.txt"));
+
+            getLog().info("SDRF written to " + outFileBasePath);
+
+            IDFWriter idfWriter = new IDFWriter(new FileWriter(outFileBasePath + investigation.getAccession() + ".idf.txt"));
+
+            getLog().info("IDF written to " + outFileBasePath);
 
             // write old IDF
             idfWriter.write(investigation.IDF);
@@ -286,7 +291,7 @@ public class ZoomageMagetabParser {
 
     private CharacteristicsAttribute zoomify(TransitionalAttribute zoomifiedAttribute, CharacteristicsAttribute attribute) {
         if (zoomifiedAttribute == null) {
-            getLog().warn("Zoomified Attribute is null for " + attribute.getAttributeType()+attribute.getAttributeValue());
+            getLog().warn("Zoomified Attribute is null for " + attribute.getAttributeType() + attribute.getAttributeValue());
             return null;
         }
         AnnotationSummary annotationSummary = zoomifiedAttribute.getAnnotationSummary();
