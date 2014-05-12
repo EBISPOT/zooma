@@ -35,13 +35,16 @@ public class ExclusionProfileAttribute {
         String[] exclusions = {"", "", "", "", "", "", ""};
 
         if (delimitedString.indexOf(delimiter) == -1) {
-            throw new IllegalArgumentException("Delimiter '" + delimiter + "' was not found in '" + delimitedString + "'");
-        }
+            getLog().warn("Delimiter '" + delimiter + "' was not found in '" + delimitedString + "'");
 
-        String[] exclusionsTemp = delimitedString.split(delimiter);
+            exclusions[0] = delimitedString.trim();
+        } else {
 
-        for (int i = 0; i < exclusionsTemp.length; i++) {
-            exclusions[i] = (exclusionsTemp[i] != null) ? exclusionsTemp[i] : "";
+            String[] exclusionsTemp = delimitedString.split(delimiter);
+
+            for (int i = 0; i < exclusionsTemp.length; i++) {
+                exclusions[i] = (exclusionsTemp[i] != null) ? exclusionsTemp[i] : "";
+            }
         }
 
         this.originalType = (exclusions[0]);

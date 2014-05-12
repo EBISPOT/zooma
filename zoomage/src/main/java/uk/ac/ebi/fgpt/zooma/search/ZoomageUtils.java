@@ -99,8 +99,6 @@ public class ZoomageUtils {
 
             String termSourceAccession = parseAccession(uri, olsShortIds);
 
-            System.out.println(uri + "," + termSourceAccession);
-
             String termSourceRef = null;
 
             try {

@@ -151,8 +151,6 @@ public class ZoomaResultsProfile {
         Map<AnnotationSummary, Float> fullResultsMap = null;
         try {
             fullResultsMap = zoomaSearchClient.searchZOOMA(property, 0);
-            if(fullResultsMap == null)
-                System.out.println("map == null");
         } catch (Exception e) {
 
             String errorMessage = e.getMessage().replaceAll("[^a-zA-Z ]", " ");

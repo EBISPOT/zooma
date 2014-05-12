@@ -113,12 +113,12 @@ public class ZoomageDriver {
             ZoomageUtils.clearMasterCache();
 
             if (!singleLogFileForBatch) {
-                zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_" + accession);
+                zoomageLogger.printLogRowsToFile(outfileBasePath, accession);
             }
         }
 
         if (singleLogFileForBatch) {
-            zoomageLogger.printLogRowsToFile(outfileBasePath, "Logs_" + "Batch");
+            zoomageLogger.printLogRowsToFile(outfileBasePath, "Batch");
         }
 
 
