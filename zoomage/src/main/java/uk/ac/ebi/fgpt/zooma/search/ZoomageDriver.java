@@ -183,7 +183,10 @@ public class ZoomageDriver {
         overwriteValues = optionsParser.processBooleanOption("overwriteValues", false, true, "v", "Whether to overwrite values based on automatic zoomifications.");
         overwriteAnnotations = optionsParser.processBooleanOption("overwriteAnnotations", false, true, "t", "Whether to overwrite annotations based on zoomifications. On its own, selecting this option will only strip legacy annotations if a Zooma result is found.");
         stripLegacyAnnotations = optionsParser.processBooleanOption("stripLegacyAnnotations", false, true, "x", "This will strip all legacy annotations, whether or not a Zooma result is found.");
-        singleLogFileForBatch = optionsParser.processBooleanOption("singleLogFileForBatch", false, true, "e", "Directly within SDRF output, add to comments in order to indicate what changes have been made. This value is currently ignored");
+        if (magetabAccession == null) singleLogFileForBatch = true;
+        else {
+            singleLogFileForBatch = optionsParser.processBooleanOption("singleLogFileForBatch", false, true, "e", "Create a single log file from the batch of magetab accessions.");
+        }
 
         magetabBasePath = optionsParser.processStringOption("magetabBasePath", true, true, "i", "Basepath where raw input magetab files can be found.");
         outfileBasePath = optionsParser.processStringOption("outfileBasePath", true, true, "o", "Fully validated base path for output files. You must include the trailing slash.");
