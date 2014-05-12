@@ -188,6 +188,8 @@ public class TransitionalAttribute {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+        if (errorMessage != null && !errorMessage.isEmpty())
+            categoryOfZoomaMapping = ZoomaResultsProfile.MappingCategory.ERROR;
     }
 
     public int getNumberOfZoomaResultsBeforeFilter() {
@@ -365,8 +367,9 @@ public class TransitionalAttribute {
         return runnerUpTermSourceRef;
     }
 
-    public String getRunnerUpOntAccession() {
-        return runnerUpOntAccession;
+    public String getRunnerUpOntAccession(boolean olsShortIds) {
+        if (runnerUpAnnotation == null) return null;
+        return ZoomageUtils.getCompoundTermSourceAccession(runnerUpAnnotation, olsShortIds);
     }
 
 

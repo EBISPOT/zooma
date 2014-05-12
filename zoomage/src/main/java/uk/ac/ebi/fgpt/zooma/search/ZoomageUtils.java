@@ -74,7 +74,7 @@ public class ZoomageUtils {
      * @param zoomaAnnotationSummary
      * @return ArrayList with two elements, the first is the reference, and the second the accession.
      */
-    public static ArrayList<String> concatenateCompoundURIs(AnnotationSummary zoomaAnnotationSummary) {
+    public static ArrayList<String> concatenateCompoundURIs(AnnotationSummary zoomaAnnotationSummary, boolean olsShortIds) {
 
         if (zoomaAnnotationSummary == null) getLog().debug("Zooma annotation summary is null.");
 
@@ -97,7 +97,10 @@ public class ZoomageUtils {
         if (semanticTags.size() == 1) {
             URI uri = (URI) iterator.next();
 
-            String termSourceAccession = parseAccession(uri);
+            String termSourceAccession = parseAccession(uri, olsShortIds);
+
+            System.out.println(uri + "," + termSourceAccession);
+
             String termSourceRef = null;
 
             try {
@@ -121,7 +124,7 @@ public class ZoomageUtils {
 
             // for each URI build up corresponding delimited strings for refs and accessions
             for (URI semanticTag : semanticTags) {
-                String accession = parseAccession(semanticTag);
+                String accession = parseAccession(semanticTag, olsShortIds);
                 String uri = String.valueOf(semanticTag);
                 int delimiterIndex = parseDelimIndex(semanticTag);
                 String shortNamespace = accession.substring(0, accession.indexOf("_"));
@@ -145,18 +148,26 @@ public class ZoomageUtils {
     }
 
     public static String getCompoundTermSourceRef(AnnotationSummary annotationSummary) {
-        return concatenateCompoundURIs(annotationSummary).get(0);
+        return concatenateCompoundURIs(annotationSummary, olsShortIds).get(0);
+    }
+
+    public static String getCompoundTermSourceRef(AnnotationSummary annotationSummary, boolean olsShortIds) {
+        return concatenateCompoundURIs(annotationSummary, olsShortIds).get(0);
     }
 
     public static String getCompoundTermSourceAccession(AnnotationSummary annotationSummary) {
-        return concatenateCompoundURIs(annotationSummary).get(1);
+        return concatenateCompoundURIs(annotationSummary, olsShortIds).get(1);
     }
 
-    public static String parseAccession(URI semanticTag) {
+    public static String getCompoundTermSourceAccession(AnnotationSummary annotationSummary, boolean olsShortIds) {
+        return concatenateCompoundURIs(annotationSummary, olsShortIds).get(1);
+    }
+
+    public static String parseAccession(URI semanticTag, boolean olsShortIds) {
 
         String tag = String.valueOf(semanticTag);
 
-        String accession = null;
+        String accession = tag;
 
         if (olsShortIds) {
             try {
@@ -291,6 +302,8 @@ public class ZoomageUtils {
                 putInMasterCacheWithoutOverwriting(input, zoomifiedAttribute);
             } catch (ZoomaException e) {
                 getLog().warn(e.getMessage());
+                baselineAttribute.setErrorMessage(e.getMessage());
+                putInMasterCacheWithoutOverwriting(input, baselineAttribute);
                 return baselineAttribute;
             }
         }

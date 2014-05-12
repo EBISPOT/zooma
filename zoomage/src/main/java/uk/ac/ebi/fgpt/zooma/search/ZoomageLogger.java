@@ -118,7 +118,7 @@ public class ZoomageLogger {
         row += standardiseNulls(originalValue.replaceAll(logFileDelimiter, " "));
         row += logFileDelimiter;
 
-        String semanticTag = standardiseNulls(attribute.getRunnerUpOntAccession());
+        String semanticTag = standardiseNulls(attribute.getRunnerUpOntAccession(false));
 
         if (semanticTag != null) {
 
@@ -136,7 +136,7 @@ public class ZoomageLogger {
             row += logFileDelimiter;
 
             // SEMANTIC_TAG
-            row += attribute.getRunnerUpOntAccession();
+            row += attribute.getRunnerUpOntAccession(false);
             row += logFileDelimiter;
 
             // CORRESPONDING_ZOOMA_SCORE
@@ -152,7 +152,7 @@ public class ZoomageLogger {
             row += sdf.format(new Date());
             row += logFileDelimiter;
         } else {
-            row += appendNull(5);
+            row += appendNull(6);
         }
 
         //
@@ -241,7 +241,10 @@ public class ZoomageLogger {
         }
 
         //
-        row += standardiseNulls(attribute.getErrorMessage());
+        String errorMsg = standardiseNulls(attribute.getErrorMessage());
+        // strip punctuation from error message or it can mess with the delimiters
+        if(errorMsg!=null) errorMsg = errorMsg.replaceAll("[^a-zA-Z ]", " ");
+        row += errorMsg;
         row += logFileDelimiter;
 
         //
