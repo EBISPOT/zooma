@@ -113,7 +113,7 @@ public class ZoomageMagetabParser {
             //zoomify the sdrf
             SDRF newSDRF = zoomifyMAGETAB(investigation.SDRF);
             getLog().debug("\n\n\n============================\n\n\n");
-            getLog().debug("We parsed magetab and zoomified contents into sdrf representation");
+            getLog().info("We parsed magetab and zoomified contents into sdrf representation");
 
             //write the results to a file
             IDFWriter idfWriter = new IDFWriter(new FileWriter(outFileBasePath + investigation.getAccession() + ".idf.txt"));
