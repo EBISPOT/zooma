@@ -185,7 +185,7 @@ public class ZoomageDriver {
         stripLegacyAnnotations = optionsParser.processBooleanOption("stripLegacyAnnotations", false, true, "x", "This will strip all legacy annotations, whether or not a Zooma result is found.");
         if (magetabAccession == null) singleLogFileForBatch = true;
         else {
-            singleLogFileForBatch = optionsParser.processBooleanOption("singleLogFileForBatch", false, true, "e", "Create a single log file from the batch of magetab accessions.");
+            singleLogFileForBatch = optionsParser.processBooleanOption("singleLogFileForBatch", false, true, "e", "Create a single log file from the batch of magetab accessions. Will be false if only a single accession is pssed");
         }
 
         magetabBasePath = optionsParser.processStringOption("magetabBasePath", true, true, "i", "Basepath where raw input magetab files can be found.");

@@ -153,7 +153,7 @@ public class ZoomaResultsProfile {
             fullResultsMap = zoomaSearchClient.searchZOOMA(property, 0);
         } catch (Exception e) {
 
-            String errorMessage = e.getMessage().replaceAll("[^a-zA-Z ]", " ");
+            String errorMessage = e.getMessage().replaceAll("[()]", " ");
             getLog().warn(errorMessage);
             this.errorMessage = errorMessage;
             mappingCategory = MappingCategory.ERROR;

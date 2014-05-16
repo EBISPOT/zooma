@@ -243,7 +243,7 @@ public class ZoomageLogger {
         //
         String errorMsg = standardiseNulls(attribute.getErrorMessage());
         // strip punctuation from error message or it can mess with the delimiters
-        if(errorMsg!=null) errorMsg = errorMsg.replaceAll("[^a-zA-Z ]", " ");
+        if(errorMsg!=null) errorMsg = errorMsg.replaceAll("[()]", " ");
         row += errorMsg;
         row += logFileDelimiter;
 
