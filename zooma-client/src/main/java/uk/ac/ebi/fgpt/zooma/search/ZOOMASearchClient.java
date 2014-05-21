@@ -5,6 +5,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
@@ -173,7 +174,7 @@ public class ZOOMASearchClient {
         return summaries;
     }
 
-    public Annotation getAnnotation(URI annotationURI) {
+    public Annotation getAnnotation(URI annotationURI) throws SearchException {
         try {
             URL fetchURL = new URL(zoomaAnnotationsBase + annotationURI.toString());
 
@@ -270,14 +271,32 @@ public class ZOOMASearchClient {
         }
     }
 
-    public String getLabel(URI uri) throws IOException {
-        String shortform = URIUtils.getShortform(prefixMappings, uri);
-        getLog().trace("Formulating search for label of '" + shortform + "' (derived from <" + uri + ">)");
-        URL labelsURL = new URL(zoomaServicesBase + "labels/" + shortform);
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Set<String>> labelMap = mapper.readValue(labelsURL, new TypeReference<Map<String, Set<String>>>() {
-        });
-        return labelMap.get("label").iterator().next();
+    public String getLabel(URI uri) throws IOException, SearchException {
+        if (uri == null) {
+            throw new IllegalArgumentException("Cannot lookup label for URI 'null'");
+        }
+
+        String shortform = null;
+        try {
+            shortform = URIUtils.getShortform(prefixMappings, uri);
+        }
+        catch (IllegalArgumentException e) {
+            throw new SearchException("Failed to lookup label for <" + uri.toString() + ">", e);
+        }
+        if (shortform != null) {
+            getLog().trace("Formulating search for label of '" + shortform + "' (derived from <" + uri + ">)");
+            URL labelsURL = new URL(zoomaServicesBase + "labels/" + shortform);
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Set<String>> labelMap =
+                    mapper.readValue(labelsURL, new TypeReference<Map<String, Set<String>>>() {
+                    });
+            return labelMap.get("label").iterator().next();
+        }
+        else {
+            String msg = "URI <" + uri + "> resolved to 'null' shortform";
+            getLog().error(msg);
+            throw new RuntimeException(msg);
+        }
     }
 
     public Collection<String> getSynonyms(URI uri) throws IOException {
