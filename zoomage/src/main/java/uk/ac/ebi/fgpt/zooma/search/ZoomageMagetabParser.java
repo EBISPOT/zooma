@@ -95,7 +95,7 @@ public class ZoomageMagetabParser {
                             item.getComment() + ")");
                     if (item.getErrorCode() != 501) {
                         synchronized (encounteredWarnings) {
-                            getLog().debug("Error in file '" + item.getParsedFile() + "'");
+                            getLog().error("Error in file '" + item.getParsedFile() + "'");
                             encounteredWarnings.add(item.getParsedFile());
                         }
                     }
@@ -175,7 +175,7 @@ public class ZoomageMagetabParser {
 
             for (CharacteristicsAttribute attribute : sourceNode.characteristics) {
 
-//                attribute = process(attribute, nodeName);
+                attribute = process(attribute, nodeName);
                 getLog().debug("Processed attribute: " + attribute.getAttributeType() + ":" + attribute.getAttributeValue());
             }
 
@@ -194,7 +194,7 @@ public class ZoomageMagetabParser {
             getLog().info("Processing sample node: " + nodeName);
 
             for (CharacteristicsAttribute attribute : sampleNode.characteristics) {
-//                attribute = process(attribute, nodeName);
+                attribute = process(attribute, nodeName);
                 getLog().debug("Processed attribute: " + attribute.getAttributeType() + ":" + attribute.getAttributeValue());
             }
 
@@ -214,7 +214,7 @@ public class ZoomageMagetabParser {
 
             for (FactorValueAttribute attribute : hybridizationNode.factorValues) {
 
-//                attribute = process(attribute, nodeName);
+                attribute = process(attribute, nodeName);
                 getLog().debug("Processing attribute: " + attribute.getAttributeType() + ":" + attribute.getAttributeValue());
 
             }
@@ -233,7 +233,7 @@ public class ZoomageMagetabParser {
 
             for (FactorValueAttribute attribute : assayNode.factorValues) {
 
-//                process(attribute, nodeName);
+                process(attribute, nodeName);
             }
         }
 

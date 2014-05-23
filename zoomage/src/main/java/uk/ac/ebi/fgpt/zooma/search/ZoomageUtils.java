@@ -246,6 +246,10 @@ public class ZoomageUtils {
                 putInMasterCacheWithoutOverwriting(input, zoomifiedAttribute);
             } catch (ZoomaException e) {
                 getLog().warn(e.getMessage());
+                if (e.getMessage().contains("HTTP response code: 500")) {
+                    getLog().error("Zooma appears to be unresponsive.");
+                    System.exit(1);
+                }
                 baselineAttribute.setErrorMessage(e.getMessage());
                 putInMasterCacheWithoutOverwriting(input, baselineAttribute);
                 return baselineAttribute;

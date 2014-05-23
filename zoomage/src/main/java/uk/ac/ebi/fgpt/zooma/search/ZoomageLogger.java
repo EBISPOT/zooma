@@ -40,12 +40,10 @@ public class ZoomageLogger {
 
     // Print the headers
     private String[] headers = {
-            "PROPERTY_TYPE", "PROPERTY_VALUE", "CORRESPONDING_LABEL", "PROP_VALUE_MATCH", "SEMANTIC_TAG", "CORRESPONDING_ZOOMA_SCORE", "ANNOTATOR", "ANNOTATION_DATE",
+            "PROPERTY_TYPE", "PROPERTY_VALUE", "ZOOMA_LABEL|ZOOMA_VALUE", "PROP_VALUE_MATCH", "SEMANTIC_TAG", "CORRESPONDING_ZOOMA_SCORE", "ANNOTATOR", "ANNOTATION_DATE",
             "STUDY", "BIOENTITY", "Original Ont Source", "Original Ont Source Id",
-            "Matching Zooma Input", "Zooma Ont Label", "Zoomified Ont Source", "Zoomified Ont Source ID", "Category of Zooma Mapping",
-            "# Results before filter", "# Results after filter", "Basis for Exclusion", "ID of Automatic Annotation", "Summary Score of Automatic Annotation",
-            "RunnerUp Annotation Summary Score",
-            "RunnerUp Zooma Ont Label",
+            "Category of Zooma Mapping",
+            "# Results before filter", "# Results after filter", "Basis for Exclusion",
             "Zooma Error Message"};
 
 
@@ -107,7 +105,7 @@ public class ZoomageLogger {
     public String transitionalAttributeToLogRow(TransitionalAttribute attribute, String configLogString) {
         String row = "";
 
-        //"PROPERTY_TYPE", "PROPERTY_VALUE", "CORRESPONDING_LABEL","COMPARISON", "SEMANTIC_TAG", "STUDY", "BIOENTITY", "CORRESPONDING_ZOOMA_SCORE", "ANNOTATOR", "ANNOTATION_DATE",
+        //"PROPERTY_TYPE", "PROPERTY_VALUE", "ZOOMA_LABEL|ZOOMA_VALUE","VALUE_COMPARISON", "SEMANTIC_TAG", "STUDY", "BIOENTITY", "CORRESPONDING_ZOOMA_SCORE", "ANNOTATOR", "ANNOTATION_DATE",
 
         row += standardiseNulls(attribute.getOriginalType());
         row += logFileDelimiter;
@@ -127,7 +125,7 @@ public class ZoomageLogger {
             // CORRESPONDING_LABEL
             String label = ZoomageUtils.getLabel(summary);
             String input = summary.getAnnotatedPropertyValue();
-            if (label.equalsIgnoreCase(input)) {
+            if ((label != null && input != null) && label.equalsIgnoreCase(input)) {
                 row += label;
             } else {
                 row += label + "|" + input;
@@ -154,7 +152,7 @@ public class ZoomageLogger {
             row += logFileDelimiter;
 
             String curatorsName = "<FIRSTNAME LASTNAME>";
-//            if (attribute.getAnnotationSummary() != null) curatorsName = "Automated by Zooma";
+            if (attribute.getAnnotationSummary() != null) curatorsName = "Automated by Zooma";
             //ANNOTATOR (Curator's name)
             row += curatorsName;
             row += logFileDelimiter;
@@ -226,31 +224,31 @@ public class ZoomageLogger {
         row += standardiseNulls(attribute.getBasisForExclusion());   //  This indicates the number of results that Zooma found before filters applied
         row += logFileDelimiter;
 
-        // //
-        if (attribute.annotationSummary != null) {
-            row += standardiseNulls(attribute.annotationSummary.getID());
-            row += logFileDelimiter;
-            row += (attribute.annotationSummary.getQuality());
-            row += logFileDelimiter;
-
-        } else {
-            row += appendNull(2);
-        }
-
-        // //
-        if (attribute.runnerUpAnnotation != null) {
-
-            row += (attribute.runnerUpAnnotation.getQuality());
-            row += logFileDelimiter;
-
-            String runnerUpTermLabel = compareStrings(attribute.getRunnerUpTermLabel(), attribute.getOriginalTermValue());
-
-            row += (runnerUpTermLabel); // If your term resulted in a Zooma mapping, this contains the label of the class in the ontology that Zooma mapped to
-            row += logFileDelimiter;
-
-        } else {
-            row += appendNull(2);
-        }
+//        // //
+//        if (attribute.annotationSummary != null) {
+//            row += standardiseNulls(attribute.annotationSummary.getID());
+//            row += logFileDelimiter;
+//            row += (attribute.annotationSummary.getQuality());
+//            row += logFileDelimiter;
+//
+//        } else {
+//            row += appendNull(2);
+//        }
+//
+//        // //
+//        if (attribute.runnerUpAnnotation != null) {
+//
+//            row += (attribute.runnerUpAnnotation.getQuality());
+//            row += logFileDelimiter;
+//
+//            String runnerUpTermLabel = compareStrings(attribute.getRunnerUpTermLabel(), attribute.getOriginalTermValue());
+//
+//            row += (runnerUpTermLabel); // If your term resulted in a Zooma mapping, this contains the label of the class in the ontology that Zooma mapped to
+//            row += logFileDelimiter;
+//
+//        } else {
+//            row += appendNull(2);
+//        }
 
         //
         String errorMsg = standardiseNulls(attribute.getErrorMessage());
