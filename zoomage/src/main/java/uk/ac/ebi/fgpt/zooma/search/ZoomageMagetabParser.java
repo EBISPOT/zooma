@@ -116,33 +116,36 @@ public class ZoomageMagetabParser {
             getLog().info("We parsed magetab and zoomified contents into sdrf representation");
 
             //write the results to a file
-            SDRFWriter sdrfWriter = new SDRFWriter(new FileWriter(outFileBasePath + investigation.getAccession() + ".sdrf.txt"));
 
+            SDRFWriter sdrfWriter = new SDRFWriter(new FileWriter(outFileBasePath + investigation.getAccession() + ".sdrf.txt"));
             getLog().info("SDRF written to " + outFileBasePath);
 
             IDFWriter idfWriter = new IDFWriter(new FileWriter(outFileBasePath + investigation.getAccession() + ".idf.txt"));
-
             getLog().info("IDF written to " + outFileBasePath);
 
-            // write old IDF
-            idfWriter.write(investigation.IDF);
-            // but write new SDRF
-            // todo: we need to force layout recalculation as we haven't added any new nodes, just changed existing ones
-            newSDRF.getLayout().calculateLocations(newSDRF);
-            sdrfWriter.write(newSDRF);
+           try {
+                // write old IDF
+                idfWriter.write(investigation.IDF);
+                // but write new SDRF
+                // todo: we need to force layout recalculation as we haven't added any new nodes, just changed existing ones
+                newSDRF.getLayout().calculateLocations(newSDRF);
+                sdrfWriter.write(newSDRF);
 
-            getLog().debug("\n\n\n============================\n\n\n");
-            getLog().info("IDF and SDRF files for " + investigation.getAccession() + " written to " + outFileBasePath);
-            getLog().debug("\n\n\n============================\n\n\n");
-            return true;
+                getLog().debug("\n\n\n============================\n\n\n");
+                getLog().info("IDF and SDRF files for " + investigation.getAccession() + " written to " + outFileBasePath);
+                getLog().debug("\n\n\n============================\n\n\n");
+                return true;
+            } catch (UnsupportedOperationException e) {
+                getLog().error("Zoomifications could not be written to SDRF because of an error: " + e.getMessage());
+            }
+
 
         } catch (IOException | ParseException e) {
-            e.printStackTrace();  //todo
-            getLog().debug("\n\n\n============================\n\n\n");
+            getLog().error("An error was encountered processing " + magetabAccession + ":" + e.getMessage());
             return false;
         }
 
-
+        return false;
     }
 
     /**
@@ -172,7 +175,7 @@ public class ZoomageMagetabParser {
 
             for (CharacteristicsAttribute attribute : sourceNode.characteristics) {
 
-                attribute = process(attribute, nodeName);
+//                attribute = process(attribute, nodeName);
                 getLog().debug("Processed attribute: " + attribute.getAttributeType() + ":" + attribute.getAttributeValue());
             }
 
@@ -191,7 +194,7 @@ public class ZoomageMagetabParser {
             getLog().info("Processing sample node: " + nodeName);
 
             for (CharacteristicsAttribute attribute : sampleNode.characteristics) {
-                attribute = process(attribute, nodeName);
+//                attribute = process(attribute, nodeName);
                 getLog().debug("Processed attribute: " + attribute.getAttributeType() + ":" + attribute.getAttributeValue());
             }
 
@@ -211,7 +214,7 @@ public class ZoomageMagetabParser {
 
             for (FactorValueAttribute attribute : hybridizationNode.factorValues) {
 
-                attribute = process(attribute, nodeName);
+//                attribute = process(attribute, nodeName);
                 getLog().debug("Processing attribute: " + attribute.getAttributeType() + ":" + attribute.getAttributeValue());
 
             }
@@ -230,7 +233,7 @@ public class ZoomageMagetabParser {
 
             for (FactorValueAttribute attribute : assayNode.factorValues) {
 
-                process(attribute, nodeName);
+//                process(attribute, nodeName);
             }
         }
 

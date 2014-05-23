@@ -2,10 +2,9 @@ package uk.ac.ebi.fgpt.zooma.search;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
-import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
-import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
+import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -55,15 +54,18 @@ public class ZoomageUtils {
         ZoomageUtils.olsShortIds = olsShortIds;
         ZoomageUtils.compoundAnnotationDelimiter = compoundAnnotationDelimiter;
 
-        masterCache = new HashMap<String, TransitionalAttribute>();
-        exclusionProfiles = parseExclusionProfiles(exclusionProfilesResource, exclusionProfilesDelimiter);
-        cacheOfExclusionsApplied = new HashMap<String, boolean[]>();
+        ZoomageUtils.masterCache = new HashMap<String, TransitionalAttribute>();
+        ZoomageUtils.cacheOfExclusionsApplied = new HashMap<String, boolean[]>();
     }
 
     public static void clearMasterCache() {
         masterCache = new HashMap<String, TransitionalAttribute>();
     }
 
+
+    public static ArrayList<String> parseRefsAndAccessions(AnnotationSummary zoomaAnnotationSummary, boolean longform) {
+        return parseRefsAndAccessions(zoomaAnnotationSummary, olsShortIds, longform);
+    }
 
     /**
      * Zooma supports the edge case in which there is a compound term with corresponding (compound) accessions.
@@ -74,115 +76,68 @@ public class ZoomageUtils {
      * @param zoomaAnnotationSummary
      * @return ArrayList with two elements, the first is the reference, and the second the accession.
      */
-    public static ArrayList<String> concatenateCompoundURIs(AnnotationSummary zoomaAnnotationSummary, boolean olsShortIds) {
+    public static ArrayList<String> parseRefsAndAccessions(AnnotationSummary zoomaAnnotationSummary, boolean olsShortIds, boolean longForm) throws IllegalArgumentException {
 
-        if (zoomaAnnotationSummary == null) getLog().debug("Zooma annotation summary is null.");
+        if (zoomaAnnotationSummary == null) {
+            String msg = "Zooma annotation summary is null.";
+            getLog().debug(msg);
+            throw new IllegalArgumentException(msg);
+        }
 
         // set termSourceREF and termAccessionNumber
         Collection<URI> semanticTags = zoomaAnnotationSummary.getSemanticTags();
         ArrayList<String> refAndAccession = new ArrayList<String>();
 
-        if (semanticTags.size() == 0) {
+        if (semanticTags == null || semanticTags.size() == 0) {
             // since we've already checked to see that there is a Zooma annotation, this should never happen.
-            getLog().error("No term source ref detected for " + zoomaAnnotationSummary.getAnnotatedPropertyValue());
+            getLog().error("No semantic tags detected for " + zoomaAnnotationSummary.getAnnotatedPropertyValue());
             refAndAccession.add(null);
             refAndAccession.add(null);
-            return refAndAccession;
-        }
 
-        Iterator iterator = semanticTags.iterator();
-
-
-        // 99% of the time, there will be one URI
-        if (semanticTags.size() == 1) {
-            URI uri = (URI) iterator.next();
-
-            String termSourceAccession = parseAccession(uri, olsShortIds);
-
-            String termSourceRef = null;
-
-            try {
-                termSourceRef = termSourceAccession.substring(0, termSourceAccession.indexOf(":"));
-            } catch (StringIndexOutOfBoundsException e) {
-                log.error("Term source Reference could not be parsed for " + termSourceAccession + ": " + zoomaAnnotationSummary.toString());
-            }
-
-            refAndAccession.add(termSourceRef);
-            refAndAccession.add(termSourceAccession);
-        }
-
-        // for the edge cases: compound URIs
-        else if (semanticTags.size() > 1) {
+        } else {
 
             String compoundTermSourceRef = "";
             String compoundAccession = "";
 
-            //todo: MAGETAB parser to handle this ultimately
-            getLog().warn("Compound URI detected; MAGETAB parser not yet able to handle this edge case.");
-
+            Iterator<URI> uriIterator = semanticTags.iterator();
             // for each URI build up corresponding delimited strings for refs and accessions
-            for (URI semanticTag : semanticTags) {
-                String accession = parseAccession(semanticTag, olsShortIds);
-                String uri = String.valueOf(semanticTag);
-                int delimiterIndex = parseDelimIndex(semanticTag);
-                String shortNamespace = accession.substring(0, accession.indexOf("_"));
-                compoundTermSourceRef += shortNamespace + compoundAnnotationDelimiter;
+            while (uriIterator.hasNext()) {
+
+                URI semanticTag = uriIterator.next();
+                String accession = "";
+                if (longForm) accession = semanticTag.toString();
+                else accession = URIUtils.extractFragment(semanticTag);
+
+                String ref = URIUtils.extractNamespace(semanticTag).toString();
 
                 if (olsShortIds) {
-                    String olsShortId = uri.substring(delimiterIndex).replace("_", ":");
-                    compoundAccession += olsShortId + compoundAnnotationDelimiter;
+                    String olsShortId = accession.replace("_", ":");
+                    compoundAccession += olsShortId;
                 } else {
-                    compoundAccession += uri + compoundAnnotationDelimiter;
+                    compoundAccession += accession;
+                }
+
+                compoundTermSourceRef += ref;
+
+                if (uriIterator.hasNext()) {
+                    compoundAccession += compoundAnnotationDelimiter;
+                    compoundTermSourceRef += compoundAnnotationDelimiter;
                 }
             }
 
-            compoundTermSourceRef = removeTrailingDelimiter(compoundTermSourceRef, compoundAnnotationDelimiter);
-
             refAndAccession.add(compoundTermSourceRef);
             refAndAccession.add(compoundAccession);
+
+            if (semanticTags.size() > 1) {
+                getLog().warn("Magetab parser not yet able to handle the edge-case of compound semantic tags." +
+                        "\nTerm source reference will be concatenated to <" + compoundTermSourceRef + ">." +
+                        "\nTerm accession will be concatenated to <" + compoundAccession + ">.");
+            }
         }
 
         return refAndAccession;
     }
 
-    public static String getCompoundTermSourceRef(AnnotationSummary annotationSummary) {
-        return concatenateCompoundURIs(annotationSummary, olsShortIds).get(0);
-    }
-
-    public static String getCompoundTermSourceRef(AnnotationSummary annotationSummary, boolean olsShortIds) {
-        return concatenateCompoundURIs(annotationSummary, olsShortIds).get(0);
-    }
-
-    public static String getCompoundTermSourceAccession(AnnotationSummary annotationSummary) {
-        return concatenateCompoundURIs(annotationSummary, olsShortIds).get(1);
-    }
-
-    public static String getCompoundTermSourceAccession(AnnotationSummary annotationSummary, boolean olsShortIds) {
-        return concatenateCompoundURIs(annotationSummary, olsShortIds).get(1);
-    }
-
-    public static String parseAccession(URI semanticTag, boolean olsShortIds) {
-
-        String tag = String.valueOf(semanticTag);
-
-        String accession = tag;
-
-        if (olsShortIds) {
-            try {
-                int delimiterIndex = parseDelimIndex(semanticTag);
-                accession = tag.substring(delimiterIndex).replace("_", ":");
-            } catch (StringIndexOutOfBoundsException e) {
-                getLog().error("Accession could not be parsed from " + tag);
-            }
-        }
-
-        return accession;
-    }
-
-    public static int parseDelimIndex(URI semanticTag) {
-        String uri = String.valueOf(semanticTag);
-        return Math.max(uri.lastIndexOf("/"), uri.lastIndexOf("#")) + 1;
-    }
 
     /**
      * Get best Zooma AnnotationSummary for specified attribute type and preliminaryStringValue
@@ -219,23 +174,9 @@ public class ZoomageUtils {
 
     }
 
-    public static String removeTrailingDelimiter(String originalString, String delimiter) {
-        String stringSansTrailingDelim = "";
-
-        int predictedLastIndexOfDelim = originalString.length() - delimiter.length();
-
-        if (originalString.lastIndexOf(delimiter) == predictedLastIndexOfDelim) {
-            stringSansTrailingDelim = originalString.substring(0, predictedLastIndexOfDelim);
-            return stringSansTrailingDelim;
-        } else return originalString;
-    }
-
-
     protected static Logger getLog() {
         return log;
     }
-
-//    private static Logger log = LoggerFactory.getLogger(TextUtils.class);
 
     // determines whether the two strings are acceptably fuzzy matched based on the edit distance between them
     // is case-insensitive
@@ -262,21 +203,26 @@ public class ZoomageUtils {
         return isFuzzyMatch;
     }
 
-    public static void setCompoundAnnotationDelimiter(String compoundAnnotationDelimiter) {
-        ZoomageUtils.compoundAnnotationDelimiter = compoundAnnotationDelimiter;
-    }
+    public static String getLabel(AnnotationSummary zoomaAnnotationSummary) {
 
-    public static void setOlsShortIds(boolean _olsShortIds) {
-        ZoomageUtils.olsShortIds = _olsShortIds;
-    }
+        if (zoomaAnnotationSummary == null) {
+            String msg = "Zooma annotation summary is null.";
+            getLog().debug(msg);
+            throw new IllegalArgumentException(msg);
+        }
 
-    public static String getLabel(AnnotationSummary annotationSummary) {
-        URI uri = annotationSummary.getSemanticTags().iterator().next();
+        URI uri = zoomaAnnotationSummary.getSemanticTags().iterator().next();
+
+        // note that in the edge case where there is a semantic tag, the label will not need to be concatenated.
         String ontLabel = null;
+
         try {
             ontLabel = zoomaClient.getLabel(uri);
         } catch (IOException e) {
-            e.printStackTrace();  //todo:
+            getLog().error("IO exception getting label from");
+        } catch (SearchException e) {
+            getLog().error(e.getMessage());
+            ontLabel = URIUtils.extractFragment(uri);
         }
         return ontLabel;
     }

@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.search;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -39,8 +40,8 @@ public class ZoomageLogger {
 
     // Print the headers
     private String[] headers = {
-            "PROPERTY_TYPE", "PROPERTY_VALUE", "CORRESPONDING_LABEL", "VALUE|LABEL", "SEMANTIC_TAG","CORRESPONDING_ZOOMA_SCORE", "ANNOTATOR", "ANNOTATION_DATE",
-            "STUDY", "BIOENTITY",  "Original Ont Source", "Original Ont Source Id",
+            "PROPERTY_TYPE", "PROPERTY_VALUE", "CORRESPONDING_LABEL", "PROP_VALUE_MATCH", "SEMANTIC_TAG", "CORRESPONDING_ZOOMA_SCORE", "ANNOTATOR", "ANNOTATION_DATE",
+            "STUDY", "BIOENTITY", "Original Ont Source", "Original Ont Source Id",
             "Matching Zooma Input", "Zooma Ont Label", "Zoomified Ont Source", "Zoomified Ont Source ID", "Category of Zooma Mapping",
             "# Results before filter", "# Results after filter", "Basis for Exclusion", "ID of Automatic Annotation", "Summary Score of Automatic Annotation",
             "RunnerUp Annotation Summary Score",
@@ -118,33 +119,44 @@ public class ZoomageLogger {
         row += standardiseNulls(originalValue.replaceAll(logFileDelimiter, " "));
         row += logFileDelimiter;
 
-        String semanticTag = standardiseNulls(attribute.getRunnerUpOntAccession(false));
+        AnnotationSummary summary = attribute.getAnnotationSummary();
+        if (summary == null) summary = attribute.getrunnerUpAnnotation();
 
-        if (semanticTag != null) {
+        if (summary != null) {
 
             // CORRESPONDING_LABEL
-            row += attribute.getRunnerUpTermLabel();
+            String label = ZoomageUtils.getLabel(summary);
+            String input = summary.getAnnotatedPropertyValue();
+            if (label.equalsIgnoreCase(input)) {
+                row += label;
+            } else {
+                row += label + "|" + input;
+            }
             row += logFileDelimiter;
 
             // COMPARISON
             String comparison = "";
-            if (originalValue.equalsIgnoreCase(attribute.getRunnerUpTermLabel())) {
-                comparison = "EXACT MATCH";
+            if (originalValue.equalsIgnoreCase(label)) {
+                comparison = "MATCHES ZOOMA LABEL";
+            } else if (originalValue.equalsIgnoreCase(attribute.getZoomifiedTermValue())) {
+                comparison = "MATCHES ZOOMA INPUT";
             } else comparison = "mismatch";
             row += comparison;
 
             row += logFileDelimiter;
 
             // SEMANTIC_TAG
-            row += attribute.getRunnerUpOntAccession(false);
+            row += ZoomageUtils.parseRefsAndAccessions(summary, true).get(1);
             row += logFileDelimiter;
 
             // CORRESPONDING_ZOOMA_SCORE
-            row += attribute.runnerUpAnnotation.getQuality();
+            row += summary.getQuality();
             row += logFileDelimiter;
 
+            String curatorsName = "<FIRSTNAME LASTNAME>";
+//            if (attribute.getAnnotationSummary() != null) curatorsName = "Automated by Zooma";
             //ANNOTATOR (Curator's name)
-            row += "FIRSTNAME LASTNAME";
+            row += curatorsName;
             row += logFileDelimiter;
 
             //ANNOTATION_DATE
@@ -171,23 +183,23 @@ public class ZoomageLogger {
         row += standardiseNulls(attribute.getOriginalTermAccessionNumber());
         row += logFileDelimiter;
 
-        //
-        String zoomifiedTermValue = compareStrings(attribute.getZoomifiedTermValue(), attribute.getOriginalTermValue());
-
-        row += standardiseNulls(zoomifiedTermValue);      // 	This is most often identical to the text preliminaryStringValue supplied as part of your search, but occasionally Zooma determines is close enough to a text preliminaryStringValue previously determined to map to a given ontology term.
-        row += logFileDelimiter;
-
-        //
-        row += compareStrings(attribute.getZoomifiedOntologyClassLabel(), attribute.getOriginalTermValue()); // If your term resulted in a Zooma mapping, this contains the label of the class in the ontology that Zooma mapped to
-        row += logFileDelimiter;
-
-        //
-        row += standardiseNulls(attribute.getZoomifiedTermSourceREF()); // If your term resulted in a Zooma mapping, this contains the source of this mapping. This is usually a dataset in which a similar property preliminaryStringValue was found annotated to the suggested ontology class.;
-        row += logFileDelimiter;
-
-        //
-        row += standardiseNulls(attribute.getZoomifiedOntAccession()); // If your term resulted in a Zooma mapping, this contains the id of the class in the ontology that Zooma mapped to
-        row += logFileDelimiter;
+//        //
+//        String zoomifiedTermValue = compareStrings(attribute.getZoomifiedTermValue(), attribute.getOriginalTermValue());
+//
+//        row += standardiseNulls(zoomifiedTermValue);      // 	This is most often identical to the text preliminaryStringValue supplied as part of your search, but occasionally Zooma determines is close enough to a text preliminaryStringValue previously determined to map to a given ontology term.
+//        row += logFileDelimiter;
+//
+//        //
+//        row += compareStrings(attribute.getZoomifiedOntologyClassLabel(), attribute.getOriginalTermValue()); // If your term resulted in a Zooma mapping, this contains the label of the class in the ontology that Zooma mapped to
+//        row += logFileDelimiter;
+//
+//        //
+//        row += standardiseNulls(attribute.getZoomifiedTermSourceREF()); // If your term resulted in a Zooma mapping, this contains the source of this mapping. This is usually a dataset in which a similar property preliminaryStringValue was found annotated to the suggested ontology class.;
+//        row += logFileDelimiter;
+//
+//        //
+//        row += standardiseNulls(attribute.getZoomifiedOntAccession()); // If your term resulted in a Zooma mapping, this contains the id of the class in the ontology that Zooma mapped to
+//        row += logFileDelimiter;
 
         //
         String mappingCategory = String.valueOf(attribute.getCategoryOfZoomaMapping());
@@ -243,7 +255,7 @@ public class ZoomageLogger {
         //
         String errorMsg = standardiseNulls(attribute.getErrorMessage());
         // strip punctuation from error message or it can mess with the delimiters
-        if(errorMsg!=null) errorMsg = errorMsg.replaceAll("[()]", " ");
+        if (errorMsg != null) errorMsg = errorMsg.replaceAll("[()]", " ");
         row += errorMsg;
         row += logFileDelimiter;
 
@@ -362,7 +374,7 @@ public class ZoomageLogger {
 
     private static String compareStrings(String string1, String string2) {
         if (string1 == null || string1.equals("")) return null;
-        else return (string1.equalsIgnoreCase(string2)) ? string1 + "|ExactMatch" : string1 + "|" + string2;
+        else return (string1.equalsIgnoreCase(string2)) ? "ExactMatch|" + string1 : string2 + "|" + string1;
     }
 
     protected Logger getLog() {

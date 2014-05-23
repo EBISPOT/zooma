@@ -14,6 +14,7 @@ import java.util.*;
  */
 public class ZoomageDriver {
 
+    private final OptionsParser optionsParser;
     private String appResourcesPath;
     private int minStringLength;  // todo: move this to the zooma search rest client
 
@@ -60,6 +61,7 @@ public class ZoomageDriver {
 
         // instantiate a new parser using the program arguments, the properties file and the name of the program
         OptionsParser optionsParser = new OptionsParser(args, propertiesFilePath, programName);
+        this.optionsParser = optionsParser;
 
         // if errors were encountered
         if (optionsParser.getStatusCode() != 0) {
@@ -203,7 +205,7 @@ public class ZoomageDriver {
 
         // read sources from file
         try {
-            InputStream in = OptionsParser.getInputStreamFromFilePath(ZoomageDriver.class, mageTabAccessionsResource);
+            InputStream in = optionsParser.getInputStreamFromFilePath(ZoomageDriver.class, mageTabAccessionsResource);
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             String accession;
             while ((accession = reader.readLine()) != null) {
@@ -226,7 +228,7 @@ public class ZoomageDriver {
         return log;
     }
 
-    private static String getAppResourcesPath(String[] args, String prefix) {
+    private String getAppResourcesPath(String[] args, String prefix) {
 
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals(prefix)) {

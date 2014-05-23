@@ -6,6 +6,8 @@ import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.Characteris
 import uk.ac.ebi.arrayexpress2.magetab.datamodel.sdrf.node.attribute.FactorValueAttribute;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
+import java.util.ArrayList;
+
 /**
  * Convenience class for minimal and *temporary* representation of an attribute of an annotation.
  * This representation takes a CharacteristicsAttribute object
@@ -180,8 +182,9 @@ public class TransitionalAttribute {
 
         if (annotationSummary != null) {
             this.zoomifiedTermValue = annotationSummary.getAnnotatedPropertyValue();
-            this.zoomifiedTermSourceREF = ZoomageUtils.getCompoundTermSourceRef(annotationSummary);
-            this.zoomifiedOntAccession = ZoomageUtils.getCompoundTermSourceAccession(annotationSummary);
+            ArrayList<String> refsAndAccessions = ZoomageUtils.parseRefsAndAccessions(annotationSummary,false);
+            this.zoomifiedTermSourceREF = refsAndAccessions.get(0);
+            this.zoomifiedOntAccession = refsAndAccessions.get(1);
             this.zoomifiedOntologyClassLabel = ZoomageUtils.getLabel(annotationSummary);
         }
     }
@@ -230,8 +233,9 @@ public class TransitionalAttribute {
         this.runnerUpAnnotation = runnerUpAnnotation;
         if (runnerUpAnnotation != null) {
             this.runnerUpTermValue = runnerUpAnnotation.getAnnotatedPropertyValue();
-            this.runnerUpTermSourceRef = ZoomageUtils.getCompoundTermSourceRef(runnerUpAnnotation);
-            this.runnerUpOntAccession = ZoomageUtils.getCompoundTermSourceAccession(runnerUpAnnotation);
+            ArrayList<String> refsAndAccessions = ZoomageUtils.parseRefsAndAccessions(runnerUpAnnotation, false);
+            this.runnerUpTermSourceRef = refsAndAccessions.get(0);
+            this.runnerUpOntAccession = refsAndAccessions.get(1);
             this.runnerUpTermLabel = ZoomageUtils.getLabel(runnerUpAnnotation);
         }
     }
@@ -367,9 +371,8 @@ public class TransitionalAttribute {
         return runnerUpTermSourceRef;
     }
 
-    public String getRunnerUpOntAccession(boolean olsShortIds) {
-        if (runnerUpAnnotation == null) return null;
-        return ZoomageUtils.getCompoundTermSourceAccession(runnerUpAnnotation, olsShortIds);
+    public String getRunnerUpOntAccession() {
+        return runnerUpOntAccession;
     }
 
 
@@ -395,5 +398,11 @@ public class TransitionalAttribute {
 
     public String getBioentity() {
         return bioentity;
+    }
+
+
+
+    public AnnotationSummary getrunnerUpAnnotation() {
+        return runnerUpAnnotation;
     }
 }

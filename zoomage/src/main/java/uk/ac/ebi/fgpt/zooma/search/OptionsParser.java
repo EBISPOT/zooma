@@ -224,7 +224,7 @@ public class OptionsParser {
 
     // stores commandline args in a map where the key is the letter to which the argument is bound and the value is the argument string
     // this is called before there is any knowledge of what the options are that are being instantiated.
-    private static HashMap<String, String> loadCommandLineArgs(String[] args) {
+    private HashMap<String, String> loadCommandLineArgs(String[] args) {
 
         HashMap<String, String> argsMap = new HashMap<>();
 
