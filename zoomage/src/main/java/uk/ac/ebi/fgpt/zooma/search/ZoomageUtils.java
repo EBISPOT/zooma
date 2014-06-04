@@ -178,30 +178,6 @@ public class ZoomageUtils {
         return log;
     }
 
-    // determines whether the two strings are acceptably fuzzy matched based on the edit distance between them
-    // is case-insensitive
-    public static boolean isFuzzyMatch(String entity1, String entity2, int maxNumDiffs, double maxPctDiffs) {
-
-        if (entity1 == null || entity2 == null || entity1.equals("") || (entity2.equals(""))) return false;
-
-        entity1 = entity1.toLowerCase().trim();
-        entity2 = entity2.toLowerCase().trim();
-
-        if (entity1.charAt(0) != entity2.charAt(0)) return false;
-
-        int diffs = new DamerauLevenshtein(entity1, entity2).getNumDiffs();
-
-        if (diffs == 0) return true;
-        if (diffs / entity1.length() < .5)
-            log.debug("Comparing \"" + entity1 + "\" with \"" + entity2 + "\": " + diffs + " differences out of " + +entity1.length() + " chars in original string.");
-
-        boolean isFuzzyMatch = (diffs < maxNumDiffs) && ((double) diffs / entity1.length() <= maxPctDiffs);
-
-        if (!isFuzzyMatch && diffs < 6 && entity1.length() > 20)
-            log.debug("isFuzzyMatch result:" + isFuzzyMatch + "\t\tentity: \t" + entity1 + "\t\ttext: " + entity2 + "\tdiffs:" + diffs + "\tpctDiffs:" + (double) diffs / entity1.length());
-
-        return isFuzzyMatch;
-    }
 
     public static String getLabel(AnnotationSummary zoomaAnnotationSummary) {
 

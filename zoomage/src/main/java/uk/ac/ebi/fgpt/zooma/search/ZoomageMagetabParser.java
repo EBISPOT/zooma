@@ -87,6 +87,7 @@ public class ZoomageMagetabParser {
             MAGETABParser parser = new MAGETABParser(new MAGETABValidator());
             // add error item listener that writes to the parser log
             final Set<String> encounteredWarnings = new HashSet<>();
+
             parser.addErrorItemListener(new ErrorItemListener() {
 
                 public void errorOccurred(ErrorItem item) {
@@ -95,7 +96,7 @@ public class ZoomageMagetabParser {
                             item.getComment() + ")");
                     if (item.getErrorCode() != 501) {
                         synchronized (encounteredWarnings) {
-                            getLog().error("Error in file '" + item.getParsedFile() + "'");
+                            getLog().error("Warning in file '" + item.getParsedFile() + "'");
                             encounteredWarnings.add(item.getParsedFile());
                         }
                     }

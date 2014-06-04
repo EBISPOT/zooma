@@ -21,7 +21,7 @@ public class ZoomageDriver {
     private Float cutoffScoreAutomaticCuration;
     private Float cutoffPctAutomaticCuration;
 
-    private String magetabAccession;
+    private String studyAccession;
     private boolean olsShortIds;
     private String compoundAnnotationDelimiter;
     private String fileDelimiter = "\t"; // this had been a user supplied option, but it is too complex to vary it.
@@ -97,9 +97,9 @@ public class ZoomageDriver {
 
         HashSet<String> mageTabAccessions = new HashSet<>();
 
-        if (magetabAccession == null || magetabAccession.equals("")) {
+        if (studyAccession == null || studyAccession.equals("")) {
             mageTabAccessions = parseMagetabAccessions(appResourcesPath + "zoomage-accessions.properties");
-        } else mageTabAccessions.add(magetabAccession);
+        } else mageTabAccessions.add(studyAccession);
 
         System.out.println();
 
@@ -139,7 +139,6 @@ public class ZoomageDriver {
 
                 HashMap<String, TransitionalAttribute> masterCache = ZoomageUtils.getMasterCache();
                 ArrayList<String> logFileRowsForSingleAccession = zoomageLogger.formatCacheAsLogFileRows(masterCache);
-//                ArrayList<String> curationFileRowsForSingleAccession = zoomageLogger.formatCacheAsBulkCuration(masterCache);
 
                 zoomageLogger.combinedLogFileRows.addAll(logFileRowsForSingleAccession);
 
@@ -176,7 +175,7 @@ public class ZoomageDriver {
         cutoffScoreAutomaticCuration = optionsParser.processFloatOption("cutoffScoreAutomaticCuration", false, true, "s", "Zooma cutoff score");
         cutoffPctAutomaticCuration = optionsParser.processFloatOption("cutoffPctAutomaticCuration", false, true, "p", "Zooma minimum percentage, below which input is ignored from zoomifications");
 
-        magetabAccession = optionsParser.processStringOption("magetabAccession", false, false, "a", "MAGE-tab accession number, eg E-MTAB-513. This value is " +
+        studyAccession = optionsParser.processStringOption("studyAccession", false, false, "a", "MAGE-tab accession number, eg E-MTAB-513. This value is " +
                 "required unless a file of magetab accessions is provided instead.");
         olsShortIds = optionsParser.processBooleanOption("olsShortIds", false, true, "u", "Whether to use OLS short IDs in Zoomified Magetab. OLS ShortIDs use a colon delimiter.");
 
@@ -185,7 +184,7 @@ public class ZoomageDriver {
         overwriteValues = optionsParser.processBooleanOption("overwriteValues", false, true, "v", "Whether to overwrite values based on automatic zoomifications.");
         overwriteAnnotations = optionsParser.processBooleanOption("overwriteAnnotations", false, true, "t", "Whether to overwrite annotations based on zoomifications. On its own, selecting this option will only strip legacy annotations if a Zooma result is found.");
         stripLegacyAnnotations = optionsParser.processBooleanOption("stripLegacyAnnotations", false, true, "x", "This will strip all legacy annotations, whether or not a Zooma result is found.");
-        if (magetabAccession == null) singleLogFileForBatch = true;
+        if (studyAccession == null) singleLogFileForBatch = true;
         else {
             singleLogFileForBatch = optionsParser.processBooleanOption("singleLogFileForBatch", false, true, "e", "Create a single log file from the batch of magetab accessions. Will be false if only a single accession is pssed");
         }
