@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean name="chemblEFODAO" class="uk.ac.ebi.fgpt.zooma.datasource.ChemblEFOAnnotationDAO">
+        <constructor-arg name="annotationFactory" ref="chemblAnnotationFactory" />
+        <property name="jdbcTemplate" ref="chemblJdbcTemplate" />
+    </bean>
+
+    <bean name="chemblCLODAO" class="uk.ac.ebi.fgpt.zooma.datasource.ChemblCLOAnnotationDAO">
+        <constructor-arg name="annotationFactory" ref="chemblAnnotationFactory" />
+        <property name="jdbcTemplate" ref="chemblJdbcTemplate" />
+    </bean>
+
+    <bean name="chemblAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.ChemblAnnotationFactory">
+        <constructor-arg name="annotationLoadingSession" ref="chemblLoadingSession" />
+    </bean>
+
+
+    <bean name="chemblLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.ChemblLoadingSession" />
+
+
+
+    <bean name="chemblJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="chemblDataSource" />
+    </bean>
+
+    <!-- GWAS Database setup -->
+    <bean name="chemblDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@merlot.ebi.ac.uk:1531:chempro" />
+        <property name="username" value="dwelter" />
+        <property name="password" value="dw_Chembl" />
+        <property name="defaultAutoCommit" value="false" />
+        <property name="initialSize" value="32" />
+        <property name="maxIdle" value="32" />
+        <property name="maxActive" value="32" />
+        <property name="maxWait" value="-1" />
+    </bean>
+
+
+</beans>

@@ -59,6 +59,7 @@
         <module>zooma-owl-loader</module>
         <module>zooma-omia-loader</module>
         <module>zooma-omim-loader</module>
-  </modules>
+        <module>zooma-chembl-loader</module>
+    </modules>
 
 </project>

@@ -30,7 +30,7 @@
     <!-- GWAS Database setup -->
     <bean name="gwasDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
-        <property name="url" value="jdbc:oracle:thin:@todd.ebi.ac.uk:1521:AE2TST" />
+        <property name="url" value="jdbc:oracle:thin:@ora-vm-021.ebi.ac.uk:1531:spotpro" />
         <property name="username" value="gwas" />
         <property name="password" value="gwa5d6" />
         <property name="defaultAutoCommit" value="false" />

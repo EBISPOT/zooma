@@ -53,7 +53,8 @@ public enum Namespaces {
     BTO("http://purl.org/obo/owl/BTO#"),
     PATO("http://purl.org/obo/owl/PATO#"),
     PUBMED("http://europepmc.org/abstract/MED/"),
-    ORPHA("http://www.orphanet.org/rdfns#");
+    ORPHA("http://www.orphanet.org/rdfns#"),
+    CHEMBL("https://www.ebi.ac.uk/chembl/index.php/");
 
     private String ns;
 
