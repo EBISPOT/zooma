@@ -30,12 +30,25 @@
         <zooma:synonym uri="http://www.w3.org/2004/02/skos/core#prefLabel"/>
     </zooma:owlAnnotations>
 
+    <zooma:owlAnnotations name="orphanet"
+                          uri="http://www.orphadata.org/data/ORDO/ordo_orphanet.owl"
+                          loadFrom="http://www.orphadata.org/data/ORDO/ordo_orphanet.owl"
+                          exclusionClassURI="http://www.geneontology.org/formats/oboInOwl#ObsoleteClass"
+                          useReasoning="false">
+        <zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term"/>
+    </zooma:owlAnnotations>
 
     <zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/fg/sym"
                              datasourceName="sysmicro"
-                             url="http://www.ebi.ac.uk/~jupp/downloads/zooma-cmpo.csv"
+                             url="http://www.ebi.ac.uk/cmpo/zooma-cmpo.csv"
                              defaultSourceType="http://purl.obolibrary.org/obo/OBI_0000075"
                              defaultTargetType="http://purl.obolibrary.org/obo/OBI_0100064"
                              delimiter="," />
 
+    <zoomacsv:csvAnnotations datasourceUrl="http://www.biomedbridges.eu/workpackages/wp3-0"
+                             datasourceName="bmb-wp3"
+                             url="http://www.ebi.ac.uk/~jupp/downloads/bmb_zooma_disease.tsv"
+                             defaultSourceType="http://purl.obolibrary.org/obo/OBI_0000075"
+                             defaultTargetType="http://purl.obolibrary.org/obo/OBI_0100064"
+                             delimiter="\t" />
 </beans>

@@ -31,7 +31,7 @@
 
     <zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/fg/sym"
                              datasourceName="sysmicro"
-                             url="http://www.ebi.ac.uk/~jupp/downloads/zooma-cmpo.csv"
+                             url="http://www.ebi.ac.uk/cmpo/zooma-cmpo.csv"
                              defaultSourceType="http://purl.obolibrary.org/obo/OBI_0000075"
                              defaultTargetType="http://purl.obolibrary.org/obo/OBI_0100064"
                              delimiter="," />

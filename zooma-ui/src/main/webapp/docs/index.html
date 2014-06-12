@@ -29,17 +29,17 @@
     <link rel="shortcut icon" href="images/favicon.ico"/>
 
     <!-- CSS: implied media=all --><!-- CSS concatenated and minified via ant build script-->
-    <link rel="stylesheet" href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/boilerplate-style.css">
+    <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/boilerplate-style.css">
     <link rel="stylesheet"
-          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-global.css"
+          href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-global.css"
           type="text/css"
           media="screen">
     <link rel="stylesheet"
-          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-visual.css"
+          href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-visual.css"
           type="text/css"
           media="screen">
     <link rel="stylesheet"
-          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/984-24-col-fluid.css"
+          href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/984-24-col-fluid.css"
           type="text/css"
           media="screen">
     <link rel="stylesheet" href="../css/zooma.css" type="text/css" media="screen">
@@ -47,7 +47,7 @@
     <!-- you can replace this with [projectname]-colours.css. See http://frontier.ebi.ac.uk/web/style/colour for details of how to do this -->
     <!-- also inform ES so we can host your colour palette file -->
     <link rel="stylesheet"
-          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/embl-petrol-colours.css"
+          href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/embl-petrol-colours.css"
           type="text/css"
           media="screen">
 
@@ -73,7 +73,7 @@
     <!-- Full build --><!-- <script src="../js/libs/modernizr.minified.2.1.6.js"></script> -->
 
     <!-- custom build (lacks most of the "advanced" HTML5 support -->
-    <script src="http://www.ebi.ac.uk/web_guidelines/js/libs/modernizr.custom.49274.js"></script>
+    <script src="//www.ebi.ac.uk/web_guidelines/js/libs/modernizr.custom.49274.js"></script>
 
 </head>
 
@@ -94,7 +94,7 @@
     <div id="global-masthead" class="masthead grid_24">
         <!--This has to be one line and no newline characters-->
         <a href="http://www.ebi.ac.uk/"
-           title="Go to the EMBL-EBI homepage"><img src="http://www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
+           title="Go to the EMBL-EBI homepage"><img src="//www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
                                                     alt="EMBL European Bioinformatics Institute"></a>
 
         <nav>
@@ -124,23 +124,24 @@
         <nav>
             <ul class="grid_24" id="local-nav">
                 <li class="first">
-                    <a href="../index.html">Home</a>
+                    <a href="../">Home</a>
                 </li>
                 <li>
                     <a href="../sparql">SPARQL</a>
                 </li>
                 <li class="active">
-                    <a href="./index.html">Documentation</a>
+                    <a href="./">Documentation</a>
+                </li>
+                <li>
+                    <a href="/fgpt/corona">Corona</a>
                 </li>
                 <li>
                     <a href="/efo">EFO</a>
                 </li>
-                <li>
-                    <a href="/fgpt">FGPT</a>
-                </li>
                 <li class="last">
                     <a href="../about.html">About ZOOMA</a>
                 </li>
+                <li class="functional last login" id="zooma-login"></li>
             </ul>
         </nav>
         <!-- /local-nav -->
@@ -301,7 +302,7 @@
             </div>
 
         </nav>
-        <script src="http://www.ebi.ac.uk/web_guidelines/js/foot.js"></script>
+        <script src="//www.ebi.ac.uk/web_guidelines/js/foot.js"></script>
 
     </div>
 
@@ -319,13 +320,14 @@
 
 
 <!-- Zooma required JavaScript libraries, at the bottom for fast page loading -->
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://www.gstatic.com/freebase/suggest/3_1/suggest.min.js"></script>
 <script type="text/javascript" src="../scripts/zooma.min.js"></script>
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
 
-<script type="text/javascript" src="../scripts/zooma-ui.js"></script>
+<script type="text/javascript">var rootContextPath = "../"</script>
+<script type="text/javascript" src="../scripts/zooma-login.js"></script>
 
 <!-- Google analytics -->
 <script type="text/javascript">

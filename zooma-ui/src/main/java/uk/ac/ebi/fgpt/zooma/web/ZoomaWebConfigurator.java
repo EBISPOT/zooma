@@ -11,8 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 /**
- * A custom class performing some Spring-internals config tweaks.  This class prevents URLs that are passed as web
- * requests being decoded, and registers a {@link ZoomaModule} to customize aspects of JSON serialization
+ * A custom configurator that performs some Spring config tweaks required by the ZOOMA web application.  This class
+ * prevents URLs that are passed as web requests being decoded, and registers a {@link ZoomaModule} to customize aspects
+ * of JSON serialization
  *
  * @author Tony Burdett
  * @date 15/07/13

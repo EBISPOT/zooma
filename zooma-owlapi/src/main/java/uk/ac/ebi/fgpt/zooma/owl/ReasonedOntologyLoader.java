@@ -28,7 +28,7 @@ import java.util.Set;
  * @date 03/06/13
  */
 public class ReasonedOntologyLoader extends AbstractOntologyLoader {
-    protected void loadOntology() throws OWLOntologyCreationException {
+    protected OWLOntology loadOntology() throws OWLOntologyCreationException {
         getLog().debug("Loading ontology...");
         OWLOntology ontology = getManager().loadOntology(IRI.create(getOntologyURI()));
         IRI ontologyIRI = ontology.getOntologyID().getOntologyIRI();
@@ -168,5 +168,7 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
 
         getLog().debug("Successfully loaded " + labelCount + " labels on " + labelledClassCount + " classes and " +
                                synonymCount + " synonyms on " + synonymedClassCount + " classes!");
+
+        return ontology;
     }
 }

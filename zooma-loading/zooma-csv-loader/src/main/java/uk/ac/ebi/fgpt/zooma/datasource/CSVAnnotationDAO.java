@@ -15,15 +15,7 @@ import uk.ac.ebi.fgpt.zooma.model.Study;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * An annotation DAO that is capable of extracting annotations from a text file.
@@ -100,7 +92,8 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         return inputStream;
     }
 
-    @Override protected void doInitialization() throws Exception {
+    @Override
+    protected void doInitialization() throws Exception {
         getLog().debug("Parsing CSV file from input stream");
 
         // parse annotations file
@@ -142,35 +135,49 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
                 // read elements and generate annotations
                 List<String> missingColumns = new ArrayList<>();
                 if ((column = lookupColumn("STUDY")) != -1) {
-                    studyAcc = annotationElements[column];
+                    studyAcc = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : annotationElements[column];
                 }
                 else {
                     studyAcc = null;
                     missingColumns.add("STUDY");
                 }
                 if ((column = lookupColumn("BIOENTITY")) != -1) {
-                    bioentityName = annotationElements[column];
+                    bioentityName = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : annotationElements[column];
                 }
                 else {
                     bioentityName = null;
                     missingColumns.add("BIOENTITY");
                 }
                 if ((column = lookupColumn("PROPERTY_TYPE")) != -1) {
-                    propertyType = annotationElements[column];
+                    propertyType = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : annotationElements[column];
                 }
                 else {
                     propertyType = null;
                     missingColumns.add("PROPERTY_TYPE");
                 }
                 if ((column = lookupColumn("PROPERTY_VALUE")) != -1) {
-                    propertyValue = annotationElements[column];
+                    if (annotationElements[column].isEmpty()) {
+                        propertyValue = null;
+                        missingColumns.add("PROPERTY_VALUE");
+                    }
+                    else {
+                        propertyValue = annotationElements[column];
+                    }
                 }
                 else {
                     propertyValue = null;
                     missingColumns.add("PROPERTY_VALUE");
                 }
                 if ((column = lookupColumn("SEMANTIC_TAG")) != -1) {
-                    semanticTag = convertSemanticTagToURI(annotationElements[column]);
+                    semanticTag = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : convertSemanticTagToURI(annotationElements[column]);
                 }
                 else {
                     semanticTag = null;
@@ -192,45 +199,71 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
 
                 // optional URI attributes
                 if ((column = lookupColumn("ANNOTATION_URI")) != -1) {
-                    annotationURI = URI.create(annotationElements[column]);
+                    annotationURI = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : URI.create(annotationElements[column]);
                 }
                 if ((column = lookupColumn("STUDY_URI")) != -1) {
-                    studyURI = URI.create(annotationElements[column]);
+                    studyURI = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : URI.create(annotationElements[column]);
                 }
                 if ((column = lookupColumn("BIOENTITY_URI")) != -1) {
-                    bioentityURI = URI.create(annotationElements[column]);
+                    bioentityURI = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : URI.create(annotationElements[column]);
                 }
                 if ((column = lookupColumn("PROPERTY_URI")) != -1) {
-                    propertyURI = URI.create(annotationElements[column]);
+                    propertyURI = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : URI.create(annotationElements[column]);
                 }
 
                 // optional ID attributes
                 if ((column = lookupColumn("ANNOTATION_ID")) != -1) {
-                    annotationID = annotationElements[column];
+                    annotationID = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : annotationElements[column];
                 }
                 if ((column = lookupColumn("STUDY_ID")) != -1) {
-                    studyID = annotationElements[column];
+                    studyID = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : annotationElements[column];
                 }
                 if ((column = lookupColumn("STUDY_TYPE")) != -1) {
-                    studyType = URI.create(annotationElements[column]);
+                    studyType = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : URI.create(annotationElements[column]);
                 }
                 if ((column = lookupColumn("BIOENTITY_ID")) != -1) {
-                    bioentityID = annotationElements[column];
+                    bioentityID = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : annotationElements[column];
                 }
                 if ((column = lookupColumn("BIOENTITY_TYPE_URI")) != -1) {
-                    bioentityTypeURI = URI.create(annotationElements[column]);
+                    bioentityTypeURI = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : URI.create(annotationElements[column]);
                 }
                 if ((column = lookupColumn("BIOENTITY_TYPE_NAME")) != -1) {
-                    bioentityTypeName = annotationElements[column];
+                    bioentityTypeName = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : annotationElements[column];
                 }
                 if ((column = lookupColumn("PROPERTY_ID")) != -1) {
-                    propertyID = annotationElements[column];
+                    propertyID = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : annotationElements[column];
                 }
                 if ((column = lookupColumn("ANNOTATOR")) != -1) {
-                    annotator = annotationElements[column];
+                    annotator = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : annotationElements[column];
                 }
                 if ((column = lookupColumn("ANNOTATION_DATE")) != -1) {
-                    annotationDate = formatter.parseDateTime(annotationElements[column]).toDate();
+                    annotationDate = annotationElements.length <= column || annotationElements[column].isEmpty()
+                            ? null
+                            : formatter.parseDateTime(annotationElements[column]).toDate();
                 }
 
                 // now we've collected fields, generate annotation using annotation factory
@@ -261,15 +294,18 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
                                "read " + annotations.size() + " annotations");
     }
 
-    @Override protected void doTermination() throws Exception {
+    @Override
+    protected void doTermination() throws Exception {
         getLog().debug("Nothing to terminate");
     }
 
-    @Override public String getDatasourceName() {
+    @Override
+    public String getDatasourceName() {
         return datasourceName;
     }
 
-    @Override public Collection<Annotation> readByStudy(Study study) {
+    @Override
+    public Collection<Annotation> readByStudy(Study study) {
         Collection<Annotation> results = new HashSet<>();
         for (Annotation annotation : annotations) {
             for (BiologicalEntity be : annotation.getAnnotatedBiologicalEntities()) {
@@ -281,7 +317,8 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         return results;
     }
 
-    @Override public Collection<Annotation> readByBiologicalEntity(BiologicalEntity biologicalEntity) {
+    @Override
+    public Collection<Annotation> readByBiologicalEntity(BiologicalEntity biologicalEntity) {
         Collection<Annotation> results = new HashSet<>();
         for (Annotation annotation : annotations) {
             if (annotation.getAnnotatedBiologicalEntities().contains(biologicalEntity)) {
@@ -291,7 +328,8 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         return results;
     }
 
-    @Override public Collection<Annotation> readByProperty(Property property) {
+    @Override
+    public Collection<Annotation> readByProperty(Property property) {
         Collection<Annotation> results = new HashSet<>();
         for (Annotation annotation : annotations) {
             if (annotation.getAnnotatedProperty().matches(property)) {
@@ -301,7 +339,8 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         return results;
     }
 
-    @Override public Collection<Annotation> readBySemanticTag(URI semanticTagURI) {
+    @Override
+    public Collection<Annotation> readBySemanticTag(URI semanticTagURI) {
         Collection<Annotation> results = new HashSet<>();
         for (Annotation annotation : annotations) {
             if (annotation.getSemanticTags().contains(semanticTagURI)) {
@@ -311,7 +350,8 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         return results;
     }
 
-    @Override public int count() {
+    @Override
+    public int count() {
         try {
             initOrWait();
         }
@@ -321,16 +361,19 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         return annotations.size();
     }
 
-    @Override public void create(Annotation identifiable) throws ResourceAlreadyExistsException {
+    @Override
+    public void create(Annotation identifiable) throws ResourceAlreadyExistsException {
         throw new UnsupportedOperationException(getClass().getSimpleName() + " is a read-only DAO over a text file");
     }
 
-    @Override public void create(Collection<Annotation> identifiable) throws ResourceAlreadyExistsException {
+    @Override
+    public void create(Collection<Annotation> identifiable) throws ResourceAlreadyExistsException {
         throw new UnsupportedOperationException(
                 getClass().getSimpleName() + " is a read-only annotation DAO, creation not supported");
     }
 
-    @Override public Collection<Annotation> read() {
+    @Override
+    public Collection<Annotation> read() {
         try {
             initOrWait();
         }
@@ -340,7 +383,8 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         return Collections.unmodifiableCollection(annotations);
     }
 
-    @Override public List<Annotation> read(int size, int start) {
+    @Override
+    public List<Annotation> read(int size, int start) {
         try {
             initOrWait();
         }
@@ -355,7 +399,8 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         }
     }
 
-    @Override public Annotation read(URI uri) {
+    @Override
+    public Annotation read(URI uri) {
         try {
             initOrWait();
         }
@@ -370,20 +415,26 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         return null;
     }
 
-    @Override public void update(Annotation object) throws NoSuchResourceException {
+    @Override
+    public void update(Annotation object) throws NoSuchResourceException {
         throw new UnsupportedOperationException(getClass().getSimpleName() + " is a read-only DAO over a text file");
     }
 
-    @Override public void update(Collection<Annotation> object) throws NoSuchResourceException {
+    @Override
+    public void update(Collection<Annotation> object) throws NoSuchResourceException {
         throw new UnsupportedOperationException(getClass().getSimpleName() + " is a read-only DAO over a text file");
     }
 
-    @Override public void delete(Annotation object) throws NoSuchResourceException {
+    @Override
+    public void delete(Annotation object) throws NoSuchResourceException {
         throw new UnsupportedOperationException(getClass().getSimpleName() + " is a read-only DAO over a text file");
     }
 
     protected URI convertSemanticTagToURI(String semanticTag) {
         if (semanticTag == null) {
+            return null;
+        }
+        else if (semanticTag.equals("")) {
             return null;
         }
         else {

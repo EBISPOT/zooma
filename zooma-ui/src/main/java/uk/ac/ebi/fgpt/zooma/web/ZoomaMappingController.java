@@ -46,13 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,6 +63,7 @@ import java.util.regex.Pattern;
 @RequestMapping("/services/map")
 public class ZoomaMappingController {
     private Properties zoomaProperties;
+    private int searchTimeout = 5;
 
     private AnnotationSummarySearchService annotationSummarySearchService;
     private AnnotationService annotationService;
@@ -91,6 +86,26 @@ public class ZoomaMappingController {
     @Qualifier("zoomaProperties")
     public void setZoomaProperties(Properties zoomaProperties) {
         this.zoomaProperties = zoomaProperties;
+    }
+
+    /**
+     * Get the time, in seconds, that individual search tasks will wait before terminating.  If unset, this defaults to
+     * 15 seconds.
+     */
+    public int getSearchTimeout() {
+        return searchTimeout;
+    }
+
+    /**
+     * Set the time, in seconds, that individual search tasks will wait before terminating.  If the progress for a
+     * search remains at the same value for more than the supplied number of minutes, the search will be terminated
+     * automatically.
+     *
+     * @param searchTimeout the number of minutes to wait before searches can remain at the same progress value
+     *                      before being terminated automatically
+     */
+    public void setSearchTimeout(int searchTimeout) {
+        this.searchTimeout = searchTimeout;
     }
 
     public AnnotationSummarySearchService getAnnotationSummarySearchService() {
@@ -378,147 +393,191 @@ public class ZoomaMappingController {
                 Collections.synchronizedMap(new HashMap<Property, Boolean>());
 
         // start searching - use 'concurrent' parallel threads
-        final Deque<Future<Integer>> jobQueue = new ConcurrentLinkedDeque<>();
-        final ExecutorService service = Executors.newFixedThreadPool(concurrency);
+        final ExecutorService executorService = Executors.newFixedThreadPool(concurrency);
+        final CompletionService<Property> completionService = new ExecutorCompletionService<>(executorService);
         for (final Property property : properties) {
             // simple unit of work to perform the zooma search and update annotations with results
-            jobQueue.add(service.submit(new Callable<Integer>() {
-                @Override public Integer call() throws Exception {
-                    // first, grab annotation summaries
-                    Map<AnnotationSummary, Float> summaries = doSearch(property, requiredSources, preferredSources);
+            if (getLog().isTraceEnabled()) {
+                getLog().trace("Submitting next search, for " + property);
+            }
 
-                    // now use client to test and filter them
-                    if (!summaries.isEmpty()) {
-                        // get well scored annotation summaries
-                        Set<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(summaries,
-                                                                                                    cutoffPercentage);
-
-                        // for each good summary, extract an example annotation
-                        boolean achievedScore = false;
-                        Set<Annotation> goodAnnotations = new HashSet<>();
-
-                        for (AnnotationSummary goodSummary : goodSummaries) {
-                            if (!achievedScore && summaries.get(goodSummary) > cutoffScore) {
-                                achievedScore = true;
-                            }
-
-                            if (!goodSummary.getAnnotationURIs().isEmpty()) {
-                                URI annotationURI = goodSummary.getAnnotationURIs().iterator().next();
-                                Annotation goodAnnotation = getAnnotationService().getAnnotation(annotationURI);
-                                if (goodAnnotation != null) {
-                                    goodAnnotations.add(goodAnnotation);
-                                }
-                                else {
-                                    throw new RuntimeException(
-                                            "An annotation summary referenced an annotation that " +
-                                                    "could not be found - ZOOMA's indexes may be out of date");
-                                }
-                            }
-                            else {
-                                String message = "An annotation summary with no associated annotations was found - " +
-                                        "this is probably an error in inferring a new summary from lexical matches";
-                                getLog().warn(message);
-                                throw new RuntimeException(message);
-                            }
-
-                            // trace log each annotation summary that has generated content to be written to the report
-                            if (getLog().isTraceEnabled()) {
-                                getLog().trace(
-                                        "Next annotation result obtained:\n\t\t" +
-                                                "Searched: " + property + "\t" +
-                                                "Found: " + goodSummary.getAnnotatedPropertyValue() + " " +
-                                                "[" + goodSummary.getAnnotatedPropertyType() + "] " +
-                                                "-> " + goodSummary.getSemanticTags() + "\t" +
-                                                "Score: " + summaries.get(goodSummary));
-                            }
-                        }
-
-                        // and add good annotations to the annotations map
-                        synchronized (annotations) {
-                            annotations.put(property, goodAnnotations);
-                        }
-                        synchronized (searchAchievedScore) {
-                            searchAchievedScore.put(property, achievedScore);
-                        }
+            completionService.submit(new Callable<Property>() {
+                @Override
+                public Property call() throws Exception {
+                    if (getLog().isTraceEnabled()) {
+                        getLog().trace("Executing search for " + property);
                     }
 
-                    // update timing stats
-                    timer.completedNext();
-                    session.setAttribute("progress", timer.getCompletedCount());
-                    return timer.getCompletedCount();
+                    try {
+                        // first, grab annotation summaries
+                        Map<AnnotationSummary, Float> summaries = doSearch(property, requiredSources, preferredSources);
+
+                        // now use client to test and filter them
+                        if (!summaries.isEmpty()) {
+                            // get well scored annotation summaries
+                            Set<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(summaries,
+                                                                                                        cutoffPercentage);
+
+                            // for each good summary, extract an example annotation
+                            boolean achievedScore = false;
+                            Set<Annotation> goodAnnotations = new HashSet<>();
+
+                            for (AnnotationSummary goodSummary : goodSummaries) {
+                                if (!achievedScore && summaries.get(goodSummary) > cutoffScore) {
+                                    achievedScore = true;
+                                }
+
+                                if (!goodSummary.getAnnotationURIs().isEmpty()) {
+                                    URI annotationURI = goodSummary.getAnnotationURIs().iterator().next();
+                                    Annotation goodAnnotation = getAnnotationService().getAnnotation(annotationURI);
+                                    if (goodAnnotation != null) {
+                                        goodAnnotations.add(goodAnnotation);
+                                    }
+                                    else {
+                                        throw new RuntimeException(
+                                                "An annotation summary referenced an annotation that " +
+                                                        "could not be found - ZOOMA's indexes may be out of date");
+                                    }
+                                }
+                                else {
+                                    String message = "An annotation summary with no associated annotations was found - " +
+                                            "this is probably an error in inferring a new summary from lexical matches";
+                                    getLog().warn(message);
+                                    throw new RuntimeException(message);
+                                }
+
+                                // trace log each annotation summary that has generated content to be written to the report
+                                if (getLog().isTraceEnabled()) {
+                                    getLog().trace(
+                                            "Next annotation result obtained:\n\t\t" +
+                                                    "Searched: " + property + "\t" +
+                                                    "Found: " + goodSummary.getAnnotatedPropertyValue() + " " +
+                                                    "[" + goodSummary.getAnnotatedPropertyType() + "] " +
+                                                    "-> " + goodSummary.getSemanticTags() + "\t" +
+                                                    "Score: " + summaries.get(goodSummary));
+                                }
+                            }
+
+                            // and add good annotations to the annotations map
+                            synchronized (annotations) {
+                                annotations.put(property, goodAnnotations);
+                            }
+                            synchronized (searchAchievedScore) {
+                                searchAchievedScore.put(property, achievedScore);
+                            }
+                        }
+                        return property;
+                    }
+                    catch (Exception e) {
+                        if (getLog().isTraceEnabled()) {
+                            getLog().trace("Search for " + property + " failed", e);
+                        }
+                        throw e;
+                    }
+                    finally {
+                        if (getLog().isTraceEnabled()) {
+                            getLog().trace("Search for " + property + " done");
+                        }
+                    }
                 }
-            }));
+            });
         }
 
         // create a thread to run until all ZOOMA searches have finished, then update session
         new Thread(new Runnable() {
             @Override public void run() {
-                // pop elements from the jobQueue, make sure they're done, then discard
-                Future<Integer> f = jobQueue.poll();
+                // collate results
                 int failedCount = 0;
-                while (f != null) {
+                for (int i = 0; i < properties.size(); i++) {
+                    if (getLog().isTraceEnabled()) {
+                        getLog().trace("Attempting to get search result " + i + "/" + properties.size() + "...");
+                    }
+
                     try {
-                        int total = f.get();
-                        getLog().trace("There are " + total + " searches are now complete");
+                        // wait for next task to complete - each search gets timeout seconds max to prevent stalling
+                        Future<Property> f = completionService.poll(getSearchTimeout(), TimeUnit.SECONDS);
+                        if (f == null) {
+                            failedCount++;
+                            getLog().error("A search job failed to complete in " + getSearchTimeout() + " seconds - " +
+                                                   "there are " + failedCount + " fails now.");
+                        }
+                        else {
+                            try {
+                                f.get(getSearchTimeout(), TimeUnit.SECONDS);
+                            }
+                            catch (TimeoutException e) {
+                                failedCount++;
+                                getLog().error("Results of a search job were not available in " + getSearchTimeout() +
+                                                       " seconds - there are " + failedCount + " fails now.");
+                            }
+                        }
                     }
                     catch (InterruptedException e) {
                         failedCount++;
-                        timer.completedNext(); // update here so progress doesn't stall
-                        getLog().error("Job " + f + " was interrupted whilst waiting for completion - " +
-                                               "there are " + failedCount + " fails now");
+                        getLog().error("A job was interrupted whilst waiting for completion - " +
+                                               "there are " + failedCount + " fails now.  Error was:\n", e);
                     }
                     catch (ExecutionException e) {
                         failedCount++;
-                        timer.completedNext(); // update here so progress doesn't stall
-                        getLog().error(
-                                "A job failed to execute - there are " + failedCount + " fails now.  " +
-                                        "Error was:\n", e.getCause());
+                        getLog().error("A job failed to execute - there are " + failedCount + " fails now.  " +
+                                               "Error was:\n", e.getCause());
                     }
                     catch (Exception e) {
                         failedCount++;
-                        timer.completedNext(); // update here so progress doesn't stall
-                        getLog().error(
-                                "A job failed with an unknown exception - there are " + failedCount + " fails now.  " +
-                                        "Error was:\n", e.getCause());
+                        getLog().error("A job failed with an unexpected exception - " +
+                                               "there are " + failedCount + " fails now.  Error was:\n", e);
                     }
-                    f = jobQueue.poll();
+                    finally {
+                        // update timing stats
+                        timer.completedNext();
+                        session.setAttribute("progress", timer.getCompletedCount());
+                        if (getLog().isTraceEnabled()) {
+                            getLog().trace(timer.getCompletedCount() + " searches have now completed");
+                        }
+                    }
                 }
 
-                getLog().debug("Shutting down executor service...");
-                service.shutdown();
+                // render the report
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                ZOOMAReportRenderer renderer =
+                        new ZOOMAReportRenderer(new LabelMapper(getOntologyService()),
+                                                out,
+                                                out); // unmapped elements go in same report
+                Map<Property, List<String>> propertyContexts = new HashMap<>();
+                renderer.renderAnnotations(properties, propertyContexts, annotations, searchAchievedScore);
                 try {
-                    service.awaitTermination(2, TimeUnit.MINUTES);
-                    getLog().debug("Executor service shutdown gracefully.");
+                    renderer.close();
+                    getLog().debug("ZOOMA search complete, results will be stored in a session attribute");
+                    session.setAttribute("progress", timer.getCompletedCount());
+                    session.setAttribute("result", out.toString());
+
+                    if (failedCount > 0) {
+                        session.setAttribute("exception", new RuntimeException(
+                                "There were " + failedCount + " ZOOMA searches that encountered problems"));
+                    }
+                }
+                catch (IOException e) {
+                    session.setAttribute("exception", e);
+                }
+                getLog().info(
+                        "Successfully generated ZOOMA report for " + timer.getCompletedCount() + " searches," +
+                                " HTTP session '" + session.getId() + "'");
+
+                // and cleanup
+                getLog().debug("Shutting down executor service...");
+                executorService.shutdown();
+                try {
+                    if (executorService.awaitTermination(2, TimeUnit.MINUTES)) {
+                        getLog().debug("Executor service shutdown gracefully.");
+                    }
+                    else {
+                        int abortedTasks = executorService.shutdownNow().size();
+                        getLog().warn("Executor service forcibly shutdown. " + abortedTasks + " tasks were aborted");
+                    }
                 }
                 catch (InterruptedException e) {
                     getLog().error("Executor service failed to shutdown cleanly", e);
                     throw new RuntimeException("Unable to cleanly shutdown ZOOMA.", e);
-                }
-                finally {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    ZOOMAReportRenderer renderer =
-                            new ZOOMAReportRenderer(new LabelMapper(getOntologyService()),
-                                                    out,
-                                                    out); // unmapped elements go in same report
-                    Map<Property, List<String>> propertyContexts = new HashMap<>();
-                    renderer.renderAnnotations(properties, propertyContexts, annotations, searchAchievedScore);
-                    try {
-                        renderer.close();
-                        getLog().debug("ZOOMA search complete, results will be stored in a session attribute");
-                        session.setAttribute("progress", timer.getCompletedCount());
-                        session.setAttribute("result", out.toString());
-
-                        if (failedCount > 0) {
-                            session.setAttribute("exception", new RuntimeException(
-                                    "There were " + failedCount + " ZOOMA searches that encountered problems"));
-                        }
-                    }
-                    catch (IOException e) {
-                        session.setAttribute("exception", e);
-                    }
-                    getLog().info(
-                            "Successfully generated ZOOMA report for " + timer.getCompletedCount() + " searches," +
-                                    " HTTP session '" + session.getId() + "'");
                 }
             }
         }).start();
@@ -559,6 +618,10 @@ public class ZoomaMappingController {
                         propertyValue);
             }
         }
+    }
+
+    private boolean hasTimedOut(long timeLastUpdated) {
+        return timeLastUpdated > (System.currentTimeMillis() - (getSearchTimeout() * 1000 * 60));
     }
 
     private class LabelMapper implements OntologyLabelMapper {

@@ -92,7 +92,9 @@ public abstract class Initializable {
             setInitStopped();
         }
         else {
-            setInitializationException(new InterruptedException("Initialization was forcibly interrupted"));
+            if (!isReady()) {
+                setInitializationException(new InterruptedException("Initialization was forcibly interrupted"));
+            }
         }
     }
 

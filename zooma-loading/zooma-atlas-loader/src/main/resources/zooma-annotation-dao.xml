@@ -45,13 +45,13 @@
     <!-- Atlas Database setup -->
     <bean name="atlasDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
-        <property name="url" value="jdbc:oracle:thin:@bart.ebi.ac.uk:1521:ATLASCUR" />
+        <property name="url" value="jdbc:oracle:thin:@ora-vm-028.ebi.ac.uk:1531:ATLASCUR" />
         <property name="username" value="atlasraw2" />
         <property name="password" value="atlas2" />
         <property name="defaultAutoCommit" value="false" />
-        <property name="initialSize" value="32" />
-        <property name="maxIdle" value="32" />
-        <property name="maxActive" value="32" />
+        <property name="initialSize" value="8" />
+        <property name="maxIdle" value="8" />
+        <property name="maxActive" value="8" />
         <property name="maxWait" value="-1" />
     </bean>
 

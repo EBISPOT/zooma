@@ -39,6 +39,11 @@
             <artifactId>spring-core</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
+
         <!-- SPI utils: available for compilation only, not required at runtime -->
         <dependency>
             <groupId>net.sourceforge.fluxion</groupId>

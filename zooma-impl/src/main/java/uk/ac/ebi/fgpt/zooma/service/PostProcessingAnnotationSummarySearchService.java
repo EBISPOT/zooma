@@ -48,7 +48,7 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
 
     @Override
     public Collection<AnnotationSummary> search(String propertyValuePattern, final URI... sources) {
-        return doSplitSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
+        return doProcessedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
                 return PostProcessingAnnotationSummarySearchService.super.search(propertyValue, sources);
             }
@@ -59,7 +59,7 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     public Collection<AnnotationSummary> search(final String propertyType,
                                                 String propertyValuePattern,
                                                 final URI... sources) {
-        return doSplitSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
+        return doProcessedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
                 return PostProcessingAnnotationSummarySearchService.super.search(propertyType, propertyValue, sources);
             }
@@ -69,7 +69,7 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
                                                                             final List<URI> preferredSources,
                                                                             final URI... requiredSources) {
-        return doSplitSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
+        return doProcessedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
                 return PostProcessingAnnotationSummarySearchService.super.searchByPreferredSources(propertyValue,
                                                                                                    preferredSources,
@@ -82,7 +82,7 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                                                                             String propertyValuePattern,
                                                                             final List<URI> preferredSources,
                                                                             final URI... requiredSources) {
-        return doSplitSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
+        return doProcessedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
                 return PostProcessingAnnotationSummarySearchService.super.searchByPreferredSources(propertyType,
                                                                                                    propertyValue,
@@ -94,18 +94,19 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
 
     /**
      * Uses the supplied annotation summary search command to execute the "original" search, followed by a search
-     * against multiple "split" property values (using the search string processor set on this class to decompose the
-     * string into tokens) if no results were obtained from the original search.
+     * against the results of processing the supplied property value pattern using this classes search string processor
+     * if no results were obtained from the original search.
      * <p/>
-     * Note that this implementation can only handle the case where the original string can be split into two parts;
-     * this limit is set to prevent a combinatorial explosion of possible results when merging individual responses
+     * Note that this implementation can only handle the case where the original string can be processed into two or
+     * fewer parts; this limit is set to prevent a combinatorial explosion of possible results when merging individual
+     * responses
      *
      * @param propertyValuePattern the property value pattern to search for
      * @param command              a command that encapsulates the search to execute
      * @return a collection of annotation summaries that satisfy the query
      */
-    private Collection<AnnotationSummary> doSplitSearch(String propertyValuePattern,
-                                                        AnnotationSummarySearchCommand command) {
+    private Collection<AnnotationSummary> doProcessedSearch(String propertyValuePattern,
+                                                            AnnotationSummarySearchCommand command) {
         Collection<AnnotationSummary> rawResults = command.executeSearch(propertyValuePattern);
 
         // if raw results are empty, attempt to process the string and requery
@@ -119,6 +120,10 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
 
             // check if we can process the string
             if (getSearchStringProcessor().canProcess(propertyValuePattern)) {
+                getLog().debug("Search for '" + propertyValuePattern + "' failed to return results, " +
+                                       "using " + getSearchStringProcessor().getClass().getSimpleName() + " " +
+                                       "to expand results");
+
                 Collection<String> parts = getSearchStringProcessor().processSearchString(propertyValuePattern);
 
                 // for now, we only work with cases where the string returns at most 2 processed forms

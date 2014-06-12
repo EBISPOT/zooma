@@ -14,6 +14,7 @@ public enum QueryVariables {
     PROPERTY_NAME("propertyname"),
     PROPERTY_VALUE("propertyvalue"),
     SEMANTIC_TAG("semantictag"),
+    CHILD_TAG("child"),
     SEMANTIC_TAG_LABEL("label"),
     SYNONYM_PROPERTY("synonymproperty"),
     SEMANTIC_TAG_SYNONYM("synonym"),

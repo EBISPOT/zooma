@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.zooma.io;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
 import uk.ac.ebi.fgpt.zooma.model.Update;
 
+import java.io.InputStream;
 import java.util.Collection;
 
 /**
@@ -28,8 +29,7 @@ public interface ZoomaLoader<T> {
      * @param zoomaObjects   the collection of objects being loaded
      * @throws ZoomaLoadingException
      */
-    @Deprecated
-    void load(String datasourceName, Collection<T> zoomaObjects) throws ZoomaLoadingException;
+    @Deprecated void load(String datasourceName, Collection<T> zoomaObjects) throws ZoomaLoadingException;
 
     /**
      * Loads the supplied zooma object into ZOOMA by resolving, serializing and storing (as required by the
@@ -38,8 +38,10 @@ public interface ZoomaLoader<T> {
      * @param zoomaObject the object being loaded
      * @throws ZoomaLoadingException
      */
-    @Deprecated
-    void load(T zoomaObject) throws ZoomaLoadingException;
+    @Deprecated void load(T zoomaObject) throws ZoomaLoadingException;
+
+    @Deprecated void loadSupplementaryData(String datasourceName, InputStream rdfInputStream)
+            throws ZoomaLoadingException;
 
     /**
      * Updtaes the supplied zooma objects into ZOOMA by resolving, serializing and storing (as required by the

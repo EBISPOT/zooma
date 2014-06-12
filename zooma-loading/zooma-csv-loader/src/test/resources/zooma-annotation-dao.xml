@@ -7,10 +7,10 @@
 
     <!-- Configure AnnotationDAOs for this datasourceURL -->
     <bean name="csvAnnotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.CSVAnnotationDAO">
+        <constructor-arg name="annotationFactory" ref="csvAnnotationFactory" />
         <constructor-arg name="file" ref="${datasource.file.path}" />
         <constructor-arg name="datasourceName" value="${datasource.name}" />
         <constructor-arg name="delimiter" value="${csv.delimiter}" />
-        <property name="annotationFactory" ref="csvAnnotationFactory" />
     </bean>
 
     <bean name="csvAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.CSVAnnotationFactory">

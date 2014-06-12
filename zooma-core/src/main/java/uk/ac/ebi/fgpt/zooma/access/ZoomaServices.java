@@ -4,21 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.fgpt.zooma.service.OntologyService;
 import uk.ac.ebi.fgpt.zooma.service.StatusService;
 import uk.ac.ebi.fgpt.zooma.util.PropertiesMapAdapter;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A service class that allows common interactions with the ZOOMA services.  This includes common requests like
@@ -89,6 +82,27 @@ public class ZoomaServices {
         result.put("synonyms", synonyms);
         return result;
     }
+
+    @RequestMapping(value = "/children/{shortURI}", method = RequestMethod.GET)
+    public @ResponseBody Set getLabels(@PathVariable String shortURI,
+                                                            @RequestParam(value = "infer", required = false, defaultValue = "false") boolean infer
+                                                            ) {
+        URI uri = URIUtils.getURI(shortURI);
+        Set<String> children = getOntologyService().getChildren(uri,infer);
+
+
+        Set<Object> results = new HashSet<>();
+        for (String childuri : children) {
+            Map<String, String> result = new HashMap<>();
+            String shortname = URIUtils.getShortform(URI.create(childuri));
+              result.put("uri", childuri);
+            result.put("shortname", shortname);
+            results.add(result);
+        }
+
+        return results;
+    }
+
 
     @RequestMapping(value = "/expand/{shortURI}", method = RequestMethod.GET)
     public @ResponseBody Map<String, String> getFullURI(@PathVariable String shortURI) {

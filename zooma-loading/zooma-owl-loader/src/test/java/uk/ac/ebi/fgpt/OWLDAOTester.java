@@ -29,7 +29,7 @@ public class OWLDAOTester {
         System.out.print("Loading spring context...");
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:zooma-annotation-dao.xml");
         System.out.println("done!");
-        OWLDAO = ctx.getBean("efo-owlAnnotationDAO", OWLAnnotationDAO.class);
+        OWLDAO = ctx.getBean("test-owlAnnotationDAO", OWLAnnotationDAO.class);
         serializer = ctx.getBean("annotationSerializer", OWLAPIAnnotationSerializer.class);
     }
 
@@ -52,7 +52,7 @@ public class OWLDAOTester {
         try {
             File f = new File("annotations.owl");
             System.out.print("Serializing " + annotations.size() + " to " + f.getAbsolutePath() + "...");
-            serializer.serialize("efo", annotations, f);
+            serializer.serialize("test", annotations, f);
             System.out.println("done!");
         }
         catch (ZoomaSerializationException e) {

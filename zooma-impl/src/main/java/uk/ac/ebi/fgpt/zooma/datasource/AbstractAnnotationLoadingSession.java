@@ -14,6 +14,7 @@ import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
 import uk.ac.ebi.fgpt.zooma.model.SimpleUntypedProperty;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
+import uk.ac.ebi.fgpt.zooma.util.TransientCacheable;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
@@ -35,7 +36,7 @@ import java.util.*;
  * @author Simon Jupp
  * @date 28/09/12
  */
-public abstract class AbstractAnnotationLoadingSession implements AnnotationLoadingSession {
+public abstract class AbstractAnnotationLoadingSession extends TransientCacheable implements AnnotationLoadingSession {
     private final Map<URI, Study> studyCache;
     private final Map<URI, BiologicalEntity> biologicalEntityCache;
     private final Map<URI, Property> propertyCache;
@@ -58,6 +59,8 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
 
     protected AbstractAnnotationLoadingSession(URI defaultTargetUriType,
                                                URI defaultTargetSourceUriType) {
+        super();
+
         this.studyCache = Collections.synchronizedMap(new HashMap<URI, Study>());
         this.biologicalEntityCache = Collections.synchronizedMap(new HashMap<URI, BiologicalEntity>());
         this.propertyCache = Collections.synchronizedMap(new HashMap<URI, Property>());
@@ -66,7 +69,14 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
         this.messageDigest = ZoomaUtils.generateMessageDigest();
         this.defaultTargetTypeUri = defaultTargetUriType;
         this.defaultTargetSourceTypeUri = defaultTargetSourceUriType;
+    }
 
+    public URI getDefaultTargetTypeUri() {
+        return defaultTargetTypeUri;
+    }
+
+    public URI getDefaultTargetSourceTypeUri() {
+        return defaultTargetSourceTypeUri;
     }
 
     @Override public synchronized Study getOrCreateStudy(String studyAccession, Collection<URI> studyTypes) {
@@ -79,6 +89,9 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
     }
 
     @Override public Study getOrCreateStudy(String studyAccession, URI studyURI, Collection<URI> studyTypes) {
+        // ping to keep caches alive
+        ping();
+
         if (!studyCache.containsKey(studyURI)) {
             if (studyTypes.isEmpty()) {
                 studyCache.put(studyURI, new SimpleStudy(studyURI, studyAccession, getDefaultTargetSourceTypeUri()));
@@ -88,14 +101,6 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
             }
         }
         return studyCache.get(studyURI);
-    }
-
-    public URI getDefaultTargetTypeUri() {
-        return defaultTargetTypeUri;
-    }
-
-    public URI getDefaultTargetSourceTypeUri() {
-        return defaultTargetSourceTypeUri;
     }
 
     @Override public synchronized BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
@@ -131,6 +136,9 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
                                                                   Collection<String> bioentityTypeName,
                                                                   Collection<URI> bioentityTypeURI,
                                                                   Study... studies) {
+        // ping to keep caches alive
+        ping();
+
         if (!biologicalEntityCache.containsKey(bioentityURI)) {
             if (!bioentityTypeURI.isEmpty()) {
                 biologicalEntityCache.put(bioentityURI,
@@ -191,6 +199,9 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
     @Override public Property getOrCreateProperty(String propertyType,
                                                   String propertyValue,
                                                   URI propertyURI) {
+        // ping to keep caches alive
+        ping();
+
         Property property;
         if (propertyType != null && !propertyType.equals("")) {
             String normalizedType = ZoomaUtils.normalizePropertyTypeString(propertyType);
@@ -258,6 +269,9 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
                                                       Property property,
                                                       AnnotationProvenance annotationProvenance,
                                                       Collection<URI> semanticTags) {
+        // ping to keep caches alive
+        ping();
+
         if (!annotationCache.containsKey(annotationURI)) {
             // create and cache a new annotation
             if (semanticTags.isEmpty()) {
@@ -288,12 +302,18 @@ public abstract class AbstractAnnotationLoadingSession implements AnnotationLoad
         return annotationCache.get(annotationURI);
     }
 
-    @Override public synchronized void clearCaches() {
+    @Override protected boolean createCaches() {
+        // caches are final, created in constructor, so nothing to do here
+        return true;
+    }
+
+    @Override public synchronized boolean clearCaches() {
         getLog().debug("Clearing caches for " + getClass().getSimpleName());
         studyCache.clear();
         biologicalEntityCache.clear();
         propertyCache.clear();
         annotationCache.clear();
+        return true;
     }
 
     protected String encode(String s) {

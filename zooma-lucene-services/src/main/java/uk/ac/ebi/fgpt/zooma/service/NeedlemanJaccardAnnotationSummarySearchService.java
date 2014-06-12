@@ -152,6 +152,9 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
 
         // if results are empty, find lexically similar strings and execute "expanded" query
         if (results.isEmpty()) {
+            getLog().debug("Search for '" + propertyValuePattern + "' failed to return results, " +
+                                   "using Needleman/Jaccard expansion to expand results");
+
             // use "Needleman-Wunsch"  and "Jaccard similarity" to find approximate matchings
             Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
 
@@ -184,6 +187,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
             throw new RuntimeException(getClass().getSimpleName() + " initialization failed", e);
         }
 
+        getLog().debug("Attempting to use NeedlemanWunsch expansion to identify similar strings to " + propertyValue);
         Map<String, Float> expandedPropertyMap = new HashMap<>();
         NeedlemanWunch nwSimilarity = new NeedlemanWunch();
         if (!getPropertyValueDictionary().isEmpty()) {
@@ -206,6 +210,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         if (!expandedPropertyMap.isEmpty()) {
             result = filter(expandedPropertyMap, min_score, num_max_annotations, pct_cutoff);
         }
+        getLog().debug("NeedlemanWunsch expansion complete: got " + result.size() + " new values");
         return result;
     }
 
@@ -229,6 +234,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
             throw new RuntimeException(getClass().getSimpleName() + " initialization failed", e);
         }
 
+        getLog().debug("Attempting to use Jaccard expansion to identify similar strings to " + propertyValue);
         Map<String, Float> expandedPropertyMap = new HashMap<>();
         JaccardSimilarity jaccardSimilarity = new JaccardSimilarity();
         if (!getPropertyValueDictionary().isEmpty()) {
@@ -251,6 +257,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         if (!expandedPropertyMap.isEmpty()) {
             result = filter(expandedPropertyMap, min_score, num_max_annotations, pct_cutoff);
         }
+        getLog().debug("Jaccard expansion complete: got " + result.size() + " new values");
         return result;
     }
 

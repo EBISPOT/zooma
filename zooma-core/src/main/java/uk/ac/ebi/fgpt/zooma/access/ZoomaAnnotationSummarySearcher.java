@@ -9,11 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
-import uk.ac.ebi.fgpt.zooma.service.AnnotationSourceService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummarySearchService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSummaryService;
+import uk.ac.ebi.fgpt.zooma.util.InferredAnnotationSummaryCache;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
 import uk.ac.ebi.fgpt.zooma.util.Scorer;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
@@ -22,12 +21,10 @@ import uk.ac.ebi.fgpt.zooma.view.SearchResponse;
 import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Search ZOOMA for all the unique combinations of mapping between the given property values (and optional types) and
@@ -55,6 +52,8 @@ public class ZoomaAnnotationSummarySearcher extends SourceFilteredSuggestEndpoin
     private Sorter<AnnotationSummary> annotationSummarySorter;
     private Limiter<AnnotationSummary> annotationSummaryLimiter;
     private Scorer<AnnotationSummary> annotationSummaryScorer;
+
+    private InferredAnnotationSummaryCache inferredAnnotationSummaryCache = new InferredAnnotationSummaryCache();
 
     public AnnotationSummaryService getAnnotationSummaryService() {
         return annotationSummaryService;
@@ -301,12 +300,12 @@ public class ZoomaAnnotationSummarySearcher extends SourceFilteredSuggestEndpoin
                                               final Boolean prefixed) {
         // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
         if (type != null) {
-            return convertToSearchResponse(query,
-                                           queryAndScore(query, type, prefixed),
-                                           getAnnotationSummarySorter());
+            return generateResponse(query,
+                                    queryAndScore(query, type, prefixed),
+                                    getAnnotationSummarySorter());
         }
         else {
-            return convertToSearchResponse(query, queryAndScore(query, prefixed), getAnnotationSummarySorter());
+            return generateResponse(query, queryAndScore(query, prefixed), getAnnotationSummarySorter());
         }
     }
 
@@ -320,16 +319,16 @@ public class ZoomaAnnotationSummarySearcher extends SourceFilteredSuggestEndpoin
         switch (searchType) {
             case REQUIRED_ONLY:
                 requiredSources = parseRequiredSourcesFromFilter(filter);
-                return convertToSearchResponse(query,
-                                               queryAndScore(query, type, prefixed, requiredSources),
-                                               getAnnotationSummarySorter());
+                return generateResponse(query,
+                                        queryAndScore(query, type, prefixed, requiredSources),
+                                        getAnnotationSummarySorter());
             case REQUIRED_AND_PREFERRED:
                 requiredSources = parseRequiredSourcesFromFilter(filter);
             case PREFERRED_ONLY:
                 preferredSources = parsePreferredSourcesFromFilter(filter);
-                return convertToSearchResponse(query,
-                                               queryAndScore(query, type, preferredSources, requiredSources),
-                                               getAnnotationSummarySorter());
+                return generateResponse(query,
+                                        queryAndScore(query, type, preferredSources, requiredSources),
+                                        getAnnotationSummarySorter());
             case UNRESTRICTED:
             default:
                 return unfilteredSearch(query,
@@ -346,7 +345,12 @@ public class ZoomaAnnotationSummarySearcher extends SourceFilteredSuggestEndpoin
 
     @RequestMapping(value = "/{annotationSummaryID}", method = RequestMethod.GET)
     public @ResponseBody AnnotationSummary fetch(@PathVariable String annotationSummaryID) {
-        return getAnnotationSummaryService().getAnnotationSummary(annotationSummaryID);
+        AnnotationSummary result = getAnnotationSummaryService().getAnnotationSummary(annotationSummaryID);
+        if (result == null) {
+            // try to retrieve from cache
+            result = inferredAnnotationSummaryCache.retrieveAnnotationSummary(annotationSummaryID);
+        }
+        return result;
     }
 
     /**
@@ -382,8 +386,23 @@ public class ZoomaAnnotationSummarySearcher extends SourceFilteredSuggestEndpoin
         if ((query != null || type != null) && semanticTags != null) {
             throw new IllegalArgumentException(
                     "Please either specify query and/or type, or semantic tag, arguments - " +
-                            "querying by both is not supported");
+                            "querying by both is not supported"
+            );
         }
+    }
+
+    protected SearchResponse generateResponse(String prefix,
+                                              Map<AnnotationSummary, Float> annotationSummaries,
+                                              Sorter<AnnotationSummary> sorter) {
+        Map<AnnotationSummary, Float> responseContents = new HashMap<>();
+        for (AnnotationSummary summary : annotationSummaries.keySet()) {
+            if (summary.getID() == null) {
+                // cache this result for subsequent lookup
+                AnnotationSummary cached = inferredAnnotationSummaryCache.cacheAnnotationSummary(summary);
+                responseContents.put(cached, annotationSummaries.get(summary));
+            }
+        }
+        return convertToSearchResponse(prefix, responseContents, sorter);
     }
 
     protected SearchResponse searchBySemanticTags(String[] semanticTags) {

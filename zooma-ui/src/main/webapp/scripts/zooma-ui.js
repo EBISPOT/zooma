@@ -1,71 +1,89 @@
+var scrollApis;
+
+$(document).ready(init());
+
 function init() {
-    $(document).ready(function() {
-        // markup any context help sections
-        markupContextHelp();
+    // markup any context help sections
+    markupContextHelp();
 
-        // hide stats on init
-        $("#zooma-stats").hide();
+    // hide stats on init
+    $("#zooma-stats").hide();
 
-        // bind change handler to did not map checkbox
-        $('#zooma-checkbox').change(function() {
-            if ($(this).is(':checked')) {
-                $(".unmapped").hide();
-            }
-            else {
-                $(".unmapped").show();
-            }
-        });
-
-        // bind keydown handler to textarea, so users can type tabs
-        $('#zooma-textarea').keydown(function(e) {
-            if (e.keyCode == 9) {
-                // get caret position/selection
-                var start = this.selectionStart;
-                var end = this.selectionEnd;
-
-                var $this = $(this);
-                var value = $this.val();
-
-                // set textarea value to: text before caret + tab + text after caret
-                $this.val(value.substring(0, start)
-                                  + "\t"
-                                  + value.substring(end));
-
-                // put caret at right position again (add one for the tab)
-                this.selectionStart = this.selectionEnd = start + 1;
-
-                // prevent the focus lose
-                e.preventDefault();
-            }
-        });
-
-        // add progress bar
-        var progressbar = $("#progressbar");
-        var progressLabel = $(".progress-label");
-        progressbar.progressbar({
-                                    value: 0,
-                                    change: function() {
-                                        if (progressbar.progressbar("value") != false) {
-                                            var value = progressbar.progressbar("value");
-                                            progressLabel.text(value + "%");
-                                        }
-                                        else {
-                                            progressLabel.text("Uploading terms to ZOOMA...")
-                                        }
-                                    },
-                                    complete: function() {
-                                        progressLabel.text("Complete!");
-                                    }
-                                });
-
-        // retrieve datasources
-        populateDatasources();
-
-        // render table contents if there are results in session
-        getResults();
-
-        $("#zooma-explorebox").zooma({'api_base_url': ''});
+    // bind change handler to did not map checkbox
+    $('#zooma-checkbox').change(function() {
+        if ($(this).is(':checked')) {
+            $(".unmapped").hide();
+        }
+        else {
+            $(".unmapped").show();
+        }
     });
+
+    // bind keydown handler to textarea, so users can type tabs
+    $('#zooma-textarea').keydown(function(e) {
+        if (e.keyCode == 9) {
+            // get caret position/selection
+            var start = this.selectionStart;
+            var end = this.selectionEnd;
+
+            var $this = $(this);
+            var value = $this.val();
+
+            // set textarea value to: text before caret + tab + text after caret
+            $this.val(value.substring(0, start)
+                              + "\t"
+                              + value.substring(end));
+
+            // put caret at right position again (add one for the tab)
+            this.selectionStart = this.selectionEnd = start + 1;
+
+            // prevent the focus lose
+            e.preventDefault();
+        }
+    });
+
+    // add progress bar
+    var progressbar = $("#progressbar");
+    var progressLabel = $(".progress-label");
+    progressbar.progressbar({
+                                value: 0,
+                                change: function() {
+                                    if (progressbar.progressbar("value") != false) {
+                                        var value = progressbar.progressbar("value");
+                                        progressLabel.text(value + "%");
+                                    }
+                                    else {
+                                        progressLabel.text("Uploading terms to ZOOMA...")
+                                    }
+                                },
+                                complete: function() {
+                                    progressLabel.text("Complete!");
+                                }
+                            });
+
+    // retrieve datasources
+    populateDatasources();
+
+    // render table contents if there are results in session
+    getResults();
+
+    $("#zooma-explorebox").zooma({'api_base_url': ''});
+}
+
+function initializeScrollpanes() {
+    // add customized scroll bars
+    scrollApis = [];
+    $('.zooma-scrollpane').each(function() {
+        scrollApis.push($(this).jScrollPane().data().jsp);
+    });
+}
+
+function reinitializeScrollpanes() {
+    if (scrollApis.length) {
+        $.each(scrollApis, function() {
+            this.reinitialise();
+        });
+    }
 }
 
 function toggleSearchHelp() {
@@ -109,15 +127,18 @@ function toggleContextHelp(element) {
 }
 
 function populateExamples() {
-    $("#zooma-textarea").val("Lung adenocarcinoma\nCD4-positive\ncooked broccoli\tcompound\nadipose tisue\n" +
-                                     "cerebelum\nPopulus trichocarpa alone\nspinal cord, lower\n120 days\tage\n" +
-                                     "2.5-3.5 days\ttime\n2.5 to 3.5 days\tage\n3-4 days\ttime\n10.5 days\tage\n" +
-                                     "doxycycline 130 nanomolar\tcompound\n" +
-                                     "0.333 millimolar salicylic acid\tgrowth condition\n" +
-                                     "nifedipine 0.025 micromolar\tcompound\n" +
-                                     "hepatocellular carcinoma (HCC)\torganism_part\n" +
-                                     "pancreatic ductal adenocarcinoma (PDAC)\torganism_part\n" +
-                                     "peripheral ganglion\torganism part\nleft tibia\torganism part");
+    $("#zooma-textarea").val("Bright nuclei\nAgammaglobulinemia 2\tphenotype\n" +
+        "Reduction in IR-induced 53BP1 foci in HeLa cell\n" +
+        "Impaired cell migration with increased protrusive activity\tphenotype\nC57Black/6\tstrain\n" +
+        "nuclei stay close together\nRetinal cone dystrophy 3B\tdisease\n" +
+        "segregation problems/chromatin bridges/lagging chromosomes/multiple DNA masses\n" +
+        "Segawa syndrome autosomal recessive\tphenotype\n" +
+        "BRCA1\tgene\nDeafness, autosomal dominant 17\tphenotype\n" +
+        "cooked broccoli\tcompound\nAmyloidosis, familial visceral	phenotype\nSpastic paraplegia 10\tphenotype\n" +
+        "Epilepsy, progressive myoclonic 1B	phenotype\nBig cells\nCardiomyopathy, dilated, 1S\tphenotype\n" +
+        "Long QT syndrome 3/6, digenic	disease\nLung adenocarcinoma\tdisease state\n" +
+        "doxycycline 130 nanomolar\tcompound\nleft tibia\torganism part\nCD4-positive\ncerebellum\torganism part\n" +
+        "hematology traits\tgwas trait\nnifedipine 0.025 micromolar\tcompound\nMicrotubule clumps\n");
 }
 
 function populateDatasources() {
@@ -135,6 +156,9 @@ function populateDatasources() {
 
         populateSelector(datasourceNames);
         populateSorter();
+
+        // initialize customized (jscrollpane) scroll bars
+        initializeScrollpanes();
     });
 }
 
@@ -149,17 +173,18 @@ function populateSelector(datasourceNames) {
                 datasource +
                 "</div>";
     }
-    $selector = $("#datasource-selector");
+    var $selector = $("#datasource-selector");
     $selector.html(selectorContent);
     $selector.find("input").change(function() {
         populateSorter();
+        reinitializeScrollpanes();
     });
 }
 
 function populateSorter() {
     // retrieve checked selector items
     var datasourceNames = [];
-    $selector = $("#datasource-selector");
+    var $selector = $("#datasource-selector");
     $selector.find("input:checked").each(function() {
         datasourceNames.push($(this).prop("value"));
     });
@@ -171,12 +196,11 @@ function populateSorter() {
         });
     }
 
-    // generate unranked and content
-    var unrankedContent = "<div class=\"grid_12 alpha\">" +
-            "<span style=\"font-size: 0.7em\">" +
-            "Unranked Datasources:" +
-            "</span>" +
-            "<ul id=\"zooma-datasource-unranked\" class=\"sort-container\">";
+    // generate unranked and ranked content
+    var $unranked = $("#zooma-datasource-unranked");
+    var $ranked = $("#zooma-datasource-ranked");
+
+    var unrankedContent = "";
     for (var i = 0; i < datasourceNames.length; i++) {
         var datasource = datasourceNames[i];
         unrankedContent = unrankedContent +
@@ -186,19 +210,11 @@ function populateSorter() {
                 datasource +
                 "</li>";
     }
-    unrankedContent = unrankedContent + "</ul></div>";
-    var rankedContent = "<div class=\"grid_12 omega\">" +
-            "<span style=\"font-size: 0.7em\">" +
-            "Ranked Datasources:" +
-            "</span>" +
-            "<ul id=\"zooma-datasource-ranked\" class=\"sort-container\"></ul></div>";
+    $unranked.html(unrankedContent);
 
-    // add content
-    $("#datasource-sorter").html(unrankedContent + rankedContent);
+    $ranked.html("");
 
     // make unranked items draggable
-    var $unranked = $("#zooma-datasource-unranked");
-    var $ranked = $("#zooma-datasource-ranked");
     $unranked.find("li").draggable({appendTo: "body", helper: "clone", revert: "invalid"});
 //    $unranked.droppable({
 //                          activeClass: "ui-state-default",
@@ -231,6 +247,7 @@ function populateSorter() {
                                       .appendTo(this);
                               // remove from original list
                               $unranked.find("li[id=" + ui.draggable.prop("id") + "]").remove();
+                              reinitializeScrollpanes();
                           }
                       });
 
@@ -242,6 +259,7 @@ function populateSorter() {
                              // using connectWithSortable fixes this,
                              // but doesn't allow you to customize active/hoverClass options
                              $(this).removeClass("ui-state-default");
+                             reinitializeScrollpanes();
                          }
                      });
 }
@@ -516,18 +534,26 @@ function renderResults(data) {
                 var href;
                 if (result[7] == "http://www.ebi.ac.uk/gxa") {
                     href =
-                            "http://www.ebi.ac.uk/gxa/qrs?gprop_0=&gnot_0=&gval_0=%28all+genes%29&fact_1=&fexp_1=UP_DOWN&fmex_1=&fval_1=" +
+                            "http://www.ebi.ac.uk/gxa/query?condition=" +
+                                    encodeURIComponent(result[1]);
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                            "<img src='//www.ebi.ac.uk/gxa/resources/images/ExpressionAtlas_logo_web.png' " +
+                            "alt='Expression Atlas' style='height: 22px;'/> Expression Atlas</a></td>";
+                }
+                else if (result[7] == "http://www-test.ebi.ac.uk/gxa") {
+                    href =
+                            "http://www-test.ebi.ac.uk/gxa/qrs?gprop_0=&gnot_0=&gval_0=%28all+genes%29&fact_1=&fexp_1=UP_DOWN&fmex_1=&fval_1=" +
                                     encodeURIComponent(result[1]) +
                                     "&view=hm&searchMode=simple";
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
-                            "<img src='http://www.ebi.ac.uk/gxa/resources/images/ExpressionAtlas_logo_web.png' " +
-                            "alt='Expression Atlas' style='height: 22px;'/> Expression Atlas</a></td>";
+                            "<img src='//www.ebi.ac.uk/gxa/resources/images/ExpressionAtlas_logo_web.png' " +
+                            "alt='Expression Atlas' style='height: 22px;'/> GXA</a></td>";
                 }
                 else if (result[7] == "http://www.ebi.ac.uk/arrayexpress") {
                     href = "http://www.ebi.ac.uk/arrayexpress/experiments/search.html?query=" +
                             encodeURIComponent(result[1]);
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
-                            "<img src='http://www.ebi.ac.uk/sites/ebi.ac.uk/files/styles/icon/public/resource/logo/aelogo.jpg' " +
+                            "<img src='//www.ebi.ac.uk/sites/ebi.ac.uk/files/styles/icon/public/resource/logo/aelogo.jpg' " +
                             "alt='ArrayExpress' style='height: 22px;'/> ArrayExpress</a></td>";
                 }
                 else if (result[7] == "http://www.ebi.ac.uk/efo") {
@@ -535,7 +561,7 @@ function renderResults(data) {
                             encodeURIComponent(result[2]) +
                             "&submitSearch=Search";
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
-                            "<img src='http://www.ebi.ac.uk/sites/ebi.ac.uk/files/styles/thumbnail/public/resource/logo/EFO_logo_0.png' " +
+                            "<img src='//www.ebi.ac.uk/sites/ebi.ac.uk/files/styles/thumbnail/public/resource/logo/EFO_logo_0.png' " +
                             "alt='EFO' style='height: 22px;'/> EFO</a></td>";
                 }
                 else if (result[7] == "http://www.genome.gov/gwastudies") {
@@ -556,15 +582,36 @@ function renderResults(data) {
                             "<img src='images/omim.gif' " +
                             "alt='OMIM' style='height: 22px;'/> OMIM</a></td>";
                 }
-                else if  (result[7] == "http://www.ebi.ac.uk/fg/sym") {
+                else if (result[7] == "http://www.ebi.ac.uk/fg/sym") {
                     href = result[7];
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/CelPh_logo.gif' " +
                             "alt='SysMicro' style='height: 22px;'/> SysMicro</a></td>";
                 }
-                else if  (result[7] == "http://www.ebi.ac.uk/fg/sym") {
-                    href = "https://www.ebi.ac.uk/ontology-lookup/browse.do?ontName=CMPO";
-                    row = row + "<td><a href='" + href + "' target='_blank'>CMPO</a></td>";
+                else if (result[7] == "http://www.ebi.ac.uk/cmpo/cmpo.owl") {
+                    row = row + "<td><a href='http://www.ebi.ac.uk/cmpo' target='_blank'>" +
+                            "<img src='images/cmpo.png' " +
+                            "alt='CMPO' style='height: 22px;'/> CMPO</a></td>";
+                }
+                else if (result[7] == "http://www.orphadata.org/data/ORDO/ordo_orphanet.owl") {
+                    row = row + "<td><a href='http://www.orphadata.org/cgi-bin/index.php' target='_blank'>" +
+                            "<img src='images/orphanet.png' " +
+                            "alt='ORDO' style='height: 20px;'/> ORDO</a></td>";
+                }
+                else if (result[7] == "http://www.biomedbridges.eu/workpackages/wp7-0") {
+                    row = row + "<td><a href='http://www.biomedbridges.eu/workpackages/wp7-0' target='_blank'>" +
+                            "<img src='images/bmb.png' " +
+                            "alt='BMB-WP7' style='height: 20px;'/> BMB-WP7</a></td>";
+                }
+                else if (result[7] == "http://purl.obolibrary.org/obo/clo.owl") {
+                    row = row + "<td><a href='http://www.clo-ontology.org/' target='_blank'>" +
+                            "<img src='images/clo.jpg' " +
+                            "alt='CLO' style='height: 20px;'/> CLO</a></td>";
+                }
+                else if (result[7] == "http://purl.obolibrary.org/obo/eo.owl") {
+                    row = row + "<td><a href='http://archive.gramene.org/plant_ontology/index.html#eo' target='_blank'>" +
+                            "<img src='images/gramene_logo.png' " +
+                            "alt='PECO' style='height: 20px;'/> PECO</a></td>";
                 }
                 else {
                     row = row + "<td>" + result[7] + "</td>";

@@ -148,6 +148,18 @@ SELECT ?synonym WHERE {
     ?semantictag ?synonymproperty ?synonym
 }
 
+^[ONTOLOGY.children]
+SELECT ?child WHERE {
+    ?child rdfs:subClassOf ?semantictag
+}
+
+
+^[ONTOLOGY.descendants]
+SELECT ?child WHERE {
+    ?child rdfs:subClassOf ?semantictag option (transitive).
+}
+
+
 ^[BiologicalEntity.read]
 SELECT DISTINCT (?bioentityid AS ?_bioentityid) (?bioentityType AS ?_bioentityType) ?bioentitylabel (?study AS ?_study) (?studyType AS ?_studyType) ?studylabel WHERE {
     ?annotationid rdf:type oac:DataAnnotation .

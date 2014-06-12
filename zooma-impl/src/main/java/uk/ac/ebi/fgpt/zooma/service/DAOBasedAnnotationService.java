@@ -6,6 +6,7 @@ import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
 import uk.ac.ebi.fgpt.zooma.model.*;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
+import uk.ac.ebi.fgpt.zooma.util.ZoomaUsers;
 
 import java.net.URI;
 import java.util.*;
@@ -109,9 +110,16 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                     getAnnotationFactory().acquire(currentSource);
                 }
 
-                String user = "unknown";
+                String username;
+                ZoomaUser user = ZoomaUsers.getCurrentUser();
                 if (annotation.getProvenance().getAnnotator() != null) {
-                    user = annotation.getProvenance().getAnnotator();
+                    username = annotation.getProvenance().getAnnotator();
+                }
+                else if (user != null) {
+                    username = user.getFullName();
+                }
+                else {
+                    username = "unknown";
                 }
 
                 Annotation newAnnotation = getAnnotationFactory().createAnnotation(
@@ -119,8 +127,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                         annotation.getAnnotatedProperty(),
                         annotation.getSemanticTags(),
                         annotation.getReplaces(),
-                        user,
-                        // todo get from authenticated user
+                        username,
                         new Date());
                 newAnnotations.add(newAnnotation);
 
@@ -227,8 +234,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                         newProperty,
                         semanticTags,
                         Collections.singleton(previousAnnotation.getURI()),
-                        "unknown",
-                        // todo get from authenticated user
+                        ZoomaUsers.getCurrentUser().getFullName(),
                         new Date());
                 newAnnotations.add(newAnnotation);
 
@@ -248,6 +254,8 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
 
         } catch (InterruptedException e) {
             throw new ZoomaUpdateException("Update previous annotation operation was interrupted", e);
+        } catch (NullPointerException e) {
+            throw new ZoomaUpdateException("Update previous annotation operation failed for user " + ZoomaUsers.getCurrentUser(), e);
         }
         finally {
             getAnnotationFactory().release();
@@ -318,8 +326,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                                     null,
                                     null,
                                     semanticTag,
-                                    request.getProvenance().getAnnotator(),
-                                    // todo - obtain annotator from security context?
+                                    ZoomaUsers.getCurrentUser().getFullName(),
                                     new Date());
                         }
                     }

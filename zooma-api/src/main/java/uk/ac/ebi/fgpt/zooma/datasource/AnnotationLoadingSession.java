@@ -94,6 +94,4 @@ public interface AnnotationLoadingSession {
                                      Property property,
                                      AnnotationProvenance annotationProvenance,
                                      Collection<URI> semanticTag);
-
-    void clearCaches();
 }

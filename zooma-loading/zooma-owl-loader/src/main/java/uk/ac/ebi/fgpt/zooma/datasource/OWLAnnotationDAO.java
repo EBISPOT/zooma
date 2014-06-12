@@ -1,6 +1,10 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
+import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
@@ -10,6 +14,10 @@ import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 import uk.ac.ebi.fgpt.zooma.owl.OntologyLoader;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +39,7 @@ import java.util.Set;
  * @author James Malone
  * @date 23/10/12
  */
-public class OWLAnnotationDAO extends Initializable implements AnnotationDAO {
+public class OWLAnnotationDAO extends Initializable implements AnnotationDAO, SemanticallyEnrichedDAO {
     private AnnotationFactory annotationFactory;
     private OntologyLoader owlLoader;
     private String datasourceName;
@@ -47,6 +55,41 @@ public class OWLAnnotationDAO extends Initializable implements AnnotationDAO {
 
     @Override public String getDatasourceName() {
         return datasourceName;
+    }
+
+    @Override public InputStream getSupplementaryRDFStream() {
+        try {
+            final OWLOntology ontology = owlLoader.getOntology();
+            final OWLOntologyManager manager = ontology.getOWLOntologyManager();
+            final PipedOutputStream out = new PipedOutputStream();
+            final PipedInputStream in = new PipedInputStream(out);
+            new Thread(new Runnable() {
+                @Override public void run() {
+                    try {
+                        getLog().debug("Writing ontology to supplementary RDF data stream using RDF/XML format...");
+                        manager.saveOntology(ontology, new RDFXMLOntologyFormat(), out);
+                        getLog().debug("Finished streaming ontology to supplementary RDF data stream");
+                    }
+                    catch (OWLOntologyStorageException e) {
+                        getLog().error("Failed to stream OWLOntology for '" + getDatasourceName() + "' to RDF");
+                    }
+                    finally {
+                        try {
+                            out.close();
+                        }
+                        catch (IOException e) {
+                            getLog().warn("Failed to close supplementary RDF data stream", e);
+                        }
+                    }
+                }
+            }).start();
+            return in;
+        }
+        catch (IOException e) {
+            String msg = "Failed to stream OWLOntology for '" + getDatasourceName() + "' to RDF";
+            getLog().error(msg);
+            throw new RuntimeException(msg, e);
+        }
     }
 
     @Override public Collection<Annotation> readByStudy(Study study) {

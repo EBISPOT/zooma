@@ -13,6 +13,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.springframework.version>3.2.2.RELEASE</org.springframework.version>
+        <org.springframework.security.version>3.2.0.RELEASE</org.springframework.security.version>
         <org.slf4j.version>1.7.5</org.slf4j.version>
     </properties>
 
@@ -127,7 +128,7 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties />
+            <properties/>
         </developer>
         <developer>
             <id>jupp</id>
@@ -139,7 +140,7 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties />
+            <properties/>
         </developer>
     </developers>
 
@@ -231,7 +232,8 @@
         <module>zooma-client</module>
         <module>zoomage</module>
         <module>zooma-lodestar</module>
-    </modules>
+        <module>zooma-security</module>
+  </modules>
 
     <!-- Artifactory - ZOOMA dependencies -->
     <repositories>
@@ -296,6 +298,18 @@
             <!-- spring dependencies should be declared here and used in submodules if required -->
             <dependency>
                 <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
@@ -308,7 +322,13 @@
 
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
+                <artifactId>spring-expression</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
 
@@ -328,6 +348,36 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
                 <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>${org.springframework.security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${org.springframework.security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${org.springframework.security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-openid</artifactId>
+                <version>${org.springframework.security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-ldap</artifactId>
+                <version>${org.springframework.security.version}</version>
             </dependency>
 
             <!-- Jackson, JSON object mapping -->
@@ -419,7 +469,7 @@
                                 <id>enforce</id>
                                 <configuration>
                                     <rules>
-                                        <DependencyConvergence />
+                                        <DependencyConvergence/>
                                     </rules>
                                 </configuration>
                                 <goals>

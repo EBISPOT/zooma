@@ -35,12 +35,20 @@
     cursor: pointer;
 }
 
+.sort-wrapper {
+    height: 140px;
+}
+
 .sort-container {
-    margin: 0;
-    padding: 0;
     border: 2px solid #eee;
     background: #ffffff;
     height: 120px;
+}
+
+.sort-container ul,ol {
+    margin: 0;
+    padding: 0;
+    min-height: 118px;
 }
 
 .sortable {

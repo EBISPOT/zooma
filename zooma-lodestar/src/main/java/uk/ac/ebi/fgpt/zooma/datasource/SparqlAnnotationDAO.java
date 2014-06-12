@@ -39,9 +39,7 @@ import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
 import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
 import virtuoso.jena.driver.VirtDataSetGraph;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -124,34 +122,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             }
         }
         getLog().debug("Finished checking if any annotations exit");
-
-        try {
-            final PipedInputStream pis = new PipedInputStream();
-            PipedOutputStream pos = new PipedOutputStream(pis);
-
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    Graph g = getQueryService().getNamedGraph("http://rdf.ebi.ac.uk/dataset/zooma");
-                    Model m = ModelFactory.createModelForGraph(g);
-                    m.read(pis, "http://rdf.ebi.ac.uk/dataset/zooma");
-                    m.close();
-                    g.close();
-                    getLog().debug("Finished serialising annotation thread");
-
-                }
-            });
-            getLog().debug("Starting serialising annotation thread");
-            thread.start();
-            getAnnotationZoomaSerializer().serialize(getDatasourceName(), annotations, pos);
-        }
-        catch (IOException e) {
-            log.error("Couldn't create annotations ", e);
-        }
-        catch (ZoomaSerializationException e) {
-            log.error("Couldn't create annotation ", e);
-        }
+        writeToModel(annotations);
     }
 
     public boolean annotationExists (URI uri) {
@@ -164,7 +135,15 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             return execute.execAsk();
 
         } catch (LodeException e) {
-            e.printStackTrace();
+            log.error("Problem checking is annotation " + uri.toString() + " exists", e);
+        }
+        finally {
+            if (execute != null) {
+                execute.close();
+                if (g != null) {
+                    g.close();
+                }
+            }
         }
         return false;
     }
@@ -172,6 +151,62 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
     @Override public void update(Annotation annotation) throws NoSuchResourceException {
         getLog().debug("Triggered annotation update request...\n\n" + annotation.toString());
         update(Collections.singleton(annotation));
+    }
+
+    private void writeToModel (Collection<Annotation> annotations) {
+        if (annotations.isEmpty()) {
+            return;
+        }
+        PipedOutputStream pos = null;
+        try {
+            final PipedInputStream pis = new PipedInputStream();
+            pos = new PipedOutputStream(pis);
+
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    Graph g = null;
+                    Model m = null;
+                    try {
+                        g = getQueryService().getNamedGraph("http://rdf.ebi.ac.uk/dataset/zooma");
+                        m = ModelFactory.createModelForGraph(g);
+                        log.debug("about to read input stream");
+                        m.read(pis, "http://rdf.ebi.ac.uk/dataset/zooma");
+                        log.debug("finished reading input stream");
+                    } catch (Exception e) {
+                        log.error("Error writing annotations to Jena model", e);
+                    } finally {
+                        if (g!= null) {
+                            g.close();
+                        }
+                        getLog().debug("Finished serialising annotation thread");
+                        try {
+                            pis.close();
+                        } catch (IOException e) {
+                        }
+                    }
+
+                }
+            });
+            thread.start();
+            getAnnotationZoomaSerializer().serialize(getDatasourceName(), annotations, pos);
+        }
+        catch (IOException e) {
+            log.error("Couldn't write annotations ", e);
+        }
+        catch (ZoomaSerializationException e) {
+            log.error("Couldn't write annotation to model", e);
+        }
+        finally {
+            if (pos != null) {
+                try {
+                    pos.close();
+                } catch (IOException e) {
+                }
+            }
+
+        }
     }
 
     @Override public void update(Collection<Annotation> annotations) throws NoSuchResourceException {
@@ -183,31 +218,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                         "Can't update annotation with URI " + a.getURI() + " no such annotation exists");
             }
         }
-
-        try {
-            final PipedInputStream pis = new PipedInputStream();
-            PipedOutputStream pos = new PipedOutputStream(pis);
-
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Graph g = getQueryService().getNamedGraph("http://rdf.ebi.ac.uk/dataset/zooma");
-                    Model m = ModelFactory.createModelForGraph(g);
-                    m.read(pis, "http://rdf.ebi.ac.uk/dataset/zooma");
-                    m.close();
-                    g.close();
-                }
-            });
-            thread.start();
-            getAnnotationZoomaSerializer().serialize(getDatasourceName(), annotations, pos);
-        }
-        catch (IOException e) {
-            log.error("Couldn't update annotations ", e);
-        } catch (ZoomaSerializationException e) {
-            log.error("Couldn't serialise update annotations ", e);
-        }
-
-
+        writeToModel(annotations);
     }
 
     @Override public void delete(Annotation annotation) throws NoSuchResourceException {
@@ -220,7 +231,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         Graph g = getQueryService().getNamedGraph("http://rdf.ebi.ac.uk/dataset/zooma");
         Model m = ModelFactory.createModelForGraph(g);
         m.removeAll(new ResourceImpl(annotation.getURI().toString()), null, null);
-        m.close();
+        g.close();
     }
 
     @Override public Collection<Annotation> read() {

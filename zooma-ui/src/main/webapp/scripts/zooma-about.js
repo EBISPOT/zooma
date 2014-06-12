@@ -1,7 +1,7 @@
+$(document).ready(init());
+
 function init() {
-    $(document).ready(function() {
-        fetchServerInfo();
-    });
+    fetchServerInfo();
 }
 
 function fetchServerInfo() {

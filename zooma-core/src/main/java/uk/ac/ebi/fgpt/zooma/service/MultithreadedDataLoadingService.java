@@ -3,13 +3,17 @@ package uk.ac.ebi.fgpt.zooma.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import uk.ac.ebi.fgpt.zooma.concurrent.WorkloadScheduler;
 import uk.ac.ebi.fgpt.zooma.concurrent.ZoomaThreadFactory;
+import uk.ac.ebi.fgpt.zooma.datasource.SemanticallyEnrichedDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.io.ZoomaLoader;
 import uk.ac.ebi.fgpt.zooma.model.Identifiable;
 import uk.ac.ebi.fgpt.zooma.model.Update;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -151,6 +155,9 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         // create a counter to keep track of the number of loads that have been invoked
         final AtomicInteger counter = new AtomicInteger(1);
 
+        // get the security context
+        final SecurityContext ctx = SecurityContextHolder.getContext();
+
         // create a workload scheduler to schedule parallel loader tasks by DAO
         List<ZoomaDAO<T>> zoomaDAOList = new ArrayList<>();
         zoomaDAOList.addAll(getAvailableDatasources());
@@ -159,26 +166,37 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                 new WorkloadScheduler(daoExecutor, syncedAnnotationDAOs.size(), "zooma loading") {
                     @Override
                     protected void executeTask(int iteration) throws Exception {
-                        // do next load
-                        ZoomaDAO<T> dao = syncedAnnotationDAOs.get(iteration - 1);
-                        getLog().debug("Delegating next load task for DAO '" + dao.getDatasourceName() + "' " +
-                                               "(iteration " + iteration + ")");
-                        Receipt r;
                         try {
-                            r = load(dao);
-                        }
-                        catch (Exception e) {
-                            r = new SchedulingFailedReceipt(dao.getDatasourceName(), LoadType.LOAD_DATASOURCE, e);
-                        }
+                            // set security context
+                            SecurityContextHolder.setContext(ctx);
 
-                        // add next receipt to compositing receipt tracker
-                        receipt.addNextReceipt(r);
+                            // do next load
+                            ZoomaDAO<T> dao = syncedAnnotationDAOs.get(iteration - 1);
+                            getLog().debug("Delegating next load task for DAO '" + dao.getDatasourceName() + "' " +
+                                                   "(iteration " + iteration + ")");
+                            Receipt r;
+                            try {
+                                r = load(dao);
+                            }
+                            catch (Exception e) {
+                                r = new SchedulingFailedReceipt(dao.getDatasourceName(), LoadType.LOAD_DATASOURCE, e);
+                            }
 
-                        // is this last iteration? if so, finish
-                        if (counter.getAndIncrement() == syncedAnnotationDAOs.size()) {
-                            getLog().debug("Finished scheduling load task for DAO '" + dao.getDatasourceName() + "' " +
-                                                   "(iteration " + iteration + "). This is the last task.");
-                            receipt.finish();
+                            // add next receipt to compositing receipt tracker
+                            receipt.addNextReceipt(r);
+
+                            // is this last iteration? if so, finish
+                            if (counter.getAndIncrement() == syncedAnnotationDAOs.size()) {
+                                getLog().debug(
+                                        "Finished scheduling load task for DAO '" + dao.getDatasourceName() + "' " +
+                                                "(iteration " + iteration + "). This is the last task."
+                                );
+                                receipt.finish();
+                            }
+                        }
+                        finally {
+                            // clear security context
+                            SecurityContextHolder.clearContext();
                         }
                     }
                 };
@@ -214,7 +232,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         if (count != -1) {
             int total = getMaxCount() > 0 && getMaxCount() < count ? getMaxCount() : count;
 
-            // create a workload scheduler to queue load tasks for tihs DAO
+            // create a workload scheduler to queue load tasks for this DAO
             iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
             blockSize = getBlockSize();
             getLog().debug("Scheduling workload for " + datasource.getDatasourceName() + ".  " +
@@ -226,6 +244,9 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
             blockSize = -1;
         }
 
+        // get the security context
+        final SecurityContext ctx = SecurityContextHolder.getContext();
+
         if (blockSize != -1) {
             scheduler = new WorkloadScheduler(loadExecutor, iterations, datasource.getDatasourceName()) {
                 @Override
@@ -235,16 +256,30 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
 
                     // fetch items
                     try {
+                        // set security context
+                        SecurityContextHolder.setContext(ctx);
+
                         getLog().debug(
                                 "Fetching data items for " + datasource.getDatasourceName() + ", " +
                                         "round " + iteration + "/" + iterations + ", " +
-                                        "executing in " + Thread.currentThread().getName());
+                                        "executing in " + Thread.currentThread().getName()
+                        );
                         Collection<T> items = datasource.read(blockSize, taskStart);
                         getZoomaLoader().load(datasource.getDatasourceName(), items);
+
+                        // also, if the DAO is semantically enriched, load supplementary data
+                        if (datasource instanceof SemanticallyEnrichedDAO) {
+                            InputStream rdfIn = ((SemanticallyEnrichedDAO) datasource).getSupplementaryRDFStream();
+                            getZoomaLoader().loadSupplementaryData(datasource.getDatasourceName(), rdfIn);
+                        }
                     }
                     catch (UnsupportedOperationException e) {
                         getLog().warn(datasource.getDatasourceName() + " does not support read(size, start).  " +
                                               "No annotations will be loaded.");
+                    }
+                    finally {
+                        // clear security context
+                        SecurityContextHolder.clearContext();
                     }
                 }
             };
@@ -255,15 +290,23 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                 protected void executeTask(int iteration) throws Exception {
                     // fetch items
                     try {
+                        // set security context
+                        SecurityContextHolder.setContext(ctx);
+
                         getLog().debug(
                                 "Fetching data items for " + datasource.getDatasourceName() + " in a single round, " +
-                                        "executing in " + Thread.currentThread().getName());
+                                        "executing in " + Thread.currentThread().getName()
+                        );
                         Collection<T> items = datasource.read();
                         getZoomaLoader().load(datasource.getDatasourceName(), items);
                     }
                     catch (UnsupportedOperationException e) {
                         getLog().warn(datasource.getDatasourceName() + " does not support read().  " +
                                               "No annotations will be loaded.");
+                    }
+                    finally {
+                        // clear security context
+                        SecurityContextHolder.clearContext();
                     }
                 }
             };
@@ -295,6 +338,9 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
 
         int total = getMaxCount() > 0 ? getMaxCount() : dataItems.size();
 
+        // get the security context
+        final SecurityContext ctx = SecurityContextHolder.getContext();
+
         // create a workload scheduler to queue load tasks for tihs DAO
         final int iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
         getLog().debug("Scheduling workload for updating annotations will take place in " + iterations + " rounds " +
@@ -303,11 +349,21 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                 new WorkloadScheduler(loadExecutor, iterations, "zooma-update") {
                     @Override
                     protected void executeTask(int iteration) throws Exception {
-                        // load data items
-                        getLog().debug(
-                                "Updating data items for round " + iteration + "/" + iterations + ", " +
-                                        "executing in " + Thread.currentThread().getName());
-                        getZoomaLoader().update(dataItems, update);
+                        try {
+                            // set security context
+                            SecurityContextHolder.setContext(ctx);
+
+                            // load data items
+                            getLog().debug(
+                                    "Updating data items for round " + iteration + "/" + iterations + ", " +
+                                            "executing in " + Thread.currentThread().getName()
+                            );
+                            getZoomaLoader().update(dataItems, update);
+                        }
+                        finally {
+                            // clear security context
+                            SecurityContextHolder.clearContext();
+                        }
                     }
                 };
 
@@ -332,6 +388,9 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
 
         int total = getMaxCount() > 0 ? getMaxCount() : dataItems.size();
 
+        // get the security context
+        final SecurityContext ctx = SecurityContextHolder.getContext();
+
         // create a workload scheduler to queue load tasks for tihs DAO
         final int iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
         getLog().debug("Scheduling workload for " + datasetName + ".  " +
@@ -341,12 +400,22 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                 new WorkloadScheduler(loadExecutor, iterations, datasetName) {
                     @Override
                     protected void executeTask(int iteration) throws Exception {
-                        // load data items
-                        getLog().debug(
-                                "Loading data items for " + datasetName + ", " +
-                                        "round " + iteration + "/" + iterations + ", " +
-                                        "executing in " + Thread.currentThread().getName());
-                        getZoomaLoader().load(datasetName, dataItems);
+                        try {
+                            // set security context
+                            SecurityContextHolder.setContext(ctx);
+
+                            // load data items
+                            getLog().debug(
+                                    "Loading data items for " + datasetName + ", " +
+                                            "round " + iteration + "/" + iterations + ", " +
+                                            "executing in " + Thread.currentThread().getName()
+                            );
+                            getZoomaLoader().load(datasetName, dataItems);
+                        }
+                        finally {
+                            // clear security context
+                            SecurityContextHolder.clearContext();
+                        }
                     }
                 };
 

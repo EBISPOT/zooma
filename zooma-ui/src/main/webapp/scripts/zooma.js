@@ -22,19 +22,20 @@ var annotatesToClass = "zooma_annotates_to";
 
         //noinspection JSValidateTypes
         var _options = $.extend({
-                                    'api_base_url': 'http://www.ebi.ac.uk/fgpt/zooma/',
-                                    'api_base_path': 'v2/api'
-                                }, options);
+            'api_base_url': 'http://www.ebi.ac.uk/fgpt/zooma/',
+            'api_base_path': 'v2/api'
+        }, options);
 
         // create some defaults and allow options to extend
         //noinspection JSValidateTypes
         var zoomaOptions = $.extend({
-                                    'service_url': _options.api_base_url,
-                                    'flyout_service_url': _options.api_base_url + _options.api_base_path,
-                                    'service_path': _options.api_base_path + '/search',
-                                    prefixed: true,
-                                    zIndex: 10
-                                }, _options);
+            'service_url': _options.api_base_url,
+            'flyout_service_url': _options.api_base_url + _options.api_base_path,
+            'service_path': _options.api_base_path + '/search',
+            prefixed: true,
+            filter: undefined,
+            zIndex: 10
+        }, _options);
 
         log("ZOOMA settings loaded: initializing with the following configuration...");
         log(JSON.stringify(zoomaOptions));
@@ -45,11 +46,11 @@ var annotatesToClass = "zooma_annotates_to";
             $this.after('<div id="' + id + '"></div>');
 
             $("#" + id)
-                    .append('<div id="' + id + annotationSummarySuffix + '" class="' + annotationSummaryClass + '" />')
-                    .append('<div id="' + id + propertyTypeSuffix + '" class="' + propertyTypeClass + '" />')
-                    .append('<div id="' + id + propertyValueSuffix + '" class="' + propertyValueClass + '" />')
-                    .append('<div id="' + id + annotatesToSuffix + '" class="' + annotatesToClass + '" />')
-                    .hide();
+                .append('<div id="' + id + annotationSummarySuffix + '" class="' + annotationSummaryClass + '" />')
+                .append('<div id="' + id + propertyTypeSuffix + '" class="' + propertyTypeClass + '" />')
+                .append('<div id="' + id + propertyValueSuffix + '" class="' + propertyValueClass + '" />')
+                .append('<div id="' + id + annotatesToSuffix + '" class="' + annotatesToClass + '" />')
+                .hide();
             log("Binding suggest handling to " + $this);
             $this.suggest(zoomaOptions).bind("fb-select", function(e, data) {
                 onSelect(data, zoomaOptions, $this, $("#" + id));
@@ -74,12 +75,12 @@ $(document).ready(function() {
     // now setup
     try {
         loadLibraries([
-                          {location: "https://www.gstatic.com/freebase/suggest/3_1/suggest.min.js", type: JAVASCRIPT},
-                          {location: "https://www.gstatic.com/freebase/suggest/3_1/suggest.min.css", type: STYLESHEET}
-                      ],
-                      function() {
-                          log("Finished loading all libraries");
-                      });
+                {location: "https://www.gstatic.com/freebase/suggest/3_1/suggest.min.js", type: JAVASCRIPT},
+                {location: "https://www.gstatic.com/freebase/suggest/3_1/suggest.min.css", type: STYLESHEET}
+            ],
+            function() {
+                log("Finished loading all libraries");
+            });
     }
     catch (ex) {
         log("Failed to load libraries: " + ex);
@@ -89,6 +90,7 @@ $(document).ready(function() {
 function onSelect(result, options, input, update) {
     log("ZOOMA result '" + result.id + "' was selected, input element is " + input.attr("id"));
     var ajaxUrl = options.service_url + options.api_base_path + "/summaries/" + result.id;
+
     log("Attempting to get data from ZOOMA... CORS supported: " + $.support.cors + "; Summary ID: " + result.id + ".");
     try {
         $.getJSON(ajaxUrl, function(data) {
@@ -147,23 +149,23 @@ function loadLibrary(location, type, callback) {
     if (type == JAVASCRIPT) {
         log("Attempting load of javascript library...");
         $.getScript(location, callback)
-                .done(function(script, textStatus) {
-                          log("Loaded javascript library from " + location + ": " + textStatus);
-                      })
-                .fail(function(jqxhr, settings, exception) {
-                          log("Failed to load javascript library from " + location + ": " + exception);
-                          callback();
-                      });
+            .done(function(script, textStatus) {
+                log("Loaded javascript library from " + location + ": " + textStatus);
+            })
+            .fail(function(jqxhr, settings, exception) {
+                log("Failed to load javascript library from " + location + ": " + exception);
+                callback();
+            });
     }
     else if (type == STYLESHEET) {
         log("Attempting load of cascading style sheet library...");
         $("head").append("<link>");
         css = $("head").children(":last");
         css.attr({
-                     rel: "stylesheet",
-                     type: "text/css",
-                     href: location
-                 });
+            rel: "stylesheet",
+            type: "text/css",
+            href: location
+        });
         callback();
     }
     else {

@@ -8,7 +8,7 @@
        http://www.ebi.ac.uk/fgpt/zooma/zooma-owl-loader
        http://www.ebi.ac.uk/fgpt/zooma/zooma-owl-loader.xsd">
 
-    <zooma:owlAnnotations name="efo"
+    <zooma:owlAnnotations name="test"
                           uri="http://www.ebi.ac.uk/efo"
                           loadFrom="http://www.ebi.ac.uk/efo/efo.owl"
                           exclusionClassURI="http://www.geneontology.org/formats/oboInOwl#ObsoleteClass"
@@ -16,6 +16,37 @@
                           useReasoning="false">
         <zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term"/>
     </zooma:owlAnnotations>
+
+    <!--<zooma:owlAnnotations name="test"-->
+                          <!--uri="http://purl.obolibrary.org/obo/clo.owl"-->
+                          <!--loadFrom="http://purl.obolibrary.org/obo/clo.owl"-->
+                          <!--useReasoning="false">-->
+        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />-->
+        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />-->
+        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />-->
+        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/CL_import.owl"-->
+                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/CL_import.owl" />-->
+        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/GO_import.owl"-->
+                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/GO_import.owl" />-->
+        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/IAO_import.owl"-->
+                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/IAO_import.owl" />-->
+        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/NCBITaxon_import.owl"-->
+                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/NCBITaxon_import.owl" />-->
+        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/OBI_import.owl"-->
+                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/OBI_import.owl" />-->
+        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/PATO_import.owl"-->
+                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/PATO_import.owl" />-->
+        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/UBERON_import.owl"-->
+                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/UBERON_import.owl" />-->
+        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/cellline_import.owl"-->
+                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/cellline_import.owl" />-->
+    <!--</zooma:owlAnnotations>-->
+
+    <!--<zooma:owlAnnotations name="test"-->
+                          <!--uri="http://www.orphadata.org/data/ORDO/ordo_orphanet.owl"-->
+                          <!--exclusionClassURI="http://www.geneontology.org/formats/oboInOwl#ObsoleteClass">-->
+        <!--<zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term" />-->
+    <!--</zooma:owlAnnotations>-->
 
     <!-- Serializers use OWL-API to generate RDF documents from ZOOMA objects -->
 

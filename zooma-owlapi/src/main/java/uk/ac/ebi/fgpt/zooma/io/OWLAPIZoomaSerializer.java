@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Collection;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An abstract implementation of a {@link ZoomaSerializer} for the OWLAPI.  This implementation specifies that the
@@ -61,12 +62,7 @@ public abstract class OWLAPIZoomaSerializer<T> implements ZoomaSerializer<T, OWL
         }
         OutputStream out = null;
         try {
-            if (!file.getAbsoluteFile().getParentFile().exists()) {
-                if (!file.getAbsoluteFile().getParentFile().mkdirs()) {
-                    throw new ZoomaSerializationException(
-                            "Unable to create directory '" + file.getParentFile().getAbsolutePath() + "'");
-                }
-            }
+            createParentDirs(file);
             out = new BufferedOutputStream(new FileOutputStream(file));
             serialize(datasourceName, zoomaObjects, out);
         }
@@ -129,5 +125,35 @@ public abstract class OWLAPIZoomaSerializer<T> implements ZoomaSerializer<T, OWL
         OWLOntologyManager manager = ontology.getOWLOntologyManager();
         getLog().debug("Saving ontology using '" + outputFormat.toString() + "' output format");
         manager.saveOntology(ontology, outputFormat, out);
+    }
+
+    private final static ReentrantLock lock = new ReentrantLock();
+
+    /**
+     * A thread-safe implementation of {@link java.io.File#mkdirs()} that creates all required parent directories for
+     * the given file if they do not already exist.  This method will return early if the directories already exist.  If
+     * parent directories are absent, this method will acquire a reentrant lock, thereby ensuring that only one thread
+     * will attempt directory creation.  If directory creation still fails, this method will throw an IO exception
+     *
+     * @param f the file to create parent directories for, if they do not already exist
+     */
+    private void createParentDirs(File f) throws ZoomaSerializationException {
+        if (f.getAbsoluteFile().getParentFile().exists()) {
+            return;
+        }
+
+        lock.lock();
+        try {
+            // retest; another thread may have created this directory between the first test and acquiring the lock
+            if (!f.getAbsoluteFile().getParentFile().exists()) {
+                if (!f.getAbsoluteFile().getParentFile().mkdirs()) {
+                    throw new ZoomaSerializationException(
+                            "Unable to create directory '" + f.getParentFile().getAbsolutePath() + "'");
+                }
+            }
+        }
+        finally {
+            lock.unlock();
+        }
     }
 }

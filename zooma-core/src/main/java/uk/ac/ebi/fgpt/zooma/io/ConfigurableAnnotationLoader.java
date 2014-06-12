@@ -8,8 +8,17 @@ import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.Update;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -123,7 +132,7 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
         }
 
         // filter any annotations without semantic tags - ZOOMA does not do anything with these
-        annotations = getAnnotationResolver().filter(annotations);
+//        annotations = getAnnotationResolver().filter(annotations);
 
         try {
             // resolve
@@ -181,6 +190,54 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
     @Override
     public void load(Annotation annotation) throws ZoomaLoadingException {
         load("single-annotation", Collections.singleton(annotation));
+    }
+
+    @Override
+    public void loadSupplementaryData(String datasourceName, InputStream rdfInputStream)
+            throws ZoomaLoadingException {
+        // make the output directory if it doesn't exist
+        File outputDirectory = new File(outputPath);
+        if (!outputDirectory.exists()) {
+            getLog().info("Creating output directory '" + outputDirectory.getAbsolutePath() + "'...");
+            boolean created = outputDirectory.mkdirs();
+            if (created) {
+                getLog().info("'" + outputDirectory.getAbsolutePath() + "' created ok");
+            }
+        }
+
+        try {
+            // serialize
+            if (isSerializingEnabled()) {
+                getLog().debug("Serializing supplementary data for " + datasourceName);
+                StringBuilder datasourcePath = new StringBuilder();
+                String[] tokens = datasourceName.trim().split("\\.");
+                for (String token : tokens) {
+                    datasourcePath.append(token).append(File.separator);
+                }
+                String filename = datasourcePath + datasourceName + "_supplemental.rdf";
+                File f = new File(outputDirectory, filename);
+                FileOutputStream rdfOutputStream = new FileOutputStream(f);
+
+                // read bytes from input stream, write to file
+                try {
+                    byte[] buffer = new byte[1024];
+                    int len = rdfInputStream.read(buffer);
+                    while (len != -1) {
+                        rdfOutputStream.write(buffer, 0, len);
+                        len = rdfInputStream.read(buffer);
+                    }
+                }
+                finally {
+                    rdfInputStream.close();
+                    rdfOutputStream.close();
+                }
+            }
+        }
+        catch (IOException e) {
+            throw new ZoomaLoadingException(
+                    "Unable to load annotations due to problems storing files in repository",
+                    e);
+        }
     }
 
     @Override

@@ -7,6 +7,7 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationUpdate;
 import uk.ac.ebi.fgpt.zooma.model.Update;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
 
+import java.io.InputStream;
 import java.util.Collection;
 
 /**
@@ -46,6 +47,10 @@ public class ServiceBasedAnnotationLoader implements ZoomaLoader<Annotation> {
         catch (ZoomaUpdateException e) {
             throw new ZoomaLoadingException("Failed to load new annotation", e);
         }
+    }
+
+    @Override public void loadSupplementaryData(String datasourceName, InputStream rdfInputStream) {
+        throw new UnsupportedOperationException("Service based annotation loader cannot store supplementary data");
     }
 
     @Override

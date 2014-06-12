@@ -26,7 +26,6 @@ public enum Namespaces {
     ZOOMA_TERMS("http://rdf.ebi.ac.uk/terms/zooma/"),
     ZOOMA_RESOURCE("http://rdf.ebi.ac.uk/resource/zooma/"),
 
-
     EBI("http://www.ebi.ac.uk/"),
     EBIRESOURCE("http://rdf.ebi.ac.uk/resource/"),
 
@@ -37,6 +36,8 @@ public enum Namespaces {
 
     GENOME("http://www.genome.gov"),
     GWAS("http://www.genome.gov/gwastudies"),
+
+    CHEMBL("http://www.ebi.ac.uk/chembl"),
 
     OWL_RESOURCE("http://rdf.ebi.ac.uk/resource/zooma/owl/"),
 
@@ -53,8 +54,7 @@ public enum Namespaces {
     BTO("http://purl.org/obo/owl/BTO#"),
     PATO("http://purl.org/obo/owl/PATO#"),
     PUBMED("http://europepmc.org/abstract/MED/"),
-    ORPHA("http://www.orphanet.org/rdfns#"),
-    CHEMBL("https://www.ebi.ac.uk/chembl/index.php/");
+    ORPHAEFO("http://www.orphanet.org/rdfns#");
 
     private String ns;
 
