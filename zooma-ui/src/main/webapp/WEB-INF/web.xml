@@ -96,4 +96,12 @@
         </listener-class>
     </listener>
 
+    <!-- Enable virtuoso connection pooling -->
+    <resource-ref>
+        <description>Virtuoso Datasource</description>
+        <res-ref-name>jdbc/virtuoso</res-ref-name>
+        <res-type>virtuoso.jdbc4.VirtuosoConnectionPoolDataSource</res-type>
+        <res-auth>Container</res-auth>
+    </resource-ref>
+
 </web-app>
