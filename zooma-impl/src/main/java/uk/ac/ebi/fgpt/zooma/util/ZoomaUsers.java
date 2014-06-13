@@ -72,7 +72,8 @@ public class ZoomaUsers {
         }
         catch (NullPointerException e) {
             // if we get a NPE, just return null
-            throw new AnonymousUserNotAllowedException("Authenticated access to this application has been disabled");
+            throw new AnonymousUserNotAllowedException(
+                    "Access to this application normally requires authentication, but authentication is disabled");
         }
     }
 
