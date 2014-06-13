@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.TransactionalAnnotationFactory;
+import uk.ac.ebi.fgpt.zooma.exception.AnonymousUserNotAllowedException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
 import uk.ac.ebi.fgpt.zooma.model.*;
@@ -110,15 +111,12 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                 }
 
                 String username;
-                ZoomaUser user = ZoomaUsers.getCurrentUser(); // checks for null, inserts 'unknown'
+                ZoomaUser user = ZoomaUsers.getAuthenticatedUser();
                 if (annotation.getProvenance().getAnnotator() != null) {
                     username = annotation.getProvenance().getAnnotator();
                 }
-                else if (user != null) {
-                    username = user.getFullName();
-                }
                 else {
-                    username = "unknown";
+                    username = user.getFullName();
                 }
 
                 Annotation newAnnotation = getAnnotationFactory().createAnnotation(
@@ -216,7 +214,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                         newProperty,
                         semanticTags,
                         Collections.singleton(previousAnnotation.getURI()),
-                        ZoomaUsers.getCurrentUser().getFullName(), // NPE (subsequently caught and converted to zooma update exception)
+                        ZoomaUsers.getAuthenticatedUser().getFullName(),
                         new Date());
                 newAnnotations.add(newAnnotation);
 
@@ -236,8 +234,8 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
 
         } catch (InterruptedException e) {
             throw new ZoomaUpdateException("Update previous annotation operation was interrupted", e);
-        } catch (NullPointerException e) {
-            throw new ZoomaUpdateException("Update previous annotation operation failed for user " + ZoomaUsers.getCurrentUser(), e); // to produce error message, string null
+        } catch (AnonymousUserNotAllowedException e) {
+            throw new ZoomaUpdateException("You must be authenticated to perform update operations", e);
         }
         finally {
             getAnnotationFactory().release();

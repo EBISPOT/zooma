@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
-import uk.ac.ebi.fgpt.zooma.exception.UnrecognisedUserOrTypeException;
+import uk.ac.ebi.fgpt.zooma.exception.UnrecognisedUserTypeException;
 import uk.ac.ebi.fgpt.zooma.model.ZoomaUser;
 import uk.ac.ebi.fgpt.zooma.model.ZoomaUserImpl;
 
@@ -99,7 +99,7 @@ public class JDBCApiKeyStore implements ApiKeyStore {
                 return (UserDetails) user;
             }
             else {
-                throw new UnrecognisedUserOrTypeException(
+                throw new UnrecognisedUserTypeException(
                         "Found a user, but it is of an unsupported type (" + user.getClass().getName() + ")");
             }
         }
@@ -119,7 +119,7 @@ public class JDBCApiKeyStore implements ApiKeyStore {
                 return (UserDetails) user;
             }
             else {
-                throw new UnrecognisedUserOrTypeException(
+                throw new UnrecognisedUserTypeException(
                         "Found a user, but it is of an unsupported type (" + user.getClass().getName() + ")");
             }
         }
@@ -136,7 +136,7 @@ public class JDBCApiKeyStore implements ApiKeyStore {
             zoomaUser = (ZoomaUser) user;
         }
         else {
-            throw new UnrecognisedUserOrTypeException("Authenticated user (details: " + user.toString() + ") " +
+            throw new UnrecognisedUserTypeException("Authenticated user (details: " + user.toString() + ") " +
                                                             "is of an unrecognised type " +
                                                             "(" + user.getClass().getName() + ")");
         }
