@@ -36,30 +36,30 @@
           type="text/css"
           media="screen"/>
     <link rel="stylesheet"
-          href="http://code.jquery.com/ui/1.8.18/themes/smoothness/jquery-ui.css"
+          href="//code.jquery.com/ui/1.8.18/themes/smoothness/jquery-ui.css"
           type="text/css"
           media="screen"/>
     <link rel="stylesheet"
-          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/boilerplate-style.css"
+          href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/boilerplate-style.css"
           type="text/css"
           media="screen">
     <link rel="stylesheet"
-          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-global.css"
+          href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-global.css"
           type="text/css"
           media="screen">
     <link rel="stylesheet"
-          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-visual.css"
+          href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-visual.css"
           type="text/css"
           media="screen">
     <link rel="stylesheet"
-          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/984-24-col-fluid.css"
+          href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/984-24-col-fluid.css"
           type="text/css"
           media="screen">
 
     <!-- you can replace this with [projectname]-colours.css. See http://frontier.ebi.ac.uk/web/style/colour for details of how to do this -->
     <!-- also inform ES so we can host your colour palette file -->
     <link rel="stylesheet"
-          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/embl-petrol-colours.css"
+          href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/embl-petrol-colours.css"
           type="text/css"
           media="screen">
 
@@ -68,7 +68,7 @@
     -->
 
     <style type=text/css>
-            /* You have the option of setting a maximum width for your page, and making sure everything is centered */
+        /* You have the option of setting a maximum width for your page, and making sure everything is centered */
         body {
             max-width: 1366px;
             margin: 0 auto;
@@ -85,11 +85,11 @@
     <!-- Full build --><!-- <script src="../js/libs/modernizr.minified.2.1.6.js"></script> -->
 
     <!-- custom build (lacks most of the "advanced" HTML5 support -->
-    <script src="http://www.ebi.ac.uk/web_guidelines/js/libs/modernizr.custom.49274.js"></script>
+    <script src="//www.ebi.ac.uk/web_guidelines/js/libs/modernizr.custom.49274.js"></script>
 
 </head>
 
-<body class="level2" onload="init();">
+<body class="level2">
 
 <div id="skip-to">
     <ul>
@@ -106,7 +106,7 @@
     <div id="global-masthead" class="masthead grid_24">
         <!--This has to be one line and no newline characters-->
         <a href="http://www.ebi.ac.uk/"
-           title="Go to the EMBL-EBI homepage"><img src="http://www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
+           title="Go to the EMBL-EBI homepage"><img src="//www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
                                                     alt="EMBL European Bioinformatics Institute"></a>
 
         <nav>
@@ -136,7 +136,7 @@
         <nav>
             <ul class="grid_24" id="local-nav">
                 <li class="first active">
-                    <a href="index.html">Home</a>
+                    <a href="./">Home</a>
                 </li>
                 <li>
                     <a href="./sparql">SPARQL</a>
@@ -145,10 +145,10 @@
                     <a href="./docs">Documentation</a>
                 </li>
                 <li>
-                    <a href="/efo">EFO</a>
+                    <a href="/fgpt/corona">Corona</a>
                 </li>
                 <li>
-                    <a href="/fgpt">FGPT</a>
+                    <a href="/efo">EFO</a>
                 </li>
                 <li class="last">
                     <a href="./about.html">About ZOOMA</a>
@@ -174,7 +174,8 @@
 
         <p style="margin-bottom: 0;">
             Use the box below to find possible ontology mappings for text terms in the ZOOMA repository of
-            curated annotation knowledge. You can add one term (e.g. <span style="font-style: italic">'Homo sapiens'</span>)
+            curated annotation knowledge. You can add one term (e.g.
+            <span style="font-style: italic">'Homo sapiens'</span>)
             per line. If you also have a type for your term (e.g.
             <span style="font-style: italic">'organism'</span>), put this after the term, separated by a tab.
         </p>
@@ -241,11 +242,11 @@
             <fieldset style="padding-top: 10px; margin: 20px; height: 250px;">
                 <div id="required-datasources"
                      class="container_24"
-                     style="overflow: auto; max-height: 120px; margin-bottom: 10px;">
+                     style="height: 85px; margin-bottom: 10px;">
                     <div style="font-size: 0.7em;">
                         Searches MUST include the following datasources (all searched if none selected):
                     </div>
-                    <div id="datasource-selector" class="grid_24">
+                    <div id="datasource-selector" class="grid_24 zooma-scrollpane" style="height: 70px;">
                     </div>
                 </div>
                 <div id="preferred-datasources"
@@ -255,6 +256,22 @@
                         Preferred datasource ranking:
                     </div>
                     <div id="datasource-sorter" class="grid_24">
+                        <div class="grid_12 alpha sort-wrapper">
+                            <span style="font-size: 0.7em">Unranked Datasources:</span>
+
+                            <div class="sort-container zooma-scrollpane">
+                                <ul id="zooma-datasource-unranked">
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="grid_12 omega sort-wrapper">
+                            <span style="font-size: 0.7em">Ranked Datasources:</span>
+
+                            <div class="sort-container zooma-scrollpane">
+                                <ul id="zooma-datasource-ranked">
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </fieldset>
@@ -272,7 +289,7 @@
         <p id="download" style="padding: 0 0 0 1em; margin: 0; display: none;">
             <a href="results.txt" target="_blank">
                 Download my results
-                <img src="http://www.ebi.ac.uk/web_guidelines/images/icons/EBI-FileFormats/File%20format%20icons/file_CSV.png"
+                <img src="//www.ebi.ac.uk/web_guidelines/images/icons/EBI-FileFormats/File%20format%20icons/file_CSV.png"
                      style="vertical-align: bottom; height: 24px;"/>
             </a>
         </p>
@@ -447,7 +464,7 @@
             </div>
 
         </nav>
-        <script src="http://www.ebi.ac.uk/web_guidelines/js/foot.js"></script>
+        <script src="//www.ebi.ac.uk/web_guidelines/js/foot.js"></script>
 
         <div class="grid_24">
             <section id="ebi-footer-meta">
@@ -465,8 +482,9 @@
 
 
 <!-- ZOOMA required JavaScript libraries, at the bottom for fast page loading -->
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+<script type="text/javascript" src="scripts/jquery.mousewheel.js"></script>
 <script type="text/javascript" src="scripts/jquery.jscrollpane.min.js"></script>
 
 <script type="text/javascript" src="scripts/zooma.js"></script>
