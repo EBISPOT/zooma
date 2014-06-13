@@ -64,9 +64,12 @@ public class InMemoryReceiptService implements DataLoadingService.ReceiptService
                         catch (RuntimeException e) {
                             // capture exception so scheduler can return it when waitUntilComplete() is called
                             getLog().error("Receipt monitor caught a runtime exception", e);
+                            String errorMsg = e.getCause() != null && e.getCause().getMessage() != null
+                                    ? e.getCause().getMessage()
+                                    : e.getMessage();
                             synchronized (receiptStatusCache) {
                                 receiptStatusCache.remove(id);
-                                receiptStatusCache.put(id, new ReceiptStatusImpl(id, true, false, e.getMessage()));
+                                receiptStatusCache.put(id, new ReceiptStatusImpl(id, true, false, errorMsg));
                             }
                         }
                         finally {

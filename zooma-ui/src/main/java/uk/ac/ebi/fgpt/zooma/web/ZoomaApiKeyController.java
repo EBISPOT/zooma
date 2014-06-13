@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import uk.ac.ebi.fgpt.zooma.exception.UnrecognisedUserTypeException;
+import uk.ac.ebi.fgpt.zooma.exception.UnrecognisedUserOrTypeException;
 import uk.ac.ebi.fgpt.zooma.model.ZoomaUser;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUsers;
 
@@ -34,7 +34,7 @@ public class ZoomaApiKeyController {
 
     @RequestMapping(value = "/whoami", method = RequestMethod.GET)
     public @ResponseBody String echoUserName() {
-        ZoomaUser user = ZoomaUsers.getCurrentUser();
+        ZoomaUser user = ZoomaUsers.getCurrentUser(); // checks for null, inserts 'nobody'
         if (user != null) {
             return user.getFullName();
         }
@@ -45,19 +45,19 @@ public class ZoomaApiKeyController {
 
     @RequestMapping(value = "/key-request", method = RequestMethod.GET)
     public @ResponseBody String getApiKey() {
-        ZoomaUser user = ZoomaUsers.getCurrentUser();
+        ZoomaUser user = ZoomaUsers.getCurrentUser(); // checks for null, throws exception
         if (user != null) {
             return user.getApiKey();
         }
         else {
-            throw new UnrecognisedUserTypeException("You are currently anonymous - No API key available");
+            throw new UnrecognisedUserOrTypeException("You are currently anonymous - No API key available");
         }
     }
 
     @RequestMapping(value = "/user-summary", method = RequestMethod.GET)
     public @ResponseBody Map<String, String> getUserSummary() {
         Map<String, String> userSummary = new HashMap<>();
-        ZoomaUser user = ZoomaUsers.getCurrentUser();
+        ZoomaUser user = ZoomaUsers.getCurrentUser(); // checks for null, reports authenticated = false
         if (user != null) {
             userSummary.put("isAuthenticated", "true");
             userSummary.put("firstName", user.getFirstname());
@@ -73,7 +73,7 @@ public class ZoomaApiKeyController {
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(Exception.class)
-    public @ResponseBody String handleException(UnrecognisedUserTypeException e) {
+    public @ResponseBody String handleException(UnrecognisedUserOrTypeException e) {
         return e.getMessage();
     }
 }

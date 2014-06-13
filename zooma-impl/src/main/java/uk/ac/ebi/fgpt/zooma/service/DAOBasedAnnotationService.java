@@ -5,7 +5,6 @@ import uk.ac.ebi.fgpt.zooma.datasource.TransactionalAnnotationFactory;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
 import uk.ac.ebi.fgpt.zooma.model.*;
-import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUsers;
 
 import java.net.URI;
@@ -111,7 +110,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                 }
 
                 String username;
-                ZoomaUser user = ZoomaUsers.getCurrentUser();
+                ZoomaUser user = ZoomaUsers.getCurrentUser(); // checks for null, inserts 'unknown'
                 if (annotation.getProvenance().getAnnotator() != null) {
                     username = annotation.getProvenance().getAnnotator();
                 }
@@ -156,23 +155,6 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
         return newAnnotations;
     }
 
-
-
-
-    private Annotation cloneIfExists(Annotation annotation) {
-        URI newURI = URIUtils.incrementURI(getAnnotationDAO(), annotation.getURI());
-        if(!newURI.equals(annotation.getURI())) {
-            return new SimpleAnnotation(newURI,
-                    annotation.getAnnotatedBiologicalEntities(),
-                    annotation.getAnnotatedProperty(),
-                    annotation.getProvenance(), annotation.getSemanticTags().toArray(new URI[annotation.getSemanticTags().size()]),
-                    new URI[0],
-                    new URI[]{annotation.getURI()});
-        }
-        return annotation;
-    }
-
-
     @Override
     public Collection<Annotation> updatePreviousAnnotations(Collection<Annotation> annotationsToUpdate, AnnotationUpdate update) throws ZoomaUpdateException {
 
@@ -199,7 +181,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                     getAnnotationFactory().acquire(currentSource);
                 }
 
-                Property newProperty = null;
+                Property newProperty;
                 if (update.getPropertyType() != null && update.getPropertyValue() != null) {
                     // both fields have changed
                     newProperty = new SimpleTypedProperty(update.getPropertyType(), update.getPropertyValue());
@@ -234,7 +216,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                         newProperty,
                         semanticTags,
                         Collections.singleton(previousAnnotation.getURI()),
-                        ZoomaUsers.getCurrentUser().getFullName(),
+                        ZoomaUsers.getCurrentUser().getFullName(), // NPE (subsequently caught and converted to zooma update exception)
                         new Date());
                 newAnnotations.add(newAnnotation);
 
@@ -255,7 +237,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
         } catch (InterruptedException e) {
             throw new ZoomaUpdateException("Update previous annotation operation was interrupted", e);
         } catch (NullPointerException e) {
-            throw new ZoomaUpdateException("Update previous annotation operation failed for user " + ZoomaUsers.getCurrentUser(), e);
+            throw new ZoomaUpdateException("Update previous annotation operation failed for user " + ZoomaUsers.getCurrentUser(), e); // to produce error message, string null
         }
         finally {
             getAnnotationFactory().release();
@@ -281,104 +263,6 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
             else {
                 newAnnotation.getReplaces().add(replacedAnnotation.getURI());
             }
-        }
-    }
-
-    /**
-     * Create a new annotation, using this services annotation factory to handle URI minting and session optimizations.
-     * The annotation supplied as a parameter is interpreted as a new annotation request; relevant fields are extracted
-     * but not all fields supplied by the user will be preserved.  Essentially, this method contains the logic that
-     * determines which fields it is save trust from newly supplied annotations.
-     *
-     * @param request an annotation request that has been supplied, some fields of which (for example, the URI) will be
-     *                ignored
-     * @return a newly minted annotation object
-     */
-    protected Annotation mintNewAnnotationFromRequest(Annotation request) {
-        Annotation annotation = null;
-
-        String propertyType = request.getAnnotatedProperty() instanceof TypedProperty
-                ? ((TypedProperty) request.getAnnotatedProperty()).getPropertyType()
-                : null;
-        String propertyValue = request.getAnnotatedProperty().getPropertyValue();
-
-        // flatten request into a series of single values - should always only be a single annotation
-        for (URI semanticTag : flattenOnSemanticTags(request)) {
-            for (BiologicalEntity biologicalEntity : flattenOnBioentities(request)) {
-                for (URI bioentityTypeURI : flattenOnBioentityTypes(biologicalEntity)) {
-                    for (Study study : flattenOnStudies(biologicalEntity)) {
-                        for (URI studyTypeURI : flattenOnStudyTypes(study)) {
-                            // now we've collected fields, generate annotation using annotation factory
-                            annotation = getAnnotationFactory().createAnnotation(
-                                    null,
-                                    null,
-                                    study != null ? study.getAccession() : null,
-                                    study != null ? study.getURI(): null,
-                                    null,
-                                    studyTypeURI,
-                                    biologicalEntity.getName(),
-                                    biologicalEntity.getURI(),
-                                    null,
-                                    null,
-                                    bioentityTypeURI,
-                                    propertyType,
-                                    propertyValue,
-                                    null,
-                                    null,
-                                    semanticTag,
-                                    ZoomaUsers.getCurrentUser().getFullName(),
-                                    new Date());
-                        }
-                    }
-                }
-            }
-        }
-
-        return annotation;
-    }
-
-    private Collection<URI> flattenOnSemanticTags(Annotation request) {
-        if (request.getSemanticTags().isEmpty()) {
-            return Collections.singleton(null);
-        }
-        else {
-            return request.getSemanticTags();
-        }
-    }
-
-    private Collection<BiologicalEntity> flattenOnBioentities(Annotation request) {
-        if (request.getAnnotatedBiologicalEntities().isEmpty()) {
-            return Collections.singleton(null);
-        }
-        else {
-            return request.getAnnotatedBiologicalEntities();
-        }
-    }
-
-    private Collection<URI> flattenOnBioentityTypes(BiologicalEntity biologicalEntity) {
-        if (biologicalEntity == null || biologicalEntity.getTypes().isEmpty()) {
-            return Collections.singleton(null);
-        }
-        else {
-            return biologicalEntity.getTypes();
-        }
-    }
-
-    private Collection<Study> flattenOnStudies(BiologicalEntity biologicalEntity) {
-        if (biologicalEntity == null || biologicalEntity.getStudies().isEmpty()) {
-            return Collections.singleton(null);
-        }
-        else {
-            return biologicalEntity.getStudies();
-        }
-    }
-
-    private Collection<URI> flattenOnStudyTypes(Study study) {
-        if (study == null || study.getTypes().isEmpty()) {
-            return Collections.singleton(null);
-        }
-        else {
-            return study.getTypes();
         }
     }
 }

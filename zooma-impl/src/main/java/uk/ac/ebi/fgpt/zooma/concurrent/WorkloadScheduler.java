@@ -210,7 +210,7 @@ public abstract class WorkloadScheduler {
             return doAbort;
         }
 
-        public synchronized int getTally() throws RuntimeException {
+        public synchronized int getTally() {
             if (doAbort) {
                 throw new RuntimeException("Exception in one of the scheduled tasks caused this scheduler to abort",
                                            abortiveException);
