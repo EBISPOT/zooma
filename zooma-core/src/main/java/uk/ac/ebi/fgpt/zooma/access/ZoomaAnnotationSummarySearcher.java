@@ -401,6 +401,9 @@ public class ZoomaAnnotationSummarySearcher extends SourceFilteredSuggestEndpoin
                 AnnotationSummary cached = inferredAnnotationSummaryCache.cacheAnnotationSummary(summary);
                 responseContents.put(cached, annotationSummaries.get(summary));
             }
+            else {
+                responseContents.put(summary, annotationSummaries.get(summary));
+            }
         }
         return convertToSearchResponse(prefix, responseContents, sorter);
     }
