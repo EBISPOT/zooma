@@ -615,7 +615,7 @@ function renderResults(data) {
                 }
                 else if (result[7] == "http://www.ebi.ac.uk/chembl") {
                     row = row + "<td><a href='http://www.ebi.ac.uk/chembl' target='_blank'>" +
-                            "<img src='images/new_chembl_logo_v2.png' " +
+                            "<img src='images/new_chembl_logo_v2.png' style='background-color: #70BDBD' " +
                             "alt='ChEMBL' style='height: 20px;'/> ChEMBL</a></td>";
                 }
                 else {
