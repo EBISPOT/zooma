@@ -6,24 +6,17 @@
        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- Configure AnnotationDAOs for this datasource -->
-    <bean name="chemblEFODAO" class="uk.ac.ebi.fgpt.zooma.datasource.ChemblEFOAnnotationDAO">
+    <bean name="chemblDAO" class="uk.ac.ebi.fgpt.zooma.datasource.ChemblAnnotationDAO">
         <constructor-arg name="annotationFactory" ref="chemblAnnotationFactory" />
         <property name="jdbcTemplate" ref="chemblJdbcTemplate" />
     </bean>
 
-    <bean name="chemblCLODAO" class="uk.ac.ebi.fgpt.zooma.datasource.ChemblCLOAnnotationDAO">
-        <constructor-arg name="annotationFactory" ref="chemblAnnotationFactory" />
-        <property name="jdbcTemplate" ref="chemblJdbcTemplate" />
-    </bean>
-
-    <bean name="chemblAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.ChemblAnnotationFactory">
+      <bean name="chemblAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.ChemblAnnotationFactory">
         <constructor-arg name="annotationLoadingSession" ref="chemblLoadingSession" />
     </bean>
 
 
     <bean name="chemblLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.ChemblLoadingSession" />
-
-
 
 
     <bean name="chemblJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">

@@ -15,34 +15,24 @@ public class ChemblDAOTester {
         tester.printAllAnnotations();
     }
 
-    private ChemblEFOAnnotationDAO chemblEFODAO;
-    private ChemblCLOAnnotationDAO chemblCLODAO;
+    private ChemblAnnotationDAO chemblDAO;
 
     public ChemblDAOTester() {
         System.out.print("Loading spring context...");
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:zooma-chembl-dao.xml");
         System.out.println("done!");
-//        chemblEFODAO = ctx.getBean("chemblEFODAO", ChemblEFOAnnotationDAO.class);
-        chemblCLODAO = ctx.getBean("chemblCLODAO", ChemblCLOAnnotationDAO.class);
+        chemblDAO = ctx.getBean("chemblDAO", ChemblAnnotationDAO.class);
 
     }
 
     public void printAllAnnotations() {
         System.out.print("Reading annotations from the ChEMBL database...");
-//        Collection<Annotation> annotations = chemblEFODAO.read();
-//        System.out.println("done!");
-//
-//        for (Annotation a : annotations) {
-//            System.out.println("Next annotation: " + a);
-//        }
-//        System.out.println("There are " + annotations.size() + " EFO annotations in the ChEMBL database");
-
-        Collection<Annotation> cloAnnotations = chemblCLODAO.read();
+        Collection<Annotation> annotations = chemblDAO.read();
         System.out.println("done!");
 
-        for (Annotation a : cloAnnotations) {
+        for (Annotation a : annotations) {
             System.out.println("Next annotation: " + a);
         }
-        System.out.println("There are " + cloAnnotations.size() + " CLO annotations in the ChEMBL database");
+        System.out.println("There are " + annotations.size() + "  annotations in the ChEMBL database");   
     }
 }

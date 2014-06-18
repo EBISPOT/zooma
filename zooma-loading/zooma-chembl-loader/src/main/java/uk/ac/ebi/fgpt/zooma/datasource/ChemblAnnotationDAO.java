@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by dwelter on 28/05/14.
  */
-public class ChemblEFOAnnotationDAO implements AnnotationDAO {
+public class ChemblAnnotationDAO implements AnnotationDAO {
     // ANNOTATION_URI [optional]
     // ANNOTATION_ID [optional]
     // STUDY
@@ -32,25 +32,36 @@ public class ChemblEFOAnnotationDAO implements AnnotationDAO {
     // SEMANTIC_TAG
 
 
-    public static final String SWITCH_SCHEMA = "ALTER SESSION SET CURRENT_SCHEMA=CHEMBL_18";
-
     public static final String ANNOTATIONS_SELECT =
-               "select distinct " +
+            "select * from (" +
+                    "select distinct " +
                     "d.PUBMED_ID as STUDY,  " +
                     "a.CHEMBL_ID as BIOENTITY, " +
                     "'CELL_LINE' as PROPERTY_TYPE, " +
                     "c.CELL_NAME as PROPERTY_VALUE, " +
                     "concat('http://www.ebi.ac.uk/efo/',c.EFO_ID) as SEMANTIC_TAG " +
-                    "from DOCS d " +
-                    "join ASSAYS a on d.DOC_ID=a.DOC_ID " +
-                    "join CELL_DICTIONARY c on a.CELL_ID=c.CELL_ID " +
+                    "from CHEMBL_18.DOCS d " +
+                    "join CHEMBL_18.ASSAYS a on d.DOC_ID=a.DOC_ID " +
+                    "join CHEMBL_18.CELL_DICTIONARY c on a.CELL_ID=c.CELL_ID " +
                     "where c.EFO_ID is not null " +
-                    "and a.CHEMBL_ID is not null and c.CELL_NAME is not null ";
+                    "and a.CHEMBL_ID is not null and c.CELL_NAME is not null " +
+                    "union " +
+                    "select distinct " +
+                    "d.PUBMED_ID as STUDY,  " +
+                    "a.CHEMBL_ID as BIOENTITY, " +
+                    "'CELL_LINE' as PROPERTY_TYPE, " +
+                    "c.CELL_NAME as PROPERTY_VALUE, " +
+                    "concat('http://purl.obolibrary.org/obo/',c.CLO_ID) as SEMANTIC_TAG " +
+                    "from CHEMBL_18.DOCS d " +
+                    "join CHEMBL_18.ASSAYS a on d.DOC_ID=a.DOC_ID " +
+                    "join CHEMBL_18.CELL_DICTIONARY c on a.CELL_ID=c.CELL_ID " +
+                    "where c.CLO_ID is not null " +
+                    "and a.CHEMBL_ID is not null and c.CELL_NAME is not null) ";
 
     public static final String ANNOTATIONS_SELECT_COUNT =
             "select count(*) from (" + ANNOTATIONS_SELECT + ")";
     public static final String ORDERING =
-            "order by d.PUBMED_ID, a.CHEMBL_ID, c.CELL_NAME asc";
+            "order by STUDY, BIOENTITY, PROPERTY_TYPE, PROPERTY_VALUE";
     public static final String ANNOTATIONS_SELECT_ALL =
             ANNOTATIONS_SELECT + ORDERING;
     public static final String ANNOTATIONS_SELECT_LIMIT =
@@ -69,19 +80,18 @@ public class ChemblEFOAnnotationDAO implements AnnotationDAO {
 
     private JdbcTemplate jdbcTemplate;
 
-    public ChemblEFOAnnotationDAO() {
+    public ChemblAnnotationDAO() {
         this(new ChemblAnnotationFactory(new ChemblLoadingSession()));
     }
 
-    public ChemblEFOAnnotationDAO(AnnotationFactory annotationFactory) {
+    public ChemblAnnotationDAO(AnnotationFactory annotationFactory) {
         this(new JDBCConventionBasedAnnotationMapper(annotationFactory));
     }
 
-    public ChemblEFOAnnotationDAO(JDBCConventionBasedAnnotationMapper annotationMapper) {
+    public ChemblAnnotationDAO(JDBCConventionBasedAnnotationMapper annotationMapper) {
         this.mapper = annotationMapper;
     }
     public JdbcTemplate getJdbcTemplate() {
-         jdbcTemplate.execute(SWITCH_SCHEMA);
         return jdbcTemplate;
     }
 
@@ -162,5 +172,4 @@ public class ChemblEFOAnnotationDAO implements AnnotationDAO {
         throw new UnsupportedOperationException(
                 getClass().getSimpleName() + " is a read-only annotation DAO, deletions not supported");
     }
-
 }
