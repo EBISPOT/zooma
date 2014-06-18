@@ -1,0 +1,254 @@
+lateral	http://www.ebi.ac.uk/efo/EFO_0001657	1
+dorsal	http://www.ebi.ac.uk/efo/EFO_0001656	1
+right	http://www.ebi.ac.uk/efo/EFO_0001659	1
+left	http://www.ebi.ac.uk/efo/EFO_0001658	1
+apical	http://www.ebi.ac.uk/efo/EFO_0001653	1
+distal	http://www.ebi.ac.uk/efo/EFO_0001655	1
+basal	http://www.ebi.ac.uk/efo/EFO_0001654	1
+ventral	http://www.ebi.ac.uk/efo/EFO_0001662	1
+proximal    http://www.ebi.ac.uk/efo/EFO_0001661    1    
+medial	http://www.ebi.ac.uk/efo/EFO_0001660	1
+caudal	http://www.ebi.ac.uk/efo/EFO_0001908	1
+tight	http://purl.obolibrary.org/obo/PATO_0001809	1
+stacked	http://purl.obolibrary.org/obo/PATO_0002077	1
+surrounding	http://purl.obolibrary.org/obo/PATO_0001772	1
+encircling	http://purl.obolibrary.org/obo/PATO_0001772	0
+right angle	http://purl.obolibrary.org/obo/PATO_0001321	1
+straight angle	http://purl.obolibrary.org/obo/PATO_0001322	1
+parallel	http://purl.obolibrary.org/obo/PATO_0002272	1
+marbled	http://purl.obolibrary.org/obo/PATO_0002273	1
+mottled	http://purl.obolibrary.org/obo/PATO_0002274	1
+oriented towards	http://purl.obolibrary.org/obo/PATO_0002448	1
+high contrast color pattern	http://purl.obolibrary.org/obo/PATO_0002275	1
+loose	http://purl.obolibrary.org/obo/PATO_0001802	1
+barred	http://purl.obolibrary.org/obo/PATO_0002276	1
+posteromedial	http://purl.obolibrary.org/obo/PATO_0002449	1
+decreased distribution	http://purl.obolibrary.org/obo/PATO_0001672	1
+low distribution	http://purl.obolibrary.org/obo/PATO_0001672	0
+increased distribution	http://purl.obolibrary.org/obo/PATO_0001671	1
+high distribution	http://purl.obolibrary.org/obo/PATO_0001671	0
+level	http://purl.obolibrary.org/obo/PATO_0002443	1
+radial symmetry	http://purl.obolibrary.org/obo/PATO_0001325	1
+adduction	http://purl.obolibrary.org/obo/PATO_0002133	1
+bilateral symmetry	http://purl.obolibrary.org/obo/PATO_0001324	1
+left-right symmetry	http://purl.obolibrary.org/obo/PATO_0001324	0
+actinomorphic	http://purl.obolibrary.org/obo/PATO_0001328	1
+zygomorphic	http://purl.obolibrary.org/obo/PATO_0001327	1
+abduction	http://purl.obolibrary.org/obo/PATO_0002131	1
+dorsal-ventral polarity	http://purl.obolibrary.org/obo/PATO_0001775	1
+posteriorly rotated	http://purl.obolibrary.org/obo/PATO_0001600	1
+protruding	http://purl.obolibrary.org/obo/PATO_0001598	1
+relational protruding quality	http://purl.obolibrary.org/obo/PATO_0001598	0
+anteriorly rotated	http://purl.obolibrary.org/obo/PATO_0001601	1
+rotated	http://purl.obolibrary.org/obo/PATO_0001599	1
+rotation	http://purl.obolibrary.org/obo/PATO_0001599	0
+stratified	http://purl.obolibrary.org/obo/PATO_0002068	1
+disheveled	http://purl.obolibrary.org/obo/PATO_0001605	1
+semi erect	http://purl.obolibrary.org/obo/PATO_0002260	1
+semi upright	http://purl.obolibrary.org/obo/PATO_0002260	0
+stratification	http://purl.obolibrary.org/obo/PATO_0002067	1
+caudate	http://purl.obolibrary.org/obo/PATO_0001880	1
+caudal	http://purl.obolibrary.org/obo/PATO_0001880	0
+unstratified	http://purl.obolibrary.org/obo/PATO_0002069	1
+patchy	http://purl.obolibrary.org/obo/PATO_0001608	1
+sparse	http://purl.obolibrary.org/obo/PATO_0001609	1
+orientation	http://purl.obolibrary.org/obo/PATO_0000133	1
+angular placement	http://purl.obolibrary.org/obo/PATO_0000133	0
+located	http://purl.obolibrary.org/obo/PATO_0002261	1
+herniated	http://purl.obolibrary.org/obo/PATO_0000643	1
+centered	http://purl.obolibrary.org/obo/PATO_0002268	1
+punctate	http://purl.obolibrary.org/obo/PATO_0001512	1
+elevation	http://purl.obolibrary.org/obo/PATO_0001687	1
+increased elevation	http://purl.obolibrary.org/obo/PATO_0001688	1
+high elevation	http://purl.obolibrary.org/obo/PATO_0001688	0
+decreased elevation	http://purl.obolibrary.org/obo/PATO_0001689	1
+low elevation	http://purl.obolibrary.org/obo/PATO_0001689	0
+variable color	http://purl.obolibrary.org/obo/PATO_0001515	1
+regular spatial pattern	http://purl.obolibrary.org/obo/PATO_0000440	1
+trabecular	http://purl.obolibrary.org/obo/PATO_0002121	1
+everted	http://purl.obolibrary.org/obo/PATO_0001597	1
+mislocalised posteriorly	http://purl.obolibrary.org/obo/PATO_0001922	1
+multi-localised	http://purl.obolibrary.org/obo/PATO_0001791	1
+multi-focal	http://purl.obolibrary.org/obo/PATO_0001791	0
+mislocalised anteriorly	http://purl.obolibrary.org/obo/PATO_0001921	1
+mislocalized abaxially	http://purl.obolibrary.org/obo/PATO_0002395	1
+mislocalised medially	http://purl.obolibrary.org/obo/PATO_0001924	1
+increased angle	http://purl.obolibrary.org/obo/PATO_0002327	1
+mislocalized adaxially	http://purl.obolibrary.org/obo/PATO_0002396	1
+mislocalised laterally	http://purl.obolibrary.org/obo/PATO_0001923	1
+angle	http://purl.obolibrary.org/obo/PATO_0002326	1
+decreased angle	http://purl.obolibrary.org/obo/PATO_0002328	1
+anteromedially rotated	http://purl.obolibrary.org/obo/PATO_0002399	1
+mislocalised ventrally	http://purl.obolibrary.org/obo/PATO_0001920	1
+right side	http://purl.obolibrary.org/obo/PATO_0001793	1
+left side	http://purl.obolibrary.org/obo/PATO_0001792	1
+alignment	http://purl.obolibrary.org/obo/PATO_0001652	1
+colorless	http://purl.obolibrary.org/obo/PATO_0000337	1
+divergent from	http://purl.obolibrary.org/obo/PATO_0002424	1
+spotted	http://purl.obolibrary.org/obo/PATO_0000333	1
+exposed	http://purl.obolibrary.org/obo/PATO_0002425	1
+diagonal	http://purl.obolibrary.org/obo/PATO_0002392	1
+ventrally rotated	http://purl.obolibrary.org/obo/PATO_0001659	1
+discolored	http://purl.obolibrary.org/obo/PATO_0000331	1
+prominent	http://purl.obolibrary.org/obo/PATO_0001482	1
+dorsally rotated	http://purl.obolibrary.org/obo/PATO_0001658	1
+irregular spatial pattern	http://purl.obolibrary.org/obo/PATO_0000330	1
+aligned	http://purl.obolibrary.org/obo/PATO_0001653	1
+misaligned	http://purl.obolibrary.org/obo/PATO_0001654	1
+unaligned	http://purl.obolibrary.org/obo/PATO_0001654	0
+introverted	http://purl.obolibrary.org/obo/PATO_0001856	1
+horizontal	http://purl.obolibrary.org/obo/PATO_0001855	1
+dislocated	http://purl.obolibrary.org/obo/PATO_0001852	1
+luxated	http://purl.obolibrary.org/obo/PATO_0001852	0
+relational dislocated quality	http://purl.obolibrary.org/obo/PATO_0001852	0
+dislocation	http://purl.obolibrary.org/obo/PATO_0001852	0
+luxation	http://purl.obolibrary.org/obo/PATO_0001852	0
+vertical	http://purl.obolibrary.org/obo/PATO_0001854	1
+peripheral	http://purl.obolibrary.org/obo/PATO_0002107	1
+displaced	http://purl.obolibrary.org/obo/PATO_0002181	1
+procumbent	http://purl.obolibrary.org/obo/PATO_0002389	1
+papillary	http://purl.obolibrary.org/obo/PATO_0002108	1
+convex angle	http://purl.obolibrary.org/obo/PATO_0001053	1
+retracted	http://purl.obolibrary.org/obo/PATO_0001477	1
+internal angle	http://purl.obolibrary.org/obo/PATO_0001054	1
+blotchy	http://purl.obolibrary.org/obo/PATO_0000329	1
+blotched	http://purl.obolibrary.org/obo/PATO_0000329	0
+acute angle	http://purl.obolibrary.org/obo/PATO_0001051	1
+mislocalised dorsally	http://purl.obolibrary.org/obo/PATO_0001919	1
+obtuse angle	http://purl.obolibrary.org/obo/PATO_0001052	1
+posteroventral	http://purl.obolibrary.org/obo/PATO_0001918	1
+anteroventral	http://purl.obolibrary.org/obo/PATO_0001917	1
+offset	http://purl.obolibrary.org/obo/PATO_0002436	1
+posterodorsal	http://purl.obolibrary.org/obo/PATO_0001916	1
+reflex angle	http://purl.obolibrary.org/obo/PATO_0001055	1
+abut	http://purl.obolibrary.org/obo/PATO_0002435	1
+anterodorsal	http://purl.obolibrary.org/obo/PATO_0001915	1
+perpendicular	http://purl.obolibrary.org/obo/PATO_0002434	1
+anteverted	http://purl.obolibrary.org/obo/PATO_0001474	1
+superficial	http://purl.obolibrary.org/obo/PATO_0001665	1
+decreased position	http://purl.obolibrary.org/obo/PATO_0001476	1
+increased position	http://purl.obolibrary.org/obo/PATO_0001475	1
+isometrical	http://purl.obolibrary.org/obo/PATO_0001573	1
+disoriented	http://purl.obolibrary.org/obo/PATO_0000613	1
+random pattern	http://purl.obolibrary.org/obo/PATO_0002401	1
+multifocal coalescing	http://purl.obolibrary.org/obo/PATO_0002402	1
+generalized	http://purl.obolibrary.org/obo/PATO_0002403	1
+oriented	http://purl.obolibrary.org/obo/PATO_0000614	1
+segmental	http://purl.obolibrary.org/obo/PATO_0002404	1
+far from	http://purl.obolibrary.org/obo/PATO_0002233	1
+distant from	http://purl.obolibrary.org/obo/PATO_0002233	0
+remote from	http://purl.obolibrary.org/obo/PATO_0002233	0
+anterior	http://purl.obolibrary.org/obo/PATO_0001632	1
+preceding	http://purl.obolibrary.org/obo/PATO_0001632	0
+ventral_to	http://purl.obolibrary.org/obo/PATO_0001632	0
+undistributed	http://purl.obolibrary.org/obo/PATO_0001567	1
+distributed	http://purl.obolibrary.org/obo/PATO_0001566	1
+diffuse	http://purl.obolibrary.org/obo/PATO_0001566	0
+scattered	http://purl.obolibrary.org/obo/PATO_0001566	0
+posterior	http://purl.obolibrary.org/obo/PATO_0001633	1
+superior human head	http://purl.obolibrary.org/obo/PATO_0001633	0
+posterior human torso	http://purl.obolibrary.org/obo/PATO_0001633	0
+asymmetrical	http://purl.obolibrary.org/obo/PATO_0000616	1
+asymmetric	http://purl.obolibrary.org/obo/PATO_0000616	0
+asymmetry	http://purl.obolibrary.org/obo/PATO_0000616	0
+crowded	http://purl.obolibrary.org/obo/PATO_0000619	1
+rhizoidal	http://purl.obolibrary.org/obo/PATO_0001364	1
+mediolateral polarity	http://purl.obolibrary.org/obo/PATO_0002373	1
+bilateral	http://purl.obolibrary.org/obo/PATO_0000618	1
+deviation towards medial side	http://purl.obolibrary.org/obo/PATO_0002177	1
+mislocalised radially	http://purl.obolibrary.org/obo/PATO_0002178	1
+mislocalised proximally	http://purl.obolibrary.org/obo/PATO_0002179	1
+misaligned towards	http://purl.obolibrary.org/obo/PATO_0002173	1
+misaligned away from	http://purl.obolibrary.org/obo/PATO_0002174	1
+deviation	http://purl.obolibrary.org/obo/PATO_0002175	1
+deviation towards lateral side	http://purl.obolibrary.org/obo/PATO_0002176	1
+dispersed	http://purl.obolibrary.org/obo/PATO_0001630	1
+alternate placement	http://purl.obolibrary.org/obo/PATO_0001932	1
+opposite	http://purl.obolibrary.org/obo/PATO_0001933	1
+ipsilateral	http://purl.obolibrary.org/obo/PATO_0002035	1
+axial	http://purl.obolibrary.org/obo/PATO_0002036	1
+focally extensive	http://purl.obolibrary.org/obo/PATO_0002415	1
+sunken	http://purl.obolibrary.org/obo/PATO_0002416	1
+transmural	http://purl.obolibrary.org/obo/PATO_0002417	1
+protruding	http://purl.obolibrary.org/obo/PATO_0001645	1
+protruding out	http://purl.obolibrary.org/obo/PATO_0001646	1
+extruding from	http://purl.obolibrary.org/obo/PATO_0001646	0
+displaced	http://purl.obolibrary.org/obo/PATO_0002168	1
+umbonate	http://purl.obolibrary.org/obo/PATO_0001358	1
+herniated out	http://purl.obolibrary.org/obo/PATO_0002167	1
+netted	http://purl.obolibrary.org/obo/PATO_0001947	1
+net-like	http://purl.obolibrary.org/obo/PATO_0001947	0
+reticulated	http://purl.obolibrary.org/obo/PATO_0001947	0
+herniated	http://purl.obolibrary.org/obo/PATO_0002163	1
+banded	http://purl.obolibrary.org/obo/PATO_0001946	1
+striped	http://purl.obolibrary.org/obo/PATO_0001946	0
+external angle	http://purl.obolibrary.org/obo/PATO_0002025	1
+apical-basal polarity	http://purl.obolibrary.org/obo/PATO_0002023	1
+anterior-posterior polarity	http://purl.obolibrary.org/obo/PATO_0002024	1
+superior-caudal polarity human torso	http://purl.obolibrary.org/obo/PATO_0002024	0
+rostral-caudal polarity	http://purl.obolibrary.org/obo/PATO_0002024	0
+prostrate	http://purl.obolibrary.org/obo/PATO_0000631	1
+uncrowded	http://purl.obolibrary.org/obo/PATO_0000633	1
+symmetrical	http://purl.obolibrary.org/obo/PATO_0000632	1
+symmetric	http://purl.obolibrary.org/obo/PATO_0000632	0
+unlocalised	http://purl.obolibrary.org/obo/PATO_0000635	1
+unilateral	http://purl.obolibrary.org/obo/PATO_0000634	1
+cauline	http://purl.obolibrary.org/obo/PATO_0002350	1
+symmetry	http://purl.obolibrary.org/obo/PATO_0000965	1
+medially rotated	http://purl.obolibrary.org/obo/PATO_0002155	1
+internally rotated	http://purl.obolibrary.org/obo/PATO_0002155	0
+laterally rotated	http://purl.obolibrary.org/obo/PATO_0002156	1
+externally rotated	http://purl.obolibrary.org/obo/PATO_0002156	0
+ventral	http://purl.obolibrary.org/obo/PATO_0001196	1
+anterior_	http://purl.obolibrary.org/obo/PATO_0001196	0
+partially dislocated	http://purl.obolibrary.org/obo/PATO_0002157	1
+partial dislocated towards	http://purl.obolibrary.org/obo/PATO_0002157	0
+subluxation	http://purl.obolibrary.org/obo/PATO_0002157	0
+suluxated towards	http://purl.obolibrary.org/obo/PATO_0002157	0
+proximal	http://purl.obolibrary.org/obo/PATO_0001195	1
+lateral	http://purl.obolibrary.org/obo/PATO_0001193	1
+whorled	http://purl.obolibrary.org/obo/PATO_0001951	1
+distichous	http://purl.obolibrary.org/obo/PATO_0001952	1
+medial	http://purl.obolibrary.org/obo/PATO_0001191	1
+decussate	http://purl.obolibrary.org/obo/PATO_0001953	1
+intersecting	http://purl.obolibrary.org/obo/PATO_0001953	0
+intercrossing	http://purl.obolibrary.org/obo/PATO_0001953	0
+crosscutting	http://purl.obolibrary.org/obo/PATO_0001953	0
+adjacent	http://purl.obolibrary.org/obo/PATO_0002259	1
+near	http://purl.obolibrary.org/obo/PATO_0002259	0
+vicinity	http://purl.obolibrary.org/obo/PATO_0002259	0
+close	http://purl.obolibrary.org/obo/PATO_0002259	0
+erect	http://purl.obolibrary.org/obo/PATO_0000622	1
+upright	http://purl.obolibrary.org/obo/PATO_0000622	0
+lateralized	http://purl.obolibrary.org/obo/PATO_0000626	1
+inverted	http://purl.obolibrary.org/obo/PATO_0000625	1
+positional polarity	http://purl.obolibrary.org/obo/PATO_0001769	1
+aggregated	http://purl.obolibrary.org/obo/PATO_0001629	1
+clustered	http://purl.obolibrary.org/obo/PATO_0001629	0
+inserted	http://purl.obolibrary.org/obo/PATO_0000624	1
+distal	http://purl.obolibrary.org/obo/PATO_0001234	1
+dorsal	http://purl.obolibrary.org/obo/PATO_0001233	1
+superior_to human head	http://purl.obolibrary.org/obo/PATO_0001233	0
+posterior_to human torso	http://purl.obolibrary.org/obo/PATO_0001233	0
+exserted	http://purl.obolibrary.org/obo/PATO_0000623	1
+color pattern	http://purl.obolibrary.org/obo/PATO_0000019	1
+misrouted	http://purl.obolibrary.org/obo/PATO_0000629	1
+mislocalised	http://purl.obolibrary.org/obo/PATO_0000628	1
+mislocalized	http://purl.obolibrary.org/obo/PATO_0000628	0
+ectopic	http://purl.obolibrary.org/obo/PATO_0000628	0
+localised	http://purl.obolibrary.org/obo/PATO_0000627	1
+focal	http://purl.obolibrary.org/obo/PATO_0000627	0
+multi-colored	http://purl.obolibrary.org/obo/PATO_0001533	1
+variegated	http://purl.obolibrary.org/obo/PATO_0001533	0
+mono-colored	http://purl.obolibrary.org/obo/PATO_0001532	1
+homogeneously colored	http://purl.obolibrary.org/obo/PATO_0001532	0
+uniformly colored	http://purl.obolibrary.org/obo/PATO_0001532	0
+evenly colored	http://purl.obolibrary.org/obo/PATO_0001532	0
+dappled	http://purl.obolibrary.org/obo/PATO_0001535	1
+decumbent	http://purl.obolibrary.org/obo/PATO_0002343	1
+motley	http://purl.obolibrary.org/obo/PATO_0001534	1
+basal	http://purl.obolibrary.org/obo/PATO_0002349	1
+adaxial	http://purl.obolibrary.org/obo/PATO_0002047	1
+spatial pattern	http://purl.obolibrary.org/obo/PATO_0000060	1
+distribution	http://purl.obolibrary.org/obo/PATO_0000060	0
+abaxial	http://purl.obolibrary.org/obo/PATO_0002046	1
