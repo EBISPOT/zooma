@@ -233,6 +233,7 @@
         <module>zoomage</module>
         <module>zooma-lodestar</module>
         <module>zooma-security</module>
+        <module>zooma-configurations</module>
   </modules>
 
     <!-- Artifactory - ZOOMA dependencies -->
