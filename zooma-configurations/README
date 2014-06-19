@@ -1,0 +1,26 @@
++--------+
+| README |
++--------+
+
+This module contains all configuration for EBI deployments of ZOOMA.
+
+Building this module with a relevant maven profile creates a deployment artifact that you can install in the ZOOMA_HOME
+directory for the chosen environment.  You should not declare a dependency on this module; doing so will have no useful
+effects.
+
+Configuration sets are arranged as follows:
+ - src
+  \- builder    : Contains configuration files required in build-ONLY environments.  No server or client config will be included
+  \- client     : Contains config files that are required when deploying ONLY the ZOOMA client application.  No server or build config will be included
+  \- server     : Contains config for server-ONLY environments. No client or builder config will be included
+  \- main       : Contains all config required by the default ZOOMA installation for a given environment.  This is the default; server-only (for example) installations may also be available
+
+Under each top level directory that contains the type of deployment, there is a structure containing environment
+specific config files, for example:
+
+ - src
+  \- main
+    \- config
+      \- www     : Configuration files for deploying a full, standard ZOOMA installation to the "www" environment
+      \- wwwdev  : Config for deploying a standard ZOOMA installation to the "wwwdev" environment
+      \- local   : Config for deploying ZOOMA to a local environment - assumes tomcat running on port 8080

@@ -1,0 +1,35 @@
++---------------+
+| ZOOMA Scripts |
++---------------+
+
+This directory contains scripts for building the datafiles required by a new, clean installation of ZOOMA.
+A brief outline of each script is included below.
+
+zooma-loading.sh
+----------------
+
+Runs the ZOOMA loader to generate annotation RDF from the configured datasources.
+
+zooma-loading.lsf
+-----------------
+
+A ZOOMA loader that executes in an interactive shell on the EBI LSF cluster.  This script runs in the foreground but
+does not use resources on the local machine
+
+zooma-loading-submit.lsf
+------------------------
+
+A ZOOMA loader that submits a job from execution on the EBI LSF cluster.  Because this executes the submit command, it
+runs in the background: you don't have to wait for results.  Use this if you are running the RDF generation by hand
+and you will be emailed the results.
+
+build-owlim-index.sh
+--------------------
+
+A script that consumes and RDF directory and an output directory and generates an OWLIM index from the given RDF files.
+
+build-lucene-index.sh
+---------------------
+
+A script that queries a sparql endpoint for raw annotation data and generates a Lucene index in the format expected by
+the ZOOMA web application.
