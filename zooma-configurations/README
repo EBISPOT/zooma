@@ -11,7 +11,7 @@ effects.
 Configuration sets are arranged as follows:
  - src
   \- builder    : Contains configuration files required in build-ONLY environments.  No server or client config will be included
-  \- client     : Contains config files that are required when deploying ONLY the ZOOMA client application.  No server or build config will be included
+  \- searcher   : Contains config files that are required when deploying ONLY the ZOOMA searcher application.  No server or build config will be included
   \- server     : Contains config for server-ONLY environments. No client or builder config will be included
   \- main       : Contains all config required by the default ZOOMA installation for a given environment.  This is the default; server-only (for example) installations may also be available
 
