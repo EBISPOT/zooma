@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security.xsd
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       ">
+
+    <bean id="securityConfigurator" class="uk.ac.ebi.fgpt.zooma.security.ZoomaSecurityConfigurator" />
+
+    <!-- secure login page to obtain an API key -->
+    <security:http pattern="/secure/**" authentication-manager-ref="keygenAuthManager" entry-point-ref="authenticationEntryPoint">
+
+        <!-- restrict access to single key-request URL, this page requires https -->
+        <security:intercept-url pattern="/secure/login-success.html"
+                                method="GET"
+                                requires-channel="https"
+                                access="IS_AUTHENTICATED_REMEMBERED" />
+        <security:intercept-url pattern="/secure/authentication/key-request"
+                                requires-channel="https"
+                                access="ROLE_EDITOR" />
+        <security:intercept-url pattern="/secure/authentication/whoami" requires-channel="https" access="ROLE_EDITOR" />
+        <security:openid-login login-page="/secure/login.html"
+                               login-processing-url="/secure/authentication/login-security-check"
+                               default-target-url="/secure/login-success.html"
+                               always-use-default-target="true"
+                               user-service-ref="keyGenerateUserService">
+            <security:attribute-exchange>
+                <security:openid-attribute name="email"
+                                           type="http://axschema.org/contact/email"
+                                           required="true"
+                                           count="1" />
+                <security:openid-attribute name="firstname"
+                                           type="http://axschema.org/namePerson/first"
+                                           required="true" />
+                <security:openid-attribute name="lastname" type="http://axschema.org/namePerson/last" required="true" />
+            </security:attribute-exchange>
+        </security:openid-login>
+        <security:logout logout-url="/secure/logout.html" logout-success-url="/secure/logout-success.html" />
+        <!-- authentication details stored in a cookie client side and authenticates using the given user service -->
+        <security:remember-me token-repository-ref="tokenRepo" user-service-ref="keyGenerateUserService" />
+    </security:http>
+
+    <!-- no security for requests that use the UI /v2/api/services/map endpoints -->
+    <security:http pattern="/v2/api/services/map/**" security="none" />
+    <security:http pattern="/v2/api/services/collapse" security="none" />
+
+    <!-- stateless API key checking security for all other zooma resources that use POST/PUT/DELETE methods -->
+    <security:http pattern="/v2/api/**"
+                   use-expressions="true"
+                   create-session="stateless"
+                   entry-point-ref="authenticationEntryPoint">
+        <security:custom-filter position="PRE_AUTH_FILTER" ref="apiKeyCheckFilter" />
+        <!-- force use of https for all POST/PUT/DELETE requests -->
+        <security:intercept-url pattern="/v2/api/**"
+                                method="POST"
+                                requires-channel="https"
+                                access="hasRole('ROLE_EDITOR')" />
+        <security:intercept-url pattern="/v2/api/**"
+                                method="PUT"
+                                requires-channel="https"
+                                access="hasRole('ROLE_EDITOR')" />
+        <security:intercept-url pattern="/v2/api/**"
+                                method="DELETE"
+                                requires-channel="https"
+                                access="hasRole('ROLE_EDITOR')" />
+    </security:http>
+
+    <security:http pattern="/**"
+                   use-expressions="true"
+                   create-session="stateless"
+                   entry-point-ref="authenticationEntryPoint">
+        <!-- GET methods can be accessed without authentication -->
+        <security:intercept-url pattern="**" method="GET" requires-channel="any" access="permitAll" />
+    </security:http>
+
+    <security:authentication-manager alias="keygenAuthManager" />
+
+    <security:authentication-manager alias="preauthAuthManager">
+        <security:authentication-provider ref="preauthAuthProvider" />
+    </security:authentication-manager>
+
+    <bean id="tokenRepo"
+          class="org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl" />
+
+    <!-- custom user service that creates users and api keys on demand -->
+    <bean id="keyGenerateUserService" class="uk.ac.ebi.fgpt.zooma.security.ApiKeyGeneratingUserService">
+        <property name="keyStore" ref="keyStore" />
+    </bean>
+
+    <!-- custom filter to check api key supplied as request param -->
+    <bean id="apiKeyCheckFilter" class="uk.ac.ebi.fgpt.zooma.security.RequestParameterAuthenticationFilter">
+        <property name="principalRequestParameter" value="apiKey" />
+        <property name="exceptionIfParameterMissing" value="false" />
+        <property name="authenticationManager" ref="preauthAuthManager" />
+    </bean>
+
+    <bean id="preauthAuthProvider"
+          class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+        <property name="preAuthenticatedUserDetailsService">
+            <bean class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
+                <property name="userDetailsService" ref="keyRetrieveUserService" />
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="keyRetrieveUserService" class="uk.ac.ebi.fgpt.zooma.security.ApiKeyRetrievingUserService">
+        <property name="keyStore" ref="keyStore" />
+    </bean>
+
+    <bean id="authenticationEntryPoint" class="uk.ac.ebi.fgpt.zooma.security.Http401UnauthorizedEntryPoint" />
+
+    <bean id="keyStore" class="uk.ac.ebi.fgpt.zooma.security.JDBCApiKeyStore">
+        <property name="jdbcTemplate" ref="usersJdbcTemplate" />
+    </bean>
+
+    <bean name="usersJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="usersDatasource" />
+    </bean>
+
+    <bean name="usersDatasource"
+          class="org.springframework.jdbc.datasource.SingleConnectionDataSource"
+          depends-on="usersDBInitializer">
+        <property name="driverClassName" value="org.hsqldb.jdbc.JDBCDriver" />
+        <property name="url" value="jdbc:hsqldb:file:${zooma.home}/users/hsql" />
+        <property name="username" value="sa" />
+        <property name="password" value="" />
+    </bean>
+
+    <bean name="usersDBInitializer"
+          class="uk.ac.ebi.fgpt.zooma.security.UserDatabaseInitializer"
+          init-method="init"
+          destroy-method="destroy">
+        <property name="driverClassName" value="org.hsqldb.jdbc.JDBCDriver" />
+        <property name="url" value="jdbc:hsqldb:file:${zooma.home}/users/hsql" />
+        <property name="username" value="sa" />
+        <property name="password" value="" />
+    </bean>
+
+</beans>

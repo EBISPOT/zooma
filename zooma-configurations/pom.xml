@@ -13,6 +13,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- set default deployment type to 'main' -->
+        <zooma.deployment.type>main</zooma.deployment.type>
     </properties>
 
     <build>
@@ -21,7 +23,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
-                    <finalName>config</finalName>
+                    <finalName>zooma-${zooma.deployment.env}-${zooma.deployment.type}-config</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
                         <descriptor>src/main/assembly/zooma-assembly-descriptor.xml</descriptor>
@@ -34,6 +36,31 @@
                         <goals>
                             <goal>attached</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.3.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-property</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireProperty>
+                                    <property>zooma.deployment.type</property>
+                                    <message>Property '-Dzooma.deployment.type' required: this describes the type of deployment; 'main' is the default. You can also specify 'searcher' for ZOOMA search client deployment only, 'builder' for build script deployment only, 'server' for server deployment only.</message>
+                                </requireProperty>
+                                <requireProperty>
+                                    <property>zooma.deployment.env</property>
+                                    <message>Property '-Dzooma.deployment.env' required: this describes the deployment environment ()</message>
+                                </requireProperty>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -56,53 +83,6 @@
             <classifier>classes</classifier>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>local</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <properties>
-                <additional.resources.path>src/main/local/</additional.resources.path>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>orange</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <properties>
-                <additional.resources.path>src/main/orange/</additional.resources.path>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>wwwdev</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <properties>
-                <additional.resources.path>src/main/wwwdev/</additional.resources.path>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>www</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <properties>
-                <additional.resources.path>src/main/www/</additional.resources.path>
-            </properties>
-        </profile>
-    </profiles>
 
 </project>
