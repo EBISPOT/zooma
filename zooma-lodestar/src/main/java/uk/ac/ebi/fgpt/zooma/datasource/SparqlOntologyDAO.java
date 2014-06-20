@@ -31,7 +31,7 @@ public class SparqlOntologyDAO implements OntologyDAO {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    @Value("${zooma.ontology.synonym.predicates}")
+    @Value("${synonym.predicates}")
     private String synonymPredicates;
 
     protected Logger getLog() {

@@ -56,7 +56,7 @@
                                 </requireProperty>
                                 <requireProperty>
                                     <property>zooma.deployment.env</property>
-                                    <message>Property '-Dzooma.deployment.env' required: this describes the deployment environment ()</message>
+                                    <message>Property '-Dzooma.deployment.env' required: this describes the deployment environment</message>
                                 </requireProperty>
                             </rules>
                             <fail>true</fail>

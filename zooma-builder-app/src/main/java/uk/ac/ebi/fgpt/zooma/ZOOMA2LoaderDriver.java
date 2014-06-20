@@ -24,13 +24,27 @@ public class ZOOMA2LoaderDriver {
     private static boolean invokerRunning;
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.err.println("Wrong number of arguments - this application requires a single argument, " +
-                                       "the location of the output directory to write RDF files to");
+        if (args.length > 0) {
+            System.err.println("This application does not take any arguments");
         }
         else {
+            // get (or set) the value of ZOOMA_HOME
+            String zoomaHome = System.getProperty("zooma.home");
+            if (zoomaHome == null || zoomaHome.equals("")) {
+                String zooma = System.getenv("ZOOMA_HOME");
+                if (zooma == null || zooma.equals("")) {
+                    zooma = System.getProperty("user.home") + "/.zooma/";
+                    System.out.println("$ZOOMA_HOME not set - defaulting to: " + zooma);
+                }
+                else {
+                    System.out.println("$ZOOMA_HOME: " + zooma);
+                }
+                System.setProperty("zooma.home", zooma);
+                zoomaHome = zooma;
+            }
+
             // first, try to backup old RDF directory
-            File rdfHome = new File(args[0]);
+            File rdfHome = new File(zoomaHome, "rdf");
             try {
                 if (rdfHome.exists()) {
                     System.out.println("RDF directory already exists at " + rdfHome.getAbsolutePath());

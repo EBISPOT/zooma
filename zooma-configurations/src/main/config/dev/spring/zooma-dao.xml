@@ -28,7 +28,7 @@
     </bean>
 
     <bean id="prefixProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="location" value="classpath:zooma/prefix.properties" />
+        <property name="location" value="${zooma.home}/naming/prefix.properties" />
     </bean>
 
     <bean id="propertiesMapAdapter" class="uk.ac.ebi.fgpt.zooma.util.PropertiesMapAdapter" init-method="init">

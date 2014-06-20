@@ -7,32 +7,27 @@
         </layout>
     </appender>
 
-    <appender name="zooma-log" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="DatePattern" value="'.'yyyy-MM-dd" />
-        <param name="File" value="${catalina.base}/logs/${tomcat.hostname}/zooma.log" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n" />
-        </layout>
-    </appender>
-
     <logger name="org.springframework" additivity="false">
         <level value="ERROR" />
-        <appender-ref ref="zooma-log" />
+        <appender-ref ref="console" />
     </logger>
 
     <logger name="org.openrdf" additivity="false">
         <level value="WARN" />
-        <appender-ref ref="zooma-log" />
+        <appender-ref ref="console" />
     </logger>
 
+    <!-- Specify if specific zooma package debugging required -->
+    <!--
     <logger name="uk.ac.ebi.fgpt.zooma" additivity="false">
-        <level value="INFO" />
-        <appender-ref ref="zooma-log" />
+        <level value="DEBUG" />
+        <appender-ref ref="console" />
     </logger>
+    -->
 
     <root>
-        <priority value="INFO" />
-        <appender-ref ref="zooma-log" />
+        <priority value="DEBUG" />
+        <appender-ref ref="console" />
     </root>
 
 </log4j:configuration>

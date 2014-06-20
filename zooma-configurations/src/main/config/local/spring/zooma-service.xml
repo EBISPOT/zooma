@@ -13,7 +13,7 @@
     <!-- Configuration for the full suite of ZOOMA search services and utils -->
 
     <!-- Load all properties and make available in config -->
-    <context:property-placeholder location="classpath:zooma.properties,classpath:build.properties"/>
+    <context:property-placeholder location="file:${zooma.home}/config/zooma.properties,classpath:build.properties"/>
 
     <bean id="annotationService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedAnnotationService">
         <property name="annotationDAO" ref="lodeAnnotationDAO" />
@@ -39,18 +39,18 @@
     <bean id="timeProcessor" class="uk.ac.ebi.fgpt.zooma.util.TimeProcessor" />
 
     <bean id="chemicalCompoundProcessor" class="uk.ac.ebi.fgpt.zooma.util.ChemicalCompoundProcessor" init-method="init">
-        <constructor-arg name="dictionaryResource" value="classpath:concentration_unit_dictionary.txt" />
+        <constructor-arg name="dictionaryResource" value="file:${zooma.home}/config/search/concentration_unit.dictionary" />
     </bean>
 
     <bean id="anatomyProcessor" class="uk.ac.ebi.fgpt.zooma.util.AnatomyProcessor" init-method="init">
-        <constructor-arg name="dictionaryResource" value="classpath:organism_part_qualifier_dictionary.txt" />
+        <constructor-arg name="dictionaryResource" value="file:${zooma.home}/config/search/organism_part_qualifier.dictionary" />
     </bean>
 
     <!-- define provider for the above processors, loads property type mappings from the mappings file -->
     <bean id="searchStringProcessorProvider"
           class="uk.ac.ebi.fgpt.zooma.util.PropertyTypeProcessorProvider"
           init-method="init">
-        <constructor-arg name="mappingResource" value="classpath:search_string_processor_mappings.txt" />
+        <constructor-arg name="mappingResource" value="file:${zooma.home}/config/search/search_string_processor_mappings.txt" />
         <constructor-arg name="processors">
             <util:set>
                 <ref bean="parenthesesProcessor" />
@@ -65,7 +65,7 @@
     <bean id="splittingProcessor" class="uk.ac.ebi.fgpt.zooma.util.SplittingProcessor" />
 
     <bean id="stopwordProcessor" class="uk.ac.ebi.fgpt.zooma.util.StopwordProcessor" init-method="init">
-        <constructor-arg name="dictionaryResource" value="classpath:stopword_dictionary.txt" />
+        <constructor-arg name="dictionaryResource" value="file:${zooma.home}/config/search/stopword.dictionary" />
     </bean>
 
     <bean id="annotationSourceService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedAnnotationSourceService">
