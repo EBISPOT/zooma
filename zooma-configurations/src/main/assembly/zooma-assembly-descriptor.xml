@@ -24,6 +24,11 @@
             <directory>src/${zooma.deployment.type}/config/${zooma.deployment.env}/</directory>
             <outputDirectory>config/</outputDirectory>
         </fileSet>
+        <!-- copy the loaders custom config for the specified deployment type and env into loaders/ -->
+        <fileSet>
+            <directory>src/${zooma.deployment.type}/loaders/${zooma.deployment.env}/</directory>
+            <outputDirectory>loaders/</outputDirectory>
+        </fileSet>
         <!-- copy additional application resources (specified for profiles) -->
         <fileSet>
             <directory>${zooma.additional.resources.path}</directory>
