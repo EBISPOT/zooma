@@ -5,6 +5,8 @@
        http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <!-- Lucene configuration for ZOOMA text indexes -->
+
     <bean id="version" class="org.apache.lucene.util.Version" factory-method="valueOf">
         <constructor-arg value="LUCENE_36" />
     </bean>

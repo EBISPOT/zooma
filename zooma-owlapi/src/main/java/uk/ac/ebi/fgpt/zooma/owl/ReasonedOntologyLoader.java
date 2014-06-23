@@ -135,7 +135,7 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
             for (OWLClass parentClass : parents) {
                 if (allClasses.contains(parentClass)) {
                     // only add type if the parent isn't excluded
-                    getLog().debug("Next parent of " + label + ": " + parentClass);
+                    getLog().trace("Next parent of " + label + ": " + parentClass);
                     Set<String> typeVals = getStringLiteralAnnotationValues(ontology, parentClass, rdfsLabel);
                     ontologyTypeLabelSet.addAll(typeVals);
                 }

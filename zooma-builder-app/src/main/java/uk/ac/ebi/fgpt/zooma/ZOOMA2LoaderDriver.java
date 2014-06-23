@@ -59,9 +59,10 @@ public class ZOOMA2LoaderDriver {
         ZoomaUtils.configureZOOMAEnvironment();
 
         this.ctx = new ClassPathXmlApplicationContext(
-                "zooma-cli.xml",
-                "zooma-dao.xml",
-                "zooma-load.xml",
+                "file:${zooma.home}/config/spring/zooma-build.xml",
+                "file:${zooma.home}/config/spring/zooma-dao.xml",
+                "file:${zooma.home}/config/spring/zooma-load.xml",
+                "file:${zooma.home}/config/spring/zooma-service.xml",
                 "classpath*:zooma-annotation-dao.xml");
         this.loader = ctx.getBean("dataLoadingService", DataLoadingService.class);
         getLog().debug("Found and loaded " + loader.getAvailableDatasources().size() + " AnnotationDAOs");

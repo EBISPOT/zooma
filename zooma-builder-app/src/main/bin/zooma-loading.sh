@@ -25,8 +25,9 @@ for file in `ls $zoomaHome/loaders`
 do
   loaderFiles=$loaderFiles:$zoomaHome/loaders/$file;
 done
+loaderFiles=$loaderFiles:$zoomaHome/loaders
 
-classpath="$base/config$libjars$loaderFiles";
+classpath="$base/config$libjars$loaderFiles:$zoomaHome/config/logging";
 
 $java $args -classpath $classpath uk.ac.ebi.fgpt.zooma.ZOOMA2LoaderDriver $@ 2>&1;
 exit $?;

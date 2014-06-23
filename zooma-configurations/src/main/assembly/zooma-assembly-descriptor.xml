@@ -39,7 +39,7 @@
     <!-- copy all declared dependencies (should just be loaders) into loaders/ dir -->
     <dependencySets>
         <dependencySet>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
             <fileMode>0644</fileMode>
             <outputDirectory>loaders/</outputDirectory>
             <excludes>

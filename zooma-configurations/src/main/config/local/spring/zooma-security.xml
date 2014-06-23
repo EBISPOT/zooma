@@ -9,6 +9,8 @@
        http://www.springframework.org/schema/beans/spring-beans.xsd
        ">
 
+    <!-- Configuration to enable Spring Security over a ZOOMA web application -->
+
     <bean id="securityConfigurator" class="uk.ac.ebi.fgpt.zooma.security.ZoomaSecurityConfigurator" />
 
     <!-- secure login page to obtain an API key -->

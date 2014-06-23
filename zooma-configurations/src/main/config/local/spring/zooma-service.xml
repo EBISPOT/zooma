@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/util
        http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!-- Configuration for the full suite of ZOOMA search services and utils -->
-
-    <!-- Load all properties and make available in config -->
-    <context:property-placeholder location="file:${zooma.home}/config/zooma.properties,classpath:build.properties"/>
 
     <bean id="annotationService" class="uk.ac.ebi.fgpt.zooma.service.DAOBasedAnnotationService">
         <property name="annotationDAO" ref="lodeAnnotationDAO" />

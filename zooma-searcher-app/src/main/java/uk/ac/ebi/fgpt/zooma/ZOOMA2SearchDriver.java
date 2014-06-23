@@ -22,6 +22,7 @@ import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -105,12 +106,16 @@ public class ZOOMA2SearchDriver {
         HelpFormatter help = new HelpFormatter();
         Options options = bindOptions();
 
+        ZoomaUtils.configureZOOMAEnvironment();
+
         int parseArgs = 0;
         try {
             Properties defaults = new Properties();
-            InputStream in = ZOOMA2SearchDriver.class.getClassLoader().getResourceAsStream("zooma-defaults.properties");
+            File configDir = new File(System.getProperty("zooma.home"), "config");
+            File defaultsPath = new File(configDir, "zooma.properties");
+            InputStream in = new FileInputStream(defaultsPath);
             if (in == null) {
-                throw new IOException("Failed to read default options from config/zooma-defaults.properties");
+                throw new IOException("Failed to read ZOOMA default options from " + defaultsPath.getAbsolutePath());
             }
             defaults.load(in);
 

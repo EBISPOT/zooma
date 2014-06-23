@@ -71,6 +71,19 @@
             <version>2.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- ZOOMA basic loaders for namespace functionality -->
+        <dependency>
+            <groupId>uk.ac.ebi.fgpt</groupId>
+            <artifactId>zooma-owl-loader</artifactId>
+            <version>2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.ac.ebi.fgpt</groupId>
+            <artifactId>zooma-csv-loader</artifactId>
+            <version>2.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- commons-cli for command line functionality -->
         <dependency>
             <groupId>commons-cli</groupId>

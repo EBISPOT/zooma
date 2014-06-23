@@ -11,8 +11,10 @@
        http://www.springframework.org/schema/mvc
        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
 
+    <!-- ZOOMA servlet configuration for setting up a ZOOMA web application using Spring MVC -->
+
     <!-- Load all properties and make available in config -->
-    <context:property-placeholder location="file:${zooma.home}/config/zooma.properties,classpath:build.properties" />
+    <context:property-placeholder location="file:${zooma.home}/config/zooma.properties,file:${zooma.home}/config/naming/ontology.properties,classpath:build.properties" />
 
     <!-- Load zooma properties and make available for autowiring -->
     <bean id="zoomaProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
