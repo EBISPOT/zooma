@@ -3,8 +3,33 @@
 base=${0%/*};
 
 usage() {
-  echo "Usage: build-virtuoso-index.sh [DIRECTORY] [PORT] [THREADS]"
+  echo "Usage: build-virtuoso-index.sh [PORT] [THREADS]"
   echo "Number of CPU processes is optional"
+}
+
+loadProperty()
+{
+    local key="$1"
+    local target=$zoomaHome/config/zooma.properties
+    cat ${target} | sed -e '/^\#/d' | sed -e '/^\s*$/d' | sed -e 's/\s\+/=/g' |
+        while read LINE
+        do
+            local KEY=`echo $LINE | cut -d "=" -f 1`
+            local VALUE=`echo $LINE | cut -d "=" -f 2`
+
+            printf "${KEY} = ${VALUE}"
+            [ $key == ${KEY} ] && {
+                local UNKNOWN_NAME=`echo $VALUE | grep '\${.*}' -o | sed 's/\${//' | sed 's/}//'`
+                if [ $UNKNOWN_NAME ];then
+                    local UNKNOWN_VALUE=`findStr ${UNKNOWN_NAME} ${file}`
+                    echo ${VALUE} | sed s/\$\{${UNKNOWN_NAME}\}/${UNKNOWN_VALUE}/
+                else
+                    echo $VALUE
+                fi
+                return
+            }
+        done
+    return
 }
 
 # parse user supplied arguments
@@ -23,86 +48,38 @@ while getopts "r:d:h" opt; do
   esac
 done
 
-
-    if [ ! $VIRTUOSO_HOME ] ; then
-        echo "VIRTUOSO_HOME variable not set"
-        exit 1
-    fi
-    if [ ! -f $VIRTUOSO_HOME/bin/isql ] ; then
-        echo "Can't find virtuoso start scripts in $VIRTUOSO_HOME"
-        exit 1
-    fi
-
-build_dir=$1
-port=$2
-threads=$3
-
-    if [ ! $build_dir ] ; then
-        echo "You must supply a build directory"
-        usage
-        exit 1
-    fi
-    if [ ! $port ] ; then
-        echo "You must supply a port on localhost where virtuoso is running"
-        usage
-        exit 1
-    fi
-    if [ ! -f $build_dir/virtuoso/db/virtuoso.lck ] ; then
-            echo "Virtuoso instance not running"
-            exit 1
-    fi
-    if [ ! -d $build_dir/data/zooma ] ; then
-            echo "Can't find data directory $build_dir/data/zooma"
-            exit 1
-    fi
-
-
-loadfiles="ld_dir_all('$build_dir/data/zooma', '*.rdf', 'http://rdf.ebi.ac.uk/dataset/zooma');"
-
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="$loadfiles" || exit 4;
-
-loadfiles="ld_dir_all('$build_dir/data/zooma', '*.owl', 'http://rdf.ebi.ac.uk/dataset/zooma');"
-
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="$loadfiles" || exit 4;
-
-echo "finished setting files to load, starting loader..."
-
-
-if [ $threads ] ; then
-
-    # We want 1 fewer loader than the number of CPUs
-    echo `date` "Starting $(($threads-1)) loader processes"
-    for ((i=1; i<$threads; i++)); do
-        $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="rdf_loader_run();" &
-    done
-    echo `date` "Waiting for loaders"
-    wait
+if [ ! $ZOOMA_HOME ];
+then
+  printf "\$ZOOMA_HOME not set - using $HOME/.zooma\n";
+  zoomaHome=$HOME/.zooma;
 else
-    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="rdf_loader_run();"
+  zoomaHome=$ZOOMA_HOME;
 fi
 
+if [ ! $VIRTUOSO_HOME ] ; then
+    echo "VIRTUOSO_HOME variable not set"
+    exit 1
+fi
+if [ ! -f $VIRTUOSO_HOME/bin/isql ] ; then
+    echo "Can't find virtuoso start scripts in $VIRTUOSO_HOME"
+    exit 1
+fi
 
+loadProperty "lode.sparqlendpoint.url";
+server=$?
+loadProperty "lode.sparqlendpoint.port";
+port=$?
 
-echo `date` "Creating checkpoint"
+printf "Using server: $server and port: $port\n";
 
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="checkpoint;"
+build_dir=$zoomaHome/index/virtuoso
 
-echo "finished indexing files, executing final virtuoso configuration scripts..."
+#if [ ! -f $build_dir/db/virtuoso.lck ] ; then
+#        echo "Virtuoso instance not running"
+#        exit 1
+#fi
+if [ ! -d $build_dir ] ; then
+        mkdir $build_dir;
+fi
 
-echo "creating inference rules set"
-
-# setting inference rules
-loadrules="rdfs_rule_set ('default-rules', 'http://rdf.ebi.ac.uk/dataset/zooma')"
-
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="$loadrules" || exit 4;
-
-echo `date` "Updating VoID graph with  number of triples, SPARQL description"
-
-templatefile=$base/virtuoso-control/templates/update-provenance-template.sql
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $templatefile || exit $?
-
-echo `date` "Creating checkpoint"
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="checkpoint;"
-
-echo `date` "Done"
 

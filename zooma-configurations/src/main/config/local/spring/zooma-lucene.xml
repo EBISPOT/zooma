@@ -22,23 +22,23 @@
     <bean id="similarity" class="uk.ac.ebi.fgpt.zooma.util.ZoomaSimilarity" />
 
     <bean id="propertyIndex" class="org.apache.lucene.store.NIOFSDirectory">
-        <constructor-arg value="${zooma.home}/index/property" />
+        <constructor-arg value="${zooma.home}/index/lucene/property" />
     </bean>
 
     <bean id="propertyTypeIndex" class="org.apache.lucene.store.NIOFSDirectory">
-        <constructor-arg value="${zooma.home}/index/property_type" />
+        <constructor-arg value="${zooma.home}/index/lucene/property_type" />
     </bean>
 
     <bean id="annotationCountIndex" class="org.apache.lucene.store.NIOFSDirectory">
-        <constructor-arg value="${zooma.home}/index/annotation_count" />
+        <constructor-arg value="${zooma.home}/index/lucene/annotation_count" />
     </bean>
 
     <bean id="annotationIndex" class="org.apache.lucene.store.NIOFSDirectory">
-        <constructor-arg value="${zooma.home}/index/annotation" />
+        <constructor-arg value="${zooma.home}/index/lucene/annotation" />
     </bean>
 
     <bean id="annotationSummaryIndex" class="org.apache.lucene.store.NIOFSDirectory">
-        <constructor-arg value="${zooma.home}/index/annotation_summary" />
+        <constructor-arg value="${zooma.home}/index/lucene/annotation_summary" />
     </bean>
 
     <bean id="luceneIndexer" class="uk.ac.ebi.fgpt.zooma.service.ZoomaLuceneIndexer" destroy-method="destroy">
