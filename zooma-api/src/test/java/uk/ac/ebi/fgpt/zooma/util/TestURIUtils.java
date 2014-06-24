@@ -3,8 +3,10 @@ package uk.ac.ebi.fgpt.zooma.util;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -52,6 +54,10 @@ public class TestURIUtils {
 
     @Before
     public void setUp() {
+        URL url = getClass().getClassLoader().getResource("config/naming/prefix.properties");
+        String path = url != null ? url.toString().replace("file:", "").replace("config/naming/prefix.properties", "") : "";
+        System.setProperty("zooma.home", new File(path).getAbsolutePath());
+
         prefix1 = "slash";
         prefix2 = "hash";
         prefix3 = "baz";
@@ -100,7 +106,7 @@ public class TestURIUtils {
         Map<String, String> prefixMappings = URIUtils.getPrefixMappings();
         Properties properties = new Properties();
         try {
-            properties.load(getClass().getClassLoader().getResourceAsStream("zooma/prefix.properties"));
+            properties.load(getClass().getClassLoader().getResourceAsStream("config/naming/prefix.properties"));
         }
         catch (IOException e) {
             e.printStackTrace();
