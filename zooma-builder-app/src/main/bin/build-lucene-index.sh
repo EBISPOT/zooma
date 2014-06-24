@@ -2,15 +2,21 @@
 
 base=${0%/*}/..;
 current=`pwd`;
-java=${java.location};
-args="${java.args}";
+
+if [ ! $ZOOMA_HOME ];
+then
+  printf "\$ZOOMA_HOME not set - using $HOME/.zooma\n";
+  zoomaHome=$HOME/.zooma;
+else
+  zoomaHome=$ZOOMA_HOME;
+fi
 
 for file in `ls $base/lib`
 do
   jars=$jars:$base/lib/$file;
 done
 
-classpath="$base/config$jars";
+classpath="$base/config$jars:$zoomaHome/config/logging";
 
-$java $args -classpath $classpath uk.ac.ebi.fgpt.zooma.ZOOMA2LuceneIndexDriver $@ 2>&1;
+java $ZOOMA_OPTS -classpath $classpath uk.ac.ebi.fgpt.zooma.ZOOMA2LuceneIndexDriver $@ 2>&1;
 exit $?;
