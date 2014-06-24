@@ -4,11 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
+import java.nio.file.FileSystems;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -58,9 +59,8 @@ public class URIUtils {
     }
 
     /**
-     * Loads prefix to namespace mappings into a map, and returns them.  Mappings are loaded from any zooma/prefix
-     * .properties files present on the classpath when this code is executed; this means prefix properties can be
-     * updated inside a running application.
+     * Loads prefix to namespace mappings into a map, and returns them.  Mappings are loaded from the prefix.properties
+     * file, which should be located under config/naming/prefix.properties in your environments $ZOOMA_HOME directory.
      *
      * @return a mapping of prefix to namespace values
      */
@@ -76,15 +76,11 @@ public class URIUtils {
         getLog().debug("Attempting to load prefix mappings from properties files...");
         prefixMappings.clear();
         try {
+            File prefixPropertyFile = FileSystems.getDefault()
+                    .getPath(System.getProperty("zooma.home"), "config", "naming", "prefix.properties")
+                    .toFile();
             Properties prefixProperties = new Properties();
-            Enumeration<URL> prefixPropertyFiles = URIUtils.class.getClassLoader().getResources(
-                    "zooma/prefix.properties");
-            while (prefixPropertyFiles.hasMoreElements()) {
-                URL prefixPropertyFile = prefixPropertyFiles.nextElement();
-                getLog().debug("Loading prefix mappings from " + prefixPropertyFile.toString());
-                prefixProperties.load(prefixPropertyFile.openStream());
-            }
-
+            prefixProperties.load(new FileInputStream(prefixPropertyFile));
             for (String prefix : prefixProperties.stringPropertyNames()) {
                 String namespace = prefixProperties.getProperty(prefix);
                 getLog().debug("Next prefix mapping: " + prefix + " = " + namespace);
@@ -616,7 +612,7 @@ public class URIUtils {
      * @param canCache       whether or not we can cache this result in memory
      * @param uri            the URI to create a prefix -> namespace mapping for
      * @return a String array where the first element is the created prefix and the second element is the namespace it
-     *         maps to
+     * maps to
      */
     private static String[] createPrefixNamespaceMapping(final Map<String, String> prefixMappings,
                                                          final String bestPrefix,

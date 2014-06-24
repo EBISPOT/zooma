@@ -62,6 +62,7 @@ public class ZOOMA2LoaderDriver {
                 "file:${zooma.home}/config/spring/zooma-build.xml",
                 "file:${zooma.home}/config/spring/zooma-dao.xml",
                 "file:${zooma.home}/config/spring/zooma-load.xml",
+                "file:${zooma.home}/config/spring/zooma-lucene.xml",
                 "file:${zooma.home}/config/spring/zooma-service.xml",
                 "classpath*:zooma-annotation-dao.xml");
         this.loader = ctx.getBean("dataLoadingService", DataLoadingService.class);
