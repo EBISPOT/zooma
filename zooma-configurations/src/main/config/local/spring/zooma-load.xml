@@ -15,29 +15,23 @@
         <property name="zoomaLoader" ref="zoomaLoader" />
 
         <!-- uncomment the properties below if it is necessary to tailor performance -->
-        <!--<property name="blockSize" value="100000" />-->
-        <!--<property name="maxCount" value="100000" />-->
+        <property name="blockSize" value="10000" />
+        <property name="maxCount" value="10000" />
     </bean>
 
-    <!-- Alternative zooma loaders with different loading strategies -->
-    <!-- Pick service based for proper dynamic writing, or configurable for file based, tuneable writing -->
-    <bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.io.ServiceBasedAnnotationLoader">
-        <property name="annotationService" ref="annotationService" />
+    <bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.io.ConfigurableAnnotationLoader">
+        <constructor-arg name="outputPath" value="${zooma.rdf.outputPath}" />
+        <constructor-arg name="fileNameBase" value="zooma_annotations" />
+
+        <property name="annotationResolver" ref="annotationResolver" />
+        <property name="annotationSerializer" ref="annotationSerializer" />
+        <property name="annotationStorer" ref="annotationStorer" />
+
+        <!-- Set these flags to configure the behaviour of the loader -->
+        <property name="resolvingEnabled" value="false" />
+        <property name="serializingEnabled" value="true" />
+        <property name="storingEnabled" value="false" />
     </bean>
-
-    <!--<bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.io.ConfigurableAnnotationLoader">-->
-        <!--<constructor-arg name="outputPath" value="/tmp/zooma/data/" />-->
-        <!--<constructor-arg name="fileNameBase" value="zooma_annotations" />-->
-
-        <!--<property name="annotationResolver" ref="annotationResolver" />-->
-        <!--<property name="annotationSerializer" ref="annotationSerializer" />-->
-        <!--<property name="annotationStorer" ref="annotationStorer" />-->
-
-        <!--&lt;!&ndash; Set these flags to configure the behaviour of the loader &ndash;&gt;-->
-        <!--<property name="resolvingEnabled" value="false" />-->
-        <!--<property name="serializingEnabled" value="true" />-->
-        <!--<property name="storingEnabled" value="false" />-->
-    <!--</bean>-->
 
     <!-- Two alternative resolver implementations with different resolution strategies -->
     <!-- Which to pick may depend on dataset characteristics -->
