@@ -29,7 +29,7 @@ loadProperty()
     return
 }
 
-setupVirtuosoBuild()
+checkEnvironment()
 {
     if [ ! $ZOOMA_HOME ];
     then
@@ -71,7 +71,7 @@ while getopts "h" opt; do
   esac
 done
 
-setupVirtuosoBuild;
+checkEnvironment;
 
 
 
