@@ -3,14 +3,9 @@
 base=${0%/*}/..;
 current=`pwd`;
 
-#java=${java.location};
-#args="${java.args}";
-java=java;
-args=;
-
 if [ ! $ZOOMA_HOME ];
 then
-  printf "\$ZOOMA_HOME not set - defaulting to $HOME/.zooma\n";
+  printf "\$ZOOMA_HOME not set - using $HOME/.zooma\n";
   zoomaHome=$HOME/.zooma;
 else
   zoomaHome=$ZOOMA_HOME;
@@ -29,5 +24,5 @@ loaderFiles=$loaderFiles:$zoomaHome/loaders
 
 classpath="$base/config$libjars$loaderFiles:$zoomaHome/config/logging";
 
-$java $args -classpath $classpath uk.ac.ebi.fgpt.zooma.ZOOMA2LoaderDriver $@ 2>&1;
+java $ZOOMA_OPTS -classpath $classpath uk.ac.ebi.fgpt.zooma.ZOOMA2LoaderDriver $@ 2>&1;
 exit $?;
