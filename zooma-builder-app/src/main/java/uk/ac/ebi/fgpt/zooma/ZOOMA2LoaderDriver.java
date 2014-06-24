@@ -57,69 +57,64 @@ public class ZOOMA2LoaderDriver {
 
     private ZOOMA2LoaderDriver() {
         ZoomaUtils.configureZOOMAEnvironment();
-
-        this.ctx = new ClassPathXmlApplicationContext(
-                "file:${zooma.home}/config/spring/zooma-build.xml",
-                "file:${zooma.home}/config/spring/zooma-dao.xml",
-                "file:${zooma.home}/config/spring/zooma-load.xml",
-                "file:${zooma.home}/config/spring/zooma-lucene.xml",
-                "file:${zooma.home}/config/spring/zooma-service.xml",
-                "classpath*:zooma-annotation-dao.xml");
-        this.loader = ctx.getBean("dataLoadingService", DataLoadingService.class);
-        getLog().debug("Found and loaded " + loader.getAvailableDatasources().size() + " AnnotationDAOs");
     }
 
     public void createOutputDirectory() throws IOException {
         // first, try to backup old RDF directory
         File rdfHome = new File(System.getProperty("zooma.home"), "rdf");
-            if (rdfHome.exists()) {
-                System.out.println("RDF directory already exists at " + rdfHome.getAbsolutePath());
-                // backup old RDF directory
-                String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-                String backupFileName = rdfHome.getName().concat(".backup.").concat(dateStr);
-                File backupFile = new File(rdfHome.getAbsoluteFile().getParentFile(), backupFileName);
+        if (rdfHome.exists()) {
+            System.out.println("RDF directory already exists at " + rdfHome.getAbsolutePath());
+            // backup old RDF directory
+            String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+            String backupFileName = rdfHome.getName().concat(".backup.").concat(dateStr);
+            File backupFile = new File(rdfHome.getAbsoluteFile().getParentFile(), backupFileName);
 
-                Path oldRDFHome = rdfHome.toPath();
-                Path newRDFHome = backupFile.toPath();
+            Path oldRDFHome = rdfHome.toPath();
+            Path newRDFHome = backupFile.toPath();
 
-                if (!Files.exists(newRDFHome)) {
-                    System.out.print(
-                            "Backing up " + oldRDFHome.toString() + " to " + newRDFHome.toString() + "...");
-                    Files.move(oldRDFHome,
-                               newRDFHome,
-                               StandardCopyOption.REPLACE_EXISTING,
-                               StandardCopyOption.ATOMIC_MOVE);
-                    System.out.println("ok!");
-                }
-                else {
-                    System.out.print(
-                            "Backup already exists for today, clearing " + oldRDFHome.toString() + "...");
-                    Files.walkFileTree(oldRDFHome, new SimpleFileVisitor<Path>() {
-                        @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                                throws IOException {
-                            Files.delete(file);
-                            return FileVisitResult.CONTINUE;
-                        }
-
-                        @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc)
-                                throws IOException {
-                            Files.delete(dir);
-                            return FileVisitResult.CONTINUE;
-                        }
-                    });
-                    System.out.println("ok!");
-                }
-                System.out.println("RDF files will now be created afresh in " + rdfHome.getAbsolutePath());
+            if (!Files.exists(newRDFHome)) {
+                System.out.print(
+                        "Backing up " + oldRDFHome.toString() + " to " + newRDFHome.toString() + "...");
+                Files.move(oldRDFHome,
+                           newRDFHome,
+                           StandardCopyOption.REPLACE_EXISTING,
+                           StandardCopyOption.ATOMIC_MOVE);
+                System.out.println("ok!");
             }
             else {
-                System.out.println("RDF files will be created in a new directory, " + rdfHome.getAbsolutePath());
-            }
+                System.out.print(
+                        "Backup already exists for today, clearing " + oldRDFHome.toString() + "...");
+                Files.walkFileTree(oldRDFHome, new SimpleFileVisitor<Path>() {
+                    @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                            throws IOException {
+                        Files.delete(file);
+                        return FileVisitResult.CONTINUE;
+                    }
 
-        // set rdfHome as system property (zooma.rdf.outputPath)
-        System.setProperty("zooma.rdf.outputPath", rdfHome.getAbsolutePath());
+                    @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                            throws IOException {
+                        Files.delete(dir);
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+                System.out.println("ok!");
+            }
+            System.out.println("RDF files will now be created afresh in " + rdfHome.getAbsolutePath());
+        }
+        else {
+            System.out.println("RDF files will be created in a new directory, " + rdfHome.getAbsolutePath());
+        }
     }
 
     public void invoke() throws ZoomaLoadingException {
+        this.ctx = new ClassPathXmlApplicationContext(
+                "file:${zooma.home}/config/spring/zooma-build.xml",
+                "file:${zooma.home}/config/spring/zooma-dao.xml",
+                "file:${zooma.home}/config/spring/zooma-load.xml",
+                "classpath*:zooma-annotation-dao.xml");
+        this.loader = ctx.getBean("dataLoadingService", DataLoadingService.class);
+        getLog().debug("Found and loaded " + loader.getAvailableDatasources().size() + " AnnotationDAOs");
+
         // create a thread to print to standard out while invoker is running
         final Thread t = new Thread(new Runnable() {
             @Override

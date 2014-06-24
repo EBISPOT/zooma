@@ -20,7 +20,7 @@
     </bean>
 
     <bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.io.ConfigurableAnnotationLoader">
-        <constructor-arg name="outputPath" value="${zooma.rdf.outputPath}" />
+        <constructor-arg name="outputPath" value="${zooma.home}/rdf" />
         <constructor-arg name="fileNameBase" value="zooma_annotations" />
 
         <property name="annotationResolver" ref="annotationResolver" />
