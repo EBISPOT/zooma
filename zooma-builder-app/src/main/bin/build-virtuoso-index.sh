@@ -222,9 +222,9 @@ echo "Creating checkpoint"
 
 $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="checkpoint;" &>> $build_dir/log/virtuoso-zooma.log
 
-echo "finished indexing files, executing final virtuoso configuration scripts..."
+echo "Finished indexing files, executing final virtuoso configuration scripts..."
 
-echo "creating inference rules set"
+echo "Creating inference rules set"
 
 # setting inference rules
 loadrules="rdfs_rule_set ('default-rules', 'http://rdf.ebi.ac.uk/dataset/zooma')"
