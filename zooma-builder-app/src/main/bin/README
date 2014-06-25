@@ -44,18 +44,24 @@ To build the ZOOMA database, run the following scripts in order:
 >: build-virtuoso-index.sh
 
 If you are building ZOOMA on a single machine, at this point start your local Virtuoso instance in order to build the
-lucene indexes using
+lucene indexes using:
 
 >: virtuoso-start.sh
 
 If your Virtuoso index will run on a different server, at this point you can copy your Virtuoso indexes to the remote
 server and start up that server using the scripts provided by Virtuoso.
 
-Now, build lucene indexes
+Now, build your lucene indexes:
 
 >: build-lucene-index.sh
 
 Your ZOOMA data is ready to go.  Start up your web application and ZOOMA should be ready.
+
+If you are running a remote Virtuoso server, shutdown your local Virtuoso instance with:
+
+>: virtuoso-stop.sh
+
+And you're done!
 
 +---------------+
 | ZOOMA Scripts |
