@@ -27,7 +27,7 @@ import java.util.Date;
 public class ZOOMA2LoaderDriver {
     public static void main(String[] args) {
         if (args.length > 0) {
-            System.err.println("This application does not take any arguments");
+            System.err.println("This application does not take any arguments; configuration can be updated in $ZOOMA_HOME/config/zooma.properties");
         }
         else {
             try {
@@ -42,9 +42,6 @@ public class ZOOMA2LoaderDriver {
             }
         }
     }
-
-    private ClassPathXmlApplicationContext ctx;
-    private DataLoadingService loader;
 
     private final Object lock = new Object();
     private boolean invokerRunning;
@@ -107,12 +104,12 @@ public class ZOOMA2LoaderDriver {
     }
 
     public void invoke() throws ZoomaLoadingException {
-        this.ctx = new ClassPathXmlApplicationContext(
+        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
                 "file:${zooma.home}/config/spring/zooma-build.xml",
                 "file:${zooma.home}/config/spring/zooma-dao.xml",
                 "file:${zooma.home}/config/spring/zooma-load.xml",
                 "classpath*:zooma-annotation-dao.xml");
-        this.loader = ctx.getBean("dataLoadingService", DataLoadingService.class);
+        DataLoadingService loader = ctx.getBean("dataLoadingService", DataLoadingService.class);
         getLog().debug("Found and loaded " + loader.getAvailableDatasources().size() + " AnnotationDAOs");
 
         // create a thread to print to standard out while invoker is running

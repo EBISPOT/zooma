@@ -8,10 +8,13 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
 import uk.ac.ebi.fgpt.zooma.service.StatusService;
+import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,15 +33,20 @@ import java.util.Date;
  */
 public class ZOOMA2LuceneIndexDriver {
     public static void main(String[] args) {
-        try {
-            int statusCode = parseArguments(args);
-            if (statusCode == 0) {
+        if (args.length > 0) {
+            System.err.println("This application does not take any arguments; configuration can be updated in $ZOOMA_HOME/config/zooma.properties");
+        }
+        else {
+            try {
                 ZOOMA2LuceneIndexDriver driver = new ZOOMA2LuceneIndexDriver();
+                driver.createOutputDirectory();
+
+                // trigger index building
+                String preamble = "Building ZOOMA indices...";
+                System.out.print(preamble);
                 driver.generateIndices();
 
                 // test for completion
-                String preamble = "Building ZOOMA indices...";
-                System.out.print(preamble);
                 int chars = preamble.length();
                 final Object lock = new Object();
                 while (!driver.isComplete()) {
@@ -61,161 +69,92 @@ public class ZOOMA2LuceneIndexDriver {
                 System.out.println("ok!");
                 System.out.println("ZOOMA indices completed successfully.");
             }
-            else {
-                System.exit(statusCode);
+            catch (IOException e) {
+                System.err.println("ZOOMA did not complete successfully: " + e.getMessage());
+                e.printStackTrace();
+                System.exit(1);
             }
-        }
-        catch (IOException e) {
-            System.out.println();
-            System.err.println("A read/write problem occurred: " + e.getMessage());
-            System.exit(1);
-        }
-        catch (Exception e) {
-            System.err.println("ZOOMA did not complete successfully: " + e.getMessage());
-            e.printStackTrace();
-            System.exit(1);
         }
     }
 
-    private static int parseArguments(String[] args) throws IOException {
-        CommandLineParser parser = new GnuParser();
-        HelpFormatter help = new HelpFormatter();
-        Options options = bindOptions();
-
-        int parseArgs = 0;
-        try {
-            CommandLine cl = parser.parse(options, args, true);
-
-            // check for mode help option
-            if (cl.hasOption("")) {
-                // print out mode help
-                help.printHelp("zooma", options, true);
-                parseArgs += 1;
-            }
-            else {
-                // check -d required option
-                if (cl.hasOption("d")) {
-                    // get directory argument
-                    File d = new File(cl.getOptionValue("d"));
-                    // create if the directory doesn't exist
-                    if (!d.getAbsoluteFile().exists()) {
-                        System.out.print("Creating index directory '" + d.getAbsolutePath() + "'...");
-                        if (d.mkdirs()) {
-                            System.out.println("ok!");
-                        }
-                        else {
-                            System.out.println("failed.");
-                        }
-                    }
-                    // set java property for zooma.home
-                    System.setProperty("zooma.home", d.getAbsolutePath());
-                }
-            }
-        }
-        catch (ParseException e) {
-            System.err.println("Failed to read supplied arguments (" + e.getMessage() + ")");
-            help.printHelp("zooma", options, true);
-            parseArgs += 1;
-        }
-        return parseArgs;
-    }
-
-    private static Options bindOptions() {
-        Options options = new Options();
-
-        // help
-        Option helpOption = new Option("h", "help", false, "Print the help");
-        options.addOption(helpOption);
-
-        // add directory options
-        Option dirOption = new Option(
-                "d",
-                "dir",
-                true,
-                "Index Directory - the directory where you wish to create ZOOMA lucene indices");
-        dirOption.setRequired(true);
-        options.addOption(dirOption);
-
-        return options;
-    }
-
-    private final File zoomaHome;
-    private final StatusService zoomaStatusService;
+    private StatusService zoomaStatusService;
+    private File luceneHome;
 
     private boolean started = false;
 
     public ZOOMA2LuceneIndexDriver() {
-        // ref zoomaHome from system property
-        zoomaHome = new File(System.getProperty("zooma.home"));
+        ZoomaUtils.configureZOOMAEnvironment();
+    }
 
-        // load spring config to initialize lucene indexer
-        System.out.print("Loading configuration...");
-        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "zooma-dao.xml",
-                "zooma-indexer.xml",
-                "zooma-lucene.xml",
-                "zooma-service.xml");
-        zoomaStatusService = ctx.getBean("statusService", StatusService.class);
-        System.out.println("ok!");
+    public void createOutputDirectory() throws IOException {
+        luceneHome = FileSystems.getDefault().getPath(System.getProperty("zooma.home"), "index", "lucene").toFile();
+        if (luceneHome.exists()) {
+            if (zoomaStatusService.checkStatus()) {
+                System.out.println("ZOOMA lucene indices already exist in " + luceneHome.getAbsolutePath());
+                // backup old index
+                String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+                String backupFileName = luceneHome.getName().concat(".backup.").concat(dateStr);
+                File backupFile = new File(luceneHome.getAbsoluteFile().getParentFile(), backupFileName);
+
+                Path oldZoomaHome = luceneHome.toPath();
+                Path newZoomaHome = backupFile.toPath();
+
+                if (!Files.exists(newZoomaHome)) {
+                    System.out.print(
+                            "Backing up " + oldZoomaHome.toString() + " to " + newZoomaHome.toString() + "...");
+                    Files.move(oldZoomaHome,
+                               newZoomaHome,
+                               StandardCopyOption.REPLACE_EXISTING,
+                               StandardCopyOption.ATOMIC_MOVE);
+                    System.out.println("ok!");
+                }
+                else {
+                    System.out.print(
+                            "Backup already exists for today, clearing " + oldZoomaHome.toString() + "...");
+                    Files.walkFileTree(oldZoomaHome, new SimpleFileVisitor<Path>() {
+                        @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                                throws IOException {
+                            Files.delete(file);
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                                throws IOException {
+                            Files.delete(dir);
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                    System.out.println("ok!");
+                }
+                System.out.println("ZOOMA lucene indices will now be created afresh in " +
+                                           luceneHome.getAbsolutePath());
+            }
+            else {
+                System.out.println("ZOOMA lucene indices will be created in " + luceneHome.getAbsolutePath());
+            }
+        }
+        else {
+            System.out.println("ZOOMA lucene indices will be created in a new directory, " +
+                                       luceneHome.getAbsolutePath());
+        }
     }
 
     public void generateIndices() throws IOException {
+        // load spring config to initialize lucene indexer
+        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "file:${zooma.home}/config/spring/zooma-dao.xml",
+                "file:${zooma.home}/config/spring/zooma-build.xml",
+                "file:${zooma.home}/config/spring/zooma-lucene.xml",
+                "file:${zooma.home}/config/spring/zooma-service.xml");
+        zoomaStatusService = ctx.getBean("statusService", StatusService.class);
+
         if (zoomaStatusService != null) {
-            if (zoomaHome.exists()) {
-                if (zoomaStatusService.checkStatus()) {
-                    System.out.println("ZOOMA lucene indices already exist in " + zoomaHome.getAbsolutePath());
-                    // backup old index
-                    String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-                    String backupFileName = zoomaHome.getName().concat(".backup.").concat(dateStr);
-                    File backupFile = new File(zoomaHome.getAbsoluteFile().getParentFile(), backupFileName);
-
-                    Path oldZoomaHome = zoomaHome.toPath();
-                    Path newZoomaHome = backupFile.toPath();
-
-                    if (!Files.exists(newZoomaHome)) {
-                        System.out.print(
-                                "Backing up " + oldZoomaHome.toString() + " to " + newZoomaHome.toString() + "...");
-                        Files.move(oldZoomaHome,
-                                   newZoomaHome,
-                                   StandardCopyOption.REPLACE_EXISTING,
-                                   StandardCopyOption.ATOMIC_MOVE);
-                        System.out.println("ok!");
-                    }
-                    else {
-                        System.out.print(
-                                "Backup already exists for today, clearing " + oldZoomaHome.toString() + "...");
-                        Files.walkFileTree(oldZoomaHome, new SimpleFileVisitor<Path>() {
-                            @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                                    throws IOException {
-                                Files.delete(file);
-                                return FileVisitResult.CONTINUE;
-                            }
-
-                            @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc)
-                                    throws IOException {
-                                Files.delete(dir);
-                                return FileVisitResult.CONTINUE;
-                            }
-                        });
-                        System.out.println("ok!");
-                    }
-                    System.out.println("ZOOMA lucene indices will now be created afresh in " +
-                                               zoomaHome.getAbsolutePath());
-                }
-                else {
-                    System.out.println("ZOOMA lucene indices will be created in " + zoomaHome.getAbsolutePath());
-                }
-            }
-            else {
-                System.out.println("ZOOMA lucene indices will be created in a new directory, " +
-                                           zoomaHome.getAbsolutePath());
-            }
             zoomaStatusService.reinitialize();
             started = true;
         }
     }
 
     public boolean isComplete() {
-        return started && zoomaHome.exists() && zoomaStatusService != null && zoomaStatusService.checkStatus();
+        return zoomaStatusService != null && started && zoomaStatusService.checkStatus() && luceneHome.exists();
     }
 }
