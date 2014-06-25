@@ -8,6 +8,27 @@ usage() {
   echo "You can also set \$ZOOMA_HOME if you require this to be something other than the default $HOME/.zooma"
 }
 
+loadProperty()
+{
+    local key="$1"
+    local target=$zoomaHome/config/zooma.properties
+    cat ${target} | sed -e '/^\#/d' | sed -e '/^\s*$/d' | sed -e 's/\s\+/=/g' | grep ${key} |
+        while read LINE
+        do
+            local KEY=`echo ${LINE} | cut -d "=" -f 1`
+            local VALUE=`echo ${LINE} | cut -d "=" -f 2`
+            [ ${key} == ${KEY} ] && {
+                local UNKNOWN_NAME=`echo $VALUE | grep '\${.*}' -o | sed 's/\${//' | sed 's/}//'`
+                if [ ! $UNKNOWN_NAME ];
+                then
+                    echo ${VALUE}
+                fi
+                return
+            }
+        done
+    return
+}
+
 checkEnvironment() {
     if [ ! $ZOOMA_HOME ];
     then
