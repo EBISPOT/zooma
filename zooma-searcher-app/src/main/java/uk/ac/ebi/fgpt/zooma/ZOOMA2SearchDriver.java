@@ -153,14 +153,14 @@ public class ZOOMA2SearchDriver {
                     _concurrency = Integer.parseInt(concurrencyOption);
                 }
                 else {
-                    _concurrency = Integer.parseInt(defaults.getProperty("zooma.concurrency"));
+                    _concurrency = Integer.parseInt(defaults.getProperty("zooma.search.concurrent.threads"));
                     System.out.println("Using default ZOOMA concurrency, " + _concurrency);
                 }
                 if (cl.hasOption("z")) {
                     _zoomaLocation = URI.create(cl.getOptionValue("z")).toURL();
                 }
                 else {
-                    _zoomaLocation = URI.create(defaults.getProperty("zooma.location")).toURL();
+                    _zoomaLocation = URI.create(defaults.getProperty("zooma.search.location")).toURL();
                     System.out.println("Using default ZOOMA location, '" + _zoomaLocation.toString() + "'");
                 }
 
@@ -179,7 +179,7 @@ public class ZOOMA2SearchDriver {
                         _score = Float.parseFloat(scoreOpt);
                     }
                     else {
-                        _score = Float.parseFloat(defaults.getProperty("zooma.significance.score"));
+                        _score = Float.parseFloat(defaults.getProperty("zooma.search.significance.score"));
                         System.out.println("Using default ZOOMA significance score, " + _score);
                     }
                     if (cl.hasOption("c")) {
@@ -187,7 +187,7 @@ public class ZOOMA2SearchDriver {
                         _cutoffPercentage = Float.parseFloat(cutoffOpt);
                     }
                     else {
-                        _cutoffPercentage = Float.parseFloat(defaults.getProperty("zooma.cutoff.percentage"));
+                        _cutoffPercentage = Float.parseFloat(defaults.getProperty("zooma.search.cutoff.score"));
                         System.out.println("Using default ZOOMA cutoff percentage, " + _cutoffPercentage);
                     }
                 }
