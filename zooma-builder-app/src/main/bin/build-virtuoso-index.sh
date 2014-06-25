@@ -5,7 +5,8 @@ base=${0%/*};
 usage() {
   echo "Usage: build-virtuoso-index.sh"
   echo "You should ensure \$VIRTUOSO_HOME is set to the base directory of your Virtuoso installation."
-  echo "You can also set \$ZOOMA_HOME if you require this to be something other than the default $HOME/.zooma"
+  echo "You can also set \$ZOOMA_HOME if you require this to be something other than the default $HOME/.zooma."
+  echo "Virtuoso configuration used for building ZOOMA indexes can be updated from \$ZOOMA_HOME/config/zooma.properties."
 }
 
 loadProperty()
@@ -135,8 +136,8 @@ die() {
 }
 
 createCleanInstance() {
-    local templates=$base/virtuoso-control/templates;
-    local templatefile=$templates/template-config.ini
+    local sql_dir=$base/virtuoso;
+    local templatefile=$zoomaHome/config/virtuoso/template-config.ini
 
     if [ ! -e $templatefile ] ; then
 	    echo "Missing template file: $templatefile";
@@ -163,13 +164,13 @@ createCleanInstance() {
     startVirtuoso;
 
     echo "Enabling federated queries"
-    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $templates/enable-federated.sql &>> $build_dir/log/virtuoso-zooma.log || die $?
+    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $sql_dir/enable-federated.sql &>> $build_dir/log/virtuoso-zooma.log || die $?
 
     echo "Removing default Virtuoso SPARQL description graph"
-    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $templates/remove-sparqldesc.sql &>> $build_dir/log/virtuoso-zooma.log || die $?
+    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $sql_dir/remove-sparqldesc.sql &>> $build_dir/log/virtuoso-zooma.log || die $?
 
     #echo "Enabling Virtuoso text index"
-    #$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $templates/enable-text-index.sql &>> $build_dir/log/virtuoso-zooma.log || die $?
+    #$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $sql_dir/enable-text-index.sql &>> $build_dir/log/virtuoso-zooma.log || die $?
 
     echo "Successfully created clean Virtuoso instance";
 }
