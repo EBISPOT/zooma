@@ -233,7 +233,7 @@ $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="$loadrules" &>> $build_dir
 
 echo "Updating VoID graph with number of triples, SPARQL description"
 
-templatefile=$base/virtuoso-control/templates/update-provenance-template.sql
+templatefile=$base/virtuoso/update-provenance-template.sql
 $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $templatefile &>> $build_dir/log/virtuoso-zooma.log || die $?
 
 echo "Creating checkpoint"
