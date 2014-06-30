@@ -79,12 +79,12 @@ startVirtuoso() {
     while [ $status -ne 0 ] ; do
 	    i=`expr $i + 1`
 	    if test $i -gt 300 ; then
-		    echo "Virtuoso is not ready after waiting 5 minutes"
+		    echo "Virtuoso is not ready after waiting 5 minutes";
 		    exit 4
 	    fi
 	    sleep 1
         if [ ! -f $build_dir/db/virtuoso.lck ] ; then
-		    echo "Failed to start Virtuoso"
+		    echo "Failed to start Virtuoso";
 		    exit 4
 	    fi
 	    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="status();" &> /dev/null
@@ -98,25 +98,30 @@ stopVirtuoso() {
     lockfile=$build_dir/db/virtuoso.lck
 
     if [ ! -f $lockfile ] ; then
-        echo "Virtuoso not running"
-        exit 0
+        echo "Virtuoso not running";
+        return
     fi
 
-    tmp=`cat $lockfile`
+    tmp=`cat $lockfile`;
     pid=${tmp#VIRT_PID=};
 
     if [ ! $pid ] ; then
-        echo "Unable to parse Virtuoso process ID"
-        exit 2
+        echo "Unable to parse Virtuoso process ID";
+        exit 2;
     fi
 
-    echo "Stopping Virtuoso process $pid"
-
-    kill -2 $pid
-
-    if test $? -ne 0 ; then
-        echo "Unable to stop Virtuoso"
-        exit 3
+    if ps -p $pid > /dev/null;
+    then
+        echo "Stopping running Virtuoso instance, process $pid"
+        kill -2 $pid;
+        if test $? -ne 0 ;
+        then
+            echo "Failed to stop Virtuoso"
+            exit 3
+        fi
+    else
+        echo "No Virtuoso process $pid running, deleting $lockfile";
+        rm $lockfile;
     fi
 
     i=0
