@@ -17,14 +17,14 @@ import java.util.HashSet;
  * @author Tony Burdett
  * @date 27/06/14
  */
-public class JarFileClassLoader extends URLClassLoader {
-    private static final Logger log = LoggerFactory.getLogger(JarFileClassLoader.class);
+public class ZOOMAClassLoader extends URLClassLoader {
+    private static final Logger log = LoggerFactory.getLogger(ZOOMAClassLoader.class);
 
-    public JarFileClassLoader(File f) {
+    public ZOOMAClassLoader(File f) {
         super(locateURLs(f));
     }
 
-    public JarFileClassLoader(File f, ClassLoader parent) {
+    public ZOOMAClassLoader(File f, ClassLoader parent) {
         super(locateURLs(f), parent);
     }
 
@@ -38,10 +38,13 @@ public class JarFileClassLoader extends URLClassLoader {
                         return name.endsWith(".jar");
                     }
                 };
+                // add all jars in the given directory
                 for (File next : f.listFiles(filter)) {
                     log.debug("Adding loader module '" + next.getAbsolutePath() + "' to dynamic class loader");
                     urls.add(next.getAbsoluteFile().toURI().toURL());
                 }
+                // and add the directory itself
+                urls.add(new URL("file://" + f.getAbsolutePath() + "/"));
             }
             else {
                 log.debug("Adding loader module '" + f.getAbsolutePath() + "' to dynamic class loader");

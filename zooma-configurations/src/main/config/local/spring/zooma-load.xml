@@ -7,6 +7,8 @@
 
     <!-- Configuration for zooma data loading services -->
 
+    <bean class="uk.ac.ebi.fgpt.zooma.config.LoaderDiscoveringPostProcessor" />
+
     <!--suppress SpringBeanAutowiringInspection -->
     <bean id="dataLoadingService"
           class="uk.ac.ebi.fgpt.zooma.service.MultithreadedDataLoadingService"
