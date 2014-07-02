@@ -16,13 +16,7 @@ do
   libjars=$libjars:$base/lib/$file;
 done
 
-for file in `ls $zoomaHome/loaders`
-do
-  loaderFiles=$loaderFiles:$zoomaHome/loaders/$file;
-done
-loaderFiles=$loaderFiles:$zoomaHome/loaders
-
-classpath="$base/config$libjars$loaderFiles:$zoomaHome/config/logging";
+classpath="$base/config$libjars:$zoomaHome/config/logging";
 
 java $ZOOMA_OPTS -classpath $classpath uk.ac.ebi.fgpt.zooma.ZOOMA2LoaderDriver $@ 2>&1;
 exit $?;
