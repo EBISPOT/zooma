@@ -57,11 +57,17 @@ public class UniprotHumanDiseaseVocabReader extends Reader {
                             // found name?
                             if (line.startsWith(NAME_HEADER)) {
                                 nameString = line.replaceFirst(NAME_HEADER, "").trim();
+                                if (nameString.endsWith(".")) {
+                                    nameString = nameString.substring(0, nameString.length() - 1);
+                                }
                             }
 
                             // found accession?
                             if (line.startsWith(ACC_HEADER)) {
                                 accessionString = line.replaceFirst(ACC_HEADER, "").trim();
+                                if (accessionString.endsWith(".")) {
+                                    accessionString = accessionString.substring(0, accessionString.length() - 1);
+                                }
                             }
 
                             // found semantic tag?
@@ -77,7 +83,11 @@ public class UniprotHumanDiseaseVocabReader extends Reader {
 
                             // found synonym?
                             if (line.startsWith(SYNONYM_HEADER)) {
-                                synonymStrings.add(line.replaceFirst(SYNONYM_HEADER, "").trim());
+                                String synonymString = line.replaceFirst(SYNONYM_HEADER, "").trim();
+                                if (synonymString.endsWith(".")) {
+                                    synonymString = synonymString.substring(0, synonymString.length() - 1);
+                                }
+                                synonymStrings.add(synonymString);
                             }
 
                             if (!positionedAtRecord) {
