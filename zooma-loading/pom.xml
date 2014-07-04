@@ -60,6 +60,7 @@
         <module>zooma-omia-loader</module>
         <module>zooma-omim-loader</module>
         <module>zooma-chembl-loader</module>
-    </modules>
+        <module>zooma-uniprot-loader</module>
+  </modules>
 
 </project>
