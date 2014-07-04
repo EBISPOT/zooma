@@ -17,8 +17,8 @@
         <property name="zoomaLoader" ref="zoomaLoader" />
 
         <!-- uncomment the properties below if it is necessary to tailor performance -->
-        <property name="blockSize" value="10000" />
-        <property name="maxCount" value="10000" />
+        <!--<property name="blockSize" value="100000" />-->
+        <!--<property name="maxCount" value="100000" />-->
     </bean>
 
     <bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.io.ConfigurableAnnotationLoader">
