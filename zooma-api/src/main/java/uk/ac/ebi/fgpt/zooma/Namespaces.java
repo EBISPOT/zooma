@@ -44,6 +44,8 @@ public enum Namespaces {
     OMIA("http://omia.angis.org.au"),
     OMIM("http://omim.org"),
 
+    UNIPROT("http://www.uniprot.org"),
+
     EFO("http://www.ebi.ac.uk/efo/"),
     SNAP("http://www.ifomis.org/bfo/1.1/snap#"),
     SPAN("http://www.ifomis.org/bfo/1.1/span#"),
