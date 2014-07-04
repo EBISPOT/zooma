@@ -169,13 +169,13 @@ createCleanInstance() {
     startVirtuoso;
 
     echo "Enabling federated queries"
-    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $sql_dir/enable-federated.sql &>> $build_dir/log/virtuoso-zooma.log || die $?
+    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $sql_dir/enable-federated.sql >> $build_dir/log/virtuoso-zooma.log 2>&1 || die $?
 
     echo "Removing default Virtuoso SPARQL description graph"
-    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $sql_dir/remove-sparqldesc.sql &>> $build_dir/log/virtuoso-zooma.log || die $?
+    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $sql_dir/remove-sparqldesc.sql >> $build_dir/log/virtuoso-zooma.log 2>&1 || die $?
 
     #echo "Enabling Virtuoso text index"
-    #$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $sql_dir/enable-text-index.sql &>> $build_dir/log/virtuoso-zooma.log || die $?
+    #$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $sql_dir/enable-text-index.sql >> $build_dir/log/virtuoso-zooma.log 2>&1 || die $?
 
     echo "Successfully created clean Virtuoso instance";
 }
@@ -202,11 +202,11 @@ createCleanInstance;
 # now run commands to load zooma data into local virtuoso
 loadfiles="ld_dir_all('$rdf_dir', '*.rdf', 'http://rdf.ebi.ac.uk/dataset/zooma');"
 
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="$loadfiles" &>> $build_dir/log/virtuoso-zooma.log || die 4;
+$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="$loadfiles" >> $build_dir/log/virtuoso-zooma.log 2>&1 || die 4;
 
 loadfiles="ld_dir_all('$rdf_dir', '*.owl', 'http://rdf.ebi.ac.uk/dataset/zooma');"
 
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="$loadfiles" &>> $build_dir/log/virtuoso-zooma.log || die 4;
+$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="$loadfiles" >> $build_dir/log/virtuoso-zooma.log 2>&1 || die 4;
 
 echo "Finished setting files to load, starting loader..."
 
@@ -214,18 +214,18 @@ if [ $threads ] ; then
     # We want 1 fewer loader than the number of CPUs
     echo "Starting $(($threads-1)) loader processes"
     for ((i=1; i<$threads; i++)); do
-        $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="rdf_loader_run();" &>> $build_dir/log/virtuoso-zooma.log &
+        $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="rdf_loader_run();" >> $build_dir/log/virtuoso-zooma.log 2>&1 &
     done
     echo "Waiting for loaders"
     wait
 else
-    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="rdf_loader_run();" &>> $build_dir/log/virtuoso-zooma.log
+    $VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="rdf_loader_run();" >> $build_dir/log/virtuoso-zooma.log 2>&1
 fi
 
 
 echo "Creating checkpoint"
 
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="checkpoint;" &>> $build_dir/log/virtuoso-zooma.log
+$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="checkpoint;" >> $build_dir/log/virtuoso-zooma.log 2>&1
 
 echo "Finished indexing files, executing final virtuoso configuration scripts..."
 
@@ -234,15 +234,15 @@ echo "Creating inference rules set"
 # setting inference rules
 loadrules="rdfs_rule_set ('default-rules', 'http://rdf.ebi.ac.uk/dataset/zooma')"
 
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="$loadrules" &>> $build_dir/log/virtuoso-zooma.log || die 4;
+$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="$loadrules" >> $build_dir/log/virtuoso-zooma.log 2>&1 || die 4;
 
 echo "Updating VoID graph with number of triples, SPARQL description"
 
 templatefile=$base/virtuoso/update-provenance-template.sql
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $templatefile &>> $build_dir/log/virtuoso-zooma.log || die $?
+$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba $templatefile >> $build_dir/log/virtuoso-zooma.log 2>&1 || die $?
 
 echo "Creating checkpoint"
-$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="checkpoint;" &>> $build_dir/log/virtuoso-zooma.log || die $?
+$VIRTUOSO_HOME/bin/isql 127.0.0.1:$port dba dba exec="checkpoint;" >> $build_dir/log/virtuoso-zooma.log 2>&1 || die $?
 
 echo "Data loading finished"
 
