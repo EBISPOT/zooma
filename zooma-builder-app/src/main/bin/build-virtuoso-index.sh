@@ -11,14 +11,14 @@ usage() {
 
 loadProperty()
 {
-    local key="$1";
+    local arg="$1";
     local target=$zoomaHome/config/zooma.properties;
-    cat ${target} | sed -e '/^\#/d' | sed -e '/^\s*$/d' | sed -e 's/\s\+/=/g' | grep ${key} |
+    cat ${target} | sed -E '/^\#/d' | sed -E '/^[[:space:]]*$/d' | sed -E 's/[[:space:]]+/=/g' | grep ${arg} |
         while read LINE
         do
             local KEY=`echo ${LINE} | cut -d "=" -f 1`;
             local VALUE=`echo ${LINE} | cut -d "=" -f 2`;
-            [ ${key} == ${KEY} ] && {
+            [ ${arg} == ${KEY} ] && {
                 local UNKNOWN_NAME=`echo $VALUE | grep '\${.*}' -o | sed 's/\${//' | sed 's/}//'`
                 if [ ! $UNKNOWN_NAME ];
                 then
