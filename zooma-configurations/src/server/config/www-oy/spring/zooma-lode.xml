@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- LODEStar configuration enables SPARQL tab in interface -->
-    <context:property-placeholder location="classpath:zooma.properties,file:/nfs/public/rw/fg/fgpt/zooma/${tomcat.hostname}/zoomasparql.properties,file:/nfs/public/rw/homes/fg_prod/zooma/${tomcat.hostname}/zoomasparql.properties"
-                                  ignore-unresolvable="true"
-                                  ignore-resource-not-found="true" />
 
     <bean id="lodeSparqlService" class="uk.ac.ebi.fgpt.lode.impl.JenaSparqlService">
         <property name="maxQueryLimit" value="${lode.sparql.query.maxlimit}" />

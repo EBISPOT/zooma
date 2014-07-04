@@ -9,6 +9,8 @@
        http://www.springframework.org/schema/beans/spring-beans.xsd
        ">
 
+    <!-- Configuration to enable Spring Security over a ZOOMA web application -->
+
     <bean id="securityConfigurator" class="uk.ac.ebi.fgpt.zooma.security.ZoomaSecurityConfigurator" />
 
     <!-- secure login page to obtain an API key -->
@@ -69,12 +71,12 @@
                                 access="hasRole('ROLE_EDITOR')" />
     </security:http>
 
-    <security:http pattern="/uk/ac/ebi/fgpt/zooma/exception"
+    <security:http pattern="/**"
                    use-expressions="true"
                    create-session="stateless"
                    entry-point-ref="authenticationEntryPoint">
         <!-- GET methods can be accessed without authentication -->
-        <security:intercept-url pattern="" method="GET" requires-channel="any" access="permitAll" />
+        <security:intercept-url pattern="**" method="GET" requires-channel="any" access="permitAll" />
     </security:http>
 
     <security:authentication-manager alias="keygenAuthManager" />
