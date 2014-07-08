@@ -120,6 +120,7 @@ public class ZOOMAReportRenderer {
                             for (String expt : propertyContextMap.get(property)) {
                                 writeReportLine(writer,
                                                 property,
+                                                annotation.getAnnotatedProperty().getPropertyValue(),
                                                 expt,
                                                 annotation.getProvenance().getSource().getURI().toString(),
                                                 annotation.getSemanticTags(),
@@ -129,6 +130,7 @@ public class ZOOMAReportRenderer {
                         else {
                             writeReportLine(writer,
                                             property,
+                                            annotation.getAnnotatedProperty().getPropertyValue(),
                                             "[UNKNOWN EXPERIMENTS]",
                                             annotation.getProvenance().getSource().getURI().toString(),
                                             annotation.getSemanticTags(),
@@ -144,6 +146,7 @@ public class ZOOMAReportRenderer {
                                     if (annotation.getSemanticTags() != null) {
                                         writeReportLine(writer,
                                                         property,
+                                                        annotation.getAnnotatedProperty().getPropertyValue(),
                                                         expt,
                                                         annotation.getProvenance().getSource().getURI().toString(),
                                                         annotation.getSemanticTags(),
@@ -155,6 +158,7 @@ public class ZOOMAReportRenderer {
                                 if (annotation.getSemanticTags() != null) {
                                     writeReportLine(writer,
                                                     property,
+                                                    annotation.getAnnotatedProperty().getPropertyValue(),
                                                     "[UNKNOWN EXPERIMENTS]",
                                                     annotation.getProvenance().getSource().getURI().toString(),
                                                     annotation.getSemanticTags(),
@@ -272,6 +276,7 @@ public class ZOOMAReportRenderer {
 
     protected void writeReportLine(PrintWriter writer,
                                    Property property,
+                                   String matchedPropertyValue,
                                    String experiment,
                                    String source,
                                    Collection<URI> semanticTags,
@@ -307,7 +312,7 @@ public class ZOOMAReportRenderer {
             String ontology = semanticTag.toString().replace(term, "");
 
             termsSB.append(term);
-            labelsSB.append(label != null && !label.isEmpty() ? label : "N/A");
+            labelsSB.append(label != null && !label.isEmpty() ? label : "N/A (matched '" + matchedPropertyValue + "'");
             Iterator<String> synonymsIterator = synonyms.iterator();
             while (synonymsIterator.hasNext()) {
                 String synonym = synonymsIterator.next();
