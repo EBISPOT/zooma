@@ -71,7 +71,7 @@ public class SparqlOntologyDAO implements OntologyDAO {
             String label = evaluateLabelQueryResult(results);
 
             if (label == null) {
-                label = URIUtils.extractFragment(semanticTagURI);
+//                label = URIUtils.extractFragment(semanticTagURI);
                 getLog().warn("No rdfs:label present for <" + semanticTagURI + ">");
             }
 
