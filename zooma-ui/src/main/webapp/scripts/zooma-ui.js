@@ -618,6 +618,11 @@ function renderResults(data) {
                             "<img src='images/new_chembl_logo_v2.png' " +
                             "alt='ChEMBL' style='background-color: #70BDBD; height: 20px;'/> ChEMBL</a></td>";
                 }
+                else if (result[7] == "http://www.uniprot.org") {
+                    row = row + "<td><a href='http://www.uniprot.org' target='_blank'>" +
+                            "<img src='images/uniprot_logo.gif' " +
+                            "alt='UniProt' style='background-color: #70BDBD; height: 20px;'/> UniProt</a></td>";
+                }
                 else {
                     row = row + "<td>" + result[7] + "</td>";
                 }
