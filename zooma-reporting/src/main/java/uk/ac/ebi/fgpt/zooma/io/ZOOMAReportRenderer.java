@@ -312,7 +312,7 @@ public class ZOOMAReportRenderer {
             String ontology = semanticTag.toString().replace(term, "");
 
             termsSB.append(term);
-            labelsSB.append(label != null && !label.isEmpty() ? label : "N/A (matched '" + matchedPropertyValue + "'");
+            labelsSB.append(label != null && !label.isEmpty() ? label : matchedPropertyValue);
             Iterator<String> synonymsIterator = synonyms.iterator();
             while (synonymsIterator.hasNext()) {
                 String synonym = synonymsIterator.next();
