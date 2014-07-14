@@ -45,18 +45,17 @@ public class ParenthesesProcessor implements SearchStringProcessor {
     @Override
     public List<String> processSearchString(String searchString) throws IllegalArgumentException {
         int pos_ini = searchString.indexOf("(");
-        int pos_fin = searchString.indexOf(")");
+        int pos_fin = searchString.lastIndexOf(")", pos_ini);
 
         // extract the "content" - i.e. everything from opening to closing brackets
-        String content = "\\" + searchString.substring(pos_ini, pos_fin) + "\\)";
-        content = content.replaceAll("\\+", "\\\\+");
-        content = content.replaceAll("\\*", "\\\\*");
+        String content = searchString.substring(pos_ini, pos_fin);
+        content = RegexUtils.escapeString(content);
 
         // and replace it with a single whitespace
         String processedString = searchString.replaceAll(content, " ");
 
         // remove extraneous whitespace
-        processedString = processedString.trim().replaceAll(" +", " ");
+        processedString = processedString.trim();
         // return processed string, only if it is different from the original
         if (!processedString.contentEquals(searchString.toLowerCase())) {
             return Collections.singletonList(processedString);
