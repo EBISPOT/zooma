@@ -286,9 +286,18 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             if (processor.canProcess(fieldToProcess)) {
                 for (String processedString : processor.processSearchString(fieldToProcess)) {
                     if (!processedString.isEmpty()) {
-                        Query q = formulateQuery(fieldName, processedString);
-                        q.setBoost(processor.getBoostFactor());
-                        queries.add(q);
+                        try {
+                            Query q = formulateQuery(fieldName, processedString);
+                            q.setBoost(processor.getBoostFactor());
+                            queries.add(q);
+                        }
+                        catch (QueryCreationException e) {
+                            // this processed string was one lucene cannot query for (probably +,-, or something similar)
+                            // so exclude from results but continue
+                            getLog().warn("Query string '" + fieldToProcess + "' was processed and resulted " +
+                                                  "in clause '" + processedString + "', which cannot be used to " +
+                                                  "create a lucene query");
+                        }
                     }
                 }
             }
