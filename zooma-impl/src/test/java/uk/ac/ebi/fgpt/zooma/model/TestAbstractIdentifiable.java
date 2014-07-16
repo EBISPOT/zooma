@@ -31,6 +31,8 @@ public class TestAbstractIdentifiable {
         try {
             boolean equals = identifiable.equals(thatIdentifiable);
             assertFalse("Objects should not be equal", equals);
+            equals = thatIdentifiable.equals(identifiable);
+            assertFalse("Objects should not be equal", equals);
 
             int hashcode = identifiable.hashCode();
             int thatHashcode = thatIdentifiable.hashCode();
