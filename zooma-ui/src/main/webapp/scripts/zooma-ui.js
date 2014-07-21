@@ -593,7 +593,7 @@ function renderResults(data) {
                             "<img src='images/cmpo.png' " +
                             "alt='CMPO' style='height: 22px;'/> CMPO</a></td>";
                 }
-                else if (result[7] == "http://www.orphadata.org/data/ORDO/ordo_orphanet.owl") {
+                else if (result[7] == "http://www.orpha.net/ontology/orphanet.owl") {
                     row = row + "<td><a href='http://www.orphadata.org/cgi-bin/index.php' target='_blank'>" +
                             "<img src='images/orphanet.png' " +
                             "alt='ORDO' style='height: 20px;'/> ORDO</a></td>";
