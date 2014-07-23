@@ -21,7 +21,7 @@ public class UniprotHumanDiseaseAnnotationFactory extends AbstractAnnotationFact
         this.provenance =
                 new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.UNIPROT.getURI(),
                                                                                   "uniprot"),
-                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                               AnnotationProvenance.Evidence.ZOOMA_INFERRED_FROM_CURATED,
                                                "ZOOMA",
                                                new Date());
     }
@@ -36,7 +36,7 @@ public class UniprotHumanDiseaseAnnotationFactory extends AbstractAnnotationFact
                                                            Date annotationDate) {
         return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.UNIPROT.getURI(),
                                                                                  "uniprot"),
-                                              AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                              AnnotationProvenance.Evidence.ZOOMA_INFERRED_FROM_CURATED,
                                               accuracy,
                                               "ZOOMA",
                                               new Date(),
@@ -48,7 +48,7 @@ public class UniprotHumanDiseaseAnnotationFactory extends AbstractAnnotationFact
     @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
         return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(Namespaces.UNIPROT.getURI(),
                                                                                  "uniprot"),
-                                              AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                              AnnotationProvenance.Evidence.ZOOMA_INFERRED_FROM_CURATED,
                                               AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                                               "ZOOMA",
                                               new Date(),
