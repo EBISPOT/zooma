@@ -8,6 +8,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Javadocs go here!
@@ -21,6 +22,8 @@ public class TestParenthesesProcessor {
     private String multiBrackets = "something (something else) (and something else)";
     private String backwardsBrackets = "something) and (something else";
     private String combi = "something (something else) and some more content) and more ( with (more)";
+
+    private String hyperploidyExample = "hyperdiploidy,-X,-1q,+2,-3,-4q,+5,+5(2),+5(3),+12,-14q,+16,-19";
 
     private ParenthesesProcessor processor;
 
@@ -63,5 +66,16 @@ public class TestParenthesesProcessor {
         List<String> results = processor.processSearchString(combi);
         assertEquals(1, results.size());
         assertEquals("something  and some more content) and more ( with", results.get(0));
+    }
+
+    @Test
+    public void testHyperploidyExample() {
+        try {
+            assertFalse(processor.canProcess(hyperploidyExample)); // should look like a chemical compound
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 }
