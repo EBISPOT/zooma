@@ -5,11 +5,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import uk.ac.ebi.fgpt.zooma.search.ontodiscover.OntologyTermDiscoverer.DiscoveredTerm;
 import uk.ac.ebi.utils.memory.SimpleCache;
 
 /**
- * TODO: Comment me!
+ * A memory cache, based on {@link SimpleCache}.
  *
  * <dl><dt>date</dt><dd>1 Aug 2014</dd></dl>
  * @author Marco Brandizi
@@ -37,7 +36,7 @@ public class OntoTermMemCache extends OntoTermDiscoveryCache
 	}
 
 	@Override
-	public List<DiscoveredTerm> getOntologyTermUri ( String valueLabel, String typeLabel ) throws OntologyDiscoveryException
+	public List<DiscoveredTerm> getOntologyTermUris ( String valueLabel, String typeLabel ) throws OntologyDiscoveryException
 	{
 		return baseCache.get ( StringUtils.trimToEmpty ( typeLabel )  + ":" + valueLabel );
 	}

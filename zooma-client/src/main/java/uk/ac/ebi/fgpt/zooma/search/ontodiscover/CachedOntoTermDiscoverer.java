@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.utils.memory.SimpleCache;
 
 /**
- * A wrapper of {@link OntologyTermDiscoverer} that caches the term of a base discover. 
+ * A wrapper of {@link OntologyTermDiscoverer} that caches the term of a base {@link OntologyTermDiscoverer discoverer}.
+ * Both the base discoverer and the {@link OntoTermDiscoveryCache cache} can be customised, so that you might realise
+ * pipeline multiple levels of caches or discoverers.  
  *
  * <dl><dt>date</dt><dd>May 27, 2013, modified Aug 2014</dd></dl>
  * @author Marco Brandizi
@@ -48,9 +50,11 @@ public class CachedOntoTermDiscoverer extends OntologyTermDiscoverer
 		this ( base, new OntoTermMemCache () );
 	}
 			
-	
+	/**
+	 * Returns the value in the cache, if available, else tries to discover a mapping via the base discoverer.
+	 */
 	@Override
-	public List<DiscoveredTerm> getOntologyTermUri ( String valueLabel, String typeLabel ) 
+	public List<DiscoveredTerm> getOntologyTermUris ( String valueLabel, String typeLabel ) 
 		throws OntologyDiscoveryException
 	{
   	if ( ( valueLabel = StringUtils.trimToNull ( valueLabel ) ) == null ) return NULL_RESULT;
@@ -62,7 +66,7 @@ public class CachedOntoTermDiscoverer extends OntologyTermDiscoverer
 
   	synchronized ( synch )
   	{
-			List<DiscoveredTerm> result = cache.getOntologyTermUri ( valueLabel, typeLabel );
+			List<DiscoveredTerm> result = cache.getOntologyTermUris ( valueLabel, typeLabel );
 			if ( result != null )
 			{
 				if ( log.isTraceEnabled () )
@@ -73,7 +77,7 @@ public class CachedOntoTermDiscoverer extends OntologyTermDiscoverer
 				return result;
 			}
 			
-			result = base.getOntologyTermUri ( valueLabel, typeLabel );
+			result = base.getOntologyTermUris ( valueLabel, typeLabel );
 			if ( result == null ) 
 			{
 				log.trace ( "Null result for '{}:{}', turning it into an empty list", typeLabel, valueLabel );

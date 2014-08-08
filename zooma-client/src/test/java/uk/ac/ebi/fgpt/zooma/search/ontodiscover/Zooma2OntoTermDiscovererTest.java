@@ -19,7 +19,7 @@ import uk.ac.ebi.utils.memory.SimpleCache;
 import uk.ac.ebi.utils.time.XStopWatch;
 
 /**
- * TODO: Comment me!
+ * Tests the uk.ac.ebi.fgpt.zooma.search.ontodiscover package.
  *
  * <dl><dt>date</dt><dd>31 Jul 2014</dd></dl>
  * @author Marco Brandizi
@@ -34,7 +34,7 @@ public class Zooma2OntoTermDiscovererTest
 	{
 		OntologyTermDiscoverer client = new Zooma2OntoTermDiscoverer ();
 		((Zooma2OntoTermDiscoverer) client).setZoomaThreesholdScore ( 50.0f );
-		List<DiscoveredTerm> terms = client.getOntologyTermUri ( "homo sapiens", "specie" );
+		List<DiscoveredTerm> terms = client.getOntologyTermUris ( "homo sapiens", "specie" );
 
 		log.info ( "Discovered terms for Homo Sapiens:\n" + terms );
 		
@@ -66,7 +66,7 @@ public class Zooma2OntoTermDiscovererTest
 		);
 		
 		timer.start ();
-		List<DiscoveredTerm> terms = client.getOntologyTermUri ( "homo sapiens", "organism" );
+		List<DiscoveredTerm> terms = client.getOntologyTermUris ( "homo sapiens", "organism" );
 		long time1 = timer.getTime ();
 				
 		assertEquals ( "entry not saved in the cache!", terms, baseCache.get ( "organism:homo sapiens" ) );
@@ -75,7 +75,7 @@ public class Zooma2OntoTermDiscovererTest
 		timer.start ();
 		for ( int i = 0; i < 100; i++ )
 		{
-			terms = client.getOntologyTermUri ( "homo sapiens", "organism" );
+			terms = client.getOntologyTermUris ( "homo sapiens", "organism" );
 			log.trace ( "Call {}, time {}", i, timer.getTime () );
 		}
 		timer.stop ();

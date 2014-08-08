@@ -7,8 +7,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +30,7 @@ import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchClient;
 public class Zooma2OntoTermDiscoverer extends OntologyTermDiscoverer
 {
 	private ZOOMASearchClient zoomaClient;
-	private float zoomaThreesholdScore = 70.0f;
+	private float zoomaThreesholdScore = 80.0f;
 	
 	private Logger log = LoggerFactory.getLogger ( this.getClass () );
 	
@@ -64,7 +62,7 @@ public class Zooma2OntoTermDiscoverer extends OntologyTermDiscoverer
 	 * label, depending on the fact that the type is null or not.  
 	 */
 	@Override
-	public List<DiscoveredTerm> getOntologyTermUri ( String valueLabel, String typeLabel )
+	public List<DiscoveredTerm> getOntologyTermUris ( String valueLabel, String typeLabel )
 		throws OntologyDiscoveryException
 	{
 		try
@@ -78,6 +76,11 @@ public class Zooma2OntoTermDiscoverer extends OntologyTermDiscoverer
 
 				Map<AnnotationSummary, Float> zresult = zoomaClient.searchZOOMA ( zprop, zoomaThreesholdScore, typeLabel == null );
 			
+			// TODO: apply the logics suggested by ZOOMA people:
+			// - 80 is a good threshold
+			// - The difference between the score of the last accepted result and the first discarded should be > 10 
+			//
+				
 			if ( zresult == null || zresult.size () == 0 ) return NULL_RESULT;
 			List<DiscoveredTerm> result = new ArrayList<> ();
 			for ( AnnotationSummary zsum: zresult.keySet () )
