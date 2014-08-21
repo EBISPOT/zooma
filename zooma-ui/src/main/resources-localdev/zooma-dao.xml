@@ -11,18 +11,18 @@
     <!-- ZOOMA SPARQL datasource access configuration -->
     <context:annotation-config />
 
-    <!--<bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoExecutorService">-->
-        <!--<property name="endpointURL" value="jdbc:virtuoso://${lode.sparqlendpoint.url}:${lode.sparqlendpoint.port}" />-->
+    <bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoExecutorService">
+        <property name="endpointURL" value="jdbc:virtuoso://${lode.sparqlendpoint.url}:${lode.sparqlendpoint.port}" />
+    </bean>
+
+    <!--<bean id="virtuosoDataSourceProvider" class="uk.ac.ebi.fgpt.lode.impl.VirtuosoDatasourceProvider">-->
+        <!--<constructor-arg name="endpointUrl" value="${lode.sparqlendpoint.url}"/>-->
+        <!--<constructor-arg name="port" value="${lode.sparqlendpoint.port}"/>-->
     <!--</bean>-->
 
-    <bean id="virtuosoDataSourceProvider" class="uk.ac.ebi.fgpt.lode.impl.VirtuosoDatasourceProvider">
-        <constructor-arg name="endpointUrl" value="${lode.sparqlendpoint.url}"/>
-        <constructor-arg name="port" value="${lode.sparqlendpoint.port}"/>
-    </bean>
-
-    <bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoConnectionPoolService">
-        <constructor-arg ref="virtuosoDataSourceProvider"/>
-    </bean>
+    <!--<bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoConnectionPoolService">-->
+        <!--<constructor-arg ref="virtuosoDataSourceProvider"/>-->
+    <!--</bean>-->
 
     <bean id="queryManager" class="uk.ac.ebi.fgpt.zooma.service.QueryManager" init-method="init">
         <property name="sparqlQueryResource" value="classpath:queries.sparql" />
