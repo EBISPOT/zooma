@@ -11,7 +11,9 @@
     <!-- ZOOMA SPARQL datasource access configuration -->
     <context:annotation-config />
 
-    <bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoExecutorService" />
+    <bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoExecutorService" >
+        <property name="endpointURL" value="jdbc:virtuoso://${lode.sparqlendpoint.url}:${lode.sparqlendpoint.port}" />
+    </bean>
 
     <bean id="queryManager" class="uk.ac.ebi.fgpt.zooma.service.QueryManager" init-method="init">
         <property name="sparqlQueryResource" value="classpath:queries.sparql" />
