@@ -27,14 +27,14 @@ import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchClient;
  * @author Marco Brandizi
  *
  */
-public class Zooma2OntoTermDiscoverer extends OntologyTermDiscoverer
+public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 {
 	private ZOOMASearchClient zoomaClient;
 	private float zoomaThreesholdScore = 80.0f;
 	
 	private Logger log = LoggerFactory.getLogger ( this.getClass () );
 	
-	public Zooma2OntoTermDiscoverer ( String zoomaLocation )
+	public ZoomaOntoTermDiscoverer ( String zoomaLocation )
 	{
 		try
 		{
@@ -46,12 +46,16 @@ public class Zooma2OntoTermDiscoverer extends OntologyTermDiscoverer
 	}
 
 	
-	public Zooma2OntoTermDiscoverer ( URL zoomaLocation ) 
+	public ZoomaOntoTermDiscoverer ( URL zoomaLocation ) 
 	{
 		zoomaClient = new ZOOMASearchClient ( zoomaLocation );
 	}
 
-	public Zooma2OntoTermDiscoverer () 
+	/**
+	 * Defaults to http://www.ebi.ac.uk/fgpt/zooma, the web service available at the EBI.
+	 * 
+	 */
+	public ZoomaOntoTermDiscoverer () 
 	{
 		this ( "http://www.ebi.ac.uk/fgpt/zooma" );
 	}
@@ -130,7 +134,7 @@ public class Zooma2OntoTermDiscoverer extends OntologyTermDiscoverer
 
 	/**
 	 * This is passed to {@link ZOOMASearchClient#searchZOOMA(Property, float)} and hence only results above
-	 * such threeshold are returned.
+	 * such threeshold are returned. Default is 80.
 	 */
 	public float getZoomaThreesholdScore ()
 	{

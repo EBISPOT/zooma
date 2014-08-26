@@ -25,15 +25,15 @@ import uk.ac.ebi.utils.time.XStopWatch;
  * @author Marco Brandizi
  *
  */
-public class Zooma2OntoTermDiscovererTest
+public class OntoTermDiscovererTest
 {
 	private Logger log = LoggerFactory.getLogger ( this.getClass () );
 	
 	@Test
 	public void testBasics ()
 	{
-		OntologyTermDiscoverer client = new Zooma2OntoTermDiscoverer ();
-		((Zooma2OntoTermDiscoverer) client).setZoomaThreesholdScore ( 50.0f );
+		OntologyTermDiscoverer client = new ZoomaOntoTermDiscoverer ();
+		((ZoomaOntoTermDiscoverer) client).setZoomaThreesholdScore ( 50.0f );
 		List<DiscoveredTerm> terms = client.getOntologyTermUris ( "homo sapiens", "specie" );
 
 		log.info ( "Discovered terms for Homo Sapiens:\n" + terms );
@@ -62,7 +62,7 @@ public class Zooma2OntoTermDiscovererTest
 		
 		Map<String, List<DiscoveredTerm>> baseCache = new SimpleCache<> ( 1000 );
 		OntologyTermDiscoverer client = new CachedOntoTermDiscoverer ( 
-			new Zooma2OntoTermDiscoverer (), new OntoTermMemCache ( baseCache )
+			new ZoomaOntoTermDiscoverer (), new OntoTermMemCache ( baseCache )
 		);
 		
 		timer.start ();

@@ -85,12 +85,13 @@ public class CachedOntoTermDiscoverer extends OntologyTermDiscoverer
 			}
 		
 			if ( log.isTraceEnabled () ) log.trace ( 
-				"Returning and caching '" + abbreviate ( result.toString (), 50 ) + " for '{}:{}'", typeLabel, valueLabel 
+				"Returning and caching '" + abbreviate ( result.toString (), 50 ) + "' for '{}:{}'", typeLabel, valueLabel 
 			);
 			
 			cache.save ( valueLabel, typeLabel, result );
 			return result;
-  	}
+			
+  	} // synchronized sequence
 	}
 
 	public void clearCache () {
