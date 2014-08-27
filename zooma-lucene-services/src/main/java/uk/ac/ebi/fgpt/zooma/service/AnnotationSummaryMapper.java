@@ -181,7 +181,9 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
         for (String sourceString : d.getValues("source")) {
             sources.add(URI.create(sourceString));
         }
-        float sourceRank = 1.0f - getSourceRanking(sources);
+        /**dont want to penalise the score but boost it */
+        //float sourceRank = 1.0f - getSourceRanking(sources);
+        float sourceRank = 1.0f + getSourceRanking(sources);
         if (getLog().isTraceEnabled()) {
             getLog().trace("Document quality: " +
                                    "(" + topScore + " + " + veris + ") x " +
@@ -220,7 +222,7 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
      * @return a penalty score; 0 if perfect or there are no source rankings, 0.1 for worst ranked match, 0.125 if
      * outside rankings
      */
-    protected float getSourceRanking(Set<URI> sources) {
+   /** protected float getSourceRanking(Set<URI> sources) {
         if (sourceRanking.length == 0) {
             return 0;
         }
@@ -237,5 +239,31 @@ public class AnnotationSummaryMapper implements LuceneDocumentMapper<AnnotationS
             }
             return 0.125f;
         }
+    } */
+
+    /**
+     *
+     * @param sources
+     * @return a boosting score if it matches the ranking sources
+     */
+
+    protected float getSourceRanking(Set<URI> sources) {
+        if (sourceRanking.length == 0) {
+            return 0;
+        }
+        else {
+            for (int i = 0; i < sourceRanking.length; i++) {
+                if (sources.contains(sourceRanking[i])) {
+                    if (sourceRanking.length == 1) {
+                        return 1;
+                    }
+                    else {
+                        return (1- (((float) i) / (sourceRanking.length - 1)) * 0.1f);
+                    }
+                }
+            }
+            return 0;
+        }
     }
+
 }
