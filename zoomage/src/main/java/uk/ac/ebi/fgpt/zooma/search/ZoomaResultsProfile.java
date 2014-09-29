@@ -38,6 +38,7 @@ public class ZoomaResultsProfile {
     private ZOOMASearchClient zoomaSearchClient = null;
     private float cutoffScore;
     private float cutoffPercent;
+    private String gxaRequiredSources;
 
     private String errorMessage = null;
 
@@ -49,18 +50,19 @@ public class ZoomaResultsProfile {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    public ZoomaResultsProfile(String attributeType, String attributeValue, float cutoffScore, float cutoffPercent, ZOOMASearchClient zoomaClient) throws ZoomaException {
+    public ZoomaResultsProfile(String attributeType, String attributeValue, float cutoffScore, float cutoffPercent, String gxaRequiredSources, ZOOMASearchClient zoomaClient) throws ZoomaException {
 
         this.cutoffPercent = cutoffPercent;
         this.cutoffScore = cutoffScore;
         this.zoomaSearchClient = zoomaClient;
+        this.gxaRequiredSources = gxaRequiredSources;
 
         this.attributeType = attributeType;
         this.attributeValue = attributeValue;
 
         checkParams();
 
-        this.unfilteredResults = setUnfilteredResults();
+        this.unfilteredResults = setUnfilteredResults(gxaRequiredSources);
 
         if(this.unfilteredResults == null){
             this.mappingCategory = MappingCategory.ERROR;
@@ -144,13 +146,13 @@ public class ZoomaResultsProfile {
         return mappingCategory;
     }
 
-    private Map<AnnotationSummary, Float> setUnfilteredResults() throws ZoomaException {
+    private Map<AnnotationSummary, Float> setUnfilteredResults(String gxaRequiredSources) throws ZoomaException {
 
         Property property = new SimpleTypedProperty(attributeType, attributeValue);
 
         Map<AnnotationSummary, Float> fullResultsMap = null;
         try {
-            fullResultsMap = zoomaSearchClient.searchZOOMA(property, 0);
+            fullResultsMap = zoomaSearchClient.searchZOOMA(property, 0, gxaRequiredSources);
         } catch (Exception e) {
 
             String errorMessage = e.getMessage().replaceAll("[()]", " ");

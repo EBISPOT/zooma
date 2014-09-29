@@ -36,6 +36,7 @@ public class ZoomageDriver {
     private String zoomaPath;
     private String limpopoPath;
     private String outfileBasePath;
+    private String gxaRequiredSources;
 
     private ZoomageMagetabParser zoomageParser;
     private ZoomageLogger zoomageLogger;
@@ -93,7 +94,7 @@ public class ZoomageDriver {
         zoomageParser = new ZoomageMagetabParser(limpopoPath, magetabBasePath,
                 outfileBasePath, overwriteValues, overwriteAnnotations, stripLegacyAnnotations);
 
-        ZoomageUtils.initialise(zoomaPath, cutoffScoreAutomaticCuration, cutoffPctAutomaticCuration, minStringLength, appResourcesPath, fileDelimiter, olsShortIds, compoundAnnotationDelimiter);
+        ZoomageUtils.initialise(zoomaPath, cutoffScoreAutomaticCuration, cutoffPctAutomaticCuration, minStringLength, appResourcesPath, fileDelimiter, olsShortIds, compoundAnnotationDelimiter, gxaRequiredSources);
 
         HashSet<String> mageTabAccessions = new HashSet<>();
 
@@ -170,6 +171,7 @@ public class ZoomageDriver {
                 "and a list of magetab accession numbers to parse (zoomage-accessions.properties). Instead of providing a list of accessions, you may optionally pass in the " +
                 "accession via commandline argument -a.");
 
+        gxaRequiredSources = optionsParser.processStringOption("gxaRequiredSources", false, true, "g","To specify ontology annotation sources required for gxa");
         minStringLength = optionsParser.processIntOption("minStringLength", false, true, "r", "Zooma minimum string length for input, below which input is ignored from zoomifications");
 
         cutoffScoreAutomaticCuration = optionsParser.processFloatOption("cutoffScoreAutomaticCuration", false, true, "s", "Zooma cutoff score");

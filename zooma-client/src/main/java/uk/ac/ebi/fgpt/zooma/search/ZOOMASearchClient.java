@@ -79,12 +79,12 @@ public class ZOOMASearchClient {
         return results;
     }
 
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score) {
-        return searchZOOMA(property, score, false);
+    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score, String gxaRequiredSources) {
+        return searchZOOMA(property, score, gxaRequiredSources, false);
     }
 
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score, boolean excludeType) {
-        return searchZOOMA(property, score, excludeType, false);
+    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score, String gxaRequiredSources, boolean excludeType) {
+        return searchZOOMA(property, score, excludeType, gxaRequiredSources, false);
     }
 
     /**
@@ -99,6 +99,7 @@ public class ZOOMASearchClient {
     public Map<AnnotationSummary, Float> searchZOOMA(Property property,
                                                      float score,
                                                      boolean excludeType,
+                                                     String gxaRequiredSources,
                                                      boolean noEmptyResult) {
         String query = property.getPropertyValue();
 
@@ -106,10 +107,11 @@ public class ZOOMASearchClient {
         Map<AnnotationSummary, Float> summaries = new LinkedHashMap<>();
         try {
             String search = zoomaSearchBase + URLEncoder.encode(property.getPropertyValue(), "UTF-8");
-            String typedSearch = search + "&type=";
-            URL queryURL = property instanceof TypedProperty && !excludeType
-                    ? new URL(typedSearch + URLEncoder.encode(((TypedProperty) property).getPropertyType(), "UTF-8"))
-                    : new URL(search);
+            String typedSearch = property instanceof TypedProperty && !excludeType ?
+                    search + "&type=" + URLEncoder.encode(((TypedProperty) property).getPropertyType(), "UTF-8") : search;
+            String filteredSearch = gxaRequiredSources != null ?
+                    typedSearch + URLEncoder.encode("&required[" +  gxaRequiredSources + "]", "UTF-8") : typedSearch;
+            URL queryURL = new URL(filteredSearch);
             getLog().trace("Sending query [" + queryURL + "]...");
 
             ObjectMapper mapper = new ObjectMapper();

@@ -29,6 +29,7 @@ public class ZoomageUtils {
     protected static HashMap<String, boolean[]> cacheOfExclusionsApplied;
     private static HashMap<String, TransitionalAttribute> masterCache;
     private static ArrayList<ExclusionProfileAttribute> exclusionProfiles;
+    private static String gxaRequiredSources;
 
     private static final ZoomageUtils INSTANCE = new ZoomageUtils();
 
@@ -40,7 +41,7 @@ public class ZoomageUtils {
         return INSTANCE;
     }
 
-    public static void initialise(String zoomaPath, float cutoffScoreForAutomaticCuration, float cutoffPercentageForAutomaticCuration, int minStringLength, String exclusionProfilesResource, String exclusionProfilesDelimiter, boolean olsShortIds, String compoundAnnotationDelimiter) {
+    public static void initialise(String zoomaPath, float cutoffScoreForAutomaticCuration, float cutoffPercentageForAutomaticCuration, int minStringLength, String exclusionProfilesResource, String exclusionProfilesDelimiter, boolean olsShortIds, String compoundAnnotationDelimiter, String gxaRequiredSources) {
         try {
             zoomaClient = new ZOOMASearchClient(URI.create(zoomaPath).toURL());
         } catch (MalformedURLException e) {
@@ -53,6 +54,7 @@ public class ZoomageUtils {
         ZoomageUtils.exclusionProfiles = parseExclusionProfiles(exclusionProfilesResource, exclusionProfilesDelimiter);
         ZoomageUtils.olsShortIds = olsShortIds;
         ZoomageUtils.compoundAnnotationDelimiter = compoundAnnotationDelimiter;
+        ZoomageUtils.gxaRequiredSources = gxaRequiredSources;
 
         ZoomageUtils.masterCache = new HashMap<String, TransitionalAttribute>();
         ZoomageUtils.cacheOfExclusionsApplied = new HashMap<String, boolean[]>();
@@ -217,7 +219,7 @@ public class ZoomageUtils {
             ZoomaResultsProfile zoomaResultsProfile = null;
 
             try {
-                zoomaResultsProfile = new ZoomaResultsProfile(baselineAttribute.getOriginalType(), baselineAttribute.getOriginalTermValue(), cutoffScoreForAutomaticCuration, cutoffPercentageForAutomaticCuration, zoomaClient);
+                zoomaResultsProfile = new ZoomaResultsProfile(baselineAttribute.getOriginalType(), baselineAttribute.getOriginalTermValue(), cutoffScoreForAutomaticCuration, cutoffPercentageForAutomaticCuration, gxaRequiredSources, zoomaClient);
                 zoomifiedAttribute = applyZoomificationsToTransitionalAttribute(baselineAttribute, zoomaResultsProfile);
                 putInMasterCacheWithoutOverwriting(input, zoomifiedAttribute);
             } catch (ZoomaException e) {
