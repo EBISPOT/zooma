@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,12 +80,37 @@ public class ZOOMASearchClient {
         return results;
     }
 
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score, String gxaRequiredSources) {
-        return searchZOOMA(property, score, gxaRequiredSources, false);
+    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score) {
+        return searchZOOMA(property, score, false);
     }
 
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score, String gxaRequiredSources, boolean excludeType) {
-        return searchZOOMA(property, score, excludeType, gxaRequiredSources, false);
+    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score, boolean excludeType) {
+        return searchZOOMA(property, score, excludeType, false);
+    }
+
+    public Map<AnnotationSummary, Float> searchZOOMA(Property property,
+                                                     float score,
+                                                     boolean excludeType,
+                                                     boolean noEmptyResult) {
+        return searchZOOMA(property,
+                           score,
+                           excludeType,
+                           noEmptyResult,
+                           Collections.<String>emptyList(),
+                           Collections.<String>emptyList());
+    }
+
+    public Map<AnnotationSummary, Float> searchZOOMA(Property property,
+                                                     float score,
+                                                     boolean excludeType,
+                                                     boolean noEmptyResult,
+                                                     List<String> requiredSources) {
+        return searchZOOMA(property,
+                           score,
+                           excludeType,
+                           noEmptyResult,
+                           requiredSources,
+                           Collections.<String>emptyList());
     }
 
     /**
@@ -99,19 +125,46 @@ public class ZOOMASearchClient {
     public Map<AnnotationSummary, Float> searchZOOMA(Property property,
                                                      float score,
                                                      boolean excludeType,
-                                                     String gxaRequiredSources,
-                                                     boolean noEmptyResult) {
+                                                     boolean noEmptyResult,
+                                                     List<String> requiredSources,
+                                                     List<String> preferredSources) {
         String query = property.getPropertyValue();
 
         // search for annotation summaries
         Map<AnnotationSummary, Float> summaries = new LinkedHashMap<>();
         try {
-            String search = zoomaSearchBase + URLEncoder.encode(property.getPropertyValue(), "UTF-8");
-            String typedSearch = property instanceof TypedProperty && !excludeType ?
-                    search + "&type=" + URLEncoder.encode(((TypedProperty) property).getPropertyType(), "UTF-8") : search;
-            String filteredSearch = gxaRequiredSources != null ?
-                    typedSearch + URLEncoder.encode("&required[" +  gxaRequiredSources + "]", "UTF-8") : typedSearch;
-            URL queryURL = new URL(filteredSearch);
+            String baseUrl = zoomaSearchBase + URLEncoder.encode(property.getPropertyValue(), "UTF-8");
+            String searchUrl = property instanceof TypedProperty && !excludeType ?
+                    baseUrl + "&type=" + URLEncoder.encode(((TypedProperty) property).getPropertyType(), "UTF-8") :
+                    baseUrl;
+            if (!requiredSources.isEmpty() || !preferredSources.isEmpty()) {
+                StringBuilder filters = new StringBuilder();
+                filters.append("&filter=");
+                if (!requiredSources.isEmpty()) {
+                    filters.append("required:[");
+                    Iterator<String> requiredIt = requiredSources.iterator();
+                    while (requiredIt.hasNext()) {
+                        filters.append(requiredIt.next());
+                        if (requiredIt.hasNext()) {
+                            filters.append(",");
+                        }
+                    }
+                    filters.append("]");
+                }
+                if (!preferredSources.isEmpty()) {
+                    filters.append("preferred:[");
+                    Iterator<String> preferredIt = preferredSources.iterator();
+                    while (preferredIt.hasNext()) {
+                        filters.append(preferredIt.next());
+                        if (preferredIt.hasNext()) {
+                            filters.append(",");
+                        }
+                    }
+                    filters.append("]");
+                }
+                searchUrl = searchUrl.concat(filters.toString());
+            }
+            URL queryURL = new URL(searchUrl);
             getLog().trace("Sending query [" + queryURL + "]...");
 
             ObjectMapper mapper = new ObjectMapper();
@@ -346,7 +399,8 @@ public class ZOOMASearchClient {
         URL summaryURL = new URL(zoomaBase + "summaries/" + mid);
         JsonNode summaryNode = mapper.readValue(summaryURL, JsonNode.class);
 
-        URI propertyUri = summaryNode.get("annotatedPropertyUri") != null ? URI.create(summaryNode.get("annotatedPropertyUri").getTextValue()) : null;
+        URI propertyUri = summaryNode.get("annotatedPropertyUri") != null ?
+                URI.create(summaryNode.get("annotatedPropertyUri").getTextValue()) : null;
         String propertyType = summaryNode.get("annotatedPropertyType").getTextValue();
         String propertyValue = summaryNode.get("annotatedPropertyValue").getTextValue();
 
