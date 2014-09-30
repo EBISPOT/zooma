@@ -7,7 +7,7 @@ import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,6 +38,7 @@ public class ZoomaResultsProfile {
     private ZOOMASearchClient zoomaSearchClient = null;
     private float cutoffScore;
     private float cutoffPercent;
+    private List<String> requiredSources;
 
     private String errorMessage = null;
 
@@ -49,18 +50,19 @@ public class ZoomaResultsProfile {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    public ZoomaResultsProfile(String attributeType, String attributeValue, float cutoffScore, float cutoffPercent, ZOOMASearchClient zoomaClient) throws ZoomaException {
+    public ZoomaResultsProfile(String attributeType, String attributeValue, float cutoffScore, float cutoffPercent, List<String> requiredSources, ZOOMASearchClient zoomaClient) throws ZoomaException {
 
         this.cutoffPercent = cutoffPercent;
         this.cutoffScore = cutoffScore;
         this.zoomaSearchClient = zoomaClient;
+        this.requiredSources = requiredSources;
 
         this.attributeType = attributeType;
         this.attributeValue = attributeValue;
 
         checkParams();
 
-        this.unfilteredResults = setUnfilteredResults();
+        this.unfilteredResults = setUnfilteredResults(requiredSources);
 
         if(this.unfilteredResults == null){
             this.mappingCategory = MappingCategory.ERROR;
@@ -144,13 +146,13 @@ public class ZoomaResultsProfile {
         return mappingCategory;
     }
 
-    private Map<AnnotationSummary, Float> setUnfilteredResults() throws ZoomaException {
+    private Map<AnnotationSummary, Float> setUnfilteredResults(List<String> requiredSources) throws ZoomaException {
 
         Property property = new SimpleTypedProperty(attributeType, attributeValue);
 
         Map<AnnotationSummary, Float> fullResultsMap = null;
         try {
-            fullResultsMap = zoomaSearchClient.searchZOOMA(property, 0);
+            fullResultsMap = zoomaSearchClient.searchZOOMA(property, 0, false, false, requiredSources);
         } catch (Exception e) {
 
             String errorMessage = e.getMessage().replaceAll("[()]", " ");
