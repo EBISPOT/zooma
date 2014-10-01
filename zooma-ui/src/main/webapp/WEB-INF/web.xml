@@ -16,11 +16,11 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
-            WEB-INF/zooma-dao.xml
-            WEB-INF/zooma-load.xml
-            WEB-INF/zooma-lode.xml
-            WEB-INF/zooma-lucene.xml
-            WEB-INF/zooma-service.xml
+            file:${zooma.home}/config/spring/zooma-dao.xml
+            file:${zooma.home}/config/spring/zooma-load.xml
+            file:${zooma.home}/config/spring/zooma-lode.xml
+            file:${zooma.home}/config/spring/zooma-lucene.xml
+            file:${zooma.home}/config/spring/zooma-service.xml
             classpath*:zooma-annotation-dao.xml
         </param-value>
     </context-param>
@@ -30,6 +30,10 @@
     <servlet>
         <servlet-name>zooma</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>file:${zooma.home}/config/spring/zooma-servlet.xml</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 

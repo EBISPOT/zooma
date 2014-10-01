@@ -1,0 +1,100 @@
++----------------+
+| Building ZOOMA |
++----------------+
+
+You can use the scripts including in this package to generate, from scratch, a completely new, clean, ZOOMA instance.
+
+Dependencies
+============
+
+These scripts require a Java installation and a working Virtuoso installation.  ZOOMA scripts have been tested and work
+on Java version 1.7+ and Virtuoso version 6 and 7.
+
+Configuration
+=============
+
+Before running these scripts, you must set the environmental variables $VIRTUOSO_HOME.  You can also set $ZOOMA_HOME if
+you want to use a non-standard ZOOMA home directory.  Additionally, you can set $ZOOMA_OPTS to provide JVM options to
+ZOOMA
+
+$VIRTUOSO_HOME  - the location of the base directory of your Virtuoso installation
+$ZOOMA_HOME     - the location of your ZOOMA home directory.  Defaults to $HOME/.zooma if not set.
+$ZOOMA_OPTS     - optional additional Java options to supply to ZOOMA (e.g. -Xms1g -Xmx4g).
+
+Before running ZOOMA, you need to copy the ZOOMA configuration module into your $ZOOMA_HOME directory
+
+Execution
+=========
+
+You can configure details of ZOOMA building using zooma.properties in your $ZOOMA_HOME/config directory.  There is also
+a considerable amount of advanced config it is possible to perform by editing the contents of the $ZOOMA_HOME/config
+directory - subdirectories allow you to customize spring, virtuoso and logging configuration if you require.  If you
+have a locally installed version of Virtuoso and you are building ZOOMA on the server you will use as a webserver,
+however, no additional configuration should be required.
+
+Data will be loaded into ZOOMA using your setup in the $ZOOMA_HOME/loaders directory.  In here you can deposit ZOOMA
+loader plugins and edit the zooma-annotation-dao.xml configuration file to describe the CSV files and ontologies you
+want to load.
+
+Having set your required loaders, and edited the configuration if you require, you are ready to build the ZOOMA database.
+
+To build the ZOOMA database, run the following scripts in order:
+
+>: build-rdf.sh
+>: build-virtuoso-index.sh
+
+If you are building ZOOMA on a single machine, at this point start your local Virtuoso instance in order to build the
+lucene indexes using:
+
+>: virtuoso-start.sh
+
+If your Virtuoso index will run on a different server, at this point you can copy your Virtuoso indexes to the remote
+server and start up that server using the scripts provided by Virtuoso.
+
+Now, build your lucene indexes:
+
+>: build-lucene-index.sh
+
+Your ZOOMA data is ready to go.  Start up your web application and ZOOMA should be ready.
+
+If you are running a remote Virtuoso server, shutdown your local Virtuoso instance with:
+
+>: virtuoso-stop.sh
+
+And you're done!
+
++---------------+
+| ZOOMA Scripts |
++---------------+
+
+A brief outline of each script included in this package is given below.
+
+build-rdf.sh
+----------------
+
+Runs the ZOOMA loader to generate annotation RDF from the configured datasources.
+
+build-rdf.lsf
+-----------------
+
+Runs the ZOOMA loader in an interactive shell on an LSF cluster.  This script runs in interactive mode, meaning that it
+appears to run in the foreground but does not use resources on the local machine
+
+build-rdf-submit.lsf
+------------------------
+
+Runs the ZOOMA loader by submitting a job for execution on an LSF cluster.  Because this executes the submit command, it
+runs in the background: you don't have to wait for results.  Use this if you are running the RDF generation by hand
+and you will be emailed the results.
+
+build-virtuoso-index.sh
+--------------------
+
+A script that consumes and RDF directory and an output directory and generates a Virtuoso 'data index' from the given
+RDF files.
+
+build-lucene-index.sh
+---------------------
+
+A script that queries a sparql endpoint for raw annotation data and generates a Lucene index in the format expected by
+the ZOOMA web application.

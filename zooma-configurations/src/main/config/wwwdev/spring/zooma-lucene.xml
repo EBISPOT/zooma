@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Lucene configuration for ZOOMA text indexes -->
+
+    <bean id="version" class="org.apache.lucene.util.Version" factory-method="valueOf">
+        <constructor-arg value="LUCENE_36" />
+    </bean>
+
+    <bean id="analyzer" class="org.apache.lucene.analysis.en.EnglishAnalyzer">
+        <constructor-arg name="matchVersion" ref="version" />
+        <!-- use empty stopword set; stopwords in properties usually convey meaning (e.g. "no diabetes") -->
+        <constructor-arg name="stopwords">
+            <set />
+        </constructor-arg>
+    </bean>
+
+    <bean id="similarity" class="uk.ac.ebi.fgpt.zooma.util.ZoomaSimilarity" />
+
+    <bean id="propertyIndex" class="org.apache.lucene.store.NIOFSDirectory">
+        <constructor-arg value="${zooma.home}/index/lucene/property" />
+    </bean>
+
+    <bean id="propertyTypeIndex" class="org.apache.lucene.store.NIOFSDirectory">
+        <constructor-arg value="${zooma.home}/index/lucene/property_type" />
+    </bean>
+
+    <bean id="annotationCountIndex" class="org.apache.lucene.store.NIOFSDirectory">
+        <constructor-arg value="${zooma.home}/index/lucene/annotation_count" />
+    </bean>
+
+    <bean id="annotationIndex" class="org.apache.lucene.store.NIOFSDirectory">
+        <constructor-arg value="${zooma.home}/index/lucene/annotation" />
+    </bean>
+
+    <bean id="annotationSummaryIndex" class="org.apache.lucene.store.NIOFSDirectory">
+        <constructor-arg value="${zooma.home}/index/lucene/annotation_summary" />
+    </bean>
+
+    <bean id="luceneIndexer" class="uk.ac.ebi.fgpt.zooma.service.ZoomaLuceneIndexer" destroy-method="destroy">
+        <property name="analyzer" ref="analyzer" />
+        <property name="annotationDAO" ref="lodeLuceneAnnotationDAO" />
+        <property name="propertyDAO" ref="lodePropertyDAO" />
+        <property name="annotationSummaryDAO" ref="lodeLuceneAnnotationSummaryDAO" />
+        <property name="propertyIndex" ref="propertyIndex" />
+        <property name="propertyTypeIndex" ref="propertyTypeIndex" />
+        <property name="annotationCountIndex" ref="annotationCountIndex" />
+        <property name="annotationIndex" ref="annotationIndex" />
+        <property name="annotationSummaryIndex" ref="annotationSummaryIndex" />
+    </bean>
+
+</beans>

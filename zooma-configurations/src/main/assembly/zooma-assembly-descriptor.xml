@@ -1,0 +1,54 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="
+          http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2
+          http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+
+    <id>archive</id>
+
+    <formats>
+        <format>tar.gz</format>
+        <format>zip</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <!-- copy any resources for the specified deployment type into config/ -->
+        <fileSet>
+            <directory>src/${zooma.deployment.type}/resources/</directory>
+            <outputDirectory>config/</outputDirectory>
+        </fileSet>
+        <!-- copy the config for the specified deployment type and env into config/ -->
+        <fileSet>
+            <directory>src/${zooma.deployment.type}/config/${zooma.deployment.env}/</directory>
+            <outputDirectory>config/</outputDirectory>
+        </fileSet>
+        <!-- copy the loaders custom config for the specified deployment type and env into loaders/ -->
+        <fileSet>
+            <directory>src/${zooma.deployment.type}/loaders/${zooma.deployment.env}/</directory>
+            <outputDirectory>loaders/</outputDirectory>
+        </fileSet>
+        <!-- copy additional application resources (specified for profiles) -->
+        <fileSet>
+            <directory>${zooma.additional.resources.path}</directory>
+            <outputDirectory>config/</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+    <!-- copy all declared dependencies (should just be loaders) into loaders/ dir -->
+    <dependencySets>
+        <dependencySet>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <fileMode>0644</fileMode>
+            <outputDirectory>loaders/</outputDirectory>
+            <excludes>
+                <!-- exclude sources on the off-chance that loaders attach them -->
+                <exclude>*:sources</exclude>
+                <!-- exclude this module, don't need a self-reference -->
+                <exclude>*:zooma-configurations:*</exclude>
+            </excludes>
+        </dependencySet>
+    </dependencySets>
+
+</assembly>

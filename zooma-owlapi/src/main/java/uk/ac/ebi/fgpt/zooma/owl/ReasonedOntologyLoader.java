@@ -129,13 +129,13 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
             }
 
             // get types
-            getLog().debug("Loading types...");
+            getLog().trace("Loading types of " + ontologyClass + "...");
             Set<String> ontologyTypeLabelSet = new HashSet<>();
             Set<OWLClass> parents = reasoner.getSuperClasses(ontologyClass, false).getFlattened();
             for (OWLClass parentClass : parents) {
                 if (allClasses.contains(parentClass)) {
                     // only add type if the parent isn't excluded
-                    getLog().debug("Next parent of " + label + ": " + parentClass);
+                    getLog().trace("Next parent of " + label + ": " + parentClass);
                     Set<String> typeVals = getStringLiteralAnnotationValues(ontology, parentClass, rdfsLabel);
                     ontologyTypeLabelSet.addAll(typeVals);
                 }
@@ -143,7 +143,7 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
             addClassTypes(clsIri, ontologyTypeLabelSet);
 
             // get all synonym annotations
-            getLog().debug("Loading synonyms...");
+            getLog().trace("Loading synonyms of " + ontologyClass + "...");
             for (OWLAnnotationProperty synonym : synonyms) {
                 Set<String> synonymVals = getStringLiteralAnnotationValues(ontology, ontologyClass, synonym);
                 if (synonymVals.isEmpty()) {

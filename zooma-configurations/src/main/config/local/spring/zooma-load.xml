@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Configuration for zooma data loading services -->
+
+    <bean class="uk.ac.ebi.fgpt.zooma.config.LoaderDiscoveringPostProcessor" />
+
+    <!--suppress SpringBeanAutowiringInspection -->
+    <bean id="dataLoadingService"
+          class="uk.ac.ebi.fgpt.zooma.service.MultithreadedDataLoadingService"
+          autowire="byType"
+          destroy-method="shutdown">
+        <property name="zoomaLoader" ref="zoomaLoader" />
+
+        <!-- uncomment the properties below if it is necessary to tailor performance -->
+        <property name="blockSize" value="10000" />
+        <property name="maxCount" value="10000" />
+    </bean>
+
+    <bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.io.ConfigurableAnnotationLoader">
+        <constructor-arg name="outputPath" value="${zooma.home}/rdf" />
+        <constructor-arg name="fileNameBase" value="zooma_annotations" />
+
+        <property name="annotationResolver" ref="annotationResolver" />
+        <property name="annotationSerializer" ref="annotationSerializer" />
+        <property name="annotationStorer" ref="annotationStorer" />
+
+        <!-- Set these flags to configure the behaviour of the loader -->
+        <property name="resolvingEnabled" value="false" />
+        <property name="serializingEnabled" value="true" />
+        <property name="storingEnabled" value="false" />
+    </bean>
+
+    <!-- Two alternative resolver implementations with different resolution strategies -->
+    <!-- Which to pick may depend on dataset characteristics -->
+    <bean name="annotationResolver" class="uk.ac.ebi.fgpt.zooma.io.TagBasedAnnotationResolver" />
+    <!--<bean name="annotationResolver" class="uk.ac.ebi.fgpt.zooma.io.ContextBasedAnnotationResolver" />-->
+
+    <bean name="annotationStorer" class="uk.ac.ebi.fgpt.zooma.io.UnimplementedZoomaStorer" />
+
+</beans>

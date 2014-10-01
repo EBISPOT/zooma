@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- LODEStar configuration enables SPARQL tab in interface -->
+
+    <bean id="lodeSparqlService" class="uk.ac.ebi.fgpt.lode.impl.JenaSparqlService">
+        <property name="maxQueryLimit" value="${lode.sparql.query.maxlimit}" />
+        <property name="queryExecutionService" ref="jenaVirtuosoExecutorService" />
+    </bean>
+
+    <bean name="explorerConfig" class="uk.ac.ebi.fgpt.lode.impl.DefaultExplorerViewConfigImpl" />
+
+    <bean id="queryReader" class="uk.ac.ebi.fgpt.lode.utils.SparqlQueryReader" init-method="init">
+        <property name="sparqlQueryResource" value="classpath:sparql-queries.txt" />
+    </bean>
+
+    <bean id="jenaExploreService" class="uk.ac.ebi.fgpt.lode.impl.JenaExploreService">
+        <property name="sampleLimit" value="${lode.explorer.max.objects}" />
+        <property name="queryExecutionService" ref="jenaVirtuosoExecutorService" />
+        <property name="queryReader" ref="queryReader" />
+    </bean>
+
+</beans>

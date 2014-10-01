@@ -166,9 +166,9 @@ public class ZoomaMappingController {
         URI[] requiredSources = parseRequiredSourcesFromFilter(filter);
         List<URI> preferredSources = parsePreferredSourcesFromFilter(filter);
 
-        int concurrency = Integer.parseInt(getZoomaProperties().getProperty("zooma.concurrency"));
-        float cutoffScore = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.score"));
-        float cutoffPercentage = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.percentage"));
+        int concurrency = Integer.parseInt(getZoomaProperties().getProperty("zooma.search.concurrent.threads"));
+        float cutoffScore = Float.parseFloat(getZoomaProperties().getProperty("zooma.search.significance.score"));
+        float cutoffPercentage = Float.parseFloat(getZoomaProperties().getProperty("zooma.search.cutoff.score"));
         searchZOOMA(properties, requiredSources, preferredSources, session, concurrency, cutoffScore, cutoffPercentage);
         return "Mapping request of " + properties.size() + " properties was successfully received";
     }
@@ -189,9 +189,9 @@ public class ZoomaMappingController {
         List<URI> preferredSources = new ArrayList<>();
         session.setAttribute("properties", properties);
         session.setAttribute("progress", 0f);
-        int concurrency = Integer.parseInt(getZoomaProperties().getProperty("zooma.concurrency"));
-        float cutoffScore = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.score"));
-        float cutoffPercentage = Float.parseFloat(getZoomaProperties().getProperty("zooma.cutoff.percentage"));
+        int concurrency = Integer.parseInt(getZoomaProperties().getProperty("zooma.search.concurrent.threads"));
+        float cutoffScore = Float.parseFloat(getZoomaProperties().getProperty("zooma.search.significance.score"));
+        float cutoffPercentage = Float.parseFloat(getZoomaProperties().getProperty("zooma.search.cutoff.score"));
         searchZOOMA(properties, requiredSources, preferredSources, session, concurrency, cutoffScore, cutoffPercentage);
         return "Doing ZOOMA search";
     }
@@ -283,6 +283,7 @@ public class ZoomaMappingController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public @ResponseBody String handleException(Exception e) {
+        getLog().error("Unexpected exception", e);
         return "The server encountered a problem it could not recover from " +
                 "(" + e.getMessage() + ")";
     }

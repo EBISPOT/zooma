@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- Load all properties and make available in config -->
+    <context:property-placeholder location="file:${zooma.home}/config/zooma.properties,file:${zooma.home}/config/naming/ontology.properties" />
+
+    <!-- Load zooma properties and make available for autowiring -->
+    <bean id="zoomaProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="file:${zooma.home}/config/zooma.properties" />
+    </bean>
+
+    <!-- autowire this context based on annotations, where present -->
+    <context:annotation-config />
+
+</beans>

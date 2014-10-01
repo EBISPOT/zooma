@@ -1,0 +1,7 @@
+# A listing of property types that should NOT be used in a ZOOMA search.
+individual
+replicate
+genotype
+clinical_history
+clinical_information
+biosource_provider
