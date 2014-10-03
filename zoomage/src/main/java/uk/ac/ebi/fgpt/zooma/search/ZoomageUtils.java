@@ -112,7 +112,7 @@ public class ZoomageUtils {
 
                 String ref = URIUtils.extractNamespace(semanticTag).toString();
 
-                if (olsShortIds) {
+                if (olsShortIds && !longForm) {
                     String olsShortId = accession.replace("_", ":");
                     compoundAccession += olsShortId;
                 } else {
