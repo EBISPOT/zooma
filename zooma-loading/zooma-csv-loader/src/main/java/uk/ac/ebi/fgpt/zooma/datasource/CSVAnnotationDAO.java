@@ -12,10 +12,24 @@ import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An annotation DAO that is capable of extracting annotations from a text file.
@@ -90,6 +104,17 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
 
     public InputStream getInputStream() {
         return inputStream;
+    }
+
+    @Override protected synchronized boolean isReady() throws IllegalStateException {
+        try {
+            return super.isReady();
+        }
+        catch (IllegalStateException e) {
+            throw new IllegalStateException("Initialization of " + getClass().getSimpleName() + " " +
+                                                    "for datasource '" + getDatasourceName() + "' failed",
+                                            e.getCause());
+        }
     }
 
     @Override
