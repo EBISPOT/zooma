@@ -114,7 +114,9 @@ public class ZoomageLogger {
 
         String originalValue = attribute.getOriginalTermValue();
 
-        row.append(standardiseNulls(originalValue.replaceAll(logFileDelimiter, " ")));
+        if(originalValue!=null) originalValue = originalValue.replaceAll(logFileDelimiter," ");
+
+        row.append(standardiseNulls(originalValue));
         row.append(logFileDelimiter);
 
         AnnotationSummary summary = attribute.getAnnotationSummary();
