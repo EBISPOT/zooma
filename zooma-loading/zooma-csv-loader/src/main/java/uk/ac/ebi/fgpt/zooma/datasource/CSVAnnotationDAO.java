@@ -52,7 +52,8 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    private static DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private static DateTimeFormatter dashedDateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private static DateTimeFormatter slashDateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file, String datasourceName)
             throws FileNotFoundException {
@@ -125,7 +126,9 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStream(), "UTF-8"));
         boolean readHeader = false;
         String line;
+        int lineNumber = 0;
         while ((line = reader.readLine()) != null) {
+            lineNumber++;
             // tokenize line
             String[] annotationElements = line.split(delimiter, -1);
 
@@ -210,7 +213,7 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
                 }
                 if (!missingColumns.isEmpty()) {
                     StringBuilder sb = new StringBuilder();
-                    sb.append("The required column(s) ");
+                    sb.append("The required element(s) ");
                     Iterator<String> missingColumnIt = missingColumns.iterator();
                     while (missingColumnIt.hasNext()) {
                         sb.append(missingColumnIt.next());
@@ -218,7 +221,7 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
                             sb.append(", ");
                         }
                     }
-                    sb.append(" are absent, result set cannot be mapped");
+                    sb.append(" are absent at line " + lineNumber + ", result set cannot be mapped");
                     throw new InvalidDataFormatException(sb.toString());
                 }
 
@@ -286,9 +289,21 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
                             : annotationElements[column];
                 }
                 if ((column = lookupColumn("ANNOTATION_DATE")) != -1) {
-                    annotationDate = annotationElements.length <= column || annotationElements[column].isEmpty()
-                            ? null
-                            : formatter.parseDateTime(annotationElements[column]).toDate();
+                    if (annotationElements.length <= column || annotationElements[column].isEmpty()) {
+                        annotationDate = null;
+                    }
+                    else {
+                        String dateStr = annotationElements[column];
+                        if (dateStr.contains("-")) {
+                            annotationDate = dashedDateFormatter.parseDateTime(annotationElements[column]).toDate();
+                        }
+                        else if (dateStr.contains("/")) {
+                            annotationDate = slashDateFormatter.parseDateTime(annotationElements[column]).toDate();
+                        }
+                        else {
+                            getLog().error("Can't recognise format for date '" + dateStr + "' at line " + lineNumber);
+                        }
+                    }
                 }
 
                 // now we've collected fields, generate annotation using annotation factory
