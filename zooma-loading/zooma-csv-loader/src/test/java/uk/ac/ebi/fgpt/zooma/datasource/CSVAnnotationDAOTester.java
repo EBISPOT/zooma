@@ -35,6 +35,6 @@ public class CSVAnnotationDAOTester {
         for (Annotation a : annotations) {
             System.out.println("Next annotation: " + a);
         }
-        System.out.println("There are " + annotations.size() + "  annotations in the ChEMBL database");
+        System.out.println("There are " + annotations.size() + " annotations in this CSV file");
     }
 }
