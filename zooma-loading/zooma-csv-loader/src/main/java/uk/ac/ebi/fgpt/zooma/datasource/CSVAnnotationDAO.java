@@ -53,7 +53,7 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
     private Logger log = LoggerFactory.getLogger(getClass());
 
     private static DateTimeFormatter dashedDateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    private static DateTimeFormatter slashDateFormatter = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss");
+    private static DateTimeFormatter slashDateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
 
     public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file, String datasourceName)
             throws FileNotFoundException {
