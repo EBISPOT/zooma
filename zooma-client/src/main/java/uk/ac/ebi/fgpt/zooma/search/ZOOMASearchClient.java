@@ -231,10 +231,10 @@ public class ZOOMASearchClient {
 
     public Annotation getAnnotation(URI annotationURI) throws SearchException {
         try {
-            URL fetchURL = new URL(zoomaAnnotationsBase + annotationURI.toString());
+            String shortname = lookupShortname(annotationURI);
+            URL fetchURL = new URL(zoomaAnnotationsBase + shortname);
 
             // populate required fields from result of query
-            URI uri = lookupURI(annotationURI.toString());
             Collection<BiologicalEntity> biologicalEntities = new ArrayList<>();
             Property annotatedProperty = null;
             AnnotationProvenance annotationProvenance = null;
@@ -312,7 +312,7 @@ public class ZOOMASearchClient {
             }
 
             // create and return the annotation
-            return new SimpleAnnotation(uri,
+            return new SimpleAnnotation(annotationURI,
                                         biologicalEntities,
                                         annotatedProperty,
                                         annotationProvenance,
@@ -362,6 +362,21 @@ public class ZOOMASearchClient {
         Map<String, Set<String>> labelMap = mapper.readValue(labelsURL, new TypeReference<Map<String, Set<String>>>() {
         });
         return labelMap.get("synonyms");
+    }
+
+    private String lookupShortname(URI uri) {
+        // try to recover URI
+        String shortname;
+        try {
+            shortname = URIUtils.getShortform(prefixMappings, uri);
+        }
+        catch (IllegalArgumentException e) {
+            // if we get an illegal argument exception, refresh cache and retry
+            getLog().debug(e.getMessage() + ": reloading prefix mappings cache and retrying...");
+            loadPrefixMappings();
+            shortname = URIUtils.getShortform(prefixMappings, uri);
+        }
+        return shortname;
     }
 
     private URI lookupURI(String shortname) {
