@@ -27,16 +27,14 @@
     </logger>
 
     <!-- Uncomment if specific zooma package debugging required -->
-    <!--
-    <logger name="uk.ac.ebi.fgpt.zooma" additivity="false">
+    <logger name="uk.ac.ebi.fgpt.zooma.io.ZoomaHome" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="console" />
     </logger>
-    -->
 
     <root>
         <priority value="INFO" />
-        <appender-ref ref="zooma-log" />
+        <appender-ref ref="console" />
     </root>
 
 </log4j:configuration>

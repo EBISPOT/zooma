@@ -4,6 +4,7 @@ import org.openid4java.util.HttpClientFactory;
 import org.openid4java.util.ProxyProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.zooma.io.ZoomaHome;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import javax.servlet.ServletContextEvent;
@@ -24,23 +25,29 @@ public class ZoomaEnvironmentListener implements ServletContextListener {
     }
 
     @Override public void contextInitialized(ServletContextEvent servletContextEvent) {
-        ZoomaUtils.configureZOOMAEnvironment();
+        try {
+            ZoomaUtils.configureZOOMAEnvironment();
+            ZoomaHome.checkInstall();
 
-        // update HttpClientFactory with proxy settings - used (at least) in OpenID authentication
-        String proxyHost = System.getProperty("http.proxyHost");
-        String proxyPort = System.getProperty("http.proxyPort");
-        if (proxyHost != null || proxyPort != null) {
-            ProxyProperties proxyProps = new ProxyProperties();
-            if (proxyHost != null) {
-                getLog().debug("Updating HttpClientFactory proxy settings - host: " + proxyHost);
-                proxyProps.setProxyHostName(proxyHost);
+            // update HttpClientFactory with proxy settings - used (at least) in OpenID authentication
+            String proxyHost = System.getProperty("http.proxyHost");
+            String proxyPort = System.getProperty("http.proxyPort");
+            if (proxyHost != null || proxyPort != null) {
+                ProxyProperties proxyProps = new ProxyProperties();
+                if (proxyHost != null) {
+                    getLog().debug("Updating HttpClientFactory proxy settings - host: " + proxyHost);
+                    proxyProps.setProxyHostName(proxyHost);
+                }
+                if (proxyPort != null) {
+                    getLog().debug("Updating HttpClientFactory proxy settings - port: " + proxyPort);
+                    proxyProps.setProxyPort(Integer.parseInt(proxyPort));
+                }
+                HttpClientFactory.setProxyProperties(proxyProps);
+                getLog().debug("HttpClientFactory proxy settings updated successfully");
             }
-            if (proxyPort != null) {
-                getLog().debug("Updating HttpClientFactory proxy settings - port: " + proxyPort);
-                proxyProps.setProxyPort(Integer.parseInt(proxyPort));
-            }
-            HttpClientFactory.setProxyProperties(proxyProps);
-            getLog().debug("HttpClientFactory proxy settings updated successfully");
+        }
+        catch (Exception e) {
+            getLog().error("Failed to initialize ZOOMA environment", e);
         }
     }
 

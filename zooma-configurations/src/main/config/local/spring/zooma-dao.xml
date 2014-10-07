@@ -12,7 +12,17 @@
 
     <context:annotation-config />
 
-    <bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoExecutorService" />
+    <bean id="virtuosoDatasource" class="virtuoso.jdbc4.VirtuosoConnectionPoolDataSource">
+        <property name="description" value="Virtuoso Pool" />
+        <property name="charset" value="UTF-8" />
+        <property name="initialPoolSize" value="0" />
+        <property name="minPoolSize" value="0" />
+        <property name="maxPoolSize" value="8" />
+        <property name="user" value="${lode.explorer.virtuoso.user}" />
+        <property name="password" value="${lode.explorer.virtuoso.password}" />
+        <property name="serverName" value="${lode.sparqlendpoint.host}" />
+        <property name="portNumber" value="${lode.sparqlendpoint.port}" />
+    </bean>
 
     <bean id="virtuosoDataSourceProvider" class="uk.ac.ebi.fgpt.lode.impl.VirtuosoDatasourceWrapperProvider">
         <property name="virtuosoDatasource" ref="virtuosoDatasource" />
