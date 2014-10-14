@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,7 +28,7 @@ import java.util.Set;
  * @date 28/03/13
  */
 public class ZOOMA2PropertyExcluder {
-    private final String excludedTypesResource = "zooma-exclusions.properties";
+    private final String excludedTypesResourceName = "zooma-exclusions.properties";
     private final Set<String> excludedTypes;
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -39,26 +40,26 @@ public class ZOOMA2PropertyExcluder {
     public ZOOMA2PropertyExcluder() {
         excludedTypes = new HashSet<>();
 
-        // read sources from file
+        // read excluded types from file, if it exists
         try {
-            InputStream in = getClass().getClassLoader().getResourceAsStream(excludedTypesResource);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.startsWith("#") && !line.isEmpty()) {
-                    String s = line.toLowerCase();
-                    if (s != null) {
+            URL excludedTypesResource = getClass().getClassLoader().getResource(excludedTypesResourceName);
+            if (excludedTypesResource != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(excludedTypesResource.openStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (!line.startsWith("#") && !line.isEmpty()) {
+                        String s = line.toLowerCase();
                         excludedTypes.add(s);
                     }
                 }
             }
-        }
-        catch (FileNotFoundException e) {
-            getLog().error("Failed to load properties: could not locate file '" + excludedTypesResource + "'.  " +
-                                   "No properties will be excluded");
+            else {
+                getLog().warn("Failed to load properties: could not locate file " +
+                                       "'" + excludedTypesResourceName + "'.  No properties will be excluded");
+            }
         }
         catch (IOException e) {
-            getLog().error("Failed to load properties: could not read file '" + excludedTypesResource + "'.  " +
+            getLog().error("Failed to load properties: could not read file '" + excludedTypesResourceName + "'.  " +
                                    "No properties will be excluded");
         }
     }
