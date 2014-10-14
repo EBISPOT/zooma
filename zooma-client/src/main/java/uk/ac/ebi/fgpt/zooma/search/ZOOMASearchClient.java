@@ -307,7 +307,7 @@ public class ZOOMASearchClient {
 
             JsonNode stsNode = annotationNode.get("semanticTags");
             for (JsonNode stNode : stsNode) {
-                URI de = lookupURI(stNode.getTextValue());
+                URI de = URI.create(stNode.getTextValue());
                 semanticTags.add(de);
             }
 
@@ -412,39 +412,47 @@ public class ZOOMASearchClient {
         float resultScore = Float.parseFloat(result.get("score").getTextValue());
 
         URL summaryURL = new URL(zoomaBase + "summaries/" + mid);
-        JsonNode summaryNode = mapper.readValue(summaryURL, JsonNode.class);
+        try {
+            JsonNode summaryNode = mapper.readValue(summaryURL, JsonNode.class);
 
-        URI propertyUri = summaryNode.get("annotatedPropertyUri") != null ?
-                URI.create(summaryNode.get("annotatedPropertyUri").getTextValue()) : null;
-        String propertyType = summaryNode.get("annotatedPropertyType").getTextValue();
-        String propertyValue = summaryNode.get("annotatedPropertyValue").getTextValue();
+            URI propertyUri =
+                    summaryNode.get("annotatedPropertyUri") != null && !summaryNode.get("annotatedPropertyUri").isNull()
+                            ? URI.create(summaryNode.get("annotatedPropertyUri").getTextValue())
+                            : null;
+            String propertyType = summaryNode.get("annotatedPropertyType").getTextValue();
+            String propertyValue = summaryNode.get("annotatedPropertyValue").getTextValue();
 
-        List<URI> semanticTags = new ArrayList<>();
-        JsonNode stsNode = summaryNode.get("semanticTags");
-        for (JsonNode stNode : stsNode) {
-            semanticTags.add(URI.create(stNode.getTextValue()));
+            List<URI> semanticTags = new ArrayList<>();
+            JsonNode stsNode = summaryNode.get("semanticTags");
+            for (JsonNode stNode : stsNode) {
+                semanticTags.add(URI.create(stNode.getTextValue()));
+            }
+
+            List<URI> annotationURIs = new ArrayList<>();
+            JsonNode annsNode = summaryNode.get("annotationURIs");
+            for (JsonNode annNode : annsNode) {
+                annotationURIs.add(URI.create(annNode.getTextValue()));
+            }
+
+            List<URI> annotationSourceURIs = new ArrayList<>();
+            JsonNode annsSourceNode = summaryNode.get("annotationSourceURIs");
+            for (JsonNode annSourceNode : annsSourceNode) {
+                annotationSourceURIs.add(URI.create(annSourceNode.getTextValue()));
+            }
+
+            // collect summary into map with it's score
+            return new SimpleAnnotationSummary(mid,
+                                               propertyUri,
+                                               propertyType,
+                                               propertyValue,
+                                               semanticTags,
+                                               annotationURIs,
+                                               resultScore,
+                                               annotationSourceURIs);
         }
-
-        List<URI> annotationURIs = new ArrayList<>();
-        JsonNode annsNode = summaryNode.get("annotationURIs");
-        for (JsonNode annNode : annsNode) {
-            annotationURIs.add(URI.create(annNode.getTextValue()));
+        catch (IOException e) {
+            getLog().error("Failed to read AnnotationSummary object at '" + summaryURL + "'", e);
+            throw e;
         }
-
-        List<URI> annotationSourceURIs = new ArrayList<>();
-        JsonNode annsSourceNode = summaryNode.get("annotationSourceURIs");
-        for (JsonNode annSourceNode : annsSourceNode) {
-            annotationSourceURIs.add(URI.create(annSourceNode.getTextValue()));
-        }
-
-        // collect summary into map with it's score
-        return new SimpleAnnotationSummary(mid,
-                                           propertyUri,
-                                           propertyType,
-                                           propertyValue,
-                                           semanticTags,
-                                           annotationURIs,
-                                           resultScore,
-                                           annotationSourceURIs);
     }
 }

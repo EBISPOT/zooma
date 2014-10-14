@@ -8,7 +8,7 @@ package uk.ac.ebi.fgpt.zooma.util;
  * @date 14/07/14
  */
 public class RegexUtils {
-    private static final String controlCharacters = "[\\^$.|?*+()";
+    private static final String controlCharacters = "[]\\^$.|?*+(){}";
 
     /**
      * Escapes any control characters within the string, 's', replacing them with their escaped form.
