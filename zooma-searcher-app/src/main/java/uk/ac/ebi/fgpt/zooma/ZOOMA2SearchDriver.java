@@ -33,6 +33,7 @@ import java.net.URI;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -313,20 +314,26 @@ public class ZOOMA2SearchDriver {
     }
 
     public void findOptimalTextAnnotations(File inputFile, OutputStream out, OutputStream err) throws IOException {
-        getLog().info("Reading properties from input file '" + inputFile.getAbsolutePath() + "'");
+        try {
+            getLog().info("Reading properties from input file '" + inputFile.getAbsolutePath() + "'");
 
-        // create input parser and parse supplied properties
-        System.out.print("Reading properties from input file '" + inputFile.getAbsolutePath() + "'...");
-        ZOOMAInputParser parser = new ZOOMAInputParser(inputFile);
-        List<Property> properties = parser.parse();
-        parser.close();
-        System.out.println("done.");
+            // create input parser and parse supplied properties
+            System.out.print("Reading properties from input file '" + inputFile.getAbsolutePath() + "'...");
+            ZOOMAInputParser parser = new ZOOMAInputParser(inputFile);
+            List<Property> properties = parser.parse();
+            parser.close();
+            System.out.println("done.");
 
-        // exclude any ineligible properties
-        excludeIneligibleProperties(properties);
+            // exclude any ineligible properties
+            excludeIneligibleProperties(properties);
 
-        // and search
-        searchZOOMA(properties, out, err);
+            // and search
+            searchZOOMA(properties, out, err);
+        }
+        catch (RuntimeException e) {
+            getLog().error("Caught unexpected runtime exception", e);
+            throw e;
+        }
     }
 
     public void evaluateOptimalTextAnnotations(File inputFile, OutputStream out, OutputStream err) throws IOException {
@@ -356,7 +363,6 @@ public class ZOOMA2SearchDriver {
         excluder.removeExcludedTypes(properties);
 
         // now, check for strings of a bad length and numeric values
-        NumberFormat nf = NumberFormat.getInstance();
         Iterator<Property> propertyIterator = properties.iterator();
         while (propertyIterator.hasNext()) {
             Property property = propertyIterator.next();
@@ -374,8 +380,7 @@ public class ZOOMA2SearchDriver {
             }
             else {
                 // if property value is numeric, exclude
-                try {
-                    nf.parse(property.getPropertyValue());
+                if (isNumeric(property.getPropertyValue())) {
                     getLog().debug("Property value '" + propertyValue + "' is a numeric value. " +
                                            "This makes it ineligible for ZOOMA search");
                     propertyIterator.remove();
@@ -383,11 +388,14 @@ public class ZOOMA2SearchDriver {
                         propertyContexts.remove(property);
                     }
                 }
-                catch (java.text.ParseException e) {
-                    // if parse exception is thrown, we can continue without removing
-                }
             }
         }
+    }
+
+    private boolean isNumeric(String inputData) {
+        ParsePosition pos = new ParsePosition(0);
+        NumberFormat.getInstance().parse(inputData, pos);
+        return inputData.length() == pos.getIndex();
     }
 
     private void searchZOOMA(List<Property> properties, OutputStream out, OutputStream err) throws IOException {

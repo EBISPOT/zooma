@@ -66,10 +66,20 @@ public class InferredAnnotationSummaryCache extends TransientCacheable {
         ping();
 
         String sessionID = RequestContextHolder.currentRequestAttributes().getSessionId();
+        // retrieve from the same session; this insulates user requests and helps performance
         if (sessionMap.containsKey(sessionID)) {
             return sessionMap.get(sessionID).get(annotationSummaryID);
         }
         else {
+            // no result for the current session; scan all
+            getLog().warn("Attempting to retrieve annotation summary '" + annotationSummaryID + "' " +
+                                  "for session '" + sessionID + "' yielded no results.  Checking all sessions...");
+            for (AnnotationSummaryMap map : sessionMap.values()) {
+                if (map.containsKey(annotationSummaryID)) {
+                    return map.get(annotationSummaryID);
+                }
+            }
+            getLog().error("Request for annotation summary '" + annotationSummaryID + "' was not found");
             return null;
         }
     }
@@ -99,6 +109,7 @@ public class InferredAnnotationSummaryCache extends TransientCacheable {
             if (!sessionMap.containsKey(sessionID)) {
                 sessionMap.put(sessionID, new AnnotationSummaryMap());
             }
+            getLog().debug("Caching temporary annotation summary '" + id + "' for session '" + sessionID + "'");
             sessionMap.get(sessionID).put(id, cacheable);
         }
         return cacheable;
