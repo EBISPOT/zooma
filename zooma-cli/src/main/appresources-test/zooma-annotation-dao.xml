@@ -69,6 +69,23 @@
                              loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/cellline_import.owl" />
     </zooma:owlAnnotations>
 
+    <zooma:owlAnnotations name="hpo"
+                          uri="http://purl.obolibrary.org/obo/hp.owl"
+                          loadFrom="http://compbio.charite.de/hudson/job/hpo/lastStableBuild/artifact/hp/hp.owl"
+                          exclusionAnnotationURI="http://www.w3.org/2002/07/owl#deprecated">
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />
+    </zooma:owlAnnotations>
+
+    <zooma:owlAnnotations name="mp"
+                          uri="http://purl.obolibrary.org/obo/mp.owl"
+                          loadFrom="http://phenotype-ontologies.googlecode.com/svn/trunk/src/ontology/mp.owl"
+                          exclusionAnnotationURI="http://www.w3.org/2002/07/owl#deprecated">
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />
+    </zooma:owlAnnotations>
 
 
     <!-- Data from curated CSV files -->
