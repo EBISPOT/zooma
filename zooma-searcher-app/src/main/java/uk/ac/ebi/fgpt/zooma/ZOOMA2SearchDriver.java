@@ -463,10 +463,17 @@ public class ZOOMA2SearchDriver {
 
                     // update timing stats
                     timer.completedNext();
-                    String estimate = new DecimalFormat("#,###").format(((float) timer.getCurrentEstimate()) / 1000);
+                    float estimatedTime = ((float) timer.getCurrentEstimate()) / 1000;
+                    boolean showInMins = false;
+                    if (estimatedTime > 60) {
+                        showInMins = true;
+                        estimatedTime = estimatedTime / 60;
+                    }
+                    String estimate = new DecimalFormat("#,###").format(estimatedTime);
                     System.out.print("Checked " + timer.getCompletedCount() + "/" +
                                              timer.getTotalCount() + " property values.  " +
-                                             "Estimated time remaining : " + estimate + " s.     \r");
+                                             "Estimated time remaining : " +
+                                             estimate + (showInMins ? " mins." : " s.") + "     \r");
                     return timer.getCompletedCount();
                 }
             }));
