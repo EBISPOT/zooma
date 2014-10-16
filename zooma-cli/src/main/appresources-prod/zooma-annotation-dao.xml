@@ -19,9 +19,7 @@
         <zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term" />
     </zooma:owlAnnotations>
 
-    <zooma:owlAnnotations name="peco"
-                          uri="http://purl.obolibrary.org/obo/eo.owl"
-                          useReasoning="false">
+    <zooma:owlAnnotations name="peco" uri="http://purl.obolibrary.org/obo/eo.owl" useReasoning="false">
         <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />
         <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />
         <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />
@@ -71,7 +69,8 @@
     <zooma:owlAnnotations name="hpo"
                           uri="http://purl.obolibrary.org/obo/hp.owl"
                           loadFrom="http://compbio.charite.de/hudson/job/hpo/lastStableBuild/artifact/hp/hp.owl"
-                          exclusionAnnotationURI="http://www.w3.org/2002/07/owl#deprecated">
+                          exclusionAnnotationURI="http://www.w3.org/2002/07/owl#deprecated"
+                          useReasoning="false">
         <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />
         <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />
         <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />
