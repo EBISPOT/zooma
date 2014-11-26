@@ -107,7 +107,7 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         return inputStream;
     }
 
-    @Override protected synchronized boolean isReady() throws IllegalStateException {
+    @Override public synchronized boolean isReady() throws IllegalStateException {
         try {
             return super.isReady();
         }

@@ -67,6 +67,28 @@
                              loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/cellline_import.owl" />
     </zooma:owlAnnotations>
 
+    <zooma:owlAnnotations name="hpo"
+                          uri="http://purl.obolibrary.org/obo/hp.owl"
+                          loadFrom="http://compbio.charite.de/hudson/job/hpo/lastStableBuild/artifact/hp/hp.owl"
+                          exclusionAnnotationURI="http://www.w3.org/2002/07/owl#deprecated"
+                          useReasoning="false">
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />
+    </zooma:owlAnnotations>
+
+    <zooma:owlAnnotations name="mp"
+                          uri="http://purl.obolibrary.org/obo/mp.owl"
+                          loadFrom="http://phenotype-ontologies.googlecode.com/svn/trunk/src/ontology/mp.owl"
+                          exclusionAnnotationURI="http://www.w3.org/2002/07/owl#deprecated">
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />
+    </zooma:owlAnnotations>
+
+    <zooma:owlAnnotations name="diab"
+                          uri="http://purl.obolibrary.org/obo/Diabetes_Ontology_V13.owl"
+                          loadFrom="http://data.bioontology.org/ontologies/DIAB/submissions/13/download?apikey=935d7da3-6571-4601-910d-5e421574a360" />
 
 
     <!-- Data from curated CSV files -->
@@ -82,9 +104,10 @@
                              url="http://www.ebi.ac.uk/~tburdett/zooma/bmb_zooma_disease.tsv"
                              delimiter="\t" />
 
-    <zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/gxa"
-                             datasourceName="atlas"
-                             url="ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/curation/zoomage_report.CURATED.tsv"
-                             delimiter="\t" />
+    <!-- commenting out atlas for now -->
+    <!--<zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/gxa"-->
+                             <!--datasourceName="atlas"-->
+                             <!--url="ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/curation/zoomage_report.CURATED.tsv"-->
+                             <!--delimiter="\t" />-->
 
 </beans>

@@ -80,7 +80,9 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
 
     @Override protected URI mintBioentityURI(String bioentityID,
                                              String bioentityName, String... studyAccessions) {
-        return URI.create(namespace.toString() + "/" + encode(studyAccessions[0]) + "/" + bioentityID);
+        return URI.create(namespace.toString() + "/" +
+                                  (studyAccessions.length > 0 ? encode(studyAccessions[0]) + "/" : "") +
+                                  bioentityID);
 
     }
 
