@@ -13,9 +13,19 @@ import java.util.Map;
  * @date 26/11/14
  */
 public class ZoomaEnv {
-    private static Logger log = LoggerFactory.getLogger(ZoomaEnv.class);
+    private static final ZoomaEnv instance = new ZoomaEnv();
 
-    protected static Logger getLog() {
+    public static void configureZOOMAEnvironment() {
+        instance.setupEnvironment();
+    }
+
+    private ZoomaEnv() {
+
+    }
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private Logger getLog() {
         return log;
     }
 
@@ -28,7 +38,7 @@ public class ZoomaEnv {
      * value of this environment variable as the system property.  If neither option is supplied, zooma.home defaults to
      * {user.home}/.zooma
      */
-    public static synchronized void configureZOOMAEnvironment() {
+    private synchronized void setupEnvironment() {
         getLog().debug("Initializing ZOOMA in the following environment:");
         Map<String, String> env = System.getenv();
         for (String envName : env.keySet()) {
