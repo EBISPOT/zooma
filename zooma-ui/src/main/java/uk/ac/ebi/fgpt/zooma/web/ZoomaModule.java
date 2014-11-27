@@ -1,8 +1,10 @@
 package uk.ac.ebi.fgpt.zooma.web;
 
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.module.SimpleAbstractTypeResolver;
-import org.codehaus.jackson.map.module.SimpleModule;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,7 +25,7 @@ public class ZoomaModule extends SimpleModule {
     }
 
     public ZoomaModule() {
-        super("ZOOMA", new Version(2, 0, 0, "SNAPSHOT"));
+        super("ZOOMA", new Version(2, 0, 0, "SNAPSHOT", "uk.ac.ebi.fgpt", "zooma-ui"));
     }
 
     @Override public void setupModule(SetupContext context) {

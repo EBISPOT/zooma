@@ -4,12 +4,11 @@ import org.openid4java.util.HttpClientFactory;
 import org.openid4java.util.ProxyProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.zooma.io.ZoomaHome;
-import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
+import uk.ac.ebi.fgpt.zooma.env.ZoomaEnv;
+import uk.ac.ebi.fgpt.zooma.env.ZoomaHome;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.Map;
 
 /**
  * Checks the environment at startup and sets some sensible defaults if expected values are missing.
@@ -24,9 +23,10 @@ public class ZoomaEnvironmentListener implements ServletContextListener {
         return log;
     }
 
-    @Override public void contextInitialized(ServletContextEvent servletContextEvent) {
+    @Override
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
         try {
-            ZoomaUtils.configureZOOMAEnvironment();
+            ZoomaEnv.configureZOOMAEnvironment();
             ZoomaHome.checkInstall();
 
             // update HttpClientFactory with proxy settings - used (at least) in OpenID authentication
@@ -51,7 +51,8 @@ public class ZoomaEnvironmentListener implements ServletContextListener {
         }
     }
 
-    @Override public void contextDestroyed(ServletContextEvent servletContextEvent) {
+    @Override
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
         getLog().info("Shutting down ZOOMA.");
     }
 }

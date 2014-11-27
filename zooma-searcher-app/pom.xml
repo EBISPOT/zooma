@@ -62,6 +62,12 @@
             <version>2.0-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>uk.ac.ebi.fgpt</groupId>
+            <artifactId>zooma-bootstrap</artifactId>
+            <version>2.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- commons-cli for command line functionality -->
         <dependency>
             <groupId>commons-cli</groupId>
@@ -74,6 +80,12 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.2.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -88,8 +100,8 @@
 
         <!-- jackson dependency, serializes json to java and vice versa -->
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <!-- logging dependencies -->

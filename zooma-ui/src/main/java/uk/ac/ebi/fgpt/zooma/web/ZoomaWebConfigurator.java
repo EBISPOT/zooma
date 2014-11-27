@@ -1,12 +1,12 @@
 package uk.ac.ebi.fgpt.zooma.web;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -40,14 +40,14 @@ public class ZoomaWebConfigurator implements BeanPostProcessor {
     @Override
     public Object postProcessBeforeInitialization(Object o, String s) throws BeansException {
         // configure jackson JSON setup
-        if (o instanceof MappingJacksonHttpMessageConverter) {
+        if (o instanceof MappingJackson2HttpMessageConverter) {
             // create object mapper
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(getZoomaModule());
 
             // customize the HttpMessageConverter
             getLog().debug("Customizing HttpMessageConverter '" + s + "' to perform custom JSON serialization");
-            MappingJacksonHttpMessageConverter messageConverter = (MappingJacksonHttpMessageConverter) o;
+            MappingJackson2HttpMessageConverter messageConverter = (MappingJackson2HttpMessageConverter) o;
             messageConverter.setObjectMapper(objectMapper);
         }
 

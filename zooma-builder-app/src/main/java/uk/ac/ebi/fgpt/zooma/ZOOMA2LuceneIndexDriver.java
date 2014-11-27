@@ -1,16 +1,9 @@
 package uk.ac.ebi.fgpt.zooma;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
+import uk.ac.ebi.fgpt.zooma.env.ZoomaEnv;
+import uk.ac.ebi.fgpt.zooma.env.ZoomaHome;
 import uk.ac.ebi.fgpt.zooma.service.StatusService;
-import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +27,8 @@ import java.util.Date;
 public class ZOOMA2LuceneIndexDriver {
     public static void main(String[] args) {
         if (args.length > 0) {
-            System.err.println("This application does not take any arguments; configuration can be updated in $ZOOMA_HOME/config/zooma.properties");
+            System.err.println("This application does not take any arguments; configuration can be updated in " +
+                                       "$ZOOMA_HOME/config/zooma.properties");
         }
         else {
             try {
@@ -83,7 +77,8 @@ public class ZOOMA2LuceneIndexDriver {
     private boolean started = false;
 
     public ZOOMA2LuceneIndexDriver() {
-        ZoomaUtils.configureZOOMAEnvironment();
+        ZoomaEnv.configureZOOMAEnvironment();
+        ZoomaHome.checkInstall();
     }
 
     public void createOutputDirectory() throws IOException {
@@ -112,13 +107,15 @@ public class ZOOMA2LuceneIndexDriver {
                     System.out.print(
                             "Backup already exists for today, clearing " + oldZoomaHome.toString() + "...");
                     Files.walkFileTree(oldZoomaHome, new SimpleFileVisitor<Path>() {
-                        @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                                 throws IOException {
                             Files.delete(file);
                             return FileVisitResult.CONTINUE;
                         }
 
-                        @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                        @Override
+                        public FileVisitResult postVisitDirectory(Path dir, IOException exc)
                                 throws IOException {
                             Files.delete(dir);
                             return FileVisitResult.CONTINUE;

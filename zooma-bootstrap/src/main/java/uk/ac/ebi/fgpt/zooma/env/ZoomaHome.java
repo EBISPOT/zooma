@@ -1,4 +1,4 @@
-package uk.ac.ebi.fgpt.zooma.io;
+package uk.ac.ebi.fgpt.zooma.env;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class ZoomaHome {
      * The default configuration makes certain assumptions - see the documents associated with the zooma-configurations
      * module for more information.
      */
-    private boolean validateZoomaHome() {
+    private synchronized boolean validateZoomaHome() {
         File zoomaHome = new File(System.getProperty("zooma.home"));
         if (zoomaHome.exists() && zoomaHome.list().length > 0) {
             getLog().info("ZOOMA_HOME already exists at " + zoomaHome.getAbsolutePath());
@@ -129,7 +129,7 @@ public class ZoomaHome {
         }
     }
 
-    private void unpackTemplate() {
+    private synchronized void unpackTemplate() {
         File zoomaHome = new File(System.getProperty("zooma.home"));
 
         // no zooma home - unpack template from classpath resource

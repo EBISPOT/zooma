@@ -3,9 +3,10 @@ package uk.ac.ebi.fgpt.zooma;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import uk.ac.ebi.fgpt.zooma.env.ZoomaEnv;
+import uk.ac.ebi.fgpt.zooma.env.ZoomaHome;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
 import uk.ac.ebi.fgpt.zooma.service.DataLoadingService;
-import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +28,8 @@ import java.util.Date;
 public class ZOOMA2LoaderDriver {
     public static void main(String[] args) {
         if (args.length > 0) {
-            System.err.println("This application does not take any arguments; configuration can be updated in $ZOOMA_HOME/config/zooma.properties");
+            System.err.println("This application does not take any arguments; configuration can be updated in " +
+                                       "$ZOOMA_HOME/config/zooma.properties");
         }
         else {
             try {
@@ -53,7 +55,8 @@ public class ZOOMA2LoaderDriver {
     }
 
     private ZOOMA2LoaderDriver() {
-        ZoomaUtils.configureZOOMAEnvironment();
+        ZoomaEnv.configureZOOMAEnvironment();
+        ZoomaHome.checkInstall();
     }
 
     public void createOutputDirectory() throws IOException {
@@ -82,14 +85,14 @@ public class ZOOMA2LoaderDriver {
                 System.out.print(
                         "Backup already exists for today, clearing " + oldRDFHome.toString() + "...");
                 Files.walkFileTree(oldRDFHome, new SimpleFileVisitor<Path>() {
-                    @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                            throws IOException {
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                         Files.delete(file);
                         return FileVisitResult.CONTINUE;
                     }
 
-                    @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc)
-                            throws IOException {
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                         Files.delete(dir);
                         return FileVisitResult.CONTINUE;
                     }

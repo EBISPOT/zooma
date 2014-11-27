@@ -12,8 +12,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.springframework.version>3.2.2.RELEASE</org.springframework.version>
-        <org.springframework.security.version>3.2.0.RELEASE</org.springframework.security.version>
+        <org.springframework.version>4.1.2.RELEASE</org.springframework.version>
+        <org.springframework.security.version>3.2.5.RELEASE</org.springframework.security.version>
         <org.slf4j.version>1.7.5</org.slf4j.version>
     </properties>
 
@@ -235,6 +235,7 @@
         <module>zooma-builder-app</module>
         <module>zooma-searcher-app</module>
         <module>zooma-loading</module>
+        <module>zooma-bootstrap</module>
         <module>zoomage</module>
     </modules>
 
@@ -375,6 +376,12 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-openid</artifactId>
                 <version>${org.springframework.security.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -385,9 +392,9 @@
 
             <!-- Jackson, JSON object mapping -->
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>1.9.9</version>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.3.3</version>
             </dependency>
 
             <!-- test scope dependencies -->

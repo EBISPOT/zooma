@@ -10,6 +10,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.zooma.env.ZoomaEnv;
 import uk.ac.ebi.fgpt.zooma.io.ZOOMAInputParser;
 import uk.ac.ebi.fgpt.zooma.io.ZOOMAReportRenderer;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
@@ -107,7 +108,7 @@ public class ZOOMA2SearchDriver {
         HelpFormatter help = new HelpFormatter();
         Options options = bindOptions();
 
-        ZoomaUtils.configureZOOMAEnvironment();
+        ZoomaEnv.configureZOOMAEnvironment();
 
         int parseArgs = 0;
         try {
