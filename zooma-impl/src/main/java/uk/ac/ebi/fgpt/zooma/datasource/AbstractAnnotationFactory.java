@@ -2,9 +2,9 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.zooma.exception.InvalidDataFormatException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenanceTemplate;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
@@ -69,27 +69,19 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
                                                                   annotatedProperty.getPropertyValue())
                 : getAnnotationLoadingSession().getOrCreateProperty("", annotatedProperty.getPropertyValue());
 
-        AnnotationProvenance prov;
+        AnnotationProvenanceTemplate template = getAnnotationLoadingSession().getAnnotationProvenanceTemplate();
         if (annotator != null) {
-            if (annotationDate != null) {
-                prov = getAnnotationLoadingSession().getAnnotationProvenanceTemplate()
-                        .annotatorIs(annotator)
-                        .annotationDateIs(annotationDate)
-                        .complete();
-            }
-            else {
-                throw new InvalidDataFormatException("ANNOTATOR supplied without a corresponding ANNOTATION_DATE");
-            }
+            template.annotatorIs(annotator);
         }
-        else {
-            prov = getAnnotationLoadingSession().getAnnotationProvenanceTemplate().complete();
+        if (annotationDate != null) {
+            template.annotationDateIs(annotationDate);
         }
 
         // and return the complete annotation
         return getAnnotationLoadingSession().getOrCreateAnnotation(
                 annotatedBiologicalEntities,
                 newProperty,
-                prov,
+                template.complete(),
                 semanticTags);
     }
 
@@ -251,21 +243,14 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
             }
         }
 
-        AnnotationProvenance prov;
+        AnnotationProvenanceTemplate template = getAnnotationLoadingSession().getAnnotationProvenanceTemplate();
         if (annotator != null) {
-            if (annotationDate != null) {
-                prov = getAnnotationLoadingSession().getAnnotationProvenanceTemplate()
-                        .annotatorIs(annotator)
-                        .annotationDateIs(annotationDate)
-                        .complete();
-            }
-            else {
-                throw new InvalidDataFormatException("ANNOTATOR supplied without a corresponding ANNOTATION_DATE");
-            }
+            template.annotatorIs(annotator);
         }
-        else {
-            prov = getAnnotationLoadingSession().getAnnotationProvenanceTemplate().complete();
+        if (annotationDate != null) {
+            template.annotationDateIs(annotationDate);
         }
+        AnnotationProvenance prov = template.complete();
 
         // and return the complete annotation
         Annotation a;
