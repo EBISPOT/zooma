@@ -119,6 +119,8 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                     username = user.getFullName();
                 }
 
+
+
                 Annotation newAnnotation = getAnnotationFactory().createAnnotation(
                         annotation.getAnnotatedBiologicalEntities(),
                         annotation.getAnnotatedProperty(),

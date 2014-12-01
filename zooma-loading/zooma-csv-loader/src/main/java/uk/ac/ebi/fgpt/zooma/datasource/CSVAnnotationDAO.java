@@ -42,7 +42,7 @@ import java.util.Map;
  * @date 23/10/12
  */
 public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements AnnotationDAO {
-    private final String datasourceName;
+//    private final String datasourceName;
     private final String delimiter;
 
     private InputStream inputStream;
@@ -341,7 +341,7 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
 
     @Override
     public String getDatasourceName() {
-        return datasourceName;
+        return ;
     }
 
     @Override

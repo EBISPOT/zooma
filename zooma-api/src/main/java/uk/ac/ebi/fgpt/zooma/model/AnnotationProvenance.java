@@ -5,12 +5,10 @@ import java.util.Date;
 
 /**
  * A general representation of the data provenance that can be attached to an annotation.
- * <p/>
+ * <p>
  * Every annotation must include some provenance about the process that lead to the annotation being asserted.
  * Generally, this will probably include some simple information that can be used to identify where this annotation is
  * asserted and some history associated with it - who made the link, when it was made, and so on,
- * <p/>
- * Implementations are free to define the additional provenance they may require
  *
  * @author Tony Burdett
  * @author Simon Jupp
@@ -66,7 +64,6 @@ public interface AnnotationProvenance extends Serializable {
      * @return the annotation creation date, may return null for unknown dates.
      */
     Date getAnnotationDate();
-
 
     /**
      * The evidence for the existance of a particular annotation.  This described a little about how this annotation was

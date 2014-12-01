@@ -19,38 +19,50 @@ public class CSVAnnotationFactory extends AbstractAnnotationFactory {
     private final String datasourceName;
     private final AnnotationProvenance provenance;
 
-
-    public CSVAnnotationFactory (CSVLoadingSession annotationLoadingSession) {
+    public CSVAnnotationFactory(CSVLoadingSession annotationLoadingSession) {
         this("zooma", annotationLoadingSession);
     }
 
-    public CSVAnnotationFactory (String datasourceURL, String datasourceName, CSVLoadingSession annotationLoadingSession) {
-        this (datasourceURL, datasourceName, "zooma", annotationLoadingSession);
+    public CSVAnnotationFactory(String datasourceURL,
+                                String datasourceName,
+                                CSVLoadingSession annotationLoadingSession) {
+        this(datasourceURL, datasourceName, "zooma", annotationLoadingSession);
     }
 
-    public CSVAnnotationFactory (String annotationCreator, CSVLoadingSession annotationLoadingSession) {
+    public CSVAnnotationFactory(String annotationCreator, CSVLoadingSession annotationLoadingSession) {
         this(null, null, annotationCreator, annotationLoadingSession);
     }
 
-    public CSVAnnotationFactory (String datasourceURL, String datasourceName, String annotationCreator, CSVLoadingSession annotationLoadingSession) {
+    public CSVAnnotationFactory(String datasourceURL,
+                                String datasourceName,
+                                String annotationCreator,
+                                CSVLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
         this.datasource = datasourceURL == null ? annotationLoadingSession.getNamespace().toString() : datasourceURL;
-        this.datasourceName = datasourceURL == null ? annotationLoadingSession.getResourceName() : datasourceName;
 
+        this.datasourceName = datasourceName;
         this.generator = annotationCreator;
         this.provenance =
-                new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(datasourceURL), datasourceName),
+                new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(datasource),
+                                                                                  datasourceName),
                                                AnnotationProvenance.Evidence.MANUAL_CURATED,
                                                generator,
                                                new Date());
     }
 
-    @Override protected AnnotationProvenance getAnnotationProvenance() {
+    public String getDatasourceName() {
+        return datasourceName;
+    }
+
+    @Override
+    protected AnnotationProvenance getAnnotationProvenance() {
         return provenance;
     }
 
-    @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(datasource), datasourceName),
+    @Override
+    protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(datasource),
+                                                                                 datasourceName),
                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
                                               AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                                               generator,
@@ -59,10 +71,12 @@ public class CSVAnnotationFactory extends AbstractAnnotationFactory {
                                               annotationDate);
     }
 
-    @Override protected AnnotationProvenance getAnnotationProvenance(String annotator,
-                                                                     AnnotationProvenance.Accuracy accuracy,
-                                                                     Date annotationDate) {
-        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(datasource), datasourceName),
+    @Override
+    protected AnnotationProvenance getAnnotationProvenance(String annotator,
+                                                           AnnotationProvenance.Accuracy accuracy,
+                                                           Date annotationDate) {
+        return new SimpleAnnotationProvenance(new SimpleDatabaseAnnotationSource(URI.create(datasource),
+                                                                                 datasourceName),
                                               AnnotationProvenance.Evidence.MANUAL_CURATED,
                                               accuracy,
                                               generator,

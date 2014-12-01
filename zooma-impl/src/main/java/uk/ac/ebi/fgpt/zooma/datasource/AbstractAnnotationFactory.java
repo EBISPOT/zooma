@@ -42,6 +42,12 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
     }
 
     @Override
+    @Deprecated
+    /**
+     * Creates a new annotation from the given objects and some information about the annotator
+     *
+     * @deprecated use {@link #createAnnotation(java.util.Collection, uk.ac.ebi.fgpt.zooma.model.Property, uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance, java.util.Collection, java.util.Collection)} instead
+     */
     public Annotation createAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
                                        Property annotatedProperty,
                                        Collection<URI> semanticTags,
@@ -66,14 +72,17 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
         AnnotationProvenance prov;
         if (annotator != null) {
             if (annotationDate != null) {
-                prov = getAnnotationProvenance(annotator, annotationDate);
+                prov = getAnnotationLoadingSession().getAnnotationProvenanceTemplate()
+                        .annotatorIs(annotator)
+                        .annotationDateIs(annotationDate)
+                        .complete();
             }
             else {
                 throw new InvalidDataFormatException("ANNOTATOR supplied without a corresponding ANNOTATION_DATE");
             }
         }
         else {
-            prov = getAnnotationProvenance();
+            prov = getAnnotationLoadingSession().getAnnotationProvenanceTemplate().complete();
         }
 
         // and return the complete annotation
@@ -84,24 +93,54 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
                 semanticTags);
     }
 
-    @Override public Annotation createAnnotation(URI annotationURI,
-                                                 String annotationID,
-                                                 String studyAccession,
-                                                 URI studyURI,
-                                                 String studyID,
-                                                 URI studyType,
-                                                 String bioentityName,
-                                                 URI bioentityURI,
-                                                 String bioentityID,
-                                                 String bioentityTypeName,
-                                                 URI bioentityTypeURI,
-                                                 String propertyType,
-                                                 String propertyValue,
-                                                 URI propertyURI,
-                                                 String propertyID,
-                                                 URI semanticTag,
-                                                 String annotator,
-                                                 Date annotationDate) {
+    @Override
+    public Annotation createAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
+                                       Property annotatedProperty,
+                                       AnnotationProvenance annotationProvenance,
+                                       Collection<URI> semanticTags,
+                                       Collection<URI> replaces) {
+
+        for (BiologicalEntity be : annotatedBiologicalEntities) {
+            if (be.getURI() == null) {
+                throw new IllegalArgumentException(
+                        "A biological entity without a URI was submitted, can't create annotation");
+                // todo handle this case better
+            }
+        }
+
+        // create new property using regular URI minting strategy
+        Property newProperty = annotatedProperty instanceof TypedProperty ?
+                getAnnotationLoadingSession().getOrCreateProperty(((TypedProperty) annotatedProperty).getPropertyType(),
+                                                                  annotatedProperty.getPropertyValue())
+                : getAnnotationLoadingSession().getOrCreateProperty("", annotatedProperty.getPropertyValue());
+
+        // and return the complete annotation
+        return getAnnotationLoadingSession().getOrCreateAnnotation(
+                annotatedBiologicalEntities,
+                newProperty,
+                annotationProvenance,
+                semanticTags);
+    }
+
+    @Override
+    public Annotation createAnnotation(URI annotationURI,
+                                       String annotationID,
+                                       String studyAccession,
+                                       URI studyURI,
+                                       String studyID,
+                                       URI studyType,
+                                       String bioentityName,
+                                       URI bioentityURI,
+                                       String bioentityID,
+                                       String bioentityTypeName,
+                                       URI bioentityTypeURI,
+                                       String propertyType,
+                                       String propertyValue,
+                                       URI propertyURI,
+                                       String propertyID,
+                                       URI semanticTag,
+                                       String annotator,
+                                       Date annotationDate) {
         Collection<URI> studyTypes = new HashSet<>();
         if (studyType != null) {
             studyTypes.add(studyType);
@@ -215,14 +254,17 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
         AnnotationProvenance prov;
         if (annotator != null) {
             if (annotationDate != null) {
-                prov = getAnnotationProvenance(annotator, annotationDate);
+                prov = getAnnotationLoadingSession().getAnnotationProvenanceTemplate()
+                        .annotatorIs(annotator)
+                        .annotationDateIs(annotationDate)
+                        .complete();
             }
             else {
                 throw new InvalidDataFormatException("ANNOTATOR supplied without a corresponding ANNOTATION_DATE");
             }
         }
         else {
-            prov = getAnnotationProvenance();
+            prov = getAnnotationLoadingSession().getAnnotationProvenanceTemplate().complete();
         }
 
         // and return the complete annotation
@@ -254,12 +296,4 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
         }
         return a;
     }
-
-    protected abstract AnnotationProvenance getAnnotationProvenance();
-
-    protected abstract AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate);
-
-    protected abstract AnnotationProvenance getAnnotationProvenance(String annotator,
-                                                                    AnnotationProvenance.Accuracy accuracy,
-                                                                    Date annotationDate);
 }

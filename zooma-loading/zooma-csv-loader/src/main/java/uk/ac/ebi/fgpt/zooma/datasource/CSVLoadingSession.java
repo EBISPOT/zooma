@@ -6,7 +6,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,35 +16,27 @@ import java.util.Set;
  * @date 23/10/12
  */
 public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
-
     private URI namespace;
-    private String resourceName;
 
-
-    /**
-     * Takes a short name for the datasource
-     * @param resourceName the shortname for this resource
-     */
-    public CSVLoadingSession (String  resourceName) {
-        this(null, resourceName);
+    public CSVLoadingSession() {
+        this(null);
     }
 
     /**
-     * Takes a string representing the namespace URI of this datasource and a short name for the datasource
+     * Takes a string representing the namespace URI of this datasource
      *
      * @param namespace the namespace to use as the base URI of entities created by this loading session
-     * @param resourceName the shortname for this resource
      */
-    public CSVLoadingSession(String namespace, String resourceName) {
-        this(namespace, resourceName, null, null);
+    public CSVLoadingSession(String namespace) {
+        this(namespace, null, null);
     }
 
     /**
      * Takes a string representing the namespace URI of this datasource and a short name for the datasource
      *
-     * @param resourceName the shortname for this resource
+     * @param resourceName               the shortname for this resource
      * @param defaultBiologicalEntityUri the shortname for this resource
-     * @param defaultStudyEntityUri the shortname for this resource
+     * @param defaultStudyEntityUri      the shortname for this resource
      */
     public CSVLoadingSession(String resourceName, URI defaultBiologicalEntityUri, URI defaultStudyEntityUri) {
         this(null, resourceName, defaultBiologicalEntityUri, defaultStudyEntityUri);
@@ -54,32 +45,38 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
     /**
      * Takes a string representing the namespace URI of this datasource and a short name for the datasource
      *
-     * @param namespace the namespace to use as the base URI of entities created by this loading session (can be null)
-     * @param resourceName the shortname for this resource
+     * @param namespace                  the namespace to use as the base URI of entities created by this loading
+     *                                   session (can be null)
+     * @param resourceName               the shortname for this resource
      * @param defaultBiologicalEntityUri the shortname for this resource
-     * @param defaultStudyEntityUri the shortname for this resource
+     * @param defaultStudyEntityUri      the shortname for this resource
      */
-    public CSVLoadingSession(String namespace, String resourceName, URI defaultBiologicalEntityUri, URI defaultStudyEntityUri) {
+    public CSVLoadingSession(String namespace,
+                             String resourceName,
+                             URI defaultBiologicalEntityUri,
+                             URI defaultStudyEntityUri) {
         super(defaultBiologicalEntityUri, defaultStudyEntityUri);
         if (namespace == null) {
             try {
-                this.namespace = URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + URLEncoder.encode(resourceName.trim(), "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
+                this.namespace = URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() +
+                                                    URLEncoder.encode(resourceName.trim(), "UTF-8"));
+            }
+            catch (UnsupportedEncodingException e) {
                 getLog().warn("Couldn't create namespace URI for " + resourceName);
             }
         }
         else {
             this.namespace = URI.create(namespace);
         }
-        this.resourceName = resourceName;
     }
 
-    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
+    @Override
+    protected URI mintStudyURI(String studyAccession, String studyID) {
         return URI.create(namespace.toString() + "/" + encode(studyAccession));
     }
 
-    @Override protected URI mintBioentityURI(String bioentityID,
-                                             String bioentityName, String... studyAccessions) {
+    @Override
+    protected URI mintBioentityURI(String bioentityID, String bioentityName, String... studyAccessions) {
         return URI.create(namespace.toString() + "/" +
                                   (studyAccessions.length > 0 ? encode(studyAccessions[0]) + "/" : "") +
                                   bioentityID);
@@ -101,15 +98,12 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
         return typeUris;
     }
 
-    @Override protected URI mintAnnotationURI(String annotationID) {
+    @Override
+    protected URI mintAnnotationURI(String annotationID) {
         return URI.create(namespace.toString() + "/" + annotationID);
     }
 
     public URI getNamespace() {
         return namespace;
-    }
-
-    public String getResourceName() {
-        return resourceName;
     }
 }

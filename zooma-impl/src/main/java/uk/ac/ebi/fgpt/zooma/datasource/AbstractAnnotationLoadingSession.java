@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.Namespaces;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenanceTemplate;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotation;
@@ -22,12 +23,17 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An annotation loading session that caches objects that have been previously seen so as to avoid creating duplicates
  * of objects that should be reused.
- * <p/>
+ * <p>
  * It is assumed that within a single session, objects with the same sets of parameters used in their creation are
  * identical.  Care should therefore be taken to reuse the same method of construction for each object, and to ensure
  * that enough information is supplied to prevent duplicates being inadvertently created.
@@ -42,6 +48,8 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
     private final Map<URI, Property> propertyCache;
     private final Map<URI, SimpleAnnotation> annotationCache;
 
+    private final AnnotationProvenanceTemplate annotationProvenanceTemplate;
+
     private final URI defaultTargetTypeUri;
     private final URI defaultTargetSourceTypeUri;
 
@@ -53,13 +61,16 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         return log;
     }
 
-    protected AbstractAnnotationLoadingSession() {
-        this(null, null);
+    protected AbstractAnnotationLoadingSession(AnnotationProvenanceTemplate annotationProvenanceTemplate) {
+        this(annotationProvenanceTemplate, null, null);
     }
 
-    protected AbstractAnnotationLoadingSession(URI defaultTargetUriType,
-                                               URI defaultTargetSourceUriType) {
-        super();
+    protected AbstractAnnotationLoadingSession(AnnotationProvenanceTemplate annotationProvenanceTemplate,
+                                               URI defaultTargetTypeUri,
+                                               URI defaultTargetSourceTypeUri) {
+        this.annotationProvenanceTemplate = annotationProvenanceTemplate;
+        this.defaultTargetTypeUri = defaultTargetTypeUri;
+        this.defaultTargetSourceTypeUri = defaultTargetSourceTypeUri;
 
         this.studyCache = Collections.synchronizedMap(new HashMap<URI, Study>());
         this.biologicalEntityCache = Collections.synchronizedMap(new HashMap<URI, BiologicalEntity>());
@@ -67,8 +78,6 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         this.annotationCache = Collections.synchronizedMap(new HashMap<URI, SimpleAnnotation>());
 
         this.messageDigest = ZoomaUtils.generateMessageDigest();
-        this.defaultTargetTypeUri = defaultTargetUriType;
-        this.defaultTargetSourceTypeUri = defaultTargetSourceUriType;
     }
 
     public URI getDefaultTargetTypeUri() {
@@ -79,7 +88,8 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         return defaultTargetSourceTypeUri;
     }
 
-    @Override public synchronized Study getOrCreateStudy(String studyAccession, Collection<URI> studyTypes) {
+    @Override
+    public synchronized Study getOrCreateStudy(String studyAccession, Collection<URI> studyTypes) {
         return getOrCreateStudy(studyAccession, generateIDFromContent(studyAccession), studyTypes);
     }
 
@@ -88,7 +98,8 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         return getOrCreateStudy(studyAccession, mintStudyURI(studyAccession, studyID), studyTypes);
     }
 
-    @Override public Study getOrCreateStudy(String studyAccession, URI studyURI, Collection<URI> studyTypes) {
+    @Override
+    public Study getOrCreateStudy(String studyAccession, URI studyURI, Collection<URI> studyTypes) {
         // ping to keep caches alive
         ping();
 
@@ -103,10 +114,11 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         return studyCache.get(studyURI);
     }
 
-    @Override public synchronized BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
-                                                                               Collection<String> bioentityTypeName,
-                                                                               Collection<URI> bioentityTypeURI,
-                                                                               Study... studies) {
+    @Override
+    public synchronized BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
+                                                                     Collection<String> bioentityTypeName,
+                                                                     Collection<URI> bioentityTypeURI,
+                                                                     Study... studies) {
         List<String> ids = new ArrayList<>();
         for (Study s : studies) {
             ids.add(s.getAccession());
@@ -116,89 +128,94 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         return getOrCreateBiologicalEntity(bioentityName, hashID, bioentityTypeName, bioentityTypeURI, studies);
     }
 
-    @Override public synchronized BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
-                                                                               String bioentityID,
-                                                                               Collection<String> bioentityTypeName,
-                                                                               Collection<URI> bioentityTypeURI,
-                                                                               Study... studies) {
+    @Override
+    public synchronized BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
+                                                                     String bioentityID,
+                                                                     Collection<String> bioentityTypeName,
+                                                                     Collection<URI> bioentityTypeURI,
+                                                                     Study... studies) {
         String[] studyAccs = new String[studies.length];
         for (int i = 0; i < studies.length; i++) {
             studyAccs[i] = studies[i].getAccession();
         }
         return getOrCreateBiologicalEntity(bioentityName,
-                mintBioentityURI(bioentityID, bioentityName, studyAccs),
-                bioentityTypeName, bioentityTypeURI,
-                studies);
+                                           mintBioentityURI(bioentityID, bioentityName, studyAccs),
+                                           bioentityTypeName, bioentityTypeURI,
+                                           studies);
     }
 
-    @Override public BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
-                                                                  URI bioentityURI,
-                                                                  Collection<String> bioentityTypeName,
-                                                                  Collection<URI> bioentityTypeURI,
-                                                                  Study... studies) {
+    @Override
+    public BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
+                                                        URI bioentityURI,
+                                                        Collection<String> bioentityTypeName,
+                                                        Collection<URI> bioentityTypeURI,
+                                                        Study... studies) {
         // ping to keep caches alive
         ping();
 
         if (!biologicalEntityCache.containsKey(bioentityURI)) {
             if (!bioentityTypeURI.isEmpty()) {
                 biologicalEntityCache.put(bioentityURI,
-                        new SimpleBiologicalEntity(bioentityURI,
-                                bioentityName,
-                                bioentityTypeURI,
-                                studies));
+                                          new SimpleBiologicalEntity(bioentityURI,
+                                                                     bioentityName,
+                                                                     bioentityTypeURI,
+                                                                     studies));
             }
             else if (!bioentityTypeName.isEmpty()) {
                 biologicalEntityCache.put(bioentityURI,
-                        new SimpleBiologicalEntity(bioentityURI,
-                                bioentityName,
-                                mintBioentityURITypes(bioentityTypeName),
-                                studies));
+                                          new SimpleBiologicalEntity(bioentityURI,
+                                                                     bioentityName,
+                                                                     mintBioentityURITypes(bioentityTypeName),
+                                                                     studies));
             }
             else {
                 biologicalEntityCache.put(bioentityURI,
-                        new SimpleBiologicalEntity(bioentityURI,
-                                bioentityName,
-                                getDefaultTargetTypeUri(),
-                                studies));
+                                          new SimpleBiologicalEntity(bioentityURI,
+                                                                     bioentityName,
+                                                                     getDefaultTargetTypeUri(),
+                                                                     studies));
             }
         }
         return biologicalEntityCache.get(bioentityURI);
     }
 
-    @Override public synchronized Property getOrCreateProperty(String propertyType, String propertyValue) {
+    @Override
+    public synchronized Property getOrCreateProperty(String propertyType, String propertyValue) {
         if (propertyType != null && !propertyType.equals("")) {
             String normalizedType = ZoomaUtils.normalizePropertyTypeString(propertyType);
             return getOrCreateProperty(propertyType,
-                    propertyValue,
-                    generateIDFromContent(normalizedType, propertyValue));
+                                       propertyValue,
+                                       generateIDFromContent(normalizedType, propertyValue));
         }
         else {
             return getOrCreateProperty(null,
-                    propertyValue,
-                    generateIDFromContent(propertyValue));
+                                       propertyValue,
+                                       generateIDFromContent(propertyValue));
         }
     }
 
-    @Override public synchronized Property getOrCreateProperty(String propertyType,
-                                                               String propertyValue,
-                                                               String propertyID) {
+    @Override
+    public synchronized Property getOrCreateProperty(String propertyType,
+                                                     String propertyValue,
+                                                     String propertyID) {
         if (propertyType != null && !propertyType.equals("")) {
             String normalizedType = ZoomaUtils.normalizePropertyTypeString(propertyType);
             return getOrCreateProperty(propertyType,
-                    propertyValue,
-                    mintPropertyURI(propertyID, normalizedType, propertyValue));
+                                       propertyValue,
+                                       mintPropertyURI(propertyID, normalizedType, propertyValue));
         }
         else {
             return getOrCreateProperty(null,
-                    propertyValue,
-                    mintPropertyURI(propertyID, null, propertyValue));
+                                       propertyValue,
+                                       mintPropertyURI(propertyID, null, propertyValue));
         }
     }
 
 
-    @Override public Property getOrCreateProperty(String propertyType,
-                                                  String propertyValue,
-                                                  URI propertyURI) {
+    @Override
+    public Property getOrCreateProperty(String propertyType,
+                                        String propertyValue,
+                                        URI propertyURI) {
         // ping to keep caches alive
         ping();
 
@@ -216,10 +233,11 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         return propertyCache.get(propertyURI);
     }
 
-    @Override public synchronized Annotation getOrCreateAnnotation(Collection<BiologicalEntity> biologicalEntities,
-                                                                   Property property,
-                                                                   AnnotationProvenance annotationProvenance,
-                                                                   Collection<URI> semanticTags) {
+    @Override
+    public synchronized Annotation getOrCreateAnnotation(Collection<BiologicalEntity> biologicalEntities,
+                                                         Property property,
+                                                         AnnotationProvenance annotationProvenance,
+                                                         Collection<URI> semanticTags) {
         List<String> idContents = new ArrayList<>();
         for (BiologicalEntity biologicalEntity : biologicalEntities) {
             for (Study s : biologicalEntity.getStudies()) {
@@ -242,33 +260,40 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
             idContents.add(URIUtils.getShortform(semanticTag, URIUtils.ShortformStrictness.ALLOW_SLASHES_AND_HASHES));
         }
         idContents.add(annotationProvenance.getAnnotator() != null ? annotationProvenance.getAnnotator() : "");
-        idContents.add(annotationProvenance.getGeneratedDate() != null ? annotationProvenance.getGeneratedDate().toString() : "");
-        idContents.add(annotationProvenance.getAnnotationDate() != null ? annotationProvenance.getAnnotationDate().toString() : "");
+        idContents.add(
+                annotationProvenance.getGeneratedDate() != null ? annotationProvenance.getGeneratedDate().toString() :
+                        "");
+        idContents.add(
+                annotationProvenance.getAnnotationDate() != null ? annotationProvenance.getAnnotationDate().toString() :
+                        "");
         idContents.add(annotationProvenance.getEvidence() != null ? annotationProvenance.getEvidence().toString() : "");
-        idContents.add(annotationProvenance.getSource() != null ? annotationProvenance.getSource().getURI().toString() : "");
+        idContents.add(
+                annotationProvenance.getSource() != null ? annotationProvenance.getSource().getURI().toString() : "");
 
         String annotationID = generateIDFromContent(idContents.toArray(new String[idContents.size()]));
 
         return getOrCreateAnnotation(annotationID, biologicalEntities, property, annotationProvenance, semanticTags);
     }
 
-    @Override public synchronized Annotation getOrCreateAnnotation(String annotationID,
-                                                                   Collection<BiologicalEntity> biologicalEntities,
-                                                                   Property property,
-                                                                   AnnotationProvenance annotationProvenance,
-                                                                   Collection<URI> semanticTags) {
+    @Override
+    public synchronized Annotation getOrCreateAnnotation(String annotationID,
+                                                         Collection<BiologicalEntity> biologicalEntities,
+                                                         Property property,
+                                                         AnnotationProvenance annotationProvenance,
+                                                         Collection<URI> semanticTags) {
         return getOrCreateAnnotation(mintAnnotationURI(annotationID),
-                biologicalEntities,
-                property,
-                annotationProvenance,
-                semanticTags);
+                                     biologicalEntities,
+                                     property,
+                                     annotationProvenance,
+                                     semanticTags);
     }
 
-    @Override public Annotation getOrCreateAnnotation(URI annotationURI,
-                                                      Collection<BiologicalEntity> biologicalEntities,
-                                                      Property property,
-                                                      AnnotationProvenance annotationProvenance,
-                                                      Collection<URI> semanticTags) {
+    @Override
+    public Annotation getOrCreateAnnotation(URI annotationURI,
+                                            Collection<BiologicalEntity> biologicalEntities,
+                                            Property property,
+                                            AnnotationProvenance annotationProvenance,
+                                            Collection<URI> semanticTags) {
         // ping to keep caches alive
         ping();
 
@@ -276,15 +301,15 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
             // create and cache a new annotation
             if (semanticTags.isEmpty()) {
                 annotationCache.put(annotationURI, new SimpleAnnotation(annotationURI,
-                        biologicalEntities,
-                        property,
-                        annotationProvenance));
+                                                                        biologicalEntities,
+                                                                        property,
+                                                                        annotationProvenance));
             }
             annotationCache.put(annotationURI, new SimpleAnnotation(annotationURI,
-                    biologicalEntities,
-                    property,
-                    annotationProvenance,
-                    semanticTags.toArray(new URI[semanticTags.size()])));
+                                                                    biologicalEntities,
+                                                                    property,
+                                                                    annotationProvenance,
+                                                                    semanticTags.toArray(new URI[semanticTags.size()])));
         }
         else {
             getLog().debug("Annotation <" + annotationURI + "> already exists; merging additional data");
@@ -302,12 +327,19 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         return annotationCache.get(annotationURI);
     }
 
-    @Override protected boolean createCaches() {
+    @Override
+    public AnnotationProvenanceTemplate getAnnotationProvenanceTemplate() {
+        return this.annotationProvenanceTemplate;
+    }
+
+    @Override
+    protected boolean createCaches() {
         // caches are final, created in constructor, so nothing to do here
         return true;
     }
 
-    @Override public synchronized boolean clearCaches() {
+    @Override
+    public synchronized boolean clearCaches() {
         getLog().debug("Clearing caches for " + getClass().getSimpleName());
         studyCache.clear();
         biologicalEntityCache.clear();
