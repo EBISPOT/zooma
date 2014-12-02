@@ -57,15 +57,15 @@ public class DefaultJdbcAnnotationDAO implements AnnotationDAO {
     private final String ANNOTATIONS_SELECT_BY_PROPERTY;
 
     private final DefaultJdbcAnnotationMapper mapper;
+    private final JdbcTemplate jdbcTemplate;
 
-    private JdbcTemplate jdbcTemplate;
-
-    public DefaultJdbcAnnotationDAO(AnnotationFactory annotationFactory) {
-        this(new DefaultJdbcAnnotationMapper(annotationFactory));
+    public DefaultJdbcAnnotationDAO(AnnotationFactory annotationFactory, JdbcTemplate jdbcTemplate) {
+        this(new DefaultJdbcAnnotationMapper(annotationFactory), jdbcTemplate);
     }
 
-    public DefaultJdbcAnnotationDAO(DefaultJdbcAnnotationMapper annotationMapper) {
+    public DefaultJdbcAnnotationDAO(DefaultJdbcAnnotationMapper annotationMapper, JdbcTemplate jdbcTemplate) {
         this.mapper = annotationMapper;
+        this.jdbcTemplate = jdbcTemplate;
 
         // now read sql file annotations.sql to get ANNOTATIONS_SELECT query
         StringBuilder sb = new StringBuilder();
@@ -101,10 +101,6 @@ public class DefaultJdbcAnnotationDAO implements AnnotationDAO {
 
     public JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
-    }
-
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override

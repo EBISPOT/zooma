@@ -73,23 +73,16 @@ public class ArrayExpressAssayAnnotationDAO implements AnnotationDAO {
             ANNOTATIONS_SELECT + "where PROPERTY_TYPE = ? and PROPERTY_VALUE = ? " + ORDERING;
 
     private final DefaultJdbcAnnotationMapper mapper;
+    private final JdbcTemplate jdbcTemplate;
 
-    private JdbcTemplate jdbcTemplate;
-
-    public ArrayExpressAssayAnnotationDAO(ArrayExpressLoadingSession loadingSession) {
-        mapper = new DefaultJdbcAnnotationMapper(new ArrayExpressAnnotationFactory(loadingSession));
+    public ArrayExpressAssayAnnotationDAO(ArrayExpressLoadingSession loadingSession, JdbcTemplate jdbcTemplate) {
+        super();
+        this.mapper = new DefaultJdbcAnnotationMapper(new DefaultAnnotationFactory(loadingSession));
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
-    }
-
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    @Override public String getDatasourceName() {
-        return "arrayexpress.assays";
     }
 
     @Override public Collection<Annotation> readByStudy(Study study) {
@@ -124,6 +117,11 @@ public class ArrayExpressAssayAnnotationDAO implements AnnotationDAO {
     @Override public Collection<Annotation> readBySemanticTag(URI semanticTagURI) {
         throw new UnsupportedOperationException("Semantic tagging is not well defined in ArrayExpress, so retrieval " +
                                                         "of annotations using this method is not supported");
+    }
+
+    @Override
+    public String getDatasourceName() {
+        return mapper.getAnnotationFactory().getDatasourceName();
     }
 
     @Override public int count() {

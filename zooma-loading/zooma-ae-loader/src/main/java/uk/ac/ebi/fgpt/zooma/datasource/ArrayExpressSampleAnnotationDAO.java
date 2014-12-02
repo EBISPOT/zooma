@@ -71,19 +71,15 @@ public class ArrayExpressSampleAnnotationDAO implements AnnotationDAO {
             ANNOTATIONS_SELECT + "where PROPERTY_TYPE = ? and PROPERTY_VALUE = ? " + ORDERING;
 
     private final DefaultJdbcAnnotationMapper mapper;
+    private final JdbcTemplate jdbcTemplate;
 
-    private JdbcTemplate jdbcTemplate;
-
-    public ArrayExpressSampleAnnotationDAO(ArrayExpressLoadingSession loadingSession) {
-        mapper = new DefaultJdbcAnnotationMapper(new ArrayExpressAnnotationFactory(loadingSession));
+    public ArrayExpressSampleAnnotationDAO(ArrayExpressLoadingSession loadingSession, JdbcTemplate jdbcTemplate) {
+        this.mapper = new DefaultJdbcAnnotationMapper(new DefaultAnnotationFactory(loadingSession));
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
-    }
-
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override public String getDatasourceName() {

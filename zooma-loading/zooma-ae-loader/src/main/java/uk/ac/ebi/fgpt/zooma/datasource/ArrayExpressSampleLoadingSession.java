@@ -1,7 +1,5 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
-import uk.ac.ebi.fgpt.zooma.Namespaces;
-
 import java.net.URI;
 
 /**
@@ -12,12 +10,8 @@ import java.net.URI;
  */
 public class ArrayExpressSampleLoadingSession extends ArrayExpressLoadingSession {
     protected ArrayExpressSampleLoadingSession() {
-        super(URI.create("http://purl.obolibrary.org/obo/OBI_0000747"),
+        super("arrayexpress.samples",
+              URI.create("http://purl.obolibrary.org/obo/OBI_0000747"),
               URI.create("http://www.ebi.ac.uk/efo/EFO_0004033"));
-    }
-
-    @Override protected URI mintBioentityURI(String bioentityID) {
-        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "arrayexpress/" +
-                                  encode(studyAccessions[0]) + "#sample-" + bioentityID);
     }
 }
