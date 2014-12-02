@@ -17,18 +17,12 @@ import java.net.URL;
  * @date 06/11/12
  */
 public class GwasAnnotationMapper extends DefaultJdbcAnnotationMapper {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    protected Logger getLog() {
-        return log;
+    public GwasAnnotationMapper(AnnotationFactory annotationFactory) {
+        this(annotationFactory, "http://www.ebi.ac.uk/efo/efo.owl");
     }
 
-    public GwasAnnotationMapper(AnnotationFactory gwasAnnotationFactory) {
-        this(gwasAnnotationFactory, "http://www.ebi.ac.uk/efo/efo.owl");
-    }
-
-    public GwasAnnotationMapper(AnnotationFactory gwasAnnotationFactory, Resource efoResource) {
-        super(gwasAnnotationFactory);
+    public GwasAnnotationMapper(AnnotationFactory annotationFactory, Resource efoResource) {
+        super(annotationFactory);
         try {
             OntologyAccessionUtils.loadOntology(efoResource.getURL());
         }
@@ -37,8 +31,8 @@ public class GwasAnnotationMapper extends DefaultJdbcAnnotationMapper {
         }
     }
 
-    public GwasAnnotationMapper(AnnotationFactory gwasAnnotationFactory, String efoURL) {
-        super(gwasAnnotationFactory);
+    public GwasAnnotationMapper(AnnotationFactory annotationFactory, String efoURL) {
+        super(annotationFactory);
         try {
             URL efo = URI.create(efoURL).toURL();
             OntologyAccessionUtils.loadOntology(efo);

@@ -43,7 +43,7 @@ public class OmimAnnotationDAO extends Initializable implements AnnotationDAO {
     private long cacheTimestamp = 0;
 
     public OmimAnnotationDAO() {
-        this(new OmimAnnotationFactory(new OmimLoadingSession()));
+        this(new DefaultAnnotationFactory(new OmimLoadingSession()));
     }
 
     public OmimAnnotationDAO(AnnotationFactory annotationFactory) {

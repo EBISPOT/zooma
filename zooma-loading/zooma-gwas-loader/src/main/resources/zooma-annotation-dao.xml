@@ -8,10 +8,10 @@
     <!-- Configure AnnotationDAOs for this datasource -->
     <bean name="gwasDAO" class="uk.ac.ebi.fgpt.zooma.datasource.DefaultJdbcAnnotationDAO">
         <constructor-arg name="annotationMapper" ref="gwasAnnotationMapper" />
-        <property name="jdbcTemplate" ref="gwasJdbcTemplate" />
+        <constructor-arg name="jdbcTemplate" ref="gwasJdbcTemplate" />
     </bean>
 
-    <bean name="gwasAnnotationMapper" class="uk.ac.ebi.fgpt.zooma.datasource.DefaultJdbcAnnotationMapper">
+    <bean name="gwasAnnotationMapper" class="uk.ac.ebi.fgpt.zooma.datasource.GwasAnnotationMapper">
         <constructor-arg name="annotationFactory" ref="gwasAnnotationFactory" />
     </bean>
 

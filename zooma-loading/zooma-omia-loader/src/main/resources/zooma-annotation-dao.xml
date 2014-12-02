@@ -13,12 +13,12 @@
     <context:property-placeholder />
 
     <!-- Configure AnnotationDAOs for this datasource -->
-    <bean name="omiaDAO" class="uk.ac.ebi.fgpt.zooma.datasource.OmiaAnnotationDAO">
+    <bean name="omiaDAO" class="uk.ac.ebi.fgpt.zooma.datasource.DefaultJdbcAnnotationDAO">
         <constructor-arg name="annotationMapper" ref="omiaMapper" />
-        <property name="jdbcTemplate" ref="omiaJdbcTemplate" />
+        <constructor-arg name="jdbcTemplate" ref="omiaJdbcTemplate" />
     </bean>
 
-    <bean name="omiaAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.OmiaAnnotationFactory">
+    <bean name="omiaAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.DefaultAnnotationFactory">
         <constructor-arg name="annotationLoadingSession" ref="omiaSampleLoadingSession" />
     </bean>
 

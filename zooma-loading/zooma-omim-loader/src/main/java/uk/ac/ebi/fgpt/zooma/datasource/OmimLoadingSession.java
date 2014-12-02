@@ -1,8 +1,12 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import uk.ac.ebi.fgpt.zooma.Namespaces;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenanceTemplate;
+import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenanceTemplate;
+import uk.ac.ebi.fgpt.zooma.model.SimpleDatabaseAnnotationSource;
 
-import java.net.URI;
+import java.util.Date;
 
 /**
  * Javadocs go here!
@@ -11,18 +15,14 @@ import java.net.URI;
  * @date 02/12/13
  */
 public class OmimLoadingSession extends AbstractAnnotationLoadingSession {
-    @Override protected URI mintStudyURI(String studyID) {
-        throw new UnsupportedOperationException("Cannot mint study URIs for OMIM - the current implementation " +
-                                                        "does not record study information.");
-    }
-
-    @Override protected URI mintBioentityURI(String bioentityID) {
-        throw new UnsupportedOperationException("Cannot mint bioentity URIs for OMIM - the current implementation " +
-                                                        "does not record bioentity information.");
-    }
-
-
-    @Override protected URI mintAnnotationURI(String annotationID) {
-        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "omim/" + annotationID);
+    protected OmimLoadingSession() {
+        super(new SimpleAnnotationProvenanceTemplate(new SimpleDatabaseAnnotationSource(Namespaces.OMIM.getURI(),
+                                                                                        "omim"),
+                                                     AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                                     AnnotationProvenance.Accuracy.NOT_SPECIFIED,
+                                                     "ZOOMA",
+                                                     new Date(),
+                                                     null,
+                                                     null));
     }
 }
