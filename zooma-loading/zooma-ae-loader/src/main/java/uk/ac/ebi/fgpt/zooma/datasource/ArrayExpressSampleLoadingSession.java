@@ -3,7 +3,6 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 import uk.ac.ebi.fgpt.zooma.Namespaces;
 
 import java.net.URI;
-import java.util.Collections;
 
 /**
  * An arrayexpress annotation loading session that can generate URIs specific to arrayexpress samples
@@ -17,8 +16,7 @@ public class ArrayExpressSampleLoadingSession extends ArrayExpressLoadingSession
               URI.create("http://www.ebi.ac.uk/efo/EFO_0004033"));
     }
 
-    @Override protected URI mintBioentityURI(String bioentityID,
-                                             String bioentityName, String... studyAccessions) {
+    @Override protected URI mintBioentityURI(String bioentityID) {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "arrayexpress/" +
                                   encode(studyAccessions[0]) + "#sample-" + bioentityID);
     }

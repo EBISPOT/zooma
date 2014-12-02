@@ -9,11 +9,11 @@ import java.util.Date;
  * @date 01/12/14
  */
 public class SimpleAnnotationProvenanceTemplate implements AnnotationProvenanceTemplate {
-    private final AnnotationSource source;
     private final Evidence evidence;
     private final String generator;
     private final Date generatedDate;
 
+    private AnnotationSource source;
     private Accuracy accuracy;
     private String annotator;
     private Date annotationDate;
@@ -135,6 +135,13 @@ public class SimpleAnnotationProvenanceTemplate implements AnnotationProvenanceT
                 ", annotator='" + annotator + '\'' +
                 ", annotationDate=" + annotationDate +
                 '}';
+    }
+
+    @Override
+    public AnnotationProvenanceTemplate sourceIs(AnnotationSource source) {
+        this.source = source;
+        this.modded = true;
+        return this;
     }
 
     @Override

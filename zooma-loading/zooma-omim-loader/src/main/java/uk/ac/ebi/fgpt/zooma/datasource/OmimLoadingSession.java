@@ -11,13 +11,12 @@ import java.net.URI;
  * @date 02/12/13
  */
 public class OmimLoadingSession extends AbstractAnnotationLoadingSession {
-    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
+    @Override protected URI mintStudyURI(String studyID) {
         throw new UnsupportedOperationException("Cannot mint study URIs for OMIM - the current implementation " +
                                                         "does not record study information.");
     }
 
-    @Override protected URI mintBioentityURI(String bioentityID,
-                                             String bioentityName, String... studyAccessions) {
+    @Override protected URI mintBioentityURI(String bioentityID) {
         throw new UnsupportedOperationException("Cannot mint bioentity URIs for OMIM - the current implementation " +
                                                         "does not record bioentity information.");
     }

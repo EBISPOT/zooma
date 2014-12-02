@@ -14,13 +14,12 @@ public class ChemblLoadingSession extends AbstractAnnotationLoadingSession {
         super(URI.create("http://purl.obolibrary.org/obo/CLO_0000031"), null);
     }
 
-    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
+    @Override protected URI mintStudyURI(String studyID) {
         return URI.create(Namespaces.PUBMED.getURI().toString() + studyAccession);
     }
 
     @Override
-    protected URI mintBioentityURI(String bioentityID,
-                                   String bioentityName, String... studyAccessions) {
+    protected URI mintBioentityURI(String bioentityID) {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "chembl/" + encode(bioentityName));
     }
 

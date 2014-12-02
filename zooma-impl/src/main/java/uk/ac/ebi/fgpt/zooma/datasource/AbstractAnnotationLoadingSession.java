@@ -27,8 +27,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An annotation loading session that caches objects that have been previously seen so as to avoid creating duplicates
@@ -95,7 +97,7 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
 
     @Override
     public synchronized Study getOrCreateStudy(String studyAccession, String studyID, Collection<URI> studyTypes) {
-        return getOrCreateStudy(studyAccession, mintStudyURI(studyAccession, studyID), studyTypes);
+        return getOrCreateStudy(studyAccession, mintStudyURI(studyID), studyTypes);
     }
 
     @Override
@@ -139,7 +141,7 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
             studyAccs[i] = studies[i].getAccession();
         }
         return getOrCreateBiologicalEntity(bioentityName,
-                                           mintBioentityURI(bioentityID, bioentityName, studyAccs),
+                                           mintBioentityURI(bioentityID),
                                            bioentityTypeName, bioentityTypeURI,
                                            studies);
     }
@@ -165,7 +167,7 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
                 biologicalEntityCache.put(bioentityURI,
                                           new SimpleBiologicalEntity(bioentityURI,
                                                                      bioentityName,
-                                                                     mintBioentityURITypes(bioentityTypeName),
+                                                                     mintBioentityTypeURIs(bioentityTypeName),
                                                                      studies));
             }
             else {
@@ -202,12 +204,12 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
             String normalizedType = ZoomaUtils.normalizePropertyTypeString(propertyType);
             return getOrCreateProperty(propertyType,
                                        propertyValue,
-                                       mintPropertyURI(propertyID, normalizedType, propertyValue));
+                                       mintPropertyURI(propertyID));
         }
         else {
             return getOrCreateProperty(null,
                                        propertyValue,
-                                       mintPropertyURI(propertyID, null, propertyValue));
+                                       mintPropertyURI(propertyID));
         }
     }
 
@@ -359,26 +361,36 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         }
     }
 
-    protected abstract URI mintStudyURI(String studyAccession, String studyID);
-
-    protected abstract URI mintBioentityURI(String bioentityID,
-                                            String bioentityName,
-                                            String... studyAccessions);
-
-    // mint URI based on bioEntityType Name
-    protected Collection<URI> mintBioentityURITypes(Collection<String> bioentityTypeName) {
-
-        return Collections.emptySet();
+    protected String getDatasourceName() {
+        return getAnnotationProvenanceTemplate().getSource().getName();
     }
 
-    protected URI mintPropertyURI(String propertyID,
-                                  String propertyType,
-                                  String propertyValue) {
+    protected URI mintStudyURI(String studyID) {
+        return URI.create(
+                Namespaces.ZOOMA_RESOURCE.getURI().toString() + getDatasourceName() + "/" + studyID);
+    }
+
+    protected URI mintBioentityURI(String bioentityID) {
+        return URI.create(
+                Namespaces.ZOOMA_RESOURCE.getURI().toString() + getDatasourceName() + "/" + encode(bioentityID));
+    }
+
+    protected Collection<URI> mintBioentityTypeURIs(Collection<String> bioentityTypeName) {
+        Set<URI> typeUris = new HashSet<>();
+        for (String name : bioentityTypeName) {
+            typeUris.add(URI.create(
+                    Namespaces.ZOOMA_RESOURCE.getURI().toString() + getDatasourceName() + "/" + encode(name)));
+        }
+        return typeUris;
+    }
+
+    protected URI mintAnnotationURI(String annotationID) {
+        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + getDatasourceName() + "/" + annotationID);
+    }
+
+    protected URI mintPropertyURI(String propertyID) {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + propertyID);
-
     }
-
-    protected abstract URI mintAnnotationURI(String annotationID);
 
     private String generateIDFromContent(String... contents) {
         boolean hasNulls = false;

@@ -13,12 +13,11 @@ import java.util.Collections;
  * @date 26/07/13
  */
 public class OmiaLoadingSession extends AbstractAnnotationLoadingSession {
-    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
+    @Override protected URI mintStudyURI(String studyID) {
         return URI.create(Namespaces.PUBMED.getURI().toString() + studyAccession);
     }
 
-    @Override protected URI mintBioentityURI(String bioentityID,
-                                             String bioentityName, String... studyAccessions) {
+    @Override protected URI mintBioentityURI(String bioentityID) {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "omia/" + bioentityID);
     }
 
@@ -27,7 +26,7 @@ public class OmiaLoadingSession extends AbstractAnnotationLoadingSession {
     }
 
     @Override
-    protected Collection<URI> mintBioentityURITypes(Collection<String> bioentityTypeName) {
+    protected Collection<URI> mintBioentityTypeURIs(Collection<String> bioentityTypeName) {
 
         for (String name : bioentityTypeName) {
             if (name != null) {

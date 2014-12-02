@@ -1,7 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import uk.ac.ebi.fgpt.zooma.Namespaces;
-import uk.ac.ebi.fgpt.zooma.datasource.AbstractAnnotationLoadingSession;
 
 import java.net.URI;
 
@@ -21,7 +20,7 @@ public abstract class ExpressionAtlasLoadingSession extends AbstractAnnotationLo
         super(defaultBiologicalEntityUri, defaultStudyEntityUri);
     }
 
-    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
+    @Override protected URI mintStudyURI(String studyID) {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "atlas/" + encode(studyAccession));
     }
 

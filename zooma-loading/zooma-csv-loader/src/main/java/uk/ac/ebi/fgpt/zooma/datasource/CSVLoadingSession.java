@@ -70,39 +70,6 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
         }
     }
 
-    @Override
-    protected URI mintStudyURI(String studyAccession, String studyID) {
-        return URI.create(namespace.toString() + "/" + encode(studyAccession));
-    }
-
-    @Override
-    protected URI mintBioentityURI(String bioentityID, String bioentityName, String... studyAccessions) {
-        return URI.create(namespace.toString() + "/" +
-                                  (studyAccessions.length > 0 ? encode(studyAccessions[0]) + "/" : "") +
-                                  bioentityID);
-
-    }
-
-    @Override
-    protected Collection<URI> mintBioentityURITypes(Collection<String> bioentityTypeName) {
-        Set<URI> typeUris = new HashSet<URI>();
-        for (String name : bioentityTypeName) {
-            try {
-                typeUris.add(URI.create(this.namespace + URLEncoder.encode(name, "UTF-8")));
-            }
-            catch (UnsupportedEncodingException e) {
-                getLog().error("Couldn't create a URI from bioentity type name: " + name);
-            }
-
-        }
-        return typeUris;
-    }
-
-    @Override
-    protected URI mintAnnotationURI(String annotationID) {
-        return URI.create(namespace.toString() + "/" + annotationID);
-    }
-
     public URI getNamespace() {
         return namespace;
     }

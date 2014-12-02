@@ -16,8 +16,7 @@ public class ExpressionAtlasSampleLoadingSession extends ExpressionAtlasLoadingS
               URI.create("http://www.ebi.ac.uk/efo/EFO_0004033"));
     }
 
-    @Override protected URI mintBioentityURI(String bioentityID,
-                                             String bioentityName, String... studyAccessions) {
+    @Override protected URI mintBioentityURI(String bioentityID) {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "atlas/" +
                                   encode(studyAccessions[0]) + "#sample-" + bioentityID);
     }

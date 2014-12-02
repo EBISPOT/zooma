@@ -13,6 +13,14 @@ import java.util.Date;
  */
 public interface AnnotationProvenanceTemplate extends AnnotationProvenance {
     /**
+     * Updates the templates current value for the source of the resulting provenance object
+     *
+     * @param source the annotation source of the annotation this provenance relates to
+     * @return a reference to this template, for chaining calls
+     */
+    AnnotationProvenanceTemplate sourceIs(AnnotationSource source);
+
+    /**
      * Updates the templates current value for the annotator of the resulting provenance object
      *
      * @param annotator the annotator

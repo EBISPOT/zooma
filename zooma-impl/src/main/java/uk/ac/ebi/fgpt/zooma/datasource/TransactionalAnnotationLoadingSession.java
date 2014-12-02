@@ -3,12 +3,15 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.Namespaces;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
+import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenanceTemplate;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
@@ -28,7 +31,14 @@ public class TransactionalAnnotationLoadingSession extends AbstractAnnotationLoa
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    public TransactionalAnnotationLoadingSession() {
+    protected TransactionalAnnotationLoadingSession() {
+        super(new SimpleAnnotationProvenanceTemplate(null,
+                                                     AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                                     AnnotationProvenance.Accuracy.NOT_SPECIFIED,
+                                                     "ZOOMA",
+                                                     new Date(),
+                                                     null,
+                                                     null));
         this.lock = new Semaphore(1);
     }
 
@@ -57,18 +67,19 @@ public class TransactionalAnnotationLoadingSession extends AbstractAnnotationLoa
         lock.release();
     }
 
-    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
+    @Override
+    protected URI mintStudyURI(String studyID) {
         return URI.create(currentNamespace.toString() + "/" + encode(studyAccession));
     }
 
-    @Override protected URI mintBioentityURI(String bioentityID,
-                                             String bioentityName, String... studyAccessions) {
+    @Override
+    protected URI mintBioentityURI(String bioentityID) {
         return URI.create(currentNamespace.toString() + "/" + encode(studyAccessions[0]) + "/" + bioentityID);
 
     }
 
     @Override
-    protected Collection<URI> mintBioentityURITypes(Collection<String> bioentityTypeName) {
+    protected Collection<URI> mintBioentityTypeURIs(Collection<String> bioentityTypeName) {
         Set<URI> typeUris = new HashSet<URI>();
         for (String name : bioentityTypeName) {
             try {
@@ -82,7 +93,8 @@ public class TransactionalAnnotationLoadingSession extends AbstractAnnotationLoa
         return typeUris;
     }
 
-    @Override protected URI mintAnnotationURI(String annotationID) {
+    @Override
+    protected URI mintAnnotationURI(String annotationID) {
         return URI.create(currentNamespace.toString() + "/" + annotationID);
     }
 }

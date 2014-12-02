@@ -22,13 +22,12 @@ public class OWLLoadingSession extends AbstractAnnotationLoadingSession {
         this.baseNamespace = Namespaces.OWL_RESOURCE.getURI().toString();
     }
 
-    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
+    @Override protected URI mintStudyURI(String studyID) {
         throw new UnsupportedOperationException("Cannot mint study URIs for OWLAnnotation datasources - " +
                                                         "ontology mapping does not allow for creation of studies.");
     }
 
-    @Override protected URI mintBioentityURI(String bioentityID,
-                                             String bioentityName, String... studyAccessions) {
+    @Override protected URI mintBioentityURI(String bioentityID) {
         throw new UnsupportedOperationException("Cannot mint bioentity URIs for OWLAnnotation datasources - " +
                                                         "ontology mapping does not allow for creation of bioentities.");
     }

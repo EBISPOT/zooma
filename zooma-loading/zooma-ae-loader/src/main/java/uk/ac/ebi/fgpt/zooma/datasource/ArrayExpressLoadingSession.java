@@ -3,7 +3,6 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 import uk.ac.ebi.fgpt.zooma.Namespaces;
 
 import java.net.URI;
-import java.util.Collection;
 
 /**
  * An annotation loading session that is capable of minting URIs specific to ArrayExpress
@@ -21,7 +20,7 @@ public abstract class ArrayExpressLoadingSession extends AbstractAnnotationLoadi
         super(defaultBiologicalEntityUri, defaultStudyEntityUri);
     }
 
-    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
+    @Override protected URI mintStudyURI(String studyID) {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "arrayexpress/" + encode(studyAccession));
     }
 

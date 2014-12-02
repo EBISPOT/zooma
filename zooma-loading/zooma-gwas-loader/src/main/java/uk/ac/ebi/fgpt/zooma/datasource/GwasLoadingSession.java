@@ -27,20 +27,4 @@ public class GwasLoadingSession extends AbstractAnnotationLoadingSession {
               URI.create("http://purl.obolibrary.org/obo/SO_0000694"),
               null);
     }
-
-    @Override
-    protected URI mintStudyURI(String studyAccession, String studyID) {
-        return URI.create(Namespaces.PUBMED.getURI().toString() + studyAccession);
-    }
-
-    @Override
-    protected URI mintBioentityURI(String bioentityID,
-                                   String bioentityName, String... studyAccessions) {
-        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "gwas/" + encode(bioentityName));
-    }
-
-    @Override
-    protected URI mintAnnotationURI(String annotationID) {
-        return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "gwas/" + annotationID);
-    }
 }
