@@ -16,19 +16,9 @@ import java.net.URL;
  * @author Tony Burdett
  * @date 04/10/12
  */
-public class AtlasAnnotationMapper extends DefaultJdbcAnnotationMapper {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    protected Logger getLog() {
-        return log;
-    }
-
-    public AtlasAnnotationMapper(AtlasAnnotationFactory atlasAnnotationFactory) {
-        this(atlasAnnotationFactory, "http://www.ebi.ac.uk/efo/efo.owl");
-    }
-
-    public AtlasAnnotationMapper(AtlasAnnotationFactory atlasAnnotationFactory, Resource efoResource) {
-        super(atlasAnnotationFactory);
+public class AtlasAssayAnnotationMapper extends DefaultJdbcAnnotationMapper {
+    public AtlasAssayAnnotationMapper(AnnotationFactory annotationFactory, Resource efoResource) {
+        super(annotationFactory);
         try {
             OntologyAccessionUtils.loadOntology(efoResource.getURL());
         }
@@ -37,8 +27,8 @@ public class AtlasAnnotationMapper extends DefaultJdbcAnnotationMapper {
         }
     }
 
-    public AtlasAnnotationMapper(AtlasAnnotationFactory atlasAnnotationFactory, String efoURL) {
-        super(atlasAnnotationFactory);
+    public AtlasAssayAnnotationMapper(AnnotationFactory annotationFactory, String efoURL) {
+        super(annotationFactory);
         try {
             URL efo = URI.create(efoURL).toURL();
             OntologyAccessionUtils.loadOntology(efo);
