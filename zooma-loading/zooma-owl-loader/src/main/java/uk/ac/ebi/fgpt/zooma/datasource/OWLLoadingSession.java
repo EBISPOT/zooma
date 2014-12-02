@@ -1,9 +1,11 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
-import uk.ac.ebi.fgpt.zooma.Namespaces;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
+import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenanceTemplate;
+import uk.ac.ebi.fgpt.zooma.model.SimpleOntologyAnnotationSource;
 import uk.ac.ebi.fgpt.zooma.owl.OntologyLoader;
 
-import java.net.URI;
+import java.util.Date;
 
 /**
  * A loading session for loading ontologies from files.  This primarily acts as a wrapper around an {@link
@@ -15,25 +17,14 @@ import java.net.URI;
  * @date 23/10/12
  */
 public class OWLLoadingSession extends AbstractAnnotationLoadingSession {
-    private final String baseNamespace;
-
     public OWLLoadingSession(OntologyLoader owlLoader) {
-//        this.baseNamespace = URIUtils.normalizeURI(owlLoader.getOntologyURI()).toString() + "/";
-        this.baseNamespace = Namespaces.OWL_RESOURCE.getURI().toString();
-    }
-
-    @Override protected URI mintStudyURI(String studyID) {
-        throw new UnsupportedOperationException("Cannot mint study URIs for OWLAnnotation datasources - " +
-                                                        "ontology mapping does not allow for creation of studies.");
-    }
-
-    @Override protected URI mintBioentityURI(String bioentityID) {
-        throw new UnsupportedOperationException("Cannot mint bioentity URIs for OWLAnnotation datasources - " +
-                                                        "ontology mapping does not allow for creation of bioentities.");
-    }
-
-
-    @Override protected URI mintAnnotationURI(String annotationID) {
-        return URI.create(baseNamespace + annotationID);
+        super(new SimpleAnnotationProvenanceTemplate(
+                      new SimpleOntologyAnnotationSource(owlLoader.getOntologyIRI().toURI(),
+                                                         owlLoader.getOntologyName()),
+                      AnnotationProvenance.Evidence.COMPUTED_FROM_ONTOLOGY,
+                      owlLoader.getOntologyIRI().toURI().toString(),
+                      new Date()),
+              null,
+              null);
     }
 }

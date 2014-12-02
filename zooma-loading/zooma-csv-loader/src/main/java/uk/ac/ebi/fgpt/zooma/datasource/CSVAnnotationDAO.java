@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * An annotation DAO that is capable of extracting annotations from a text file.
- * <p/>
+ * <p>
  * Supplied text files should be in "CSV" format (comma-separated values), although the delimiter can be modified
  * (commas or tabs are commonly used).  The supplied file is parsed and cached in memory at startup, and DAO methods
  * read from this in-memory cache
@@ -42,7 +42,6 @@ import java.util.Map;
  * @date 23/10/12
  */
 public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements AnnotationDAO {
-//    private final String datasourceName;
     private final String delimiter;
 
     private InputStream inputStream;
@@ -50,48 +49,44 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
     private Map<String, Integer> columnIndexMap;
     private List<Annotation> annotations;
 
-    private Logger log = LoggerFactory.getLogger(getClass());
-
     private static DateTimeFormatter dashedDateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static DateTimeFormatter slashDateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm");
 
-    public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file, String datasourceName)
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file)
             throws FileNotFoundException {
-        this(annotationFactory, new FileInputStream(file), datasourceName, "\t");
+        this(annotationFactory, new FileInputStream(file), "\t");
         getLog().debug("Parsing CSV file from file: " + file.getAbsolutePath());
     }
 
-    public CSVAnnotationDAO(AnnotationFactory annotationFactory, URL url, String datasourceName) throws IOException {
-        this(annotationFactory, url.openStream(), datasourceName, "\t");
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, URL url) throws IOException {
+        this(annotationFactory, url.openStream(), "\t");
         getLog().debug("Parsing CSV file from URL: " + url.getPath());
     }
 
-    public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file, String datasourceName, String delimiter)
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file, String delimiter)
             throws FileNotFoundException {
-        this(annotationFactory, new FileInputStream(file), datasourceName, delimiter);
+        this(annotationFactory, new FileInputStream(file), delimiter);
         getLog().debug("Parsing CSV file from file: " + file.getAbsolutePath());
     }
 
-    public CSVAnnotationDAO(AnnotationFactory annotationFactory, URL url, String datasourceName, String delimiter)
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, URL url, String delimiter)
             throws IOException {
-        this(annotationFactory, url.openStream(), datasourceName, delimiter);
+        this(annotationFactory, url.openStream(), delimiter);
         getLog().debug("Parsing CSV file from URL: " + url.getPath());
     }
 
     /**
      * Create a CSV annotation DAO with a default "tab" delimiter
      */
-    public CSVAnnotationDAO(AnnotationFactory annotationFactory, InputStream stream, String datasourceName) {
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, InputStream stream) {
         // use default delimiter of a tab
-        this(annotationFactory, stream, datasourceName, "\t");
+        this(annotationFactory, stream, "\t");
     }
 
     public CSVAnnotationDAO(AnnotationFactory annotationFactory,
                             InputStream stream,
-                            String datasourceName,
                             String delimiter) {
         super(annotationFactory);
-        this.datasourceName = datasourceName;
         this.delimiter = delimiter;
         this.inputStream = stream;
 
@@ -99,15 +94,12 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         this.annotations = Collections.synchronizedList(new ArrayList<Annotation>());
     }
 
-    protected Logger getLog() {
-        return log;
-    }
-
     public InputStream getInputStream() {
         return inputStream;
     }
 
-    @Override public synchronized boolean isReady() throws IllegalStateException {
+    @Override
+    public synchronized boolean isReady() throws IllegalStateException {
         try {
             return super.isReady();
         }
@@ -221,7 +213,7 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
                             sb.append(", ");
                         }
                     }
-                    sb.append(" are absent at line " + lineNumber + ", result set cannot be mapped");
+                    sb.append(" are absent at line ").append(lineNumber).append(", result set cannot be mapped");
                     throw new InvalidDataFormatException(sb.toString());
                 }
 
@@ -341,7 +333,7 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
 
     @Override
     public String getDatasourceName() {
-        return ;
+        return getAnnotationFactory().getDatasourceName();
     }
 
     @Override
