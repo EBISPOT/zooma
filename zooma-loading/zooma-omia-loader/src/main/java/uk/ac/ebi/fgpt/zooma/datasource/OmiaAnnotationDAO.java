@@ -112,10 +112,10 @@ public class OmiaAnnotationDAO implements AnnotationDAO {
     private JdbcTemplate jdbcTemplate;
 
     public OmiaAnnotationDAO() {
-        this(new OmiaAnnotationFactory(new OmiaLoadingSession()));
+        this(new DefaultAnnotationFactory(new OmiaLoadingSession()));
     }
 
-    public OmiaAnnotationDAO(OmiaAnnotationFactory annotationFactory) {
+    public OmiaAnnotationDAO(AnnotationFactory annotationFactory) {
         this(new DefaultJdbcAnnotationMapper(annotationFactory));
     }
 

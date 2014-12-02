@@ -6,24 +6,16 @@
        http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- Expression Atlas DAO for samples -->
-    <bean name="expressionAtlasSampleDAO"
-          class="uk.ac.ebi.fgpt.zooma.datasource.ExpressionAtlasSampleAnnotationDAO"
-          autowire-candidate="false">
-        <constructor-arg ref="expressionAtlasSampleLoadingSession" />
-        <property name="jdbcTemplate" ref="jdbcTemplate" />
+    <bean name="expressionAtlasSampleDAO" class="uk.ac.ebi.fgpt.zooma.datasource.DefaultJdbcAnnotationDAO">
+        <constructor-arg name="annotationFactory" ref="expressionAtlasSampleAnnotationFactory" />
+        <constructor-arg name="jdbcTemplate" ref="jdbcTemplate" />
+    </bean>
+
+    <bean name="expressionAtlasSampleAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.DefaultAnnotationFactory">
+        <constructor-arg name="annotationLoadingSession" ref="expressionAtlasSampleLoadingSession" />
     </bean>
 
     <bean name="expressionAtlasSampleLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.ExpressionAtlasSampleLoadingSession" />
-
-    <!-- ArrayExpress DAO for assays -->
-    <bean name="expressionAtlasAssayDAO"
-          class="uk.ac.ebi.fgpt.zooma.datasource.ExpressionAtlasAssayAnnotationDAO"
-          autowire-candidate="false">
-        <constructor-arg ref="expressionAtlasAssayLoadingSession" />
-        <property name="jdbcTemplate" ref="jdbcTemplate" />
-    </bean>
-
-    <bean name="expressionAtlasAssayLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.ExpressionAtlasAssayLoadingSession" />
 
     <bean name="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
         <property name="dataSource" ref="datasource" />
@@ -36,9 +28,9 @@
         <property name="username" value="ae2query" />
         <property name="password" value="ae22ea" />
         <property name="defaultAutoCommit" value="false" />
-        <property name="initialSize" value="32" />
-        <property name="maxIdle" value="32" />
-        <property name="maxActive" value="32" />
+        <property name="initialSize" value="8" />
+        <property name="maxIdle" value="8" />
+        <property name="maxActive" value="8" />
         <property name="maxWait" value="-1" />
     </bean>
 

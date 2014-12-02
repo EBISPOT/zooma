@@ -42,7 +42,7 @@ public class UniprotHumanDiseaseAnnotationDAO extends Initializable implements A
     private long cacheTimestamp = 0;
 
     public UniprotHumanDiseaseAnnotationDAO() {
-        this(new UniprotHumanDiseaseAnnotationFactory(new UniprotHumanDiseaseAnnotationSession()));
+        this(new DefaultAnnotationFactory(new UniprotHumanDiseaseAnnotationSession()));
     }
 
     public UniprotHumanDiseaseAnnotationDAO(AnnotationFactory annotationFactory) {

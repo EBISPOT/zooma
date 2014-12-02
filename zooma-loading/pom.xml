@@ -51,10 +51,11 @@
     </dependencyManagement>
 
     <modules>
-        <module>zooma-atlas-sample-loader</module>
         <module>zooma-atlas-assay-loader</module>
+        <module>zooma-atlas-sample-loader</module>
         <module>zooma-csv-loader</module>
-        <module>zooma-expression-atlas-loader</module>
+        <module>zooma-expression-atlas-assay-loader</module>
+        <module>zooma-expression-atlas-sample-loader</module>
         <module>zooma-gwas-loader</module>
         <module>zooma-owl-loader</module>
         <module>zooma-omia-loader</module>
