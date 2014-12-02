@@ -1,10 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
-import uk.ac.ebi.fgpt.zooma.model.*;
-
-import java.net.URI;
-import java.util.Collection;
-import java.util.Date;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
 
 /**
  * A concrete implementation of an annotation factory that supports acquiring and releasing methods, enabling clients to
@@ -25,27 +21,4 @@ public class TransactionalAnnotationFactory extends AbstractAnnotationFactory {
     public synchronized void release() {
         ((TransactionalAnnotationLoadingSession) getAnnotationLoadingSession()).release();
     }
-
-    @Override protected AnnotationProvenance getAnnotationProvenance() {
-        throw new UnsupportedOperationException("Unable to generate provenance without annotator information");
-    }
-
-    @Override protected AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate) {
-        return getAnnotationProvenance(annotator, AnnotationProvenance.Accuracy.NOT_SPECIFIED, annotationDate);
-    }
-
-    @Override protected AnnotationProvenance getAnnotationProvenance(String annotator,
-                                                                     AnnotationProvenance.Accuracy accuracy,
-                                                                     Date annotationDate) {
-        AnnotationSource annotationSource =
-                ((TransactionalAnnotationLoadingSession) getAnnotationLoadingSession()).getCurrentAnnotationSource();
-        return new SimpleAnnotationProvenance(annotationSource,
-                                              AnnotationProvenance.Evidence.MANUAL_CURATED,
-                                              accuracy,
-                                              "ZOOMA",
-                                              new Date(),
-                                              annotator,
-                                              annotationDate);
-    }
-
 }
