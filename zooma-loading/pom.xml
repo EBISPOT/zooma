@@ -52,7 +52,6 @@
 
     <modules>
         <module>zooma-atlas-loader</module>
-        <module>zooma-ae-loader</module>
         <module>zooma-csv-loader</module>
         <module>zooma-expression-atlas-loader</module>
         <module>zooma-gwas-loader</module>
