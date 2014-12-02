@@ -1,10 +1,12 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import uk.ac.ebi.fgpt.zooma.Namespaces;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
+import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenanceTemplate;
+import uk.ac.ebi.fgpt.zooma.model.SimpleDatabaseAnnotationSource;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Date;
 
 /**
  * An annotation loading session that is capable of minting URIs specific to GWAS data
@@ -13,13 +15,21 @@ import java.util.HashSet;
  * @date 06/11/12
  */
 public class GwasLoadingSession extends AbstractAnnotationLoadingSession {
-
-
     protected GwasLoadingSession() {
-        super(URI.create("http://purl.obolibrary.org/obo/SO_0000694"), null);
+        super(new SimpleAnnotationProvenanceTemplate(
+                      new SimpleDatabaseAnnotationSource(Namespaces.GWAS.getURI(), "gwas"),
+                      AnnotationProvenance.Evidence.MANUAL_CURATED,
+                      AnnotationProvenance.Accuracy.NOT_SPECIFIED,
+                      "ZOOMA",
+                      new Date(),
+                      null,
+                      null),
+              URI.create("http://purl.obolibrary.org/obo/SO_0000694"),
+              null);
     }
 
-    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
+    @Override
+    protected URI mintStudyURI(String studyAccession, String studyID) {
         return URI.create(Namespaces.PUBMED.getURI().toString() + studyAccession);
     }
 
@@ -29,7 +39,8 @@ public class GwasLoadingSession extends AbstractAnnotationLoadingSession {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "gwas/" + encode(bioentityName));
     }
 
-    @Override protected URI mintAnnotationURI(String annotationID) {
+    @Override
+    protected URI mintAnnotationURI(String annotationID) {
         return URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + "gwas/" + annotationID);
     }
 }

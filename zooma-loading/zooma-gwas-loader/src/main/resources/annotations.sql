@@ -1,0 +1,10 @@
+select distinct st.PMID as STUDY,  s.SNP as BIOENTITY, 'GWAS_TRAIT' as PROPERTY_TYPE, t.DISEASETRAIT as PROPERTY_VALUE, e.EFOURI as SEMANTIC_TAG
+from GWASSNP s
+join GWASSNPXREF sx on s.ID=sx.SNPID
+join GWASSTUDIESSNP g on sx.GWASSTUDIESSNPID=g.ID
+join GWASSTUDIES st on g.GWASID=st.ID
+join GWASDISEASETRAITS t on st.DISEASEID=t.ID
+join GWASEFOSNPXREF ex on ex.GWASSTUDIESSNPID = g.ID
+join GWASEFOTRAITS e on e.ID = ex.TRAITID
+where g.ID is not null and s.SNP is not null
+and t.DISEASETRAIT is not null and g.PVALUEFLOAT is not null

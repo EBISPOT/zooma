@@ -76,7 +76,7 @@ public class ChemblAnnotationDAO implements AnnotationDAO {
     public static final String ANNOTATIONS_SELECT_BY_PROPERTY =
             ANNOTATIONS_SELECT + "and c.CELL_NAME = ? " + ORDERING;
 
-    private final JDBCConventionBasedAnnotationMapper mapper;
+    private final DefaultJdbcAnnotationMapper mapper;
 
     private JdbcTemplate jdbcTemplate;
 
@@ -85,10 +85,10 @@ public class ChemblAnnotationDAO implements AnnotationDAO {
     }
 
     public ChemblAnnotationDAO(AnnotationFactory annotationFactory) {
-        this(new JDBCConventionBasedAnnotationMapper(annotationFactory));
+        this(new DefaultJdbcAnnotationMapper(annotationFactory));
     }
 
-    public ChemblAnnotationDAO(JDBCConventionBasedAnnotationMapper annotationMapper) {
+    public ChemblAnnotationDAO(DefaultJdbcAnnotationMapper annotationMapper) {
         this.mapper = annotationMapper;
     }
     public JdbcTemplate getJdbcTemplate() {

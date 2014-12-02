@@ -70,12 +70,12 @@ public class ArrayExpressSampleAnnotationDAO implements AnnotationDAO {
     public static final String ANNOTATIONS_SELECT_BY_PROPERTY_AND_TYPE =
             ANNOTATIONS_SELECT + "where PROPERTY_TYPE = ? and PROPERTY_VALUE = ? " + ORDERING;
 
-    private final JDBCConventionBasedAnnotationMapper mapper;
+    private final DefaultJdbcAnnotationMapper mapper;
 
     private JdbcTemplate jdbcTemplate;
 
     public ArrayExpressSampleAnnotationDAO(ArrayExpressLoadingSession loadingSession) {
-        mapper = new JDBCConventionBasedAnnotationMapper(new ArrayExpressAnnotationFactory(loadingSession));
+        mapper = new DefaultJdbcAnnotationMapper(new ArrayExpressAnnotationFactory(loadingSession));
     }
 
     public JdbcTemplate getJdbcTemplate() {

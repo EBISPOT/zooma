@@ -69,7 +69,7 @@ public class AtlasAssayAnnotationDAO implements AnnotationDAO {
     public static final String ANNOTATIONS_SELECT_BY_PROPERTY_AND_TYPE =
             ANNOTATIONS_SELECT + "where p.NAME = ? and pv.NAME = ?" + ORDERING;
 
-    private final JDBCConventionBasedAnnotationMapper mapper;
+    private final DefaultJdbcAnnotationMapper mapper;
 
     private JdbcTemplate jdbcTemplate;
 

@@ -58,12 +58,12 @@ public class ExpressionAtlasAssayAnnotationDAO implements AnnotationDAO {
     public static final String ANNOTATIONS_SELECT_BY_BIOLOGICAL_ENTITY =
             ANNOTATIONS_SELECT + "where STUDY = ? and BIOENTITY = ? " + ORDERING;
 
-    private final JDBCConventionBasedAnnotationMapper mapper;
+    private final DefaultJdbcAnnotationMapper mapper;
 
     private JdbcTemplate jdbcTemplate;
 
     public ExpressionAtlasAssayAnnotationDAO(ExpressionAtlasAssayLoadingSession loadingSession) {
-        mapper = new JDBCConventionBasedAnnotationMapper(new ExpressionAtlasAnnotationFactory(loadingSession));
+        mapper = new DefaultJdbcAnnotationMapper(new ExpressionAtlasAnnotationFactory(loadingSession));
     }
 
     public JdbcTemplate getJdbcTemplate() {

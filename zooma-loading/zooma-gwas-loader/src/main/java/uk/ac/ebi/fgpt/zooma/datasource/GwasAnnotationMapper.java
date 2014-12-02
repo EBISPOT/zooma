@@ -16,7 +16,7 @@ import java.net.URL;
  * @author Dani Welter
  * @date 06/11/12
  */
-public class GwasAnnotationMapper extends JDBCConventionBasedAnnotationMapper {
+public class GwasAnnotationMapper extends DefaultJdbcAnnotationMapper {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {

@@ -13,7 +13,7 @@ import java.net.URL;
 /**
  * Created by dwelter on 28/05/14.
  */
-public class ChemblAnnotationMapper extends JDBCConventionBasedAnnotationMapper {
+public class ChemblAnnotationMapper extends DefaultJdbcAnnotationMapper {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {

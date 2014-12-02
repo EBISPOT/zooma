@@ -107,7 +107,7 @@ public class OmiaAnnotationDAO implements AnnotationDAO {
     public static final String ANNOTATIONS_SELECT_BY_PROPERTY_AND_TYPE =
             ANNOTATIONS_SELECT + "where PROPERTY_TYPE = ? and PROPERTY_VALUE = ?" + ORDERING;
 
-    private final JDBCConventionBasedAnnotationMapper mapper;
+    private final DefaultJdbcAnnotationMapper mapper;
 
     private JdbcTemplate jdbcTemplate;
 
@@ -116,10 +116,10 @@ public class OmiaAnnotationDAO implements AnnotationDAO {
     }
 
     public OmiaAnnotationDAO(OmiaAnnotationFactory annotationFactory) {
-        this(new JDBCConventionBasedAnnotationMapper(annotationFactory));
+        this(new DefaultJdbcAnnotationMapper(annotationFactory));
     }
 
-    public OmiaAnnotationDAO(JDBCConventionBasedAnnotationMapper annotationMapper) {
+    public OmiaAnnotationDAO(DefaultJdbcAnnotationMapper annotationMapper) {
         this.mapper = annotationMapper;
     }
 

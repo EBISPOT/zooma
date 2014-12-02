@@ -12,13 +12,13 @@
         <property name="jdbcTemplate" ref="gwasJdbcTemplate" />
     </bean>
 
-    <bean name="gwasAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.GwasAnnotationFactory">
+    <bean name="gwasAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.DefaultAnnotationFactory">
         <constructor-arg name="annotationLoadingSession" ref="gwasLoadingSession" />
     </bean>
 
     <bean name="gwasLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.GwasLoadingSession" />
 
-    <bean name="gwasAnnotationMapper" class="uk.ac.ebi.fgpt.zooma.datasource.JDBCConventionBasedAnnotationMapper">
+    <bean name="gwasAnnotationMapper" class="uk.ac.ebi.fgpt.zooma.datasource.DefaultJdbcAnnotationMapper">
         <constructor-arg name="annotationFactory" ref="gwasAnnotationFactory" />
         <!--<constructor-arg name="efoResource" value="classpath:efo.owl" />-->
     </bean>

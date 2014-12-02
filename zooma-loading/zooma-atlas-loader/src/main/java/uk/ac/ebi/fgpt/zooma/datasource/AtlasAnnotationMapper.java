@@ -16,7 +16,7 @@ import java.net.URL;
  * @author Tony Burdett
  * @date 04/10/12
  */
-public class AtlasAnnotationMapper extends JDBCConventionBasedAnnotationMapper {
+public class AtlasAnnotationMapper extends DefaultJdbcAnnotationMapper {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {

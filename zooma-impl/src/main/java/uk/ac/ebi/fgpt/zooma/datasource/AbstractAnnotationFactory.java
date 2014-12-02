@@ -42,47 +42,8 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
     }
 
     @Override
-    @Deprecated
-    /**
-     * Creates a new annotation from the given objects and some information about the annotator
-     *
-     * @deprecated use {@link #createAnnotation(java.util.Collection, uk.ac.ebi.fgpt.zooma.model.Property, uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance, java.util.Collection, java.util.Collection)} instead
-     */
-    public Annotation createAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
-                                       Property annotatedProperty,
-                                       Collection<URI> semanticTags,
-                                       Collection<URI> replaces,
-                                       String annotator,
-                                       Date annotationDate) {
-
-        for (BiologicalEntity be : annotatedBiologicalEntities) {
-            if (be.getURI() == null) {
-                throw new IllegalArgumentException(
-                        "A biological entity without a URI was submitted, can't create annotation");
-                // todo handle this case better
-            }
-        }
-
-        // create new property using regular URI minting strategy
-        Property newProperty = annotatedProperty instanceof TypedProperty ?
-                getAnnotationLoadingSession().getOrCreateProperty(((TypedProperty) annotatedProperty).getPropertyType(),
-                                                                  annotatedProperty.getPropertyValue())
-                : getAnnotationLoadingSession().getOrCreateProperty("", annotatedProperty.getPropertyValue());
-
-        AnnotationProvenanceTemplate template = getAnnotationLoadingSession().getAnnotationProvenanceTemplate();
-        if (annotator != null) {
-            template.annotatorIs(annotator);
-        }
-        if (annotationDate != null) {
-            template.annotationDateIs(annotationDate);
-        }
-
-        // and return the complete annotation
-        return getAnnotationLoadingSession().getOrCreateAnnotation(
-                annotatedBiologicalEntities,
-                newProperty,
-                template.complete(),
-                semanticTags);
+    public String getDatasourceName() {
+        return getAnnotationLoadingSession().getAnnotationProvenanceTemplate().getSource().getName();
     }
 
     @Override
