@@ -11,6 +11,7 @@
        http://www.ebi.ac.uk/fgpt/zooma/zooma-csv-loader
        http://www.ebi.ac.uk/fgpt/zooma/zooma-csv-loader.xsd">
 
+    <!-- annotations derived from ontology labels -->
     <zooma:owlAnnotations name="efo"
                           uri="http://www.ebi.ac.uk/efo"
                           loadFrom="http://www.ebi.ac.uk/efo/efo.owl"
@@ -85,6 +86,12 @@
         <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />
     </zooma:owlAnnotations>
 
+    <zooma:owlAnnotations name="diab"
+                          uri="http://purl.obolibrary.org/obo/Diabetes_Ontology_V13.owl"
+                          loadFrom="http://data.bioontology.org/ontologies/DIAB/submissions/13/download?apikey=935d7da3-6571-4601-910d-5e421574a360" />
+
+
+    <!-- Data from curated CSV files -->
     <zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/fg/sym"
                              datasourceName="sysmicro"
                              url="http://www.ebi.ac.uk/cmpo/zooma-cmpo.csv"
@@ -95,9 +102,12 @@
     <zoomacsv:csvAnnotations datasourceUrl="http://www.biomedbridges.eu/workpackages/wp7-0"
                              datasourceName="bmb-wp7"
                              url="http://www.ebi.ac.uk/~tburdett/zooma/bmb_zooma_disease.tsv"
-                             defaultSourceType="http://purl.obolibrary.org/obo/OBI_0000075"
-                             defaultTargetType="http://purl.obolibrary.org/obo/OBI_0100064"
                              delimiter="\t" />
 
+    <!-- commenting out atlas for now -->
+    <zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/gxa"
+                             datasourceName="atlas"
+                             url="ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/curation/zoomage_report.CURATED.tsv"
+                             delimiter="\t" />
 
 </beans>
