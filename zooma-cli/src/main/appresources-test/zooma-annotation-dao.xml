@@ -105,9 +105,9 @@
                              delimiter="\t" />
 
     <!-- commenting out atlas for now -->
-    <!--<zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/gxa"-->
-                             <!--datasourceName="atlas"-->
-                             <!--url="ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/curation/zoomage_report.CURATED.tsv"-->
-                             <!--delimiter="\t" />-->
+    <zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/gxa"
+                             datasourceName="atlas"
+                             url="ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/curation/zoomage_report.CURATED.tsv"
+                             delimiter="\t" />
 
 </beans>
