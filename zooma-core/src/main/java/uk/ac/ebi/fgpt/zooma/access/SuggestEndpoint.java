@@ -2,6 +2,12 @@ package uk.ac.ebi.fgpt.zooma.access;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
+import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.io.HtmlRenderer;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
 import uk.ac.ebi.fgpt.zooma.view.FlyoutResponse;
@@ -292,6 +298,27 @@ public abstract class SuggestEndpoint<T, I> {
      */
     protected String extractElementTypeName(T t) {
         return extractElementTypeName();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(QueryCreationException.class)
+    public @ResponseBody
+    String handleException(QueryCreationException e) {
+        return e.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    @ExceptionHandler(SearchException.class)
+    private @ResponseBody String handleException(SearchException e) {
+        getLog().error("A search exception occurred: " + e.getMessage(), e);
+        return "There was a problem performing your search - " + e.getMessage() + "";
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    private @ResponseBody String handleException(Exception e) {
+        getLog().error("A unexpected exception occurred: " + e.getMessage(), e);
+        return "There was a problem performing your search - " + e.getMessage() + "";
     }
 
     /**
