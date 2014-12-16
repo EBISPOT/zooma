@@ -114,7 +114,7 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
                 }
             }
         }
-        catch (QueryCreationException | IOException e) {
+        catch (IOException e) {
             throw new SearchException("Problems creating query for '" + annotationSummaryID + "'", e);
         }
         catch (InterruptedException e) {

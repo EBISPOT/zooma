@@ -33,7 +33,7 @@ public class LucenePropertyTypeSearchService extends ZoomaLuceneSearchService im
             // do the query
             return doQuery(q, new SingleFieldStringMapper("name"));
         }
-        catch (QueryCreationException | IOException e) {
+        catch (IOException e) {
             throw new SearchException("Problems creating query for '" + propertyTypePattern + "'", e);
         }
         catch (InterruptedException e) {
@@ -56,7 +56,7 @@ public class LucenePropertyTypeSearchService extends ZoomaLuceneSearchService im
             // do the query
             return doQuery(q, new SingleFieldStringMapper("name"));
         }
-        catch (QueryCreationException | IOException e) {
+        catch (IOException e) {
             throw new SearchException("Problems creating query for '" + propertyTypePrefix + "'", e);
         }
         catch (InterruptedException e) {

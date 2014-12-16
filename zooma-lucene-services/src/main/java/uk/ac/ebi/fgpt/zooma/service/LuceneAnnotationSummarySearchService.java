@@ -121,7 +121,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // do the query
             return doQuery(q, getMapper());
         }
-        catch (QueryCreationException | IOException e) {
+        catch (IOException e) {
             throw new SearchException("Problems creating query for '" + propertyValuePrefix + "'", e);
         }
         catch (InterruptedException e) {
@@ -168,7 +168,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // do the query
             return doQuery(q, getMapper());
         }
-        catch (QueryCreationException | IOException e) {
+        catch (IOException e) {
             throw new SearchException("Problems creating query for '" + propertyValuePrefix + "'", e);
         }
         catch (InterruptedException e) {
@@ -190,7 +190,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // do the query
             return doQuery(q, getMapper());
         }
-        catch (QueryCreationException | IOException e) {
+        catch (IOException e) {
             throw new SearchException("Problems creating semantic tag shortname query", e);
         }
         catch (InterruptedException e) {
@@ -212,7 +212,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // do the query
             return doQuery(q, getMapper());
         }
-        catch (QueryCreationException | IOException e) {
+        catch (IOException e) {
             throw new SearchException("Problems creating semantic tag URI query", e);
         }
         catch (InterruptedException e) {
@@ -302,7 +302,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // do the query
             return doQuery(q, mapper);
         }
-        catch (QueryCreationException | IOException e) {
+        catch (IOException e) {
             throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
         }
     }
@@ -355,7 +355,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
             // do the query
             return doQuery(q, mapper);
         }
-        catch (QueryCreationException | IOException e) {
+        catch (IOException e) {
             throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
         }
     }

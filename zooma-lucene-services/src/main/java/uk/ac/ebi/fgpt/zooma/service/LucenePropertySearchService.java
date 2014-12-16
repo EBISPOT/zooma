@@ -67,7 +67,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             // do the query
             return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
         }
-        catch (IOException | QueryCreationException e) {
+        catch (IOException e) {
             throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
         }
         catch (InterruptedException e) {
@@ -113,7 +113,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             // do the query
             return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
         }
-        catch (QueryCreationException | IOException e) {
+        catch (IOException e) {
             throw new SearchException(
                     "Problems creating query for '" + propertyValuePattern + "' ['" + propertyType + "']", e);
         }
@@ -150,7 +150,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             // do the query
             return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
         }
-        catch (IOException | QueryCreationException e) {
+        catch (IOException  e) {
             throw new SearchException("Problems creating query for '" + propertyValuePrefix + "'", e);
         }
         catch (InterruptedException e) {
@@ -205,7 +205,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                 // do the query
                 return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
             }
-            catch (QueryCreationException | IOException e) {
+            catch (IOException e) {
                 throw new SearchException(
                         "Problems creating query for '" + propertyValuePrefix + "' ['" + propertyType + "']", e);
             }

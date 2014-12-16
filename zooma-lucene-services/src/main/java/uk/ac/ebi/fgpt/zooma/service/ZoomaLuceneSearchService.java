@@ -123,7 +123,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the parsed query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateQuery(String field, String pattern) throws QueryCreationException {
+    protected Query formulateQuery(String field, String pattern) {
         return formulateQuery(field, pattern, QUERY_TYPE.FULL, false);
     }
 
@@ -136,7 +136,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the parsed query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateExactQuery(String field, String string) throws QueryCreationException {
+    protected Query formulateExactQuery(String field, String string) {
         return formulateQuery(field, string, QUERY_TYPE.EXACT, false);
     }
 
@@ -149,7 +149,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the parsed query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulatePrefixQuery(String field, String prefix) throws QueryCreationException {
+    protected Query formulatePrefixQuery(String field, String prefix) {
         return formulateQuery(field, prefix, QUERY_TYPE.PREFIX, false);
     }
 
@@ -162,7 +162,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the parsed query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateSuffixQuery(String field, String suffix) throws QueryCreationException {
+    protected Query formulateSuffixQuery(String field, String suffix) {
         return formulateQuery(field, suffix, QUERY_TYPE.SUFFIX, false);
     }
 
@@ -177,7 +177,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the unified query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateTypedQuery(Query typeQuery, Query valueQuery) throws QueryCreationException {
+    protected Query formulateTypedQuery(Query typeQuery, Query valueQuery) {
         float boost = valueQuery.getBoost();
         valueQuery.setBoost(1f);
         Query untypedQuery = (Query) valueQuery.clone();
@@ -189,8 +189,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         return q;
     }
 
-    protected Query formulateTypedQuery(Query typeQuery, Collection<Query> processedValueQueries)
-            throws QueryCreationException {
+    protected Query formulateTypedQuery(Query typeQuery, Collection<Query> processedValueQueries) {
         Set<Query> queries = new HashSet<>();
         for (Query processedValueQuery : processedValueQueries) {
             queries.add(formulateTypedQuery(typeQuery, processedValueQuery));
@@ -198,7 +197,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         return formulateCombinedQuery(false, false, queries.toArray(new Query[queries.size()]));
     }
 
-    protected Query formulateQueryConserveOrderIfMultiword(String field, String pattern) throws QueryCreationException {
+    protected Query formulateQueryConserveOrderIfMultiword(String field, String pattern) {
         return formulateQuery(field, pattern, QUERY_TYPE.FULL, true);
     }
 
@@ -216,8 +215,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the parsed query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateQuery(String field, String pattern, QUERY_TYPE queryType, boolean conserveOrderIfMultiword)
-            throws QueryCreationException {
+    protected Query formulateQuery(String field, String pattern, QUERY_TYPE queryType, boolean conserveOrderIfMultiword) {
         try {
             Query q;
 
@@ -278,8 +276,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
     protected Collection<Query> generateProcessedQueries(String fieldName,
                                                          String fieldToProcess,
-                                                         Collection<SearchStringProcessor> searchStringProcessors)
-            throws QueryCreationException {
+                                                         Collection<SearchStringProcessor> searchStringProcessors) {
         // combine queries for any string processors that can process our string
         Collection<Query> queries = new HashSet<>();
         for (SearchStringProcessor processor : searchStringProcessors) {
@@ -313,7 +310,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return new combined query
      * @throws QueryCreationException
      */
-    public Query formulateExactCombinedQuery(Query [] q, String fieldName, Object [] items) throws QueryCreationException {
+    public Query formulateExactCombinedQuery(Query [] q, String fieldName, Object [] items) {
 
         // unify processed queries into a single query
         Query uq = formulateCombinedQuery(true, false, q);
@@ -348,7 +345,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                                        QUERY_TYPE queryType,
                                        int proximity,
                                        boolean conserveOrder,
-                                       String... terms) throws QueryCreationException {
+                                       String... terms) {
         List<SpanQuery> stqs = new ArrayList<>();
         // create span queries for each term apart from the last one
         for (int i = 0; i < terms.length - 1; i++) {
@@ -400,8 +397,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the unified query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateCombinedQuery(boolean firstMustOccur, boolean allMustOccur, Query... queries)
-            throws QueryCreationException {
+    protected Query formulateCombinedQuery(boolean firstMustOccur, boolean allMustOccur, Query... queries) {
         if (queries.length == 1) {
             return queries[0];
         }
