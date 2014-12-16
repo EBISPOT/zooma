@@ -205,39 +205,52 @@ public class ZoomaSearcher extends SuggestEndpoint<Object, String> {
             @RequestParam(value = "indent", required = false, defaultValue = "false") final Boolean indent,
             @RequestParam(value = "mql_output", required = false) final String mql_output) {
         getLog().debug("ZOOMA search engine received search request (query '" + query + "')");
-        try {
-            // delegate requests to each search engine
-            List<SearchResponse> responses = new ArrayList<>();
-            if (isAnnotationSummarySearchingEnabled()) {
-                responses.add(getAnnotationSummarySearchEngine().search(query,
-                                                                        type,
-                                                                        exact,
-                                                                        limit,
-                                                                        start,
-                                                                        prefixed,
-                                                                        lang,
-                                                                        domain,
-                                                                        filter,
-                                                                        html_escape,
-                                                                        indent,
-                                                                        mql_output));
-            }
-            if (isAnnotationSearchingEnabled()) {
-                responses.add(getAnnotationSearchEngine().search(query,
-                                                                 type,
-                                                                 exact,
-                                                                 limit,
-                                                                 start,
-                                                                 prefixed,
-                                                                 lang,
-                                                                 domain,
-                                                                 filter,
-                                                                 html_escape,
-                                                                 indent,
-                                                                 mql_output));
-            }
-            if (isPropertySearchingEnabled()) {
-                responses.add(getPropertySearchEngine().search(query,
+        // delegate requests to each search engine
+        List<SearchResponse> responses = new ArrayList<>();
+        if (isAnnotationSummarySearchingEnabled()) {
+            responses.add(getAnnotationSummarySearchEngine().search(query,
+                                                                    type,
+                                                                    exact,
+                                                                    limit,
+                                                                    start,
+                                                                    prefixed,
+                                                                    lang,
+                                                                    domain,
+                                                                    filter,
+                                                                    html_escape,
+                                                                    indent,
+                                                                    mql_output));
+        }
+        if (isAnnotationSearchingEnabled()) {
+            responses.add(getAnnotationSearchEngine().search(query,
+                                                             type,
+                                                             exact,
+                                                             limit,
+                                                             start,
+                                                             prefixed,
+                                                             lang,
+                                                             domain,
+                                                             filter,
+                                                             html_escape,
+                                                             indent,
+                                                             mql_output));
+        }
+        if (isPropertySearchingEnabled()) {
+            responses.add(getPropertySearchEngine().search(query,
+                                                           type,
+                                                           exact,
+                                                           limit,
+                                                           start,
+                                                           prefixed,
+                                                           lang,
+                                                           domain,
+                                                           filter,
+                                                           html_escape,
+                                                           indent,
+                                                           mql_output));
+        }
+        if (isPropertyTypeSearchingEnabled()) {
+            responses.add(getPropertyTypeSearchEngine().search(query,
                                                                type,
                                                                exact,
                                                                limit,
@@ -249,30 +262,11 @@ public class ZoomaSearcher extends SuggestEndpoint<Object, String> {
                                                                html_escape,
                                                                indent,
                                                                mql_output));
-            }
-            if (isPropertyTypeSearchingEnabled()) {
-                responses.add(getPropertyTypeSearchEngine().search(query,
-                                                                   type,
-                                                                   exact,
-                                                                   limit,
-                                                                   start,
-                                                                   prefixed,
-                                                                   lang,
-                                                                   domain,
-                                                                   filter,
-                                                                   html_escape,
-                                                                   indent,
-                                                                   mql_output));
-            }
+        }
 
-            // and aggregate results
-            getLog().debug("Acquired individual search responses, combining results into formulated response.");
-            return aggregateSearchResponses(responses.toArray(new SearchResponse[responses.size()]));
-        }
-        catch (Exception e) {
-            getLog().error("Unexpected error", e);
-            throw new RuntimeException(e);
-        }
+        // and aggregate results
+        getLog().debug("Acquired individual search responses, combining results into formulated response.");
+        return aggregateSearchResponses(responses.toArray(new SearchResponse[responses.size()]));
     }
 
     @Override
