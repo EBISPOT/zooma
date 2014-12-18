@@ -1,10 +1,13 @@
 package uk.ac.ebi.fgpt.zooma.search;
 
+import static org.apache.commons.lang3.StringUtils.length;
+
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
@@ -43,7 +46,7 @@ import java.util.Set;
  * @author Adam Faulconbridge
  * @date 03/09/12
  */
-public class ZOOMASearchClient {
+public class ZOOMASearchClient extends AbstractZOOMASearch {
     private final String zoomaBase;
 
     private final String zoomaSearchBase;
@@ -52,22 +55,34 @@ public class ZOOMASearchClient {
 
     private Map<String, String> prefixMappings;
 
-    private Logger log = LoggerFactory.getLogger(getClass());
-
-    protected Logger getLog() {
+  	protected Logger getLog() {
         return log;
     }
 
-    public ZOOMASearchClient(URL zoomaLocation) {
-        this.zoomaBase = zoomaLocation.toString() + "/v2/api/";
-        this.zoomaSearchBase = zoomaBase + "search?query=";
-
-        this.zoomaAnnotationsBase = zoomaBase + "annotations/";
-        this.zoomaServicesBase = zoomaBase + "services/";
-        loadPrefixMappings();
+    public ZOOMASearchClient() {
+    	this ( (String) null );
     }
 
-    public Map<String, String> getPrefixMappings() throws IOException {
+    public ZOOMASearchClient(URL zoomaLocation) {
+    	this ( zoomaLocation == null ? null : zoomaLocation.toString () );
+    }
+
+    public ZOOMASearchClient(String zoomaLocation) 
+    {
+    	if ( zoomaLocation == null ) zoomaLocation = "http://www.ebi.ac.uk/fgpt/zooma";
+    	
+      this.zoomaBase = zoomaLocation + "/v2/api/";
+      this.zoomaSearchBase = zoomaBase + "search?query=";
+
+      this.zoomaAnnotationsBase = zoomaBase + "annotations/";
+      this.zoomaServicesBase = zoomaBase + "services/";
+      loadPrefixMappings();
+    }
+
+    
+    
+    @Override
+		public Map<String, String> getPrefixMappings() throws IOException {
         URL prefixMappingsURL = new URL(zoomaServicesBase + "prefixMappings");
         ObjectMapper mapper = new ObjectMapper();
         Map<String, String> results = mapper.readValue(
@@ -76,14 +91,6 @@ public class ZOOMASearchClient {
                 });
         getLog().trace(results.toString());
         return results;
-    }
-
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score) {
-        return searchZOOMA(property, score, false);
-    }
-
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score, boolean excludeType) {
-        return searchZOOMA(property, score, excludeType, false);
     }
 
     /**
@@ -95,14 +102,22 @@ public class ZOOMASearchClient {
      *                      returns only summaries with score above the score parameter, possibly an empty Map.
      * @return a {@link LinkedHashMap} map, where the entries are ordered by decreasing score.
      */
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property,
+    @Override
+		public Map<AnnotationSummary, Float> searchZOOMA(Property property,
                                                      float score,
                                                      boolean excludeType,
                                                      boolean noEmptyResult) {
-        String query = property.getPropertyValue();
+        String valueStr = property.getPropertyValue ();
 
         // search for annotation summaries
         Map<AnnotationSummary, Float> summaries = new LinkedHashMap<>();
+
+        if ( StringUtils.length ( valueStr )  > this.getMaxPropertyValueLength () ) return summaries;
+        if ( property instanceof TypedProperty 
+        		 && length ( ( (TypedProperty) property ).getPropertyType() ) > this.getMaxPropertyTypeLength ()
+        	 )
+        	return summaries;
+        
         try {
             String search = zoomaSearchBase + URLEncoder.encode(property.getPropertyValue(), "UTF-8");
             String typedSearch = search + "&type=";
@@ -165,15 +180,16 @@ public class ZOOMASearchClient {
             }
         }
         catch (IOException e) {
-            getLog().error("Failed to query ZOOMA for property '" + query + "' (" + e.getMessage() + ")");
-            throw new RuntimeException("Failed to query ZOOMA for property '" + query + "' " +
+            getLog().error("Failed to query ZOOMA for property '" + valueStr + "' (" + e.getMessage() + ")");
+            throw new RuntimeException("Failed to query ZOOMA for property '" + valueStr + "' " +
                                                "(" + e.getMessage() + ")", e);
         }
 
         return summaries;
     }
 
-    public Annotation getAnnotation(URI annotationURI) {
+    @Override
+		public Annotation getAnnotation(URI annotationURI) {
         try {
             URL fetchURL = new URL(zoomaAnnotationsBase + annotationURI.toString());
 
@@ -270,7 +286,8 @@ public class ZOOMASearchClient {
         }
     }
 
-    public String getLabel(URI uri) throws IOException {
+    @Override
+		public String getLabel(URI uri) throws IOException {
         String shortform = URIUtils.getShortform(prefixMappings, uri);
         getLog().trace("Formulating search for label of '" + shortform + "' (derived from <" + uri + ">)");
         URL labelsURL = new URL(zoomaServicesBase + "labels/" + shortform);
@@ -338,4 +355,5 @@ public class ZOOMASearchClient {
                                            annotationURIs,
                                            resultScore);
     }
+
 }

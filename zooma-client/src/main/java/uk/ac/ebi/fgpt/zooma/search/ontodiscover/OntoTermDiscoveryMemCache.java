@@ -8,24 +8,27 @@ import org.apache.commons.lang3.StringUtils;
 import uk.ac.ebi.utils.memory.SimpleCache;
 
 /**
- * A memory cache, based on {@link SimpleCache}.
+ * A memory cache, based on {@link Map}.
  *
  * <dl><dt>date</dt><dd>1 Aug 2014</dd></dl>
  * @author Marco Brandizi
  *
  */
-public class OntoTermMemCache extends OntoTermDiscoveryCache
+public class OntoTermDiscoveryMemCache extends OntoTermDiscoveryCache
 {
 	private final Map<String, List<DiscoveredTerm>> baseCache;
 
-	public OntoTermMemCache ( Map<String, List<DiscoveredTerm>> baseCache )
+	public OntoTermDiscoveryMemCache ( Map<String, List<DiscoveredTerm>> baseCache )
 	{
 		this.baseCache = baseCache;
 	}
 
-	public OntoTermMemCache ()
+	/**
+	 * Uses {@link SimpleCache} with a size of 500k entries.
+	 */
+	public OntoTermDiscoveryMemCache ()
 	{
-		this ( new SimpleCache<String, List<DiscoveredTerm>> ( (int) 1E6 ) );
+		this ( new SimpleCache<String, List<DiscoveredTerm>> ( (int) 500E3 ) );
 	}
 	
 	@Override

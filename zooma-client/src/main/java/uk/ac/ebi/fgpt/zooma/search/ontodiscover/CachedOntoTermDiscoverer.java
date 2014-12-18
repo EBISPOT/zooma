@@ -47,7 +47,7 @@ public class CachedOntoTermDiscoverer extends OntologyTermDiscoverer
 	 */
 	public CachedOntoTermDiscoverer ( OntologyTermDiscoverer base )
 	{
-		this ( base, new OntoTermMemCache () );
+		this ( base, new OntoTermDiscoveryMemCache () );
 	}
 			
 	/**
@@ -58,8 +58,7 @@ public class CachedOntoTermDiscoverer extends OntologyTermDiscoverer
 		throws OntologyDiscoveryException
 	{
   	if ( ( valueLabel = StringUtils.trimToNull ( valueLabel ) ) == null ) return NULL_RESULT;
-  	valueLabel = valueLabel.toLowerCase ();
-  	typeLabel = StringUtils.trimToEmpty ( typeLabel ).toLowerCase ();
+  	typeLabel = StringUtils.trimToEmpty ( typeLabel );
   	
   	// The class name is added to further minimise the small chance that someone synchronise on this same entry 
   	Object synch = cache.getSynchronisingObject ( valueLabel, typeLabel );

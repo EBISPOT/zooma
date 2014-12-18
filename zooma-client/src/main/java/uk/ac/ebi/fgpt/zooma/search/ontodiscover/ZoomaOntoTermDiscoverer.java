@@ -2,9 +2,7 @@ package uk.ac.ebi.fgpt.zooma.search.ontodiscover;
 
 import static uk.ac.ebi.fgpt.zooma.search.ontodiscover.CachedOntoTermDiscoverer.NULL_RESULT;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +16,9 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
 import uk.ac.ebi.fgpt.zooma.model.SimpleUntypedProperty;
+import uk.ac.ebi.fgpt.zooma.search.StatsZOOMASearchFilter;
 import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchClient;
+import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchInterface;
 
 /**
  * Ontology Discoverer based on <a href = 'http://www.ebi.ac.uk/fgpt/zooma/docs/'>ZOOMA2</a>.
@@ -29,37 +29,27 @@ import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchClient;
  */
 public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 {
-	private ZOOMASearchClient zoomaClient;
-	private float zoomaThreesholdScore = 80.0f;
+	private ZOOMASearchInterface zoomaSearcher;
+	private float zoomaThreesholdScore;
 	
 	private Logger log = LoggerFactory.getLogger ( this.getClass () );
 	
-	public ZoomaOntoTermDiscoverer ( String zoomaLocation )
+	/**
+	 * You can pass me your own ZOOMA client, useful if you want send in wrappers like {@link StatsZOOMASearchFilter}.
+	 */
+	public ZoomaOntoTermDiscoverer ( ZOOMASearchInterface zoomaSearcher, float zoomaThreeSholdScore )
 	{
-		try
-		{
-			zoomaClient = new ZOOMASearchClient ( new URL ( zoomaLocation ) );
-		} 
-		catch ( MalformedURLException ex ) {
-			throw new OntologyDiscoveryException ( "Internal error while instantiating Zooma: " + ex.getMessage (), ex );
-		}
-	}
-
-	
-	public ZoomaOntoTermDiscoverer ( URL zoomaLocation ) 
-	{
-		zoomaClient = new ZOOMASearchClient ( zoomaLocation );
+		this.zoomaSearcher = zoomaSearcher;
+		this.zoomaThreesholdScore = zoomaThreeSholdScore;
 	}
 
 	/**
-	 * Defaults to http://www.ebi.ac.uk/fgpt/zooma, the web service available at the EBI.
-	 * 
+	 * Defaults to 80
 	 */
-	public ZoomaOntoTermDiscoverer () 
+	public ZoomaOntoTermDiscoverer ( ZOOMASearchInterface zoomaClient )
 	{
-		this ( "http://www.ebi.ac.uk/fgpt/zooma" );
+		this ( zoomaClient, 80f );
 	}
-	
 	
 	/**
 	 * Uses the top-ranked result from {@link ZOOMASearchClient}.searchZOOMA(), it sends to it a pair of value and type
@@ -78,7 +68,7 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 				? new SimpleUntypedProperty ( valueLabel ) 
 				: new SimpleTypedProperty ( typeLabel, valueLabel ); 
 
-				Map<AnnotationSummary, Float> zresult = zoomaClient.searchZOOMA ( zprop, zoomaThreesholdScore, typeLabel == null );
+				Map<AnnotationSummary, Float> zresult = zoomaSearcher.searchZOOMA ( zprop, zoomaThreesholdScore, typeLabel == null );
 			
 			// TODO: apply the logics suggested by ZOOMA people:
 			// - 80 is a good threshold
@@ -98,19 +88,9 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 					result.add ( new DiscoveredTerm ( uri, score ) );
 			}
 
-			// Now sort it, cause we cannot be sure of the returned order
-			/* Actually not needed, we know a sorted linked-map is returned
-			Collections.sort ( result, new Comparator<DiscoveredTerm>() 
-			{
-				@Override
-				public int compare ( DiscoveredTerm t1, DiscoveredTerm t2 )
-				{
-						return Float.compare ( t2.getScore (), t1.getScore () );
-				}
-			});*/
-			
-			// Also remove duplicates
-			// This automatically picks the best-scored result, cause we've sorted them
+			// ZOOMA uses a SortedMap internally and returns results in score descending order
+			// So, here we picks best-scored unique results automatically
+			//
 			List<DiscoveredTerm> resultUniqs = new ArrayList<> ();
 			DiscoveredTerm prevTerm = null;
 			for ( DiscoveredTerm t: result )
@@ -134,7 +114,7 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 
 	/**
 	 * This is passed to {@link ZOOMASearchClient#searchZOOMA(Property, float)} and hence only results above
-	 * such threeshold are returned. Default is 80.
+	 * such threshold are returned. Default is 80.
 	 */
 	public float getZoomaThreesholdScore ()
 	{
@@ -145,5 +125,5 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 	{
 		this.zoomaThreesholdScore = zoomaThreesholdScore;
 	}
-	
+
 }

@@ -50,7 +50,6 @@ public abstract class OntoTermDiscoveryCache extends OntologyTermDiscoverer
 	/**
 	 * Empty the cache, default doesn't do anything.
 	 */
-	public void clear () {
-	}
+	public void clear () {}
 	
 }

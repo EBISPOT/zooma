@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchClient;
 import uk.ac.ebi.fgpt.zooma.search.ontodiscover.OntologyTermDiscoverer.DiscoveredTerm;
 import uk.ac.ebi.utils.memory.SimpleCache;
 import uk.ac.ebi.utils.time.XStopWatch;
@@ -32,8 +33,7 @@ public class OntoTermDiscovererTest
 	@Test
 	public void testBasics ()
 	{
-		OntologyTermDiscoverer client = new ZoomaOntoTermDiscoverer ();
-		((ZoomaOntoTermDiscoverer) client).setZoomaThreesholdScore ( 50.0f );
+		OntologyTermDiscoverer client = new ZoomaOntoTermDiscoverer ( new ZOOMASearchClient (), 50f );
 		List<DiscoveredTerm> terms = client.getOntologyTermUris ( "homo sapiens", "specie" );
 
 		log.info ( "Discovered terms for Homo Sapiens:\n" + terms );
@@ -62,7 +62,7 @@ public class OntoTermDiscovererTest
 		
 		Map<String, List<DiscoveredTerm>> baseCache = new SimpleCache<> ( 1000 );
 		OntologyTermDiscoverer client = new CachedOntoTermDiscoverer ( 
-			new ZoomaOntoTermDiscoverer (), new OntoTermMemCache ( baseCache )
+			new ZoomaOntoTermDiscoverer ( new ZOOMASearchClient () ), new OntoTermDiscoveryMemCache ( baseCache )
 		);
 		
 		timer.start ();
