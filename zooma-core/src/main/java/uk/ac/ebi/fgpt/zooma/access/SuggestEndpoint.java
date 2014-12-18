@@ -302,21 +302,21 @@ public abstract class SuggestEndpoint<T, I> {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(QueryCreationException.class)
-    public @ResponseBody
-    String handleException(QueryCreationException e) {
+    public @ResponseBody String handleException(QueryCreationException e) {
+        getLog().warn("Query could not be created: " + e.getMessage());
         return e.getMessage();
     }
 
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     @ExceptionHandler(SearchException.class)
-    private @ResponseBody String handleException(SearchException e) {
+    public @ResponseBody String handleException(SearchException e) {
         getLog().error("A search exception occurred: " + e.getMessage(), e);
         return "There was a problem performing your search - " + e.getMessage() + "";
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
-    private @ResponseBody String handleException(Exception e) {
+    public @ResponseBody String handleException(Exception e) {
         getLog().error("A unexpected exception occurred: " + e.getMessage(), e);
         return "There was a problem performing your search - " + e.getMessage() + "";
     }
