@@ -24,3 +24,13 @@ specific config files, for example:
       \- www     : Configuration files for deploying a full, standard ZOOMA installation to the "www" environment
       \- wwwdev  : Config for deploying a standard ZOOMA installation to the "wwwdev" environment
       \- local   : Config for deploying ZOOMA to a local environment - assumes tomcat running on port 8080
+
+When building, you can use the following options to customize your configuration build to be suitable to your environment
+
+-Dzooma.deployment.type  :
+    The type of deployment for Zooma.  One of "main", "server", "searcher" or "builder".
+    Main includes configuration for an entire Zooma installation, server includes only files required to run a Zooma instance,
+    searcher includes only the configuration required to run a command line search client, and builder only includes the configuration needed to build indexes
+-Dzooma.deployment.env
+    The Zooma instance to "point at".  One of local, dev, wwwdev or www.  Local assumes a localhost install of Zooma,
+    dev refers to a development instance and wwwdev and www the "test" and "production" instances accordingly.  Not all deployment types are available for all environments.
