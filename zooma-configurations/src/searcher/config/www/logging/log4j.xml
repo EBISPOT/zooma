@@ -9,7 +9,7 @@
 
     <appender name="zooma-log" class="org.apache.log4j.DailyRollingFileAppender">
         <param name="DatePattern" value="'.'yyyy-MM-dd" />
-        <param name="File" value="logs/zooma.log" />
+        <param name="File" value="zooma.log" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n" />
         </layout>
