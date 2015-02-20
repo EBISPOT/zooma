@@ -11,6 +11,7 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.env.ZoomaEnv;
+import uk.ac.ebi.fgpt.zooma.env.ZoomaHome;
 import uk.ac.ebi.fgpt.zooma.io.ZOOMAInputParser;
 import uk.ac.ebi.fgpt.zooma.io.ZOOMAReportRenderer;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
@@ -61,7 +62,7 @@ import java.util.concurrent.TimeUnit;
  * @date 08/08/12
  */
 public class ZOOMA2SearchDriver {
-    private static boolean evaluationMode;
+    private static boolean _evaluationMode;
     private static File _inputFile;
     private static OutputStream _out;
     private static OutputStream _err;
@@ -72,16 +73,26 @@ public class ZOOMA2SearchDriver {
 
     public static void main(String[] args) {
         try {
+            ZOOMA2SearchDriver driver = new ZOOMA2SearchDriver();
             int statusCode = parseArguments(args);
             if (statusCode == 0) {
-                ZOOMA2SearchDriver
-                        driver = new ZOOMA2SearchDriver(_zoomaLocation, _score, _cutoffPercentage, _concurrency);
-
-                if (evaluationMode) {
-                    driver.evaluateOptimalTextAnnotations(_inputFile, _out, _err);
+                if (_evaluationMode) {
+                    driver.evaluateOptimalTextAnnotations(_zoomaLocation,
+                                                          _score,
+                                                          _cutoffPercentage,
+                                                          _concurrency,
+                                                          _inputFile,
+                                                          _out,
+                                                          _err);
                 }
                 else {
-                    driver.findOptimalTextAnnotations(_inputFile, _out, _err);
+                    driver.findOptimalTextAnnotations(_zoomaLocation,
+                                                      _score,
+                                                      _cutoffPercentage,
+                                                      _concurrency,
+                                                      _inputFile,
+                                                      _out,
+                                                      _err);
                 }
                 System.out.println("ZOOMA completed successfully.");
 
@@ -168,7 +179,7 @@ public class ZOOMA2SearchDriver {
 
                 // evaluation mode overrides score and cutoff to produce verbose report
                 if (cl.hasOption("e")) {
-                    evaluationMode = true;
+                    _evaluationMode = true;
                     _score = 0;
                     _cutoffPercentage = 0;
                     System.out.println("ZOOMA running in evaluation mode: significance score set to " + _score + ", " +
@@ -295,26 +306,24 @@ public class ZOOMA2SearchDriver {
         return options;
     }
 
-    private URL zoomaLocation;
-    private float score;
-    private float cutoffPercentage;
-    private int concurrency;
-
     private Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {
         return log;
     }
 
-    public ZOOMA2SearchDriver(URL zoomaLocation, float score, float _cutoffPercentage, int concurrency) {
-        this.zoomaLocation = zoomaLocation;
-        this.score = score;
-        this.cutoffPercentage = _cutoffPercentage;
-        this.concurrency = concurrency;
-        getLog().info("ZOOMA2 Driver created, ready to execute search.");
+    public ZOOMA2SearchDriver() {
+        ZoomaEnv.configureZOOMAEnvironment();
+        ZoomaHome.checkInstall();
     }
 
-    public void findOptimalTextAnnotations(File inputFile, OutputStream out, OutputStream err) throws IOException {
+    public void findOptimalTextAnnotations(URL zoomaLocation,
+                                           float score,
+                                           float cutoffPercentage,
+                                           int concurrency,
+                                           File inputFile,
+                                           OutputStream out,
+                                           OutputStream err) throws IOException {
         try {
             getLog().info("Reading properties from input file '" + inputFile.getAbsolutePath() + "'");
 
@@ -329,7 +338,7 @@ public class ZOOMA2SearchDriver {
             excludeIneligibleProperties(properties);
 
             // and search
-            searchZOOMA(properties, out, err);
+            searchZOOMA(zoomaLocation, score, cutoffPercentage, concurrency, properties, out, err);
         }
         catch (RuntimeException e) {
             getLog().error("Caught unexpected runtime exception", e);
@@ -337,7 +346,13 @@ public class ZOOMA2SearchDriver {
         }
     }
 
-    public void evaluateOptimalTextAnnotations(File inputFile, OutputStream out, OutputStream err) throws IOException {
+    public void evaluateOptimalTextAnnotations(URL zoomaLocation,
+                                               float score,
+                                               float cutoffPercentage,
+                                               int concurrency,
+                                               File inputFile,
+                                               OutputStream out,
+                                               OutputStream err) throws IOException {
         getLog().info("Reading properties from input file '" + inputFile.getAbsolutePath() + "'");
 
         // create input parser and parse supplied properties
@@ -351,7 +366,7 @@ public class ZOOMA2SearchDriver {
         excludeIneligibleProperties(properties);
 
         // and evaluate
-        evaluateZOOMA(properties, out, err);
+        evaluateZOOMA(zoomaLocation, score, cutoffPercentage, concurrency, properties, out, err);
     }
 
     private void excludeIneligibleProperties(List<Property> properties) {
@@ -399,14 +414,31 @@ public class ZOOMA2SearchDriver {
         return inputData.length() == pos.getIndex();
     }
 
-    private void searchZOOMA(List<Property> properties, OutputStream out, OutputStream err) throws IOException {
-        searchZOOMA(properties, new HashMap<Property, List<String>>(), out, err);
-    }
-
-    private void searchZOOMA(List<Property> properties,
-                             Map<Property, List<String>> propertyContexts,
+    private void searchZOOMA(URL zoomaLocation,
+                             float score,
+                             float cutoffPercentage,
+                             int concurrency,
+                             List<Property> properties,
                              OutputStream out,
                              OutputStream err) throws IOException {
+        searchZOOMA(zoomaLocation,
+                    score,
+                    cutoffPercentage,
+                    concurrency,
+                    properties,
+                    new HashMap<Property, List<String>>(),
+                    out,
+                    err);
+    }
+
+    private void searchZOOMA(final URL zoomaLocation,
+                             final float score,
+                             final float cutoffPercentage,
+                             final int concurrency,
+                             final List<Property> properties,
+                             final Map<Property, List<String>> propertyContexts,
+                             final OutputStream out,
+                             final OutputStream err) throws IOException {
         getLog().info("Searching ZOOMA [" + zoomaLocation + "] for mappings");
         System.out.println("Starting ZOOMA search using ZOOMA at: " + zoomaLocation);
 
@@ -530,9 +562,13 @@ public class ZOOMA2SearchDriver {
         }
     }
 
-    private void evaluateZOOMA(List<Property> properties,
-                               OutputStream out,
-                               OutputStream err) throws IOException {
+    private void evaluateZOOMA(final URL zoomaLocation,
+                               final float score,
+                               final float cutoffPercentage,
+                               final int concurrency,
+                               final List<Property> properties,
+                               final OutputStream out,
+                               final OutputStream err) throws IOException {
         getLog().info("Evaluating ZOOMA mappings [" + zoomaLocation + "]");
         System.out.println("Starting ZOOMA search using ZOOMA at: " + zoomaLocation);
 
