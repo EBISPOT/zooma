@@ -335,4 +335,21 @@
         </dependencies>
     </dependencyManagement>
 
+	  <distributionManagement>
+			
+		  <repository>
+			  <id>ebi-repo-old</id>
+			  <name>EBI Repository</name>
+			  <url>sftp://ebi-001.ebi.ac.uk/homes/maven/public_html/m2repo</url>
+		  </repository>
+			
+		  <snapshotRepository>
+			  <id>ebi-repo-old-snapshots</id>
+			  <uniqueVersion>false</uniqueVersion>
+			  <name>EBI Snapshots Repository</name>
+			  <url>sftp://ebi-001.ebi.ac.uk/homes/maven/public_html/m2repo_snapshots</url>
+		  </snapshotRepository>
+	    		  	
+	  </distributionManagement>
+	
 </project>
