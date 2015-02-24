@@ -161,8 +161,7 @@
 
     <!-- Version control (GitHub) -->
     <scm>
-        <connection>scm:git:http://github.com/EBISPOT/zooma</connection>
-        <developerConnection>scm:git:git://github.com/EBISPOT/zooma</developerConnection>
+        <connection>scm:git:git@github.com:EBIBioSamples/zooma.git</connection>
         <url>http://github.com/EBISPOT/zooma</url>
     </scm>
 
