@@ -10,7 +10,7 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 
 /**
- * TODO: comment me!
+ * A common interface to represent the ZOMMA searching functionality.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>17 Dec 2014</dd>

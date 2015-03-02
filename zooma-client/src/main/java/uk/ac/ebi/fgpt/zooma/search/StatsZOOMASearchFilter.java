@@ -11,7 +11,9 @@ import uk.ac.ebi.utils.time.XStopWatch;
 
 /**
  * A wrapper of {@link ZOOMASearchFilter}, which dynamically logs usage statistics (no of calls, throughput, etc).
- *
+ * It also has a capability to throttle the client throughput, so that the server is not crashed by too many
+ * requests.
+ * 
  * <dl><dt>date</dt><dd>16 Nov 2014</dd></dl>
  * @author Marco Brandizi
  *
@@ -26,6 +28,10 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 	
 	private long getLabelCalls = 0, failedGetLabelCalls = 0;
 	private double avgGetLabelCalls = -1, avgFailedGetLabelCalls = -1;
+
+	private boolean throttleMode = false;
+	
+	private boolean isThrottling = false;
 	
 	private long samplingTimeMs = 15 * 1000 * 60;
 
@@ -43,6 +49,7 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 	@Override
 	public Map<AnnotationSummary, Float> searchZOOMA ( Property property, float score, boolean excludeType, boolean noEmptyResult )
 	{
+		doThrottle ();
 		if ( timer.isStopped () ) timer.start ();
 		
 		try {
@@ -63,6 +70,7 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 	@Override
 	public Annotation getAnnotation ( URI annotationURI )
 	{
+		doThrottle ();
 		if ( timer.isStopped () ) timer.start ();
 		
 		try {
@@ -83,6 +91,7 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 	@Override
 	public String getLabel ( URI uri ) throws IOException
 	{
+		doThrottle ();
 		if ( timer.isStopped () ) timer.start ();
 		
 		try {
@@ -170,6 +179,48 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 		}
 	}
 
+	
+	private boolean doThrottle ()
+	{
+		if ( !throttleMode ) return false;
+		double failedCalls = Math.max ( 
+			Math.max ( avgFailedSearchZOOMACalls, avgFailedGetAnnotationCalls ),
+			avgFailedGetLabelCalls
+		);
+		
+		if ( failedCalls <= 0.1 ) 
+		{
+			if ( isThrottling ) {
+				log.debug ( "ZOOMA back to good performance, throttling ends" );
+				isThrottling = false;
+			}
+			return false;
+		}
+
+		// The thresholds are related to twice their values most of the time, eg, 
+		// previous checkpoint it was 0, then it becomes 35, average is 17.5
+		long delay = 
+			failedCalls <= 0.175 ? 500 
+			: failedCalls <= 0.275 ? 5000 : 
+			60000; 
+
+		if ( !isThrottling ) {
+			log.debug ( "Throttling ZOOMA to avoid server crashing, calls are slowed down by {}ms per call", delay );
+			isThrottling = true;
+		}
+		
+		try {
+			Thread.sleep ( delay );
+		}
+		catch ( InterruptedException e ) {
+			throw new RuntimeException ( "Internal error: " + e.getMessage (), e );
+		}
+		
+		return true;
+	}
+	
+	
+	
 	public long getSamplingTimeMs ()
 	{
 		return samplingTimeMs;
@@ -208,6 +259,22 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 	public double getAvgFailedGetLabelCalls ()
 	{
 		return avgFailedGetLabelCalls;
+	}
+
+	/**
+	 * If true, calls to the server are slowed down when the failure ratio is too high and things are speed-up again
+	 * when such ratio goes back to normal. This is to prevent crashes we have with ZOOMA server, when we hammer at
+	 * it too much. 
+	 */
+	public boolean isThrottleMode ()
+	{
+		return throttleMode;
+	}
+
+
+	public void setThrottleMode ( boolean throttleMode )
+	{
+		this.throttleMode = throttleMode;
 	}
 	
 }
