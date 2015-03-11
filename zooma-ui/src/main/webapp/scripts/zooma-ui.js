@@ -540,9 +540,9 @@ function renderResults(data) {
                             "<img src='//www.ebi.ac.uk/gxa/resources/images/ExpressionAtlas_logo_web.png' " +
                             "alt='Expression Atlas' style='height: 22px;'/> Expression Atlas</a></td>";
                 }
-                else if (result[7] == "http://www-test.ebi.ac.uk/gxa") {
+                else if (result[7] == "http://www.ebi.ac.uk/gxa") {
                     href =
-                            "http://www-test.ebi.ac.uk/gxa/qrs?gprop_0=&gnot_0=&gval_0=%28all+genes%29&fact_1=&fexp_1=UP_DOWN&fmex_1=&fval_1=" +
+                            "http://www.ebi.ac.uk/gxa/qrs?gprop_0=&gnot_0=&gval_0=%28all+genes%29&fact_1=&fexp_1=UP_DOWN&fmex_1=&fval_1=" +
                                     encodeURIComponent(result[1]) +
                                     "&view=hm&searchMode=simple";
                     row = row + "<td><a href='" + href + "' target='_blank'>" +

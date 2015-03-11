@@ -32,7 +32,7 @@ public enum Namespaces {
     ARRAYEXPRESS("http://www.ebi.ac.uk/arrayexpress"),
 
     ATLAS("http://www.ebi.ac.uk/gxa"),
-    GXA("http://www-test.ebi.ac.uk/gxa"),
+    GXA("http://www.ebi.ac.uk/gxa"),
 
     GENOME("http://www.genome.gov"),
     GWAS("http://www.genome.gov/gwastudies"),
