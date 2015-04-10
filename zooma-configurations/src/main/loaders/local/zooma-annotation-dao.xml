@@ -19,65 +19,58 @@
         <zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term" />
     </zooma:owlAnnotations>
 
-    <!--<zooma:owlAnnotations name="peco" uri="http://purl.obolibrary.org/obo/eo.owl" useReasoning="false">-->
-        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />-->
-        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />-->
-        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />-->
-    <!--</zooma:owlAnnotations>-->
+    <zooma:owlAnnotations name="peco" uri="http://purl.obolibrary.org/obo/eo.owl" useReasoning="false">
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />
+    </zooma:owlAnnotations>
 
-    <!--<zooma:owlAnnotations name="cmpo"-->
-                          <!--uri="http://www.ebi.ac.uk/cmpo/cmpo.owl"-->
-                          <!--loadFrom="https://raw.github.com/EBISPOT/CMPO/master/release/cmpo-simple.owl"-->
-                          <!--useReasoning="false">-->
-        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />-->
-        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />-->
-        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />-->
-        <!--<zooma:synonym uri="http://www.w3.org/2004/02/skos/core#prefLabel" />-->
-    <!--</zooma:owlAnnotations>-->
+    <zooma:owlAnnotations name="cmpo"
+                          uri="http://www.ebi.ac.uk/cmpo/cmpo.owl"
+                          loadFrom="https://raw.github.com/EBISPOT/CMPO/master/release/cmpo-simple.owl"
+                          useReasoning="false">
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />
+        <zooma:synonym uri="http://www.w3.org/2004/02/skos/core#prefLabel" />
+    </zooma:owlAnnotations>
 
-    <!--<zooma:owlAnnotations name="orphanet"-->
-                          <!--uri="http://www.orphadata.org/data/ORDO/ordo_orphanet.owl"-->
-                          <!--exclusionClassURI="http://www.geneontology.org/formats/oboInOwl#ObsoleteClass">-->
-        <!--<zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term" />-->
-    <!--</zooma:owlAnnotations>-->
+    <zooma:owlAnnotations name="orphanet"
+                          uri="http://www.orphadata.org/data/ORDO/ordo_orphanet.owl"
+                          exclusionClassURI="http://www.geneontology.org/formats/oboInOwl#ObsoleteClass">
+        <zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term" />
+    </zooma:owlAnnotations>
 
-    <!--<zooma:owlAnnotations name="clo"-->
-                          <!--uri="http://purl.obolibrary.org/obo/clo.owl"-->
-                          <!--loadFrom="http://purl.obolibrary.org/obo/clo.owl"-->
-                          <!--useReasoning="false">-->
-        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />-->
-        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />-->
-        <!--<zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />-->
-        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/CL_import.owl"-->
-                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/CL_import.owl" />-->
-        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/GO_import.owl"-->
-                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/GO_import.owl" />-->
-        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/IAO_import.owl"-->
-                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/IAO_import.owl" />-->
-        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/NCBITaxon_import.owl"-->
-                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/NCBITaxon_import.owl" />-->
-        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/OBI_import.owl"-->
-                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/OBI_import.owl" />-->
-        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/PATO_import.owl"-->
-                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/PATO_import.owl" />-->
-        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/UBERON_import.owl"-->
-                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/UBERON_import.owl" />-->
-        <!--<zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/cellline_import.owl"-->
-                             <!--loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/cellline_import.owl" />-->
-    <!--</zooma:owlAnnotations>-->
+    <zooma:owlAnnotations name="clo"
+                          uri="http://purl.obolibrary.org/obo/clo.owl"
+                          loadFrom="http://purl.obolibrary.org/obo/clo.owl"
+                          useReasoning="false">
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />
+        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />
+        <zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/CL_import.owl"
+                             loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/CL_import.owl" />
+        <zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/GO_import.owl"
+                             loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/GO_import.owl" />
+        <zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/IAO_import.owl"
+                             loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/IAO_import.owl" />
+        <zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/NCBITaxon_import.owl"
+                             loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/NCBITaxon_import.owl" />
+        <zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/OBI_import.owl"
+                             loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/OBI_import.owl" />
+        <zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/PATO_import.owl"
+                             loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/PATO_import.owl" />
+        <zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/UBERON_import.owl"
+                             loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/UBERON_import.owl" />
+        <zooma:importMapping uri="http://purl.obolibrary.org/obo/clo/cellline_import.owl"
+                             loadFrom="http://clo-ontology.googlecode.com/svn/trunk/src/ontology/cellline_import.owl" />
+    </zooma:owlAnnotations>
 
-    <!--<zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/fg/sym"-->
-                             <!--datasourceName="sysmicro"-->
-                             <!--url="http://www.ebi.ac.uk/cmpo/zooma-cmpo.csv"-->
-                             <!--defaultSourceType="http://purl.obolibrary.org/obo/OBI_0000075"-->
-                             <!--defaultTargetType="http://purl.obolibrary.org/obo/OBI_0100064"-->
-                             <!--delimiter="," />-->
-
-    <zoomacsv:csvAnnotations datasourceUrl="http://www.biomedbridges.eu/workpackages/wp7-0"
-                             datasourceName="bmb-wp7"
-                             url="http://www.ebi.ac.uk/~tburdett/zooma/bmb_zooma_disease.tsv"
+    <zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/fg/sym"
+                             datasourceName="sysmicro"
+                             url="http://www.ebi.ac.uk/cmpo/zooma-cmpo.csv"
                              defaultSourceType="http://purl.obolibrary.org/obo/OBI_0000075"
                              defaultTargetType="http://purl.obolibrary.org/obo/OBI_0100064"
-                             delimiter="\t" />
+                             delimiter="," />
 
 </beans>
