@@ -21,7 +21,9 @@ $VIRTUOSO_HOME  - the location of the base directory of your Virtuoso installati
 $ZOOMA_HOME     - the location of your ZOOMA home directory.  Defaults to $HOME/.zooma if not set.
 $ZOOMA_OPTS     - optional additional Java options to supply to ZOOMA (e.g. -Xms1g -Xmx4g).
 
-Before running ZOOMA, you need to copy the ZOOMA configuration module into your $ZOOMA_HOME directory
+When you first run ZOOMA, it will unpack a template configuration directory into $ZOOMA_HOME to let you get up and
+running immediately.  It is possible to change these configuration files to alter which datasources will be loaded into
+ZOOMA, logging levels, and more.  Further advanced configuration details are coming soon.
 
 Execution
 =========
