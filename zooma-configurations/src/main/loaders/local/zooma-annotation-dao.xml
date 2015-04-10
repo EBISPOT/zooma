@@ -25,21 +25,4 @@
         <zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term" />
     </zooma:owlAnnotations>
 
-    <zooma:owlAnnotations name="cmpo"
-                          uri="http://www.ebi.ac.uk/cmpo/cmpo.owl"
-                          loadFrom="https://raw.github.com/EBISPOT/CMPO/master/release/cmpo-simple.owl"
-                          useReasoning="false">
-        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" />
-        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym" />
-        <zooma:synonym uri="http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym" />
-        <zooma:synonym uri="http://www.w3.org/2004/02/skos/core#prefLabel" />
-    </zooma:owlAnnotations>
-
-    <zoomacsv:csvAnnotations datasourceUrl="http://www.ebi.ac.uk/fg/sym"
-                             datasourceName="sysmicro"
-                             url="http://www.ebi.ac.uk/cmpo/zooma-cmpo.csv"
-                             defaultSourceType="http://purl.obolibrary.org/obo/OBI_0000075"
-                             defaultTargetType="http://purl.obolibrary.org/obo/OBI_0100064"
-                             delimiter="," />
-
 </beans>
