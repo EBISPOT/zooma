@@ -19,10 +19,4 @@
         <zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term" />
     </zooma:owlAnnotations>
 
-    <zooma:owlAnnotations name="orphanet"
-                          uri="http://www.orphadata.org/data/ORDO/ordo_orphanet.owl"
-                          exclusionClassURI="http://www.geneontology.org/formats/oboInOwl#ObsoleteClass">
-        <zooma:synonym uri="http://www.ebi.ac.uk/efo/alternative_term" />
-    </zooma:owlAnnotations>
-
 </beans>
