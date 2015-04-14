@@ -1,0 +1,6 @@
+#!/bin/sh
+
+base=${0%/*};
+
+bsub -q research-rh6 -M 18000 -R "rusage[mem=18000]" $base/zooma-loading.sh $@;
+exit $?;

@@ -10,8 +10,10 @@ import org.semanticweb.owlapi.reasoner.ConsoleProgressMonitor;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerConfiguration;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
+import org.semanticweb.owlapi.reasoner.ReasonerProgressMonitor;
 import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
+import org.slf4j.Logger;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
@@ -37,7 +39,7 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
 
         getLog().debug("Trying to create a reasoner over ontology '" + getOntologyURI() + "'");
         OWLReasonerFactory factory = new Reasoner.ReasonerFactory();
-        ConsoleProgressMonitor progressMonitor = new ConsoleProgressMonitor();
+        ReasonerProgressMonitor progressMonitor = new LoggingReasonerProgressMonitor(getLog());
         OWLReasonerConfiguration config = new SimpleConfiguration(progressMonitor);
         OWLReasoner reasoner = factory.createReasoner(ontology, config);
 
@@ -129,13 +131,13 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
             }
 
             // get types
-            getLog().debug("Loading types...");
+            getLog().trace("Loading types of " + ontologyClass + "...");
             Set<String> ontologyTypeLabelSet = new HashSet<>();
             Set<OWLClass> parents = reasoner.getSuperClasses(ontologyClass, false).getFlattened();
             for (OWLClass parentClass : parents) {
                 if (allClasses.contains(parentClass)) {
                     // only add type if the parent isn't excluded
-                    getLog().debug("Next parent of " + label + ": " + parentClass);
+                    getLog().trace("Next parent of " + label + ": " + parentClass);
                     Set<String> typeVals = getStringLiteralAnnotationValues(ontology, parentClass, rdfsLabel);
                     ontologyTypeLabelSet.addAll(typeVals);
                 }
@@ -143,7 +145,7 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
             addClassTypes(clsIri, ontologyTypeLabelSet);
 
             // get all synonym annotations
-            getLog().debug("Loading synonyms...");
+            getLog().trace("Loading synonyms of " + ontologyClass + "...");
             for (OWLAnnotationProperty synonym : synonyms) {
                 Set<String> synonymVals = getStringLiteralAnnotationValues(ontology, ontologyClass, synonym);
                 if (synonymVals.isEmpty()) {
@@ -170,5 +172,43 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
                                synonymCount + " synonyms on " + synonymedClassCount + " classes!");
 
         return ontology;
+    }
+
+    protected class LoggingReasonerProgressMonitor implements ReasonerProgressMonitor {
+        private final Logger log;
+        private int lastPercent = 0;
+
+        public LoggingReasonerProgressMonitor(Logger log) {
+            this.log = log;
+        }
+
+        protected Logger getLog() {
+            return log;
+        }
+
+        @Override public void reasonerTaskStarted(String s) {
+            getLog().debug(s);
+        }
+
+        @Override public void reasonerTaskStopped() {
+            getLog().debug("100% done!");
+            lastPercent = 0;
+        }
+
+        @Override public void reasonerTaskProgressChanged(int value, int max) {
+            if (max > 0) {
+                int percent = value * 100 / max;
+                if (lastPercent != percent) {
+                    if (percent % 25 == 0) {
+                        getLog().debug("" + percent + "% done...");
+                    }
+                    lastPercent = percent;
+                }
+            }
+        }
+
+        @Override public void reasonerTaskBusy() {
+
+        }
     }
 }

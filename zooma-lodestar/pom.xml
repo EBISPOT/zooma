@@ -61,7 +61,7 @@
         <dependency>
             <groupId>ebi-lode</groupId>
             <artifactId>lode-virtuoso-impl</artifactId>
-            <version>1.2</version>
+            <version>1.3nj-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -70,6 +70,10 @@
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>

@@ -191,6 +191,11 @@ public class ZOOMAReportRenderer {
     }
 
     public void renderAnnotationSummaries(List<Property> properties,
+                                          Map<Property, Map<AnnotationSummary, Float>> propertySummariesMap) {
+        renderAnnotationSummaries(properties, Collections.<Property, List<String>>emptyMap(), propertySummariesMap);
+    }
+
+    public void renderAnnotationSummaries(List<Property> properties,
                                           Map<Property, List<String>> propertyContextMap,
                                           Map<Property, Map<AnnotationSummary, Float>> propertySummariesMap) {
         // first, write the report header
@@ -243,6 +248,17 @@ public class ZOOMAReportRenderer {
                                             summary.getAnnotatedPropertyValue(),
                                             summary.getSemanticTags(),
                                             summaryMap.get(summary));
+                        // render one line per possible summary
+                        for (URI annotatesTo : summary.getSemanticTags()) {
+                            if (annotatesTo != null) {
+                                writeEvaluationLine(writer,
+                                                    property,
+                                                    summary.getAnnotatedPropertyType(),
+                                                    summary.getAnnotatedPropertyValue(),
+                                                    summary.getSemanticTags(),
+                                                    summaryMap.get(summary));
+                            }
+                        }
                     }
                     else {
                         writeEvaluationLine(writer,
@@ -277,7 +293,7 @@ public class ZOOMAReportRenderer {
     protected void writeReportLine(PrintWriter writer,
                                    Property property,
                                    String matchedPropertyValue,
-                                   String experiment,
+                                   String study,
                                    String source,
                                    Collection<URI> semanticTags,
                                    boolean automatic) {
@@ -337,12 +353,12 @@ public class ZOOMAReportRenderer {
         String ontologies = ontologiesSB.toString();
         writer.println(propertyType + "\t" + propertyValue + "\t" + labels + "\t" +
                                synonyms + "\t" + type + "\t" + terms + "\t" +
-                               ontologies + "\t" + source);
+                               ontologies + "\t" + source + "\t" + study);
     }
 
     protected void writeUnmappedReportLine(PrintWriter writer,
                                            Property property,
-                                           String experiment) {
+                                           String study) {
         getLog().trace("There are no mappings for property '" + property + "'");
 
         String propertyType =
@@ -358,7 +374,7 @@ public class ZOOMAReportRenderer {
 
         writer.println(propertyType + "\t" + propertyValue + "\t" + labels + "\t" +
                                synonyms + "\t" + type + "\t" + terms + "\t" +
-                               ontologies + "\t" + sources);
+                               ontologies + "\t" + sources + "\t" + study);
     }
 
     protected void writeReportHeader(PrintWriter writer) {
@@ -371,7 +387,7 @@ public class ZOOMAReportRenderer {
         writer.flush();
 
         writer.println(
-                "PROPERTY TYPE\tPROPERTY VALUE\tONTOLOGY TERM LABEL(S)\tONTOLOGY TERM SYNONYM(S)\tMAPPING TYPE\tONTOLOGY TERM(S)\tONTOLOGY(S)\tSOURCE(S)");
+                "PROPERTY TYPE\tPROPERTY VALUE\tONTOLOGY TERM LABEL(S)\tONTOLOGY TERM SYNONYM(S)\tMAPPING TYPE\tONTOLOGY TERM(S)\tONTOLOGY(S)\tSOURCE(S)\tSTUDY");
     }
 
     protected void writeEvaluationLine(PrintWriter writer,

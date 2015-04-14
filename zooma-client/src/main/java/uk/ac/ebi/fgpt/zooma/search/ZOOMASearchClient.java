@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.search;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
@@ -176,7 +176,7 @@ public class ZOOMASearchClient {
             if (resultNode != null) {
                 for (JsonNode result : resultNode) {
                     // meets significance score?
-                    float resultScore = Float.parseFloat(result.get("score").getTextValue());
+                    float resultScore = Float.parseFloat(result.get("score").asText());
                     AnnotationSummary as = mapAnnotationSummary(result, mapper);
                     getLog().trace(
                             "Annotation hit:\n\t\t" +
@@ -265,8 +265,8 @@ public class ZOOMASearchClient {
 
             JsonNode propertyNode = annotationNode.get("annotatedProperty");
             if (propertyNode != null) {
-                annotatedProperty = new SimpleTypedProperty(propertyNode.get("propertyType").getTextValue(),
-                                                            propertyNode.get("propertyValue").getTextValue());
+                annotatedProperty = new SimpleTypedProperty(propertyNode.get("propertyType").asText(),
+                                                            propertyNode.get("propertyValue").asText());
             }
 
             JsonNode biologicalEntitiesNode = annotationNode.get("annotatedBiologicalEntities");
@@ -275,14 +275,14 @@ public class ZOOMASearchClient {
                     List<Study> studies = new ArrayList<>();
                     JsonNode studiesNode = biologicalEntityNode.get("studies");
                     for (JsonNode studyNode : studiesNode) {
-                        Study study = new SimpleStudy(URI.create(studyNode.get("uri").getTextValue()),
-                                                      studyNode.get("accession").getTextValue());
+                        Study study = new SimpleStudy(URI.create(studyNode.get("uri").asText()),
+                                                      studyNode.get("accession").asText());
                         studies.add(study);
                     }
 
                     BiologicalEntity be = new SimpleBiologicalEntity(
-                            URI.create(biologicalEntityNode.get("uri").getTextValue()),
-                            biologicalEntityNode.get("name").getTextValue(),
+                            URI.create(biologicalEntityNode.get("uri").asText()),
+                            biologicalEntityNode.get("name").asText(),
                             studies.toArray(new Study[studies.size()]));
                     biologicalEntities.add(be);
                 }
@@ -292,22 +292,22 @@ public class ZOOMASearchClient {
             if (provenanceNode != null) {
                 JsonNode sourceNode = provenanceNode.get("source");
                 if (sourceNode != null) {
-                    AnnotationSource.Type type = AnnotationSource.Type.valueOf(sourceNode.get("type").getTextValue());
+                    AnnotationSource.Type type = AnnotationSource.Type.valueOf(sourceNode.get("type").asText());
                     AnnotationSource annotationSource =
-                            new SimpleAnnotationSource(URI.create(sourceNode.get("uri").getTextValue()),
-                                                       sourceNode.get("name").getTextValue(),
+                            new SimpleAnnotationSource(URI.create(sourceNode.get("uri").asText()),
+                                                       sourceNode.get("name").asText(),
                                                        type);
                     annotationProvenance = new SimpleAnnotationProvenance(
                             annotationSource,
-                            AnnotationProvenance.Evidence.valueOf(provenanceNode.get("evidence").getTextValue()),
-                            provenanceNode.get("generator").getTextValue(),
-                            new Date(provenanceNode.get("generatedDate").getLongValue()));
+                            AnnotationProvenance.Evidence.valueOf(provenanceNode.get("evidence").asText()),
+                            provenanceNode.get("generator").asText(),
+                            new Date(provenanceNode.get("generatedDate").asLong()));
                 }
             }
 
             JsonNode stsNode = annotationNode.get("semanticTags");
             for (JsonNode stNode : stsNode) {
-                URI de = URI.create(stNode.getTextValue());
+                URI de = URI.create(stNode.asText());
                 semanticTags.add(de);
             }
 
@@ -408,8 +408,8 @@ public class ZOOMASearchClient {
 
     private AnnotationSummary mapAnnotationSummary(JsonNode result, ObjectMapper mapper) throws IOException {
         // acquire the annotation summary for this result
-        String mid = result.get("mid").getTextValue();
-        float resultScore = Float.parseFloat(result.get("score").getTextValue());
+        String mid = result.get("mid").asText();
+        float resultScore = Float.parseFloat(result.get("score").asText());
 
         URL summaryURL = new URL(zoomaBase + "summaries/" + mid);
         try {
@@ -417,27 +417,27 @@ public class ZOOMASearchClient {
 
             URI propertyUri =
                     summaryNode.get("annotatedPropertyUri") != null && !summaryNode.get("annotatedPropertyUri").isNull()
-                            ? URI.create(summaryNode.get("annotatedPropertyUri").getTextValue())
+                            ? URI.create(summaryNode.get("annotatedPropertyUri").asText())
                             : null;
-            String propertyType = summaryNode.get("annotatedPropertyType").getTextValue();
-            String propertyValue = summaryNode.get("annotatedPropertyValue").getTextValue();
+            String propertyType = summaryNode.get("annotatedPropertyType").asText();
+            String propertyValue = summaryNode.get("annotatedPropertyValue").asText();
 
             List<URI> semanticTags = new ArrayList<>();
             JsonNode stsNode = summaryNode.get("semanticTags");
             for (JsonNode stNode : stsNode) {
-                semanticTags.add(URI.create(stNode.getTextValue()));
+                semanticTags.add(URI.create(stNode.asText()));
             }
 
             List<URI> annotationURIs = new ArrayList<>();
             JsonNode annsNode = summaryNode.get("annotationURIs");
             for (JsonNode annNode : annsNode) {
-                annotationURIs.add(URI.create(annNode.getTextValue()));
+                annotationURIs.add(URI.create(annNode.asText()));
             }
 
             List<URI> annotationSourceURIs = new ArrayList<>();
             JsonNode annsSourceNode = summaryNode.get("annotationSourceURIs");
             for (JsonNode annSourceNode : annsSourceNode) {
-                annotationSourceURIs.add(URI.create(annSourceNode.getTextValue()));
+                annotationSourceURIs.add(URI.create(annSourceNode.asText()));
             }
 
             // collect summary into map with it's score

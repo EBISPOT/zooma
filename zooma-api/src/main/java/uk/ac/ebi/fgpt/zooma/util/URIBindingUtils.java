@@ -3,9 +3,12 @@ package uk.ac.ebi.fgpt.zooma.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -51,26 +54,22 @@ public class URIBindingUtils {
     }
 
     public synchronized static Map<String, String> loadPrefixMappings() {
-        getLog().debug("Attempting to load type mappings from properties files...");
+        getLog().debug("Attempting to load prefix mappings from properties files...");
         prefixMappings.clear();
         try {
+            File prefixPropertyFile = FileSystems.getDefault()
+                    .getPath(System.getProperty("zooma.home"), "config", "naming", "types.properties")
+                    .toFile();
             Properties prefixProperties = new Properties();
-            Enumeration<URL> prefixPropertyFiles = URIBindingUtils.class.getClassLoader().getResources(
-                    "zooma/types.properties");
-            while (prefixPropertyFiles.hasMoreElements()) {
-                URL prefixPropertyFile = prefixPropertyFiles.nextElement();
-                getLog().debug("Loading type mappings from " + prefixPropertyFile.toString());
-                prefixProperties.load(prefixPropertyFile.openStream());
-            }
-
+            prefixProperties.load(new FileInputStream(prefixPropertyFile));
             for (String prefix : prefixProperties.stringPropertyNames()) {
                 String namespace = prefixProperties.getProperty(prefix);
-                getLog().debug("Next type mapping: " + prefix + " = " + namespace);
+                getLog().debug("Next prefix mapping: " + prefix + " = " + namespace);
                 prefixMappings.put(prefix, namespace);
             }
         }
         catch (IOException e) {
-            throw new RuntimeException("Unable to read zooma type properties", e);
+            throw new RuntimeException("Unable to read zooma prefix properties", e);
         }
         return prefixMappings;
     }

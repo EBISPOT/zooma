@@ -118,7 +118,7 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
             for (OWLClassExpression parentClassExpression : ontologyClass.getSuperClasses(ontology)) {
                 if (!parentClassExpression.isAnonymous()) {
                     OWLClass parentClass = parentClassExpression.asOWLClass();
-                    getLog().debug("Next parent of " + label + ": " + parentClass);
+                    getLog().trace("Next parent of " + label + ": " + parentClass);
                     Set<String> typeVals = getStringLiteralAnnotationValues(ontology, parentClass, rdfsLabel);
                     ontologyTypeLabelSet.addAll(typeVals);
                 }
