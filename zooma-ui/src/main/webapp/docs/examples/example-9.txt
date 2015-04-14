@@ -1,0 +1,100 @@
+not available	Tumor_Diameter
+postnatal day 0	age
+primary cell stroma	biosource_type
+GM08928	cell_line
+GM14453	cell_line
+GM14475	cell_line
+GM17133	cell_line
+GM17264	cell_line
+GM17779	cell_line
+GS-3 clone 3	cell_line
+JIMT-1	cell_line
+LSJ2 line	cell_line
+RCC4	cell_line
+hcaSMC	cell_line
+not specified	cell_line
+Normal Human Umbilical Vein Endothelial Cells (HUVEC)	cell_type
+adult choroid from 76 y.o. donor	cell_type
+hTERT-immortalized WI-38 primary human lung fibroblasts	cell_type
+mononuclear myogenic cells	cell_type
+spheroid recovery	cell_type
+infusion of saline	clinical_treatment
+PD-0325901 30000 nanomolar	compound
+bortezomib 15 nanomolar	compound
+cephalothin 3000 micromolar	compound
+cimetidine 12 micromolar	compound
+enalapril 2000 micromolar	compound
+hydroxyzine 40 micromolar	compound
+iproniazid 1200 micromolar	compound
+perhexiline 15 micromolar	compound
+phenacetin 24 micromolar	compound
+versipelostatin 1 micromolar	compound
+E-MEXP-184	datasource
+GSE1317	datasource
+bicellular	developmental_stage
+floral stage 12 (late)	developmental_stage
+middle of second instar	developmental_stage
+ripening	developmental_stage
+ripening	developmental_stage
+term	developmental_stage
+DFS = 12 months	dfs_follow_up
+Binet Stage:A	disease_staging
+II/2	disease_staging
+clinical remission without medication	disease_staging
+late stage with no metastasis	disease_staging
+metastatic	disease_staging
+tumor stage: T3a	disease_staging
+KSHV infection, 14 days	disease_state
+Leishmania donovani infected	disease_state
+Normal Control, HIV Negative	disease_state
+insulitis and diabetes mellitus	disease_state
+pneumonia; empyema	disease_state
+squamous cell carcinoma cell line, 6h after infection with fasX-mutant Streptococcus pyogenes	disease_state
+week 12 post SIV infected	disease_state
+Columbia	ecotype
+OX0120:MZ twin	family_relationship
+OX0180:MZ twin	family_relationship
+OX0206:MZ twin	family_relationship
+OX0243:MZ twin	family_relationship
+OX0245:MZ twin	family_relationship
+HS578T breast cancer cell line	groups_369
+NCI-H929 myeloma	groups_369
+UACC-62 melanoma	groups_369
+adipose tissue polycystic ovarian syndrome	groups_369
+embryonic skin fibroblast	groups_369
+placenta basal plate	groups_369
+epidermis dermatitis	groups_96
+caco2 colon adenocarcinoma	groups_with_10_and_more_replicates
+cysteine deprivation	growth_condition
+far-red light	growth_condition
+greenhouse	growth_condition
+high day temperature	growth_condition
+soy-formula	growth_condition
+poorly differentiated	histology
+Plasmodium berghei	infect
+t(11;19)(q23;p13.1)	karyotype
+other neoplasm	metagroups_15
+not specified	no__of_metastases
+Florent,Baty	operator_variation
+Rehannah,H,Borup	operator_variation
+blood (whole)	organism_part
+cultured epidermis	organism_part
+male gametophyte	organism_part
+myometrium;endometrium	organism_part
+pancreatic islet	organism_part
+primary root apical meristem	organism_part
+skin (arm)	organism_part
+tibialis cranialis	organism_part
+RF- polyarticular JIA	original_diagnosis
+CD34+CD38+CD19+	phenotype
+overexpression of alpha- and beta- Hb chains	protocol_type
+transplanted into brain	protocol_type
+ICU admission	sampling_time_point
+TX527	stimulus
+MYD88 -/- C57BL/6	strain_or_line
+N-cadherin LacZ gene trap mice	strain_or_line
+W303-1B T316K	strain_or_line
+unknown	time
+Cluster B lysis at D8, treated with microRNA cluster B, Group2	treatment
+FFPET	treatment
+sesame oil for 3 wks 2x a wk then 12 wks of vehicle withdrawal	treatment

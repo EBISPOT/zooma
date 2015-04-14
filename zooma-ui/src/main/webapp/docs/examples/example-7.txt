@@ -1,0 +1,100 @@
+LEDGF knockdown	RNAi
+control shRNA	RNAi
+BALB/c (H-2Kd, Thy-1.2)	StrainOrLine
+Seedlings grown for 4 days in darkness and 18 hours in red continuous light	age
+ACH-3P cells	cell_line
+AG11364	cell_line
+AG13150	cell_line
+GM07348	cell_line
+GM08398C	cell_line
+GM14502	cell_line
+GM17148	cell_line
+GM17206	cell_line
+GM17238	cell_line
+HUES-1	cell_line
+HeLa cell-cervical carcinoma	cell_line
+KMS20	cell_line
+NCI-H146	cell_line
+CD38dimCD24dimCD5+CD27-IgD+ pre-naive B cells	cell_type
+CD4+CD25+ regulatory T cell	cell_type
+ISP CD4+ thymocyte	cell_type
+adipose stem cells derived from adult human donor	cell_type
+large PDF circadian neurons	cell_type
+lung epithelia	cell_type
+mouse dermal fibroblasts	cell_type
+peripheral blood cytotoxic T lymphocyte	cell_type
+undifferentiated MEF cells	cell_type
+training	classifier
+bilateral disruption of the medial collateral ligament	clinical_treatment
+Triptolide	compound
+arsenic and iron	compound
+beta-amyloid 50 micromolar	compound
+captopril 1600 micromolar	compound
+dH2O 1 gram per liter	compound
+diltiazem 30 micromolar	compound
+listeriolysin 6 nanomolar	compound
+none 0 micrograms per milliliter	compound
+tannic acid 300 micromolar	compound
+transforming growth factor beta	compound
+tyrphostin AG-825 0.0000252 molar	compound
+GSE3218	datasource
+GSE4045	datasource
+GSE7123	datasource
+berry ripening stage 34 E-L	developmental_stage
+growing	developmental_stage
+late third-instar larva (L3)	developmental_stage
+pupa approximately 20 hours APF (P20)	developmental_stage
+T3N2bM0	disease_staging
+HIV and HCV coinfected	disease_state
+activated B-cell-like diffuse large B-cell lymphoma	disease_state
+non-tumoral alcoholic cirrhosis	disease_state
+pituitary cancer	disease_state
+Pinot Noir	ecotype
+OX0224:DZ twin	family_relationship
+OX0243:MZ twin	family_relationship
+stromovascular fraction	fraction
+Tet21N minus MYCN	genetic_modification
+dpp overexpressed	genetic_modification
+embryonic skin fibroblast	groups_369
+pc6 lung small cell cancer	groups_369
+te85 osteosarcoma	groups_369
+unknown lung squamous cell carcinoma	groups_369
+isotype control antibody	growth_condition
+low iron	growth_condition
+unstimulated	growth_condition
+t(8;21)	karyotype
+ultraviolet light	light
+LuminalB	molecular_subtype
+lower half	observation
+Agnes,Yong	operator_variation
+IDDC,Inflammation  the Host Response to Injury	operator_variation
+Jerry,M.,Wright	operator_variation
+Rafael,Fonseca	operator_variation
+extensor digitorum longus muscle	organism_part
+lymphoid tissue	organism_part
+normal. Homogenized	organism_part
+peripheral endosperm	organism_part
+right leg	organism_part
+systemic JIA	original_diagnosis
+Translational Genomics Research Institute	performer
+CD133+ G0 phase	phenotype
+CD44-CD25-CD4-CD8- (negA)	phenotype
+GFP positive	phenotype
+non-mucoid, non-motile	phenotype
+NuGEN WT-Ovation Pico	protocol_type
+July	sampling_time_point
+S. cerevisiae spores	stimulus
+A1-1	strain_or_line
+BXD16	strain_or_line
+C57CL/6	strain_or_line
+Dnmt1fl/fl	strain_or_line
+GMR-GAL4; UAS-AR x limpet duplication	strain_or_line
+Swiss	strain_or_line
+clone 115	strain_or_line
+tpt-2	strain_or_line
+ERBB2 present; ESR1 absent; KRT absent	test_result
+ERBB2 present; ESR1 absent; KRT absent	test_result
+brain death and SEW-2871 injection	treatment
+pollinated	treatment
+Gleason 6	tumor_grading
+athymic nude mouse	xenograft

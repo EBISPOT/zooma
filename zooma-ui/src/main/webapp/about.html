@@ -1,0 +1,375 @@
+<!doctype html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]>
+<html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!-- Consider adding an manifest.appcache: h5bp.com/d/Offline -->
+<!--[if gt IE 8]>
+<html class="no-js" lang="en">           <!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+
+    <!-- Use the .htaccess and remove these lines to avoid edge case issues.
+    More info: h5bp.com/b/378 --><!-- <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> -->
+    <!-- Not yet implemented -->
+
+    <title>ZOOMA &lt; FGPT &lt; EMBL-EBI</title>
+    <meta name="description" content="ZOOMA | Ontology Mapping and Annotation"/>
+    <meta name="author" content="Tony Burdett"/>
+    <meta name="keywords" content="ZOOMA, ZOOMA2, ZOOMA 2, ontology mapping, ontology annotation"/>
+
+    <!-- Mobile viewport optimized: j.mp/bplateviewport -->
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
+    <link rel="shortcut icon" href="images/favicon.ico"/>
+
+    <!-- CSS: implied media=all --><!-- CSS concatenated and minified via ant build script-->
+    <link rel="stylesheet" href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/boilerplate-style.css">
+    <link rel="stylesheet"
+          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-global.css"
+          type="text/css"
+          media="screen">
+    <link rel="stylesheet"
+          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-visual.css"
+          type="text/css"
+          media="screen">
+    <link rel="stylesheet"
+          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/984-24-col-fluid.css"
+          type="text/css"
+          media="screen">
+    <link rel="stylesheet" href="css/zooma.css" type="text/css" media="screen">
+
+    <!-- you can replace this with [projectname]-colours.css. See http://frontier.ebi.ac.uk/web/style/colour for details of how to do this -->
+    <!-- also inform ES so we can host your colour palette file -->
+    <link rel="stylesheet"
+          href="http://www.ebi.ac.uk/web_guidelines/css/compliance/develop/embl-petrol-colours.css"
+          type="text/css"
+          media="screen">
+
+    <!-- for production the above can be replaced with --><!--
+    <link rel="stylesheet" href="http://www.ebi.ac.uk/web_guidelines/css/compliance/mini/ebi-fluid-embl.css">
+    -->
+
+    <style type=text/css>
+            /* You have the option of setting a maximum width for your page, and making sure everything is centered */
+        body {
+            max-width: 1366px;
+            margin: 0 auto;
+        }
+    </style>
+
+    <!-- end CSS-->
+
+
+    <!-- All JavaScript at the bottom, except for Modernizr / Respond.
+    Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries
+    For optimal performance, use a custom Modernizr build: www.modernizr.com/download/ -->
+
+    <!-- Full build --><!-- <script src="../js/libs/modernizr.minified.2.1.6.js"></script> -->
+
+    <!-- custom build (lacks most of the "advanced" HTML5 support -->
+    <script src="http://www.ebi.ac.uk/web_guidelines/js/libs/modernizr.custom.49274.js"></script>
+
+</head>
+
+<body class="level2" onload="init();">
+
+<div id="skip-to">
+    <ul>
+        <li><a href="#content" title="">Skip to main content</a></li>
+        <li><a href="#local-nav" title="">Skip to local navigation</a></li>
+        <li><a href="#global-nav" title="">Skip to EBI global navigation menu</a></li>
+        <li><a href="#global-nav-expanded" title="">Skip to expanded EBI global navigation menu (includes all
+            sub-sections)</a></li>
+    </ul>
+</div>
+
+<div id="wrapper" class="container_24">
+    <header>
+        <div id="global-masthead" class="masthead grid_24">
+            <!--This has to be one line and no newline characters-->
+            <a href="http://www.ebi.ac.uk/"
+               title="Go to the EMBL-EBI homepage"><img src="http://www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
+                                                        alt="EMBL European Bioinformatics Institute"></a>
+
+            <nav>
+                <ul id="global-nav">
+                    <!-- set active class as appropriate -->
+                    <li class="first active" id="services"><a href="http://www.ebi.ac.uk/services">Services</a></li>
+                    <li id="research"><a href="http://www.ebi.ac.uk/research">Research</a></li>
+                    <li id="training"><a href="http://www.ebi.ac.uk/training">Training</a></li>
+                    <li id="industry"><a href="http://www.ebi.ac.uk/industry">Industry</a></li>
+                    <li id="about" class="last"><a href="http://www.ebi.ac.uk/about">About us</a></li>
+                </ul>
+            </nav>
+
+        </div>
+
+        <div id="local-masthead" class="masthead grid_24 nomenu">
+
+            <!-- local-title -->
+            <!-- NB: for additional title style patterns, see http://frontier.ebi.ac.uk/web/style/patterns -->
+
+            <div class="grid_12 alpha" id="local-title">
+                <h1><a href="./" title="">ZOOMA</a></h1>
+            </div>
+            <!-- /local-title -->
+
+            <!-- local-nav -->
+            <nav>
+                <ul class="grid_24" id="local-nav">
+                    <li class="first">
+                        <a href="index.html">Home</a>
+                    </li>
+                    <li>
+                        <a href="./sparql">SPARQL</a>
+                    </li>
+                    <li>
+                        <a href="./docs">Documentation</a>
+                    </li>
+                    <li>
+                        <a href="/efo">EFO</a>
+                    </li>
+                    <li>
+                        <a href="/fgpt">FGPT</a>
+                    </li>
+                    <li class="active last">
+                        <a href="./about.html">About ZOOMA</a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- /local-nav -->
+
+        </div>
+    </header>
+
+    <div id="content" role="main" class="grid_24 clearfix">
+        <!-- ZOOMA contents -->
+
+        <h3>About ZOOMA</h3>
+
+        <p>
+            An automatic curation tool, designed for discovering optimal ontology mappings.<br/> Developed by the <a
+                href="http://www.ebi.ac.uk/fgpt">Functional Genomics Production Team</a> at EBI.
+        </p>
+
+        <!-- Dynamically fetch status information from server -->
+        <div id="status">
+            <table class="version">
+                <tr>
+                    <td style="font-style: italic;">Version:</td>
+                    <td id="version"></td>
+                </tr>
+                <tr>
+                    <td style="font-style: italic;">Release Date:</td>
+                    <td id="release-date"></td>
+                </tr>
+                <tr>
+                    <td style="font-style: italic;">Build number:</td>
+                    <td id="build-number"></td>
+                </tr>
+                <tr>
+                    <td style="font-style: italic;">Up since:</td>
+                    <td id="uptime"></td>
+                </tr>
+            </table>
+        </div>
+
+        <h3>Related Links</h3>
+        <!-- links to ZOOMA resources go here -->
+        <ul>
+            <li>
+                <div class="pubtitle">Zooma2 - A repository of annotation knowledge and curation API</div>
+                <div class="pubauthors">Tony Burdett</div>
+                <div class="pubjournal">ISMB Long Beach Technology Track, June 2012</div>
+                <a href="http://prezi.com/xiaiubhw-jjl/zooma-2/" class="pubpdf">Online Prezi Presentation</a>
+            </li>
+        </ul>
+
+        <h3>Contact</h3>
+
+        <p>For questions and to provide feedback, please contact <a href="mailto:tburdett@ebi.ac.uk">Tony Burdett</a> at
+            EBI.
+        </p>
+
+        <p>For bug reports and feature requests, please use our
+            <a href="http://www.ebi.ac.uk/panda/jira/browse/FGPTO/component/10874"
+               target="_blank"><span class="external">JIRA bug tracker</span></a>.
+        </p>
+
+        <h3>Thanks</h3>
+
+        <p>
+            <a href="http://atlassian.com/software/bamboo/overview">Bamboo</a>: Continuous integration, continuous
+            deployment and release management.
+        </p>
+
+        <p>
+            <a href="http://atlassian.com/software/fisheye/overview">Fisheye</a>: Browse, search and track your source code
+            repositories.
+        </p>
+
+        <p>
+            <a href="http://www.jetbrains.com/idea/index.html">IntelliJ IDEA</a> is the full-featured commercial IDE — with
+            a complete set of tools and integrations with the most important modern technologies and frameworks, such as
+            Spring and Hibernate — a must-have for effective Web and Java EE development.
+        </p>
+
+        <p>
+            YourKit is kindly supporting open source projects with its full-featured Java Profiler. YourKit, LLC is the
+            creator of innovative and intelligent tools for profiling Java and .NET applications. Take a look at YourKit's
+            leading software products: <a href="http://www.yourkit.com/java/profiler/index.jsp">YourKit Java Profiler</a>
+            and <a href="http://www.yourkit.com/.net/profiler/index.jsp">YourKit .NET Profiler</a>.
+        </p>
+
+        <div id="bamboo" class="grid_6 alpha">
+            <a href="http://atlassian.com/software/bamboo/overview"
+               style="
+               display:block;
+               background:url(http://www.atlassian.com/dms/wac/images/press/Atlassian-logos/logoBambooPNG.png) no-repeat 7px 7px;
+               background-size:55%;
+               border:solid 1px #1B3664;
+               height:58px;
+               margin-left: 5px;"
+               alt="Bamboo: Continuous integration, continuous deployment and release management"
+               title="Bamboo: Continuous integration, continuous deployment and release management"></a>
+        </div>
+
+        <div id="fisheye" class="grid_6">
+            <a href="http://atlassian.com/software/fisheye/overview"
+               style="
+               display:block;
+               background:url(http://www.atlassian.com/dms/wac/images/press/Atlassian-logos/logoFishEyePNG.png) no-repeat 7px 7px;
+               background-size:50%;
+               border:solid 1px #1B3664;
+               height:58px"
+               alt="Fisheye: Browse, search and track your source code repositories"
+               title="Fisheye: Browse, search and track your source code repositories"></a>
+        </div>
+
+        <div id="idea" class="grid_6">
+            <a href="http://www.jetbrains.com/idea/index.html"
+               style="
+               display:block;
+               background:url(http://www.jetbrains.com/img/logos/logo_intellij_idea.gif) no-repeat 0 7px;
+               background-size:80%;
+               border:solid 1px #26409f;
+               height:58px"
+               alt="IntelliJ IDEA: Smart Java IDE. Web development ready. Neat HTML and CSS refactorings and more"
+               title="IntelliJ IDEA: Smart Java IDE. Web development ready. Neat HTML and CSS refactorings and more"></a>
+        </div>
+
+        <div id="yourkit" class="grid_6 omega">
+            <a href="http://www.yourkit.com/java/profiler/index.jsp"
+               style="
+               display:block;
+               background: url('http://www.yourkit.com/images/index_logo.gif') no-repeat -125px -10px #457EE4;
+               background-size:100%;
+               border:solid 1px #457EE4;
+               height:58px;
+               margin-right: 5px;"
+               alt="YourKit: full-featured Java Profiler"
+               title="YourKit: full-featured Java Profiler"></a>
+        </div>
+
+        <!-- end of ZOOMA contents -->
+
+    </div>
+
+
+    <footer>
+        <!-- Optional local footer (insert citation / project-specific copyright / etc here --><!--
+    <div id="local-footer" class="grid_24 clearfix">
+
+    </div>
+     --><!-- End optional local footer -->
+
+        <div id="global-footer" class="grid_24 clearfix">
+
+            <nav id="global-nav-expanded">
+
+                <div class="grid_4 alpha">
+                    <h3 class="explore">Explore</h3>
+                </div>
+
+                <div class="grid_4">
+                    <h3 class="services"><a href="/services" title="Services">Services</a></h3>
+                </div>
+
+                <div class="grid_4">
+                    <h3 class="research"><a href="/research" title="Research">Research</a></h3>
+                </div>
+
+                <div class="grid_4">
+                    <h3 class="training"><a href="/training" title="Training">Training</a></h3>
+                </div>
+
+                <div class="grid_4">
+                    <h3 class="industry"><a href="/industry" title="Industry">Industry</a></h3>
+                </div>
+
+                <div class="grid_4 omega">
+                    <h3 class="about"><a href="/about" title="About us">About us</a></h3>
+                </div>
+
+            </nav>
+            <script src="http://www.ebi.ac.uk/web_guidelines/js/foot.js"></script>
+
+            <div class="grid_24">
+                <section id="ebi-footer-meta">
+                    <p> &copy; EMBL-EBI European Bioinformatics Institute | <a href="#" title="">Privacy</a> |
+                        <a href="#"
+                           title="">Cookies</a> | <a href="#" title="">Terms of use</a></p>
+                </section>
+            </div>
+
+        </div>
+
+    </footer>
+</div>
+<!--! end of #wrapper -->
+
+
+<!-- ZOOMA required JavaScript libraries, at the bottom for fast page loading -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/freebase/suggest/3_1/suggest.min.js"></script>
+<script type="text/javascript" src="scripts/zooma.min.js"></script>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+
+<script type="text/javascript" src="scripts/zooma-about.js"></script>
+
+<!-- Google analytics -->
+<script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-38623609-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src =
+                ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+
+
+<!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.
+chromium.org/developers/how-tos/chrome-frame-getting-started --><!--[if lt IE 7 ]>
+<script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+<script>window.attachEvent('onload', function() {
+    CFInstall.check({mode: 'overlay'})
+})</script><![endif]-->
+
+</body>
+</html>

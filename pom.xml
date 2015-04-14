@@ -227,14 +227,15 @@
         <module>zooma-owlapi</module>
         <module>zooma-jdbc</module>
         <module>zooma-lucene-services</module>
-        <module>zooma-reporting</module>
-        <module>zooma-client</module>
         <module>zooma-lodestar</module>
         <module>zooma-security</module>
-        <module>zooma-builder-app</module>
-        <module>zooma-searcher-app</module>
         <module>zooma-loading</module>
         <module>zooma-bootstrap</module>
+        <module>zooma-reporting</module>
+        <module>zooma-client</module>
+        <module>zooma-builder-app</module>
+        <module>zooma-searcher-app</module>
+        <module>zooma-ui</module>
     </modules>
 
     <!-- Artifactory - ZOOMA dependencies -->
