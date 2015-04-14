@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.owl;
 
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLOntology;
 
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +23,13 @@ public interface OntologyLoader {
      * @return IRI of the ontology
      */
     IRI getOntologyIRI();
+
+    /**
+     * Get the ontology object that was loaded by this ontology loader
+     *
+     * @return the ontology object itself
+     */
+    OWLOntology getOntology();
 
     /**
      * Get the ontology name.  This is a short name for the ontology, for example "efo" for the experimental factor

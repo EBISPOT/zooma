@@ -3,12 +3,17 @@ package uk.ac.ebi.fgpt.zooma.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import uk.ac.ebi.fgpt.zooma.concurrent.WorkloadScheduler;
 import uk.ac.ebi.fgpt.zooma.concurrent.ZoomaThreadFactory;
+import uk.ac.ebi.fgpt.zooma.datasource.SemanticallyEnrichedDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.io.ZoomaLoader;
 import uk.ac.ebi.fgpt.zooma.model.Identifiable;
+import uk.ac.ebi.fgpt.zooma.model.Update;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,8 +56,10 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
     private final ExecutorService daoExecutor;
     private final ExecutorService loadExecutor;
 
+    private final ReceiptService receiptService;
+
     private ZoomaLoader<T> zoomaLoader;
-    private Collection<ZoomaDAO<T>> zoomaDAOs;
+    private Collection<ZoomaDAO<T>> zoomaDAOs = Collections.emptySet();
 
     private int maxCount;
     private int blockSize = 100_000;
@@ -73,6 +80,8 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                                                         new ZoomaThreadFactory("ZOOMA-DAO"));
         this.loadExecutor = Executors.newFixedThreadPool(numberOfLoaderThreads,
                                                          new ZoomaThreadFactory("ZOOMA-Loader"));
+
+        this.receiptService = new InMemoryReceiptService();
     }
 
     public ZoomaLoader<T> getZoomaLoader() {
@@ -83,7 +92,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         this.zoomaLoader = zoomaLoader;
     }
 
-    @Autowired
+    @Autowired(required = false)
     public void setZoomaDAOs(Collection<ZoomaDAO<T>> zoomaDAOs) {
         this.zoomaDAOs = zoomaDAOs;
     }
@@ -141,9 +150,13 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
 
         // create a receipt to track nested loads
         final CompositingReceipt receipt = new CompositingReceipt("All Available", LoadType.LOAD_ALL);
+        receiptService.registerReceipt(receipt);
 
         // create a counter to keep track of the number of loads that have been invoked
         final AtomicInteger counter = new AtomicInteger(1);
+
+        // get the security context
+        final SecurityContext ctx = SecurityContextHolder.getContext();
 
         // create a workload scheduler to schedule parallel loader tasks by DAO
         List<ZoomaDAO<T>> zoomaDAOList = new ArrayList<>();
@@ -153,20 +166,37 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                 new WorkloadScheduler(daoExecutor, syncedAnnotationDAOs.size(), "zooma loading") {
                     @Override
                     protected void executeTask(int iteration) throws Exception {
-                        // do next load
-                        ZoomaDAO<T> dao = syncedAnnotationDAOs.get(iteration - 1);
-                        getLog().debug("Delegating next load task for DAO '" + dao.getDatasourceName() + "' " +
-                                               "(iteration " + iteration + ")");
-                        Receipt r = load(syncedAnnotationDAOs.get(iteration - 1));
+                        try {
+                            // set security context
+                            SecurityContextHolder.setContext(ctx);
 
-                        // add next receipt to compositing receipt tracker
-                        receipt.addNextReceipt(r);
+                            // do next load
+                            ZoomaDAO<T> dao = syncedAnnotationDAOs.get(iteration - 1);
+                            getLog().debug("Delegating next load task for DAO '" + dao.getDatasourceName() + "' " +
+                                                   "(iteration " + iteration + ")");
+                            Receipt r;
+                            try {
+                                r = load(dao);
+                            }
+                            catch (Exception e) {
+                                r = new SchedulingFailedReceipt(dao.getDatasourceName(), LoadType.LOAD_DATASOURCE, e);
+                            }
 
-                        // is this last iteration? if so, finish
-                        if (counter.getAndIncrement() == syncedAnnotationDAOs.size()) {
-                            getLog().debug("Finished scheduling load task for DAO '" + dao.getDatasourceName() + "' " +
-                                                   "(iteration " + iteration + "). This is the last task.");
-                            receipt.finish();
+                            // add next receipt to compositing receipt tracker
+                            receipt.addNextReceipt(r);
+
+                            // is this last iteration? if so, finish
+                            if (counter.getAndIncrement() == syncedAnnotationDAOs.size()) {
+                                getLog().debug(
+                                        "Finished scheduling load task for DAO '" + dao.getDatasourceName() + "' " +
+                                                "(iteration " + iteration + "). This is the last task."
+                                );
+                                receipt.finish();
+                            }
+                        }
+                        finally {
+                            // clear security context
+                            SecurityContextHolder.clearContext();
                         }
                     }
                 };
@@ -186,34 +216,106 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         getLog().info("Retrieving data items from " + datasource.getDatasourceName() + " using " +
                               datasource.getClass().getSimpleName());
 
-        int count = datasource.count();
-        int total = getMaxCount() > 0 && getMaxCount() < count ? getMaxCount() : count;
+        final WorkloadScheduler scheduler;
+        final int iterations;
+        final int blockSize;
 
-        // create a workload scheduler to queue load tasks for tihs DAO
-        final int iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
-        getLog().debug("Scheduling workload for " + datasource.getDatasourceName() + ".  " +
-                               "Loading will take place in " + iterations + " rounds " +
-                               "of " + getBlockSize() + " data items each.");
-        final WorkloadScheduler scheduler =
-                new WorkloadScheduler(loadExecutor, iterations, datasource.getDatasourceName()) {
-                    @Override
-                    protected void executeTask(int iteration) throws Exception {
-                        // translate iteration count back to start value for DAO query
-                        int taskStart = (iteration - 1) * getBlockSize();
+        int count = -1;
+        try {
+            count = datasource.count();
+        }
+        catch (UnsupportedOperationException e) {
+            getLog().warn(datasource.getDatasourceName() + " does not support count() operation, " +
+                                  "loading will take place in one single round");
+        }
 
-                        // fetch items
+        if (count != -1) {
+            int total = getMaxCount() > 0 && getMaxCount() < count ? getMaxCount() : count;
+
+            // create a workload scheduler to queue load tasks for this DAO
+            iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
+            blockSize = getBlockSize();
+            getLog().debug("Scheduling workload for " + datasource.getDatasourceName() + ".  " +
+                                   "Loading will take place in " + iterations + " rounds " +
+                                   "of " + getBlockSize() + " data items each.");
+        }
+        else {
+            iterations = 1;
+            blockSize = -1;
+        }
+
+        // get the security context
+        final SecurityContext ctx = SecurityContextHolder.getContext();
+
+        if (blockSize != -1) {
+            scheduler = new WorkloadScheduler(loadExecutor, iterations, datasource.getDatasourceName()) {
+                @Override
+                protected void executeTask(int iteration) throws Exception {
+                    // translate iteration count back to start value for DAO query
+                    int taskStart = (iteration - 1) * blockSize;
+
+                    // fetch items
+                    try {
+                        // set security context
+                        SecurityContextHolder.setContext(ctx);
+
                         getLog().debug(
                                 "Fetching data items for " + datasource.getDatasourceName() + ", " +
                                         "round " + iteration + "/" + iterations + ", " +
-                                        "executing in " + Thread.currentThread().getName());
-                        Collection<T> items = datasource.read(getBlockSize(), taskStart);
+                                        "executing in " + Thread.currentThread().getName()
+                        );
+                        Collection<T> items = datasource.read(blockSize, taskStart);
+                        getZoomaLoader().load(datasource.getDatasourceName(), items);
+
+                        // also, if the DAO is semantically enriched, load supplementary data
+                        if (datasource instanceof SemanticallyEnrichedDAO) {
+                            InputStream rdfIn = ((SemanticallyEnrichedDAO) datasource).getSupplementaryRDFStream();
+                            getZoomaLoader().loadSupplementaryData(datasource.getDatasourceName(), rdfIn);
+                        }
+                    }
+                    catch (UnsupportedOperationException e) {
+                        getLog().warn(datasource.getDatasourceName() + " does not support read(size, start).  " +
+                                              "No annotations will be loaded.");
+                    }
+                    finally {
+                        // clear security context
+                        SecurityContextHolder.clearContext();
+                    }
+                }
+            };
+        }
+        else {
+            scheduler = new WorkloadScheduler(loadExecutor, iterations, datasource.getDatasourceName()) {
+                @Override
+                protected void executeTask(int iteration) throws Exception {
+                    // fetch items
+                    try {
+                        // set security context
+                        SecurityContextHolder.setContext(ctx);
+
+                        getLog().debug(
+                                "Fetching data items for " + datasource.getDatasourceName() + " in a single round, " +
+                                        "executing in " + Thread.currentThread().getName()
+                        );
+                        Collection<T> items = datasource.read();
                         getZoomaLoader().load(datasource.getDatasourceName(), items);
                     }
-                };
+                    catch (UnsupportedOperationException e) {
+                        getLog().warn(datasource.getDatasourceName() + " does not support read().  " +
+                                              "No annotations will be loaded.");
+                    }
+                    finally {
+                        // clear security context
+                        SecurityContextHolder.clearContext();
+                    }
+                }
+            };
+        }
 
         // create a receipt
         final SingleWorkloadReceipt receipt =
                 new SingleWorkloadReceipt(datasource.getDatasourceName(), LoadType.LOAD_DATASOURCE, scheduler);
+        receiptService.registerReceipt(receipt);
 
         // start up the scheduler
         scheduler.start();
@@ -223,6 +325,56 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
     @Override
     public Receipt load(final Collection<T> dataItems) {
         return load(dataItems, Integer.toString(dataItems.hashCode()));
+    }
+
+    @Override
+    public Receipt update(final Collection<T> dataItems, final Update<T> update) {
+        // check the relevant executor service is alive
+        if (loadExecutor.isShutdown()) {
+            throw new IllegalStateException("Cannot update data - loading services have been shutdown");
+        }
+
+        getLog().info("Updating " + dataItems.size() + " supplied data items");
+
+        int total = getMaxCount() > 0 ? getMaxCount() : dataItems.size();
+
+        // get the security context
+        final SecurityContext ctx = SecurityContextHolder.getContext();
+
+        // create a workload scheduler to queue load tasks for tihs DAO
+        final int iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
+        getLog().debug("Scheduling workload for updating annotations will take place in " + iterations + " rounds " +
+                               "of " + getBlockSize() + " data items each.");
+        final WorkloadScheduler scheduler =
+                new WorkloadScheduler(loadExecutor, iterations, "zooma-update") {
+                    @Override
+                    protected void executeTask(int iteration) throws Exception {
+                        try {
+                            // set security context
+                            SecurityContextHolder.setContext(ctx);
+
+                            // load data items
+                            getLog().debug(
+                                    "Updating data items for round " + iteration + "/" + iterations + ", " +
+                                            "executing in " + Thread.currentThread().getName()
+                            );
+                            getZoomaLoader().update(dataItems, update);
+                        }
+                        finally {
+                            // clear security context
+                            SecurityContextHolder.clearContext();
+                        }
+                    }
+                };
+
+        // create a receipt
+        final SingleWorkloadReceipt receipt =
+                new SingleWorkloadReceipt("zooma-update", LoadType.LOAD_DATAITEMS, scheduler);
+        receiptService.registerReceipt(receipt);
+
+        // start up the scheduler
+        scheduler.start();
+        return receipt;
     }
 
     @Override public Receipt load(final Collection<T> dataItems, final String datasetName) {
@@ -236,6 +388,9 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
 
         int total = getMaxCount() > 0 ? getMaxCount() : dataItems.size();
 
+        // get the security context
+        final SecurityContext ctx = SecurityContextHolder.getContext();
+
         // create a workload scheduler to queue load tasks for tihs DAO
         final int iterations = (total / getBlockSize()) + (total % getBlockSize() > 0 ? 1 : 0);
         getLog().debug("Scheduling workload for " + datasetName + ".  " +
@@ -245,18 +400,29 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                 new WorkloadScheduler(loadExecutor, iterations, datasetName) {
                     @Override
                     protected void executeTask(int iteration) throws Exception {
-                        // load data items
-                        getLog().debug(
-                                "Loading data items for " + datasetName + ", " +
-                                        "round " + iteration + "/" + iterations + ", " +
-                                        "executing in " + Thread.currentThread().getName());
-                        getZoomaLoader().load(datasetName, dataItems);
+                        try {
+                            // set security context
+                            SecurityContextHolder.setContext(ctx);
+
+                            // load data items
+                            getLog().debug(
+                                    "Loading data items for " + datasetName + ", " +
+                                            "round " + iteration + "/" + iterations + ", " +
+                                            "executing in " + Thread.currentThread().getName()
+                            );
+                            getZoomaLoader().load(datasetName, dataItems);
+                        }
+                        finally {
+                            // clear security context
+                            SecurityContextHolder.clearContext();
+                        }
                     }
                 };
 
         // create a receipt
         final SingleWorkloadReceipt receipt =
                 new SingleWorkloadReceipt(datasetName, LoadType.LOAD_DATAITEMS, scheduler);
+        receiptService.registerReceipt(receipt);
 
         // start up the scheduler
         scheduler.start();
@@ -276,6 +442,10 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         else {
             return getClass().getSimpleName() + " is running";
         }
+    }
+
+    @Override public ReceiptStatus getReceiptStatus(String receiptID) {
+        return receiptService.getReceiptStatus(receiptID);
     }
 
     private final AtomicInteger receiptNumber = new AtomicInteger(1);
@@ -329,6 +499,19 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         }
     }
 
+    private class SchedulingFailedReceipt extends AbstractReceipt {
+        private final Throwable throwable;
+
+        private SchedulingFailedReceipt(String datasourceName, LoadType loadType, Throwable throwable) {
+            super(datasourceName, loadType);
+            this.throwable = throwable;
+        }
+
+        @Override public void waitUntilCompletion() throws InterruptedException {
+            throw new RuntimeException(throwable);
+        }
+    }
+
     private class SingleWorkloadReceipt extends AbstractReceipt {
         // this receipt should track scheduled work
         private final WorkloadScheduler scheduler;
@@ -337,7 +520,6 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
             super(datasourceName, loadType);
             this.scheduler = scheduler;
         }
-
 
         @Override public void waitUntilCompletion() throws InterruptedException {
             scheduler.waitUntilComplete();

@@ -42,8 +42,6 @@ import java.util.Set;
  * @date 03/09/12
  */
 public class ZOOMAReportRenderer {
-//    private ZOOMASearchClient searchClient;
-
     private OntologyLabelMapper labelMapper;
 
     private OutputStream out;
@@ -51,6 +49,7 @@ public class ZOOMAReportRenderer {
 
     // time of execution start
     private Map<URI, String> labelCache;
+    private Map<URI, Collection<String>> synonymCache;
     private String executionTime;
     private String workingDirectory;
 
@@ -76,6 +75,7 @@ public class ZOOMAReportRenderer {
         this.err = err;
 
         this.labelCache = new HashMap<>();
+        this.synonymCache = new HashMap<>();
         this.executionTime = new SimpleDateFormat("HH:mm.ss, dd.MM.yy").format(new Date());
         this.workingDirectory = System.getProperty("user.dir");
     }
@@ -115,12 +115,12 @@ public class ZOOMAReportRenderer {
                     if (annotations.size() == 1 && achievedScore) {
                         // one good annotation, so render to the report with "auto" mapping
                         Annotation annotation = annotations.iterator().next();
-                        //for (URI annotatesTo : annotation.getSemanticTags()) {
                         // render one line per experiment, if known
                         if (propertyContextMap.containsKey(property)) {
                             for (String expt : propertyContextMap.get(property)) {
                                 writeReportLine(writer,
                                                 property,
+                                                annotation.getAnnotatedProperty().getPropertyValue(),
                                                 expt,
                                                 annotation.getProvenance().getSource().getURI().toString(),
                                                 annotation.getSemanticTags(),
@@ -130,12 +130,12 @@ public class ZOOMAReportRenderer {
                         else {
                             writeReportLine(writer,
                                             property,
+                                            annotation.getAnnotatedProperty().getPropertyValue(),
                                             "[UNKNOWN EXPERIMENTS]",
                                             annotation.getProvenance().getSource().getURI().toString(),
                                             annotation.getSemanticTags(),
                                             true);
                         }
-                        //}
                     }
                     else {
                         // multiple annotations or 1 that isn't good enough, render to the report as "requires curation"
@@ -144,27 +144,25 @@ public class ZOOMAReportRenderer {
                                 // render one line per experiment, if known
                                 for (String expt : propertyContextMap.get(property)) {
                                     if (annotation.getSemanticTags() != null) {
-                                        //for (URI annotatesTo : annotation.getSemanticTags()) {
                                         writeReportLine(writer,
                                                         property,
+                                                        annotation.getAnnotatedProperty().getPropertyValue(),
                                                         expt,
                                                         annotation.getProvenance().getSource().getURI().toString(),
                                                         annotation.getSemanticTags(),
                                                         false);
-                                        //}
                                     }
                                 }
                             }
                             else {
                                 if (annotation.getSemanticTags() != null) {
-                                    //for (URI annotatesTo : annotation.getSemanticTags()) {
                                     writeReportLine(writer,
                                                     property,
+                                                    annotation.getAnnotatedProperty().getPropertyValue(),
                                                     "[UNKNOWN EXPERIMENTS]",
                                                     annotation.getProvenance().getSource().getURI().toString(),
                                                     annotation.getSemanticTags(),
                                                     false);
-                                    //}
                                 }
                             }
                         }
@@ -239,29 +237,20 @@ public class ZOOMAReportRenderer {
 
                 for (AnnotationSummary summary : reportList) {
                     if (propertyContextMap.containsKey(property)) {
-                        // render one line per posible summary
-                        for (URI annotatesTo : summary.getSemanticTags()) {
-                            if (annotatesTo != null) {
-                                writeEvaluationLine(writer,
-                                                    property,
-                                                    summary.getAnnotatedPropertyType(),
-                                                    summary.getAnnotatedPropertyValue(),
-                                                    annotatesTo,
-                                                    summaryMap.get(summary));
-                            }
-                        }
+                        writeEvaluationLine(writer,
+                                            property,
+                                            summary.getAnnotatedPropertyType(),
+                                            summary.getAnnotatedPropertyValue(),
+                                            summary.getSemanticTags(),
+                                            summaryMap.get(summary));
                     }
                     else {
-                        for (URI annotatesTo : summary.getSemanticTags()) {
-                            if (annotatesTo != null) {
-                                writeEvaluationLine(writer,
-                                                    property,
-                                                    summary.getAnnotatedPropertyType(),
-                                                    summary.getAnnotatedPropertyValue(),
-                                                    annotatesTo,
-                                                    summaryMap.get(summary));
-                            }
-                        }
+                        writeEvaluationLine(writer,
+                                            property,
+                                            summary.getAnnotatedPropertyType(),
+                                            summary.getAnnotatedPropertyValue(),
+                                            summary.getSemanticTags(),
+                                            summaryMap.get(summary));
                     }
                 }
             }
@@ -287,9 +276,10 @@ public class ZOOMAReportRenderer {
 
     protected void writeReportLine(PrintWriter writer,
                                    Property property,
+                                   String matchedPropertyValue,
                                    String experiment,
                                    String source,
-                                   Collection<URI> list_annotatesTo,
+                                   Collection<URI> semanticTags,
                                    boolean automatic) {
 
         String type = automatic ? "Automatic" : "Requires curation";
@@ -301,52 +291,53 @@ public class ZOOMAReportRenderer {
             getLog().trace(
                     "Next annotation result to render:\n\t\t" +
                             "Searched: " + property + "\t" +
-                            "Found annotation to: " + list_annotatesTo.toString());
+                            "Found annotation to: " + semanticTags.toString());
         }
 
-        String list_terms = "";
-        String list_labels = "";
-        String list_ontologys = "";
+        StringBuilder termsSB = new StringBuilder();
+        StringBuilder labelsSB = new StringBuilder();
+        StringBuilder synonymsSB = new StringBuilder();
+        StringBuilder ontologiesSB = new StringBuilder();
+        Iterator<URI> semanticTagIterator = semanticTags.iterator();
+        while (semanticTagIterator.hasNext()) {
+            URI semanticTag = semanticTagIterator.next();
 
+            // use fragment as 'term'
+            String term = URIUtils.extractFragment(semanticTag);
+            // fetch the ontology label if possible
+            String label = acquireLabel(semanticTag);
+            // fetch the synonyms if possible
+            Collection<String> synonyms = acquireSynonyms(semanticTag);
+            // we consider the 'ontology' to be the URI minus the 'term'
+            String ontology = semanticTag.toString().replace(term, "");
 
-        for (Iterator iter = list_annotatesTo.iterator(); iter.hasNext(); ) {
+            termsSB.append(term);
+            labelsSB.append(label != null && !label.isEmpty() ? label : matchedPropertyValue);
+            Iterator<String> synonymsIterator = synonyms.iterator();
+            while (synonymsIterator.hasNext()) {
+                String synonym = synonymsIterator.next();
+                synonymsSB.append(!synonym.isEmpty() ? synonym : "N/A");
+                if (synonymsIterator.hasNext()) {
+                    synonymsSB.append(", ");
+                }
+            }
+            ontologiesSB.append(ontology);
 
-            URI annotatesTo = (URI) iter.next();
-
-            // use fragment name as term
-            String term = URIUtils.extractFragment(annotatesTo);
-
-            list_terms += term + ", ";
-
-
-            StringBuilder labelStr = new StringBuilder();
-
-            labelStr.append(acquireLabel(annotatesTo)).append(", ");
-
-            String labels = labelStr.length() > 0 ? labelStr.substring(0, labelStr.length() - 2) : "No Labels";
-
-            list_labels += labels + ", ";
-
-            String ontology = annotatesTo.toString().replace(term, "");
-
-            list_ontologys += ontology + ", ";
+            if (semanticTagIterator.hasNext()) {
+                termsSB.append(", ");
+                labelsSB.append(", ");
+                synonymsSB.append("; ");
+                ontologiesSB.append(", ");
+            }
         }
 
-        if (!list_terms.isEmpty()) {
-            list_terms = list_terms.substring(0, list_terms.length() - 2);
-        }
-
-        if (!list_labels.isEmpty()) {
-            list_labels = list_labels.substring(0, list_labels.length() - 2);
-        }
-
-        if (!list_ontologys.isEmpty()) {
-            list_ontologys = list_ontologys.substring(0, list_ontologys.length() - 2);
-        }
-
-        writer.println(propertyType + "\t" + propertyValue + "\t" + list_labels + "\t" +
-                               type + "\t" + list_terms + "\t" + list_ontologys +
-                               "\t" + source);
+        String terms = termsSB.toString();
+        String labels = labelsSB.toString();
+        String synonyms = synonymsSB.toString();
+        String ontologies = ontologiesSB.toString();
+        writer.println(propertyType + "\t" + propertyValue + "\t" + labels + "\t" +
+                               synonyms + "\t" + type + "\t" + terms + "\t" +
+                               ontologies + "\t" + source);
     }
 
     protected void writeUnmappedReportLine(PrintWriter writer,
@@ -361,12 +352,13 @@ public class ZOOMAReportRenderer {
         String type = "Did not map";
         String terms = "N/A";
         String labels = "N/A";
+        String synonyms = "N/A";
         String ontologies = "N/A";
         String sources = "N/A";
 
         writer.println(propertyType + "\t" + propertyValue + "\t" + labels + "\t" +
-                               type + "\t" + terms + "\t" + ontologies +
-                               "\t" + sources);
+                               synonyms + "\t" + type + "\t" + terms + "\t" +
+                               ontologies + "\t" + sources);
     }
 
     protected void writeReportHeader(PrintWriter writer) {
@@ -379,14 +371,14 @@ public class ZOOMAReportRenderer {
         writer.flush();
 
         writer.println(
-                "PROPERTY TYPE\tPROPERTY VALUE\tONTOLOGY TERM LABEL(S)\tMAPPING TYPE\tONTOLOGY TERM(S)\tONTOLOGY(S)\tSOURCE(S)");
+                "PROPERTY TYPE\tPROPERTY VALUE\tONTOLOGY TERM LABEL(S)\tONTOLOGY TERM SYNONYM(S)\tMAPPING TYPE\tONTOLOGY TERM(S)\tONTOLOGY(S)\tSOURCE(S)");
     }
 
     protected void writeEvaluationLine(PrintWriter writer,
                                        Property searchedProperty,
                                        String matchedPropertyType,
                                        String matchedPropertyValue,
-                                       URI annotatesTo,
+                                       Collection<URI> semanticTags,
                                        float score) {
         String searchedPropertyType =
                 searchedProperty instanceof TypedProperty
@@ -398,26 +390,54 @@ public class ZOOMAReportRenderer {
             getLog().trace(
                     "Next summary result to render:\n\t\t" +
                             "Searched: " + searchedProperty + "\t" +
-                            "Found summary to: " + annotatesTo.toString());
+                            "Found summary to: " + semanticTags.toString());
         }
 
+        StringBuilder termsSB = new StringBuilder();
+        StringBuilder labelsSB = new StringBuilder();
+        StringBuilder synonymsSB = new StringBuilder();
+        StringBuilder ontologiesSB = new StringBuilder();
+        Iterator<URI> semanticTagIterator = semanticTags.iterator();
+        while (semanticTagIterator.hasNext()) {
+            URI semanticTag = semanticTagIterator.next();
 
-        // use fragment name as term
-        String term = URIUtils.extractFragment(annotatesTo);
+            // use fragment as 'term'
+            String term = URIUtils.extractFragment(semanticTag);
+            // fetch the ontology label if possible
+            String label = acquireLabel(semanticTag);
+            // fetch the synonyms if possible
+            Collection<String> synonyms = acquireSynonyms(semanticTag);
+            // we consider the 'ontology' to be the URI minus the 'term'
+            String ontology = semanticTag.toString().replace(term, "");
 
-        StringBuilder labelStr = new StringBuilder();
-        labelStr.append(acquireLabel(annotatesTo)).append(", ");
-        // TODO - append synonyms once these can be fetched from zooma
-        String labels = labelStr.length() > 0
-                ? labelStr.substring(0, labelStr.length() - 2)
-                : "No Labels";
+            termsSB.append(term);
+            labelsSB.append(label != null && !label.isEmpty() ? label : "N/A");
+            Iterator<String> synonymsIterator = synonyms.iterator();
+            while (synonymsIterator.hasNext()) {
+                String synonym = synonymsIterator.next();
+                synonymsSB.append(!synonym.isEmpty() ? synonym : "N/A");
+                if (synonymsIterator.hasNext()) {
+                    synonymsSB.append(", ");
+                }
+            }
+            ontologiesSB.append(ontology);
 
-        // add the rest of the term URI to the ontology set
-        String ontology = annotatesTo.toString().replace(term, "");
+            if (semanticTagIterator.hasNext()) {
+                termsSB.append(", ");
+                labelsSB.append(", ");
+                synonymsSB.append("; ");
+                ontologiesSB.append(", ");
+            }
+        }
+
+        String terms = termsSB.toString();
+        String labels = labelsSB.toString();
+        String synonyms = synonymsSB.toString();
+        String ontologies = ontologiesSB.toString();
 
         writer.println(searchedPropertyType + "\t" + searchedPropertyValue + "\t" +
                                matchedPropertyType + "\t" + matchedPropertyValue + "\t" +
-                               labels + "\t" + term + "\t" + ontology + "\t" + score);
+                               labels + "\t" + terms + "\t" + synonyms + "\t" + ontologies + "\t" + score);
     }
 
     protected void writeUnmappedEvaluationLine(PrintWriter writer,
@@ -491,6 +511,24 @@ public class ZOOMAReportRenderer {
             }
             labelCache.put(uri, label);
             return label;
+        }
+    }
+
+    protected synchronized Collection<String> acquireSynonyms(URI uri) {
+        if (synonymCache.containsKey(uri)) {
+            return synonymCache.get(uri);
+        }
+        else {
+            Collection<String> synonyms;
+            try {
+                synonyms = labelMapper.getSynonyms(uri);
+            }
+            catch (NullPointerException e) {
+                getLog().warn("Synonyms lookup for <" + uri + "> failed: " + e.getMessage());
+                synonyms = Collections.singleton("N/A");
+            }
+            synonymCache.put(uri, synonyms);
+            return synonyms;
         }
     }
 }

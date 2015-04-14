@@ -34,7 +34,7 @@ public class SplittingProcessor implements SearchStringProcessor {
     public List<String> processSearchString(String searchString) throws IllegalArgumentException {
         ArrayList<String> processedStrings = new ArrayList<>();
         String[] expressions = searchString.split(" and ");
-        if (expressions != null && expressions.length == 2) {
+        if (expressions.length == 2) {
             Collections.addAll(processedStrings, expressions);
         }
         return processedStrings;

@@ -11,6 +11,7 @@ import java.io.InputStream;
  * @author Tony Burdett
  * @date 11/06/13
  */
+@Deprecated
 public class UnimplementedZoomaStorer implements ZoomaStorer {
     @Override
     public void store(File serializedObjects) throws IOException {

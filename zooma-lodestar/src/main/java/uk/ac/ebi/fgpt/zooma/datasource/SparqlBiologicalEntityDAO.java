@@ -26,12 +26,10 @@ import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
 import uk.ac.ebi.fgpt.zooma.exception.TooManyResultsException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
 import uk.ac.ebi.fgpt.zooma.io.ZoomaSerializer;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.SimpleBiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
-import uk.ac.ebi.fgpt.zooma.model.Study;
+import uk.ac.ebi.fgpt.zooma.model.*;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
+import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.io.IOException;
@@ -228,8 +226,8 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
             });
             thread.start();
             getBiologicalEntityZoomaSerializer().serialize(getDatasourceName(),
-                                                           Collections.singleton(biologicalEntity),
-                                                           pos);
+                    Collections.singleton(biologicalEntity),
+                    pos);
         }
         catch (IOException e) {
             log.error("Couldn't create biological entity " + biologicalEntity.toString(), e);
@@ -243,7 +241,7 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
         getLog().debug("Triggered biological entity update request...\n\n" + biologicalEntity.toString());
         if (read(biologicalEntity.getURI()) == null) {
             throw new NoSuchResourceException("Can't update biological entity with URI " + biologicalEntity.getURI() +
-                                                      " no such biological entity exists");
+                    " no such biological entity exists");
         }
 
         Graph g = getQueryService().getDefaultGraph();
@@ -264,8 +262,8 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
             });
             thread.start();
             getBiologicalEntityZoomaSerializer().serialize(getDatasourceName(),
-                                                           Collections.singleton(biologicalEntity),
-                                                           pos);
+                    Collections.singleton(biologicalEntity),
+                    pos);
         }
         catch (IOException e) {
             log.error("Couldn't create biological entity " + biologicalEntity.toString(), e);
@@ -279,7 +277,7 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
     @Override public void delete(BiologicalEntity biologicalEntity) throws NoSuchResourceException {
         if (read(biologicalEntity.getURI()) == null) {
             throw new NoSuchResourceException("Can't delete biological entity with URI " + biologicalEntity.getURI() +
-                                                      " no such biological entity exists");
+                    " no such biological entity exists");
         }
 
         getLog().debug("Triggered biological entity delete request...\n\n" + biologicalEntity.toString());
@@ -307,13 +305,12 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
     }
 
     @Override public Collection<BiologicalEntity> readByStudyAndName(Study study, String bioentityName) {
-        throw new UnsupportedOperationException("Biological Entity accession/name lookup is not yet implemented");
+        throw new UnsupportedOperationException("Biological Entity lookup by study and name is not yet implemented");
     }
 
     @Override
     public Collection<BiologicalEntity> readByStudy(Study study) {
-        //ToDo Impelement the actual sparql query
-        throw new UnsupportedOperationException("The method readByStudy needs to be implemented in Sparql");
+        throw new UnsupportedOperationException("Biological Entity lookup by study is not yet implemented");
     }
 
     private Collection<BiologicalEntity> _readBySemanticTags(String query, boolean inference, URI... semanticTags) {
@@ -353,7 +350,9 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
         while (result.hasNext()) {
             QuerySolution solution = result.nextSolution();
             BiologicalEntity a = getBiologicalEntityFromBindingSet(beMap, studyMap, solution);
-            beMap.put(a.getURI(), a);
+            if (a != null) {
+                beMap.put(a.getURI(), a);
+            }
         }
         List<BiologicalEntity> beList = new ArrayList<>();
         beList.addAll(beMap.values());
@@ -371,12 +370,16 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
             Map<URI, BiologicalEntity> biologicalEntityMap,
             Map<URI, Study> studyMap,
             QuerySolution solution) {
+
+        Resource studyTypeValue = solution.getResource(underscore + QueryVariables.STUDY_TYPE.toString());
         Resource sampleUriValue = solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY.toString());
         URI uri = URI.create(sampleUriValue.getURI());
-
-        URI sampleTypeUri = null;
         Resource sampleTypeUriValue =
                 solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY_TYPE.toString());
+
+        URI sampleTypeUri = null;
+//        Resource sampleTypeUriValue =
+//                solution.getResource(underscore + QueryVariables.BIOLOGICAL_ENTITY_TYPE.toString());
         if (sampleTypeUriValue != null) {
             sampleTypeUri = URI.create(sampleTypeUriValue.getURI());
         }
@@ -388,8 +391,8 @@ public class SparqlBiologicalEntityDAO implements BiologicalEntityDAO {
             label = sampleLabelValue.getLexicalForm();
         }
 
-        Resource studyIdValue = solution.getResource(QueryVariables.STUDY_ID.toString());
-        Resource studyTypeValue = solution.getResource(underscore + QueryVariables.STUDY_TYPE.toString());
+        Resource studyIdValue = solution.getResource(underscore + QueryVariables.STUDY_ID.toString());
+//        Resource studyTypeValue = solution.getResource(underscore + QueryVariables.STUDY_TYPE.toString());
         URI studyUri = null;
         URI studyType = null;
         String studyLabel = "";

@@ -53,7 +53,7 @@ public abstract class Initializable {
         return initStarted;
     }
 
-    protected synchronized boolean isReady() throws IllegalStateException {
+    public synchronized boolean isReady() throws IllegalStateException {
         if (initializationException != null) {
             throw new IllegalStateException(
                     "Initialization of " + getClass().getSimpleName() + " failed", initializationException);
@@ -63,7 +63,7 @@ public abstract class Initializable {
         }
     }
 
-    protected synchronized void waitUntilReady() throws IllegalStateException, InterruptedException {
+    public synchronized void waitUntilReady() throws IllegalStateException, InterruptedException {
         while (!isReady()) {
             getLog().debug("Waiting until " + getClass().getSimpleName() + " is ready...");
             wait();
@@ -92,7 +92,9 @@ public abstract class Initializable {
             setInitStopped();
         }
         else {
-            setInitializationException(new InterruptedException("Initialization was forcibly interrupted"));
+            if (!isReady()) {
+                setInitializationException(new InterruptedException("Initialization was forcibly interrupted"));
+            }
         }
     }
 

@@ -49,18 +49,12 @@ import java.util.Map;
  * @author Simon Jupp
  * @date 26/09/12
  */
-public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation> {
-    private final AnnotationFactory annotationFactory;
+public class JDBCConventionBasedAnnotationMapper extends RowBasedDataAnnotationMapper implements RowMapper<Annotation> {
     private final Map<ResultSet, Map<String, Integer>> resultSetColumnIndexMap;
 
-
     public JDBCConventionBasedAnnotationMapper(AnnotationFactory annotationFactory) {
-        this.annotationFactory = annotationFactory;
+        super(annotationFactory);
         this.resultSetColumnIndexMap = Collections.synchronizedMap(new HashMap<ResultSet, Map<String, Integer>>());
-    }
-
-    public AnnotationFactory getAnnotationFactory() {
-        return annotationFactory;
     }
 
     public Annotation mapRow(ResultSet resultSet, int i) throws SQLException {
@@ -228,24 +222,24 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         }
 
         // now we've collected fields, generate dependent objects using annotation factory
-        return getAnnotationFactory().createAnnotation(annotationURI,
-                                                       annotationID,
-                                                       studyAcc,
-                                                       studyURI,
-                                                       studyID,
-                                                       studyType,
-                                                       bioentityName,
-                                                       bioentityURI,
-                                                       bioentityID,
-                                                       bioentityTypeName,
-                                                       bioentityTypeURI,
-                                                       propertyType,
-                                                       propertyValue,
-                                                       propertyURI,
-                                                       propertyID,
-                                                       semanticTag,
-                                                       annotator,
-                                                       annotationDate);
+        return createAnnotation(annotationURI,
+                                annotationID,
+                                studyAcc,
+                                studyURI,
+                                studyID,
+                                studyType,
+                                bioentityName,
+                                bioentityURI,
+                                bioentityID,
+                                bioentityTypeName,
+                                bioentityTypeURI,
+                                propertyType,
+                                propertyValue,
+                                propertyURI,
+                                propertyID,
+                                semanticTag,
+                                annotator,
+                                annotationDate);
     }
 
     protected URI convertSemanticTagToURI(String semanticTag) {
@@ -309,8 +303,8 @@ public class JDBCConventionBasedAnnotationMapper implements RowMapper<Annotation
         }
         else {
             throw new RuntimeException("Unexpected metadata lookup exception: " +
-                                               "columns for metadata " + resultSet + " should be available, " +
-                                               "the shit hit the fan bad somewhere!");
+                                       "columns for metadata " + resultSet + " should be available, " +
+                                       "the shit hit the fan bad somewhere!");
         }
     }
 }

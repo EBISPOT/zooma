@@ -43,7 +43,7 @@ public class StopwordProcessor extends AbstractDictionaryLoadingProcessor {
      */
     private String removeStopWords(String input) {
         String output = "";
-        String[] inputWords = input.split(" ");
+        String[] inputWords = input.split("\\s+");
         for (String inputWord : inputWords) {
             if (!getDictionary().contains(inputWord) && inputWord != null && !inputWord.isEmpty()) {
                 output += inputWord + " ";
@@ -61,9 +61,9 @@ public class StopwordProcessor extends AbstractDictionaryLoadingProcessor {
      * @return the processed string
      */
     private String removeCharacters(String input) {
-        String output = input.replaceAll(", ", " ");
-        output = output.replaceAll(" _ ", " ");
-        output = output.replaceAll(" - ", " ");
+        String output = input.replaceAll("\\s*,\\s*", " ");
+        output = output.replaceAll("\\s*_\\s*", " ");
+        output = output.replaceAll("\\s*-\\s*", " ");
 
         //Brackets of compounds shouldn't be removed  (e.g: 4-(N-nitrosomethylamino)-1-(3-pyridyl)butan-1-one  )
         //Two patterns try to discover compounds..
@@ -72,8 +72,8 @@ public class StopwordProcessor extends AbstractDictionaryLoadingProcessor {
 
         //if brackets don't belong to a compound then they are removed
         if (!(Pattern.matches(pattern1, input) || Pattern.matches(pattern2, input))) {
-            output = output.replaceAll(" \\(", " ");
-            output = output.replaceAll("\\) ", " ");
+            output = output.replaceAll("\\(", " ");
+            output = output.replaceAll("\\)", " ");
             if (output.endsWith(")")) {
                 output = output.substring(0, output.length() - 1);
             }

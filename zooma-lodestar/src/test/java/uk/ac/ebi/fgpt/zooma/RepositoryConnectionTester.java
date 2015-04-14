@@ -8,24 +8,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import uk.ac.ebi.fgpt.lode.service.SparqlService;
 import uk.ac.ebi.fgpt.lode.utils.TupleQueryFormats;
-import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.AnnotationSummaryDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotation;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.SimpleBiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
-import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
-import uk.ac.ebi.fgpt.zooma.model.Study;
-import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
+import uk.ac.ebi.fgpt.zooma.datasource.*;
+import uk.ac.ebi.fgpt.zooma.model.*;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
@@ -41,15 +25,17 @@ import java.util.List;
  * This is an integration test of the DAOs when connected to a triple store, by default these should be ignored unless a
  * specific backend is provided
  */
-@Ignore
+//@Ignore
 public class RepositoryConnectionTester extends TestCase {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
+    private StudyDAO studyBean;
     private AnnotationDAO annotationBean;
     private AnnotationDAO annotationLuceneBean;
     private PropertyDAO propertyBean;
     private AnnotationSummaryDAO annotationSummaryBean;
+    private AnnotationPatternDAO annotationPatternBean;
 
     private SparqlBiologicalEntityDAO bioentityBean;
 
@@ -73,7 +59,9 @@ public class RepositoryConnectionTester extends TestCase {
             this.annotationLuceneBean = (AnnotationDAO) context.getBean("lodeLuceneAnnotationDAO");
             this.propertyBean = (PropertyDAO) context.getBean("lodePropertyDAO");
             this.annotationSummaryBean = (AnnotationSummaryDAO) context.getBean("lodeAnnotationSummaryDAO");
+            this.annotationPatternBean = (AnnotationPatternDAO) context.getBean("lodeAnnotationPatternDAO");
             this.bioentityBean = (SparqlBiologicalEntityDAO) context.getBean("lodeBiologicalEntityDAO");
+            this.studyBean = (SparqlStudyDAO) context.getBean("lodeStudyDAO");
         }
         catch (Exception e) {
             log.info("Failed to create beans for Repository connection test, no tests run");
@@ -121,7 +109,7 @@ public class RepositoryConnectionTester extends TestCase {
             log.info("pulling out one annotation from zooma");
 
             Annotation anno = annotationBean.read(URI.create(
-                    "http://rdf.ebi.ac.uk/resource/zooma/owl/0002A0689524B81BD09367CFF3749369"));
+                    "http://rdf.ebi.ac.uk/resource/zooma/sysmicro/340066072AF7666080DC96A1DBF2DF73"));
             assertTrue(anno.getURI() != null);
             log.info("got annotation with URI: " + anno.getURI().toString());
             printAnotation(anno);
@@ -139,6 +127,59 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    public void testSparqlAnnotationDao2b() {
+
+        if (hasConnection) {
+
+            log.info("pulling out one annotation from zooma checking biological entities read");
+
+            Annotation anno = annotationBean.read(URI.create(
+                    "http://rdf.ebi.ac.uk/resource/zooma/gxa/0135D61B37A07603F707BC14A0EAF539"));
+            assertTrue(anno.getURI() != null);
+            log.info("got annotation with URI: " + anno.getURI().toString());
+            printAnotation(anno);
+
+
+            log.info("Getting biological entities");
+            for (BiologicalEntity be : anno.getAnnotatedBiologicalEntities()) {
+                printBiologicalEntity(be);
+
+                // check we can retrieve this annotation by biological entity
+                boolean contains = false;
+                for (Annotation ba : annotationBean.readByBiologicalEntity(be)) {
+                    if (ba.getURI().equals(URI.create("http://rdf.ebi.ac.uk/resource/zooma/gxa/0135D61B37A07603F707BC14A0EAF539"))) {
+                        contains = true;
+                    }
+                }
+                assertTrue(contains);
+
+            }
+        }
+    }
+
+    public void testSparqlAnnotationDao2c() {
+
+        if (hasConnection) {
+
+            log.info("pulling out one annotation from zooma checking biological entities read");
+
+            for (Annotation anno : annotationBean.readByProperty(new SimpleUntypedProperty(URI.create(
+                    "http://rdf.ebi.ac.uk/resource/zooma/E954DFB9E760DE1C06C6BDD30497A40E"), ""))) {
+
+                assertTrue(anno.getURI() != null);
+                log.info("got annotation with URI: " + anno.getURI().toString());
+                printAnotation(anno);
+
+
+                log.info("Getting biological entities");
+                for (BiologicalEntity be : anno.getAnnotatedBiologicalEntities()) {
+                    printBiologicalEntity(be);
+                }
+
+            }
+        }
+    }
+
     public void testSparqlAnnotationDao3() {
 
         if (hasConnection) {
@@ -146,7 +187,7 @@ public class RepositoryConnectionTester extends TestCase {
             log.info("pulling out all annotations from zooma");
 
             long start = System.currentTimeMillis();
-            for (Annotation annotation : annotationBean.read(100, 30000)) {
+            for (Annotation annotation : annotationBean.read(25, 100)) {
                 System.out.println("annotation:  " + annotation.toString());
             }
             long end = System.currentTimeMillis();
@@ -164,13 +205,65 @@ public class RepositoryConnectionTester extends TestCase {
             log.info("pulling out all annotations summaries from zooma");
 
             for (AnnotationSummary summary : annotationSummaryBean.read()) {
-                if (summary.getAnnotationURIs().size() > 1) {
+                if (summary.getAnnotatedPropertyType().contains("phenotype")) {
+
                     System.out.println(summary.toString());
                 }
             }
 
         }
     }
+
+    public void testSparqlSummaryAnnotationDao3a() {
+
+        if (hasConnection) {
+
+            log.info("pulling out all annotations summaries from zooma");
+
+            for (AnnotationPattern pattern : annotationPatternBean.readByProperty(new SimpleUntypedProperty(URI.create(
+                                "http://rdf.ebi.ac.uk/resource/zooma/74508E1D7B9250A775F594005564392B"), ""))) {
+                    System.out.println(pattern.toString());
+            }
+        }
+    }
+
+    public void testSparqlSummaryAnnotationDao3b() {
+
+        if (hasConnection) {
+
+            log.info("pulling out all annotations summaries from zooma");
+
+            for (AnnotationPattern pattern : annotationPatternBean.matchByProperty("migration")) {
+
+                System.out.println(
+                        pattern.getPropertyType() + "\t" +
+                        pattern.getPropertyValue() + "\t" +
+                        pattern.getSemanticTags() + "\t" +
+                        pattern.getAnnotationSource().getName() + "\t" +
+                        pattern.isReplaced()
+                );
+            }
+        }
+    }
+
+    public void testSparqlSummaryAnnotationDao3c() {
+
+        if (hasConnection) {
+
+            log.info("pulling out all annotations summaries from zooma");
+
+            for (AnnotationPattern pattern : annotationPatternBean.matchByProperty("phenotype", "migration")) {
+                System.out.println(
+                        pattern.getPropertyType() + "\t" +
+                        pattern.getPropertyValue() + "\t" +
+                        pattern.getSemanticTags() + "\t" +
+                        pattern.getAnnotationSource().getName() + "\t" +
+                        pattern.isReplaced()
+                );
+            }
+        }
+    }
+
 
     public void testSparqlAnnotationDao5() {
 
@@ -191,6 +284,24 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    public void testSparqlAnnotationDao6() {
+
+        if (hasConnection) {
+
+            log.info("pulling out annotations by study");
+
+            long start = System.currentTimeMillis();
+            Collection<Annotation> annos = annotationBean.readByStudy(new SimpleStudy(URI.create("http://rdf.ebi.ac.uk/resource/zooma/sysmicro/C1_SyM"), null));
+            System.out.println("Study annos size: " + annos.size());
+            for (Annotation annotation : annos) {
+                System.out.println("annotation:  " + annotation.toString());
+            }
+            long end = System.currentTimeMillis();
+
+            System.out.println("time: " + ((end - start) / 1000) % 60 + "seconds");
+
+        }
+    }
 
     public void testSparqlAnnotationLoading() {
 
@@ -252,6 +363,77 @@ public class RepositoryConnectionTester extends TestCase {
             annotationBean.delete(newanno);
         }
 
+    }
+
+    public void testSparqlAnnotationDeleting2 ()  {
+        Annotation newanno = new SimpleAnnotation(URI.create("http://rdf.ebi.ac.uk/resource/zooma/arrayexpress/002E4969CFD3C4B1E829912ABB3FE706-test"),
+                                                  null,
+                                                  null,
+                                                  null,
+                                                  null);
+
+        annotationBean.delete(newanno);
+
+
+    }
+
+    public void testSparqlPropertyDao() {
+
+        if (hasConnection) {
+
+            log.info("pulling out annotations by study");
+
+            long start = System.currentTimeMillis();
+            Collection<Property> props = propertyBean.readByTypeAndValue("phenotype", null);
+            System.out.println("Property size: " + props.size());
+            for (Property p : props) {
+                System.out.println("property:  " + p.toString());
+            }
+            long end = System.currentTimeMillis();
+
+            System.out.println("time: " + ((end - start) / 1000) % 60 + "seconds");
+
+        }
+    }
+
+    public void testSparqlPropertyDao2() {
+
+            if (hasConnection) {
+
+                log.info("pulling out annotations by study");
+
+                long start = System.currentTimeMillis();
+                Collection<Property> props = propertyBean.readByTypeAndValue(null, "Cell shape variable");
+                System.out.println("Property size: " + props.size());
+                for (Property p : props) {
+                    System.out.println("property:  " + p.toString());
+                }
+                long end = System.currentTimeMillis();
+
+                System.out.println("time: " + ((end - start) / 1000) % 60 + "seconds");
+
+            }
+        }
+
+
+    public void testSparqlStudyDao1() {
+
+        if (hasConnection) {
+
+            log.info("pulling out study by property");
+
+            long start = System.currentTimeMillis();
+            Collection<Property> properties = propertyBean.readByTypeAndValue(null, "SM phenotype");
+            Collection<Study> studies = studyBean.readByProperty(properties.toArray(new Property[properties.size()]));
+            System.out.println("Study size: " + studies.size());
+            for (Study s : studies) {
+                System.out.println("study:  " + s.toString());
+            }
+            long end = System.currentTimeMillis();
+
+            System.out.println("time: " + ((end - start) / 1000) % 60 + "seconds");
+
+        }
     }
 
     public void printAnotation(Annotation anno) {

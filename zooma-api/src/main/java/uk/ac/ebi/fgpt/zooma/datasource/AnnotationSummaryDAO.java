@@ -1,6 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
+import uk.ac.ebi.fgpt.zooma.model.Property;
+
+import java.util.Collection;
 
 /**
  * A data access object that defines methods to create, retrieve, update and delete annotation summaries from a ZOOMA
@@ -10,5 +13,4 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
  * @date 08/11/13
  */
 public interface AnnotationSummaryDAO extends ZoomaDAO<AnnotationSummary> {
-
 }

@@ -24,6 +24,7 @@ import java.util.Set;
  * @author Tony Burdett
  * @date 05/06/13
  */
+@Deprecated
 public abstract class AbstractAnnotationResolver implements ZoomaResolver<Annotation> {
     private AnnotationDAO zoomaAnnotationDAO;
 
@@ -193,10 +194,10 @@ public abstract class AbstractAnnotationResolver implements ZoomaResolver<Annota
         return new SimpleAnnotation(newURI,
                                     annotationToReplace.getAnnotatedBiologicalEntities(),
                                     annotationToReplace.getAnnotatedProperty(),
-                                    semanticTags,
+                                    annotationToReplace.getProvenance(), semanticTags,
                                     new URI[0],
-                                    new URI[]{annotationToReplace.getURI()},
-                                    annotationToReplace.getProvenance());
+                                    new URI[]{annotationToReplace.getURI()}
+        );
     }
 
     protected boolean compareProperties(Property property, Property referenceProperty) {

@@ -8,7 +8,9 @@ import uk.ac.ebi.fgpt.zooma.datasource.OntologyDAO;
 import java.net.URI;
 import java.util.Collections;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

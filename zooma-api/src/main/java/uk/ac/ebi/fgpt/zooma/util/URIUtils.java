@@ -10,7 +10,6 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -40,12 +39,7 @@ public class URIUtils {
     /**
      * The default setting for SHORTFORM_STRICTNESS
      */
-    public static final ShortformStrictness DEFAULT_SHORTFORM_STRICTNESS = ShortformStrictness.ALLOW_SLASHES_AND_HASHES;
-    /**
-     * The strictness with which these utils allow shortform creation.  Strictly, no hashes or slashes are allowed in
-     * shortforms, but you can override this if required.
-     */
-    public static volatile ShortformStrictness SHORTFORM_STRICTNESS = DEFAULT_SHORTFORM_STRICTNESS;
+    public static final ShortformStrictness DEFAULT_SHORTFORM_STRICTNESS = ShortformStrictness.ALLOW_HASHES;
 
     private static final Map<String, String> prefixMappings;
     private static final String uninitializedKey = "UNINITIALIZED";
@@ -105,19 +99,35 @@ public class URIUtils {
 
     /**
      * Gets the shortened version of the given URI, using the the mappings (prefix = "namespace") in the file
-     * zooma/prefix.properties if available on the classpath. This is equivalent to calling {@link #getPrefixMappings()}
-     * and passing the results to {@link #getShortform(java.util.Map, java.net.URI)} as the first parameter.
+     * zooma/prefix.properties if available on the classpath. This is equivalent to calling {@link
+     * #getShortform(java.util.Map, java.net.URI, ShortformStrictness)} with the results of {@link #getPrefixMappings()}
+     * as the first parameter and DEFAULT_SHORTFORM_STRICTNESS as the third parameter.
      *
      * @param uri the URI to find the shortform for
      * @return the shortened, qualified name
      */
     public static String getShortform(URI uri) {
-        return getShortform(getPrefixMappings(), uri);
+        return getShortform(getPrefixMappings(), uri, DEFAULT_SHORTFORM_STRICTNESS);
+    }
+
+    /**
+     * Gets the shortened version of the given URI, using the supplied shortform strictness parameter and the mappings
+     * (prefix = "namespace") in the file zooma/prefix.properties if available on the classpath. This is equivalent to
+     * calling {@link #getPrefixMappings()} and passing the results to {@link #getShortform(java.util.Map, java.net.URI,
+     * ShortformStrictness)} as the first parameter.
+     *
+     * @param uri        the URI to find the shortform for
+     * @param strictness how strict to be when creating a shortform of the given URI
+     * @return the shortened, qualified name
+     */
+    public static String getShortform(URI uri, ShortformStrictness strictness) {
+        return getShortform(getPrefixMappings(), uri, strictness);
     }
 
     /**
      * Gets the shortened version of the given URI, using the supplied prefix mappings.  Using this form of the method,
-     * you can supply your own mappings (and develop your own caching strategies) if required.
+     * you can supply your own mappings (and develop your own caching strategies) if required, but the default shortform
+     * strictness is used.
      *
      * @param prefixMappings the prefix mappings to consider when getting the short form
      * @param uri            the URI to find the short form for
@@ -125,6 +135,21 @@ public class URIUtils {
      * @throws IllegalArgumentException if the URI cannot be shortened using the current mode and prefixMappings
      */
     public static String getShortform(final Map<String, String> prefixMappings, URI uri) {
+        return getShortform(prefixMappings, uri, DEFAULT_SHORTFORM_STRICTNESS);
+    }
+
+    /**
+     * Gets the shortened version of the given URI, using the supplied prefix mappings and strictness.  Using this form
+     * of the method, you can supply your own mappings (and develop your own caching strategies) if required.
+     *
+     * @param prefixMappings the prefix mappings to consider when getting the short form
+     * @param uri            the URI to find the short form for
+     * @return the qualified short name
+     * @throws IllegalArgumentException if the URI cannot be shortened using the current mode and prefixMappings
+     */
+    public static String getShortform(final Map<String, String> prefixMappings,
+                                      URI uri,
+                                      ShortformStrictness strictness) {
         if (uri == null) {
             return null;
         }
@@ -172,7 +197,7 @@ public class URIUtils {
                         break;
                     case DO_NOT_CREATE:
                         // test strictness
-                        switch (SHORTFORM_STRICTNESS) {
+                        switch (strictness) {
                             case STRICT:
                                 // can't do anything
                                 throw new IllegalArgumentException(
@@ -210,6 +235,10 @@ public class URIUtils {
             }
             else {
                 namespace = prefixMappings.get(prefix);
+                if (namespace == null && prefix.contains("resource")) {
+                    String resourcename = prefix.replace("resource", "");
+                    namespace = prefixMappings.get("zoomaresource").concat(resourcename).concat("/");
+                }
             }
 
             if (prefix != null && namespace != null) {
@@ -267,18 +296,6 @@ public class URIUtils {
 
         // otherwise, do we have a registered prefix?
         if (shortform.contains(":")) {
-            Iterator it = prefixMappings.entrySet().iterator();
-
-            while (it.hasNext()) {
-                Map.Entry e = (Map.Entry) it.next();
-                String pref = (String) e.getKey();
-                String long_term = (String) e.getValue();
-
-                if (shortform.startsWith(long_term)) {
-                    shortform = shortform.replaceFirst(long_term, pref + ":");
-                }
-            }
-
             String[] tokens = shortform.split(":");
             String prefix = tokens[0];
             String localName = "";
@@ -287,19 +304,30 @@ public class URIUtils {
             }
 
             synchronized (prefixMappings) {
+                String namespace;
                 if (prefixMappings.containsKey(prefix)) {
-                    String namespace = prefixMappings.get(prefix);
+                    namespace = prefixMappings.get(prefix);
                     if (!namespace.endsWith("/") && !namespace.endsWith("#") && !"".equals(localName)) {
                         // no separator at end of namespace - could be / or # or something else, so just have to guess
                         namespace = namespace + "/";
                     }
-                    return URI.create(namespace + localName);
+                }
+                else if (prefix.endsWith("resource")) {
+                    String resourceName = prefix.replace("resource", "");
+                    if (prefixMappings.containsKey(resourceName)) {
+                        namespace = prefixMappings.get("zoomaresource").concat(resourceName).concat("/");
+                    }
+                    else {
+                        throw new IllegalArgumentException("Unknown resource '" + resourceName + "' - it is not " +
+                                                                   "possible to reconstruct this URI");
+                    }
                 }
                 else {
                     // if we get to here, we cannot resolve prefix
                     throw new IllegalArgumentException("Unknown prefix '" + prefix + "' - it is not " +
                                                                "possible to reconstruct this URI");
                 }
+                return URI.create(namespace + localName);
             }
         }
         else {
@@ -342,9 +370,15 @@ public class URIUtils {
                 return URI.create(namespace);
             }
             else {
-                // if we get to here, we cannot resolve prefix
-                throw new IllegalArgumentException("Unknown prefix '" + prefix + "' - it is not " +
-                                                           "possible to reconstruct this URI");
+                // we can't resolve the prfix - but we might be able to infer it if it's a resource
+                if (prefix.contains("resource")) {
+                    String resourcename = prefix.replace("resource", "");
+                    return URI.create(prefixMappings.get("zoomaresource").concat(resourcename).concat("/"));
+                }
+                else {
+                    throw new IllegalArgumentException("Unknown prefix '" + prefix + "' - it is not " +
+                                                               "possible to reconstruct this URI");
+                }
             }
         }
     }
@@ -554,6 +588,14 @@ public class URIUtils {
                     if (!ineligible) {
                         prefix = nextPrefix;
                         namespace = nextNamespace;
+                    }
+                    else if (nextPrefix.equals("zoomaresource")) {
+                        // there is an exception - if prefix is zoomaresource, infer prefix from convention
+                        if (localname.contains("/")) {
+                            String resourceName = localname.substring(0, localname.indexOf("/"));
+                            prefix = resourceName.concat("resource");
+                            namespace = nextNamespace.concat(resourceName).concat("/");
+                        }
                     }
                 }
             }

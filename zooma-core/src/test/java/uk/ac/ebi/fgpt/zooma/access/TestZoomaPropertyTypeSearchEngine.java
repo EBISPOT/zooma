@@ -23,7 +23,11 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.anyMap;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TestZoomaPropertyTypeSearchEngine {
     private ZoomaPropertyTypeSearcher propertyTypeSearchEngine;
@@ -73,12 +77,8 @@ public class TestZoomaPropertyTypeSearchEngine {
         // create test stubs
         when(propertyTypeSearchService.searchByPrefix(argThat(new TypePrefixMatcher(types))))
                 .thenReturn(types);
-        when(propertyTypeSearchService.searchAndScoreByPrefix(argThat(new TypePrefixMatcher(types))))
-                .thenReturn(scoredTypes);
         when(propertyTypeSearchService.searchByPrefix(argThat(new TypePrefixMatcher(types))))
                 .thenReturn(types);
-        when(propertyTypeSearchService.searchAndScoreByPrefix(argThat(new TypePrefixMatcher(types))))
-                .thenReturn(scoredTypes);
         when(propertyTypeSorter.sort(anyCollection()))
                 .thenReturn(types);
         when(propertyTypeSorter.sort(anyMap()))
@@ -119,8 +119,8 @@ public class TestZoomaPropertyTypeSearchEngine {
             getLog().debug("Testing query for type " + type + ", 10, 0");
             Collection<String> searchResults = propertyTypeSearchEngine.query(prefix, 10, 0);
             assertSame("Unexpected prefix search results returned for " + prefix, limitedTypes, searchResults);
-            verify(propertyTypeSearchService, atLeastOnce()).searchAndScoreByPrefix(prefix);
-            verify(propertyTypeSorter, times(i)).sort(scoredTypes);
+            verify(propertyTypeSearchService, atLeastOnce()).searchByPrefix(prefix);
+            verify(propertyTypeSorter, times(i)).sort(types);
             verify(propertyTypeLimiter, times(i++)).limit(types, 10, 0);
         }
     }

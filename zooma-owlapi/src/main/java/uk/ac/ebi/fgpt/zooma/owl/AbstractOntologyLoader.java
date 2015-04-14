@@ -15,7 +15,11 @@ import org.springframework.core.io.Resource;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * An abstract implementation of an ontology loader.  Implementations should extend this class with the {@link
@@ -29,14 +33,16 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
     private URI ontologyURI;
     private String ontologyName;
     private Resource ontologyResource;
+    private Map<IRI, IRI> ontologyImportMappings;
 
     private Collection<URI> synonymURIs;
     private URI exclusionClassURI;
     private URI exclusionAnnotationURI;
 
     private OWLOntologyManager manager;
-    private IRI ontologyIRI;
     private OWLDataFactory factory;
+    private IRI ontologyIRI;
+    private OWLOntology ontology;
 
     private Map<IRI, String> ontologyLabels;
     private Map<IRI, Set<String>> ontologyTypeLabels;
@@ -89,7 +95,6 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
         return ontologyResource;
     }
 
-
     /**
      * Sets the location from which to load the ontology, if required. Setting this property creates a mapper that
      * prompts the OWL API to load the ontology from the supplied location, instead of attempting to resolve to the URL
@@ -100,6 +105,35 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
      */
     public void setOntologyResource(Resource ontologyResource) {
         this.ontologyResource = ontologyResource;
+    }
+
+    /**
+     * Returns a series of mappings between two IRIs to describe where to load any imported ontologies, declared by the
+     * ontology being loaded, should be acquired from.  In the returned map, each key is a logical name of an imported
+     * ontology, and each value is the physical location the ontology should be loaded from.  In other words, if this
+     * <code>OntologyLoader</code> loads an ontology <code>http://www.test.com/ontology_A</code> and ontology A
+     * declares
+     * <pre><owl:imports rdf:resource="http://www.test.com/ontology_B" /></pre>, if no import mappings are set then
+     * ontology B will be loaded from <code>http://www.test.com/ontology_B</code>.  Declaring a mapping
+     * {http://www.test.com/ontology_B, file://tmp/ontologyB.owl}, though, will cause ontology B to be loaded from a
+     * local copy of the file.
+     *
+     * @return the ontology import mappings, logical IRI -> physical location IRI
+     */
+    public Map<IRI, IRI> getOntologyImportMappings() {
+        return ontologyImportMappings;
+    }
+
+    /**
+     * Sets a series of mappings between two IRIs to describe where to load any imported ontologies, declared by the
+     * ontology being loaded, should be acquired from.  In the supplied map argument, each key should be a logical name
+     * of an imported ontology, and each value should be the physical location the ontology should be loaded from.
+     *
+     * @param ontologyImportMappings the ontology import mappings, logical IRI -> physical location IRI
+     * @see #getOntologyImportMappings()
+     */
+    public void setOntologyImportMappings(Map<IRI, IRI> ontologyImportMappings) {
+        this.ontologyImportMappings = ontologyImportMappings;
     }
 
     /**
@@ -183,6 +217,16 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
         }
     }
 
+    @Override public OWLOntology getOntology() {
+        try {
+            initOrWait();
+            return ontology;
+        }
+        catch (InterruptedException e) {
+            throw new IllegalStateException(getClass().getSimpleName() + " failed to initialize", e);
+        }
+    }
+
     @Override public Map<IRI, String> getOntologyClassLabels() {
         try {
             initOrWait();
@@ -215,6 +259,13 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
             this.manager.addIRIMapper(new SimpleIRIMapper(IRI.create(getOntologyURI()),
                                                           IRI.create(getOntologyResource().getURI())));
         }
+        if (getOntologyImportMappings() != null) {
+            for (IRI from : getOntologyImportMappings().keySet()) {
+                IRI to = getOntologyImportMappings().get(from);
+                getLog().info("Mapping imported ontology IRI from " + from + " to " + to);
+                this.manager.addIRIMapper(new SimpleIRIMapper(from, to));
+            }
+        }
         this.factory = manager.getOWLDataFactory();
 
         // init cache fields
@@ -223,7 +274,7 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
         this.ontologySynonyms = new HashMap<>();
 
         // load the ontology
-        loadOntology();
+        this.ontology = loadOntology();
     }
 
     @Override protected void doTermination() throws Exception {
@@ -265,6 +316,11 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
      * <p/>
      * Once loaded, this method must set the IRI of the ontology, and should add class labels, class types (however you
      * chose to implement the concept of a "type") and synonyms, where they exist.
+     * <p/>
+     * Implementations do not need to concern themselves with resolving imports or physical/logical mappings as this is
+     * done in initialisation at the abstract level.  Subclasses can simply do <code>OWLOntology ontology =
+     * getManager().loadOntology(IRI.create(getOntologyURI()));</code> as a basic implementation before populating the
+     * various required caches
      */
-    protected abstract void loadOntology() throws OWLOntologyCreationException;
+    protected abstract OWLOntology loadOntology() throws OWLOntologyCreationException;
 }

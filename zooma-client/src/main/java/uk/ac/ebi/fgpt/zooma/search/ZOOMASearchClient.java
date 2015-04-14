@@ -5,6 +5,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
@@ -31,6 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +88,31 @@ public class ZOOMASearchClient {
         return searchZOOMA(property, score, excludeType, false);
     }
 
+    public Map<AnnotationSummary, Float> searchZOOMA(Property property,
+                                                     float score,
+                                                     boolean excludeType,
+                                                     boolean noEmptyResult) {
+        return searchZOOMA(property,
+                           score,
+                           excludeType,
+                           noEmptyResult,
+                           Collections.<String>emptyList(),
+                           Collections.<String>emptyList());
+    }
+
+    public Map<AnnotationSummary, Float> searchZOOMA(Property property,
+                                                     float score,
+                                                     boolean excludeType,
+                                                     boolean noEmptyResult,
+                                                     List<String> requiredSources) {
+        return searchZOOMA(property,
+                           score,
+                           excludeType,
+                           noEmptyResult,
+                           requiredSources,
+                           Collections.<String>emptyList());
+    }
+
     /**
      * @param property      what you're looking for
      * @param score         returns only the summaries above this threshold
@@ -98,17 +125,46 @@ public class ZOOMASearchClient {
     public Map<AnnotationSummary, Float> searchZOOMA(Property property,
                                                      float score,
                                                      boolean excludeType,
-                                                     boolean noEmptyResult) {
+                                                     boolean noEmptyResult,
+                                                     List<String> requiredSources,
+                                                     List<String> preferredSources) {
         String query = property.getPropertyValue();
 
         // search for annotation summaries
         Map<AnnotationSummary, Float> summaries = new LinkedHashMap<>();
         try {
-            String search = zoomaSearchBase + URLEncoder.encode(property.getPropertyValue(), "UTF-8");
-            String typedSearch = search + "&type=";
-            URL queryURL = property instanceof TypedProperty && !excludeType
-                    ? new URL(typedSearch + URLEncoder.encode(((TypedProperty) property).getPropertyType(), "UTF-8"))
-                    : new URL(search);
+            String baseUrl = zoomaSearchBase + URLEncoder.encode(property.getPropertyValue(), "UTF-8");
+            String searchUrl = property instanceof TypedProperty && !excludeType ?
+                    baseUrl + "&type=" + URLEncoder.encode(((TypedProperty) property).getPropertyType(), "UTF-8") :
+                    baseUrl;
+            if (!requiredSources.isEmpty() || !preferredSources.isEmpty()) {
+                StringBuilder filters = new StringBuilder();
+                filters.append("&filter=");
+                if (!requiredSources.isEmpty()) {
+                    filters.append("required:[");
+                    Iterator<String> requiredIt = requiredSources.iterator();
+                    while (requiredIt.hasNext()) {
+                        filters.append(requiredIt.next());
+                        if (requiredIt.hasNext()) {
+                            filters.append(",");
+                        }
+                    }
+                    filters.append("]");
+                }
+                if (!preferredSources.isEmpty()) {
+                    filters.append("preferred:[");
+                    Iterator<String> preferredIt = preferredSources.iterator();
+                    while (preferredIt.hasNext()) {
+                        filters.append(preferredIt.next());
+                        if (preferredIt.hasNext()) {
+                            filters.append(",");
+                        }
+                    }
+                    filters.append("]");
+                }
+                searchUrl = searchUrl.concat(filters.toString());
+            }
+            URL queryURL = new URL(searchUrl);
             getLog().trace("Sending query [" + queryURL + "]...");
 
             ObjectMapper mapper = new ObjectMapper();
@@ -173,12 +229,12 @@ public class ZOOMASearchClient {
         return summaries;
     }
 
-    public Annotation getAnnotation(URI annotationURI) {
+    public Annotation getAnnotation(URI annotationURI) throws SearchException {
         try {
-            URL fetchURL = new URL(zoomaAnnotationsBase + annotationURI.toString());
+            String shortname = lookupShortname(annotationURI);
+            URL fetchURL = new URL(zoomaAnnotationsBase + shortname);
 
             // populate required fields from result of query
-            URI uri = lookupURI(annotationURI.toString());
             Collection<BiologicalEntity> biologicalEntities = new ArrayList<>();
             Property annotatedProperty = null;
             AnnotationProvenance annotationProvenance = null;
@@ -251,12 +307,12 @@ public class ZOOMASearchClient {
 
             JsonNode stsNode = annotationNode.get("semanticTags");
             for (JsonNode stNode : stsNode) {
-                URI de = lookupURI(stNode.getTextValue());
+                URI de = URI.create(stNode.getTextValue());
                 semanticTags.add(de);
             }
 
             // create and return the annotation
-            return new SimpleAnnotation(uri,
+            return new SimpleAnnotation(annotationURI,
                                         biologicalEntities,
                                         annotatedProperty,
                                         annotationProvenance,
@@ -270,14 +326,57 @@ public class ZOOMASearchClient {
         }
     }
 
-    public String getLabel(URI uri) throws IOException {
+    public String getLabel(URI uri) throws IOException, SearchException {
+        if (uri == null) {
+            throw new IllegalArgumentException("Cannot lookup label for URI 'null'");
+        }
+
+        String shortform = null;
+        try {
+            shortform = URIUtils.getShortform(prefixMappings, uri);
+        }
+        catch (IllegalArgumentException e) {
+            throw new SearchException("Failed to lookup label for <" + uri.toString() + ">", e);
+        }
+        if (shortform != null) {
+            getLog().trace("Formulating search for label of '" + shortform + "' (derived from <" + uri + ">)");
+            URL labelsURL = new URL(zoomaServicesBase + "labels/" + shortform);
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Set<String>> labelMap =
+                    mapper.readValue(labelsURL, new TypeReference<Map<String, Set<String>>>() {
+                    });
+            return labelMap.get("label").iterator().next();
+        }
+        else {
+            String msg = "URI <" + uri + "> resolved to 'null' shortform";
+            getLog().error(msg);
+            throw new RuntimeException(msg);
+        }
+    }
+
+    public Collection<String> getSynonyms(URI uri) throws IOException {
         String shortform = URIUtils.getShortform(prefixMappings, uri);
-        getLog().trace("Formulating search for label of '" + shortform + "' (derived from <" + uri + ">)");
+        getLog().trace("Formulating search for synonyms of '" + shortform + "' (derived from <" + uri + ">)");
         URL labelsURL = new URL(zoomaServicesBase + "labels/" + shortform);
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Set<String>> labelMap = mapper.readValue(labelsURL, new TypeReference<Map<String, Set<String>>>() {
         });
-        return labelMap.get("label").iterator().next();
+        return labelMap.get("synonyms");
+    }
+
+    private String lookupShortname(URI uri) {
+        // try to recover URI
+        String shortname;
+        try {
+            shortname = URIUtils.getShortform(prefixMappings, uri);
+        }
+        catch (IllegalArgumentException e) {
+            // if we get an illegal argument exception, refresh cache and retry
+            getLog().debug(e.getMessage() + ": reloading prefix mappings cache and retrying...");
+            loadPrefixMappings();
+            shortname = URIUtils.getShortform(prefixMappings, uri);
+        }
+        return shortname;
     }
 
     private URI lookupURI(String shortname) {
@@ -313,29 +412,47 @@ public class ZOOMASearchClient {
         float resultScore = Float.parseFloat(result.get("score").getTextValue());
 
         URL summaryURL = new URL(zoomaBase + "summaries/" + mid);
-        JsonNode summaryNode = mapper.readValue(summaryURL, JsonNode.class);
+        try {
+            JsonNode summaryNode = mapper.readValue(summaryURL, JsonNode.class);
 
-        String propertyType = summaryNode.get("annotatedPropertyType").getTextValue();
-        String propertyValue = summaryNode.get("annotatedPropertyValue").getTextValue();
+            URI propertyUri =
+                    summaryNode.get("annotatedPropertyUri") != null && !summaryNode.get("annotatedPropertyUri").isNull()
+                            ? URI.create(summaryNode.get("annotatedPropertyUri").getTextValue())
+                            : null;
+            String propertyType = summaryNode.get("annotatedPropertyType").getTextValue();
+            String propertyValue = summaryNode.get("annotatedPropertyValue").getTextValue();
 
-        List<URI> semanticTags = new ArrayList<>();
-        JsonNode stsNode = summaryNode.get("semanticTags");
-        for (JsonNode stNode : stsNode) {
-            semanticTags.add(lookupURI(stNode.getTextValue()));
+            List<URI> semanticTags = new ArrayList<>();
+            JsonNode stsNode = summaryNode.get("semanticTags");
+            for (JsonNode stNode : stsNode) {
+                semanticTags.add(URI.create(stNode.getTextValue()));
+            }
+
+            List<URI> annotationURIs = new ArrayList<>();
+            JsonNode annsNode = summaryNode.get("annotationURIs");
+            for (JsonNode annNode : annsNode) {
+                annotationURIs.add(URI.create(annNode.getTextValue()));
+            }
+
+            List<URI> annotationSourceURIs = new ArrayList<>();
+            JsonNode annsSourceNode = summaryNode.get("annotationSourceURIs");
+            for (JsonNode annSourceNode : annsSourceNode) {
+                annotationSourceURIs.add(URI.create(annSourceNode.getTextValue()));
+            }
+
+            // collect summary into map with it's score
+            return new SimpleAnnotationSummary(mid,
+                                               propertyUri,
+                                               propertyType,
+                                               propertyValue,
+                                               semanticTags,
+                                               annotationURIs,
+                                               resultScore,
+                                               annotationSourceURIs);
         }
-
-        List<URI> annotationURIs = new ArrayList<>();
-        JsonNode annsNode = summaryNode.get("annotationURIs");
-        for (JsonNode annNode : annsNode) {
-            annotationURIs.add(URI.create(annNode.getTextValue()));
+        catch (IOException e) {
+            getLog().error("Failed to read AnnotationSummary object at '" + summaryURL + "'", e);
+            throw e;
         }
-
-        // collect summary into map with it's score
-        return new SimpleAnnotationSummary(mid,
-                                           propertyType,
-                                           propertyValue,
-                                           semanticTags,
-                                           annotationURIs,
-                                           resultScore);
     }
 }

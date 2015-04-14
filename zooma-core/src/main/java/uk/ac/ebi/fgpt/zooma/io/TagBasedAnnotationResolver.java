@@ -29,6 +29,7 @@ import java.util.Set;
  * @author Tony Burdett
  * @date 03/06/13
  */
+@Deprecated
 public class TagBasedAnnotationResolver extends AbstractParallelAnnotationResolver {
     public TagBasedAnnotationResolver() {
         super(32);

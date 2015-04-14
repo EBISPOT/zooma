@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +47,8 @@ public class TestLuceneAnalyzers {
 
     private String field = "title";
     private List<String> documents;
+
+    private List<URI> uriDocuments;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -69,6 +72,9 @@ public class TestLuceneAnalyzers {
             String doc6 = "Lots of lucenes of awesomeness";
             String doc7 = "Tony is pretty awesome really";
 
+            URI uri1 = URI.create("http://www.ebi.ac.uk/fgpt/foo");
+            URI uri2 = URI.create("http://www.ebi.ac.uk/fgpt/bar");
+
             documents = new ArrayList<>();
             documents.add(doc1);
             documents.add(doc2);
@@ -78,12 +84,19 @@ public class TestLuceneAnalyzers {
             documents.add(doc6);
             documents.add(doc7);
 
+            uriDocuments = new ArrayList<>();
+            uriDocuments.add(uri1);
+            uriDocuments.add(uri2);
+
             // add some data to the index
             IndexWriterConfig config = new IndexWriterConfig(version, analyzer);
             Directory index = new RAMDirectory();
             IndexWriter w = new IndexWriter(index, config);
             for (String doc : documents) {
                 addDoc(w, doc);
+            }
+            for (URI uri : uriDocuments) {
+                addURIDoc(w, uri);
             }
             w.close();
 
@@ -101,6 +114,18 @@ public class TestLuceneAnalyzers {
         try {
             Document doc = new Document();
             doc.add(new Field(field, s, Field.Store.YES, Field.Index.ANALYZED));
+            w.addDocument(doc);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    public void addURIDoc(IndexWriter w, URI uri) {
+        try {
+            Document doc = new Document();
+            doc.add(new Field(field, uri.toString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
             w.addDocument(doc);
         }
         catch (IOException e) {
@@ -139,6 +164,36 @@ public class TestLuceneAnalyzers {
                     }
                     assertTrue("Results does not contain expected title '" + query + "'", results.contains(query));
                 }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    @Test
+    public void testURIQuery() {
+        try {
+            // build a query
+            for (URI query : uriDocuments) {
+                // query index for this uri and verify the document with title matching query is returned
+                int hitsPerPage = 10;
+                TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
+                getLog().debug("Performing lucene query for <" + query.toString() + ">");
+                Query q = new TermQuery(new Term(field, query.toString()));
+                searcher.search(q, collector);
+                ScoreDoc[] hits = collector.topDocs().scoreDocs;
+
+                // print results
+                Set<String> results = new HashSet<>();
+                for (int i = 0; i < hits.length; ++i) {
+                    int docId = hits[i].doc;
+                    Document d = searcher.doc(docId);
+                    results.add(d.get("title"));
+                    getLog().debug("Result " + (i + 1) + ": " + d.get("title"));
+                }
+                assertTrue("Results does not contain expected title '" + query + "'", results.contains(query.toString()));
             }
         }
         catch (IOException e) {

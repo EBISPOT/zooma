@@ -38,4 +38,13 @@ public interface OntologyDAO {
      * @return a set of synonyms
      */
     Set<String> getSemanticTagSynonyms(URI synonymTypeURI, URI semanticTagURI);
+
+    /**
+     * Get all child classes of a given term.
+     *
+     * @param semanticTagURI the URI of the ontology class to retrieve the children for
+     * @param semanticTagURI use inference to get all child descendants
+     * @return a set of child term URIs
+     */
+    Set<String> getChildren(URI semanticTagURI, boolean infer);
 }

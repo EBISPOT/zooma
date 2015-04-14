@@ -2,8 +2,11 @@ package uk.ac.ebi.fgpt;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import uk.ac.ebi.fgpt.zooma.datasource.OWLAnnotationDAO;
+import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
+import uk.ac.ebi.fgpt.zooma.io.OWLAPIAnnotationSerializer;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 
+import java.io.File;
 import java.util.Collection;
 
 /**
@@ -16,15 +19,18 @@ public class OWLDAOTester {
         System.out.println("Beginning owl dao test");
         OWLDAOTester tester = new OWLDAOTester();
         tester.printAllAnnotations();
+        tester.serializeAllAnnotations();
     }
 
     private OWLAnnotationDAO OWLDAO;
+    private OWLAPIAnnotationSerializer serializer;
 
     public OWLDAOTester() {
         System.out.print("Loading spring context...");
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:zooma-annotation-dao.xml");
         System.out.println("done!");
-        OWLDAO = ctx.getBean("efo-owlAnnotationDAO", OWLAnnotationDAO.class);
+        OWLDAO = ctx.getBean("test-owlAnnotationDAO", OWLAnnotationDAO.class);
+        serializer = ctx.getBean("annotationSerializer", OWLAPIAnnotationSerializer.class);
     }
 
     public void printAllAnnotations() {
@@ -32,11 +38,26 @@ public class OWLDAOTester {
         Collection<Annotation> annotations = OWLDAO.read();
         System.out.println("done");
 
-
         for (Annotation a : annotations) {
             System.out.println("Next annotation: " + a);
         }
         System.out.println("There are " + annotations.size() + " annotations in the OWL file");
+    }
 
+    public void serializeAllAnnotations() {
+        System.out.print("Reading annotations from the OWL file...");
+        Collection<Annotation> annotations = OWLDAO.read();
+        System.out.println("done");
+
+        try {
+            File f = new File("annotations.owl");
+            System.out.print("Serializing " + annotations.size() + " to " + f.getAbsolutePath() + "...");
+            serializer.serialize("test", annotations, f);
+            System.out.println("done!");
+        }
+        catch (ZoomaSerializationException e) {
+            System.err.println("Failed to serialize annotations (" + e.getMessage() + ")");
+            e.printStackTrace();
+        }
     }
 }

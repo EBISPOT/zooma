@@ -13,8 +13,8 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Similarity;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.search.spans.SpanMultiTermQueryWrapper;
 import org.apache.lucene.search.spans.SpanNearQuery;
@@ -31,12 +31,11 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 /**
  * An abstract implementation of a lucene search service for ZOOMA.  This class provides a convenience method for
@@ -54,14 +53,13 @@ import java.util.Map;
 public abstract class ZoomaLuceneSearchService extends Initializable {
     private Directory index;
     private Analyzer analyzer;
+    private Similarity similarity;
 
     private IndexReader reader;
     private IndexSearcher searcher;
 
-    private Collection<SearchStringProcessor> searchStringProcessors;
-
-
     protected enum QUERY_TYPE {
+        EXACT,
         FULL,
         PREFIX,
         SUFFIX
@@ -83,12 +81,16 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         this.analyzer = analyzer;
     }
 
-    public Collection<SearchStringProcessor> getSearchStringProcessors() {
-        return searchStringProcessors;
+    public Similarity getSimilarity() {
+        return similarity;
     }
 
-    public void setSearchStringProcessors(Collection<SearchStringProcessor> searchStringProcessors) {
-        this.searchStringProcessors = searchStringProcessors;
+    public void setSimilarity(Similarity similarity) {
+        this.similarity = similarity;
+    }
+
+    public IndexReader getReader() {
+        return reader;
     }
 
     public IndexSearcher getSearcher() {
@@ -100,11 +102,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         // initialize searcher and query parser from index
         this.reader = IndexReader.open(getIndex());
         this.searcher = new IndexSearcher(reader);
-
-        if (searchStringProcessors == null) {
-            getLog().debug("There are no search string processors registered - " +
-                                   "only the raw search string will be used");
-            searchStringProcessors = new HashSet<>();
+        if (similarity != null) {
+            this.searcher.setSimilarity(similarity);
         }
     }
 
@@ -124,75 +123,49 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the parsed query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateQuery(String field, String pattern) throws QueryCreationException {
+    protected Query formulateQuery(String field, String pattern) {
         return formulateQuery(field, pattern, QUERY_TYPE.FULL, false);
     }
 
-    protected Query formulatePrefixQuery(String field, String prefix) throws QueryCreationException {
-        return formulateQuery(field, prefix, QUERY_TYPE.PREFIX, false);
-    }
-
-    protected Query formulateSuffixQuery(String field, String suffix) throws QueryCreationException {
-        return formulateQuery(field, suffix, QUERY_TYPE.SUFFIX, false);
-    }
-
     /**
-     * Generate a lucene query from the supplied field and pattern, possibly processing the pattern first using any
-     * {@link SearchStringProcessor}s that may be able to expand the query.
+     * Generate a lucene query from the supplied field and string.  Queries are constrained to hit only documents that
+     * contain the full, exact string withing the given field.
      *
-     * @param field   the field to query
-     * @param pattern the pattern to search for
+     * @param field  the field to query
+     * @param string the exact string to search for
      * @return the parsed query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateProcessedQuery(String field, String pattern)
-            throws QueryCreationException {
-        Collection<Query> queries = new HashSet<>();
-
-        // first, formulate original query
-        Query originalQuery = formulateQuery(field, pattern);
-        queries.add(originalQuery);
-
-        // combine queries for any string processors that can process our string
-        for (SearchStringProcessor processor : getSearchStringProcessors()) {
-            if (processor.canProcess(pattern)) {
-                for (String processedString : processor.processSearchString(pattern)) {
-                    if (!processedString.isEmpty()) {
-                        Query q = formulateQuery(field, processedString);
-                        q.setBoost(processor.getBoostFactor());
-                        queries.add(q);
-                    }
-                }
-            }
-        }
-
-        if (queries.isEmpty()) {
-            return originalQuery;
-        }
-        else {
-            return formulateCombinedQuery(false, false, queries.toArray(new Query[queries.size()]));
-        }
+    protected Query formulateExactQuery(String field, String string) {
+        return formulateQuery(field, string, QUERY_TYPE.EXACT, false);
     }
 
     /**
-     * Generates a lucene query that unifies the multiple supplied queries into a boolean query.  If you supply a
-     * <code>compulsoryQuery</code> parameter, it is assumed that the <code>otherQueries</code> provided are optional.
-     * If <code>compulsoryQuery</code> is null, this method assumes all <code>otherQueries</code> must occur.  It is
-     * possible to combine several different common must/should occur queries using multiple invocations of this
-     * method.
+     * Generate a lucene query from the supplied field and prefix.  Queries are constrained to hit only documents that
+     * contain the supplied pattern within the given field.
      *
-     * @param compulsoryQuery the queries that MUST occur in the results
-     * @param otherQueries    any queries that may optionally occur in the results
-     * @return the unified query
+     * @param field  the field to query
+     * @param prefix the prefix to search for
+     * @return the parsed query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateBooleanQuery(Query compulsoryQuery, Query... otherQueries)
-            throws QueryCreationException {
-        List<Query> queries = new ArrayList<>();
-        queries.add(compulsoryQuery);
-        queries.addAll(Arrays.asList(otherQueries));
-        return formulateCombinedQuery(true, false, queries.toArray(new Query[queries.size()]));
+    protected Query formulatePrefixQuery(String field, String prefix) {
+        return formulateQuery(field, prefix, QUERY_TYPE.PREFIX, false);
     }
+
+    /**
+     * Generate a lucene query from the supplied field and suffix.  Queries are constrained to hit only documents that
+     * contain the supplied pattern within the given field.
+     *
+     * @param field  the field to query
+     * @param suffix the suffix to search for
+     * @return the parsed query
+     * @throws QueryCreationException if the query could not be created
+     */
+    protected Query formulateSuffixQuery(String field, String suffix) {
+        return formulateQuery(field, suffix, QUERY_TYPE.SUFFIX, false);
+    }
+
 
     /**
      * Generates a lucene query that functions as a specialised form of boolean query.  The two queries are unified into
@@ -204,13 +177,27 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the unified query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateTypedQuery(Query typeQuery, Query valueQuery) throws QueryCreationException {
-        Query q = (Query) valueQuery.clone();
-        q.setBoost(20f);
-        return formulateCombinedQuery(true, false, q, typeQuery);
+    protected Query formulateTypedQuery(Query typeQuery, Query valueQuery) {
+        float boost = valueQuery.getBoost();
+        valueQuery.setBoost(1f);
+        Query untypedQuery = (Query) valueQuery.clone();
+        untypedQuery.setBoost(20f);
+        Query typedQuery = formulateCombinedQuery(true, false, untypedQuery, typeQuery);
+        typedQuery.setBoost(1f);
+        Query q = formulateCombinedQuery(true, false, valueQuery, typedQuery);
+        q.setBoost(boost);
+        return q;
     }
 
-    protected Query formulateQueryConserveOrderIfMultiword(String field, String pattern) throws QueryCreationException {
+    protected Query formulateTypedQuery(Query typeQuery, Collection<Query> processedValueQueries) {
+        Set<Query> queries = new HashSet<>();
+        for (Query processedValueQuery : processedValueQueries) {
+            queries.add(formulateTypedQuery(typeQuery, processedValueQuery));
+        }
+        return formulateCombinedQuery(false, false, queries.toArray(new Query[queries.size()]));
+    }
+
+    protected Query formulateQueryConserveOrderIfMultiword(String field, String pattern) {
         return formulateQuery(field, pattern, QUERY_TYPE.FULL, true);
     }
 
@@ -228,17 +215,22 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the parsed query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateQuery(String field, String pattern, QUERY_TYPE queryType, boolean conserveOrderIfMultiword)
-            throws QueryCreationException {
+    protected Query formulateQuery(String field, String pattern, QUERY_TYPE queryType, boolean conserveOrderIfMultiword) {
         try {
             Query q;
 
-            // tokenize the pattern using the given analyzer
-            List<String> terms = new ArrayList<>();
-            TokenStream stream = analyzer.tokenStream(field, new StringReader(QueryParser.escape(pattern)));
-            CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
-            while (stream.incrementToken()) {
-                terms.add(termAtt.toString());
+            List<String> terms;
+            if (queryType != QUERY_TYPE.EXACT) {
+                // tokenize the pattern using the given analyzer
+                terms = new ArrayList<>();
+                TokenStream stream = analyzer.tokenStream(field, new StringReader(QueryParser.escape(pattern)));
+                CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
+                while (stream.incrementToken()) {
+                    terms.add(termAtt.toString());
+                }
+            }
+            else {
+                terms = Collections.singletonList(pattern);
             }
 
             if (terms.size() == 0) {
@@ -250,6 +242,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     // construct single term query
                     String term = terms.get(0);
                     switch (queryType) {
+                        case EXACT:
                         case FULL:
                             q = new TermQuery(new Term(field, term));
                             break;
@@ -281,7 +274,61 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
     }
 
+    protected Collection<Query> generateProcessedQueries(String fieldName,
+                                                         String fieldToProcess,
+                                                         Collection<SearchStringProcessor> searchStringProcessors) {
+        // combine queries for any string processors that can process our string
+        Collection<Query> queries = new HashSet<>();
+        for (SearchStringProcessor processor : searchStringProcessors) {
+            if (processor.canProcess(fieldToProcess)) {
+                for (String processedString : processor.processSearchString(fieldToProcess)) {
+                    if (!processedString.isEmpty()) {
+                        try {
+                            Query q = formulateQuery(fieldName, processedString);
+                            q.setBoost(processor.getBoostFactor());
+                            queries.add(q);
+                        }
+                        catch (QueryCreationException e) {
+                            // this processed string was one lucene cannot query for (probably +,-, or something similar)
+                            // so exclude from results but continue
+                            getLog().warn("Query string '" + fieldToProcess + "' was processed and resulted " +
+                                                  "in clause '" + processedString + "', which cannot be used to " +
+                                                  "create a lucene query");
+                        }
+                    }
+                }
+            }
+        }
+        return queries;
+    }
+
     /**
+     * Given an existing query, formulate a combined query of exact matches for the supplied items and combine with the initial query
+     * @param q Array of original queries
+     * @param fieldName the fieldname for querying extact matches in the items collection
+     * @param items collection of items to combine in the query
+     * @return new combined query
+     * @throws QueryCreationException
+     */
+    public Query formulateExactCombinedQuery(Query [] q, String fieldName, Object [] items) {
+
+        // unify processed queries into a single query
+        Query uq = formulateCombinedQuery(true, false, q);
+
+        // next generate a series of source queries
+        List<Query> sqs = new ArrayList<>();
+        for (Object item : items) {
+            sqs.add(formulateExactQuery(fieldName, item.toString()));
+        }
+        // unify source queries into a single query
+        Query sq = formulateCombinedQuery(false, false, sqs.toArray(new Query[sqs.size()]));
+
+        // unify property and source queries into a single query
+        return formulateCombinedQuery(true, true, uq, sq);
+    }
+
+    /**
+     *
      * Generate a lucene query from the supplied field and pattern.  Queries are constrained to hit only documents that
      * contain the supplied pattern within the given field.  Queries are constrained by the given proximity (or lucene
      * "slop factor") - so only documents that contain the searched terms within <code>proximity</code> terms of each
@@ -298,7 +345,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                                        QUERY_TYPE queryType,
                                        int proximity,
                                        boolean conserveOrder,
-                                       String... terms) throws QueryCreationException {
+                                       String... terms) {
         List<SpanQuery> stqs = new ArrayList<>();
         // create span queries for each term apart from the last one
         for (int i = 0; i < terms.length - 1; i++) {
@@ -350,71 +397,25 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the unified query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateCombinedQuery(boolean firstMustOccur, boolean allMustOccur, Query... queries)
-            throws QueryCreationException {
-        // unify them with a boolean query
-        BooleanQuery q = new BooleanQuery();
-        BooleanClause.Occur bco = allMustOccur ? BooleanClause.Occur.MUST : BooleanClause.Occur.SHOULD;
-        int index = 0;
-        for (Query nextQuery : queries) {
-            if (index == 0 && firstMustOccur) {
-                q.add(nextQuery, BooleanClause.Occur.MUST);
-            }
-            else {
-                q.add(nextQuery, bco);
-            }
-            index++;
+    protected Query formulateCombinedQuery(boolean firstMustOccur, boolean allMustOccur, Query... queries) {
+        if (queries.length == 1) {
+            return queries[0];
         }
-        return q;
-    }
-
-    /**
-     * Performs a lucene query, and obtains the field that matches the given fieldname.  All results that match the
-     * given query are iterated over, in batches of 100, and put into a collection of strings that is returned.
-     *
-     * @param q         the lucene query to perform
-     * @param fieldname the name of the field to acquire results for
-     * @return a collection of results
-     * @throws IOException if reading from the index failed
-     */
-    protected Collection<String> doQuery(Query q, String fieldname) throws IOException {
-        try {
-            // init, to make sure searcher is available
-            initOrWait();
-
-            // create the list to collect results in
-            List<String> results = new ArrayList<>();
-
-            // perform queries in blocks until there are no more hits
-            ScoreDoc lastScoreDoc = null;
-            boolean complete = false;
-            while (!complete) {
-                // create a collector to obtain query results
-                TopScoreDocCollector collector = lastScoreDoc == null
-                        ? TopScoreDocCollector.create(100, true)
-                        : TopScoreDocCollector.create(100, lastScoreDoc, true);
-
-                // perform query
-                getSearcher().search(q, collector);
-                ScoreDoc[] hits = collector.topDocs().scoreDocs;
-
-                if (hits.length == 0) {
-                    complete = true;
+        else {
+            // unify them with a boolean query
+            BooleanQuery q = new BooleanQuery();
+            BooleanClause.Occur bco = allMustOccur ? BooleanClause.Occur.MUST : BooleanClause.Occur.SHOULD;
+            int index = 0;
+            for (Query nextQuery : queries) {
+                if (index == 0 && firstMustOccur) {
+                    q.add(nextQuery, BooleanClause.Occur.MUST);
                 }
                 else {
-                    // get URI and readByProperty property, add to results
-                    for (ScoreDoc hit : hits) {
-                        lastScoreDoc = hit;
-                        Document doc = getSearcher().doc(hit.doc);
-                        String s = doc.get(fieldname);
-                        results.add(s);
-                    }
+                    q.add(nextQuery, bco);
                 }
+                index++;
             }
-            return results;
-        }
-        catch (InterruptedException e) {
-            throw new IOException("Failed to perform query - indexing process was interrupted", e);
+            return q;
         }
     }
 
@@ -433,11 +434,12 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             initOrWait();
 
             // create the list to collect results in
-            Collection<T> results = new HashSet<>();
+            Collection<T> results = new ArrayList<>();
 
             // perform queries in blocks until there are no more hits
             ScoreDoc lastScoreDoc = null;
             boolean complete = false;
+            int rank = 1;
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector collector = lastScoreDoc == null
@@ -456,9 +458,10 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
                         Document doc = getSearcher().doc(hit.doc);
-                        results.add(mapper.mapDocument(doc));
+                        results.add(mapper.mapDocument(doc, rank));
                     }
                 }
+                rank++;
             }
             getLog().debug("Query '" + q.toString() + "' returned " + results.size() + " results");
             return results;
@@ -475,15 +478,16 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * 100, and put into a collection of objects that is returned.  This collection is typed by the type of DAO that is
      * supplied.
      *
-     * @param q         the lucene query to perform
-     * @param fieldname the name of the field to acquire results for
-     * @param dao       the zooma dao that can be used to do the lookup of matching objects
-     * @param <T>       the type of object to lookup - the ZoomaDAO supplied declares this type
+     * @param q      the lucene query to perform
+     * @param mapper the document mapper to use to extract the URI from resulting lucene documents
+     * @param dao    the zooma dao that can be used to do the lookup of matching objects
+     * @param <T>    the type of object to lookup - the ZoomaDAO supplied declares this type
      * @return a collection of results
      * @throws IOException if reading from the index failed
      */
-    protected <T extends Identifiable> Collection<T> doQuery(Query q, String fieldname, ZoomaDAO<T> dao)
-            throws IOException {
+    protected <T extends Identifiable> Collection<T> doQuery(Query q,
+                                                             LuceneDocumentMapper<URI> mapper,
+                                                             ZoomaDAO<T> dao) throws IOException {
         try {
             // init, to make sure searcher is available
             initOrWait();
@@ -494,6 +498,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             // perform queries in blocks until there are no more hits
             ScoreDoc lastScoreDoc = null;
             boolean complete = false;
+            int rank = 1;
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector collector = lastScoreDoc == null
@@ -512,157 +517,18 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
                         Document doc = getSearcher().doc(hit.doc);
-                        String s = doc.get(fieldname);
-                        if (s != null) {
-                            T t = dao.read(URI.create(s));
-                            if (t != null) {
-                                results.add(t);
-                            }
+                        URI uri = mapper.mapDocument(doc, rank);
+                        T t = dao.read(uri);
+                        if (t != null) {
+                            results.add(t);
+                        }
+                        else {
+                            getLog().warn("Failed to retrieve result for <" + uri + "> in DAO for " +
+                                                  dao.getDatasourceName());
                         }
                     }
                 }
-            }
-            return results;
-        }
-        catch (InterruptedException e) {
-            throw new IOException("Failed to perform query - indexing process was interrupted", e);
-        }
-    }
-
-    protected Map<String, Float> doQueryAndScore(Query q, String fieldname) throws IOException {
-        try {
-            // init, to make sure searcher is available
-            initOrWait();
-
-            // create the list to collect results in
-            Map<String, Float> results = new HashMap<>();
-
-            // perform queries in blocks until there are no more hits
-            ScoreDoc lastScoreDoc = null;
-            boolean complete = false;
-            while (!complete) {
-                // create a collector to obtain query results
-                TopScoreDocCollector collector = lastScoreDoc == null
-                        ? TopScoreDocCollector.create(100, true)
-                        : TopScoreDocCollector.create(100, lastScoreDoc, true);
-
-                // perform query
-                getSearcher().search(q, collector);
-                ScoreDoc[] hits = collector.topDocs().scoreDocs;
-
-                if (hits.length == 0) {
-                    complete = true;
-                }
-                else {
-                    // get URI and readByProperty property, add to results
-                    for (ScoreDoc hit : hits) {
-                        lastScoreDoc = hit;
-                        Document doc = getSearcher().doc(hit.doc);
-                        String s = doc.get(fieldname);
-                        results.put(s, hit.score);
-                    }
-                }
-            }
-            return results;
-        }
-        catch (InterruptedException e) {
-            throw new IOException("Failed to perform query - indexing process was interrupted", e);
-        }
-    }
-
-    protected <T> Map<T, Float> doQueryAndScore(Query q, LuceneDocumentMapper<T> mapper) throws IOException {
-        try {
-            // init, to make sure searcher is available
-            initOrWait();
-
-            // create the list to collect results in
-            Map<T, Float> results = new HashMap<>();
-
-            // perform queries in blocks until there are no more hits
-            ScoreDoc lastScoreDoc = null;
-            boolean complete = false;
-            while (!complete) {
-                // create a collector to obtain query results
-                TopScoreDocCollector collector = lastScoreDoc == null
-                        ? TopScoreDocCollector.create(100, true)
-                        : TopScoreDocCollector.create(100, lastScoreDoc, true);
-
-                // perform query
-                getSearcher().search(q, collector);
-                TopDocs topDocs = collector.topDocs();
-                ScoreDoc[] hits = topDocs.scoreDocs;
-
-                if (hits.length == 0) {
-                    complete = true;
-                }
-                else {
-                    // map each document using the supplied mapper, and associate result score
-                    for (ScoreDoc hit : hits) {
-                        lastScoreDoc = hit;
-                        Document doc = getSearcher().doc(hit.doc);
-//                        try {
-                        float summaryScore = mapper.getDocumentQuality(doc);
-                        float luceneScore = hit.score;
-                        float totalScore = summaryScore * luceneScore;
-                        getLog().debug("Next document has a quality score of: " +
-                                               summaryScore + " x " + luceneScore + " = " +
-                                               (summaryScore * luceneScore));
-                        results.put(mapper.mapDocument(doc), totalScore);
-//                        }
-//                        catch (Exception e) {
-//                            results.put(mapper.mapDocument(doc), hit.score);
-//                        }
-                    }
-                }
-            }
-            getLog().debug(
-                    "Query '" + q.toString() + "'\n...gives the following " + results.size() + " results:\n" + results);
-            return results;
-        }
-        catch (InterruptedException e) {
-            throw new IOException("Failed to perform query - indexing process was interrupted", e);
-        }
-    }
-
-    protected <T extends Identifiable> Map<T, Float> doQueryAndScore(Query q, String fieldname, ZoomaDAO<T> dao)
-            throws IOException {
-        try {
-            // init, to make sure searcher is available
-            initOrWait();
-
-            // create the list to collect results in
-            Map<T, Float> results = new HashMap<>();
-
-            // perform queries in blocks until there are no more hits
-            ScoreDoc lastScoreDoc = null;
-            boolean complete = false;
-            while (!complete) {
-                // create a collector to obtain query results
-                TopScoreDocCollector collector = lastScoreDoc == null
-                        ? TopScoreDocCollector.create(100, true)
-                        : TopScoreDocCollector.create(100, lastScoreDoc, true);
-
-                // perform query
-                getSearcher().search(q, collector);
-                ScoreDoc[] hits = collector.topDocs().scoreDocs;
-
-                if (hits.length == 0) {
-                    complete = true;
-                }
-                else {
-                    // get URI and readByProperty property, add to results
-                    for (ScoreDoc hit : hits) {
-                        lastScoreDoc = hit;
-                        Document doc = getSearcher().doc(hit.doc);
-                        String s = doc.get(fieldname);
-                        if (s != null) {
-                            T t = dao.read(URI.create(s));
-                            if (t != null) {
-                                results.put(t, hit.score);
-                            }
-                        }
-                    }
-                }
+                rank++;
             }
             return results;
         }
