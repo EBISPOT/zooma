@@ -222,7 +222,6 @@
 
     <modules>
         <module>zooma-api</module>
-        <module>zooma-ui</module>
         <module>zooma-core</module>
         <module>zooma-impl</module>
         <module>zooma-owlapi</module>
@@ -236,7 +235,6 @@
         <module>zooma-searcher-app</module>
         <module>zooma-loading</module>
         <module>zooma-bootstrap</module>
-        <module>zoomage</module>
     </modules>
 
     <!-- Artifactory - ZOOMA dependencies -->
