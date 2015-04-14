@@ -49,10 +49,10 @@ import java.util.Map;
  * @author Simon Jupp
  * @date 26/09/12
  */
-public class JDBCConventionBasedAnnotationMapper extends RowBasedDataAnnotationMapper implements RowMapper<Annotation> {
+public class DefaultJdbcAnnotationMapper extends RowBasedDataAnnotationMapper implements RowMapper<Annotation> {
     private final Map<ResultSet, Map<String, Integer>> resultSetColumnIndexMap;
 
-    public JDBCConventionBasedAnnotationMapper(AnnotationFactory annotationFactory) {
+    public DefaultJdbcAnnotationMapper(AnnotationFactory annotationFactory) {
         super(annotationFactory);
         this.resultSetColumnIndexMap = Collections.synchronizedMap(new HashMap<ResultSet, Map<String, Integer>>());
     }

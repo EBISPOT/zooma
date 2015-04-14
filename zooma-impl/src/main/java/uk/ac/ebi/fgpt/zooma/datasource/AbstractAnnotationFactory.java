@@ -2,9 +2,9 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.zooma.exception.InvalidDataFormatException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenanceTemplate;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
@@ -42,12 +42,16 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
     }
 
     @Override
+    public String getDatasourceName() {
+        return getAnnotationLoadingSession().getAnnotationProvenanceTemplate().getSource().getName();
+    }
+
+    @Override
     public Annotation createAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
                                        Property annotatedProperty,
+                                       AnnotationProvenance annotationProvenance,
                                        Collection<URI> semanticTags,
-                                       Collection<URI> replaces,
-                                       String annotator,
-                                       Date annotationDate) {
+                                       Collection<URI> replaces) {
 
         for (BiologicalEntity be : annotatedBiologicalEntities) {
             if (be.getURI() == null) {
@@ -63,45 +67,33 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
                                                                   annotatedProperty.getPropertyValue())
                 : getAnnotationLoadingSession().getOrCreateProperty("", annotatedProperty.getPropertyValue());
 
-        AnnotationProvenance prov;
-        if (annotator != null) {
-            if (annotationDate != null) {
-                prov = getAnnotationProvenance(annotator, annotationDate);
-            }
-            else {
-                throw new InvalidDataFormatException("ANNOTATOR supplied without a corresponding ANNOTATION_DATE");
-            }
-        }
-        else {
-            prov = getAnnotationProvenance();
-        }
-
         // and return the complete annotation
         return getAnnotationLoadingSession().getOrCreateAnnotation(
                 annotatedBiologicalEntities,
                 newProperty,
-                prov,
+                annotationProvenance,
                 semanticTags);
     }
 
-    @Override public Annotation createAnnotation(URI annotationURI,
-                                                 String annotationID,
-                                                 String studyAccession,
-                                                 URI studyURI,
-                                                 String studyID,
-                                                 URI studyType,
-                                                 String bioentityName,
-                                                 URI bioentityURI,
-                                                 String bioentityID,
-                                                 String bioentityTypeName,
-                                                 URI bioentityTypeURI,
-                                                 String propertyType,
-                                                 String propertyValue,
-                                                 URI propertyURI,
-                                                 String propertyID,
-                                                 URI semanticTag,
-                                                 String annotator,
-                                                 Date annotationDate) {
+    @Override
+    public Annotation createAnnotation(URI annotationURI,
+                                       String annotationID,
+                                       String studyAccession,
+                                       URI studyURI,
+                                       String studyID,
+                                       URI studyType,
+                                       String bioentityName,
+                                       URI bioentityURI,
+                                       String bioentityID,
+                                       String bioentityTypeName,
+                                       URI bioentityTypeURI,
+                                       String propertyType,
+                                       String propertyValue,
+                                       URI propertyURI,
+                                       String propertyID,
+                                       URI semanticTag,
+                                       String annotator,
+                                       Date annotationDate) {
         Collection<URI> studyTypes = new HashSet<>();
         if (studyType != null) {
             studyTypes.add(studyType);
@@ -212,18 +204,14 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
             }
         }
 
-        AnnotationProvenance prov;
+        AnnotationProvenanceTemplate template = getAnnotationLoadingSession().getAnnotationProvenanceTemplate();
         if (annotator != null) {
-            if (annotationDate != null) {
-                prov = getAnnotationProvenance(annotator, annotationDate);
-            }
-            else {
-                throw new InvalidDataFormatException("ANNOTATOR supplied without a corresponding ANNOTATION_DATE");
-            }
+            template.annotatorIs(annotator);
         }
-        else {
-            prov = getAnnotationProvenance();
+        if (annotationDate != null) {
+            template.annotationDateIs(annotationDate);
         }
+        AnnotationProvenance prov = template.complete();
 
         // and return the complete annotation
         Annotation a;
@@ -254,12 +242,4 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
         }
         return a;
     }
-
-    protected abstract AnnotationProvenance getAnnotationProvenance();
-
-    protected abstract AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate);
-
-    protected abstract AnnotationProvenance getAnnotationProvenance(String annotator,
-                                                                    AnnotationProvenance.Accuracy accuracy,
-                                                                    Date annotationDate);
 }

@@ -5,11 +5,27 @@ import uk.ac.ebi.fgpt.zooma.datasource.TransactionalAnnotationFactory;
 import uk.ac.ebi.fgpt.zooma.exception.AnonymousUserNotAllowedException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
-import uk.ac.ebi.fgpt.zooma.model.*;
+import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenanceTemplate;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationUpdate;
+import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
+import uk.ac.ebi.fgpt.zooma.model.Property;
+import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
+import uk.ac.ebi.fgpt.zooma.model.SimpleUntypedProperty;
+import uk.ac.ebi.fgpt.zooma.model.Study;
+import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
+import uk.ac.ebi.fgpt.zooma.model.ZoomaUser;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUsers;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * An annotation service that uses an implementation of {@link uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO} to
@@ -39,48 +55,60 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
         this.annotationFactory = annotationFactory;
     }
 
-    @Override public Collection<Annotation> getAnnotations() {
+    @Override
+    public Collection<Annotation> getAnnotations() {
         return getAnnotationDAO().read();
     }
 
-    @Override public Collection<Annotation> getAnnotations(int limit, int start) {
+    @Override
+    public Collection<Annotation> getAnnotations(int limit, int start) {
         return getAnnotationDAO().read(limit, start);
     }
 
-    @Override public Collection<Annotation> getAnnotationsByStudy(Study study) {
+    @Override
+    public Collection<Annotation> getAnnotationsByStudy(Study study) {
         return getAnnotationDAO().readByStudy(study);
     }
 
-    @Override public Collection<Annotation> getAnnotationsByBiologicalEntity(BiologicalEntity biologicalEntity) {
+    @Override
+    public Collection<Annotation> getAnnotationsByBiologicalEntity(BiologicalEntity biologicalEntity) {
         return getAnnotationDAO().readByBiologicalEntity(biologicalEntity);
     }
 
-    @Override public Collection<Annotation> getAnnotationsByProperty(Property property) {
+    @Override
+    public Collection<Annotation> getAnnotationsByProperty(Property property) {
         return getAnnotationDAO().readByProperty(property);
     }
 
-    @Override public Collection<Annotation> getAnnotationsBySemanticTag(String shortname) {
+    @Override
+    public Collection<Annotation> getAnnotationsBySemanticTag(String shortname) {
         return getAnnotationsBySemanticTag(getURIFromShortname(shortname));
     }
 
-    @Override public Collection<Annotation> getAnnotationsBySemanticTag(URI semanticTagURI) {
+    @Override
+    public Collection<Annotation> getAnnotationsBySemanticTag(URI semanticTagURI) {
         return getAnnotationDAO().readBySemanticTag(semanticTagURI);
     }
 
-    @Override public Annotation getAnnotation(String shortname) {
+    @Override
+    public Annotation getAnnotation(String shortname) {
         return getAnnotation(getURIFromShortname(shortname));
     }
 
-    @Override public Annotation getAnnotation(URI uri) {
+    @Override
+    public Annotation getAnnotation(URI uri) {
         return getAnnotationDAO().read(uri);
     }
 
-    @Override public Annotation saveAnnotation(Annotation annotation) throws ZoomaUpdateException {
+    @Override
+    public Annotation saveAnnotation(Annotation annotation) throws ZoomaUpdateException {
         Collection<Annotation> newAnnotations = saveAnnotations(Collections.singleton(annotation));
         if (newAnnotations.size() == 1) {
             return newAnnotations.iterator().next();
         }
-        throw new ZoomaUpdateException("Saving annotation " + annotation.getURI() + " returned " + newAnnotations.size() + " when only 1 was expected");
+        throw new ZoomaUpdateException(
+                "Saving annotation " + annotation.getURI() + " returned " + newAnnotations.size() +
+                        " when only 1 was expected");
     }
 
     @Override
@@ -119,13 +147,17 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                     username = user.getFullName();
                 }
 
+                AnnotationProvenanceTemplate template = getAnnotationFactory().getAnnotationLoadingSession()
+                        .getAnnotationProvenanceTemplate()
+                        .annotatorIs(username)
+                        .annotationDateIs(new Date());
+
                 Annotation newAnnotation = getAnnotationFactory().createAnnotation(
                         annotation.getAnnotatedBiologicalEntities(),
                         annotation.getAnnotatedProperty(),
+                        template.complete(),
                         annotation.getSemanticTags(),
-                        annotation.getReplaces(),
-                        username,
-                        new Date());
+                        annotation.getReplaces());
                 newAnnotations.add(newAnnotation);
 
                 for (URI previousAnnotationUri : annotation.getReplaces()) {
@@ -140,11 +172,14 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
             try {
                 getAnnotationDAO().create(newAnnotations);
                 getAnnotationDAO().update(previousAnnotations);
-            } catch (ResourceAlreadyExistsException e) {
-                throw new ZoomaUpdateException("Couldn't create new annotation as the annotation URI already existed", e);
+            }
+            catch (ResourceAlreadyExistsException e) {
+                throw new ZoomaUpdateException("Couldn't create new annotation as the annotation URI already existed",
+                                               e);
             }
 
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new ZoomaUpdateException("Update previous annotation operation was interrupted", e);
         }
         finally {
@@ -154,7 +189,8 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
     }
 
     @Override
-    public Collection<Annotation> updatePreviousAnnotations(Collection<Annotation> annotationsToUpdate, AnnotationUpdate update) throws ZoomaUpdateException {
+    public Collection<Annotation> updatePreviousAnnotations(Collection<Annotation> annotationsToUpdate,
+                                                            AnnotationUpdate update) throws ZoomaUpdateException {
 
         List<Annotation> annotationsList = new ArrayList<>(annotationsToUpdate);
         Collections.sort(annotationsList, new Comparator<Annotation>() {
@@ -186,14 +222,16 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                 }
                 else if (update.getPropertyType() != null && update.getPropertyValue() == null) {
                     // if just the property type has changed
-                    newProperty = new SimpleTypedProperty(update.getPropertyType(), previousAnnotation.getAnnotatedProperty().getPropertyValue());
+                    newProperty = new SimpleTypedProperty(update.getPropertyType(),
+                                                          previousAnnotation.getAnnotatedProperty().getPropertyValue());
                 }
                 else if (update.getPropertyValue() != null) {
                     // if just the property has changed, get the old property value
                     newProperty =
                             previousAnnotation.getAnnotatedProperty() instanceof TypedProperty ?
-                                    new SimpleTypedProperty(((TypedProperty) previousAnnotation.getAnnotatedProperty()).getPropertyType(), update.getPropertyValue())
-                            : new SimpleUntypedProperty(update.getPropertyValue());
+                                    new SimpleTypedProperty(((TypedProperty) previousAnnotation.getAnnotatedProperty()).getPropertyType(),
+                                                            update.getPropertyValue())
+                                    : new SimpleUntypedProperty(update.getPropertyValue());
                 }
                 else {
                     // if  both are null, use the old property as it is
@@ -209,13 +247,17 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                     semanticTags.addAll(update.getSemanticTags());
                 }
 
+                AnnotationProvenanceTemplate template = getAnnotationFactory().getAnnotationLoadingSession()
+                        .getAnnotationProvenanceTemplate()
+                        .annotatorIs(ZoomaUsers.getAuthenticatedUser().getFullName())
+                        .annotationDateIs(new Date());
+
                 Annotation newAnnotation = getAnnotationFactory().createAnnotation(
                         previousAnnotation.getAnnotatedBiologicalEntities(),
                         newProperty,
+                        template.complete(),
                         semanticTags,
-                        Collections.singleton(previousAnnotation.getURI()),
-                        ZoomaUsers.getAuthenticatedUser().getFullName(),
-                        new Date());
+                        Collections.singleton(previousAnnotation.getURI()));
                 newAnnotations.add(newAnnotation);
 
                 crossLinkAnnotations(previousAnnotation, newAnnotation);
@@ -227,14 +269,18 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
             try {
                 getAnnotationDAO().create(newAnnotations);
                 getAnnotationDAO().update(annotationsToUpdate);
-            } catch (ResourceAlreadyExistsException e) {
-                throw new ZoomaUpdateException("Couldn't create new annotation as the annotation URI already existed", e);
+            }
+            catch (ResourceAlreadyExistsException e) {
+                throw new ZoomaUpdateException("Couldn't create new annotation as the annotation URI already existed",
+                                               e);
             }
 
 
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new ZoomaUpdateException("Update previous annotation operation was interrupted", e);
-        } catch (AnonymousUserNotAllowedException e) {
+        }
+        catch (AnonymousUserNotAllowedException e) {
             throw new ZoomaUpdateException("You must be authenticated to perform update operations", e);
         }
         finally {
@@ -244,7 +290,8 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
     }
 
 
-    private void crossLinkAnnotations (Annotation replacedAnnotation,Annotation newAnnotation) throws ZoomaUpdateException {
+    private void crossLinkAnnotations(Annotation replacedAnnotation, Annotation newAnnotation)
+            throws ZoomaUpdateException {
         if (replacedAnnotation == null) {
             throw new ZoomaUpdateException("New annotation replaces an annotation that does not exist");
         }

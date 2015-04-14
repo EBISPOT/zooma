@@ -1,16 +1,11 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.zooma.Namespaces;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenanceTemplate;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
+import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenanceTemplate;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Date;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -23,66 +18,33 @@ import java.util.concurrent.Semaphore;
 public class TransactionalAnnotationLoadingSession extends AbstractAnnotationLoadingSession {
     private final Semaphore lock;
 
-    private AnnotationSource currentAnnotationSource;
-    private URI currentNamespace;
+    private AnnotationProvenanceTemplate currentProvenanceTemplate;
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    public TransactionalAnnotationLoadingSession() {
+    protected TransactionalAnnotationLoadingSession() {
+        super(new SimpleAnnotationProvenanceTemplate(null,
+                                                     AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                                     AnnotationProvenance.Accuracy.NOT_SPECIFIED,
+                                                     "ZOOMA",
+                                                     new Date(),
+                                                     null,
+                                                     null));
         this.lock = new Semaphore(1);
     }
 
-    protected Logger getLog() {
-        return log;
-    }
+    @Override
+    public AnnotationProvenanceTemplate getAnnotationProvenanceTemplate() {
+        // check lock owner?
 
-    public AnnotationSource getCurrentAnnotationSource() {
-        return currentAnnotationSource;
+
+        return this.currentProvenanceTemplate;
     }
 
     public synchronized void acquire(AnnotationSource annotationSource) throws InterruptedException {
+        currentProvenanceTemplate = super.getAnnotationProvenanceTemplate().sourceIs(annotationSource);
         lock.acquire();
-        try {
-            this.currentAnnotationSource = annotationSource;
-            this.currentNamespace = URI.create(
-                    Namespaces.ZOOMA_RESOURCE.getURI().toString() +
-                            URLEncoder.encode(annotationSource.getName().trim(), "UTF-8"));
-        }
-        catch (UnsupportedEncodingException e) {
-            getLog().warn("Couldn't create currentNamespace URI for " + annotationSource.getName());
-        }
     }
 
     public synchronized void release() {
         lock.release();
-    }
-
-    @Override protected URI mintStudyURI(String studyAccession, String studyID) {
-        return URI.create(currentNamespace.toString() + "/" + encode(studyAccession));
-    }
-
-    @Override protected URI mintBioentityURI(String bioentityID,
-                                             String bioentityName, String... studyAccessions) {
-        return URI.create(currentNamespace.toString() + "/" + encode(studyAccessions[0]) + "/" + bioentityID);
-
-    }
-
-    @Override
-    protected Collection<URI> mintBioentityURITypes(Collection<String> bioentityTypeName) {
-        Set<URI> typeUris = new HashSet<URI>();
-        for (String name : bioentityTypeName) {
-            try {
-                typeUris.add(URI.create(this.currentNamespace + URLEncoder.encode(name, "UTF-8")));
-            }
-            catch (UnsupportedEncodingException e) {
-                getLog().error("Couldn't create a URI from bioentity type name: " + name);
-            }
-
-        }
-        return typeUris;
-    }
-
-    @Override protected URI mintAnnotationURI(String annotationID) {
-        return URI.create(currentNamespace.toString() + "/" + annotationID);
     }
 }

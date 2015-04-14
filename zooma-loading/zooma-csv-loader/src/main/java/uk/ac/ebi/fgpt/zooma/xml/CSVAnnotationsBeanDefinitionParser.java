@@ -1,6 +1,5 @@
 package uk.ac.ebi.fgpt.zooma.xml;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -9,11 +8,10 @@ import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 import uk.ac.ebi.fgpt.zooma.datasource.CSVAnnotationDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.CSVAnnotationFactory;
 import uk.ac.ebi.fgpt.zooma.datasource.CSVLoadingSession;
+import uk.ac.ebi.fgpt.zooma.datasource.DefaultAnnotationFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -21,9 +19,9 @@ import java.net.URI;
 /**
  * An implementation of Spring's BeanDefinitionParser class that generates a fully preconfigured OWLAnnotationDAO by
  * parsing a simple bean definition
+ *
  * @author Simon Jupp
- * @date 26/11/2013
- * Functional Genomics Group EMBL-EBI
+ * @date 26/11/2013 Functional Genomics Group EMBL-EBI
  */
 public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
@@ -55,15 +53,16 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         }
 
         if (element.hasAttribute("file") && element.hasAttribute("url")) {
-            throw new BeanDefinitionValidationException("File path and URL specified for " + datasourceName + " csv loader, you must use one or the other");
+            throw new BeanDefinitionValidationException(
+                    "File path and URL specified for " + datasourceName + " csv loader, you must use one or the other");
         }
 
         // creating loading session bean
         BeanDefinitionBuilder csvLoadingSession = BeanDefinitionBuilder.rootBeanDefinition(CSVLoadingSession.class);
-        if (namespace!= null) {
+        if (namespace != null) {
             csvLoadingSession.addConstructorArgValue(namespace);
         }
-        if (namespacePrefix!=null) {
+        if (namespacePrefix != null) {
             csvLoadingSession.addConstructorArgValue(namespacePrefix);
         }
         else {
@@ -71,23 +70,25 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         }
 
         if (element.hasAttribute("defaultTargetType") || element.hasAttribute("defaultSourceType")) {
-            String targetUri = element.hasAttribute("defaultTargetType") ? element.getAttribute("defaultTargetType") : null;
-            String studyUri = element.hasAttribute("defaultSourceType") ? element.getAttribute("defaultSourceType") : null;
+            String targetUri =
+                    element.hasAttribute("defaultTargetType") ? element.getAttribute("defaultTargetType") : null;
+            String studyUri =
+                    element.hasAttribute("defaultSourceType") ? element.getAttribute("defaultSourceType") : null;
             csvLoadingSession.addConstructorArgValue(URI.create(targetUri));
             csvLoadingSession.addConstructorArgValue(URI.create(studyUri));
         }
 
-
         parserContext.registerBeanComponent(new BeanComponentDefinition(csvLoadingSession.getBeanDefinition(),
-                datasourceName + "-csvLoader"));
+                                                                        datasourceName + "-csvLoader"));
 
         // create annotation factory bean
-        BeanDefinitionBuilder csvAnnotationFactory = BeanDefinitionBuilder.rootBeanDefinition(CSVAnnotationFactory.class);
+        BeanDefinitionBuilder csvAnnotationFactory =
+                BeanDefinitionBuilder.rootBeanDefinition(DefaultAnnotationFactory.class);
         csvAnnotationFactory.addConstructorArgValue(datasourceUrl);
         csvAnnotationFactory.addConstructorArgValue(datasourceName);
         csvAnnotationFactory.addConstructorArgReference(datasourceName + "-csvLoader");
         parserContext.registerBeanComponent(new BeanComponentDefinition(csvAnnotationFactory.getBeanDefinition(),
-                datasourceName + "-csvFactory"));
+                                                                        datasourceName + "-csvFactory"));
 
         // create the csv DAO
         BeanDefinitionBuilder csvAnnotationDao = BeanDefinitionBuilder.rootBeanDefinition(CSVAnnotationDAO.class);
@@ -97,8 +98,10 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
             Resource fileResource = new DefaultResourceLoader().getResource(element.getAttribute("file"));
             try {
                 csvAnnotationDao.addConstructorArgValue(fileResource.getFile());
-            } catch (IOException e) {
-                throw new BeanDefinitionValidationException("Couldn't find CSV file " + element.getAttribute("file"), e);
+            }
+            catch (IOException e) {
+                throw new BeanDefinitionValidationException("Couldn't find CSV file " + element.getAttribute("file"),
+                                                            e);
             }
         }
 
@@ -106,8 +109,10 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
             Resource urlResource = new DefaultResourceLoader().getResource(element.getAttribute("url"));
             try {
                 csvAnnotationDao.addConstructorArgValue(urlResource.getURL());
-            } catch (IOException e) {
-                throw new BeanDefinitionValidationException("Couldn't access URL to CSV file " + element.getAttribute("url"), e);
+            }
+            catch (IOException e) {
+                throw new BeanDefinitionValidationException(
+                        "Couldn't access URL to CSV file " + element.getAttribute("url"), e);
             }
         }
 
@@ -118,7 +123,7 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         }
 
         parserContext.registerBeanComponent(new BeanComponentDefinition(csvAnnotationDao.getBeanDefinition(),
-                datasourceName + "-csvDAO"));
+                                                                        datasourceName + "-csvDAO"));
 
         return null;
 

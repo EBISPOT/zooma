@@ -77,7 +77,7 @@ public class OWLDatasourceFactory {
 
         AnnotationLoadingSession owlLoadingSession = new OWLLoadingSession(owlLoader);
 
-        AnnotationFactory owlAnnotationFactory = new OWLAnnotationFactory(owlLoadingSession, owlLoader);
+        AnnotationFactory owlAnnotationFactory = new DefaultAnnotationFactory(owlLoadingSession);
 
         OWLAnnotationDAO owlAnnotationDAO = new OWLAnnotationDAO(owlAnnotationFactory, owlLoader, datasourceName);
         owlAnnotationDAO.init();

@@ -11,8 +11,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
+import uk.ac.ebi.fgpt.zooma.datasource.DefaultAnnotationFactory;
 import uk.ac.ebi.fgpt.zooma.datasource.OWLAnnotationDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.OWLAnnotationFactory;
 import uk.ac.ebi.fgpt.zooma.datasource.OWLLoadingSession;
 import uk.ac.ebi.fgpt.zooma.owl.AssertedOntologyLoader;
 import uk.ac.ebi.fgpt.zooma.owl.ReasonedOntologyLoader;
@@ -140,7 +140,7 @@ public class OWLAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         //         <constructor-arg name="owlLoader" ref="owlLoader" />
         //     </bean>
         BeanDefinitionBuilder owlAnnotationFactory =
-                BeanDefinitionBuilder.rootBeanDefinition(OWLAnnotationFactory.class);
+                BeanDefinitionBuilder.rootBeanDefinition(DefaultAnnotationFactory.class);
         owlAnnotationFactory.addConstructorArgReference(name + "-owlLoadingSession");
         owlAnnotationFactory.addConstructorArgReference(name + "-owlLoader");
         parserContext.registerBeanComponent(new BeanComponentDefinition(owlAnnotationFactory.getBeanDefinition(),
