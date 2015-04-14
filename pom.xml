@@ -160,29 +160,10 @@
         <url>http://www.ebi.ac.uk/panda/jira/browse/FGPTO/component/10874</url>
     </issueManagement>
 
-    <!-- Maven repository deploy -->
-    <distributionManagement>
-        <repository>
-            <id>coconut.ebi.ac.uk</id>
-            <name>coconut.ebi.ac.uk</name>
-            <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
-        </repository>
-        <snapshotRepository>
-            <id>coconut.ebi.ac.uk</id>
-            <name>coconut.ebi.ac.uk-snapshots</name>
-            <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
-        </snapshotRepository>
-        <site>
-            <id>orange.ebi.ac.uk</id>
-            <name>ZOOMA site</name>
-            <url>scp://orange.ebi.ac.uk/ebi/microarray/home/fgpt/project-web/zooma/</url>
-        </site>
-    </distributionManagement>
-
-    <!-- Version control (Git repository on orange) -->
+    <!-- Version control (GitHub repository) -->
     <scm>
-        <connection>scm:git:ssh://orange.ebi.ac.uk/ebi/microarray/home/fgpt/repositories/zooma</connection>
-        <developerConnection>scm:git:ssh://orange.ebi.ac.uk/ebi/microarray/home/fgpt/repositories/zooma</developerConnection>
+        <connection>scm:git:git@github.com:EBISPOT/zooma</connection>
+        <developerConnection>scm:git:git@github.com:EBISPOT/zooma.git</developerConnection>
         <url>http://github.com/EBISPOT/zooma</url>
       <tag>HEAD</tag>
   </scm>
@@ -237,18 +218,6 @@
         <module>zooma-searcher-app</module>
         <module>zooma-ui</module>
     </modules>
-
-    <!-- Artifactory - ZOOMA dependencies -->
-    <repositories>
-        <repository>
-            <id>coconut.ebi.ac.uk</id>
-            <name>EBI Artifactory</name>
-            <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <!-- dependencies required by all zooma modules -->
     <dependencies>
