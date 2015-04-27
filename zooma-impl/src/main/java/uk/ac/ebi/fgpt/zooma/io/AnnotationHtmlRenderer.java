@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.io;
 
-import net.sourceforge.fluxion.spi.ServiceProvider;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
+import uk.ac.ebi.fgpt.zooma.spi.ServiceProvider;
 
 import java.net.URI;
 

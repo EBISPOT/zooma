@@ -1,9 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.io;
 
-import net.sourceforge.fluxion.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.model.Property;
+import uk.ac.ebi.fgpt.zooma.spi.ServiceProvider;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

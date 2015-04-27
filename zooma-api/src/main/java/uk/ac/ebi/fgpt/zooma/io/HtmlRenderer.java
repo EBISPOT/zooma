@@ -1,6 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.io;
 
-import net.sourceforge.fluxion.spi.Spi;
+import uk.ac.ebi.fgpt.zooma.spi.Spi;
 
 /**
  * A utility class that is capable of converting ZOOMA model objects into lightweight HTML views.  Renderers are

@@ -1,9 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.io;
 
-import net.sourceforge.fluxion.spi.ServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
+import uk.ac.ebi.fgpt.zooma.spi.ServiceProvider;
 import uk.ac.ebi.fgpt.zooma.util.LabelUtils;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 

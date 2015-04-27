@@ -202,6 +202,7 @@
     </reporting>
 
     <modules>
+        <module>zooma-spi</module>
         <module>zooma-api</module>
         <module>zooma-core</module>
         <module>zooma-impl</module>
@@ -217,7 +218,7 @@
         <module>zooma-builder-app</module>
         <module>zooma-searcher-app</module>
         <module>zooma-ui</module>
-    </modules>
+  </modules>
 
     <!-- dependencies required by all zooma modules -->
     <dependencies>

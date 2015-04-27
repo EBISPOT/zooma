@@ -17,16 +17,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>hasbanana-repo</id>
-            <url>http://www.hasbanana.com/maven/repo</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
@@ -42,20 +32,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-        </dependency>
-
-        <!-- SPI utils: available for compilation only, not required at runtime -->
-        <dependency>
-            <groupId>net.sourceforge.fluxion</groupId>
-            <artifactId>fluxion-spi</artifactId>
-            <version>1.0-alpha-3</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

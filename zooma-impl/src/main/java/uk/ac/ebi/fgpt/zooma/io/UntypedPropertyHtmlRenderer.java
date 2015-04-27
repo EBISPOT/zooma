@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.io;
 
-import net.sourceforge.fluxion.spi.ServiceProvider;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
+import uk.ac.ebi.fgpt.zooma.spi.ServiceProvider;
 
 /**
  * An HtmlRenderer that is capable of generating summary views of ZOOMA property objects, as long as they are not typed
