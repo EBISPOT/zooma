@@ -1,8 +1,5 @@
 package uk.ac.ebi.fgpt.zooma.search;
 
-import static org.apache.commons.lang3.StringUtils.length;
-
-import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -112,11 +109,8 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
         // search for annotation summaries
         Map<AnnotationSummary, Float> summaries = new LinkedHashMap<>();
 
-        if ( StringUtils.length ( valueStr )  > this.getMaxPropertyValueLength () ) return summaries;
-        if ( property instanceof TypedProperty 
-        		 && length ( ( (TypedProperty) property ).getPropertyType() ) > this.getMaxPropertyTypeLength ()
-        	 )
-        	return summaries;
+        // Exclude too long strings
+        if ( !this.checkStringLimits ( property, excludeType ) ) return summaries;
         
         try {
             String search = zoomaSearchBase + URLEncoder.encode(property.getPropertyValue(), "UTF-8");

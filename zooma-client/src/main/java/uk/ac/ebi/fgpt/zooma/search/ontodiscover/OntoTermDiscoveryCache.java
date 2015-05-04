@@ -27,6 +27,7 @@ public abstract class OntoTermDiscoveryCache extends OntologyTermDiscoverer
 	 * Note that you should save a string pair returning no good URI, as an empty list. This is the let the cache know
 	 * the discovery has already been attempted on that pair (nulls are for when this hasn't been done yet).
 	 *  
+	 * @return should return the old value in the cache, if any, null otherwise.
 	 */
 	public abstract List<DiscoveredTerm> save ( String valueLabel, String typeLabel, List<DiscoveredTerm> terms )
 		throws OntologyDiscoveryException;
