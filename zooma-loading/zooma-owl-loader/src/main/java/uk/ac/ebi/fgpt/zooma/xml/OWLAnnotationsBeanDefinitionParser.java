@@ -142,7 +142,6 @@ public class OWLAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         BeanDefinitionBuilder owlAnnotationFactory =
                 BeanDefinitionBuilder.rootBeanDefinition(DefaultAnnotationFactory.class);
         owlAnnotationFactory.addConstructorArgReference(name + "-owlLoadingSession");
-        owlAnnotationFactory.addConstructorArgReference(name + "-owlLoader");
         parserContext.registerBeanComponent(new BeanComponentDefinition(owlAnnotationFactory.getBeanDefinition(),
                                                                         name + "-owlAnnotationFactory"));
 
