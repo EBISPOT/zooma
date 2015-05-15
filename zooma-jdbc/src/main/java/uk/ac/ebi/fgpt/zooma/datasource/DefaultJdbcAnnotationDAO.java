@@ -69,8 +69,8 @@ public class DefaultJdbcAnnotationDAO implements AnnotationDAO {
 
         // now read sql file annotations.sql to get ANNOTATIONS_SELECT query
         StringBuilder sb = new StringBuilder();
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(getClass().getClassLoader().getResourceAsStream("annotations.sql")));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                annotationMapper.getClass().getClassLoader().getResourceAsStream("annotations.sql")));
         try {
             String line;
             while ((line = reader.readLine()) != null) {
