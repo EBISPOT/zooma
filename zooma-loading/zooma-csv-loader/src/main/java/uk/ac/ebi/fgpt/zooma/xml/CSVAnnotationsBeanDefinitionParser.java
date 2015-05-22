@@ -116,8 +116,6 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
             }
         }
 
-        csvAnnotationDao.addConstructorArgValue(datasourceName);
-
         if (delimiter != null) {
             csvAnnotationDao.addConstructorArgValue(delimiter);
         }
