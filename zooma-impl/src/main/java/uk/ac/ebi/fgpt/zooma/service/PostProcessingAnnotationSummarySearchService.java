@@ -6,6 +6,7 @@ import uk.ac.ebi.fgpt.zooma.util.AnnotationSummarySearchCommand;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,14 +16,14 @@ import java.util.List;
  * An {@link AnnotationSummarySearchServiceDecorator} that extends the functionality of an {@link
  * AnnotationSummarySearchService} to support post-processing of the search string if zero results are obtained with a
  * normal search.
- * <p/>
+ * <p>
  * This class performs the original search, then, if no results are acquired, makes use of the supplied {@link
  * uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor} to expand the search.  It then retries a series of searches with the
  * expanded set of search strings and combines the results.
- * <p/>
+ * <p>
  * This service returns aggregated {@link AnnotationSummary} objects that represent an inferred mapping between the
  * searched property and the list of semantic tags obtained from one or more ZOOMA searches.
- * <p/>
+ * <p>
  * Because expanding results in this way gives us a (possibly very) large set of summaries that require merging, this
  * class currently only supports merging if the processed string returns at most two distinct parts.
  *
@@ -31,6 +32,7 @@ import java.util.List;
  */
 public class PostProcessingAnnotationSummarySearchService extends AnnotationSummarySearchServiceDecorator {
     private static final float partialStringBoost = 0.7f;
+    private static final int limitTo = 20;
 
     private SearchStringProcessor searchStringProcessor;
 
@@ -96,7 +98,7 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
      * Uses the supplied annotation summary search command to execute the "original" search, followed by a search
      * against the results of processing the supplied property value pattern using this classes search string processor
      * if no results were obtained from the original search.
-     * <p/>
+     * <p>
      * Note that this implementation can only handle the case where the original string can be processed into two or
      * fewer parts; this limit is set to prevent a combinatorial explosion of possible results when merging individual
      * responses
@@ -163,16 +165,46 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                                                          Collection<AnnotationSummary> firstPartResults,
                                                          String secondPart,
                                                          Collection<AnnotationSummary> secondPartResults) {
+        return mergeResults(propertyValuePattern, limitTo, firstPart, firstPartResults, secondPart, secondPartResults);
+    }
+
+    protected Collection<AnnotationSummary> mergeResults(String propertyValuePattern,
+                                                         int limitTo,
+                                                         String firstPart,
+                                                         Collection<AnnotationSummary> firstPartResults,
+                                                         String secondPart,
+                                                         Collection<AnnotationSummary> secondPartResults) {
         Collection<AnnotationSummary> results = new HashSet<>();
 
         int firstPartLength = firstPart.length();
         int secondPartLength = secondPart.length();
 
-        for (AnnotationSummary firstPartSummary : firstPartResults) {
+        List<AnnotationSummary> firstPartResultsList = new ArrayList<>();
+        Iterator<AnnotationSummary> firstPartResultsIt = firstPartResults.iterator();
+        for (int i = 0; i < limitTo; i++) {
+            if (!firstPartResultsIt.hasNext()) {
+                break;
+            }
+            else {
+                firstPartResultsList.add(firstPartResultsIt.next());
+            }
+        }
+        List<AnnotationSummary> secondPartResultsList = new ArrayList<>();
+        Iterator<AnnotationSummary> secondPartResultsIt = secondPartResults.iterator();
+        for (int i = 0; i < limitTo; i++) {
+            if (!secondPartResultsIt.hasNext()) {
+                break;
+            }
+            else {
+                secondPartResultsList.add(secondPartResultsIt.next());
+            }
+        }
+
+        for (AnnotationSummary firstPartSummary : firstPartResultsList) {
             float firstPartScore = firstPartSummary.getQuality();
             String firstPartType = firstPartSummary.getAnnotatedPropertyType();
 
-            for (AnnotationSummary secondPartSummary : secondPartResults) {
+            for (AnnotationSummary secondPartSummary : secondPartResultsList) {
                 float secondPartScore = secondPartSummary.getQuality();
                 String secondPartType = secondPartSummary.getAnnotatedPropertyType();
 
