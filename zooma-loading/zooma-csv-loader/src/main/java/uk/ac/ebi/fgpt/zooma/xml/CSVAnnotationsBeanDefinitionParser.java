@@ -69,12 +69,13 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
             csvLoadingSession.addConstructorArgValue(datasourceName);
         }
 
-        if (element.hasAttribute("defaultTargetType") || element.hasAttribute("defaultSourceType")) {
-            String targetUri =
-                    element.hasAttribute("defaultTargetType") ? element.getAttribute("defaultTargetType") : null;
-            String studyUri =
-                    element.hasAttribute("defaultSourceType") ? element.getAttribute("defaultSourceType") : null;
+        if (element.hasAttribute("defaultTargetType")) {
+            String targetUri = element.getAttribute("defaultTargetType");
             csvLoadingSession.addConstructorArgValue(URI.create(targetUri));
+        }
+
+        if (element.hasAttribute("defaultSourceType")) {
+            String studyUri = element.getAttribute("defaultSourceType");
             csvLoadingSession.addConstructorArgValue(URI.create(studyUri));
         }
 
@@ -84,8 +85,6 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         // create annotation factory bean
         BeanDefinitionBuilder csvAnnotationFactory =
                 BeanDefinitionBuilder.rootBeanDefinition(DefaultAnnotationFactory.class);
-        csvAnnotationFactory.addConstructorArgValue(datasourceUrl);
-        csvAnnotationFactory.addConstructorArgValue(datasourceName);
         csvAnnotationFactory.addConstructorArgReference(datasourceName + "-csvLoader");
         parserContext.registerBeanComponent(new BeanComponentDefinition(csvAnnotationFactory.getBeanDefinition(),
                                                                         datasourceName + "-csvFactory"));

@@ -41,7 +41,7 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
             }
         }
         getLog().debug("Successfully loaded ontology " + ontologyIRI);
-        Set<OWLClass> allClasses = ontology.getClassesInSignature();
+        Set<OWLClass> allClasses = ontology.getClassesInSignature(false);
         Set<URI> allKnownNamespaces = new HashSet<>();
 
         // remove excluded classes from allClasses by subclass
