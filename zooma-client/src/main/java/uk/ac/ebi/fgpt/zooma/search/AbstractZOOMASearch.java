@@ -2,10 +2,8 @@ package uk.ac.ebi.fgpt.zooma.search;
 
 import static org.apache.commons.lang3.StringUtils.length;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
