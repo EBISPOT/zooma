@@ -3,8 +3,10 @@ package uk.ac.ebi.fgpt.zooma.concurrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -36,12 +38,16 @@ public abstract class WorkloadScheduler {
     private Logger log = LoggerFactory.getLogger(WorkloadScheduler.class);
 
     public WorkloadScheduler(ExecutorService executorService, int iterations, String workloadName) {
+        this(executorService, iterations, workloadName, true);
+    }
+
+    public WorkloadScheduler(ExecutorService executorService, int iterations, String workloadName, boolean abortOnFail) {
         this.executorService = executorService;
         this.iterations = iterations;
 
         this.workloadName = workloadName;
 
-        this.counter = new WorkloadCounter(iterations);
+        this.counter = new WorkloadCounter(iterations, abortOnFail);
     }
 
     protected Logger getLog() {
@@ -168,10 +174,12 @@ public abstract class WorkloadScheduler {
                         errorMessage.append("Loading data failed for ")
                                 .append(counter.getFailedTaskCount())
                                 .append(" tasks.  The following problems were reported:\n");
-                        Map<String, String> workloadFailureReasons = counter.getWorkloadFailureReasons();
+                        Map<String, List<String>> workloadFailureReasons = counter.getWorkloadFailureReasons();
                         for (String workloadName : workloadFailureReasons.keySet()) {
-                            errorMessage.append("\t").append(workloadName).append(":\t");
-                            errorMessage.append(workloadFailureReasons.get(workloadName)).append("\n");
+                            errorMessage.append("\tWorkload - ").append(workloadName).append(":\n");
+                            for (String reason : workloadFailureReasons.get(workloadName)) {
+                                errorMessage.append("\t\t* ").append(reason).append("\n");
+                            }
                         }
                         getLog().error(errorMessage.toString());
                     }
@@ -204,7 +212,7 @@ public abstract class WorkloadScheduler {
         private final int target;
         private final boolean abortOnFail;
 
-        private Map<String, String> workloadNameToFailReasonMap;
+        private Map<String, List<String>> workloadNameToFailReasonMap;
 
         private boolean doAbort;
         private Throwable abortiveException;
@@ -229,7 +237,11 @@ public abstract class WorkloadScheduler {
         }
 
         public synchronized void recordFail(String workloadName, Throwable t) {
-            workloadNameToFailReasonMap.put(workloadName, t.getMessage());
+            if (!workloadNameToFailReasonMap.containsKey(workloadName)) {
+                workloadNameToFailReasonMap.put(workloadName, new ArrayList<String>());
+            }
+            workloadNameToFailReasonMap.get(workloadName).add(t.getMessage());
+
             if (abortOnFail) {
                 this.doAbort = true;
                 this.abortiveException = t;
@@ -270,7 +282,7 @@ public abstract class WorkloadScheduler {
             return fails;
         }
 
-        public synchronized Map<String, String> getWorkloadFailureReasons() {
+        public synchronized Map<String, List<String>> getWorkloadFailureReasons() {
             return Collections.unmodifiableMap(workloadNameToFailReasonMap);
         }
     }
