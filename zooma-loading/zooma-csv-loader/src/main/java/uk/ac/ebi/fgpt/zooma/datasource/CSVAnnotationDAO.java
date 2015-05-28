@@ -436,7 +436,7 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
             return null;
         }
         else {
-            return URI.create(semanticTag);
+            return URI.create(semanticTag.trim());
         }
     }
 

@@ -89,6 +89,7 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
 
         // create the csv DAO
         BeanDefinitionBuilder csvAnnotationDao = BeanDefinitionBuilder.rootBeanDefinition(CSVAnnotationDAO.class);
+        csvAnnotationDao.setInitMethodName("init");
         csvAnnotationDao.addConstructorArgReference(name + "-csvFactory");
         csvAnnotationDao.addConstructorArgValue(csvResource);
         if (delimiter != null) {
