@@ -25,6 +25,9 @@ import java.util.Set;
  */
 public class AssertedOntologyLoader extends AbstractOntologyLoader {
     protected OWLOntology loadOntology() throws OWLOntologyCreationException {
+        int missingLabelsCount = 0;
+        boolean hasMissingLabels = false;
+
         getLog().debug("Loading ontology...");
         OWLOntology ontology = getManager().loadOntology(IRI.create(getOntologyURI()));
         IRI ontologyIRI = ontology.getOntologyID().getOntologyIRI();
@@ -96,8 +99,10 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
             Set<String> labels = getStringLiteralAnnotationValues(ontology, ontologyClass, rdfsLabel);
             String label = null;
             if (labels.isEmpty()) {
-                getLog().warn("OWLClass " + ontologyClass + " contains no label. " +
-                                      "No labels for this class will be loaded.");
+                getLog().trace("OWLClass " + ontologyClass + " contains no label. " +
+                                       "No labels for this class will be loaded.");
+                hasMissingLabels = true;
+                missingLabelsCount++;
             }
             else {
                 if (labels.size() > 1) {
@@ -149,11 +154,18 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
             sb.append("\t").append(namespace.toString()).append("\n");
         }
 
+        if (hasMissingLabels) {
+            getLog().warn("Some classes in ontology " + ontologyIRI.toString() + " have missing/multiple " +
+                                  "labels and could not be loaded. This problem affected " +
+                                  missingLabelsCount + "/" + allClasses.size() + " classes.");
+        }
+
         getLog().debug("Loaded classes with " + allKnownNamespaces.size() + " different namespaces " +
                                "from " + ontologyIRI.toString() + ". Those namespaces are...\n" + sb.toString());
 
         getLog().debug("Successfully loaded " + labelCount + " labels on " + labelledClassCount + " classes and " +
-                               synonymCount + " synonyms on " + synonymedClassCount + " classes!");
+                               synonymCount + " synonyms on " + synonymedClassCount + " classes " +
+                               "from " + ontologyIRI.toString() + ".");
 
         return ontology;
     }

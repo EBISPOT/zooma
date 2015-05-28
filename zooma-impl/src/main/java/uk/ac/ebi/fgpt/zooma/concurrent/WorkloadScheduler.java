@@ -3,6 +3,9 @@ package uk.ac.ebi.fgpt.zooma.concurrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
@@ -115,7 +118,7 @@ public abstract class WorkloadScheduler {
                                     getLog().error("Task failed: " + workloadName + ", " +
                                                            "round " + iteration + "/" + iterations + " " +
                                                            "failed to submit " + tries + " times without success.");
-                                    counter.abort(e);
+                                    counter.recordFail(workloadName, e);
                                 }
                             }
                         }
@@ -160,6 +163,18 @@ public abstract class WorkloadScheduler {
                         WorkloadScheduler.this.notifyAll();
                     }
                     getLog().debug("Monitoring of tasks for " + workloadName + " is complete");
+                    if (counter.getFailedTaskCount() > 0) {
+                        StringBuilder errorMessage = new StringBuilder();
+                        errorMessage.append("Loading data failed for ")
+                                .append(counter.getFailedTaskCount())
+                                .append(" tasks.  The following problems were reported:\n");
+                        Map<String, String> workloadFailureReasons = counter.getWorkloadFailureReasons();
+                        for (String workloadName : workloadFailureReasons.keySet()) {
+                            errorMessage.append("\t").append(workloadName).append(":\t");
+                            errorMessage.append(workloadFailureReasons.get(workloadName)).append("\n");
+                        }
+                        getLog().error(errorMessage.toString());
+                    }
                 }
             }
         }, workloadName + "-Monitor-" + monitorThreadCount++).start();
@@ -175,7 +190,7 @@ public abstract class WorkloadScheduler {
                 }
                 catch (Exception e) {
                     getLog().error("Task " + iteration + "/" + iterations + " failed for " + workloadName, e);
-                    counter.abort(e);
+                    counter.recordFail(workloadName, e);
                 }
             }
         });
@@ -185,13 +200,26 @@ public abstract class WorkloadScheduler {
 
     private class WorkloadCounter {
         private int tally;
+        private int fails;
         private final int target;
+        private final boolean abortOnFail;
+
+        private Map<String, String> workloadNameToFailReasonMap;
+
         private boolean doAbort;
         private Throwable abortiveException;
 
         public WorkloadCounter(int target) {
+            this(target, false);
+        }
+
+        public WorkloadCounter(int target, boolean abortOnFail) {
             this.tally = 0;
+            this.fails = 0;
             this.target = target;
+            this.abortOnFail = abortOnFail;
+
+            this.workloadNameToFailReasonMap = new HashMap<>();
             this.doAbort = false;
         }
 
@@ -200,9 +228,17 @@ public abstract class WorkloadScheduler {
             notifyAll();
         }
 
-        public synchronized void abort(Throwable t) {
-            this.doAbort = true;
-            this.abortiveException = t;
+        public synchronized void recordFail(String workloadName, Throwable t) {
+            workloadNameToFailReasonMap.put(workloadName, t.getMessage());
+            if (abortOnFail) {
+                this.doAbort = true;
+                this.abortiveException = t;
+            }
+            else {
+                getLog().error("A scheduled task threw the following exception:", t);
+                fails++;
+                tally++;
+            }
             notifyAll();
         }
 
@@ -224,6 +260,18 @@ public abstract class WorkloadScheduler {
                                            abortiveException);
             }
             return target - tally;
+        }
+
+        public synchronized int getFailedTaskCount() {
+            if (doAbort) {
+                throw new RuntimeException("Exception in one of the scheduled tasks caused this scheduler to abort",
+                                           abortiveException);
+            }
+            return fails;
+        }
+
+        public synchronized Map<String, String> getWorkloadFailureReasons() {
+            return Collections.unmodifiableMap(workloadNameToFailReasonMap);
         }
     }
 }

@@ -99,7 +99,7 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
 
             // get namespace for this IRI
             URI namespace = URIUtils.extractNamespace(clsIri.toURI());
-            if (!URIUtils.isNamespaceKnown(namespace)) {
+            if (!URIUtils.isNamespaceKnown(namespace) && !allKnownNamespaces.contains(namespace)) {
                 getLog().warn(
                         "Namespace <" + namespace + "> (present in ontology " + ontologyIRI.toString() + ") " +
                                 "is not known - you should register this namespace in zooma/prefix.properties " +
