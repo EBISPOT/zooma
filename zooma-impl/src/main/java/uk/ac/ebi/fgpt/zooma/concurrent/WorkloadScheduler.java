@@ -275,11 +275,13 @@ public abstract class WorkloadScheduler {
         }
 
         public synchronized int getFailedTaskCount() {
-            if (doAbort) {
-                throw new RuntimeException("Exception in one of the scheduled tasks caused this scheduler to abort",
-                                           abortiveException);
+            if (!doAbort) {
+                return fails;
             }
-            return fails;
+            else {
+                getLog().debug("This counter will abort on first fail; tracking failed task count is meaningless");
+                return 0;
+            }
         }
 
         public synchronized Map<String, List<String>> getWorkloadFailureReasons() {
