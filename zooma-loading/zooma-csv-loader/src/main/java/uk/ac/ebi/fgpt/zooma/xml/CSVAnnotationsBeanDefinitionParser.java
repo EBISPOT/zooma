@@ -8,6 +8,7 @@ import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 import uk.ac.ebi.fgpt.zooma.datasource.CSVAnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.CSVLoadingSession;
@@ -33,97 +34,70 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
 
     @Override
     protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
+        // required (non-null) attributes
+        String uri = element.getAttribute("uri");
+        String name = element.getAttribute("name");
 
-        // required
-        String datasourceUrl = element.getAttribute("datasourceUrl");
-        String datasourceName = element.getAttribute("datasourceName");
+        // optional attributes
+        Resource csvResource = null;
+        String loadFrom = element.getAttribute("loadFrom");
+        if (StringUtils.hasText(loadFrom)) {
+            csvResource = new DefaultResourceLoader().getResource(loadFrom);
+        }
+        else {
+            csvResource = new DefaultResourceLoader().getResource(uri);
+        }
 
-        // optional
+        String annotationCreator = null;
+        if (element.hasAttribute("annotationCreator")) {
+            annotationCreator = element.getAttribute("annotationCreator");
+        }
+
         String delimiter = null;
         if (element.hasAttribute("delimiter")) {
             delimiter = element.getAttribute("delimiter");
         }
-        String namespace = null;
-        if (element.hasAttribute("namespace")) {
-            namespace = element.getAttribute("namespace");
-        }
-        String namespacePrefix = null;
-        if (element.hasAttribute("namespacePrefix")) {
-            namespacePrefix = element.getAttribute("namespacePrefix");
+
+        String defaultTargetType = null;
+        if (element.hasAttribute("defaultTargetType")) {
+            defaultTargetType = element.getAttribute("defaultTargetType");
         }
 
-        if (element.hasAttribute("file") && element.hasAttribute("url")) {
-            throw new BeanDefinitionValidationException(
-                    "File path and URL specified for " + datasourceName + " csv loader, you must use one or the other");
+        String defaultSourceType = null;
+        if (element.hasAttribute("defaultSourceType")) {
+            defaultSourceType = element.getAttribute("defaultSourceType");
         }
 
         // creating loading session bean
         BeanDefinitionBuilder csvLoadingSession = BeanDefinitionBuilder.rootBeanDefinition(CSVLoadingSession.class);
-        if (namespace != null) {
-            csvLoadingSession.addConstructorArgValue(namespace);
-        }
-        if (namespacePrefix != null) {
-            csvLoadingSession.addConstructorArgValue(namespacePrefix);
-        }
-        else {
-            csvLoadingSession.addConstructorArgValue(datasourceName);
-        }
-
-        if (element.hasAttribute("defaultTargetType")) {
-            String targetUri = element.getAttribute("defaultTargetType");
-            csvLoadingSession.addConstructorArgValue(URI.create(targetUri));
-        }
-
-        if (element.hasAttribute("defaultSourceType")) {
-            String studyUri = element.getAttribute("defaultSourceType");
-            csvLoadingSession.addConstructorArgValue(URI.create(studyUri));
+        csvLoadingSession.addConstructorArgValue(uri);
+        csvLoadingSession.addConstructorArgValue(name);
+        if (defaultTargetType != null && defaultSourceType != null) {
+            csvLoadingSession.addConstructorArgValue(URI.create(defaultTargetType));
+            csvLoadingSession.addConstructorArgValue(URI.create(defaultSourceType));
         }
 
         parserContext.registerBeanComponent(new BeanComponentDefinition(csvLoadingSession.getBeanDefinition(),
-                                                                        datasourceName + "-csvLoader"));
+                                                                        name + "-csvLoader"));
 
         // create annotation factory bean
         BeanDefinitionBuilder csvAnnotationFactory =
                 BeanDefinitionBuilder.rootBeanDefinition(DefaultAnnotationFactory.class);
-        csvAnnotationFactory.addConstructorArgReference(datasourceName + "-csvLoader");
+        csvAnnotationFactory.addConstructorArgReference(name + "-csvLoader");
         parserContext.registerBeanComponent(new BeanComponentDefinition(csvAnnotationFactory.getBeanDefinition(),
-                                                                        datasourceName + "-csvFactory"));
+                                                                        name + "-csvFactory"));
 
         // create the csv DAO
         BeanDefinitionBuilder csvAnnotationDao = BeanDefinitionBuilder.rootBeanDefinition(CSVAnnotationDAO.class);
-        csvAnnotationDao.addConstructorArgReference(datasourceName + "-csvFactory");
-
-        if (element.hasAttribute("file")) {
-            Resource fileResource = new DefaultResourceLoader().getResource(element.getAttribute("file"));
-            try {
-                csvAnnotationDao.addConstructorArgValue(fileResource.getFile());
-            }
-            catch (IOException e) {
-                throw new BeanDefinitionValidationException("Couldn't find CSV file " + element.getAttribute("file"),
-                                                            e);
-            }
-        }
-
-        if (element.hasAttribute("url")) {
-            Resource urlResource = new DefaultResourceLoader().getResource(element.getAttribute("url"));
-            try {
-                csvAnnotationDao.addConstructorArgValue(urlResource.getURL());
-            }
-            catch (IOException e) {
-                throw new BeanDefinitionValidationException(
-                        "Couldn't access URL to CSV file " + element.getAttribute("url"), e);
-            }
-        }
-
+        csvAnnotationDao.addConstructorArgReference(name + "-csvFactory");
+        csvAnnotationDao.addConstructorArgValue(csvResource);
         if (delimiter != null) {
             csvAnnotationDao.addConstructorArgValue(delimiter);
         }
 
         parserContext.registerBeanComponent(new BeanComponentDefinition(csvAnnotationDao.getBeanDefinition(),
-                                                                        datasourceName + "-csvDAO"));
+                                                                        name + "-csvDAO"));
 
         return null;
-
     }
-
 }

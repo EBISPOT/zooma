@@ -12,24 +12,24 @@
         <xsd:complexType>
             <xsd:complexContent>
                 <xsd:extension base="beans:identifiedType">
-                    <xsd:attribute name="datasourceUrl" type="xsd:anyURI" use="required">
+                    <xsd:attribute name="name" type="xsd:string" use="required">
                         <xsd:annotation>
                             <xsd:documentation>
-                                <![CDATA[A URL that points at the datasource for these annotations. This name should be unique for Zooma and is used as part of the Zooma annotation provenance.]]>
+                                <![CDATA[A descriptive name for the ontology (specifically versioned) that ZOOMA annotations will be generated from.  This name should be unique across your configured datasources.]]>
                             </xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>
-                    <xsd:attribute name="datasourceName" type="xsd:string" use="required">
+                    <xsd:attribute name="uri" type="xsd:anyURI" use="required">
                         <xsd:annotation>
                             <xsd:documentation>
-                                <![CDATA[A shortname for the datasource typically a resource or database name, This name should be unique for Zooma and is used as part of the Zooma annotation provenance.]]>
+                                <![CDATA[The logical URI of the ontology from which annotations will be generated from.]]>
                             </xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>
-                    <xsd:attribute name="namespace" type="xsd:anyURI">
+                    <xsd:attribute name="loadFrom" type="xsd:string">
                         <xsd:annotation>
                             <xsd:documentation>
-                                <![CDATA[An optional namespace used to mint URIs for resources such as bioentity and study URIs.]]>
+                                <![CDATA[The location from which the ontology should be loaded.  This is optional - if omitted, ZOOMA will attempt to load the ontology from it's logical URI.]]>
                             </xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>
@@ -40,17 +40,10 @@
                             </xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>
-                    <xsd:attribute name="file"  type="xsd:anyURI">
+                    <xsd:attribute name="annotationCreator" type="xsd:string">
                         <xsd:annotation>
                             <xsd:documentation>
-                                <![CDATA[The path to a CSV file containing annotations to load]]>
-                            </xsd:documentation>
-                        </xsd:annotation>
-                    </xsd:attribute>
-                    <xsd:attribute name="url"  type="xsd:anyURI">
-                        <xsd:annotation>
-                            <xsd:documentation>
-                                <![CDATA[The URL of a CSV file containing annotations to load]]>
+                                <![CDATA[A shortform that forms the namespace prefix for the supplied namespace.]]>
                             </xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>

@@ -2,8 +2,7 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 import uk.ac.ebi.fgpt.zooma.exception.InvalidDataFormatException;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
@@ -13,14 +12,8 @@ import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,7 +37,7 @@ import java.util.Map;
 public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements AnnotationDAO {
     private final String delimiter;
 
-    private InputStream inputStream;
+    private Resource csvResource;
 
     private Map<String, Integer> columnIndexMap;
     private List<Annotation> annotations;
@@ -52,50 +45,23 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
     private static DateTimeFormatter dashedDateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static DateTimeFormatter slashDateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm");
 
-    public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file)
-            throws FileNotFoundException {
-        this(annotationFactory, new FileInputStream(file), "\t");
-        getLog().debug("Parsing CSV file from file: " + file.getAbsolutePath());
-    }
-
-    public CSVAnnotationDAO(AnnotationFactory annotationFactory, URL url) throws IOException {
-        this(annotationFactory, url.openStream(), "\t");
-        getLog().debug("Parsing CSV file from URL: " + url.getPath());
-    }
-
-    public CSVAnnotationDAO(AnnotationFactory annotationFactory, File file, String delimiter)
-            throws FileNotFoundException {
-        this(annotationFactory, new FileInputStream(file), delimiter);
-        getLog().debug("Parsing CSV file from file: " + file.getAbsolutePath());
-    }
-
-    public CSVAnnotationDAO(AnnotationFactory annotationFactory, URL url, String delimiter)
-            throws IOException {
-        this(annotationFactory, url.openStream(), delimiter);
-        getLog().debug("Parsing CSV file from URL: " + url.getPath());
-    }
-
     /**
      * Create a CSV annotation DAO with a default "tab" delimiter
      */
-    public CSVAnnotationDAO(AnnotationFactory annotationFactory, InputStream stream) {
+    public CSVAnnotationDAO(AnnotationFactory annotationFactory, Resource csvResource) {
         // use default delimiter of a tab
-        this(annotationFactory, stream, "\t");
+        this(annotationFactory, csvResource, "\t");
     }
 
     public CSVAnnotationDAO(AnnotationFactory annotationFactory,
-                            InputStream stream,
+                            Resource csvResource,
                             String delimiter) {
         super(annotationFactory);
         this.delimiter = delimiter;
-        this.inputStream = stream;
+        this.csvResource = csvResource;
 
         this.columnIndexMap = Collections.synchronizedMap(new HashMap<String, Integer>());
         this.annotations = Collections.synchronizedList(new ArrayList<Annotation>());
-    }
-
-    public InputStream getInputStream() {
-        return inputStream;
     }
 
     @Override
@@ -115,7 +81,7 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         getLog().debug("Parsing CSV file from input stream");
 
         // parse annotations file
-        BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStream(), "UTF-8"));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(csvResource.getInputStream(), "UTF-8"));
         boolean readHeader = false;
         String line;
         int lineNumber = 0;
