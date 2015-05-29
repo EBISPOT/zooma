@@ -86,6 +86,7 @@ public class OntologyAccessionUtils {
     }
 
     public synchronized static IRI getIRIFromAccession(String accession) {
+        accession = accession.trim();
         if (!accessionToIRIMap.containsKey(accession)) {
             // attempt lookup in IRI set - maybe we got an IRI as an accession?
             try {
@@ -98,8 +99,8 @@ public class OntologyAccessionUtils {
                 // can safely ignore this
                 getLog().debug("Caught IRI creation exception", e);
             }
-            getLog().warn("Unable to identify IRI for term accession '" + accession + "'.  " +
-                                  "This accession has been blacklisted and will resolve to null.");
+            getLog().warn("Unable to identify IRI for term accession '" + accession + "'; this accession has been " +
+                                  "blacklisted and will not return null in all subsequent requests");
             accessionToIRIMap.put(accession, null);
         }
         return accessionToIRIMap.get(accession);

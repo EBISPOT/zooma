@@ -131,9 +131,6 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
             }
         }
 
-        // filter any annotations without semantic tags - ZOOMA does not do anything with these
-//        annotations = getAnnotationResolver().filter(annotations);
-
         try {
             // resolve
             if (isResolvingEnabled()) {
