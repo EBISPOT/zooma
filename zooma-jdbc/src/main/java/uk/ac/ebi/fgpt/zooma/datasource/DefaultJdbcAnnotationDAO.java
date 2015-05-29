@@ -81,7 +81,7 @@ public class DefaultJdbcAnnotationDAO implements AnnotationDAO {
             String ordering = "order by STUDY, BIOENTITY, PROPERTY_VALUE asc";
             this.ANNOTATIONS_SELECT_COUNT = "select count(*) from (" + annotations_select + ")";
             this.ANNOTATIONS_SELECT_ALL =
-                    "select * from (" + annotations_select + ") " + ordering + ";";
+                    "select * from (" + annotations_select + ") " + ordering;
             this.ANNOTATIONS_SELECT_LIMIT =
                     "select STUDY, BIOENTITY, PROPERTY_TYPE, PROPERTY_VALUE, SEMANTIC_TAG from (" +
                             "select rownum R, STUDY, BIOENTITY, PROPERTY_TYPE, PROPERTY_VALUE, SEMANTIC_TAG from (" +
