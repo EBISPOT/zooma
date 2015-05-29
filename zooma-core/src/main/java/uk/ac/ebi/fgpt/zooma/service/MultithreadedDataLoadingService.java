@@ -582,8 +582,8 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
          * check for completion
          */
         public void finish() {
-            getLog().debug("Thread " + Thread.currentThread().getName() + " is designating " +
-                                   "receipt " + getID() + " as complete");
+            getLog().debug("Thread " + Thread.currentThread().getName() + " is designating receipt " + getID() +
+                                   " as complete");
             finished = true;
             synchronized (this) {
                 notifyAll();

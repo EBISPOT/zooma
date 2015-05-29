@@ -256,7 +256,7 @@ public abstract class WorkloadScheduler {
             else {
                 fails++;
                 tally++;
-                getLog().error("A scheduled task failed.  Failed tasks now at: " + fails + "/" + target);
+                getLog().debug("A scheduled task for " + workloadName + " failed.  Failed tasks now at: " + fails + "/" + target);
                 getLog().debug("Exception that caused scheduled task to fail follows:", t);
             }
             notifyAll();
