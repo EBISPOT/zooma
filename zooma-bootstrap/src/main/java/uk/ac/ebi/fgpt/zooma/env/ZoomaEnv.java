@@ -1,5 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.env;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 
 /**
@@ -16,6 +19,12 @@ public class ZoomaEnv {
         instance.setupEnvironment();
     }
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    protected Logger getLog() {
+        return log;
+    }
+
     private ZoomaEnv() {
 
     }
@@ -30,11 +39,11 @@ public class ZoomaEnv {
      * {user.home}/.zooma
      */
     private synchronized void setupEnvironment() {
-        System.out.println("Bootstrapping ZOOMA...");
-        System.out.println("\t - ZOOMA has detected the following environmental variables:");
+        getLog().info("Bootstrapping ZOOMA...");
+        getLog().debug("\t - ZOOMA has detected the following environmental variables:");
         Map<String, String> env = System.getenv();
         for (String envName : env.keySet()) {
-            System.out.println("\t\t" + envName + " = " + env.get(envName));
+            getLog().debug("\t\t" + envName + " = " + env.get(envName));
         }
 
         // sesame http proxy workaround shenanigans - apparently sesame overwrites http proxy;
@@ -48,7 +57,7 @@ public class ZoomaEnv {
             String zoomaNonProxyHosts = System.getProperty("zooma.http.nonProxyHosts");
 
             if (zoomaProxyHost != null || zoomaProxyPort != null) {
-                System.out.println(
+                getLog().debug(
                         "\t - ZOOMA is setting proxy properties to echo zooma.http.proxyHost and " +
                                 "zooma.http.proxyPort - these are backups in case of proxy setting wiping by Sesame");
                 if (zoomaProxyHost != null) {
@@ -71,13 +80,13 @@ public class ZoomaEnv {
             String zooma = System.getenv("ZOOMA_HOME");
             if (zooma == null || zooma.equals("")) {
                 zooma = System.getProperty("user.home") + "/.zooma/";
-                System.out.println("\t - $ZOOMA_HOME not set - defaulting to: " + zooma);
+                getLog().info("\t - $ZOOMA_HOME not set - defaulting to: " + zooma);
             }
             else {
-                System.out.println("\t - $ZOOMA_HOME: " + zooma);
+                getLog().info("\t - $ZOOMA_HOME: " + zooma);
             }
             System.setProperty("zooma.home", zooma);
         }
-        System.out.println("ZOOMA environment successfully primed!");
+        getLog().info("ZOOMA environment successfully bootstrapped!");
     }
 }

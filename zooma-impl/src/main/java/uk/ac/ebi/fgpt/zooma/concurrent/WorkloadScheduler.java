@@ -38,10 +38,13 @@ public abstract class WorkloadScheduler {
     private Logger log = LoggerFactory.getLogger(WorkloadScheduler.class);
 
     public WorkloadScheduler(ExecutorService executorService, int iterations, String workloadName) {
-        this(executorService, iterations, workloadName, true);
+        this(executorService, iterations, workloadName, false);
     }
 
-    public WorkloadScheduler(ExecutorService executorService, int iterations, String workloadName, boolean abortOnFail) {
+    public WorkloadScheduler(ExecutorService executorService,
+                             int iterations,
+                             String workloadName,
+                             boolean abortOnFail) {
         this.executorService = executorService;
         this.iterations = iterations;
 
@@ -83,7 +86,6 @@ public abstract class WorkloadScheduler {
                                 getLog().debug("Reattempting to schedule a task, try " + tries);
                             }
                             scheduleTask(iteration);
-                            iteration++;
                             break;
                         }
                         catch (RejectedExecutionException e) {
@@ -113,8 +115,8 @@ public abstract class WorkloadScheduler {
                                     }
                                 }
                                 else {
-                                    // rejected for a reason other than queue size, so throw this exception
-                                    getLog().debug("Failed to submit a task despite remaining queue capacity " +
+                                    // not a thread pool executor, so not sure why this was rejected - throw this exception
+                                    getLog().debug("Failed to submit a task for an unknown reason " +
                                                            "(tried " + tries + " times)", e);
                                     tries++;
                                 }
@@ -123,12 +125,16 @@ public abstract class WorkloadScheduler {
                                     // no more tries remaining
                                     getLog().error("Task failed: " + workloadName + ", " +
                                                            "round " + iteration + "/" + iterations + " " +
-                                                           "failed to submit " + tries + " times without success.");
+                                                           "failed to submit " + (tries - 1) +
+                                                           " times without success.");
                                     counter.recordFail(workloadName, e);
+                                    break;
                                 }
                             }
                         }
                     }
+                    // iteration was successfully scheduled, or retried 5 times and failed, so increment and move on
+                    iteration++;
                 }
                 getLog().debug("Scheduling of tasks for " + workloadName + " is complete");
             }

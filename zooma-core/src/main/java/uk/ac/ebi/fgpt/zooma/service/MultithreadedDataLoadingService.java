@@ -163,7 +163,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         zoomaDAOList.addAll(getAvailableDatasources());
         final List<ZoomaDAO<T>> syncedAnnotationDAOs = Collections.synchronizedList(zoomaDAOList);
         WorkloadScheduler scheduler =
-                new WorkloadScheduler(daoExecutor, syncedAnnotationDAOs.size(), "zooma loading", false) {
+                new WorkloadScheduler(daoExecutor, syncedAnnotationDAOs.size(), "zooma loading", true) {
                     @Override
                     protected void executeTask(int iteration) throws Exception {
                         try {
