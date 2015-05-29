@@ -45,7 +45,7 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
         }
         getLog().debug("Successfully loaded ontology " + ontologyIRI);
         Set<OWLClass> allClasses = ontology.getClassesInSignature(false);
-        Set<URI> allKnownNamespaces = new HashSet<>();
+        Set<URI> allObservedNamespaces = new HashSet<>();
 
         // remove excluded classes from allClasses by subclass
         if (getExclusionClassURI() != null) {
@@ -85,15 +85,13 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
 
             // get namespace for this IRI
             URI namespace = URIUtils.extractNamespace(clsIri.toURI());
-            if (!URIUtils.isNamespaceKnown(namespace)) {
+            if (!URIUtils.isNamespaceKnown(namespace) && !allObservedNamespaces.contains(namespace)) {
                 getLog().warn(
                         "Namespace <" + namespace + "> (present in ontology " + ontologyIRI.toString() + ") " +
                                 "is not known - you should register this namespace in zooma/prefix.properties " +
                                 "to ensure ZOOMA can correctly shorten URIs in this namespace");
             }
-            else {
-                allKnownNamespaces.add(namespace);
-            }
+            allObservedNamespaces.add(namespace);
 
             // get label annotations
             Set<String> labels = getStringLiteralAnnotationValues(ontology, ontologyClass, rdfsLabel);
@@ -150,7 +148,7 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
         }
 
         StringBuilder sb = new StringBuilder();
-        for (URI namespace : allKnownNamespaces) {
+        for (URI namespace : allObservedNamespaces) {
             sb.append("\t").append(namespace.toString()).append("\n");
         }
 
@@ -160,7 +158,7 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
                                   missingLabelsCount + "/" + allClasses.size() + " classes.");
         }
 
-        getLog().debug("Loaded classes with " + allKnownNamespaces.size() + " different namespaces " +
+        getLog().debug("Loaded classes with " + allObservedNamespaces.size() + " different namespaces " +
                                "from " + ontologyIRI.toString() + ". Those namespaces are...\n" + sb.toString());
 
         getLog().debug("Successfully loaded " + labelCount + " labels on " + labelledClassCount + " classes and " +
