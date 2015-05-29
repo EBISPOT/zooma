@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * An annotation DAO that is capable of extracting annotations from a text file.
@@ -97,7 +98,7 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
             else {
                 // required attributes
                 String studyAcc, bioentityName, propertyType, propertyValue;
-                URI semanticTag;
+                List<URI> semanticTags;
 
                 // optional URI attributes with null initializers
                 URI annotationURI = null;
@@ -161,12 +162,22 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
                     missingColumns.add("PROPERTY_VALUE");
                 }
                 if ((column = lookupColumn("SEMANTIC_TAG")) != -1) {
-                    semanticTag = annotationElements.length <= column || annotationElements[column].isEmpty()
+                    String semanticTagsStr;
+                    semanticTagsStr = annotationElements.length <= column || annotationElements[column].isEmpty()
                             ? null
-                            : convertSemanticTagToURI(annotationElements[column]);
+                            : annotationElements[column];
+                    if (semanticTagsStr.contains("|")) {
+                        semanticTags = new ArrayList<>();
+                        for (String semanticTagStr : semanticTagsStr.split(Pattern.quote("|"))) {
+                            semanticTags.add(convertSemanticTagToURI(semanticTagStr.trim()));
+                        }
+                    }
+                    else {
+                        semanticTags = Collections.singletonList(convertSemanticTagToURI(annotationElements[column]));
+                    }
                 }
                 else {
-                    semanticTag = null;
+                    semanticTags = Collections.singletonList(null);
                     missingColumns.add("SEMANTIC_TAG");
                 }
                 if (!missingColumns.isEmpty()) {
@@ -265,24 +276,26 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
                 }
 
                 // now we've collected fields, generate annotation using annotation factory
-                annotations.add(createAnnotation(annotationURI,
-                                                 annotationID,
-                                                 studyAcc,
-                                                 studyURI,
-                                                 studyID,
-                                                 studyType,
-                                                 bioentityName,
-                                                 bioentityURI,
-                                                 bioentityID,
-                                                 bioentityTypeName,
-                                                 bioentityTypeURI,
-                                                 propertyType,
-                                                 propertyValue,
-                                                 propertyURI,
-                                                 propertyID,
-                                                 semanticTag,
-                                                 annotator,
-                                                 annotationDate));
+                for (URI semanticTag : semanticTags) {
+                    annotations.add(createAnnotation(annotationURI,
+                                                     annotationID,
+                                                     studyAcc,
+                                                     studyURI,
+                                                     studyID,
+                                                     studyType,
+                                                     bioentityName,
+                                                     bioentityURI,
+                                                     bioentityID,
+                                                     bioentityTypeName,
+                                                     bioentityTypeURI,
+                                                     propertyType,
+                                                     propertyValue,
+                                                     propertyURI,
+                                                     propertyID,
+                                                     semanticTag,
+                                                     annotator,
+                                                     annotationDate));
+                }
             }
         }
 
