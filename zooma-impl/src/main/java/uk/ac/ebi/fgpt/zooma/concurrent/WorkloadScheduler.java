@@ -204,6 +204,7 @@ public abstract class WorkloadScheduler {
                 }
                 catch (Exception e) {
                     getLog().error("Task " + iteration + "/" + iterations + " failed for " + workloadName, e);
+                    getLog().debug(workloadName + ", iteration " + iteration + "/" + iterations + "exception stack trace follows:", e);
                     counter.recordFail(workloadName, e);
                 }
             }
