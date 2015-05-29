@@ -203,7 +203,7 @@ public abstract class WorkloadScheduler {
                     counter.increment();
                 }
                 catch (Exception e) {
-                    getLog().error("Task " + iteration + "/" + iterations + " failed for " + workloadName, e);
+                    getLog().error("Task " + iteration + "/" + iterations + " failed for " + workloadName);
                     getLog().debug(workloadName + ", iteration " + iteration + "/" + iterations + "exception stack trace follows:", e);
                     counter.recordFail(workloadName, e);
                 }
@@ -254,9 +254,10 @@ public abstract class WorkloadScheduler {
                 this.abortiveException = t;
             }
             else {
-                getLog().error("A scheduled task threw the following exception:", t);
                 fails++;
                 tally++;
+                getLog().error("A scheduled task failed.  Failed tasks now at: " + fails + "/" + target);
+                getLog().debug("Exception that caused scheduled task to fail follows:", t);
             }
             notifyAll();
         }
