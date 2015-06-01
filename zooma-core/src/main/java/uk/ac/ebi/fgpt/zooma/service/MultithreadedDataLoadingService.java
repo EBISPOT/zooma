@@ -181,6 +181,8 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                                 r = load(dao);
                             }
                             catch (Exception e) {
+                                getLog().error("Scheduling of loading tasks for " + dao.getDatasourceName() +
+                                                       " failed (" + e.getMessage() + ")");
                                 r = new SchedulingFailedReceipt(dao.getDatasourceName(), LoadType.LOAD_DATASOURCE, e);
                             }
 
@@ -326,6 +328,8 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         }
         catch (Exception e) {
             // failed to schedule this load task, add a failed receipt
+            getLog().error("Scheduling of loading tasks for " + datasource.getDatasourceName() +
+                                   " failed (" + e.getMessage() + ")");
             receipt = new SchedulingFailedReceipt(datasource.getDatasourceName(), LoadType.LOAD_DATASOURCE, e);
             receiptService.registerReceipt(receipt);
         }
@@ -390,6 +394,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         }
         catch (Exception e) {
             // failed to schedule this load task, add a failed receipt
+            getLog().error("Scheduling of loading tasks for 'zooma-update' failed (" + e.getMessage() + ")");
             receipt = new SchedulingFailedReceipt("zooma-update", LoadType.LOAD_DATASOURCE, e);
             receiptService.registerReceipt(receipt);
         }
@@ -449,6 +454,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         }
         catch (Exception e) {
             // failed to schedule this load task, add a failed receipt
+            getLog().error("Scheduling of loading tasks for " + datasetName + " failed (" + e.getMessage() + ")");
             receipt = new SchedulingFailedReceipt("zooma-update", LoadType.LOAD_DATASOURCE, e);
             receiptService.registerReceipt(receipt);
         }
