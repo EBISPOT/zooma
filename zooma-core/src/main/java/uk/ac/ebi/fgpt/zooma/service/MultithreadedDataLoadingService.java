@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -552,12 +554,37 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
     }
 
     private class CompositingReceipt extends AbstractReceipt {
+        private final boolean rethrowExceptions;
         private final List<Receipt> receipts;
+        private final Map<Receipt, Exception> encounteredExceptions;
         private boolean finished = false;
 
         private CompositingReceipt(String combinedDatasourceName, LoadType combinedLoadType, Receipt... receipts) {
+            this(combinedDatasourceName, combinedLoadType, true, receipts);
+        }
+
+        /**
+         * Create a new compositing receipt that tracks the status of all receipts wrapped in this object and is marked
+         * as complete once all child receipts are complete.  Use the flag 'rethrowExceptions' to indicate whether the
+         * compositing receipt should throw any exceptions thrown by the child receipts: in effect, this will result in
+         * the first exception encountered by a child receipt being rethrown by the {@link #waitUntilCompletion()}
+         * method.  If you specify false for this parameter, then child exceptions will be swallowed: they can be
+         * obtained using the method
+         *
+         * @param combinedDatasourceName the name to assign to this "combined" datasource
+         * @param combinedLoadType       the load type of the "combined" tasks
+         * @param rethrowExceptions      whether exceptions that are thrown by child tasks should be rethrow or captured
+         *                               and tracked
+         * @param receipts               the set of receipts to composite
+         */
+        private CompositingReceipt(String combinedDatasourceName,
+                                   LoadType combinedLoadType,
+                                   boolean rethrowExceptions,
+                                   Receipt... receipts) {
             super(combinedDatasourceName, combinedLoadType);
+            this.rethrowExceptions = rethrowExceptions;
             this.receipts = Collections.synchronizedList(new ArrayList<Receipt>());
+            this.encounteredExceptions = new HashMap<>();
             for (Receipt receipt : receipts) {
                 addNextReceipt(receipt);
             }
@@ -590,6 +617,16 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
             }
         }
 
+        /**
+         * Returns any exceptions that have been encountered by child tasks in this method, indexed by the receipt of
+         * the task that threw them
+         *
+         * @return exceptions encountered by a child task, indexed by receipt
+         */
+        public Map<Receipt, Exception> getEncounteredExceptions() {
+            return Collections.unmodifiableMap(encounteredExceptions);
+        }
+
         @Override public synchronized void waitUntilCompletion() throws InterruptedException {
             while (!finished) {
                 synchronized (this) {
@@ -608,7 +645,15 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
                 getLog().debug("Thread " + Thread.currentThread().getName() +
                                        " acquired lock on receipts to test for completion");
                 for (Receipt receipt : receipts) {
-                    receipt.waitUntilCompletion();
+                    try {
+                        receipt.waitUntilCompletion();
+                    }
+                    catch (Exception e) {
+                        encounteredExceptions.put(receipt, e);
+                        if (rethrowExceptions) {
+                            throw e;
+                        }
+                    }
                 }
             }
             getLog().debug("Thread " + Thread.currentThread().getName() +
