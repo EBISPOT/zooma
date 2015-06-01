@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A {@link uk.ac.ebi.fgpt.zooma.io.ZoomaLoader} for {@link Annotation}s that can be configured to enable resolving,
@@ -156,6 +157,13 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
                 }
                 String filename = datasourcePath.toString() + fileNameBase + "_" + fileNumber + ".rdf";
                 File f = new File(outputDirectory, filename);
+
+                createParentDirs(f);
+                while (!f.createNewFile()) {
+                    fileNumber = fileCounter.incrementAndGet();
+                    filename = datasourcePath.toString() + fileNameBase + "_" + fileNumber + ".rdf";
+                    f = new File(outputDirectory, filename);
+                }
                 getAnnotationSerializer().serialize(datasourceName, annotations, f);
 
                 // store (can only store if also serialized!)
@@ -240,5 +248,35 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
     @Override
     public void update(Collection<Annotation> zoomaObject, Update<Annotation> update) throws ZoomaLoadingException {
         throw new UnsupportedOperationException("Can't update annotations from configurable loader");
+    }
+
+    private final static ReentrantLock lock = new ReentrantLock();
+
+    /**
+     * A thread-safe implementation of {@link java.io.File#mkdirs()} that creates all required parent directories for
+     * the given file if they do not already exist.  This method will return early if the directories already exist.  If
+     * parent directories are absent, this method will acquire a reentrant lock, thereby ensuring that only one thread
+     * will attempt directory creation.  If directory creation still fails, this method will throw an IO exception
+     *
+     * @param f the file to create parent directories for, if they do not already exist
+     */
+    private void createParentDirs(File f) throws ZoomaSerializationException {
+        if (f.getAbsoluteFile().getParentFile().exists()) {
+            return;
+        }
+
+        lock.lock();
+        try {
+            // retest; another thread may have created this directory between the first test and acquiring the lock
+            if (!f.getAbsoluteFile().getParentFile().exists()) {
+                if (!f.getAbsoluteFile().getParentFile().mkdirs()) {
+                    throw new ZoomaSerializationException(
+                            "Unable to create directory '" + f.getParentFile().getAbsolutePath() + "'");
+                }
+            }
+        }
+        finally {
+            lock.unlock();
+        }
     }
 }
