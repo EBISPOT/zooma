@@ -57,8 +57,8 @@ public abstract class OWLAPIZoomaSerializer<T> implements ZoomaSerializer<T, OWL
             throws ZoomaSerializationException {
         if (zoomaObjects.size() > 0) {
             T zoomaObject = zoomaObjects.iterator().next();
-            getLog().info("Serializing " + zoomaObjects.size() + " " + zoomaObject.getClass().getSimpleName() +
-                                  " objects to " + file.getAbsolutePath());
+            getLog().info("Writing " + zoomaObjects.size() + " " + zoomaObject.getClass().getSimpleName() +
+                                  " objects from " + datasourceName + " to " + file.getAbsolutePath());
         }
         OutputStream out = null;
         try {

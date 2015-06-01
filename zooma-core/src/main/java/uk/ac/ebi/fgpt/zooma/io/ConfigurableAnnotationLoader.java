@@ -134,13 +134,13 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
         try {
             // resolve
             if (isResolvingEnabled()) {
-                getLog().debug("Resolving " + annotations.size() + " annotations for " + datasourceName);
+                getLog().info("Resolving " + annotations.size() + " annotations for " + datasourceName);
                 annotations = getAnnotationResolver().resolve(datasourceName, annotations);
             }
 
             // serialize
             if (isSerializingEnabled()) {
-                getLog().debug(
+                getLog().info(
                         "Serializing " + annotations.size() + " annotations for " + datasourceName);
 
                 if (!datasourceFileCounter.containsKey(datasourceName)) {
@@ -154,14 +154,14 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
                 for (String token : tokens) {
                     datasourcePath.append(token).append(File.separator);
                 }
-                String filename = datasourcePath + fileNameBase + "_" + fileNumber + ".rdf";
+                String filename = datasourcePath.toString() + fileNameBase + "_" + fileNumber + ".rdf";
                 File f = new File(outputDirectory, filename);
                 getAnnotationSerializer().serialize(datasourceName, annotations, f);
 
                 // store (can only store if also serialized!)
                 if (isStoringEnabled()) {
-                    getLog().debug("Storing " + annotations.size() + " annotations for " + datasourceName + " from "
-                                           + f.getAbsolutePath());
+                    getLog().info("Storing " + annotations.size() + " annotations for " + datasourceName + " from "
+                                          + f.getAbsolutePath());
                     getAnnotationStorer().store(f);
                 }
             }
