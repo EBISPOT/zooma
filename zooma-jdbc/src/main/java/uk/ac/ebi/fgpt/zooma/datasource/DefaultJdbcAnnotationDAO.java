@@ -1,5 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
@@ -59,6 +61,12 @@ public class DefaultJdbcAnnotationDAO implements AnnotationDAO {
     private final DefaultJdbcAnnotationMapper mapper;
     private final JdbcTemplate jdbcTemplate;
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    protected Logger getLog() {
+        return log;
+    }
+
     public DefaultJdbcAnnotationDAO(AnnotationFactory annotationFactory, JdbcTemplate jdbcTemplate) {
         this(new DefaultJdbcAnnotationMapper(annotationFactory), jdbcTemplate);
     }
@@ -68,9 +76,21 @@ public class DefaultJdbcAnnotationDAO implements AnnotationDAO {
         this.jdbcTemplate = jdbcTemplate;
 
         // now read sql file annotations.sql to get ANNOTATIONS_SELECT query
+        ClassLoader classLoader;
+        AnnotationFactory annotationFactory = annotationMapper.getAnnotationFactory();
+        if (annotationFactory instanceof DefaultAnnotationFactory) {
+            classLoader = ((DefaultAnnotationFactory) annotationFactory).getAnnotationLoadingSession()
+                    .getClass()
+                    .getClassLoader();
+        }
+        else {
+            classLoader = annotationFactory.getClass().getClassLoader();
+        }
         StringBuilder sb = new StringBuilder();
+        getLog().debug("Determining how to access JDBC annotations for " + annotationFactory.getDatasourceName() + " " +
+                               "by reading annotations.sql (using classloader '" + classLoader.toString() + "'");
         BufferedReader reader = new BufferedReader(new InputStreamReader(
-                annotationMapper.getClass().getClassLoader().getResourceAsStream("annotations.sql")));
+                classLoader.getResourceAsStream("annotations.sql")));
         try {
             String line;
             while ((line = reader.readLine()) != null) {
