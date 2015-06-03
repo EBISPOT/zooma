@@ -82,7 +82,7 @@ public class ZOOMA2LuceneIndexDriver {
     }
 
     public void createOutputDirectory() throws IOException {
-        luceneHome = FileSystems.getDefault().getPath(System.getProperty("zooma.home"), "index", "lucene").toFile();
+        luceneHome = FileSystems.getDefault().getPath(System.getProperty("zooma.data.dir"), "index", "lucene").toFile();
         if (luceneHome.exists()) {
             if (zoomaStatusService.checkStatus()) {
                 System.out.println("ZOOMA lucene indices already exist in " + luceneHome.getAbsolutePath());

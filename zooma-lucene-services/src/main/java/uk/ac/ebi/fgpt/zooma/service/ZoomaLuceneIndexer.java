@@ -503,7 +503,7 @@ public class ZoomaLuceneIndexer extends Initializable {
 
     @Override
     protected void doInitialization() throws Exception {
-        getLog().info("ZOOMA index directory: " + System.getProperty("zooma.home"));
+        getLog().info("ZOOMA index directory: " + System.getProperty("zooma.data.dir"));
         getLog().info("Cleaning lucene indices...");
         clearAnnotationSummaryIndex();
         clearAnnotationIndex();

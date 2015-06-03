@@ -40,10 +40,10 @@ public class ZoomaEnv {
      */
     private synchronized void setupEnvironment() {
         getLog().info("Bootstrapping ZOOMA...");
-        getLog().debug("\t - ZOOMA has detected the following environmental variables:");
+        getLog().debug("ZOOMA has detected the following environmental variables:");
         Map<String, String> env = System.getenv();
         for (String envName : env.keySet()) {
-            getLog().debug("\t\t" + envName + " = " + env.get(envName));
+            getLog().debug(" => " + envName + " = " + env.get(envName));
         }
 
         // sesame http proxy workaround shenanigans - apparently sesame overwrites http proxy;
@@ -58,7 +58,7 @@ public class ZoomaEnv {
 
             if (zoomaProxyHost != null || zoomaProxyPort != null) {
                 getLog().debug(
-                        "\t - ZOOMA is setting proxy properties to echo zooma.http.proxyHost and " +
+                        "ZOOMA is setting proxy properties to echo zooma.http.proxyHost and " +
                                 "zooma.http.proxyPort - these are backups in case of proxy setting wiping by Sesame");
                 if (zoomaProxyHost != null) {
                     System.setProperty("http.proxyHost", zoomaProxyHost);
@@ -72,21 +72,41 @@ public class ZoomaEnv {
             }
         }
 
-        // zooma.home already set?
+        // zooma properties already set?
         String zoomaHome = System.getProperty("zooma.home");
+        String zoomaDataDir = System.getProperty("zooma.data.dir");
 
-        // if not, check $ZOOMA_HOME environment variable
+        // if zooma.home not set, check $ZOOMA_HOME environment variable
         if (zoomaHome == null || zoomaHome.equals("")) {
-            String zooma = System.getenv("ZOOMA_HOME");
-            if (zooma == null || zooma.equals("")) {
-                zooma = System.getProperty("user.home") + "/.zooma/";
-                getLog().info("\t - $ZOOMA_HOME not set - defaulting to: " + zooma);
+            String home = System.getenv("ZOOMA_HOME");
+            if (home == null || home.equals("")) {
+                home = System.getProperty("user.home") + "/.zooma/";
+                getLog().info("*** $ZOOMA_HOME not set - defaulting to: " + home + " ***");
             }
             else {
-                getLog().info("\t - $ZOOMA_HOME: " + zooma);
+                getLog().info("*** $ZOOMA_HOME: " + home + " ***");
             }
-            System.setProperty("zooma.home", zooma);
+            System.setProperty("zooma.home", home);
         }
+        else {
+            getLog().info("*** zooma.home: " + zoomaHome + " ***");
+        }
+
+        if (zoomaDataDir == null || zoomaDataDir.equals("")) {
+            String dataDir = System.getenv("ZOOMA_DATA_DIR");
+            if (dataDir == null || dataDir.equals("")) {
+                dataDir = System.getProperty("zooma.home");
+                getLog().info("*** $ZOOMA_DATA_DIR not set - defaulting to: " + dataDir + " ***");
+            }
+            else {
+                getLog().info("*** $ZOOMA_DATA_DIR: " + dataDir + " ***");
+            }
+            System.setProperty("zooma.home", dataDir);
+        }
+        else {
+            getLog().info("*** zooma.data.dir: " + zoomaDataDir + " ***");
+        }
+
         getLog().info("ZOOMA environment successfully bootstrapped!");
     }
 }

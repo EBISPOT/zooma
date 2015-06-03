@@ -61,7 +61,7 @@ public class ZOOMA2LoaderDriver {
 
     public void createOutputDirectory() throws IOException {
         // first, try to backup old RDF directory
-        File rdfHome = new File(System.getProperty("zooma.home"), "rdf");
+        File rdfHome = new File(System.getProperty("zooma.data.dir"), "rdf");
         if (rdfHome.exists()) {
             System.out.println("RDF directory already exists at " + rdfHome.getAbsolutePath());
             // backup old RDF directory
