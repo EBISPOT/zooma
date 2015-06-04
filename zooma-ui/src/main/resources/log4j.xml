@@ -27,7 +27,7 @@
     </logger>
 
     <!-- Uncomment if specific zooma package debugging required -->
-    <logger name="uk.ac.ebi.fgpt.zooma.env.ZoomaHome" additivity="false">
+    <logger name="uk.ac.ebi.fgpt.zooma.config.LoaderDiscoveringPostProcessor" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="console" />
     </logger>

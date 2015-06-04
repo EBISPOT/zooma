@@ -17,7 +17,7 @@ public abstract class Initializable {
 
     private boolean initStarted;
     private boolean ready;
-    private Throwable initializationException;
+    private Throwable initializationFailureThrowable;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -40,11 +40,11 @@ public abstract class Initializable {
         notifyAll();
     }
 
-    protected synchronized void setInitializationException(Throwable t) {
+    protected synchronized void setInitializationFailureThrowable(Throwable t) {
         if (t != null) {
             getLog().error("Failed to initialize " + Initializable.this.getClass().getSimpleName());
         }
-        this.initializationException = t;
+        this.initializationFailureThrowable = t;
         notifyAll();
     }
 
@@ -53,9 +53,9 @@ public abstract class Initializable {
     }
 
     public synchronized boolean isReady() throws IllegalStateException {
-        if (initializationException != null) {
+        if (initializationFailureThrowable != null) {
             throw new IllegalStateException(
-                    "Initialization of " + getClass().getSimpleName() + " failed", initializationException);
+                    "Initialization of " + getClass().getSimpleName() + " failed", initializationFailureThrowable);
         }
         else {
             return ready;
@@ -92,7 +92,7 @@ public abstract class Initializable {
         }
         else {
             if (!isReady()) {
-                setInitializationException(new InterruptedException("Initialization was forcibly interrupted"));
+                setInitializationFailureThrowable(new InterruptedException("Initialization was forcibly interrupted"));
             }
         }
     }
@@ -102,7 +102,7 @@ public abstract class Initializable {
         synchronized (this) {
             if (!hasInitStarted() && !isReady()) {
                 // clear any existing initialization exceptions and flag that init has started
-                setInitializationException(null);
+                setInitializationFailureThrowable(null);
                 setInitStarted();
 
                 // now create new thread to do initialization
@@ -118,9 +118,18 @@ public abstract class Initializable {
                         catch (Exception e) {
                             getLog().debug("Caught exception whilst initializing, " +
                                                    "attempting to handle with clean termination", e);
-                            setInitializationException(e);
+                            setInitializationFailureThrowable(e);
                         }
-                        setInitStopped();
+                        catch (Error e) {
+                            getLog().debug("Caught error whilst initializing, " +
+                                                   "attempting to handle with clean termination", e);
+                            setInitializationFailureThrowable(e);
+                        }
+                        finally {
+                            if (!ready) {
+                                setInitStopped();
+                            }
+                        }
                     }
                 }));
                 // kick off init
@@ -137,7 +146,7 @@ public abstract class Initializable {
             catch (Exception e) {
                 getLog().error("Failed to terminate " + Initializable.this.getClass().getSimpleName() + ": " +
                                        "this may result in stale threads and a possible memory leak", e);
-                setInitializationException(e);
+                setInitializationFailureThrowable(e);
             }
             interrupt();
             initThread = null;
