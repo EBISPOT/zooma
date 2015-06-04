@@ -91,7 +91,7 @@ public class LoaderDiscoveringPostProcessor implements BeanFactoryPostProcessor 
                         "Couldn't find loader directory at '" + f.getAbsolutePath() + "' (not a directory)");
             }
 
-            getLog().debug("There are " + dependencies.size() + " loader dependencies that will be loaded " +
+            getLog().debug("There are " + dependencies.size() + " loader modules that will be loaded " +
                                    "using the ZOOMA core class loader");
             ClassLoader zoomaCoreClassLoader =
                     new ZoomaCoreClassLoader(dependencies.toArray(new URL[dependencies.size()]),
@@ -99,10 +99,14 @@ public class LoaderDiscoveringPostProcessor implements BeanFactoryPostProcessor 
             for (File loader : loaders) {
                 totalLoaders += registerModule(zoomaCoreClassLoader, loader, beanFactory);
             }
+            totalLoaders += registerConfig(zoomaCoreClassLoader, f, beanFactory);
 
             if (totalLoaders < 1) {
                 getLog().warn("Failed to identify any loadable resources in '" + f.getAbsolutePath() + "': " +
                                       "you should check your loaders are properly configured");
+            }
+            else {
+                getLog().info("ZOOMA has identified " + totalLoaders + " loadable resources in " + f.getAbsolutePath());
             }
         }
         catch (IOException e) {
@@ -129,7 +133,21 @@ public class LoaderDiscoveringPostProcessor implements BeanFactoryPostProcessor 
         return readLoaderBeans(loader, beanFactory);
     }
 
-    protected int readLoaderBeans(ZoomaJarClassLoader loader,
+    protected int registerConfig(ClassLoader zoomaCoreLoader, File f, ConfigurableListableBeanFactory beanFactory)
+            throws IOException {
+        getLog().debug("Registering additional loaders specified in config files in directory '" +
+                               f.getAbsolutePath() + "'...");
+        if (f.isDirectory()) {
+            URLClassLoader loader = new URLClassLoader(new URL[]{f.toURI().toURL()}, zoomaCoreLoader);
+            return readLoaderBeans(loader, beanFactory);
+        }
+        else {
+            throw new BeanDefinitionValidationException(
+                    "Couldn't find loader directory at '" + f.getAbsolutePath() + "' (not a directory)");
+        }
+    }
+
+    protected int readLoaderBeans(URLClassLoader loader,
                                   ConfigurableListableBeanFactory beanFactory)
             throws IOException {
         int count = 0;
