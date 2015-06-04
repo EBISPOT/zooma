@@ -84,51 +84,46 @@ public class ZOOMA2LuceneIndexDriver {
     public void createOutputDirectory() throws IOException {
         luceneHome = FileSystems.getDefault().getPath(System.getProperty("zooma.data.dir"), "index", "lucene").toFile();
         if (luceneHome.exists()) {
-            if (zoomaStatusService.checkStatus()) {
-                System.out.println("ZOOMA lucene indices already exist in " + luceneHome.getAbsolutePath());
-                // backup old index
-                String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-                String backupFileName = luceneHome.getName().concat(".backup.").concat(dateStr);
-                File backupFile = new File(luceneHome.getAbsoluteFile().getParentFile(), backupFileName);
+            System.out.println("ZOOMA lucene indices already exist in " + luceneHome.getAbsolutePath());
+            // backup old index
+            String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+            String backupFileName = luceneHome.getName().concat(".backup.").concat(dateStr);
+            File backupFile = new File(luceneHome.getAbsoluteFile().getParentFile(), backupFileName);
 
-                Path oldZoomaHome = luceneHome.toPath();
-                Path newZoomaHome = backupFile.toPath();
+            Path oldZoomaHome = luceneHome.toPath();
+            Path newZoomaHome = backupFile.toPath();
 
-                if (!Files.exists(newZoomaHome)) {
-                    System.out.print(
-                            "Backing up " + oldZoomaHome.toString() + " to " + newZoomaHome.toString() + "...");
-                    Files.move(oldZoomaHome,
-                               newZoomaHome,
-                               StandardCopyOption.REPLACE_EXISTING,
-                               StandardCopyOption.ATOMIC_MOVE);
-                    System.out.println("ok!");
-                }
-                else {
-                    System.out.print(
-                            "Backup already exists for today, clearing " + oldZoomaHome.toString() + "...");
-                    Files.walkFileTree(oldZoomaHome, new SimpleFileVisitor<Path>() {
-                        @Override
-                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                                throws IOException {
-                            Files.delete(file);
-                            return FileVisitResult.CONTINUE;
-                        }
-
-                        @Override
-                        public FileVisitResult postVisitDirectory(Path dir, IOException exc)
-                                throws IOException {
-                            Files.delete(dir);
-                            return FileVisitResult.CONTINUE;
-                        }
-                    });
-                    System.out.println("ok!");
-                }
-                System.out.println("ZOOMA lucene indices will now be created afresh in " +
-                                           luceneHome.getAbsolutePath());
+            if (!Files.exists(newZoomaHome)) {
+                System.out.print(
+                        "Backing up " + oldZoomaHome.toString() + " to " + newZoomaHome.toString() + "...");
+                Files.move(oldZoomaHome,
+                           newZoomaHome,
+                           StandardCopyOption.REPLACE_EXISTING,
+                           StandardCopyOption.ATOMIC_MOVE);
+                System.out.println("ok!");
             }
             else {
-                System.out.println("ZOOMA lucene indices will be created in " + luceneHome.getAbsolutePath());
+                System.out.print(
+                        "Backup already exists for today, clearing " + oldZoomaHome.toString() + "...");
+                Files.walkFileTree(oldZoomaHome, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                            throws IOException {
+                        Files.delete(file);
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                            throws IOException {
+                        Files.delete(dir);
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+                System.out.println("ok!");
             }
+            System.out.println("ZOOMA lucene indices will now be created afresh in " +
+                                       luceneHome.getAbsolutePath());
         }
         else {
             System.out.println("ZOOMA lucene indices will be created in a new directory, " +
