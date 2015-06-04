@@ -49,7 +49,7 @@ checkEnvironment() {
         printf "\$ZOOMA_DATA_DIR not set - using $HOME/.zooma/data\n";
         zoomaDataDir=$HOME/.zooma/data;
     else
-        zoomaDataDir=$ZOOMA_HOME;
+        zoomaDataDir=$ZOOMA_DATA_DIR;
     fi
 
     if [ ! -d $zoomaDataDir ] ; then
