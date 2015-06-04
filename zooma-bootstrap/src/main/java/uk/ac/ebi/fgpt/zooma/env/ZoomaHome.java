@@ -124,6 +124,10 @@ public class ZoomaHome {
                 // Directory doesn't exist, as opposed to simply being empty
                 getLog().info("No ZOOMA_HOME exists at " + zoomaHome.getAbsolutePath());
             }
+            else {
+                getLog().info("ZOOMA_HOME exists at " + zoomaHome.getAbsolutePath() + " but no files were found " +
+                                      "in this directory");
+            }
             unpackTemplate();
             return true;
         }
