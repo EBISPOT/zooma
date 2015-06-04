@@ -44,7 +44,20 @@ checkEnvironment() {
         exit 1;
     fi
 
-    rdf_dir=$zoomaHome/rdf
+    if [ ! $ZOOMA_DATA_DIR ];
+    then
+        printf "\$ZOOMA_DATA_DIR not set - using $HOME/.zooma/data\n";
+        zoomaDataDir=$HOME/.zooma/data;
+    else
+        zoomaDataDir=$ZOOMA_HOME;
+    fi
+
+    if [ ! -d $zoomaDataDir ] ; then
+        echo "Can't find $zoomaDataDir";
+        exit 1;
+    fi
+
+    rdf_dir=$zoomaDataDir/rdf
 
     if [ ! -d $rdf_dir ]; then
         echo "No rdf directory present at $rdf_dir - please generate some RDF files to build a Virtuoso index";
@@ -61,7 +74,7 @@ checkEnvironment() {
         exit 1;
     fi
 
-    build_dir=$zoomaHome/index/virtuoso;
+    build_dir=$zoomaDataDir/index/virtuoso;
     port=$(loadProperty "virtuoso.builder.port");
     httpport=$(loadProperty "virtuoso.builder.httpport");
     threads=$(loadProperty "virtuoso.builder.threads");

@@ -44,6 +44,19 @@ checkEnvironment() {
         exit 1;
     fi
 
+    if [ ! $ZOOMA_DATA_DIR ];
+    then
+        printf "\$ZOOMA_DATA_DIR not set - using $HOME/.zooma/data\n";
+        zoomaDataDir=$HOME/.zooma/data;
+    else
+        zoomaDataDir=$ZOOMA_HOME;
+    fi
+
+    if [ ! -d $zoomaDataDir ] ; then
+        echo "Can't find $zoomaDataDir";
+        exit 1;
+    fi
+
     if [ ! $VIRTUOSO_HOME ] ; then
         echo "VIRTUOSO_HOME variable not set";
         exit 1;
@@ -54,7 +67,7 @@ checkEnvironment() {
         exit 1;
     fi
 
-    build_dir=$zoomaHome/index/virtuoso;
+    build_dir=$zoomaDataDir/index/virtuoso;
     port=$(loadProperty "virtuoso.builder.port");
     httpport=$(loadProperty "virtuoso.builder.httpport");
 
