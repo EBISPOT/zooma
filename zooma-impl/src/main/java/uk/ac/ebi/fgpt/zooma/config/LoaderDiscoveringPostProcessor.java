@@ -130,7 +130,19 @@ public class LoaderDiscoveringPostProcessor implements BeanFactoryPostProcessor 
                                              zoomaCoreLoader,
                                              Integer.toString(number.getAndIncrement()));
         }
-        return readLoaderBeans(loader, beanFactory);
+
+        try {
+            return readLoaderBeans(loader, beanFactory);
+        }
+        catch (IOException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            getLog().error("Failed to register loader module at '" + f.getAbsolutePath() + "', " +
+                                   "loading resources from this loader will not be available");
+            getLog().debug("Failed to registter loader module at '" + f.getAbsolutePath() + "':", e);
+            return 0;
+        }
     }
 
     protected int registerConfig(ClassLoader zoomaCoreLoader, File f, ConfigurableListableBeanFactory beanFactory)
@@ -139,7 +151,18 @@ public class LoaderDiscoveringPostProcessor implements BeanFactoryPostProcessor 
                                f.getAbsolutePath() + "'...");
         if (f.isDirectory()) {
             URLClassLoader loader = new URLClassLoader(new URL[]{f.toURI().toURL()}, zoomaCoreLoader);
-            return readLoaderBeans(loader, beanFactory);
+            try {
+                return readLoaderBeans(loader, beanFactory);
+            }
+            catch (IOException e) {
+                throw e;
+            }
+            catch (Exception e) {
+                getLog().error("Failed to register loader module at '" + f.getAbsolutePath() + "', " +
+                                       "loading resources from this loader will not be available");
+                getLog().debug("Failed to registter loader module at '" + f.getAbsolutePath() + "':", e);
+                return 0;
+            }
         }
         else {
             throw new BeanDefinitionValidationException(
