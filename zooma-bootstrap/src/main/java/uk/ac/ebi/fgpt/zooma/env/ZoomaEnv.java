@@ -101,7 +101,7 @@ public class ZoomaEnv {
             else {
                 getLog().info("*** $ZOOMA_DATA_DIR: " + dataDir + " ***");
             }
-            System.setProperty("zooma.home", dataDir);
+            System.setProperty("zooma.data.dir", dataDir);
         }
         else {
             getLog().info("*** zooma.data.dir: " + zoomaDataDir + " ***");
