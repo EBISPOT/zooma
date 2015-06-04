@@ -177,7 +177,7 @@ createCleanInstance() {
 
     echo "Generating Virtuoso config file at $configfile";
 
-    (cat $templatefile | sed  -e "s#\$VIRTUOSO_HOME#$VIRTUOSO_HOME#g" -e "s#\$DBDIR#$build_dir#g" -e "s#\$SERVERPORT#$port#g" -e "s#\$HTTPPORT#$httpport#g" -e "s#\$ZOOMA_HOME#$zoomaHome#g" > $configfile) || exit 3
+    (cat $templatefile | sed  -e "s#\$VIRTUOSO_HOME#$VIRTUOSO_HOME#g" -e "s#\$DBDIR#$build_dir#g" -e "s#\$SERVERPORT#$port#g" -e "s#\$HTTPPORT#$httpport#g" -e "s#\$ZOOMA_HOME#$zoomaHome#g" -e "s#\$ZOOMA_DATA_DIR#$zoomaDataDir#g" > $configfile) || exit 3
 
     startVirtuoso;
 
