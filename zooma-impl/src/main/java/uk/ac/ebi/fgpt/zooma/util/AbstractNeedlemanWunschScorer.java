@@ -1,7 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
+import org.simmetrics.metrics.NeedlemanWunch;
 import uk.ac.ebi.fgpt.zooma.model.Qualitative;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.NeedlemanWunch;
 
 /**
  * An {@link uk.ac.ebi.fgpt.zooma.util.AbstractStringQualityBasedScorer} that uses a the Needleman-Wunsch algorithm to
@@ -26,6 +26,6 @@ public abstract class AbstractNeedlemanWunschScorer<T extends Qualitative> exten
      */
     protected float getSimilarity(String s1, String s2) {
         // similarity is average NW and Jaccard score, squared
-        return nwSimilarity.getSimilarity(s1, s2);
+        return nwSimilarity.compare(s1, s2);
     }
 }

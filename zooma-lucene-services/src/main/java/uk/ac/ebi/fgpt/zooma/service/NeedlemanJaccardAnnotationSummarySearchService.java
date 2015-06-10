@@ -1,13 +1,16 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
+import org.simmetrics.StringMetric;
+import org.simmetrics.StringMetricBuilder;
+import org.simmetrics.metrics.JaccardSimilarity;
+import org.simmetrics.metrics.NeedlemanWunch;
+import org.simmetrics.tokenizers.Whitespace;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.util.AnnotationSummarySearchCommand;
 import uk.ac.ebi.fgpt.zooma.util.ScoreBasedSorter;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.JaccardSimilarity;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.NeedlemanWunch;
 
 import java.io.IOException;
 import java.net.URI;
@@ -192,7 +195,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         NeedlemanWunch nwSimilarity = new NeedlemanWunch();
         if (!getPropertyValueDictionary().isEmpty()) {
             for (String comparedPropertyValue : getPropertyValueDictionary()) {
-                float result = nwSimilarity.getSimilarity(propertyValue, comparedPropertyValue);
+                float result = nwSimilarity.compare(propertyValue, comparedPropertyValue);
                 if (getLog().isTraceEnabled()) {
                     if (result > 0) {
                         getLog().trace(
@@ -236,10 +239,10 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
 
         getLog().debug("Attempting to use Jaccard expansion to identify similar strings to " + propertyValue);
         Map<String, Float> expandedPropertyMap = new HashMap<>();
-        JaccardSimilarity jaccardSimilarity = new JaccardSimilarity();
+        StringMetric jaccardSimilarity = StringMetricBuilder.with(new JaccardSimilarity<String>()).tokenize(new Whitespace()).build();
         if (!getPropertyValueDictionary().isEmpty()) {
             for (String comparedPropertyValue : getPropertyValueDictionary()) {
-                float result = jaccardSimilarity.getSimilarity(propertyValue, comparedPropertyValue);
+                float result = jaccardSimilarity.compare(propertyValue, comparedPropertyValue);
                 if (getLog().isTraceEnabled()) {
                     if (result > 0) {
                         getLog().trace(
