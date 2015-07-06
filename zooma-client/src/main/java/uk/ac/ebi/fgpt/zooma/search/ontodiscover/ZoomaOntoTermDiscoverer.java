@@ -30,17 +30,17 @@ import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchInterface;
 public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 {
 	private ZOOMASearchInterface zoomaSearcher;
-	private float zoomaThreesholdScore;
+	private float zoomaThresholdScore;
 	
 	private Logger log = LoggerFactory.getLogger ( this.getClass () );
 	
 	/**
 	 * You can pass me your own ZOOMA client, useful if you want send in wrappers like {@link StatsZOOMASearchFilter}.
 	 */
-	public ZoomaOntoTermDiscoverer ( ZOOMASearchInterface zoomaSearcher, float zoomaThreeSholdScore )
+	public ZoomaOntoTermDiscoverer ( ZOOMASearchInterface zoomaSearcher, float zoomaThresholdScore )
 	{
 		this.zoomaSearcher = zoomaSearcher;
-		this.zoomaThreesholdScore = zoomaThreeSholdScore;
+		this.zoomaThresholdScore = zoomaThresholdScore;
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 				? new SimpleUntypedProperty ( valueLabel ) 
 				: new SimpleTypedProperty ( typeLabel, valueLabel ); 
 
-				Map<AnnotationSummary, Float> zresult = zoomaSearcher.searchZOOMA ( zprop, zoomaThreesholdScore, typeLabel == null );
+				Map<AnnotationSummary, Float> zresult = zoomaSearcher.searchZOOMA ( zprop, zoomaThresholdScore, typeLabel == null );
 			
 			// TODO: apply the logics suggested by ZOOMA people:
 			// - 80 is a good threshold
@@ -116,14 +116,14 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 	 * This is passed to {@link ZOOMASearchClient#searchZOOMA(Property, float)} and hence only results above
 	 * such threshold are returned. Default is 80.
 	 */
-	public float getZoomaThreesholdScore ()
+	public float getZoomaThresholdScore ()
 	{
-		return zoomaThreesholdScore;
+		return zoomaThresholdScore;
 	}
 
-	public void setZoomaThreesholdScore ( float zoomaThreesholdScore )
+	public void setZoomaThresholdScore ( float zoomaThresholdScore )
 	{
-		this.zoomaThreesholdScore = zoomaThreesholdScore;
+		this.zoomaThresholdScore = zoomaThresholdScore;
 	}
 
 }

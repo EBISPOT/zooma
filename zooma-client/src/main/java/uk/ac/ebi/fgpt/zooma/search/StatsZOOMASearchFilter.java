@@ -21,13 +21,13 @@ import uk.ac.ebi.utils.time.XStopWatch;
 public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 {
 	private long searchZOOMACalls = 0, failedSearchZOOMACalls = 0;
-	private double avgSearchZOOMACalls = -1, avgFailedSearchZOOMACalls = -1;
+	private double avgSearchZOOMACalls = 0, avgFailedSearchZOOMACalls = 0;
 	
 	private long getAnnotationCalls = 0, failedGetAnnotationCalls = 0;
-	private double avgGetAnnotationCalls = -1, avgFailedGetAnnotationCalls = -1;
+	private double avgGetAnnotationCalls = 0, avgFailedGetAnnotationCalls = 0;
 	
 	private long getLabelCalls = 0, failedGetLabelCalls = 0;
-	private double avgGetLabelCalls = -1, avgFailedGetLabelCalls = -1;
+	private double avgGetLabelCalls = 0, avgFailedGetLabelCalls = 0;
 
 	private boolean throttleMode = false;
 	
@@ -120,14 +120,8 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 			
 			// ---- searchZOOMA () ----
 			
-			avgSearchZOOMACalls = avgSearchZOOMACalls == -1 
-				? 1.0 * searchZOOMACalls / samplingTimeMs  
-				: ( 1.0 * searchZOOMACalls / samplingTimeMs + avgSearchZOOMACalls ) / 2;
-
-			double thisFailedSearchZOOMACalls = failedSearchZOOMACalls == 0 ? 0 : 1.0 * failedSearchZOOMACalls / searchZOOMACalls;
-			avgFailedSearchZOOMACalls = avgFailedSearchZOOMACalls == -1 
-				? thisFailedSearchZOOMACalls 
-				: ( thisFailedSearchZOOMACalls + avgSearchZOOMACalls ) / 2;
+			avgSearchZOOMACalls = 1.0 * searchZOOMACalls / samplingTimeMs;  
+			if ( searchZOOMACalls > 0 ) avgFailedSearchZOOMACalls = 1.0 * failedSearchZOOMACalls / searchZOOMACalls;
 
 			log.info ( String.format ( 
 				"---- ZOOMA Statistics, searchZOOMA(), throughput: %.0f calls/min, failed: %.1f %%",
@@ -136,17 +130,10 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 			
 			searchZOOMACalls = failedSearchZOOMACalls = 0;
 
-
 			// ---- getAnnotation () ----
 
-			avgGetAnnotationCalls = avgGetAnnotationCalls == -1 
-				? 1.0 * getAnnotationCalls / samplingTimeMs
-				: ( 1.0 * getAnnotationCalls / samplingTimeMs + avgGetAnnotationCalls ) / 2; 
-			
-			double thisFailedGetAnnotationCalls = failedGetAnnotationCalls == 0 ? 0 : 1.0 * failedGetAnnotationCalls / getAnnotationCalls;
-			avgFailedGetAnnotationCalls = avgFailedGetAnnotationCalls == -1 
-				? thisFailedGetAnnotationCalls 
-				: ( thisFailedGetAnnotationCalls + avgGetAnnotationCalls ) / 2;
+			avgGetAnnotationCalls = 1.0 * getAnnotationCalls / samplingTimeMs;
+			if ( getAnnotationCalls > 0 ) avgFailedGetAnnotationCalls = 1.0 * failedGetAnnotationCalls / getAnnotationCalls; 
 			
 			log.info ( String.format ( 
 				"---- ZOOMA Statistics, getAnnotation(), throughput: %.0f calls/min, failed: %.1f %%",
@@ -158,14 +145,8 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 			
 			// ---- getLabel () ----
 
-			avgGetLabelCalls = avgGetLabelCalls == -1  
-				? 1.0 * getLabelCalls / samplingTimeMs
-				: ( getLabelCalls / samplingTimeMs + avgGetLabelCalls ) / 2;
-			
-			double thisFailedGetLabelCalls = failedGetLabelCalls == 0 ? 0 : 1.0 * failedGetLabelCalls / getLabelCalls;
-			avgFailedGetLabelCalls = avgFailedGetLabelCalls == -1 
-				? thisFailedGetLabelCalls 
-				: ( thisFailedGetLabelCalls + avgGetLabelCalls ) / 2;
+			avgGetLabelCalls = 1.0 * getLabelCalls / samplingTimeMs;
+			if ( getLabelCalls > 0 ) avgFailedGetLabelCalls = 1.0 * failedGetLabelCalls / getLabelCalls;
 			
 			log.info ( String.format ( 
 				"---- ZOOMA Statistics, getLabel(), throughput: %.0f calls/min, failed: %.1f %%",
@@ -191,7 +172,7 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 		if ( failedCalls <= 0.1 ) 
 		{
 			if ( isThrottling ) {
-				log.debug ( "ZOOMA back to good performance, throttling ends" );
+				log.info ( "ZOOMA back to good performance, throttling ends" );
 				isThrottling = false;
 			}
 			return false;
@@ -200,12 +181,13 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 		// The thresholds are related to twice their values most of the time, eg, 
 		// previous checkpoint it was 0, then it becomes 35, average is 17.5
 		long delay = 
-			failedCalls <= 0.175 ? 500 
-			: failedCalls <= 0.275 ? 5000 : 
-			60000; 
+			failedCalls <= 0.30 ? 500 
+			: failedCalls <= 0.50 ? 5 * 1000 
+			: failedCalls <= 0.70 ? 1 * 60 * 1000
+			: 5 * 60 * 1000; 
 
 		if ( !isThrottling ) {
-			log.debug ( "Throttling ZOOMA to avoid server crashing, calls are slowed down by {}ms per call", delay );
+			log.info ( "Throttling ZOOMA to avoid server crashing, calls are slowed down by {}ms per call", delay );
 			isThrottling = true;
 		}
 		

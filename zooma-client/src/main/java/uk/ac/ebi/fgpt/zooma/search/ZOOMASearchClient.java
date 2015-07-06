@@ -64,9 +64,17 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
     	this ( zoomaLocation == null ? null : zoomaLocation.toString () );
     }
 
+    /**
+     * @param zoomaLocation, if it's null, it tries to get it from the system property 
+     * uk.ac.ebi.fg.biosd.biosd2rdf.zooma.apiurl, if neither that works, default to http://www.ebi.ac.uk/fgpt/zooma.
+     */
     public ZOOMASearchClient(String zoomaLocation) 
     {
-    	if ( zoomaLocation == null ) zoomaLocation = "http://www.ebi.ac.uk/fgpt/zooma";
+    	if ( zoomaLocation == null ) 
+	  		zoomaLocation = System.getProperty ( 
+	  			"uk.ac.ebi.fg.biosd.biosd2rdf.zooma.apiurl", 
+	  			"http://www.ebi.ac.uk/fgpt/zooma" 
+	  		);
     	
       this.zoomaBase = zoomaLocation + "/v2/api/";
       this.zoomaSearchBase = zoomaBase + "search?query=";
