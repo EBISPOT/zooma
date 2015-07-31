@@ -25,7 +25,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
-                    <finalName>zooma2</finalName>
+                    <finalName>zooma-builder</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
                         <descriptor>src/main/assembly/zooma-assembly-descriptor.xml</descriptor>
