@@ -3,6 +3,8 @@ package uk.ac.ebi.fgpt.zooma.env;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import java.io.File;
 import java.util.Map;
 
@@ -81,8 +83,19 @@ public class ZoomaEnv {
         if (zoomaHome == null || zoomaHome.equals("")) {
             String home = System.getenv("ZOOMA_HOME");
             if (home == null || home.equals("")) {
-                home = System.getProperty("user.home") + File.separator + ".zooma";
-                getLog().info("*** $ZOOMA_HOME not set - defaulting to: " + home + " ***");
+                // try JNDI context lookup
+                try {
+                    home = new InitialContext().lookup("java:comp/env/zooma.home").toString();
+                }
+                catch (NamingException e) {
+                    getLog().warn("No zooma.home or $ZOOMA_HOME, lookup for java:comp/env/zooma.home also failed", e);
+                }
+
+                if (home == null || home.equals("")) {
+                    home = System.getProperty("user.home") + File.separator + ".zooma";
+                    getLog().info("*** zooma.home defaulting to: " + home + " " +
+                                          "(No zooma.home, $ZOOMA_HOME or context object named zooma.home) ***");
+                }
             }
             else {
                 getLog().info("*** $ZOOMA_HOME: " + home + " ***");
@@ -96,8 +109,21 @@ public class ZoomaEnv {
         if (zoomaDataDir == null || zoomaDataDir.equals("")) {
             String dataDir = System.getenv("ZOOMA_DATA_DIR");
             if (dataDir == null || dataDir.equals("")) {
-                dataDir = System.getProperty("zooma.home") + File.separator + "data";
-                getLog().info("*** $ZOOMA_DATA_DIR not set - defaulting to: " + dataDir + " ***");
+                // try JNDI context lookup
+                try {
+                    dataDir = new InitialContext().lookup("java:comp/env/zooma.data.dir").toString();
+                }
+                catch (NamingException e) {
+                    getLog().warn("No zooma.data.dir or $ZOOMA_DATA_DIR, " +
+                                          "lookup for java:comp/env/zooma.data.dir also failed", e);
+                }
+
+                if (dataDir == null || dataDir.equals("")) {
+                    dataDir = System.getProperty("zooma.home") + File.separator + "data";
+                    getLog().info("*** zooma.data.dir defaulting to: " + dataDir + " " +
+                                          "(No zooma.data.dir, $ZOOMA_DATA_DIR or context object " +
+                                          "named zooma.data.dir) ***");
+                }
             }
             else {
                 getLog().info("*** $ZOOMA_DATA_DIR: " + dataDir + " ***");
