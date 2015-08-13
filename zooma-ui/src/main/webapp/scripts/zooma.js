@@ -22,7 +22,7 @@ var annotatesToClass = "zooma_annotates_to";
 
         //noinspection JSValidateTypes
         var _options = $.extend({
-            'api_base_url': 'http://www.ebi.ac.uk/fgpt/zooma/',
+            'api_base_url': 'http://www.ebi.ac.uk/spot/zooma/',
             'api_base_path': 'v2/api'
         }, options);
 
