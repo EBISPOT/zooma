@@ -18,7 +18,7 @@
     <rule>
         <condition type="method" operator='equal'>POST</condition>
         <from>/sparql$</from>
-        <to last="true">/servlet/query$1</to>
+        <to last="true">/v2/api/query$1</to>
     </rule>
 
 
@@ -39,7 +39,7 @@
     <rule>
         <condition name="Accept" type="header" operator="notequal">text/html</condition>
         <from>/sparql$</from>
-        <to>/servlet/query$1</to>
+        <to>/v2/api/query$1</to>
     </rule>
 
 
@@ -61,32 +61,32 @@
     <rule>
         <condition name="Accept" type="header">application/rdf.*</condition>
         <from>/sparql(.*)$</from>
-        <to>/servlet/query$1</to>
+        <to>/v2/api/query$1</to>
     </rule>
 
     <rule>
         <condition name="Accept" type="header">application/sparql.*</condition>
         <from>/sparql(.*)$</from>
-        <to>/servlet/query$1</to>
+        <to>/v2/api/query$1</to>
     </rule>
 
     <rule>
         <condition name="Accept" type="header">text/*</condition>
         <from>/sparql(.*)$</from>
-        <to>/servlet/query$1</to>
+        <to>/v2/api/query$1</to>
     </rule>
 
     <!-- explore service rewriting -->
     <rule>
         <condition name="Accept" type="header" operator="notequal">text/html</condition>
         <from>/describe$</from>
-        <to>/servlet/explore$1</to>
+        <to>/v2/api/explore$1</to>
     </rule>
 
     <rule>
         <condition name="Accept" type="header">application/rdf.*</condition>
         <from>/describe(.*)$</from>
-        <to>/servlet/explore$1</to>
+        <to>/v2/api/explore$1</to>
     </rule>
 
 

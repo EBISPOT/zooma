@@ -66,8 +66,6 @@ function init() {
 
     // render table contents if there are results in session
     getResults();
-
-    $("#zooma-explorebox").zooma({'api_base_url': ''});
 }
 
 function initializeScrollpanes() {
