@@ -31,7 +31,7 @@ import java.util.Collection;
  */
 @Controller
 @RequestMapping("/studies")
-public class ZoomaStudySearcher {
+public class ZoomaStudies {
     private StudyService studyService;
     private StudySearchService studySearchService;
     private PropertyService propertyService;
@@ -42,31 +42,25 @@ public class ZoomaStudySearcher {
         return log;
     }
 
-    public PropertyService getPropertyService() {
-        return propertyService;
+    @Autowired
+    public ZoomaStudies(StudyService studyService,
+                        StudySearchService studySearchService,
+                        PropertyService propertyService) {
+        this.studyService = studyService;
+        this.studySearchService = studySearchService;
+        this.propertyService = propertyService;
     }
 
-    @Autowired
-    public void setPropertyService(PropertyService propertyService) {
-        this.propertyService = propertyService;
+    public PropertyService getPropertyService() {
+        return propertyService;
     }
 
     public StudyService getStudyService() {
         return studyService;
     }
 
-    @Autowired
-    public void setStudyService(StudyService studyService) {
-        this.studyService = studyService;
-    }
-
     public StudySearchService getStudySearchService() {
         return studySearchService;
-    }
-
-    @Autowired
-    public void setStudySearchService(StudySearchService studySearchService) {
-        this.studySearchService = studySearchService;
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -126,7 +120,7 @@ public class ZoomaStudySearcher {
                     String s = semanticTags[i];
                     URI uri = URIUtils.getURI(s);
                     getLog().trace(
-                             "Next request element: " + s + " (type = " + s.getClass() + ") -> URI '" + uri + "'");
+                            "Next request element: " + s + " (type = " + s.getClass() + ") -> URI '" + uri + "'");
                     deArray[i] = uri;
                 }
 
@@ -147,13 +141,15 @@ public class ZoomaStudySearcher {
                 getLog().trace("Acquired " + results.size() + " studies");
                 return results;
             }
-            else if (propertyType != null || propertyValue !=null) {
+            else if (propertyType != null || propertyValue != null) {
                 getLog().trace("Retrieving studies with property '" + propertyType + "'" + "/'" + propertyValue + "'");
-                Collection<Property> properties = getPropertyService().getMatchedTypedProperty(propertyType, propertyValue);
+                Collection<Property> properties =
+                        getPropertyService().getMatchedTypedProperty(propertyType, propertyValue);
                 return getStudySearchService().searchByProperty(properties.toArray(new Property[properties.size()]));
             }
             else {
-                throw new IllegalArgumentException("Please supply either a semanticTag, property values or accession argument to search");
+                throw new IllegalArgumentException(
+                        "Please supply either a semanticTag, property values or accession argument to search");
             }
         }
     }

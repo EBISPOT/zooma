@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TestZoomaPropertySearchEngine {
-    private ZoomaPropertySearcher propertySearchEngine;
+    private ZoomaProperties propertySearchEngine;
 
     private PropertySearchService propertySearchService;
 
@@ -140,7 +140,7 @@ public class TestZoomaPropertySearchEngine {
                 .thenReturn(limitedProperties);
 
         // create search engine
-        propertySearchEngine = new ZoomaPropertySearcher(propertyService,
+        propertySearchEngine = new ZoomaProperties(propertyService,
                                                          propertySearchService,
                                                          propertySorter,
                                                          propertyLimiter);

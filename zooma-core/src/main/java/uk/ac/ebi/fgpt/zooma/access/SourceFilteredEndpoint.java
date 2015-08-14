@@ -1,5 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.access;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSourceService;
@@ -11,16 +13,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * An abstract class that allows subclasses to easily map filter parameter requests to the relevant underlying
+ * datasource
+ *
  * @author Simon Jupp
- * @date 06/02/2014
- * Functional Genomics Group EMBL-EBI
+ * @author Tony Burdett
+ * @date 06/02/2014 Functional Genomics Group EMBL-EBI
  */
-public abstract class SourceFilteredSuggestEndpoint<T, I> extends SuggestEndpoint<T, I> {
-
+public abstract class SourceFilteredEndpoint<T, I> {
     private AnnotationSourceService annotationSourceService;
 
     public AnnotationSourceService getAnnotationSourceService() {
         return annotationSourceService;
+    }
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    protected Logger getLog() {
+        return log;
     }
 
     @Autowired

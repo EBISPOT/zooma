@@ -16,9 +16,6 @@ import uk.ac.ebi.fgpt.zooma.util.InferredAnnotationSummaryCache;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
 import uk.ac.ebi.fgpt.zooma.util.Scorer;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
-import uk.ac.ebi.fgpt.zooma.view.FlyoutResponse;
-import uk.ac.ebi.fgpt.zooma.view.SearchResponse;
-import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
 
 import java.net.URI;
 import java.util.Collection;
@@ -44,7 +41,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/summaries")
-public class ZoomaAnnotationSummarySearcher extends SourceFilteredSuggestEndpoint<AnnotationSummary, String> {
+public class ZoomaAnnotationSummaries extends SourceFilteredEndpoint<AnnotationSummary, String> {
     private AnnotationSummaryService annotationSummaryService;
 
     private AnnotationSummarySearchService annotationSummarySearchService;
@@ -55,53 +52,38 @@ public class ZoomaAnnotationSummarySearcher extends SourceFilteredSuggestEndpoin
 
     private InferredAnnotationSummaryCache inferredAnnotationSummaryCache = new InferredAnnotationSummaryCache();
 
-    public AnnotationSummaryService getAnnotationSummaryService() {
-        return annotationSummaryService;
+    @Autowired
+    public ZoomaAnnotationSummaries(
+            AnnotationSummaryService annotationSummaryService,
+            @Qualifier("annotationSummarySearchService") AnnotationSummarySearchService annotationSummarySearchService,
+            Sorter<AnnotationSummary> annotationSummarySorter,
+            Limiter<AnnotationSummary> annotationSummaryLimiter,
+            Scorer<AnnotationSummary> annotationSummaryScorer) {
+        this.annotationSummaryService = annotationSummaryService;
+        this.annotationSummarySearchService = annotationSummarySearchService;
+        this.annotationSummarySorter = annotationSummarySorter;
+        this.annotationSummaryLimiter = annotationSummaryLimiter;
+        this.annotationSummaryScorer = annotationSummaryScorer;
     }
 
-    @Autowired
-    public void setAnnotationSummaryService(AnnotationSummaryService annotationSummaryService) {
-        this.annotationSummaryService = annotationSummaryService;
+    public AnnotationSummaryService getAnnotationSummaryService() {
+        return annotationSummaryService;
     }
 
     public AnnotationSummarySearchService getAnnotationSummarySearchService() {
         return annotationSummarySearchService;
     }
 
-    @Autowired
-    @Qualifier("annotationSummarySearchService")
-    public void setAnnotationSummarySearchService(AnnotationSummarySearchService annotationSummarySearchService) {
-        this.annotationSummarySearchService = annotationSummarySearchService;
-    }
-
     public Sorter<AnnotationSummary> getAnnotationSummarySorter() {
         return annotationSummarySorter;
-    }
-
-    @Autowired
-    public void setAnnotationSummarySorter(Sorter<AnnotationSummary> annotationSummarySorter) {
-        setIsValidated(false);
-        this.annotationSummarySorter = annotationSummarySorter;
     }
 
     public Limiter<AnnotationSummary> getAnnotationSummaryLimiter() {
         return annotationSummaryLimiter;
     }
 
-    @Autowired
-    public void setAnnotationSummaryLimiter(Limiter<AnnotationSummary> annotationSummaryLimiter) {
-        setIsValidated(false);
-        this.annotationSummaryLimiter = annotationSummaryLimiter;
-    }
-
     public Scorer<AnnotationSummary> getAnnotationSummaryScorer() {
         return annotationSummaryScorer;
-    }
-
-    @Autowired
-    public void setAnnotationSummaryScorer(Scorer<AnnotationSummary> annotationSummaryScorer) {
-        setIsValidated(false);
-        this.annotationSummaryScorer = annotationSummaryScorer;
     }
 
     public Collection<AnnotationSummary> fetch() {
@@ -204,14 +186,6 @@ public class ZoomaAnnotationSummarySearcher extends SourceFilteredSuggestEndpoin
 
     protected String extractElementTypeName(AnnotationSummary annotationSummary) {
         return annotationSummary.getAnnotationSummaryTypeName();
-    }
-
-    @Override protected String extractElementTypeID() {
-        return AnnotationSummary.ANNOTATION_SUMMARY_TYPE_ID;
-    }
-
-    @Override protected String extractElementTypeName() {
-        return AnnotationSummary.ANNOTATION_SUMMARY_TYPE_NAME;
     }
 
     @Override

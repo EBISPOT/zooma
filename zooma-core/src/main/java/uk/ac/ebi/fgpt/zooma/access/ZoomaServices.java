@@ -35,31 +35,25 @@ public class ZoomaServices {
         return log;
     }
 
-    public OntologyService getOntologyService() {
-        return ontologyService;
+    @Autowired
+    public ZoomaServices(OntologyService ontologyService,
+                         StatusService statusService,
+                         PropertiesMapAdapter propertiesMapAdapter) {
+        this.ontologyService = ontologyService;
+        this.statusService = statusService;
+        this.propertiesMapAdapter = propertiesMapAdapter;
     }
 
-    @Autowired
-    public void setOntologyService(OntologyService ontologyService) {
-        this.ontologyService = ontologyService;
+    public OntologyService getOntologyService() {
+        return ontologyService;
     }
 
     public StatusService getStatusService() {
         return statusService;
     }
 
-    @Autowired
-    public void setStatusService(StatusService statusService) {
-        this.statusService = statusService;
-    }
-
     public PropertiesMapAdapter getPropertiesMapAdapter() {
         return propertiesMapAdapter;
-    }
-
-    @Autowired
-    public void setPropertiesMapAdapter(PropertiesMapAdapter propertiesMapAdapter) {
-        this.propertiesMapAdapter = propertiesMapAdapter;
     }
 
     @RequestMapping(value = "/check-status", method = RequestMethod.GET)

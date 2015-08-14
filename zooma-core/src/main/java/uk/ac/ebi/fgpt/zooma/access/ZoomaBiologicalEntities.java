@@ -29,7 +29,7 @@ import java.util.Collection;
  */
 @Controller
 @RequestMapping("/biologicalEntities")
-public class ZoomaBiologicalEntitySearcher {
+public class ZoomaBiologicalEntities {
     private BiologicalEntityService biologicalEntityService;
     private BiologicalEntitySearchService biologicalEntitySearchService;
 
@@ -39,22 +39,19 @@ public class ZoomaBiologicalEntitySearcher {
         return log;
     }
 
+    @Autowired
+    public ZoomaBiologicalEntities(BiologicalEntityService biologicalEntityService,
+                                   BiologicalEntitySearchService biologicalEntitySearchService) {
+        this.biologicalEntityService = biologicalEntityService;
+        this.biologicalEntitySearchService = biologicalEntitySearchService;
+    }
+
     public BiologicalEntityService getBiologicalEntityService() {
         return biologicalEntityService;
     }
 
-    @Autowired
-    public void setBiologicalEntityService(BiologicalEntityService biologicalEntityService) {
-        this.biologicalEntityService = biologicalEntityService;
-    }
-
     public BiologicalEntitySearchService getBiologicalEntitySearchService() {
         return biologicalEntitySearchService;
-    }
-
-    @Autowired
-    public void setBiologicalEntitySearchService(BiologicalEntitySearchService biologicalEntitySearchService) {
-        this.biologicalEntitySearchService = biologicalEntitySearchService;
     }
 
     @RequestMapping(method = RequestMethod.GET)
