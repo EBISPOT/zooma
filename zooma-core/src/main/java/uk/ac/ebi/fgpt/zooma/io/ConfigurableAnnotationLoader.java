@@ -247,46 +247,31 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
     private final static ReentrantLock lock = new ReentrantLock();
 
     /**
-     * A thread-safe implementation of {@link java.io.File#mkdirs()} that creates all required parent directories for
-     * the given file if they do not already exist.  This method will return early if the directories already exist.  If
-     * parent directories are absent, this method will acquire a reentrant lock, thereby ensuring that only one thread
-     * will attempt directory creation.  If directory creation still fails, this method will throw an IO exception
+     * A thread-safe implementation of {@link java.io.File#mkdirs()} that creates the given directory and all required
+     * parent directories for the given directory if they do not already exist.  This method will return early if the
+     * directories already exist.  If parent directories are absent, this method will acquire a reentrant lock, thereby
+     * ensuring that only one thread will attempt directory creation.  If directory creation still fails, this method
+     * will throw an IO exception
      *
      * @param f the file to create parent directories for, if they do not already exist
      */
     private void createDirs(File f) throws ZoomaSerializationException {
-        if (f.isDirectory()) {
-            if (!f.getAbsoluteFile().exists()) {
-                lock.lock();
-                try {
-                    // retest; another thread may have created this directory between the first test and acquiring the lock
-                    if (!f.getAbsoluteFile().exists()) {
-                        if (!f.getAbsoluteFile().mkdirs()) {
-                            throw new ZoomaSerializationException(
-                                    "Unable to create directory '" + f.getAbsolutePath() + "'");
-                        }
+        if (!f.getAbsoluteFile().exists()) {
+            lock.lock();
+            try {
+                // retest; another thread may have created this directory between the first test and acquiring the lock
+                if (!f.getAbsoluteFile().exists()) {
+                    if (!f.getAbsoluteFile().mkdirs()) {
+                        throw new ZoomaSerializationException(
+                                "Unable to create directory '" + f.getAbsolutePath() + "'");
                     }
-                }
-                finally {
-                    lock.unlock();
+                    else {
+                        getLog().info("'" + f.getAbsolutePath() + "' created ok");
+                    }
                 }
             }
-        }
-        else {
-            if (!f.getAbsoluteFile().getParentFile().exists()) {
-                lock.lock();
-                try {
-                    // retest; another thread may have created this directory between the first test and acquiring the lock
-                    if (!f.getAbsoluteFile().getParentFile().exists()) {
-                        if (!f.getAbsoluteFile().getParentFile().mkdirs()) {
-                            throw new ZoomaSerializationException(
-                                    "Unable to create directory '" + f.getParentFile().getAbsolutePath() + "'");
-                        }
-                    }
-                }
-                finally {
-                    lock.unlock();
-                }
+            finally {
+                lock.unlock();
             }
         }
     }
@@ -294,13 +279,7 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
     private File createDatasourceDirs(String datasourceName) throws ZoomaSerializationException {
         // make the output directory if it doesn't exist
         File outputDirectory = new File(outputPath);
-        if (!outputDirectory.exists()) {
-            getLog().info("Creating output directory '" + outputDirectory.getAbsolutePath() + "'...");
-            boolean created = outputDirectory.mkdirs();
-            if (created) {
-                getLog().info("'" + outputDirectory.getAbsolutePath() + "' created ok");
-            }
-        }
+        createDirs(outputDirectory);
 
         // calculate the datasource path
         StringBuilder datasourcePath = new StringBuilder();
@@ -314,7 +293,7 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
 
         // create the named graph file in the datasource directory
         String filename = "global.graph";
-        File f = new File(outputDirectory, filename);
+        File f = new File(datasourceDir, filename);
         // read bytes from input stream, write to file
         try (PrintWriter writer =
                      new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f))))) {
