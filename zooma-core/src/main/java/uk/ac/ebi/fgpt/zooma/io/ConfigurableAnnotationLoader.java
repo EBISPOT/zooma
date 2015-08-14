@@ -297,7 +297,7 @@ public class ConfigurableAnnotationLoader implements ZoomaLoader<Annotation> {
         // read bytes from input stream, write to file
         try (PrintWriter writer =
                      new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f))))) {
-            writer.println(URI.create(URI.create(Namespaces.ZOOMA.getURI() + datasourceName).toString()));
+            writer.println(URI.create(URI.create(Namespaces.ZOOMA_RESOURCE.getURI().toString() + datasourceName).toString()));
         }
         catch (IOException e) {
             getLog().warn("Could not create named graph file '" + f.getAbsolutePath() + "' " +
