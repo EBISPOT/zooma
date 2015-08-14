@@ -121,7 +121,6 @@ public class ZoomaAnnotationSummaries extends SourceFilteredEndpoint<AnnotationS
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query, boolean prefixed) {
-        validate();
         Collection<AnnotationSummary> annotations = prefixed
                 ? getAnnotationSummarySearchService().searchByPrefix(query)
                 : getAnnotationSummarySearchService().search(query);
@@ -129,7 +128,6 @@ public class ZoomaAnnotationSummaries extends SourceFilteredEndpoint<AnnotationS
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query, String type, boolean prefixed) {
-        validate();
         Collection<AnnotationSummary> annotations = prefixed
                 ? getAnnotationSummarySearchService().searchByPrefix(type, query)
                 : getAnnotationSummarySearchService().search(type, query);
@@ -140,7 +138,6 @@ public class ZoomaAnnotationSummaries extends SourceFilteredEndpoint<AnnotationS
                                                        String type,
                                                        boolean prefixed,
                                                        URI[] requiredSources) {
-        validate();
         Collection<AnnotationSummary> annotations = prefixed
                 ? getAnnotationSummarySearchService().searchByPrefix(type, query, requiredSources)
                 : getAnnotationSummarySearchService().search(type, query, requiredSources);
@@ -151,7 +148,6 @@ public class ZoomaAnnotationSummaries extends SourceFilteredEndpoint<AnnotationS
                                                        String type,
                                                        List<URI> preferredSources,
                                                        URI[] requiredSources) {
-        validate();
         Collection<AnnotationSummary> annotations =
                 getAnnotationSummarySearchService().searchByPreferredSources(type,
                                                                              query,
@@ -170,219 +166,5 @@ public class ZoomaAnnotationSummaries extends SourceFilteredEndpoint<AnnotationS
         Collection<AnnotationSummary> annotations =
                 getAnnotationSummarySearchService().searchBySemanticTags(semanticTags);
         return getAnnotationSummaryScorer().score(annotations);
-    }
-
-    @Override protected String extractElementID(AnnotationSummary annotationSummary) {
-        return annotationSummary.getID();
-    }
-
-    @Override protected String extractElementName(AnnotationSummary annotationSummary) {
-        return annotationSummary.getAnnotatedPropertyValue();
-    }
-
-    protected String extractElementTypeID(AnnotationSummary annotationSummary) {
-        return annotationSummary.getAnnotationSummaryTypeID();
-    }
-
-    protected String extractElementTypeName(AnnotationSummary annotationSummary) {
-        return annotationSummary.getAnnotationSummaryTypeName();
-    }
-
-    @Override
-    @RequestMapping(value = "/suggest", method = RequestMethod.GET)
-    public @ResponseBody SuggestResponse suggest(
-            @RequestParam(value = "prefix") String prefix,
-            @RequestParam(value = "type", required = false) String type,
-            @RequestParam(value = "type_strict", required = false) String type_strict,
-            @RequestParam(value = "limit", required = false) Integer limit,
-            @RequestParam(value = "start", required = false) Integer start) {
-        // check each non-required argument and defer to appropriate query form
-        // NB. we don't use type_strict param anywhere
-        if (type != null) {
-            return convertToSuggestResponse(prefix,
-                                            queryAndScore(prefix, type, true),
-                                            getAnnotationSummarySorter());
-        }
-        else {
-            return convertToSuggestResponse(prefix, queryAndScore(prefix, true), getAnnotationSummarySorter());
-        }
-    }
-
-    @RequestMapping(value = "/search", method = RequestMethod.GET)
-    public @ResponseBody SearchResponse search(
-            @RequestParam(value = "query", required = false) final String query,
-            @RequestParam(value = "type", required = false) final String type,
-            @RequestParam(value = "exact", required = false, defaultValue = "false") final Boolean exact,
-            @RequestParam(value = "limit", required = false, defaultValue = "20") final Integer limit,
-            @RequestParam(value = "start", required = false, defaultValue = "0") final Integer start,
-            @RequestParam(value = "prefixed", required = false, defaultValue = "false") final Boolean prefixed,
-            @RequestParam(value = "lang", required = false) final String lang,
-            @RequestParam(value = "domain", required = false) final String domain,
-            @RequestParam(value = "filter", required = false) final String filter,
-            @RequestParam(value = "html_escape", required = false, defaultValue = "true") final Boolean html_escape,
-            @RequestParam(value = "indent", required = false, defaultValue = "false") final Boolean indent,
-            @RequestParam(value = "mql_output", required = false) final String mql_output,
-            @RequestParam(value = "semanticTag", required = false) String[] semanticTags) {
-        validateArguments(query, type, semanticTags);
-        if (semanticTags != null) {
-            return searchBySemanticTags(semanticTags);
-        }
-        else {
-            return search(query,
-                          type,
-                          exact,
-                          limit,
-                          start,
-                          prefixed,
-                          lang,
-                          domain,
-                          filter,
-                          html_escape,
-                          indent,
-                          mql_output);
-        }
-    }
-
-    @Override
-    public SearchResponse search(final String query,
-                                 final String type,
-                                 final Boolean exact,
-                                 final Integer limit,
-                                 final Integer start,
-                                 final Boolean prefixed,
-                                 final String lang,
-                                 final String domain,
-                                 final String filter,
-                                 final Boolean html_escape,
-                                 final Boolean indent,
-                                 final String mql_output) {
-        if (filter != null) {
-            return filteredSearch(query,
-                                  type,
-                                  prefixed,
-                                  filter);
-        }
-        else {
-            return unfilteredSearch(query,
-                                    type,
-                                    prefixed);
-        }
-    }
-
-    protected SearchResponse unfilteredSearch(final String query,
-                                              final String type,
-                                              final Boolean prefixed) {
-        // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
-        if (type != null) {
-            return generateResponse(query,
-                                    queryAndScore(query, type, prefixed),
-                                    getAnnotationSummarySorter());
-        }
-        else {
-            return generateResponse(query, queryAndScore(query, prefixed), getAnnotationSummarySorter());
-        }
-    }
-
-    protected SearchResponse filteredSearch(final String query,
-                                            final String type,
-                                            final Boolean prefixed,
-                                            final String filter) {
-        SearchType searchType = validateFilterArguments(filter);
-        URI[] requiredSources = new URI[0];
-        List<URI> preferredSources;
-        switch (searchType) {
-            case REQUIRED_ONLY:
-                requiredSources = parseRequiredSourcesFromFilter(filter);
-                return generateResponse(query,
-                                        queryAndScore(query, type, prefixed, requiredSources),
-                                        getAnnotationSummarySorter());
-            case REQUIRED_AND_PREFERRED:
-                requiredSources = parseRequiredSourcesFromFilter(filter);
-            case PREFERRED_ONLY:
-                preferredSources = parsePreferredSourcesFromFilter(filter);
-                return generateResponse(query,
-                                        queryAndScore(query, type, preferredSources, requiredSources),
-                                        getAnnotationSummarySorter());
-            case UNRESTRICTED:
-            default:
-                return unfilteredSearch(query,
-                                        type,
-                                        prefixed);
-        }
-    }
-
-    @Override
-    @RequestMapping(value = "/flyout", method = RequestMethod.GET)
-    public @ResponseBody FlyoutResponse flyout(@RequestParam(value = "id") final String id) {
-        return convertToFlyoutResponse(fetch(id));
-    }
-
-    @RequestMapping(value = "/{annotationSummaryID}", method = RequestMethod.GET)
-    public @ResponseBody AnnotationSummary fetch(@PathVariable String annotationSummaryID) {
-        AnnotationSummary result = getAnnotationSummaryService().getAnnotationSummary(annotationSummaryID);
-        if (result == null) {
-            // try to retrieve from cache
-            result = inferredAnnotationSummaryCache.retrieveAnnotationSummary(annotationSummaryID);
-        }
-        return result;
-    }
-
-    /**
-     * Validates that this class has been correctly set up, with all required properties set to non-null values.
-     *
-     * @throws IllegalArgumentException if a required property is not set
-     */
-    protected void validate() throws IllegalArgumentException {
-        if (requiresValidation()) {
-            Assert.notNull(getAnnotationSummarySearchService(), "Annotation summary service must not be null");
-            Assert.notNull(getAnnotationSummarySorter(), "Annotation summary sorter must not be null");
-            Assert.notNull(getAnnotationSummaryLimiter(), "Annotation summary limiter must not be null");
-            Assert.notNull(getAnnotationSummaryScorer(), "Annotation summary scorer must not be null");
-            setIsValidated(true);
-        }
-    }
-
-    /**
-     * Validates that a legal combination of arguments has been passed to the search method by running some checks for
-     * conflicting search modes for the given set of parameters and returns an informative error code if the supplied
-     * set of arguments is invalid
-     *
-     * @param query        they query string
-     * @param type         a typing string
-     * @param semanticTags the semantic tags to restrict to
-     * @throws IllegalArgumentException the the supplied combination arguments cannot be used together in one search
-     */
-    protected void validateArguments(String query,
-                                     String type,
-                                     String[] semanticTags)
-            throws IllegalArgumentException {
-        // test that we haven't been given query/type AND semantic tags
-        if ((query != null || type != null) && semanticTags != null) {
-            throw new IllegalArgumentException(
-                    "Please either specify query and/or type, or semantic tag, arguments - " +
-                            "querying by both is not supported"
-            );
-        }
-    }
-
-    protected SearchResponse generateResponse(String prefix,
-                                              Map<AnnotationSummary, Float> annotationSummaries,
-                                              Sorter<AnnotationSummary> sorter) {
-        Map<AnnotationSummary, Float> responseContents = new HashMap<>();
-        for (AnnotationSummary summary : annotationSummaries.keySet()) {
-            if (summary.getID() == null) {
-                // cache this result for subsequent lookup
-                AnnotationSummary cached = inferredAnnotationSummaryCache.cacheAnnotationSummary(summary);
-                responseContents.put(cached, annotationSummaries.get(summary));
-            }
-            else {
-                responseContents.put(summary, annotationSummaries.get(summary));
-            }
-        }
-        return convertToSearchResponse(prefix, responseContents, sorter);
-    }
-
-    protected SearchResponse searchBySemanticTags(String[] semanticTags) {
-        return convertToSearchResponse(semanticTags.length + " semantic tags", queryBySemanticTags(semanticTags));
     }
 }
