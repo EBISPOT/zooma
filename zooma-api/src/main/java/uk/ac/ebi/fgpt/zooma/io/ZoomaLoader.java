@@ -44,7 +44,7 @@ public interface ZoomaLoader<T> {
             throws ZoomaLoadingException;
 
     /**
-     * Updtaes the supplied zooma objects into ZOOMA by resolving, serializing and storing (as required by the
+     * Updates the supplied zooma objects into ZOOMA by resolving, serializing and storing (as required by the
      * implementation)
      *
      * @param zoomaObject the object being loaded
