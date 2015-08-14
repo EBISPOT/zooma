@@ -346,9 +346,9 @@ function doSearch(json) {
     var payload = JSON.stringify(json);
     var requiredSources = getRequiredSourcesParam();
     var preferredSources = getPreferredSourcesParam();
-    var url = 'v2/api/services/map'
+    var url = 'v2/api/services/map';
     if (requiredSources || preferredSources) {
-        url = url + '?filter='
+        url = url + '?filter=';
         if (requiredSources) {
             url = url + requiredSources;
         }
