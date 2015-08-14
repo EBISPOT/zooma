@@ -1,4 +1,4 @@
-package uk.ac.ebi.fgpt.zooma.access;
+package uk.ac.ebi.fgpt.zooma.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ import java.util.*;
  */
 @Controller
 @RequestMapping("/services")
-public class ZoomaServices {
+public class ZoomaAdministrationService {
     private OntologyService ontologyService;
     private StatusService statusService;
     private PropertiesMapAdapter propertiesMapAdapter;
@@ -36,9 +36,9 @@ public class ZoomaServices {
     }
 
     @Autowired
-    public ZoomaServices(OntologyService ontologyService,
-                         StatusService statusService,
-                         PropertiesMapAdapter propertiesMapAdapter) {
+    public ZoomaAdministrationService(OntologyService ontologyService,
+                                      StatusService statusService,
+                                      PropertiesMapAdapter propertiesMapAdapter) {
         this.ontologyService = ontologyService;
         this.statusService = statusService;
         this.propertiesMapAdapter = propertiesMapAdapter;

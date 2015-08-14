@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/properties/types")
-public class ZoomaPropertyTypes extends SourceFilteredEndpoint<String, String> {
+public class ZoomaPropertyTypes {
     private PropertyTypeService propertyTypeService;
     private PropertyTypeSearchService propertyTypeSearchService;
 

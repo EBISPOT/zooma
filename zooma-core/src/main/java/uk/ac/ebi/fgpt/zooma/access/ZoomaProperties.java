@@ -1,5 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.access;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +38,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/properties")
-public class ZoomaProperties extends SourceFilteredEndpoint<Property, String> {
+public class ZoomaProperties {
     private PropertyService propertyService;
     private PropertySearchService propertySearchService;
 
@@ -44,6 +46,12 @@ public class ZoomaProperties extends SourceFilteredEndpoint<Property, String> {
     private Limiter<Property> propertyLimiter;
 
     private PropertiesMapAdapter propertiesMapAdapter;
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    protected Logger getLog() {
+        return log;
+    }
 
     @Autowired
     public ZoomaProperties(PropertyService propertyService,
@@ -126,22 +134,27 @@ public class ZoomaProperties extends SourceFilteredEndpoint<Property, String> {
         return getPropertyService().getProperty(propertyURI);
     }
 
-    public Collection<Property> query(String prefix) {
+    public List<Property> query(String prefix) {
         getLog().trace("Querying for '" + prefix + "'");
         return getPropertySearchService().searchByPrefix(prefix);
     }
 
-    public Collection<Property> query(String prefix, String type) {
+    public List<Property> query(String prefix, URI[] requiredSources) {
+        getLog().trace("Querying for '" + prefix + "'");
+        return getPropertySearchService().searchByPrefix(prefix, requiredSources);
+    }
+
+    public List<Property> query(String prefix, String type) {
         getLog().trace("Querying for '" + prefix + "', '" + type + "'");
         return getPropertySearchService().searchByPrefix(type, prefix);
     }
 
-    public Collection<Property> query(String prefix, String type, URI[] requiredSources) {
+    public List<Property> query(String prefix, String type, URI[] requiredSources) {
         getLog().trace("Querying for '" + prefix + "', '" + type + "'");
         return getPropertySearchService().searchByPrefix(type, prefix, requiredSources);
     }
 
-    public Collection<Property> query(String prefix, String type, int limit, int start) {
+    public List<Property> query(String prefix, String type, int limit, int start) {
         getLog().trace("Querying for '" + prefix + "', '" + type + "', " + limit + ", " + start);
         Collection<Property> allProperties = getPropertySearchService().searchByPrefix(type, prefix);
         List<Property> allPropertiesList = getPropertySorter().sort(allProperties);

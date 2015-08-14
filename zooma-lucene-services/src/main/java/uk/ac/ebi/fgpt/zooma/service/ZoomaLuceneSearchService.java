@@ -215,7 +215,10 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return the parsed query
      * @throws QueryCreationException if the query could not be created
      */
-    protected Query formulateQuery(String field, String pattern, QUERY_TYPE queryType, boolean conserveOrderIfMultiword) {
+    protected Query formulateQuery(String field,
+                                   String pattern,
+                                   QUERY_TYPE queryType,
+                                   boolean conserveOrderIfMultiword) {
         try {
             Query q;
 
@@ -303,14 +306,16 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     }
 
     /**
-     * Given an existing query, formulate a combined query of exact matches for the supplied items and combine with the initial query
-     * @param q Array of original queries
+     * Given an existing query, formulate a combined query of exact matches for the supplied items and combine with the
+     * initial query
+     *
+     * @param q         Array of original queries
      * @param fieldName the fieldname for querying extact matches in the items collection
-     * @param items collection of items to combine in the query
+     * @param items     collection of items to combine in the query
      * @return new combined query
      * @throws QueryCreationException
      */
-    public Query formulateExactCombinedQuery(Query [] q, String fieldName, Object [] items) {
+    public Query formulateExactCombinedQuery(Query[] q, String fieldName, Object[] items) {
 
         // unify processed queries into a single query
         Query uq = formulateCombinedQuery(true, false, q);
@@ -328,7 +333,6 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     }
 
     /**
-     *
      * Generate a lucene query from the supplied field and pattern.  Queries are constrained to hit only documents that
      * contain the supplied pattern within the given field.  Queries are constrained by the given proximity (or lucene
      * "slop factor") - so only documents that contain the searched terms within <code>proximity</code> terms of each
@@ -428,13 +432,13 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return a collection of results
      * @throws IOException if reading from the index failed
      */
-    protected <T> Collection<T> doQuery(Query q, LuceneDocumentMapper<T> mapper) throws IOException {
+    protected <T> List<T> doQuery(Query q, LuceneDocumentMapper<T> mapper) throws IOException {
         try {
             // init, to make sure searcher is available
             initOrWait();
 
             // create the list to collect results in
-            Collection<T> results = new ArrayList<>();
+            List<T> results = new ArrayList<>();
 
             // perform queries in blocks until there are no more hits
             ScoreDoc lastScoreDoc = null;
@@ -485,9 +489,9 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return a collection of results
      * @throws IOException if reading from the index failed
      */
-    protected <T extends Identifiable> Collection<T> doQuery(Query q,
-                                                             LuceneDocumentMapper<URI> mapper,
-                                                             ZoomaDAO<T> dao) throws IOException {
+    protected <T extends Identifiable> List<T> doQuery(Query q,
+                                                       LuceneDocumentMapper<URI> mapper,
+                                                       ZoomaDAO<T> dao) throws IOException {
         try {
             // init, to make sure searcher is available
             initOrWait();

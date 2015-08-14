@@ -41,7 +41,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/summaries")
-public class ZoomaAnnotationSummaries extends SourceFilteredEndpoint<AnnotationSummary, String> {
+public class ZoomaAnnotationSummaries {
     private AnnotationSummaryService annotationSummaryService;
 
     private AnnotationSummarySearchService annotationSummarySearchService;
@@ -120,6 +120,10 @@ public class ZoomaAnnotationSummaries extends SourceFilteredEndpoint<AnnotationS
         return getAnnotationSummarySearchService().searchBySemanticTags(semanticTags);
     }
 
+    public Map<AnnotationSummary, Float> queryAndScore(String query) {
+        return queryAndScore(query, false);
+    }
+
     public Map<AnnotationSummary, Float> queryAndScore(String query, boolean prefixed) {
         Collection<AnnotationSummary> annotations = prefixed
                 ? getAnnotationSummarySearchService().searchByPrefix(query)
@@ -127,20 +131,14 @@ public class ZoomaAnnotationSummaries extends SourceFilteredEndpoint<AnnotationS
         return getAnnotationSummaryScorer().score(annotations, query);
     }
 
+    public Map<AnnotationSummary, Float> queryAndScore(String query, String type) {
+        return queryAndScore(query, type, false);
+    }
+
     public Map<AnnotationSummary, Float> queryAndScore(String query, String type, boolean prefixed) {
         Collection<AnnotationSummary> annotations = prefixed
                 ? getAnnotationSummarySearchService().searchByPrefix(type, query)
                 : getAnnotationSummarySearchService().search(type, query);
-        return getAnnotationSummaryScorer().score(annotations, query, type);
-    }
-
-    public Map<AnnotationSummary, Float> queryAndScore(String query,
-                                                       String type,
-                                                       boolean prefixed,
-                                                       URI[] requiredSources) {
-        Collection<AnnotationSummary> annotations = prefixed
-                ? getAnnotationSummarySearchService().searchByPrefix(type, query, requiredSources)
-                : getAnnotationSummarySearchService().search(type, query, requiredSources);
         return getAnnotationSummaryScorer().score(annotations, query, type);
     }
 

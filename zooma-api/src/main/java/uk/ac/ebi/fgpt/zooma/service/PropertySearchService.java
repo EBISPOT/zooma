@@ -3,8 +3,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 /**
  * A ZOOMA service that allows searching over the set of {@link Property}s known to ZOOMA.  Two fundamental types of
@@ -26,7 +25,7 @@ public interface PropertySearchService {
      * @param propertyValuePattern the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> search(String propertyValuePattern, URI... sources);
+    List<Property> search(String propertyValuePattern, URI... sources);
 
     /**
      * Search the set of properties known to ZOOMA for those which have a value that matches the supplied pattern. The
@@ -40,7 +39,7 @@ public interface PropertySearchService {
      * @param propertyValuePattern the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> search(String propertyType, String propertyValuePattern, URI... sources);
+    List<Property> search(String propertyType, String propertyValuePattern, URI... sources);
 
     /**
      * Search the set of properties known to ZOOMA for those which have a value that matches the supplied prefix
@@ -50,7 +49,7 @@ public interface PropertySearchService {
      * @param propertyValuePrefix the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> searchByPrefix(String propertyValuePrefix, URI... sources);
+    List<Property> searchByPrefix(String propertyValuePrefix, URI... sources);
 
     /**
      * Search the set of properties known to ZOOMA for those which have a value that matches the supplied prefix. The
@@ -64,7 +63,5 @@ public interface PropertySearchService {
      * @param propertyValuePrefix the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources);
-
-
+    List<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources);
 }
