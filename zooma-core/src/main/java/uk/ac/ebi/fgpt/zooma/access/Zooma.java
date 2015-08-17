@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationPrediction;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationPredictionTemplate;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.util.AnnotationPredictionBuilder;
@@ -116,10 +117,12 @@ public class Zooma extends SourceFilteredEndpoint {
 
     public List<Annotation> annotate(String propertyValue) {
         Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue);
+        return createPredictions(propertyValue, null, summaries);
     }
 
     public List<Annotation> annotate(String propertyValue, String propertyType) {
         Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue, propertyType);
+        return createPredictions(propertyValue, propertyType, summaries);
     }
 
     public List<Annotation> annotate(String propertyValue, List<URI> preferredSources, URI... requiredSources) {
@@ -127,6 +130,7 @@ public class Zooma extends SourceFilteredEndpoint {
                                                                                          "",
                                                                                          preferredSources,
                                                                                          requiredSources);
+        return createPredictions(propertyValue, null, summaries);
     }
 
     public List<Annotation> annotate(String propertyValue,
@@ -137,6 +141,7 @@ public class Zooma extends SourceFilteredEndpoint {
                                                                                          propertyType,
                                                                                          preferredSources,
                                                                                          requiredSources);
+        return createPredictions(propertyValue, propertyType, summaries);
     }
 
     private List<String> extractPropertyValueStrings(Collection<Property> properties) {
@@ -164,7 +169,9 @@ public class Zooma extends SourceFilteredEndpoint {
         return result;
     }
 
-    private List<Annotation> createPredictions(Map<AnnotationSummary, Float> summaries) throws SearchException {
+    private List<Annotation> createPredictions(String propertyValue,
+                                               String propertyType,
+                                               Map<AnnotationSummary, Float> summaries) throws SearchException {
         List<Annotation> predictions = new ArrayList<>();
 
         // now use client to test and filter them
@@ -227,9 +234,15 @@ public class Zooma extends SourceFilteredEndpoint {
 
             // ... code to create new annotation predictions goes here
             for (Annotation annotation : goodAnnotations) {
-                predictions.add(AnnotationPredictionBuilder
-                                        .predictFromAnnotation(annotation)
-                                        .withConfidence(confidence));
+                AnnotationPredictionTemplate pt = AnnotationPredictionBuilder.buildPrediction(annotation);
+                if (propertyType == null) {
+                    pt.searchWas(propertyValue);
+                }
+                else {
+                    pt.searchWas(propertyValue, propertyType);
+                }
+                pt.confidenceIs(confidence);
+                predictions.add(pt.build());
             }
         }
 

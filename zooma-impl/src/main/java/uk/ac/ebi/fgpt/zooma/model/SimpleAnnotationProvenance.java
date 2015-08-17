@@ -9,7 +9,7 @@ import java.util.Date;
  * @author Simon Jupp
  * @date 10/04/12
  */
-public class SimpleAnnotationProvenance implements AnnotationProvenance {
+public class SimpleAnnotationProvenance implements AnnotationProvenance  {
     private final AnnotationSource source;
     private final Evidence evidence;
     private final Accuracy accuracy;

@@ -155,7 +155,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                 Annotation newAnnotation = getAnnotationFactory().createAnnotation(
                         annotation.getAnnotatedBiologicalEntities(),
                         annotation.getAnnotatedProperty(),
-                        template.complete(),
+                        template.build(),
                         annotation.getSemanticTags(),
                         annotation.getReplaces());
                 newAnnotations.add(newAnnotation);
@@ -255,7 +255,7 @@ public class DAOBasedAnnotationService extends AbstractShortnameResolver impleme
                 Annotation newAnnotation = getAnnotationFactory().createAnnotation(
                         previousAnnotation.getAnnotatedBiologicalEntities(),
                         newProperty,
-                        template.complete(),
+                        template.build(),
                         semanticTags,
                         Collections.singleton(previousAnnotation.getURI()));
                 newAnnotations.add(newAnnotation);

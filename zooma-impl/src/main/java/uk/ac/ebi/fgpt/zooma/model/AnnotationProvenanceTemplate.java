@@ -4,7 +4,7 @@ import java.util.Date;
 
 /**
  * A templating interface for {@link uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance} objects.  This interface declares
- * the {@link #complete()} method, which allows implementations of this template to generate and return completed
+ * the {@link #build()} method, which allows implementations of this template to generate and return completed
  * annotation provenances having set up an initial set of variables.  This method also declares methods to update or
  * override a series of pre-initialized values on the template.
  *
@@ -19,6 +19,14 @@ public interface AnnotationProvenanceTemplate extends AnnotationProvenance {
      * @return a reference to this template, for chaining calls
      */
     AnnotationProvenanceTemplate sourceIs(AnnotationSource source);
+
+    /**
+     * Updates the templates current value for the evidence of the resulting provenance object
+     *
+     * @param evidence the evidence for the annotation this provenance relates to
+     * @return a reference to this template, for chaining calls
+     */
+    AnnotationProvenanceTemplate evidenceIs(Evidence evidence);
 
     /**
      * Updates the templates current value for the annotator of the resulting provenance object
@@ -50,5 +58,5 @@ public interface AnnotationProvenanceTemplate extends AnnotationProvenance {
      *
      * @return a completed instance of an annotation provenance object, generated from this template
      */
-    AnnotationProvenance complete();
+    AnnotationProvenance build();
 }

@@ -1,11 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenanceTemplate;
 import uk.ac.ebi.fgpt.zooma.model.SimpleOntologyAnnotationSource;
 import uk.ac.ebi.fgpt.zooma.owl.OntologyLoader;
-
-import java.util.Date;
+import uk.ac.ebi.fgpt.zooma.util.AnnotationProvenanceBuilder;
 
 /**
  * A loading session for loading ontologies from files.  This primarily acts as a wrapper around an {@link
@@ -17,14 +15,17 @@ import java.util.Date;
  * @date 23/10/12
  */
 public class OWLLoadingSession extends AbstractAnnotationLoadingSession {
+    private String datasourceName;
+
     public OWLLoadingSession(OntologyLoader owlLoader) {
-        super(new SimpleAnnotationProvenanceTemplate(
-                      new SimpleOntologyAnnotationSource(owlLoader.getOntologyIRI().toURI(),
-                                                         owlLoader.getOntologyName()),
-                      AnnotationProvenance.Evidence.COMPUTED_FROM_ONTOLOGY,
-                      owlLoader.getOntologyIRI().toURI().toString(),
-                      new Date()),
-              null,
-              null);
+        super();
+        setAnnotationProvenanceTemplate(
+                AnnotationProvenanceBuilder
+                        .createTemplate(owlLoader.getOntologyIRI().toURI().toString())
+                        .sourceIs(new SimpleOntologyAnnotationSource(owlLoader.getOntologyIRI().toURI(),
+                                                                     owlLoader.getOntologyName()))
+                        .evidenceIs(AnnotationProvenance.Evidence.COMPUTED_FROM_ONTOLOGY));
+        this.datasourceName = owlLoader.getOntologyName();
+
     }
 }

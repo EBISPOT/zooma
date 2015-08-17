@@ -9,16 +9,20 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
  * @author Tony Burdett
  * @date 10/01/14
  */
-public class TransactionalAnnotationFactory extends AbstractAnnotationFactory {
+public class TransactionalAnnotationFactory extends AbstractAnnotationFactory<TransactionalAnnotationLoadingSession> {
     public TransactionalAnnotationFactory(TransactionalAnnotationLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
     }
 
+    @Override public TransactionalAnnotationLoadingSession getAnnotationLoadingSession() {
+        return super.getAnnotationLoadingSession();
+    }
+
     public synchronized void acquire(AnnotationSource annotationSource) throws InterruptedException {
-        ((TransactionalAnnotationLoadingSession) getAnnotationLoadingSession()).acquire(annotationSource);
+        getAnnotationLoadingSession().acquire(annotationSource);
     }
 
     public synchronized void release() {
-        ((TransactionalAnnotationLoadingSession) getAnnotationLoadingSession()).release();
+        getAnnotationLoadingSession().release();
     }
 }
