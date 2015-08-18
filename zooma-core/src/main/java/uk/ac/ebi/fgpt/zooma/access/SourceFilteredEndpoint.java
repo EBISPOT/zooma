@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * @author Tony Burdett
  * @date 06/02/2014 Functional Genomics Group EMBL-EBI
  */
-public abstract class SourceFilteredEndpoint<T, I> {
+public abstract class SourceFilteredEndpoint {
     private AnnotationSourceService annotationSourceService;
 
     public AnnotationSourceService getAnnotationSourceService() {
@@ -61,20 +61,22 @@ public abstract class SourceFilteredEndpoint<T, I> {
     }
 
     protected URI[] parseRequiredSourcesFromFilter(String filter) {
-        Matcher requiredMatcher = Pattern.compile("required:\\[([^\\]]+)\\]").matcher(filter);
         List<URI> requiredSources = new ArrayList<>();
-        int loc = filter.indexOf("required:");
-        if (loc != -1 && requiredMatcher.find(loc)) {
-            String sourceNames = requiredMatcher.group(1);
-            String[] tokens = sourceNames.split(",", -1);
-            for (String sourceName : tokens) {
-                AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
-                if (nextSource != null) {
-                    requiredSources.add(nextSource.getURI());
-                }
-                else {
-                    getLog().warn("Required source '" + sourceName + "' was specified as a filter but " +
-                                          "could not be found in ZOOMA; this source will be excluded from the query");
+        if (filter != null) {
+            Matcher requiredMatcher = Pattern.compile("required:\\[([^\\]]+)\\]").matcher(filter);
+            int loc = filter.indexOf("required:");
+            if (loc != -1 && requiredMatcher.find(loc)) {
+                String sourceNames = requiredMatcher.group(1);
+                String[] tokens = sourceNames.split(",", -1);
+                for (String sourceName : tokens) {
+                    AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
+                    if (nextSource != null) {
+                        requiredSources.add(nextSource.getURI());
+                    }
+                    else {
+                        getLog().warn("Required source '" + sourceName + "' was specified as a filter but " +
+                                              "could not be found in ZOOMA; this source will be excluded from the query");
+                    }
                 }
             }
         }
@@ -83,20 +85,22 @@ public abstract class SourceFilteredEndpoint<T, I> {
     }
 
     protected List<URI> parsePreferredSourcesFromFilter(String filter) {
-        Matcher requiredMatcher = Pattern.compile("preferred:\\[([^\\]]+)\\]").matcher(filter);
         List<URI> preferredSources = new ArrayList<>();
-        int loc = filter.indexOf("preferred:");
-        if (loc != -1 && requiredMatcher.find(loc)) {
-            String sourceNames = requiredMatcher.group(1);
-            String[] tokens = sourceNames.split(",", -1);
-            for (String sourceName : tokens) {
-                AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
-                if (nextSource != null) {
-                    preferredSources.add(nextSource.getURI());
-                }
-                else {
-                    getLog().warn("Preferred source '" + sourceName + "' was specified as a filter but " +
-                                          "could not be found in ZOOMA; this source will be excluded from the query");
+        if (filter != null) {
+            Matcher requiredMatcher = Pattern.compile("preferred:\\[([^\\]]+)\\]").matcher(filter);
+            int loc = filter.indexOf("preferred:");
+            if (loc != -1 && requiredMatcher.find(loc)) {
+                String sourceNames = requiredMatcher.group(1);
+                String[] tokens = sourceNames.split(",", -1);
+                for (String sourceName : tokens) {
+                    AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
+                    if (nextSource != null) {
+                        preferredSources.add(nextSource.getURI());
+                    }
+                    else {
+                        getLog().warn("Preferred source '" + sourceName + "' was specified as a filter but " +
+                                              "could not be found in ZOOMA; this source will be excluded from the query");
+                    }
                 }
             }
         }

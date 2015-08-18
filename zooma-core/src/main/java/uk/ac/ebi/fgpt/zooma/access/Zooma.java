@@ -1,7 +1,16 @@
 package uk.ac.ebi.fgpt.zooma.access;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationPrediction;
@@ -20,6 +29,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Entry point for the ZOOMA application with the most commonly used functionality incorporated.  You can use this class
@@ -29,26 +46,70 @@ import java.util.Set;
  * @author Tony Burdett
  * @date 14/08/15
  */
-public class Zooma extends SourceFilteredEndpoint {
+@Controller
+@RequestMapping("/services")
+public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
     private ZoomaProperties zoomaProperties;
     private ZoomaAnnotations zoomaAnnotations;
     private ZoomaAnnotationSummaries zoomaAnnotationSummaries;
 
-    private int concurrency;
-    private float cutoffScore;
-    private float cutoffPercentage;
+    private final float cutoffScore;
+    private final float cutoffPercentage;
+
+    private final ExecutorService executorService;
 
     @Autowired
     public Zooma(ZoomaProperties zoomaProperties,
                  ZoomaAnnotations zoomaAnnotations,
                  ZoomaAnnotationSummaries zoomaAnnotationSummaries,
-                 @Qualifier("zoomaProperties") Properties configuration) {
+                 @Qualifier("configurationProperties") Properties configuration) {
         this.zoomaProperties = zoomaProperties;
         this.zoomaAnnotations = zoomaAnnotations;
         this.zoomaAnnotationSummaries = zoomaAnnotationSummaries;
-        this.concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
         this.cutoffScore = Float.parseFloat(configuration.getProperty("zooma.search.significance.score"));
         this.cutoffPercentage = Float.parseFloat(configuration.getProperty("zooma.search.cutoff.score"));
+
+        int concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
+        int queueSize = Integer.parseInt(configuration.getProperty("zooma.search.max.queue"));
+        this.executorService = new ThreadPoolExecutor(concurrency,
+                                                      concurrency,
+                                                      0L,
+                                                      TimeUnit.MILLISECONDS,
+                                                      new ArrayBlockingQueue<Runnable>(queueSize));
+    }
+
+    @RequestMapping(value = "/suggest", method = RequestMethod.GET)
+    @ResponseBody List<?> suggestEndpoint(@RequestParam String prefix,
+                                          @RequestParam(required = false, defaultValue = "") String filter,
+                                          @RequestParam(required = false, defaultValue = "false") boolean properties) {
+        if (properties) {
+            SearchType searchType = validateFilterArguments(filter);
+            URI[] requiredSources;
+            switch (searchType) {
+                case REQUIRED_ONLY:
+                case REQUIRED_AND_PREFERRED:
+                    requiredSources = parseRequiredSourcesFromFilter(filter);
+                    return suggestWithTypeFromSources(prefix, requiredSources);
+                case PREFERRED_ONLY:
+                case UNRESTRICTED:
+                default:
+                    return suggestWithType(prefix);
+            }
+        }
+        else {
+            SearchType searchType = validateFilterArguments(filter);
+            URI[] requiredSources;
+            switch (searchType) {
+                case REQUIRED_ONLY:
+                case REQUIRED_AND_PREFERRED:
+                    requiredSources = parseRequiredSourcesFromFilter(filter);
+                    return suggestFromSources(prefix, requiredSources);
+                case PREFERRED_ONLY:
+                case UNRESTRICTED:
+                default:
+                    return suggest(prefix);
+            }
+        }
     }
 
     public List<String> suggest(String prefix) {
@@ -61,34 +122,45 @@ public class Zooma extends SourceFilteredEndpoint {
 
     public List<String> suggestFromSources(String prefix, URI... requiredSources) {
         return extractPropertyValueStrings(zoomaProperties.query(prefix, requiredSources));
-        //        SearchType searchType = validateFilterArguments(filter);
-        //        URI[] requiredSources;
-        //        switch (searchType) {
-        //            case REQUIRED_ONLY:
-        //            case REQUIRED_AND_PREFERRED:
-        //                requiredSources = parseRequiredSourcesFromFilter(filter);
-        //                return extractPropertyValueStrings(zoomaProperties.query(prefix, requiredSources));
-        //            case PREFERRED_ONLY:
-        //            case UNRESTRICTED:
-        //            default:
-        //                return extractPropertyValueStrings(zoomaProperties.query(prefix));
-        //        }
     }
 
     public List<Property> suggestWithTypeFromSources(String prefix, URI... requiredSources) {
         return zoomaProperties.query(prefix, requiredSources);
-        //        SearchType searchType = validateFilterArguments(filter);
-        //        URI[] requiredSources;
-        //        switch (searchType) {
-        //            case REQUIRED_ONLY:
-        //            case REQUIRED_AND_PREFERRED:
-        //                requiredSources = parseRequiredSourcesFromFilter(filter);
-        //                return zoomaProperties.query(prefix, requiredSources);
-        //            case PREFERRED_ONLY:
-        //            case UNRESTRICTED:
-        //            default:
-        //                return zoomaProperties.query(prefix);
-        //        }
+    }
+
+    @RequestMapping(value = "/select", method = RequestMethod.GET)
+    @ResponseBody List<AnnotationSummary> selectEndpoint(@RequestParam String propertyValue,
+                                                         @RequestParam(required = false) String propertyType,
+                                                         @RequestParam(required = false,
+                                                                       defaultValue = "") String filter) {
+        if (propertyType == null) {
+            SearchType searchType = validateFilterArguments(filter);
+            URI[] requiredSources;
+            switch (searchType) {
+                case REQUIRED_ONLY:
+                case REQUIRED_AND_PREFERRED:
+                    requiredSources = parseRequiredSourcesFromFilter(filter);
+                    return selectFromSources(propertyValue, requiredSources);
+                case PREFERRED_ONLY:
+                case UNRESTRICTED:
+                default:
+                    return select(propertyValue);
+            }
+        }
+        else {
+            SearchType searchType = validateFilterArguments(filter);
+            URI[] requiredSources;
+            switch (searchType) {
+                case REQUIRED_ONLY:
+                case REQUIRED_AND_PREFERRED:
+                    requiredSources = parseRequiredSourcesFromFilter(filter);
+                    return selectFromSources(propertyValue, propertyType, requiredSources);
+                case PREFERRED_ONLY:
+                case UNRESTRICTED:
+                default:
+                    return select(propertyValue, propertyType);
+            }
+        }
     }
 
     public List<AnnotationSummary> select(String propertyValue) {
@@ -115,33 +187,138 @@ public class Zooma extends SourceFilteredEndpoint {
                                                                                    requiredSources));
     }
 
-    public List<Annotation> annotate(String propertyValue) {
-        Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue);
-        return createPredictions(propertyValue, null, summaries);
+    @RequestMapping(value = "/annotate", method = RequestMethod.GET)
+    @ResponseBody List<AnnotationPrediction> annotationEndpoint(@RequestParam String propertyValue,
+                                                                @RequestParam(required = false) String propertyType,
+                                                                @RequestParam(required = false,
+                                                                              defaultValue = "") String filter) {
+        if (propertyType == null) {
+            SearchType searchType = validateFilterArguments(filter);
+            URI[] requiredSources = new URI[0];
+            List<URI> preferredSources = Collections.emptyList();
+            switch (searchType) {
+                case REQUIRED_ONLY:
+                    requiredSources = parseRequiredSourcesFromFilter(filter);
+                    break;
+                case REQUIRED_AND_PREFERRED:
+                    requiredSources = parseRequiredSourcesFromFilter(filter);
+                case PREFERRED_ONLY:
+                    preferredSources = parsePreferredSourcesFromFilter(filter);
+                    break;
+                case UNRESTRICTED:
+                default:
+                    return annotate(propertyValue);
+            }
+            return annotate(propertyValue, preferredSources, requiredSources);
+        }
+        else {
+            SearchType searchType = validateFilterArguments(filter);
+            URI[] requiredSources = new URI[0];
+            List<URI> preferredSources = Collections.emptyList();
+            switch (searchType) {
+                case REQUIRED_ONLY:
+                    requiredSources = parseRequiredSourcesFromFilter(filter);
+                    break;
+                case REQUIRED_AND_PREFERRED:
+                    requiredSources = parseRequiredSourcesFromFilter(filter);
+                case PREFERRED_ONLY:
+                    preferredSources = parsePreferredSourcesFromFilter(filter);
+                    break;
+                case UNRESTRICTED:
+                default:
+                    return annotate(propertyValue, propertyType);
+            }
+            return annotate(propertyValue, propertyType, preferredSources, requiredSources);
+        }
+
     }
 
-    public List<Annotation> annotate(String propertyValue, String propertyType) {
-        Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue, propertyType);
-        return createPredictions(propertyValue, propertyType, summaries);
+    public List<AnnotationPrediction> annotate(final String propertyValue) {
+        Future<List<AnnotationPrediction>> f = executorService.submit(
+                new Callable<List<AnnotationPrediction>>() {
+                    @Override
+                    public List<AnnotationPrediction> call() throws Exception {
+                        Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue);
+                        return createPredictions(propertyValue, null, summaries);
+                    }
+                }
+        );
+
+        try {
+            return f.get();
+        }
+        catch (InterruptedException | ExecutionException e) {
+            throw new SearchException("Failed to complete a search (" + e.getMessage() + ")", e);
+        }
     }
 
-    public List<Annotation> annotate(String propertyValue, List<URI> preferredSources, URI... requiredSources) {
-        Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue,
-                                                                                         "",
-                                                                                         preferredSources,
-                                                                                         requiredSources);
-        return createPredictions(propertyValue, null, summaries);
+    public List<AnnotationPrediction> annotate(final String propertyValue, final String propertyType) {
+        Future<List<AnnotationPrediction>> f = executorService.submit(
+                new Callable<List<AnnotationPrediction>>() {
+                    @Override
+                    public List<AnnotationPrediction> call() throws Exception {
+                        Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue,
+                                                                                                         propertyType);
+                        return createPredictions(propertyValue, propertyType, summaries);
+                    }
+                }
+        );
+
+        try {
+            return f.get();
+        }
+        catch (InterruptedException | ExecutionException e) {
+            throw new SearchException("Failed to complete a search (" + e.getMessage() + ")", e);
+        }
     }
 
-    public List<Annotation> annotate(String propertyValue,
-                                     String propertyType,
-                                     List<URI> preferredSources,
-                                     URI... requiredSources) {
-        Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue,
-                                                                                         propertyType,
-                                                                                         preferredSources,
-                                                                                         requiredSources);
-        return createPredictions(propertyValue, propertyType, summaries);
+    public List<AnnotationPrediction> annotate(final String propertyValue,
+                                               final List<URI> preferredSources,
+                                               final URI... requiredSources) {
+        Future<List<AnnotationPrediction>> f = executorService.submit(
+                new Callable<List<AnnotationPrediction>>() {
+                    @Override
+                    public List<AnnotationPrediction> call() throws Exception {
+                        Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue,
+                                                                                                         "",
+                                                                                                         preferredSources,
+                                                                                                         requiredSources);
+                        return createPredictions(propertyValue, null, summaries);
+                    }
+                }
+        );
+
+        try {
+            return f.get();
+        }
+        catch (InterruptedException | ExecutionException e) {
+            throw new SearchException("Failed to complete a search (" + e.getMessage() + ")", e);
+        }
+    }
+
+    public List<AnnotationPrediction> annotate(final String propertyValue,
+                                               final String propertyType,
+                                               final List<URI> preferredSources,
+                                               final URI... requiredSources) {
+        Future<List<AnnotationPrediction>> f = executorService.submit(
+                new Callable<List<AnnotationPrediction>>() {
+                    @Override
+                    public List<AnnotationPrediction> call() throws Exception {
+                        Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue,
+                                                                                                         propertyType,
+                                                                                                         preferredSources,
+                                                                                                         requiredSources);
+                        return createPredictions(propertyValue, propertyType, summaries);
+                    }
+                }
+        );
+
+        try {
+            return f.get();
+        }
+        catch (InterruptedException | ExecutionException e) {
+            throw new SearchException("Failed to complete a search (" + e.getMessage() + ")", e);
+        }
     }
 
     private List<String> extractPropertyValueStrings(Collection<Property> properties) {
@@ -154,7 +331,8 @@ public class Zooma extends SourceFilteredEndpoint {
         return result;
     }
 
-    private List<AnnotationSummary> extractAnnotationSummaryList(final Map<AnnotationSummary, Float> annotationSummaryFloatMap) {
+    private List<AnnotationSummary> extractAnnotationSummaryList(
+            final Map<AnnotationSummary, Float> annotationSummaryFloatMap) {
         List<AnnotationSummary> result = new ArrayList<>();
         for (AnnotationSummary as : annotationSummaryFloatMap.keySet()) {
             if (!result.contains(as)) {
@@ -162,17 +340,19 @@ public class Zooma extends SourceFilteredEndpoint {
             }
         }
         result.sort(new Comparator<AnnotationSummary>() {
-            @Override public int compare(AnnotationSummary as1, AnnotationSummary as2) {
+            @Override
+            public int compare(AnnotationSummary as1, AnnotationSummary as2) {
                 return annotationSummaryFloatMap.get(as1) < annotationSummaryFloatMap.get(as2) ? -1 : 1;
             }
         });
         return result;
     }
 
-    private List<Annotation> createPredictions(String propertyValue,
-                                               String propertyType,
-                                               Map<AnnotationSummary, Float> summaries) throws SearchException {
-        List<Annotation> predictions = new ArrayList<>();
+    private List<AnnotationPrediction> createPredictions(String propertyValue,
+                                                         String propertyType,
+                                                         Map<AnnotationSummary, Float> summaries)
+            throws SearchException {
+        List<AnnotationPrediction> predictions = new ArrayList<>();
 
         // now use client to test and filter them
         if (!summaries.isEmpty()) {
@@ -247,5 +427,22 @@ public class Zooma extends SourceFilteredEndpoint {
         }
 
         return predictions;
+    }
+
+    @ExceptionHandler(SearchException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody String handleSearchException(SearchException e) {
+        getLog().error("Unexpected search exception: (" + e.getMessage() + ")", e);
+        return "ZOOMA encountered a problem that it could not recover from (" + e.getMessage() + ")";
+    }
+
+    @ExceptionHandler(RejectedExecutionException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    @ResponseBody String handleRejectedExecutionException(RejectedExecutionException e) {
+        return "Too many requests - ZOOMA is experiencing abnormally high traffic, please try again later";
+    }
+
+    @Override public void destroy() throws Exception {
+        executorService.shutdown();
     }
 }

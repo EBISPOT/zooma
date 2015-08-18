@@ -15,10 +15,12 @@ import uk.ac.ebi.fgpt.zooma.env.ZoomaHome;
 import uk.ac.ebi.fgpt.zooma.io.ZOOMAInputParser;
 import uk.ac.ebi.fgpt.zooma.io.ZOOMAReportRenderer;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationPrediction;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchClient;
 import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchTimer;
+import uk.ac.ebi.fgpt.zooma.util.AnnotationPredictionBuilder;
 import uk.ac.ebi.fgpt.zooma.util.OntologyLabelMapper;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
@@ -36,6 +38,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -445,8 +448,8 @@ public class ZOOMA2SearchDriver {
         // create a timer to time search tasks
         final ZOOMASearchTimer timer = new ZOOMASearchTimer(properties.size()).start();
         final ZOOMASearchClient searcher = new ZOOMASearchClient(zoomaLocation);
-        final Map<Property, Set<Annotation>> annotations =
-                Collections.synchronizedMap(new HashMap<Property, Set<Annotation>>());
+        final Map<Property, List<AnnotationPrediction>> annotations =
+                Collections.synchronizedMap(new HashMap<Property, List<AnnotationPrediction>>());
         final Map<Property, Boolean> searchAchievedScore =
                 Collections.synchronizedMap(new HashMap<Property, Boolean>());
 
@@ -487,7 +490,12 @@ public class ZOOMA2SearchDriver {
 
                         // and add good annotations to the annotations map
                         synchronized (annotations) {
-                            annotations.put(property, goodAnnotations);
+                            // todo - need to rewrite search client to use new API for predictions!
+                            List<AnnotationPrediction> predictions = new ArrayList<>();
+                            for (Annotation goodAnnotation : goodAnnotations) {
+                                predictions.add(AnnotationPredictionBuilder.buildPrediction(goodAnnotation).build());
+                            }
+                            annotations.put(property, predictions);
                         }
                         synchronized (searchAchievedScore) {
                             searchAchievedScore.put(property, achievedScore);
@@ -550,7 +558,7 @@ public class ZOOMA2SearchDriver {
                     new ZOOMAReportRenderer(new ZOOMALabelMapper(searcher),
                                             out,
                                             err);
-            renderer.renderAnnotations(properties, propertyContexts, annotations, searchAchievedScore);
+            renderer.renderAnnotations(properties, propertyContexts, annotations);
             renderer.close();
             System.out.println("done.");
             getLog().info("ZOOMA report complete");

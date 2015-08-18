@@ -2,7 +2,7 @@ package uk.ac.ebi.fgpt.zooma.io;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationPrediction;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * A simple report renderer that writes an output file containing a list of ZOOMA optimal annotations for a list of
@@ -83,8 +82,7 @@ public class ZOOMAReportRenderer {
 
     public void renderAnnotations(List<Property> properties,
                                   Map<Property, List<String>> propertyContextMap,
-                                  Map<Property, Set<Annotation>> propertyAnnotationMap,
-                                  Map<Property, Boolean> propertySearchAchievedScoreMap) {
+                                  Map<Property, List<AnnotationPrediction>> annotationPredictionMap) {
         // first, write the report header
         PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out)));
         writeReportHeader(writer);
@@ -103,68 +101,33 @@ public class ZOOMAReportRenderer {
         getLog().debug("Writing report of property mappings...");
         for (Property property : properties) {
             try {
-                if (propertyAnnotationMap.containsKey(property)) {
-                    Set<Annotation> annotations = propertyAnnotationMap.get(property);
-                    getLog().debug("There are " + annotations.size() + " annotations for property '" + property + "'");
+                if (annotationPredictionMap.containsKey(property)) {
+                    List<AnnotationPrediction> annotationPredictions = annotationPredictionMap.get(property);
+                    getLog().debug(
+                            "There are " + annotationPredictions.size() + " annotations for property '" + property +
+                                    "'");
 
-                    boolean achievedScore = propertySearchAchievedScoreMap.get(property);
-                    getLog().debug("The search for property '" + property + "' " +
-                                           (achievedScore ? "managed to" : "failed to") + " achieve the desired score");
-
-                    // single best annotation, or several competing?
-                    if (annotations.size() == 1 && achievedScore) {
-                        // one good annotation, so render to the report with "auto" mapping
-                        Annotation annotation = annotations.iterator().next();
+                    for (AnnotationPrediction annotationPrediction : annotationPredictions) {
                         // render one line per experiment, if known
                         if (propertyContextMap.containsKey(property)) {
                             for (String expt : propertyContextMap.get(property)) {
                                 writeReportLine(writer,
                                                 property,
-                                                annotation.getAnnotatedProperty().getPropertyValue(),
+                                                annotationPrediction.getAnnotatedProperty().getPropertyValue(),
                                                 expt,
-                                                annotation.getProvenance().getSource().getURI().toString(),
-                                                annotation.getSemanticTags(),
-                                                true);
+                                                annotationPrediction.getProvenance().getSource().getURI().toString(),
+                                                annotationPrediction.getSemanticTags(),
+                                                annotationPrediction.getConfidence());
                             }
                         }
                         else {
                             writeReportLine(writer,
                                             property,
-                                            annotation.getAnnotatedProperty().getPropertyValue(),
+                                            annotationPrediction.getAnnotatedProperty().getPropertyValue(),
                                             "[UNKNOWN EXPERIMENTS]",
-                                            annotation.getProvenance().getSource().getURI().toString(),
-                                            annotation.getSemanticTags(),
-                                            true);
-                        }
-                    }
-                    else {
-                        // multiple annotations or 1 that isn't good enough, render to the report as "requires curation"
-                        for (Annotation annotation : annotations) {
-                            if (propertyContextMap.containsKey(property)) {
-                                // render one line per experiment, if known
-                                for (String expt : propertyContextMap.get(property)) {
-                                    if (annotation.getSemanticTags() != null) {
-                                        writeReportLine(writer,
-                                                        property,
-                                                        annotation.getAnnotatedProperty().getPropertyValue(),
-                                                        expt,
-                                                        annotation.getProvenance().getSource().getURI().toString(),
-                                                        annotation.getSemanticTags(),
-                                                        false);
-                                    }
-                                }
-                            }
-                            else {
-                                if (annotation.getSemanticTags() != null) {
-                                    writeReportLine(writer,
-                                                    property,
-                                                    annotation.getAnnotatedProperty().getPropertyValue(),
-                                                    "[UNKNOWN EXPERIMENTS]",
-                                                    annotation.getProvenance().getSource().getURI().toString(),
-                                                    annotation.getSemanticTags(),
-                                                    false);
-                                }
-                            }
+                                            annotationPrediction.getProvenance().getSource().getURI().toString(),
+                                            annotationPrediction.getSemanticTags(),
+                                            annotationPrediction.getConfidence());
                         }
                     }
                 }
@@ -296,9 +259,11 @@ public class ZOOMAReportRenderer {
                                    String study,
                                    String source,
                                    Collection<URI> semanticTags,
-                                   boolean automatic) {
+                                   AnnotationPrediction.Confidence predictionConfidence) {
 
-        String type = automatic ? "Automatic" : "Requires curation";
+        String confidence =
+                predictionConfidence.name().substring(0, 1).toUpperCase() +
+                        predictionConfidence.name().substring(1).toLowerCase();
         String propertyType =
                 property instanceof TypedProperty ? ((TypedProperty) property).getPropertyType() : "[NO TYPE]";
         String propertyValue = property.getPropertyValue();
@@ -352,7 +317,7 @@ public class ZOOMAReportRenderer {
         String synonyms = synonymsSB.toString();
         String ontologies = ontologiesSB.toString();
         writer.println(propertyType + "\t" + propertyValue + "\t" + labels + "\t" +
-                               synonyms + "\t" + type + "\t" + terms + "\t" +
+                               synonyms + "\t" + confidence + "\t" + terms + "\t" +
                                ontologies + "\t" + source + "\t" + study);
     }
 
@@ -387,7 +352,7 @@ public class ZOOMAReportRenderer {
         writer.flush();
 
         writer.println(
-                "PROPERTY TYPE\tPROPERTY VALUE\tONTOLOGY TERM LABEL(S)\tONTOLOGY TERM SYNONYM(S)\tMAPPING TYPE\tONTOLOGY TERM(S)\tONTOLOGY(S)\tSOURCE(S)\tSTUDY");
+                "PROPERTY TYPE\tPROPERTY VALUE\tONTOLOGY TERM LABEL(S)\tONTOLOGY TERM SYNONYM(S)\tCONFIDENCE\tONTOLOGY TERM(S)\tONTOLOGY(S)\tSOURCE(S)\tSTUDY");
     }
 
     protected void writeEvaluationLine(PrintWriter writer,

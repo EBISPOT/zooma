@@ -51,7 +51,7 @@ public abstract class AnnotationPredictionBuilder {
         }
 
         @Override public Collection<URI> getSemanticTags() {
-            return null;
+            return semanticTags;
         }
 
         @Override public AnnotationProvenance getProvenance() {

@@ -10,6 +10,9 @@ import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSearchService;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
+import uk.ac.ebi.fgpt.zooma.service.DataLoadingService;
+import uk.ac.ebi.fgpt.zooma.service.PropertySearchService;
+import uk.ac.ebi.fgpt.zooma.service.PropertyService;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
 import uk.ac.ebi.fgpt.zooma.util.Scorer;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
@@ -84,7 +87,10 @@ public class TestZoomaAnnotationSearchEngine {
 
         // create mock search services
         AnnotationService annotationService = mock(AnnotationService.class);
+        PropertyService propertyService = mock(PropertyService.class);
+        DataLoadingService dataLoadingService = mock(DataLoadingService.class);
         annotationSearchService = mock(AnnotationSearchService.class);
+
 
         // create mock sort/limiters
         annotationSorter = (Sorter<Annotation>) mock(Sorter.class);
@@ -105,9 +111,11 @@ public class TestZoomaAnnotationSearchEngine {
 
         // create annotation search engine
         annotationSearchEngine = new ZoomaAnnotations(annotationService,
-                                                             annotationSearchService,
-                                                             annotationSorter,
-                                                             annotationLimiter);
+                                                      annotationSearchService,
+                                                      dataLoadingService,
+                                                      propertyService,
+                                                      annotationSorter,
+                                                      annotationLimiter);
     }
 
     @After

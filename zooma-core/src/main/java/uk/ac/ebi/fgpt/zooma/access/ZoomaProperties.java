@@ -45,8 +45,6 @@ public class ZoomaProperties {
     private Sorter<Property> propertySorter;
     private Limiter<Property> propertyLimiter;
 
-    private PropertiesMapAdapter propertiesMapAdapter;
-
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {
@@ -57,17 +55,11 @@ public class ZoomaProperties {
     public ZoomaProperties(PropertyService propertyService,
                            PropertySearchService propertySearchService,
                            Sorter<Property> propertySorter,
-                           Limiter<Property> propertyLimiter,
-                           PropertiesMapAdapter propertiesMapAdapter) {
+                           Limiter<Property> propertyLimiter) {
         this.propertyService = propertyService;
         this.propertySearchService = propertySearchService;
         this.propertySorter = propertySorter;
         this.propertyLimiter = propertyLimiter;
-        this.propertiesMapAdapter = propertiesMapAdapter;
-    }
-
-    public PropertiesMapAdapter getPropertiesMapAdapter() {
-        return propertiesMapAdapter;
     }
 
     public PropertyService getPropertyService() {
@@ -129,7 +121,7 @@ public class ZoomaProperties {
      */
     @RequestMapping(value = "/{shortPropertyURI}", method = RequestMethod.GET)
     public @ResponseBody Property fetchByURI(@PathVariable String shortPropertyURI) {
-        URI propertyURI = URIUtils.getURI(getPropertiesMapAdapter().getPropertyMap(), shortPropertyURI);
+        URI propertyURI = URIUtils.getURI(shortPropertyURI);
         getLog().debug("Fetching " + propertyURI);
         return getPropertyService().getProperty(propertyURI);
     }
