@@ -418,7 +418,7 @@ function renderResults(data) {
      [1] - property value
      [2] - matched ontology term label
      [3] - matched ontology term synonyms
-     [4] - mapping type
+     [4] - mapping confidence
      [5] - matched ontology term "ID" (i.e. fragment)
      [6] - matched ontology URI
      [7] - datasource
@@ -440,14 +440,14 @@ function renderResults(data) {
             var result = payload[i];
             var row;
             var rowspan = 1;
-            if (result[4] == "Automatic") {
+            if (result[4] == "High") {
                 row = "<tr class='automatic'>";
 
                 prop_automatic++;
                 aux_type = result[0];
                 aux_value = result[1];
             }
-            else if (result[4] == "Requires curation") {
+            else if (result[4] == "Good" || result[4] == "Medium" || result[4] == "Low") {
                 row = "<tr class='curation'>";
 
                 if (result[0] != aux_type || result[1] != aux_value) {
