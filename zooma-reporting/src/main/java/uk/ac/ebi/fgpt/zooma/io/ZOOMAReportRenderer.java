@@ -115,7 +115,7 @@ public class ZOOMAReportRenderer {
                                                 property,
                                                 annotationPrediction.getAnnotatedProperty().getPropertyValue(),
                                                 expt,
-                                                annotationPrediction.getProvenance().getSource().getURI().toString(),
+                                                annotationPrediction.getDerivedFrom().getProvenance().getSource().getURI().toString(),
                                                 annotationPrediction.getSemanticTags(),
                                                 annotationPrediction.getConfidence());
                             }
@@ -125,7 +125,7 @@ public class ZOOMAReportRenderer {
                                             property,
                                             annotationPrediction.getAnnotatedProperty().getPropertyValue(),
                                             "[UNKNOWN EXPERIMENTS]",
-                                            annotationPrediction.getProvenance().getSource().getURI().toString(),
+                                            annotationPrediction.getDerivedFrom().getProvenance().getSource().getURI().toString(),
                                             annotationPrediction.getSemanticTags(),
                                             annotationPrediction.getConfidence());
                         }
