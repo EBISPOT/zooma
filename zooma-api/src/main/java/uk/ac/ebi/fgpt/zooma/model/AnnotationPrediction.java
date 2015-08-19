@@ -10,6 +10,14 @@ package uk.ac.ebi.fgpt.zooma.model;
  */
 public interface AnnotationPrediction extends Annotation {
     /**
+     * Returns an annotation in ZOOMA that was used when making this annotation prediction.  This can be considered as
+     * the "best canonical example" of an annotation being predicted.
+     *
+     * @return an annotation that exists in ZOOMA that was used in making this prediction
+     */
+    Annotation getDerivedFrom();
+
+    /**
      * A measure of the confidence ZOOMA has in the quality of this prediction.  May be high, good, medium or low.  You
      * should only really consider HIGH confidence matches to be worthy of use in automated processes - other levels of
      * confidence should be reviewed before accepting.  Low confidence matches can be used to identify areas of need.

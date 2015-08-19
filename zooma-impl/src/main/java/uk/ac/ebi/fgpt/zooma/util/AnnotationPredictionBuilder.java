@@ -65,6 +65,10 @@ public abstract class AnnotationPredictionBuilder {
             this.confidence = Confidence.LOW;
         }
 
+        @Override public Annotation getDerivedFrom() {
+            return derivedFrom;
+        }
+
         @Override public Confidence getConfidence() {
             return confidence;
         }
