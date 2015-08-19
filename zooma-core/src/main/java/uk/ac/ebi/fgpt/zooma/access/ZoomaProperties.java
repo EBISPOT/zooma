@@ -152,4 +152,14 @@ public class ZoomaProperties {
         List<Property> allPropertiesList = getPropertySorter().sort(allProperties);
         return getPropertyLimiter().limit(allPropertiesList, limit, start);
     }
+
+    public List<String> suggest(String prefix) {
+        getLog().trace("Querying for '" + prefix + "'");
+        return getPropertySearchService().suggest(prefix);
+    }
+
+    public List<String> suggest(String prefix, URI[] requiredSources) {
+        getLog().trace("Querying for '" + prefix + "'");
+        return getPropertySearchService().suggest(prefix, requiredSources);
+    }
 }

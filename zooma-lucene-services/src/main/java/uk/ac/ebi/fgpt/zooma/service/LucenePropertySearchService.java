@@ -8,6 +8,7 @@ import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessorProvider;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -160,7 +161,6 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
     }
 
     @Override public List<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources) {
-
         if (propertyValuePrefix.isEmpty()) {
             return search(propertyType, "", sources);
         }
@@ -213,6 +213,49 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             catch (InterruptedException e) {
                 throw new SearchException("Failed to perform query - indexing process was interrupted", e);
             }
+        }
+    }
+
+    @Override public List<String> suggest(String propertyValuePrefix, URI... sources) {
+        try {
+            initOrWait();
+
+            // first, formulate query for original propertyValuePattern
+            Query pq = formulatePrefixQuery("name", propertyValuePrefix);
+
+            // then generate a series of queries from the processed property value, using available search string processors
+            Collection<Query> pqs = new HashSet<>();
+            pqs.add(pq);
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("name",
+                                                    propertyValuePrefix,
+                                                    getSearchStringProcessorProvider().getProcessors()));
+            }
+
+            Query q;
+            if (sources.length > 0) {
+                q = formulateExactCombinedQuery(pqs.toArray(new Query[pqs.size()]), "source", sources);
+            }
+            else {
+                // unify processed queries into a single query
+                q = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
+            }
+
+            // do the query
+            List<String> nonUnique = doQuery(q, new SingleFieldStringMapper("name"), 20);
+            List<String> results = new ArrayList<>();
+            for (String next : nonUnique) {
+                if (!results.contains(next)) {
+                    results.add(next);
+                }
+            }
+            return results;
+        }
+        catch (IOException e) {
+            throw new SearchException("Problems creating query for '" + propertyValuePrefix + "'", e);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
         }
     }
 }

@@ -433,6 +433,19 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @throws IOException if reading from the index failed
      */
     protected <T> List<T> doQuery(Query q, LuceneDocumentMapper<T> mapper) throws IOException {
+        return doQuery(q, mapper, -1);
+    }
+
+    /**
+     * Performs a lucene query, and uses the supplied mapper to convert the resulting lucene document into the relevant
+     * object type.  All results that match the given query are iterated over, in batches of 100, and put into a
+     * collection of objects (of type matching the type of the mapper) that is returned.
+     *
+     * @param q the lucene query to perform
+     * @return a collection of results
+     * @throws IOException if reading from the index failed
+     */
+    protected <T> List<T> doQuery(Query q, LuceneDocumentMapper<T> mapper, int limit) throws IOException {
         try {
             // init, to make sure searcher is available
             initOrWait();
@@ -462,7 +475,13 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
                         Document doc = getSearcher().doc(hit.doc);
-                        results.add(mapper.mapDocument(doc, rank));
+                        if (limit == -1 || results.size() < limit) {
+                            results.add(mapper.mapDocument(doc, rank));
+                        }
+                        else {
+                            complete = true;
+                            break;
+                        }
                     }
                 }
                 rank++;
@@ -492,6 +511,27 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     protected <T extends Identifiable> List<T> doQuery(Query q,
                                                        LuceneDocumentMapper<URI> mapper,
                                                        ZoomaDAO<T> dao) throws IOException {
+        return doQuery(q, mapper, dao, -1);
+    }
+
+    /**
+     * Performs a lucene query, and obtains a collection of objects by using the supplied DAO to perform a lookup once
+     * the URI of the object has been retrieved from the index.  The name of the field that describes the URI must be
+     * specified by supplying the fieldname.  All results that match the given query are iterated over, in batches of
+     * 100, and put into a collection of objects that is returned.  This collection is typed by the type of DAO that is
+     * supplied.
+     *
+     * @param q      the lucene query to perform
+     * @param mapper the document mapper to use to extract the URI from resulting lucene documents
+     * @param dao    the zooma dao that can be used to do the lookup of matching objects
+     * @param <T>    the type of object to lookup - the ZoomaDAO supplied declares this type
+     * @return a collection of results
+     * @throws IOException if reading from the index failed
+     */
+    protected <T extends Identifiable> List<T> doQuery(Query q,
+                                                       LuceneDocumentMapper<URI> mapper,
+                                                       ZoomaDAO<T> dao,
+                                                       int limit) throws IOException {
         try {
             // init, to make sure searcher is available
             initOrWait();
@@ -524,7 +564,13 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         URI uri = mapper.mapDocument(doc, rank);
                         T t = dao.read(uri);
                         if (t != null) {
-                            results.add(t);
+                            if (limit == -1 || results.size() < limit) {
+                                results.add(t);
+                            }
+                            else {
+                                complete = true;
+                                break;
+                            }
                         }
                         else {
                             getLog().warn("Failed to retrieve result for <" + uri + "> in DAO for " +

@@ -34,4 +34,8 @@ public abstract class PropertySearchServiceDecorator implements PropertySearchSe
     @Override public List<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources) {
         return _propertySearchService.searchByPrefix(propertyType, propertyValuePrefix, sources);
     }
+
+    @Override public List<String> suggest(String propertyValuePrefix, URI... sources) {
+        return _propertySearchService.suggest(propertyValuePrefix, sources);
+    }
 }

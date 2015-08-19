@@ -88,7 +88,7 @@ public class ZoomaEnv {
                     home = new InitialContext().lookup("java:comp/env/zooma.home").toString();
                 }
                 catch (NamingException e) {
-                    getLog().warn("No zooma.home or $ZOOMA_HOME, lookup for java:comp/env/zooma.home also failed", e);
+                    getLog().warn("No zooma.home or $ZOOMA_HOME, lookup for java:comp/env/zooma.home also failed");
                 }
 
                 if (home == null || home.equals("")) {
@@ -115,7 +115,7 @@ public class ZoomaEnv {
                 }
                 catch (NamingException e) {
                     getLog().warn("No zooma.data.dir or $ZOOMA_DATA_DIR, " +
-                                          "lookup for java:comp/env/zooma.data.dir also failed", e);
+                                          "lookup for java:comp/env/zooma.data.dir also failed");
                 }
 
                 if (dataDir == null || dataDir.equals("")) {

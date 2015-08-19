@@ -64,4 +64,16 @@ public interface PropertySearchService {
      * @return a collection of matching properties
      */
     List<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources);
+
+    /**
+     * Suggest properties known to ZOOMA for those which have a value that matches the supplied prefix.  This method is
+     * similar to {@link #suggest(String, URI...)} but returns a limited set of results (first 20 by default, some
+     * implementations may allow configuration) and only provides the string values of matching property values.
+     * <p/>
+     * Results should always match based on an exact prefix match (essentially, {@link String#startsWith(String)}).
+     *
+     * @param propertyValuePrefix the property value that should be searched for
+     * @return a collection of matching properties
+     */
+    List<String> suggest(String propertyValuePrefix, URI... sources);
 }

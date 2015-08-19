@@ -113,7 +113,7 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
     }
 
     public List<String> suggest(String prefix) {
-        return extractPropertyValueStrings(zoomaProperties.query(prefix));
+        return zoomaProperties.suggest(prefix);
     }
 
     public List<Property> suggestWithType(String prefix) {
@@ -121,7 +121,7 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
     }
 
     public List<String> suggestFromSources(String prefix, URI... requiredSources) {
-        return extractPropertyValueStrings(zoomaProperties.query(prefix, requiredSources));
+        return zoomaProperties.suggest(prefix, requiredSources);
     }
 
     public List<Property> suggestWithTypeFromSources(String prefix, URI... requiredSources) {
