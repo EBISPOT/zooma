@@ -414,7 +414,7 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
 
             // ... code to create new annotation predictions goes here
             for (Annotation annotation : goodAnnotations) {
-                AnnotationPredictionTemplate pt = AnnotationPredictionBuilder.buildPrediction(annotation);
+                AnnotationPredictionTemplate pt = AnnotationPredictionBuilder.predictFromAnnotation(annotation);
                 if (propertyType == null) {
                     pt.searchWas(propertyValue);
                 }

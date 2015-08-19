@@ -493,7 +493,7 @@ public class ZOOMA2SearchDriver {
                             // todo - need to rewrite search client to use new API for predictions!
                             List<AnnotationPrediction> predictions = new ArrayList<>();
                             for (Annotation goodAnnotation : goodAnnotations) {
-                                predictions.add(AnnotationPredictionBuilder.buildPrediction(goodAnnotation).build());
+                                predictions.add(AnnotationPredictionBuilder.predictFromAnnotation(goodAnnotation).build());
                             }
                             annotations.put(property, predictions);
                         }
