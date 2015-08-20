@@ -14,15 +14,11 @@ import uk.ac.ebi.fgpt.zooma.env.ZoomaEnv;
 import uk.ac.ebi.fgpt.zooma.env.ZoomaHome;
 import uk.ac.ebi.fgpt.zooma.io.ZOOMAInputParser;
 import uk.ac.ebi.fgpt.zooma.io.ZOOMAReportRenderer;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationPrediction;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchClient;
 import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchTimer;
-import uk.ac.ebi.fgpt.zooma.util.AnnotationPredictionBuilder;
 import uk.ac.ebi.fgpt.zooma.util.OntologyLabelMapper;
-import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -38,17 +34,14 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutionException;
@@ -65,7 +58,6 @@ import java.util.concurrent.TimeUnit;
  * @date 08/08/12
  */
 public class ZOOMA2SearchDriver {
-    private static boolean _evaluationMode;
     private static File _inputFile;
     private static OutputStream _out;
     private static OutputStream _err;
@@ -79,24 +71,13 @@ public class ZOOMA2SearchDriver {
             ZOOMA2SearchDriver driver = new ZOOMA2SearchDriver();
             int statusCode = parseArguments(args);
             if (statusCode == 0) {
-                if (_evaluationMode) {
-                    driver.evaluateOptimalTextAnnotations(_zoomaLocation,
-                                                          _score,
-                                                          _cutoffPercentage,
-                                                          _concurrency,
-                                                          _inputFile,
-                                                          _out,
-                                                          _err);
-                }
-                else {
-                    driver.findOptimalTextAnnotations(_zoomaLocation,
-                                                      _score,
-                                                      _cutoffPercentage,
-                                                      _concurrency,
-                                                      _inputFile,
-                                                      _out,
-                                                      _err);
-                }
+                driver.findOptimalTextAnnotations(_zoomaLocation,
+                                                  _score,
+                                                  _cutoffPercentage,
+                                                  _concurrency,
+                                                  _inputFile,
+                                                  _out,
+                                                  _err);
                 System.out.println("ZOOMA completed successfully.");
 
                 if (_out != System.out) {
@@ -179,33 +160,21 @@ public class ZOOMA2SearchDriver {
                     _zoomaLocation = URI.create(defaults.getProperty("zooma.search.location")).toURL();
                     System.out.println("Using default ZOOMA location, '" + _zoomaLocation.toString() + "'");
                 }
-
-                // evaluation mode overrides score and cutoff to produce verbose report
-                if (cl.hasOption("e")) {
-                    _evaluationMode = true;
-                    _score = 0;
-                    _cutoffPercentage = 0;
-                    System.out.println("ZOOMA running in evaluation mode: significance score set to " + _score + ", " +
-                                               "cutoff percentage set to " + _cutoffPercentage);
+                if (cl.hasOption("s")) {
+                    String scoreOpt = cl.getOptionValue("s");
+                    _score = Float.parseFloat(scoreOpt);
                 }
                 else {
-
-                    if (cl.hasOption("s")) {
-                        String scoreOpt = cl.getOptionValue("s");
-                        _score = Float.parseFloat(scoreOpt);
-                    }
-                    else {
-                        _score = Float.parseFloat(defaults.getProperty("zooma.search.significance.score"));
-                        System.out.println("Using default ZOOMA significance score, " + _score);
-                    }
-                    if (cl.hasOption("c")) {
-                        String cutoffOpt = cl.getOptionValue("c");
-                        _cutoffPercentage = Float.parseFloat(cutoffOpt);
-                    }
-                    else {
-                        _cutoffPercentage = Float.parseFloat(defaults.getProperty("zooma.search.cutoff.score"));
-                        System.out.println("Using default ZOOMA cutoff percentage, " + _cutoffPercentage);
-                    }
+                    _score = Float.parseFloat(defaults.getProperty("zooma.search.significance.score"));
+                    System.out.println("Using default ZOOMA significance score, " + _score);
+                }
+                if (cl.hasOption("c")) {
+                    String cutoffOpt = cl.getOptionValue("c");
+                    _cutoffPercentage = Float.parseFloat(cutoffOpt);
+                }
+                else {
+                    _cutoffPercentage = Float.parseFloat(defaults.getProperty("zooma.search.cutoff.score"));
+                    System.out.println("Using default ZOOMA cutoff percentage, " + _cutoffPercentage);
                 }
             }
         }
@@ -349,29 +318,6 @@ public class ZOOMA2SearchDriver {
         }
     }
 
-    public void evaluateOptimalTextAnnotations(URL zoomaLocation,
-                                               float score,
-                                               float cutoffPercentage,
-                                               int concurrency,
-                                               File inputFile,
-                                               OutputStream out,
-                                               OutputStream err) throws IOException {
-        getLog().info("Reading properties from input file '" + inputFile.getAbsolutePath() + "'");
-
-        // create input parser and parse supplied properties
-        System.out.print("Reading properties from input file '" + inputFile.getAbsolutePath() + "'...");
-        ZOOMAInputParser parser = new ZOOMAInputParser(inputFile);
-        List<Property> properties = parser.parse();
-        parser.close();
-        System.out.println("done.");
-
-        // exclude any ineligible properties
-        excludeIneligibleProperties(properties);
-
-        // and evaluate
-        evaluateZOOMA(zoomaLocation, score, cutoffPercentage, concurrency, properties, out, err);
-    }
-
     private void excludeIneligibleProperties(List<Property> properties) {
         excludeIneligibleProperties(properties, new HashMap<Property, List<String>>());
     }
@@ -447,11 +393,9 @@ public class ZOOMA2SearchDriver {
 
         // create a timer to time search tasks
         final ZOOMASearchTimer timer = new ZOOMASearchTimer(properties.size()).start();
-        final ZOOMASearchClient searcher = new ZOOMASearchClient(zoomaLocation);
-        final Map<Property, List<AnnotationPrediction>> annotations =
+        final ZOOMASearchClient zoomaClient = new ZOOMASearchClient(zoomaLocation);
+        final Map<Property, List<AnnotationPrediction>> annotationPredictions =
                 Collections.synchronizedMap(new HashMap<Property, List<AnnotationPrediction>>());
-        final Map<Property, Boolean> searchAchievedScore =
-                Collections.synchronizedMap(new HashMap<Property, Boolean>());
 
         // start searching - use 'concurrent' parallel threads
         Deque<Future<Integer>> jobQueue = new ConcurrentLinkedDeque<>();
@@ -461,44 +405,11 @@ public class ZOOMA2SearchDriver {
             jobQueue.add(service.submit(new Callable<Integer>() {
                 @Override public Integer call() throws Exception {
                     // first, grab annotation summaries
-                    Map<AnnotationSummary, Float> summaries = searcher.searchZOOMA(property, score);
-                    if (!summaries.isEmpty()) {
-                        // get well scored annotation summaries
-                        Set<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(summaries,
-                                                                                                    cutoffPercentage);
-
-                        // for each good summary, extract an example annotation
-                        boolean achievedScore = false;
-                        Set<Annotation> goodAnnotations = new HashSet<>();
-                        for (AnnotationSummary goodSummary : goodSummaries) {
-                            if (!achievedScore && summaries.get(goodSummary) > score) {
-                                achievedScore = true;
-                            }
-                            URI annotationURI = goodSummary.getAnnotationURIs().iterator().next();
-                            goodAnnotations.add(searcher.getAnnotation(annotationURI));
-                            // trace log each annotation summary that has generated content to be written to the report
-                            if (getLog().isTraceEnabled()) {
-                                getLog().trace(
-                                        "Next annotation result obtained:\n\t\t" +
-                                                "Searched: " + property + "\t" +
-                                                "Found: " + goodSummary.getAnnotatedPropertyValue() + " " +
-                                                "[" + goodSummary.getAnnotatedPropertyType() + "] " +
-                                                "-> " + goodSummary.getSemanticTags() + "\t" +
-                                                "Score: " + summaries.get(goodSummary));
-                            }
-                        }
-
-                        // and add good annotations to the annotations map
-                        synchronized (annotations) {
-                            // todo - need to rewrite search client to use new API for predictions!
-                            List<AnnotationPrediction> predictions = new ArrayList<>();
-                            for (Annotation goodAnnotation : goodAnnotations) {
-                                predictions.add(AnnotationPredictionBuilder.predictFromAnnotation(goodAnnotation).build());
-                            }
-                            annotations.put(property, predictions);
-                        }
-                        synchronized (searchAchievedScore) {
-                            searchAchievedScore.put(property, achievedScore);
+                    List<AnnotationPrediction> predictions = zoomaClient.annotate(property);
+                    if (!predictions.isEmpty()) {
+                        // and add predictions to the annotations map
+                        synchronized (annotationPredictions) {
+                            annotationPredictions.put(property, predictions);
                         }
                     }
 
@@ -554,97 +465,8 @@ public class ZOOMA2SearchDriver {
         finally {
             getLog().info("Search complete. Writing out results...");
             System.out.print("\n\nSearch complete.  Writing results...");
-            ZOOMAReportRenderer renderer =
-                    new ZOOMAReportRenderer(new ZOOMALabelMapper(searcher),
-                                            out,
-                                            err);
-            renderer.renderAnnotations(properties, propertyContexts, annotations);
-            renderer.close();
-            System.out.println("done.");
-            getLog().info("ZOOMA report complete");
-
-            if (failedCount > 0) {
-                //noinspection ThrowFromFinallyBlock
-                throw new RuntimeException("There were " + failedCount + " ZOOMA searches that encountered problems");
-            }
-        }
-    }
-
-    private void evaluateZOOMA(final URL zoomaLocation,
-                               final float score,
-                               final float cutoffPercentage,
-                               final int concurrency,
-                               final List<Property> properties,
-                               final OutputStream out,
-                               final OutputStream err) throws IOException {
-        getLog().info("Evaluating ZOOMA mappings [" + zoomaLocation + "]");
-        System.out.println("Starting ZOOMA search using ZOOMA at: " + zoomaLocation);
-
-        // create a timer to time search tasks
-        final ZOOMASearchTimer timer = new ZOOMASearchTimer(properties.size()).start();
-        final ZOOMASearchClient searcher = new ZOOMASearchClient(zoomaLocation);
-        final Map<Property, Map<AnnotationSummary, Float>> annotationSummaries = new HashMap<>();
-
-        // start searching - use 'concurrent' parallel threads
-        Deque<Future<Integer>> jobQueue = new ConcurrentLinkedDeque<>();
-        ExecutorService service = Executors.newFixedThreadPool(concurrency);
-        for (final Property property : properties) {
-            // simple unit of work to perform the zooma search and update annotations with results
-            jobQueue.add(service.submit(new Callable<Integer>() {
-                @Override public Integer call() throws Exception {
-                    // just grab annotation summaries
-                    Map<AnnotationSummary, Float> summaries = searcher.searchZOOMA(property, score);
-                    if (!summaries.isEmpty()) {
-                        annotationSummaries.put(property, summaries);
-                    }
-
-                    // update timing stats
-                    timer.completedNext();
-                    String estimate = new DecimalFormat("#,###").format(((float) timer.getCurrentEstimate()) / 1000);
-                    System.out.print("Checked " + timer.getCompletedCount() + "/" +
-                                             timer.getTotalCount() + " property values.  " +
-                                             "Estimated time remaining : " + estimate + " s.     \r");
-                    return timer.getCompletedCount();
-                }
-            }));
-        }
-
-        // pop elements from the jobQueue, make sure they're done, then discard
-        Future<Integer> f = jobQueue.poll();
-        int failedCount = 0;
-        while (f != null) {
-            try {
-                int total = f.get();
-                getLog().trace("There are " + total + " searches are now complete");
-            }
-            catch (InterruptedException e) {
-                failedCount++;
-                getLog().error("Job " + f + " was interrupted whilst waiting for completion - " +
-                                       "there are " + failedCount + " fails now");
-            }
-            catch (ExecutionException e) {
-                failedCount++;
-                getLog().error("A job failed to execute - there are " + failedCount + " fails now.  Error was:\n",
-                               e.getCause());
-            }
-            f = jobQueue.poll();
-        }
-
-        getLog().debug("Shutting down executor service...");
-        service.shutdown();
-        try {
-            service.awaitTermination(2, TimeUnit.MINUTES);
-            getLog().debug("Executor service shutdown gracefully.");
-        }
-        catch (InterruptedException e) {
-            getLog().error("Executor service failed to shutdown cleanly", e);
-            throw new RuntimeException("Unable to cleanly shutdown ZOOMA.", e);
-        }
-        finally {
-            getLog().info("Search complete. Writing out results...");
-            System.out.print("\n\nSearch complete.  Writing results...");
-            ZOOMAReportRenderer renderer = new ZOOMAReportRenderer(new ZOOMALabelMapper(searcher), out, err);
-            renderer.renderAnnotationSummaries(properties, annotationSummaries);
+            ZOOMAReportRenderer renderer = new ZOOMAReportRenderer(new ZOOMALabelMapper(zoomaClient), out, err);
+            renderer.renderAnnotations(properties, propertyContexts, annotationPredictions);
             renderer.close();
             System.out.println("done.");
             getLog().info("ZOOMA report complete");
