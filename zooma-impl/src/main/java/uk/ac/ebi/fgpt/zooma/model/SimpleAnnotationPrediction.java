@@ -10,14 +10,17 @@ import java.util.Collection;
  * @date 17/08/15
  */
 public class SimpleAnnotationPrediction extends SimpleAnnotation implements AnnotationPrediction {
+    private final Annotation derivedFrom;
     private final Confidence confidence;
 
-    public SimpleAnnotationPrediction(Confidence confidence,
+    public SimpleAnnotationPrediction(Annotation derivedFrom,
+                                      Confidence confidence,
                                       Collection<BiologicalEntity> biologicalEntities,
                                       Property annotatedProperty,
                                       AnnotationProvenance annotationProvenance,
                                       URI... semanticTags) {
-        this(confidence,
+        this(derivedFrom,
+             confidence,
              biologicalEntities,
              annotatedProperty,
              annotationProvenance,
@@ -26,7 +29,8 @@ public class SimpleAnnotationPrediction extends SimpleAnnotation implements Anno
              new URI[0]);
     }
 
-    public SimpleAnnotationPrediction(Confidence confidence,
+    public SimpleAnnotationPrediction(Annotation derivedFrom,
+                                      Confidence confidence,
                                       Collection<BiologicalEntity> biologicalEntities,
                                       Property annotatedProperty,
                                       AnnotationProvenance annotationProvenance,
@@ -34,7 +38,12 @@ public class SimpleAnnotationPrediction extends SimpleAnnotation implements Anno
                                       URI[] replacedBy,
                                       URI[] replaces) {
         super(null, biologicalEntities, annotatedProperty, annotationProvenance, semanticTags, replacedBy, replaces);
+        this.derivedFrom = derivedFrom;
         this.confidence = confidence;
+    }
+
+    @Override public Annotation getDerivedFrom() {
+        return derivedFrom;
     }
 
     @Override public Confidence getConfidence() {

@@ -165,7 +165,8 @@ public abstract class AnnotationPredictionBuilder {
                 }
                 this.annotationProvenance = template.evidenceIs(newEvidence).build();
 
-                return new SimpleAnnotationPrediction(this.confidence,
+                return new SimpleAnnotationPrediction(this.derivedFrom,
+                                                      this.confidence,
                                                       this.biologicalEntities,
                                                       this.searchedProperty,
                                                       annotationProvenance,
