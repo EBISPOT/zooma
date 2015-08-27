@@ -554,7 +554,7 @@ function renderResults(data) {
                             "<img src='//www.ebi.ac.uk/sites/ebi.ac.uk/files/styles/icon/public/resource/logo/aelogo.jpg' " +
                             "alt='ArrayExpress' style='height: 22px;'/> ArrayExpress</a></td>";
                 }
-                else if (result[7] == "http://www.ebi.ac.uk/efo") {
+                else if (result[7] == "http://www.ebi.ac.uk/efo/efo.owl") {
                     href = "http://www.ebi.ac.uk/efo/search?query=" +
                             encodeURIComponent(result[2]) +
                             "&submitSearch=Search";
