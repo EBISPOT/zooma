@@ -34,9 +34,12 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 	private boolean isThrottling = false;
 	
 	private long samplingTimeMs = 15 * 1000 * 60;
+	
+	private long minCallDelay = 0;
 
 	private Object statsLock = new Object ();
 	
+	// TODO: we actually need separated timers
 	private XStopWatch timer = new XStopWatch ();
 
 
@@ -51,6 +54,7 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 	{
 		doThrottle ();
 		if ( timer.isStopped () ) timer.start ();
+		long callStartTime = System.currentTimeMillis ();
 		
 		try {
 			return base.searchZOOMA ( property, score, excludeType, noEmptyResult );
@@ -62,6 +66,7 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 		}
 		finally 
 		{
+			doMinCallDelay ( callStartTime );
 			searchZOOMACalls++;
 			doStats ();
 		}
@@ -72,7 +77,8 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 	{
 		doThrottle ();
 		if ( timer.isStopped () ) timer.start ();
-		
+		long callStartTime = System.currentTimeMillis ();
+
 		try {
 			return base.getAnnotation ( annotationURI );
 		}
@@ -84,6 +90,7 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 		finally 
 		{
 			getAnnotationCalls++;
+			doMinCallDelay ( callStartTime );
 			doStats ();
 		}
 	}
@@ -93,7 +100,8 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 	{
 		doThrottle ();
 		if ( timer.isStopped () ) timer.start ();
-		
+		long callStartTime = System.currentTimeMillis ();
+
 		try {
 			return base.getLabel ( uri );
 		}
@@ -105,6 +113,7 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 		finally 
 		{
 			getLabelCalls++;
+			doMinCallDelay ( callStartTime );
 			doStats ();
 		}
 	}
@@ -155,50 +164,74 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 			
 			getLabelCalls = failedGetLabelCalls = 0;
 			
-			timer.reset ();
-			timer.start ();
-		}
+			timer.restart ();
+			
+		} // synchronized
 	}
 
 	
 	private boolean doThrottle ()
 	{
 		if ( !throttleMode ) return false;
-		double failedCalls = Math.max ( 
-			Math.max ( avgFailedSearchZOOMACalls, avgFailedGetAnnotationCalls ),
-			avgFailedGetLabelCalls
-		);
-		
-		if ( failedCalls <= 0.1 ) 
+
+		try 
 		{
-			if ( isThrottling ) {
-				log.info ( "ZOOMA back to good performance, throttling ends" );
-				isThrottling = false;
+			double failedCalls = Math.max ( 
+				Math.max ( avgFailedSearchZOOMACalls, avgFailedGetAnnotationCalls ),
+				avgFailedGetLabelCalls
+			);
+			
+			if ( failedCalls <= 0.1 ) 
+			{
+				if ( isThrottling ) {
+					log.info ( "ZOOMA back to good performance, throttling ends" );
+					isThrottling = false;
+				}
+				return false;
 			}
-			return false;
-		}
-
-		// The thresholds are related to twice their values most of the time, eg, 
-		// previous checkpoint it was 0, then it becomes 35, average is 17.5
-		long delay = 
-			failedCalls <= 0.30 ? 500 
-			: failedCalls <= 0.50 ? 5 * 1000 
-			: failedCalls <= 0.70 ? 1 * 60 * 1000
-			: 5 * 60 * 1000; 
-
-		if ( !isThrottling ) {
-			log.info ( "Throttling ZOOMA to avoid server crashing, calls are slowed down by {}ms per call", delay );
-			isThrottling = true;
-		}
+	
+			// The thresholds are related to twice their values most of the time, eg, 
+			// previous checkpoint it was 0, then it becomes 35, average is 17.5
+			long delay = 
+				failedCalls <= 0.30 ? 500 
+				: failedCalls <= 0.50 ? 5 * 1000 
+				: failedCalls <= 0.70 ? 1 * 60 * 1000
+				: 5 * 60 * 1000; 
+	
+			if ( !isThrottling ) {
+				log.info ( "Throttling ZOOMA to avoid server crashing, calls are slowed down by {}ms per call", delay );
+				isThrottling = true;
+			}
 		
-		try {
 			Thread.sleep ( delay );
+		
 		}
 		catch ( InterruptedException e ) {
-			throw new RuntimeException ( "Internal error: " + e.getMessage (), e );
+			throw new RuntimeException ( "Internal error with Thread.sleep(): " + e.getMessage (), e );
 		}
 		
 		return true;
+	}
+	
+	
+	private boolean doMinCallDelay ( long callStartTime )
+	{
+		try 
+		{
+			if ( this.minCallDelay == 0 || !this.isThrottleMode () || this.isThrottling ) return false;
+			
+			long callTime = System.currentTimeMillis () - callStartTime;
+			long deltaDelay = this.minCallDelay - callTime;
+		
+			if ( deltaDelay <= 0 ) return false;
+			
+			log.trace ( "Sleeping for {} ms, due to minCallDelay of {}", deltaDelay, minCallDelay );
+			Thread.sleep ( deltaDelay );
+			return true;
+		}
+		catch ( InterruptedException e ) {
+			throw new RuntimeException ( "Internal error with Thread.sleep(): " + e.getMessage (), e );
+		}
 	}
 	
 	
@@ -243,20 +276,36 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 		return avgFailedGetLabelCalls;
 	}
 
+	
 	/**
 	 * If true, calls to the server are slowed down when the failure ratio is too high and things are speed-up again
 	 * when such ratio goes back to normal. This is to prevent crashes we have with ZOOMA server, when we hammer at
-	 * it too much. 
+	 * it too much. Moreover, when this flag is true and the failed call ratio is low, all calls are delayed by 
+	 * {@link #getMinCallDelay()} ms anyway. 
 	 */
 	public boolean isThrottleMode ()
 	{
 		return throttleMode;
 	}
 
-
 	public void setThrottleMode ( boolean throttleMode )
 	{
 		this.throttleMode = throttleMode;
+	}
+
+
+	/**
+	 * Any call to ZOOMA is delayed by this time in milliseconds. This might needed as a safeguard measure, to avoid 
+	 * server crashes. This requires {@link #isThrottleMode()}.
+	 */
+	public long getMinCallDelay ()
+	{
+		return minCallDelay;
+	}
+
+	public void setMinCallDelay ( long minCallDelay )
+	{
+		this.minCallDelay = minCallDelay;
 	}
 	
 }
