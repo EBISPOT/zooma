@@ -1,0 +1,35 @@
+{
+  "name": "zooma-js",
+  "version": "2.0.0",
+  "description": "ZOOMA 2: Client javascript libraries",
+  "main": "src/main/javascript/zooma.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/EBISPOT/ZOOMA.git"
+  },
+  "keywords": [
+    "zooma",
+    "ontology",
+    "mapping"
+  ],
+  "author": "Tony Burdett <tburdett@ebi.ac.uk>",
+  "license": "Apache-2.0",
+  "readme": "README",
+  "bugs": {
+    "url": "https://github.com/EBISPOT/ZOOMA/issues"
+  },
+  "homepage": "https://github.com/EBISPOT/ZOOMA#readme",
+  "devDependencies": {
+    "bower": "^1.5.2",
+    "del": "^2.0.0",
+    "gulp": "~3.9.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^1.4.0",
+    "main-bower-files": "^2.9.0",
+    "run-sequence": "^1.1.2"
+  }
+}

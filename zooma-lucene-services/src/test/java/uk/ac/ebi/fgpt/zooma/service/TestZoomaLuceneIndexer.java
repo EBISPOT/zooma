@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.RAMDirectory;
@@ -30,6 +31,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -70,7 +72,7 @@ public class TestZoomaLuceneIndexer {
     public void setUp() {
         try {
             // create index setup
-            analyzer = new EnglishAnalyzer();
+            analyzer = new EnglishAnalyzer(CharArraySet.EMPTY_SET);
 
             // directories that need to be persisted for querying
             try {
@@ -306,7 +308,7 @@ public class TestZoomaLuceneIndexer {
 
         // create indices needed for this test
         try {
-            indexer.createAnnotationIndex(new ArrayList<Annotation>(verifiedAnnotationDAO.read()));
+            indexer.createAnnotationIndex(new ArrayList<>(verifiedAnnotationDAO.read()));
             indexer.createAnnotationSummaryIndex(verifiedSummaryAnnotationDAO, verifiedProvenanceMap);
         }
         catch (IOException e) {

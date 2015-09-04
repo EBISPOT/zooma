@@ -140,29 +140,31 @@ public class TestLuceneAnalyzers {
             // build a query
             for (String query : documents) {
                 getLog().debug("Analyzing " + query);
-                TokenStream stream = analyzer.tokenStream(field, new StringReader(query));
-                CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
-                while (stream.incrementToken()) {
-                    String term = termAtt.toString();
-                    getLog().debug("\tNext term = " + term);
+                try (TokenStream stream = analyzer.tokenStream(field, new StringReader(query))) {
+                    stream.reset();
+                    CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
+                    while (stream.incrementToken()) {
+                        String term = termAtt.toString();
+                        getLog().debug("\tNext term = " + term);
 
-                    // now query index for this term and verify the document with title matching query is returned
-                    int hitsPerPage = 10;
-                    TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage);
-                    getLog().debug("Performing lucene query for '" + term + "'");
-                    Query q = new TermQuery(new Term(field, term));
-                    searcher.search(q, collector);
-                    ScoreDoc[] hits = collector.topDocs().scoreDocs;
+                        // now query index for this term and verify the document with title matching query is returned
+                        int hitsPerPage = 10;
+                        TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage);
+                        getLog().debug("Performing lucene query for '" + term + "'");
+                        Query q = new TermQuery(new Term(field, term));
+                        searcher.search(q, collector);
+                        ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
-                    // print results
-                    Set<String> results = new HashSet<>();
-                    for (int i = 0; i < hits.length; ++i) {
-                        int docId = hits[i].doc;
-                        Document d = searcher.doc(docId);
-                        results.add(d.get("title"));
-                        getLog().debug("Result " + (i + 1) + ": " + d.get("title"));
+                        // print results
+                        Set<String> results = new HashSet<>();
+                        for (int i = 0; i < hits.length; ++i) {
+                            int docId = hits[i].doc;
+                            Document d = searcher.doc(docId);
+                            results.add(d.get("title"));
+                            getLog().debug("Result " + (i + 1) + ": " + d.get("title"));
+                        }
+                        assertTrue("Results does not contain expected title '" + query + "'", results.contains(query));
                     }
-                    assertTrue("Results does not contain expected title '" + query + "'", results.contains(query));
                 }
             }
         }

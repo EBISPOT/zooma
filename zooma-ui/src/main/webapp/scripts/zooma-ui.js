@@ -264,14 +264,12 @@ function populateSorter() {
 
 function annotate(content) {
     resetSession(function(response) {
-        log(response);
         doSearch(jsonifyTextArea(content));
     });
 }
 
 function clearAll() {
     resetSession(function(response) {
-        log(response);
         $("#zooma-textarea").val("");
         $("#progressbar").hide();
         $("#annotation-results").text("");
@@ -366,7 +364,6 @@ function doSearch(json) {
                    $("#progressbar").progressbar({value: false}).show();
                },
                success: function(response) {
-                   log(response);
                    setTimeout(checkStatus, 100);
                },
                error: function(request, status, error) {

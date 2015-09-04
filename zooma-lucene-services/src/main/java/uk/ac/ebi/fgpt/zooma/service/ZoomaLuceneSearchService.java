@@ -2,7 +2,9 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -219,10 +221,14 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             if (queryType != QUERY_TYPE.EXACT) {
                 // tokenize the pattern using the given analyzer
                 terms = new ArrayList<>();
-                TokenStream stream = analyzer.tokenStream(field, new StringReader(QueryParser.escape(pattern)));
-                CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
-                while (stream.incrementToken()) {
-                    terms.add(termAtt.toString());
+                // todo - creating a new analyzer here means we run the risk of using different analyzers for indexing and query
+                Analyzer analyzer = new EnglishAnalyzer(CharArraySet.EMPTY_SET);
+                try (TokenStream stream = analyzer.tokenStream(field, new StringReader(QueryParser.escape(pattern)))) {
+                    stream.reset();
+                    CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
+                    while (stream.incrementToken()) {
+                        terms.add(termAtt.toString());
+                    }
                 }
             }
             else {

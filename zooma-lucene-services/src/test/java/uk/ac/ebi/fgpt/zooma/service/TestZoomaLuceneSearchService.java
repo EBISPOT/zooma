@@ -186,8 +186,8 @@ public class TestZoomaLuceneSearchService {
 
         // tokenize the pattern using the given analyzer
         List<String> terms = new ArrayList<>();
-        try {
-            TokenStream stream = analyzer.tokenStream(field, new StringReader(QueryParser.escape(searchString)));
+        try (TokenStream stream = analyzer.tokenStream(field, new StringReader(QueryParser.escape(searchString)))) {
+            stream.reset();
             CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
             while (stream.incrementToken()) {
                 terms.add(termAtt.toString());
