@@ -1,6 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
-import org.apache.lucene.search.DefaultSimilarity;
+import org.apache.lucene.search.similarities.DefaultSimilarity;
 
 /**
  * An implementation of Lucene's similarity class.  This class ignores the coord parameter for weighting the number of

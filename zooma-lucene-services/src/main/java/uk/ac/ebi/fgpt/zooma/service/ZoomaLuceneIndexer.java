@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 02/04/12
  */
 public class ZoomaLuceneIndexer extends Initializable {
-    public static final Version VERSION = Version.LUCENE_35;
+    public static final Version VERSION = Version.LUCENE_5_3_0;
 
     private static final String ENCODING = "SHA-1";
     private static final String HEX_CHARACTERS = "0123456789ABCDEF";
@@ -166,9 +166,9 @@ public class ZoomaLuceneIndexer extends Initializable {
         Set<String> uniquePropertyTypes = new HashSet<>();
 
         // set up index
-        IndexWriterConfig propertyConfig = new IndexWriterConfig(VERSION, getAnalyzer());
+        IndexWriterConfig propertyConfig = new IndexWriterConfig(getAnalyzer());
         IndexWriter propertyIndexWriter = new IndexWriter(getPropertyIndex(), propertyConfig);
-        IndexWriterConfig propertyTypeConfig = new IndexWriterConfig(VERSION, getAnalyzer());
+        IndexWriterConfig propertyTypeConfig = new IndexWriterConfig(getAnalyzer());
         IndexWriter propertyTypeIndexWriter = new IndexWriter(getPropertyTypeIndex(), propertyTypeConfig);
 
         // iterate over all properties
@@ -212,8 +212,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                                 Field.Store.YES,
                                 Field.Index.NOT_ANALYZED));
                     }
-                    propertyTypeIndexWriter.addDocument(typeDoc, getAnalyzer());
-
+                    propertyTypeIndexWriter.addDocument(typeDoc);
                 }
             }
 
@@ -226,7 +225,7 @@ public class ZoomaLuceneIndexer extends Initializable {
             }
 
             // add this document to the index
-            propertyIndexWriter.addDocument(doc, getAnalyzer());
+            propertyIndexWriter.addDocument(doc);
         }
 
         // now we have indexed all properties, close the index writer
@@ -338,7 +337,7 @@ public class ZoomaLuceneIndexer extends Initializable {
             }
             propertyUriToSourcesMap.get(property.getURI()).add(annotation.getProvenance().getSource().getURI());
             // add this document to the index
-            indexWriter.addDocument(doc, getAnalyzer());
+            indexWriter.addDocument(doc);
         }
     }
 
@@ -489,7 +488,7 @@ public class ZoomaLuceneIndexer extends Initializable {
                         "Times verified: " + summaryIdToSourcesMap.get(summaryId).size());
 
                 // add this document to the index
-                summaryIndexWriter.addDocument(doc, getAnalyzer());
+                summaryIndexWriter.addDocument(doc);
             }
 
         }
@@ -550,7 +549,7 @@ public class ZoomaLuceneIndexer extends Initializable {
     }
 
     protected IndexWriter obtainIndexWriter(Directory directory) throws IOException {
-        IndexWriterConfig config = new IndexWriterConfig(VERSION, getAnalyzer());
+        IndexWriterConfig config = new IndexWriterConfig(getAnalyzer());
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         return new IndexWriter(directory, config);
     }

@@ -6,6 +6,7 @@ import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -60,8 +61,7 @@ public class TestLuceneAnalyzers {
     public void setUp() {
         try {
             // create index setup
-            Version version = Version.LUCENE_35;
-            analyzer = new EnglishAnalyzer(version);
+            analyzer = new EnglishAnalyzer();
 
             // add documents
             String doc1 = "Lucene in Action";
@@ -89,7 +89,7 @@ public class TestLuceneAnalyzers {
             uriDocuments.add(uri2);
 
             // add some data to the index
-            IndexWriterConfig config = new IndexWriterConfig(version, analyzer);
+            IndexWriterConfig config = new IndexWriterConfig(analyzer);
             Directory index = new RAMDirectory();
             IndexWriter w = new IndexWriter(index, config);
             for (String doc : documents) {
@@ -101,7 +101,7 @@ public class TestLuceneAnalyzers {
             w.close();
 
             // create a searcher that can search this index
-            IndexReader reader = IndexReader.open(index);
+            IndexReader reader = DirectoryReader.open(index);
             searcher = new IndexSearcher(reader);
         }
         catch (IOException e) {
@@ -148,7 +148,7 @@ public class TestLuceneAnalyzers {
 
                     // now query index for this term and verify the document with title matching query is returned
                     int hitsPerPage = 10;
-                    TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
+                    TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage);
                     getLog().debug("Performing lucene query for '" + term + "'");
                     Query q = new TermQuery(new Term(field, term));
                     searcher.search(q, collector);
@@ -179,7 +179,7 @@ public class TestLuceneAnalyzers {
             for (URI query : uriDocuments) {
                 // query index for this uri and verify the document with title matching query is returned
                 int hitsPerPage = 10;
-                TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
+                TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage);
                 getLog().debug("Performing lucene query for <" + query.toString() + ">");
                 Query q = new TermQuery(new Term(field, query.toString()));
                 searcher.search(q, collector);

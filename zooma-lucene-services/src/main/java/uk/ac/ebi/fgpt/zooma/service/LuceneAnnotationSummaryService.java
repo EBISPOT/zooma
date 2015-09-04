@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
@@ -49,9 +50,6 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
         AnnotationSummaryMapper preMapper = new AnnotationSummaryMapper(numAnnotations, numSummaries);
         Set<Float> allScores = new HashSet<>();
         for (int i = 0; i < numSummaries; i++) {
-            if (getReader().isDeleted(i)) {
-                continue;
-            }
             allScores.add(preMapper.mapDocument(getReader().document(i)).getQuality());
         }
         float maxScore = Collections.max(allScores);
@@ -71,12 +69,8 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
             initOrWait();
 
             Collection<AnnotationSummary> results = new ArrayList<>();
-            IndexReader reader = IndexReader.open(getIndex());
+            IndexReader reader = DirectoryReader.open(getIndex());
             for (int i = start; i < limit && i < reader.maxDoc(); i++) {
-                if (reader.isDeleted(i)) {
-                    continue;
-                }
-
                 Document doc = reader.document(i);
                 AnnotationSummary as = getMapper().mapDocument(doc);
                 results.add(as);

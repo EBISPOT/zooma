@@ -49,7 +49,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TestZoomaLuceneIndexer {
-    private Version version;
     private Analyzer analyzer;
 
     private Path annotationIndexPath;
@@ -71,8 +70,7 @@ public class TestZoomaLuceneIndexer {
     public void setUp() {
         try {
             // create index setup
-            version = Version.LUCENE_35;
-            analyzer = new EnglishAnalyzer(version);
+            analyzer = new EnglishAnalyzer();
 
             // directories that need to be persisted for querying
             try {
@@ -286,8 +284,8 @@ public class TestZoomaLuceneIndexer {
         Directory summaryDir = null;
 
         try {
-            annotationDir = new NIOFSDirectory(annotationIndexPath.toFile());
-            summaryDir = new NIOFSDirectory(summaryIndexPath.toFile());
+            annotationDir = new NIOFSDirectory(annotationIndexPath);
+            summaryDir = new NIOFSDirectory(summaryIndexPath);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -321,7 +319,7 @@ public class TestZoomaLuceneIndexer {
 
         // reopen indexed directories
         try {
-            summaryDir = new NIOFSDirectory(summaryIndexPath.toFile());
+            summaryDir = new NIOFSDirectory(summaryIndexPath);
         }
         catch (IOException e) {
             e.printStackTrace();

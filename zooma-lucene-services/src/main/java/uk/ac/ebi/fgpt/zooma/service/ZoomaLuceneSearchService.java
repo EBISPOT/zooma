@@ -4,18 +4,20 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Similarity;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.search.similarities.Similarity;
+import org.apache.lucene.search.spans.SpanFirstQuery;
 import org.apache.lucene.search.spans.SpanMultiTermQueryWrapper;
 import org.apache.lucene.search.spans.SpanNearQuery;
 import org.apache.lucene.search.spans.SpanQuery;
@@ -73,16 +75,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         this.index = index;
     }
 
-    public Analyzer getAnalyzer() {
-        return analyzer;
-    }
-
     public void setAnalyzer(Analyzer analyzer) {
         this.analyzer = analyzer;
-    }
-
-    public Similarity getSimilarity() {
-        return similarity;
     }
 
     public void setSimilarity(Similarity similarity) {
@@ -100,7 +94,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     @Override
     protected void doInitialization() throws IOException {
         // initialize searcher and query parser from index
-        this.reader = IndexReader.open(getIndex());
+        this.reader = DirectoryReader.open(getIndex());
         this.searcher = new IndexSearcher(reader);
         if (similarity != null) {
             this.searcher.setSimilarity(similarity);
@@ -110,7 +104,6 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     @Override
     protected void doTermination() throws Exception {
         // close index reader
-        searcher.close();
         reader.close();
     }
 
@@ -180,7 +173,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     protected Query formulateTypedQuery(Query typeQuery, Query valueQuery) {
         float boost = valueQuery.getBoost();
         valueQuery.setBoost(1f);
-        Query untypedQuery = (Query) valueQuery.clone();
+        Query untypedQuery = valueQuery.clone();
         untypedQuery.setBoost(20f);
         Query typedQuery = formulateCombinedQuery(true, false, untypedQuery, typeQuery);
         typedQuery.setBoost(1f);
@@ -250,7 +243,9 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                             q = new TermQuery(new Term(field, term));
                             break;
                         case PREFIX:
-                            q = new PrefixQuery(new Term(field, term));
+                            q = new SpanFirstQuery(
+                                    new SpanMultiTermQueryWrapper<>(
+                                            new PrefixQuery(new Term(field, term))), 1);
                             break;
                         case SUFFIX:
                             q = new TermQuery(new Term(field, "*" + term));
@@ -407,19 +402,19 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
         else {
             // unify them with a boolean query
-            BooleanQuery q = new BooleanQuery();
+            BooleanQuery.Builder builder = new BooleanQuery.Builder();
             BooleanClause.Occur bco = allMustOccur ? BooleanClause.Occur.MUST : BooleanClause.Occur.SHOULD;
             int index = 0;
             for (Query nextQuery : queries) {
                 if (index == 0 && firstMustOccur) {
-                    q.add(nextQuery, BooleanClause.Occur.MUST);
+                    builder.add(nextQuery, BooleanClause.Occur.MUST);
                 }
                 else {
-                    q.add(nextQuery, bco);
+                    builder.add(nextQuery, bco);
                 }
                 index++;
             }
-            return q;
+            return builder.build();
         }
     }
 
@@ -460,8 +455,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector collector = lastScoreDoc == null
-                        ? TopScoreDocCollector.create(100, true)
-                        : TopScoreDocCollector.create(100, lastScoreDoc, true);
+                        ? TopScoreDocCollector.create(100)
+                        : TopScoreDocCollector.create(100, lastScoreDoc);
 
                 // perform query
                 getSearcher().search(q, collector);
@@ -546,8 +541,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector collector = lastScoreDoc == null
-                        ? TopScoreDocCollector.create(100, true)
-                        : TopScoreDocCollector.create(100, lastScoreDoc, true);
+                        ? TopScoreDocCollector.create(100)
+                        : TopScoreDocCollector.create(100, lastScoreDoc);
 
                 // perform query
                 getSearcher().search(q, collector);

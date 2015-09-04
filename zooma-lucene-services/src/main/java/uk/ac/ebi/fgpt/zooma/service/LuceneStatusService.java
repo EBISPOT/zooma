@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.store.NoSuchDirectoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +36,8 @@ public class LuceneStatusService implements StatusService {
         getLog().trace("Status check - initialization status is " + getZoomaLuceneIndexer().isInitialized());
         try {
             IndexReader reader;
-            if (IndexReader.indexExists(getZoomaLuceneIndexer().getAnnotationCountIndex())) {
-                reader = IndexReader.open(getZoomaLuceneIndexer().getAnnotationCountIndex());
+            if (DirectoryReader.indexExists(getZoomaLuceneIndexer().getAnnotationCountIndex())) {
+                reader = DirectoryReader.open(getZoomaLuceneIndexer().getAnnotationCountIndex());
                 reader.close();
                 getLog().trace("Status check - annotation count index present at " +
                                        getZoomaLuceneIndexer().getAnnotationCountIndex().toString());
@@ -46,8 +46,8 @@ public class LuceneStatusService implements StatusService {
                 getLog().trace("Status check - no annotation count index");
                 return false;
             }
-            if (IndexReader.indexExists(getZoomaLuceneIndexer().getAnnotationIndex())) {
-                reader = IndexReader.open(getZoomaLuceneIndexer().getAnnotationIndex());
+            if (DirectoryReader.indexExists(getZoomaLuceneIndexer().getAnnotationIndex())) {
+                reader = DirectoryReader.open(getZoomaLuceneIndexer().getAnnotationIndex());
                 reader.close();
                 getLog().trace("Status check - annotation index present at " +
                                        getZoomaLuceneIndexer().getAnnotationIndex().toString());
@@ -56,8 +56,8 @@ public class LuceneStatusService implements StatusService {
                 getLog().trace("Status check - no annotation index");
                 return false;
             }
-            if (IndexReader.indexExists(getZoomaLuceneIndexer().getAnnotationSummaryIndex())) {
-                reader = IndexReader.open(getZoomaLuceneIndexer().getAnnotationSummaryIndex());
+            if (DirectoryReader.indexExists(getZoomaLuceneIndexer().getAnnotationSummaryIndex())) {
+                reader = DirectoryReader.open(getZoomaLuceneIndexer().getAnnotationSummaryIndex());
                 reader.close();
                 getLog().trace("Status check - annotation summary index present at " +
                                        getZoomaLuceneIndexer().getAnnotationSummaryIndex().toString());
@@ -66,8 +66,8 @@ public class LuceneStatusService implements StatusService {
                 getLog().trace("Status check - no annotation summary index");
                 return false;
             }
-            if (IndexReader.indexExists(getZoomaLuceneIndexer().getPropertyIndex())) {
-                reader = IndexReader.open(getZoomaLuceneIndexer().getPropertyIndex());
+            if (DirectoryReader.indexExists(getZoomaLuceneIndexer().getPropertyIndex())) {
+                reader = DirectoryReader.open(getZoomaLuceneIndexer().getPropertyIndex());
                 reader.close();
                 getLog().trace("Status check - property index present at " +
                                        getZoomaLuceneIndexer().getPropertyIndex().toString());
@@ -76,8 +76,8 @@ public class LuceneStatusService implements StatusService {
                 getLog().trace("Status check - no property index");
                 return false;
             }
-            if (IndexReader.indexExists(getZoomaLuceneIndexer().getPropertyTypeIndex())) {
-                reader = IndexReader.open(getZoomaLuceneIndexer().getPropertyTypeIndex());
+            if (DirectoryReader.indexExists(getZoomaLuceneIndexer().getPropertyTypeIndex())) {
+                reader = DirectoryReader.open(getZoomaLuceneIndexer().getPropertyTypeIndex());
                 reader.close();
                 getLog().trace("Status check - property type index present at " +
                                        getZoomaLuceneIndexer().getPropertyTypeIndex().toString());
@@ -88,11 +88,6 @@ public class LuceneStatusService implements StatusService {
             }
             // opening all indices was successful, so status is good
             return true;
-        }
-        catch (NoSuchDirectoryException e) {
-            // if we get an exception, status is no good
-            getLog().debug("Status check - no such directory", e);
-            return false;
         }
         catch (CorruptIndexException e) {
             getLog().debug("Status check - corrupt index", e);
