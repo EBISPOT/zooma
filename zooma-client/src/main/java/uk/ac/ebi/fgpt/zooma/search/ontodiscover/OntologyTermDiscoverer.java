@@ -11,7 +11,7 @@ import java.util.List;
  * @author Marco Brandizi
  *
  */
-public abstract class OntologyTermDiscoverer
+public class OntologyTermDiscoverer
 {
 	/**
 	 * Used to represent a discovered result.
@@ -51,9 +51,18 @@ public abstract class OntologyTermDiscoverer
 	
 	
 	/**
-	 * Returns a score-ordered list of {@link DiscoveredTerm terms} associated to the parameters. 
-	 * Should return an empty list if no sensible URI was found for the parameters (or if the parameters are null or invalid)
+	 * <p>Returns a score-ordered list of {@link DiscoveredTerm terms} associated to the parameters.</p>
+	 * 
+	 * <p>Should return an empty list if no sensible URI was found for the parameters 
+	 * (or if the parameters are null or invalid)</p>
+	 * 
+	 * <p>Should return null if you don't want to save any result (eg, in a cache) for this parameter pair.</p>
+	 *  
+	 * <p>The default implementation returns null.</p>
 	 */
-	public abstract List<DiscoveredTerm> getOntologyTermUris ( String valueLabel, String typeLabel ) throws OntologyDiscoveryException;
+	public List<DiscoveredTerm> getOntologyTermUris ( String valueLabel, String typeLabel ) throws OntologyDiscoveryException
+	{
+		return null;
+	}
 	
 }
