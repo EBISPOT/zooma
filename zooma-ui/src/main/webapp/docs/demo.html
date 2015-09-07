@@ -45,6 +45,12 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" href="../css/zooma.css" type="text/css" media="screen">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="../webjars/zooma-js/2.0.0/vendor.css">
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">-->
+    <!--<link rel="stylesheet" href="assets/app.css">-->
+
     <!-- you can replace this with [projectname]-colours.css. See http://frontier.ebi.ac.uk/web/style/colour for details of how to do this -->
     <!-- also inform ES so we can host your colour palette file -->
     <link rel="stylesheet"
@@ -78,7 +84,10 @@
 
 </head>
 
-<body class="level2" onload="$('#zooma_search').zooma('autocomplete', {'zooma_url':'../', 'logging':'console'});">
+<body class="level2"
+      onload="
+      $('#zooma_search').zooma('autocomplete', {'zooma_url':'../', 'logging':'console'});
+      $('#zooma_suggestions').zooma('annotate', {'zooma_url':'../', 'logging':'console', 'annotation_source': $('#zooma_search')});">
 
 <div id="skip-to">
     <ul>
@@ -156,7 +165,8 @@
         <section class="grid_18 alpha">
             <h3>ZOOMA 2 jQuery Plugin</h3>
 
-            <p>ZOOMA 2 is available as a jQuery plugin: <a href="../webjars/zooma-js/2.0.0/zooma.min.js">zooma.min.js</a>
+            <p>ZOOMA 2 is available as a jQuery plugin:
+                <a href="../webjars/zooma-js/2.0.0/zooma.min.js">zooma.min.js</a>
                Simply include this in your HTML to enable ZOOMA based searches.</p>
 
             <h4>Example:</h4>
@@ -177,8 +187,13 @@
 &lt;/html&gt;
             </div>
             <h4>Demo:</h4>
-            <label for="zooma_search">Find Annotations:</label>
-            <input type="text" id="zooma_search" name="zooma_search" />
+            <div>
+                <label for="zooma_search">Enter your term:</label>
+                <input type="text" id="zooma_search" name="zooma_search" placeholder="Zooma-enabled term" class="zooma-input"/>
+
+                <label for="zooma_suggestions"></label>
+                <select id="zooma_suggestions" multiple></select>
+            </div>
         </section>
 
         <section class="grid_6 omega">

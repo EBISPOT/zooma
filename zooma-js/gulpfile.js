@@ -14,39 +14,58 @@ gulp.task('clean', function() {
     del(TARGET);
 });
 
-gulp.task('download', function() {
-    return gulp.src(mbf())
-            .pipe(uglify())
-            .pipe(rename({extname: '.min.js'}))
+gulp.task('copy-js-libraries', function() {
+    return gulp.src(mbf('**/*.js'))
             .pipe(gulp.dest(TARGET));
 });
 
-gulp.task('package-libraries', function() {
-    return gulp.src(mbf())
+gulp.task('package-js-libraries', function() {
+    return gulp.src(mbf('**/*.js'))
             .pipe(concat('vendor.js'))
             .pipe(uglify())
             .pipe(rename({extname: '.min.js'}))
             .pipe(gulp.dest(TARGET));
 });
 
-gulp.task('copy-js', function() {
+gulp.task('copy-css-libraries', function() {
+    return gulp.src(mbf('**/*.css'))
+            .pipe(gulp.dest(TARGET));
+});
+
+gulp.task('package-css-libraries', function() {
+    return gulp.src(mbf('**/*.css'))
+            .pipe(concat('vendor.css'))
+            .pipe(gulp.dest(TARGET));
+});
+
+gulp.task('copy-project-js', function() {
     return gulp.src('src/main/javascript/*.js')
             .pipe(gulp.dest(TARGET));
 });
 
-gulp.task('package-js', function() {
+gulp.task('package-project-js', function() {
     return gulp.src('src/main/javascript/*.js')
             .pipe(uglify())
             .pipe(rename({extname: '.min.js'}))
             .pipe(gulp.dest(TARGET));
 });
 
+gulp.task('package-project-css', function() {
+    return gulp.src('src/main/stylesheet/*.css')
+            .pipe(uglify())
+            .pipe(rename({extname: '.min.css'}))
+            .pipe(gulp.dest(TARGET));
+});
+
 gulp.task('install', function(callback) {
     return runSequence(
             'clean',
-            'package-libraries',
-            'package-js',
-            'copy-js',
+            'copy-js-libraries',
+            'package-js-libraries',
+            'copy-css-libraries',
+            'package-css-libraries',
+            'copy-project-js',
+            'package-project-js',
             function(error) {
                 if (error) {
                     console.log(error.message);
