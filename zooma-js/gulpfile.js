@@ -3,6 +3,7 @@
 var gulp = require('gulp');
 var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
+var minifyCss = require('gulp-minify-css');
 var mbf = require('main-bower-files');
 var concat = require('gulp-concat');
 var del = require('del');
@@ -35,6 +36,8 @@ gulp.task('copy-css-libraries', function() {
 gulp.task('package-css-libraries', function() {
     return gulp.src(mbf('**/*.css'))
             .pipe(concat('vendor.css'))
+            .pipe(minifyCss())
+            .pipe(rename({extname: '.min.css'}))
             .pipe(gulp.dest(TARGET));
 });
 
@@ -50,9 +53,14 @@ gulp.task('package-project-js', function() {
             .pipe(gulp.dest(TARGET));
 });
 
+gulp.task('copy-project-css', function() {
+    return gulp.src('src/main/stylesheets/*.css')
+            .pipe(gulp.dest(TARGET));
+});
+
 gulp.task('package-project-css', function() {
-    return gulp.src('src/main/stylesheet/*.css')
-            .pipe(uglify())
+    return gulp.src('src/main/stylesheets/*.css')
+            .pipe(minifyCss())
             .pipe(rename({extname: '.min.css'}))
             .pipe(gulp.dest(TARGET));
 });
@@ -66,6 +74,8 @@ gulp.task('install', function(callback) {
             'package-css-libraries',
             'copy-project-js',
             'package-project-js',
+            'copy-project-css',
+            'package-project-css',
             function(error) {
                 if (error) {
                     console.log(error.message);

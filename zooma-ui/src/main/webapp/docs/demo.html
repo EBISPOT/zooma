@@ -43,13 +43,15 @@
           type="text/css"
           media="screen">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" href="../css/zooma.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="../css/zooma-ui.css" type="text/css" media="screen">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="../webjars/zooma-js/2.0.0/vendor.css">
-    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rainbow/1.2.0/themes/github.css">-->
-    <!--<link rel="stylesheet" href="assets/app.css">-->
+    <!-- bootstrap stylesheet (required for tags) -->
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">-->
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css">-->
+
+    <!-- Zooma packaged stylesheets -->
+    <link rel="stylesheet" href="../webjars/zooma-js/2.0.0/zooma.css">
+    <link rel="stylesheet" href="../webjars/zooma-js/2.0.0/vendor.min.css">
 
     <!-- you can replace this with [projectname]-colours.css. See http://frontier.ebi.ac.uk/web/style/colour for details of how to do this -->
     <!-- also inform ES so we can host your colour palette file -->
@@ -84,10 +86,7 @@
 
 </head>
 
-<body class="level2"
-      onload="
-      $('#zooma_search').zooma('autocomplete', {'zooma_url':'../', 'logging':'console'});
-      $('#zooma_suggestions').zooma('annotate', {'zooma_url':'../', 'logging':'console', 'annotation_source': $('#zooma_search')});">
+<body class="level2">
 
 <div id="skip-to">
     <ul>
@@ -187,12 +186,39 @@
 &lt;/html&gt;
             </div>
             <h4>Demo:</h4>
-            <div>
-                <label for="zooma_search">Enter your term:</label>
-                <input type="text" id="zooma_search" name="zooma_search" placeholder="Zooma-enabled term" class="zooma-input"/>
 
-                <label for="zooma_suggestions"></label>
-                <select id="zooma_suggestions" multiple></select>
+            <div>
+                <h5>Simple setup</h5>
+                <script>
+                    window.onload = function() {
+                        $('#zooma').zooma({'zooma_url': '../','logging': 'console'});
+                    };
+                </script>
+                <div id="zooma"></div>
+            </div>
+
+            <div>
+                <h5>Using separated autocomplete/suggestion boxes</h5>
+                <script>
+                    window.onload = function() {
+                        $('#zooma-separated-search').zooma('autocomplete', {'zooma_url': '../', 'logging': 'console'});
+                        $('#zooma-separated-suggestions').zooma('annotate',
+                                {
+                                    'zooma_url': '../',
+                                    'logging': 'console',
+                                    'annotation_source': $('#zooma-separated-search')
+                                });
+                    };
+                </script>
+                <label for="zooma-separated-search">Enter your term:</label>
+                <input type="text"
+                       id="zooma-separated-search"
+                       name="zooma-separated-search"
+                       placeholder="Zooma-enabled term"
+                       class="zooma-input"/>
+
+                <label for="zooma-separated-suggestions"></label>
+                <select id="zooma-separated-suggestions" multiple style="display: none"></select>
             </div>
         </section>
 
