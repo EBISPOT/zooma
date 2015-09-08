@@ -163,6 +163,9 @@ var default_logging_div = 'zooma-log';
                     source: properties
                 });
         log("Typeahead bound ok!");
+
+        // styling
+        $target.parent().wrap('<div class="zooma-autocomplete-container"></div>');
     };
 
     var annotate = function(target, settings) {
@@ -173,7 +176,22 @@ var default_logging_div = 'zooma-log';
 
         // add data-role tagsinput to target and init
         $target.attr('data-role', 'tagsinput');
-        $target.tagsinput({trimValue: true, itemValue: 'shortname', itemText: 'shortname'});
+        $target.tagsinput({
+            trimValue: true, itemValue: 'shortname', itemText: 'shortname', tagClass: function(item) {
+                switch (item.confidence) {
+                    case 'HIGH' :
+                        return 'label high-confidence-label';
+                    case 'GOOD' :
+                        return 'label good-confidence-label';
+                    case 'MEDIUM' :
+                        return 'label medium-confidence-label';
+                    case 'LOW' :
+                        return 'label low-confidence-label';
+                    default :
+                        return 'label default-label';
+                }
+            }
+        });
 
         log("Setup tagsinput on " + $target.attr("id") + " ok!");
 
@@ -207,16 +225,35 @@ var default_logging_div = 'zooma-log';
         }
 
         log("Annotation detection bound ok!");
+
+        // styling
+        $target.parent().children(".bootstrap-tagsinput").addClass("zooma-annotations-container");
     };
 
-    $.fn.zooma = function(command, options) {
-        if (commands[command]) {
+    var setupZoomaWidget = function(target, settings) {
+        var $target = $(target);
+
+        // create new input and tags boxes within the target div
+
+
+        // add autocomplete and annotation functions
+
+    };
+
+    $.fn.zooma = function(commandOrOptions, options) {
+        if (commands[commandOrOptions]) {
             return this.each(function() {
-                return commands[command].apply(this, [this, options]);
+                return commands[commandOrOptions].apply(this, [this, options]);
             });
         }
         else {
-            $.error("jQuery.zooma plugin does not support the command '" + command + "'");
+            try {
+                return setupZoomaWidget(this, commandOrOptions);
+            }
+            catch (ex) {
+                $.error("Invalid usage: jQuery.zooma plugin does not support the command '" + commandOrOptions + "' " +
+                        "and this is not an options object either");
+            }
         }
     };
 })(jQuery);
