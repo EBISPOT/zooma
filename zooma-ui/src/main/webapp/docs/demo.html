@@ -189,16 +189,24 @@
 
             <div>
                 <h5>Simple setup</h5>
+                <!--
                 <script>
                     window.onload = function() {
-                        $('#zooma').zooma({'zooma_url': '../','logging': 'console'});
+                        $('#zooma-search').zooma({'zooma_url': '../','logging': 'console'});
                     };
                 </script>
-                <div id="zooma"></div>
+                -->
+                <label for="zooma-search">Enter your term:</label>
+                <input type="text"
+                       id="zooma-search"
+                       name="zooma-search"
+                       style="width: 400px;"
+                       placeholder="Zooma-enabled term" />
             </div>
 
             <div>
                 <h5>Using separated autocomplete/suggestion boxes</h5>
+                <!--
                 <script>
                     window.onload = function() {
                         $('#zooma-separated-search').zooma('autocomplete', {'zooma_url': '../', 'logging': 'console'});
@@ -210,11 +218,12 @@
                                 });
                     };
                 </script>
+                -->
                 <label for="zooma-separated-search">Enter your term:</label>
                 <input type="text"
                        id="zooma-separated-search"
                        name="zooma-separated-search"
-                       style="width: 400px";
+                       style="width: 400px;"
                        placeholder="Zooma-enabled term" />
 
                 <label for="zooma-separated-suggestions"></label>
@@ -291,6 +300,21 @@
 <!-- ZOOMA required JavaScript libraries, at the bottom for fast page loading -->
 <script type="text/javascript" src="../webjars/zooma-js/2.0.0/vendor.min.js"></script>
 <script type="text/javascript" src="../webjars/zooma-js/2.0.0/zooma.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        // first demo
+        $('#zooma-search').zooma({'zooma_url': '../','logging': 'console'});
+
+        // second demo
+        $('#zooma-separated-search').zooma('autocomplete', {'zooma_url': '../', 'logging': 'console'});
+        $('#zooma-separated-suggestions').zooma('annotate',
+                {
+                    'zooma_url': '../',
+                    'logging': 'console',
+                    'annotation_source': $('#zooma-separated-search')
+                });
+    });
+</script>
 
 
 <!-- Google analytics -->

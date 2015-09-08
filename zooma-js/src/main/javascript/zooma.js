@@ -94,8 +94,7 @@ var default_logging_div = 'zooma-log';
     };
 
     var pressEnter = function(target, callback) {
-        var $target = $(target);
-        return $target.bind('keypress', function(e) {
+        return target.bind('keypress', function(e) {
             if (e.keyCode == 13) {
                 callback.apply(this, [e]);
             }
@@ -140,9 +139,7 @@ var default_logging_div = 'zooma-log';
     };
 
     var autocomplete = function(target, settings) {
-        var $target = $(target);
-
-        log("Adding zooma autocomplete functionality to " + $target.attr("id") + " with configuration: " +
+        log("Adding zooma autocomplete functionality to " + target.attr("id") + " with configuration: " +
             JSON.stringify(settings));
         var properties = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
@@ -153,8 +150,8 @@ var default_logging_div = 'zooma-log';
             }
         });
 
-        log("Binding typeahead to " + $target.attr("id") + "...");
-        $target.typeahead({
+        log("Binding typeahead to " + target.attr("id") + "...");
+        target.typeahead({
                     hint: true,
                     highlight: true,
                     minLength: 3
@@ -165,18 +162,18 @@ var default_logging_div = 'zooma-log';
         log("Typeahead bound ok!");
 
         // styling
-        $target.parent().wrap('<div class="zooma-autocomplete-container"></div>');
+        var container = $('<div class="zooma-autocomplete-container"></div>');
+        target.parent().wrap(container);
+        return container;
     };
 
     var annotate = function(target, settings) {
-        var $target = $(target);
-
-        log("Adding zooma annotation functionality to " + $target.attr("id") + " with configuration: " +
+        log("Adding zooma annotation functionality to " + target.attr("id") + " with configuration: " +
             JSON.stringify(settings));
 
         // add data-role tagsinput to target and init
-        $target.attr('data-role', 'tagsinput');
-        $target.tagsinput({
+        target.attr('data-role', 'tagsinput');
+        target.tagsinput({
             trimValue: true, itemValue: 'shortname', itemText: 'shortname', tagClass: function(item) {
                 switch (item.confidence) {
                     case 'HIGH' :
@@ -193,7 +190,7 @@ var default_logging_div = 'zooma-log';
             }
         });
 
-        log("Setup tagsinput on " + $target.attr("id") + " ok!");
+        log("Setup tagsinput on " + target.attr("id") + " ok!");
 
         // check properties
         var source = settings.annotation_source;
@@ -202,24 +199,24 @@ var default_logging_div = 'zooma-log';
         if (isFunction(source)) {
             // source is a function, invoke to get property
             property = source.apply(this, []);
-            retrieveZoomaAnnotations(settings, $target, property);
+            retrieveZoomaAnnotations(settings, target, property);
         }
         else {
             if (source.is('input')) {
                 // if source is an input element, track when user presses enter
-                pressEnter(source, function() {
+                pressEnter($(source), function() {
                     log("Detected enter pressed on " + source.attr("id"));
                     var property = source.val();
-                    retrieveZoomaAnnotations(settings, $target, property);
+                    retrieveZoomaAnnotations(settings, target, property);
                 });
             }
             else {
                 // otherwise, try to annotate the source directly and put results in the target
                 if (isSelector(source)) {
-                    retrieveZoomaAnnotations(settings, $target, $(source));
+                    retrieveZoomaAnnotations(settings, target, $(source));
                 }
                 else {
-                    retrieveZoomaAnnotations(settings, $target, source);
+                    retrieveZoomaAnnotations(settings, target, source);
                 }
             }
         }
@@ -227,28 +224,67 @@ var default_logging_div = 'zooma-log';
         log("Annotation detection bound ok!");
 
         // styling
-        $target.parent().children(".bootstrap-tagsinput").addClass("zooma-annotations-container");
+        var container = target.parent().children(".bootstrap-tagsinput");
+        container.addClass("zooma-annotations-container");
+        return container;
     };
 
-    var setupZoomaWidget = function(target, settings) {
-        var $target = $(target);
+    var setupZoomaWidget = function(target, options) {
+        var settings = extendOptions(options);
+        initLogging(settings);
+        log("Attempting to set up unified zooma widget from " + target.attr('id') + "...");
 
-        // create new input and tags boxes within the target div
+        // if target is an input box, use as target for autocomplete
+        var annotationTarget;
+        var _settings;
+        if (target.is('input')) {
+            annotationTarget = $('<select class="zooma-tags" multiple style="display: none"></select>');
+            target.after(annotationTarget);
 
+            // add autocomplete and annotation functions
+            var autocompleteContainer = autocomplete(target, settings);
+            _settings = $.extend({'annotation_source': target}, settings);
+            annotate(annotationTarget, _settings);
 
-        // add autocomplete and annotation functions
+            // styling
+            var container = $('<div class="zooma-container"></div>');
+            autocompleteContainer.wrap(container);
+            return container;
+        }
+        else {
+            // is a div?
+            if (target.is('div')) {
+                // create new input and tags boxes within the target div
+                var autocompleteTarget = $('<label for="zooma-search">Search:</label><input type="text" class="zooma-input" />');
+                target.append(autocompleteTarget);
 
+                annotationTarget = $('<select class="zooma-tags" multiple style="display: none"></select>');
+                target.append(annotationTarget);
+
+                // add autocomplete and annotation functions
+                autocomplete(autocompleteTarget, settings);
+                _settings = $.extend({'annotation_source': autocompleteTarget}, settings);
+                annotate(annotationTarget, _settings);
+
+                // styling
+                target.addClass("zooma-container");
+                return target;
+            }
+            else {
+                throw "Zooma target must be either <input> or <div> element";
+            }
+        }
     };
 
     $.fn.zooma = function(commandOrOptions, options) {
         if (commands[commandOrOptions]) {
             return this.each(function() {
-                return commands[commandOrOptions].apply(this, [this, options]);
+                return commands[commandOrOptions].apply(this, [$(this), options]);
             });
         }
         else {
             try {
-                return setupZoomaWidget(this, commandOrOptions);
+                return setupZoomaWidget($(this), commandOrOptions);
             }
             catch (ex) {
                 $.error("Invalid usage: jQuery.zooma plugin does not support the command '" + commandOrOptions + "' " +

@@ -17,6 +17,11 @@
 
 .zooma-annotations-container {
     display: inline-block;
+    min-width: 100px;
+}
+
+.zooma-annotations-container input {
+    width: 0;
 }
 
 .bootstrap-tagsinput {
