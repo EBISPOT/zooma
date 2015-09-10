@@ -5,7 +5,7 @@ import java.util.Date;
 
 /**
  * A general representation of the data provenance that can be attached to an annotation.
- * <p>
+ * <p/>
  * Every annotation must include some provenance about the process that lead to the annotation being asserted.
  * Generally, this will probably include some simple information that can be used to identify where this annotation is
  * asserted and some history associated with it - who made the link, when it was made, and so on,
@@ -69,23 +69,26 @@ public interface AnnotationProvenance extends Serializable {
      * The evidence for the existance of a particular annotation.  This described a little about how this annotation was
      * derived - whether it was manually asserted, inferred to exist from some other source, and so on.
      */
-    public enum Evidence {
-
+    enum Evidence {
         /**
          * A type of curator inference that is used in a manual assertion.
          */
         MANUAL_CURATED,
-
         /**
          * An annotation inferred by ZOOMA from previous curated entry. A type of Automatic curation
          */
         ZOOMA_INFERRED_FROM_CURATED,
-
         /**
          * An evidence code that states the existence of an annotation was computed based on a match to a semantic tag.
          * Use this when a property value exactly matches a class label or synonym from an ontology
          */
         COMPUTED_FROM_ONTOLOGY,
+        /**
+         * An evidence code that states the existence of an annotation was computed based on a text match to a property
+         * in a previous annotation.  Use this whenever an annotation is predicted based on an annotation that has not
+         * been manually curated
+         */
+        COMPUTED_FROM_TEXT_MATCH,
         /**
          * An evidence code that states the existence of an annotation was provided by a submitter, usually within the
          * scope of a single Study or Biological Entity.  This annotation has never subsequently been confirmed or

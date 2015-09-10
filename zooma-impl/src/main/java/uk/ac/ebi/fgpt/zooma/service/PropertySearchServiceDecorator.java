@@ -3,8 +3,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 /**
  * An abstract decorator of a {@link PropertySearchService}.  You should subclass this decorator to create different
@@ -20,19 +19,23 @@ public abstract class PropertySearchServiceDecorator implements PropertySearchSe
         this._propertySearchService = propertySearchService;
     }
 
-    @Override public Collection<Property> search(String propertyValuePattern, URI... sources) {
+    @Override public List<Property> search(String propertyValuePattern, URI... sources) {
         return _propertySearchService.search(propertyValuePattern, sources);
     }
 
-    @Override public Collection<Property> search(String propertyType, String propertyValuePattern, URI... sources) {
+    @Override public List<Property> search(String propertyType, String propertyValuePattern, URI... sources) {
         return _propertySearchService.search(propertyType, propertyValuePattern, sources);
     }
 
-    @Override public Collection<Property> searchByPrefix(String propertyValuePrefix, URI... sources) {
+    @Override public List<Property> searchByPrefix(String propertyValuePrefix, URI... sources) {
         return _propertySearchService.searchByPrefix(propertyValuePrefix, sources);
     }
 
-    @Override public Collection<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources) {
+    @Override public List<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources) {
         return _propertySearchService.searchByPrefix(propertyType, propertyValuePrefix, sources);
+    }
+
+    @Override public List<String> suggest(String propertyValuePrefix, URI... sources) {
+        return _propertySearchService.suggest(propertyValuePrefix, sources);
     }
 }

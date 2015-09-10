@@ -7,12 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationPrediction;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotation;
+import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationPrediction;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenance;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationSource;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationSummary;
@@ -48,9 +50,21 @@ import java.util.Set;
 public class ZOOMASearchClient {
     private final String zoomaBase;
 
-    private final String zoomaSearchBase;
     private final String zoomaAnnotationsBase;
+
     private final String zoomaServicesBase;
+    private final String zoomaAnnotateServiceBase;
+
+    private final String zoomaPropertyValueArgument;
+    private final String zoomaPropertyTypeArgument;
+    private final String zoomaFilterArgument;
+    private final String zoomaArgumentSeparator;
+
+    private final String zoomaRequiredParam;
+    private final String zoomaPreferredParam;
+    private final String zoomaFilterParamStart;
+    private final String zoomaFilterParamEnd;
+    private final String zoomaFilterParamSeparator;
 
     private Map<String, String> prefixMappings;
 
@@ -62,10 +76,23 @@ public class ZOOMASearchClient {
 
     public ZOOMASearchClient(URL zoomaLocation) {
         this.zoomaBase = zoomaLocation.toString() + "/v2/api/";
-        this.zoomaSearchBase = zoomaBase + "search?query=";
 
         this.zoomaAnnotationsBase = zoomaBase + "annotations/";
+
         this.zoomaServicesBase = zoomaBase + "services/";
+        this.zoomaAnnotateServiceBase = zoomaServicesBase + "annotate?";
+
+        this.zoomaPropertyValueArgument = "propertyValue=";
+        this.zoomaPropertyTypeArgument = "propertyType=";
+        this.zoomaFilterArgument = "filter=";
+        this.zoomaArgumentSeparator = "&";
+
+        this.zoomaRequiredParam = "required:";
+        this.zoomaPreferredParam = "preferred:";
+        this.zoomaFilterParamStart = "[";
+        this.zoomaFilterParamEnd = "]";
+        this.zoomaFilterParamSeparator = ",";
+
         loadPrefixMappings();
     }
 
@@ -80,87 +107,58 @@ public class ZOOMASearchClient {
         return results;
     }
 
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score) {
-        return searchZOOMA(property, score, false);
+    public List<AnnotationPrediction> annotate(Property property) {
+        return annotate(property, Collections.<String>emptyList());
     }
 
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property, float score, boolean excludeType) {
-        return searchZOOMA(property, score, excludeType, false);
-    }
-
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property,
-                                                     float score,
-                                                     boolean excludeType,
-                                                     boolean noEmptyResult) {
-        return searchZOOMA(property,
-                           score,
-                           excludeType,
-                           noEmptyResult,
-                           Collections.<String>emptyList(),
-                           Collections.<String>emptyList());
-    }
-
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property,
-                                                     float score,
-                                                     boolean excludeType,
-                                                     boolean noEmptyResult,
-                                                     List<String> requiredSources) {
-        return searchZOOMA(property,
-                           score,
-                           excludeType,
-                           noEmptyResult,
-                           requiredSources,
-                           Collections.<String>emptyList());
+    public List<AnnotationPrediction> annotate(Property property, List<String> requiredSources) {
+        return annotate(property, requiredSources, Collections.<String>emptyList());
     }
 
     /**
-     * @param property      what you're looking for
-     * @param score         returns only the summaries above this threshold
-     * @param excludeType   generic, search, with no type specification
-     * @param noEmptyResult if true and there is no summary scored above the threshold, tries to return something
-     *                      anyway, i.e., summaries that are not so well scored. If this flag is false, the search
-     *                      returns only summaries with score above the score parameter, possibly an empty Map.
+     * @param property         what you're looking for
+     * @param requiredSources  the list of sources which are required in making an annotation prediction
+     * @param preferredSources the list of sources, in order of preference, to predict an annotation from
      * @return a {@link LinkedHashMap} map, where the entries are ordered by decreasing score.
      */
-    public Map<AnnotationSummary, Float> searchZOOMA(Property property,
-                                                     float score,
-                                                     boolean excludeType,
-                                                     boolean noEmptyResult,
-                                                     List<String> requiredSources,
-                                                     List<String> preferredSources) {
+    public List<AnnotationPrediction> annotate(Property property,
+                                               List<String> requiredSources,
+                                               List<String> preferredSources) {
         String query = property.getPropertyValue();
 
-        // search for annotation summaries
-        Map<AnnotationSummary, Float> summaries = new LinkedHashMap<>();
+        // get annotation predictions
         try {
-            String baseUrl = zoomaSearchBase + URLEncoder.encode(property.getPropertyValue(), "UTF-8");
-            String searchUrl = property instanceof TypedProperty && !excludeType ?
-                    baseUrl + "&type=" + URLEncoder.encode(((TypedProperty) property).getPropertyType(), "UTF-8") :
-                    baseUrl;
+            // construct the URL from supplied args
+            String searchUrl = zoomaAnnotationsBase + zoomaPropertyValueArgument +
+                    URLEncoder.encode(property.getPropertyValue(), "UTF-8");
+            searchUrl = property instanceof TypedProperty
+                    ? searchUrl + zoomaArgumentSeparator + zoomaPropertyTypeArgument +
+                    URLEncoder.encode(((TypedProperty) property).getPropertyType(), "UTF-8")
+                    : searchUrl;
             if (!requiredSources.isEmpty() || !preferredSources.isEmpty()) {
                 StringBuilder filters = new StringBuilder();
-                filters.append("&filter=");
+                filters.append(zoomaArgumentSeparator).append(zoomaFilterArgument);
                 if (!requiredSources.isEmpty()) {
-                    filters.append("required:[");
+                    filters.append(zoomaRequiredParam).append(zoomaFilterParamStart);
                     Iterator<String> requiredIt = requiredSources.iterator();
                     while (requiredIt.hasNext()) {
                         filters.append(requiredIt.next());
                         if (requiredIt.hasNext()) {
-                            filters.append(",");
+                            filters.append(zoomaFilterParamSeparator);
                         }
                     }
-                    filters.append("]");
+                    filters.append(zoomaFilterParamEnd);
                 }
                 if (!preferredSources.isEmpty()) {
-                    filters.append("preferred:[");
+                    filters.append(zoomaPreferredParam).append(zoomaFilterParamStart);
                     Iterator<String> preferredIt = preferredSources.iterator();
                     while (preferredIt.hasNext()) {
                         filters.append(preferredIt.next());
                         if (preferredIt.hasNext()) {
-                            filters.append(",");
+                            filters.append(zoomaFilterParamSeparator);
                         }
                     }
-                    filters.append("]");
+                    filters.append(zoomaFilterParamEnd);
                 }
                 searchUrl = searchUrl.concat(filters.toString());
             }
@@ -168,65 +166,14 @@ public class ZOOMASearchClient {
             getLog().trace("Sending query [" + queryURL + "]...");
 
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode resultsNode = mapper.readValue(queryURL, JsonNode.class);
-            getLog().trace(resultsNode.toString());
+            return mapper.readValue(queryURL, new TypeReference<List<SimpleAnnotationPrediction>>() {});
 
-            int goodResultCount = 0;
-            JsonNode resultNode = resultsNode.get("result");
-            if (resultNode != null) {
-                for (JsonNode result : resultNode) {
-                    // meets significance score?
-                    float resultScore = Float.parseFloat(result.get("score").asText());
-                    AnnotationSummary as = mapAnnotationSummary(result, mapper);
-                    getLog().trace(
-                            "Annotation hit:\n\t\t" +
-                                    "Searched: " + property + "\t" +
-                                    "Found: " + as.getAnnotatedPropertyValue() + " " +
-                                    "[" + as.getAnnotatedPropertyType() + "] -> " +
-                                    as.getSemanticTags() + "\tScore: " + resultScore);
-
-                    if (resultScore > score) {
-                        goodResultCount++;
-                        // this result scores highly enough to retain
-                        // so map annotation summary to score and include in results
-                        summaries.put(as, resultScore);
-                    }
-                    else {
-                        // resultScore gone below the threshold
-
-                        // low-score results starts appearing now, have we found something above it?
-                        if (goodResultCount == 0) {
-                            if (noEmptyResult) {
-                                // No, but you want something anyway, here you are
-                                summaries.put(as, resultScore);
-                            }
-                            else {
-                                // No and you don't want bad stuff, so let's stop with empty result
-                                break;
-                            }
-                        }
-                        else {
-                            // We found results above the threshold and now badly-scored summaries start to come in,
-                            // we can stop and discard them
-                            break;
-                        }
-                    }
-                }
-
-                if (goodResultCount == 0 && !summaries.isEmpty()) {
-                    getLog().debug("No good search results for '" + property + "' - " +
-                                           "some that fall below the required score have been retained " +
-                                           "and will require curation");
-                }
-            }
         }
         catch (IOException e) {
             getLog().error("Failed to query ZOOMA for property '" + query + "' (" + e.getMessage() + ")");
             throw new RuntimeException("Failed to query ZOOMA for property '" + query + "' " +
                                                "(" + e.getMessage() + ")", e);
         }
-
-        return summaries;
     }
 
     public Annotation getAnnotation(URI annotationURI) throws SearchException {

@@ -240,11 +240,6 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
         }
 
         @Override
-        public String getAnnotationSummaryTypeID() {
-            return null;
-        }
-
-        @Override
         public String getAnnotationSummaryTypeName() {
             return null;
         }

@@ -1,6 +1,4 @@
-+-------+
-| ZOOMA |
-+-------+
+= ZOOMA
 
 ZOOMA is an optimal ontology mapping application developed by the Functional Genomics Production team at the
 European Bioinformatics Institute.
@@ -13,17 +11,21 @@ data, and we will update these pages when this is available.
 Developer documentation is available as part of the ZOOMA documentation at the link given below.  If you feel that the
 documentation is light in areas, feel free to email the lead developer, Tony Burdett, on tburdett@ebi.ac.uk.
 
-Links
-=====
+== Links
 
-ZOOMA homepage:        http://www.ebi.ac.uk/fgpt/zooma
-ZOOMA documentation:   http://www.ebi.ac.uk/fgpt/zooma/docs
+=== ZOOMA homepage
 
-EBI:                             http://www.ebi.ac.uk
-Functional Genomics Team Page:   http://www.ebi.ac.uk/fgpt
+http://www.ebi.ac.uk/fgpt/zooma
 
-Dependencies
-============
+=== ZOOMA documentation
+
+http://www.ebi.ac.uk/fgpt/zooma/docs
+
+=== EBI
+
+http://www.ebi.ac.uk
+
+== Dependencies
 
 ZOOMA depends on the lodestar project to produce it's SPARQL endpoint.  The source for this project is embedded as a
 submodule, served from the GitHUb repository https://github.com/EBISPOT/lodestar.  See this project for more details.

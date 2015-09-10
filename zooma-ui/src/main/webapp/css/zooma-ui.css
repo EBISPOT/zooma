@@ -148,3 +148,10 @@ table.version {
 .unmapped {
     display: none;
 }
+
+.zooma-autocomplete-container,
+.zooma-annotations-container {
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 2px;
+}

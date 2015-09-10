@@ -1,4 +1,4 @@
-package uk.ac.ebi.fgpt.zooma.access;
+package uk.ac.ebi.fgpt.zooma.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ import java.util.*;
  */
 @Controller
 @RequestMapping("/services")
-public class ZoomaServices {
+public class ZoomaAdministrationService {
     private OntologyService ontologyService;
     private StatusService statusService;
     private PropertiesMapAdapter propertiesMapAdapter;
@@ -35,31 +35,25 @@ public class ZoomaServices {
         return log;
     }
 
-    public OntologyService getOntologyService() {
-        return ontologyService;
+    @Autowired
+    public ZoomaAdministrationService(OntologyService ontologyService,
+                                      StatusService statusService,
+                                      PropertiesMapAdapter propertiesMapAdapter) {
+        this.ontologyService = ontologyService;
+        this.statusService = statusService;
+        this.propertiesMapAdapter = propertiesMapAdapter;
     }
 
-    @Autowired
-    public void setOntologyService(OntologyService ontologyService) {
-        this.ontologyService = ontologyService;
+    public OntologyService getOntologyService() {
+        return ontologyService;
     }
 
     public StatusService getStatusService() {
         return statusService;
     }
 
-    @Autowired
-    public void setStatusService(StatusService statusService) {
-        this.statusService = statusService;
-    }
-
     public PropertiesMapAdapter getPropertiesMapAdapter() {
         return propertiesMapAdapter;
-    }
-
-    @Autowired
-    public void setPropertiesMapAdapter(PropertiesMapAdapter propertiesMapAdapter) {
-        this.propertiesMapAdapter = propertiesMapAdapter;
     }
 
     @RequestMapping(value = "/check-status", method = RequestMethod.GET)

@@ -29,7 +29,7 @@
     <link rel="shortcut icon" href="images/favicon.ico"/>
 
     <!-- CSS: implied media=all --><!-- CSS concatenated and minified via ant build script-->
-    <link rel="stylesheet" href="css/zooma.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="css/zooma-ui.css" type="text/css" media="screen">
     <link rel="stylesheet" href="css/jquery.jscrollpane.css" type="text/css" media="screen"/>
     <link rel="stylesheet"
           href="https://www.gstatic.com/freebase/suggest/3_1/suggest.min.css"
@@ -349,14 +349,15 @@
             </th>
             <th class="context-help">
                 <span class="context-help-label">
-                    Mapping Type
+                    Mapping Confidence
                 </span>
 
                 <div class="context-help-content">
                     <p>
-                        This column indicates how confident ZOOMA was with the mapping. "Automatic" means ZOOMA is
-                        highly confident and "Requires curation" means ZOOMA found at least match that might fit but
-                        ZOOMA is not confident enough to automatically assert it.
+                        This column indicates how confident ZOOMA was with the mapping. "High" means ZOOMA is
+                        confident enough that this mapping could be trusted automatically, whereas "Good", "Medium" or
+                        "Low" means ZOOMA found at least match that might fit but ZOOMA is not confident enough that you
+                        should automatically assert it.
                     </p>
                 </div>
             </th>
@@ -482,12 +483,10 @@
 
 
 <!-- ZOOMA required JavaScript libraries, at the bottom for fast page loading -->
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
 <script type="text/javascript" src="scripts/jquery.mousewheel.js"></script>
 <script type="text/javascript" src="scripts/jquery.jscrollpane.min.js"></script>
-
-<script type="text/javascript" src="scripts/zooma.js"></script>
 
 <script type="text/javascript" src="scripts/zooma-ui.js"></script>
 
@@ -513,7 +512,7 @@
 
 <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.
 chromium.org/developers/how-tos/chrome-frame-getting-started --><!--[if lt IE 7 ]>
-<script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
 <script>window.attachEvent('onload', function() {
     CFInstall.check({mode: 'overlay'})
 })</script><![endif]-->

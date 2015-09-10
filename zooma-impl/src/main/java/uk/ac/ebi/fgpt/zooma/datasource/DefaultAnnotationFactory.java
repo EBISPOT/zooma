@@ -6,7 +6,7 @@ package uk.ac.ebi.fgpt.zooma.datasource;
  * @author Tony Burdett
  * @date 01/12/14
  */
-public class DefaultAnnotationFactory extends AbstractAnnotationFactory {
+public class DefaultAnnotationFactory extends AbstractAnnotationFactory<AnnotationLoadingSession> {
     public DefaultAnnotationFactory(AnnotationLoadingSession annotationLoadingSession) {
         super(annotationLoadingSession);
     }

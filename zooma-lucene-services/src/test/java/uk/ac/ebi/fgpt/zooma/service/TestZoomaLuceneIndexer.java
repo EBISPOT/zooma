@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.RAMDirectory;
@@ -30,6 +31,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -49,7 +51,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TestZoomaLuceneIndexer {
-    private Version version;
     private Analyzer analyzer;
 
     private Path annotationIndexPath;
@@ -71,8 +72,7 @@ public class TestZoomaLuceneIndexer {
     public void setUp() {
         try {
             // create index setup
-            version = Version.LUCENE_35;
-            analyzer = new EnglishAnalyzer(version);
+            analyzer = new EnglishAnalyzer(CharArraySet.EMPTY_SET);
 
             // directories that need to be persisted for querying
             try {
@@ -286,8 +286,8 @@ public class TestZoomaLuceneIndexer {
         Directory summaryDir = null;
 
         try {
-            annotationDir = new NIOFSDirectory(annotationIndexPath.toFile());
-            summaryDir = new NIOFSDirectory(summaryIndexPath.toFile());
+            annotationDir = new NIOFSDirectory(annotationIndexPath);
+            summaryDir = new NIOFSDirectory(summaryIndexPath);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -308,7 +308,7 @@ public class TestZoomaLuceneIndexer {
 
         // create indices needed for this test
         try {
-            indexer.createAnnotationIndex(new ArrayList<Annotation>(verifiedAnnotationDAO.read()));
+            indexer.createAnnotationIndex(new ArrayList<>(verifiedAnnotationDAO.read()));
             indexer.createAnnotationSummaryIndex(verifiedSummaryAnnotationDAO, verifiedProvenanceMap);
         }
         catch (IOException e) {
@@ -321,7 +321,7 @@ public class TestZoomaLuceneIndexer {
 
         // reopen indexed directories
         try {
-            summaryDir = new NIOFSDirectory(summaryIndexPath.toFile());
+            summaryDir = new NIOFSDirectory(summaryIndexPath);
         }
         catch (IOException e) {
             e.printStackTrace();

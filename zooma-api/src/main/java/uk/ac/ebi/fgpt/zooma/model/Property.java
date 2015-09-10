@@ -19,12 +19,6 @@ package uk.ac.ebi.fgpt.zooma.model;
  * @date 08/03/12
  */
 public interface Property extends Identifiable, Comparable<Property> {
-    static final String PROPERTY_TYPE_ID = "/zooma/property";
-    static final String PROPERTY_TYPE_NAME = "Property";
-
-    static final String PROPERTYTYPE_TYPE_ID = "/zooma/propertytype";
-    static final String PROPERTYTYPE_TYPE_NAME = "Property Type";
-
     /**
      * Returns the property value for this property.
      *

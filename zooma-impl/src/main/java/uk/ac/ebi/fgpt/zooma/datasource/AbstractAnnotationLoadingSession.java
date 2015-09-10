@@ -26,6 +26,7 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +36,7 @@ import java.util.Set;
 /**
  * An annotation loading session that caches objects that have been previously seen so as to avoid creating duplicates
  * of objects that should be reused.
- * <p>
+ * <p/>
  * It is assumed that within a single session, objects with the same sets of parameters used in their creation are
  * identical.  Care should therefore be taken to reuse the same method of construction for each object, and to ensure
  * that enough information is supplied to prevent duplicates being inadvertently created.
@@ -49,13 +50,14 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
     private final Map<URI, BiologicalEntity> biologicalEntityCache;
     private final Map<URI, Property> propertyCache;
     private final Map<URI, SimpleAnnotation> annotationCache;
-
-    private final AnnotationProvenanceTemplate annotationProvenanceTemplate;
+    private AnnotationProvenance annotationProvenanceCache;
 
     private final URI defaultTargetTypeUri;
     private final URI defaultTargetSourceTypeUri;
 
     private final MessageDigest messageDigest;
+
+    private AnnotationProvenanceTemplate annotationProvenanceTemplate;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -63,14 +65,12 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         return log;
     }
 
-    protected AbstractAnnotationLoadingSession(AnnotationProvenanceTemplate annotationProvenanceTemplate) {
-        this(annotationProvenanceTemplate, null, null);
+    protected AbstractAnnotationLoadingSession() {
+        this(null, null);
     }
 
-    protected AbstractAnnotationLoadingSession(AnnotationProvenanceTemplate annotationProvenanceTemplate,
-                                               URI defaultTargetTypeUri,
+    protected AbstractAnnotationLoadingSession(URI defaultTargetTypeUri,
                                                URI defaultTargetSourceTypeUri) {
-        this.annotationProvenanceTemplate = annotationProvenanceTemplate;
         this.defaultTargetTypeUri = defaultTargetTypeUri;
         this.defaultTargetSourceTypeUri = defaultTargetSourceTypeUri;
 
@@ -82,12 +82,25 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         this.messageDigest = ZoomaUtils.generateMessageDigest();
     }
 
+    public void setAnnotationProvenanceTemplate(AnnotationProvenanceTemplate annotationProvenanceTemplate) {
+        this.annotationProvenanceTemplate = annotationProvenanceTemplate;
+    }
+
     public URI getDefaultTargetTypeUri() {
         return defaultTargetTypeUri;
     }
 
     public URI getDefaultTargetSourceTypeUri() {
         return defaultTargetSourceTypeUri;
+    }
+
+    public String getDatasourceName() {
+        if (annotationProvenanceTemplate != null) {
+            return annotationProvenanceTemplate.getSource().getName();
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
@@ -329,9 +342,19 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         return annotationCache.get(annotationURI);
     }
 
-    @Override
-    public AnnotationProvenanceTemplate getAnnotationProvenanceTemplate() {
-        return this.annotationProvenanceTemplate;
+    @Override public AnnotationProvenance getOrCreateAnnotationProvenance(String annotator, Date annotationDate) {
+        if (annotationProvenanceCache != null) {
+            if (annotationProvenanceCache.getAnnotator() != null && annotationProvenanceCache.getAnnotator().equals(
+                    annotator)) {
+                if (annotationProvenanceCache.getAnnotationDate() != null &&
+                        annotationProvenanceCache.getAnnotationDate().equals(annotationDate)) {
+                    return annotationProvenanceCache;
+                }
+            }
+        }
+        annotationProvenanceCache =
+                annotationProvenanceTemplate.annotatorIs(annotator).annotationDateIs(annotationDate).build();
+        return annotationProvenanceCache;
     }
 
     @Override
@@ -347,6 +370,7 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         biologicalEntityCache.clear();
         propertyCache.clear();
         annotationCache.clear();
+        annotationProvenanceCache = null;
         return true;
     }
 
@@ -359,10 +383,6 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
             throw new RuntimeException(
                     "Bad ZOOMA environment - you should ensure UTF-8 encoding is supported on this platform", e);
         }
-    }
-
-    protected String getDatasourceName() {
-        return getAnnotationProvenanceTemplate().getSource().getName();
     }
 
     protected URI mintStudyURI(String studyID) {

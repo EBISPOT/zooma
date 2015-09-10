@@ -2,14 +2,16 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import org.apache.lucene.search.Query;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
-import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessorProvider;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * A service that allows searching over the set of {@link Property}s known to ZOOMA.  Prefix-based and pattern-based
@@ -39,7 +41,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
         this.searchStringProcessorProvider = searchStringProcessorProvider;
     }
 
-    @Override public Collection<Property> search(String propertyValuePattern, URI... sources) {
+    @Override public List<Property> search(String propertyValuePattern, URI... sources) {
         try {
             initOrWait();
 
@@ -51,8 +53,8 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             pqs.add(pq);
             if (getSearchStringProcessorProvider() != null) {
                 pqs.addAll(generateProcessedQueries("name",
-                        propertyValuePattern,
-                        getSearchStringProcessorProvider().getProcessors()));
+                                                    propertyValuePattern,
+                                                    getSearchStringProcessorProvider().getProcessors()));
             }
 
             Query q;
@@ -75,7 +77,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
         }
     }
 
-    @Override public Collection<Property> search(String propertyType, String propertyValuePattern, URI... sources) {
+    @Override public List<Property> search(String propertyType, String propertyValuePattern, URI... sources) {
         try {
             initOrWait();
 
@@ -93,9 +95,9 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                 pqs.add(pq);
                 if (getSearchStringProcessorProvider() != null) {
                     pqs.addAll(generateProcessedQueries("name",
-                            propertyValuePattern,
-                            getSearchStringProcessorProvider().getFilteredProcessors(
-                                    propertyType)));
+                                                        propertyValuePattern,
+                                                        getSearchStringProcessorProvider().getFilteredProcessors(
+                                                                propertyType)));
                 }
 
                 // build a property type query
@@ -106,7 +108,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             }
 
             if (sources.length > 0) {
-                q = formulateExactCombinedQuery(new Query[] {q}, "source", sources);
+                q = formulateExactCombinedQuery(new Query[]{q}, "source", sources);
             }
 
 
@@ -122,7 +124,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
         }
     }
 
-    @Override public Collection<Property> searchByPrefix(String propertyValuePrefix, URI... sources) {
+    @Override public List<Property> searchByPrefix(String propertyValuePrefix, URI... sources) {
         try {
             initOrWait();
 
@@ -134,8 +136,8 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             pqs.add(pq);
             if (getSearchStringProcessorProvider() != null) {
                 pqs.addAll(generateProcessedQueries("name",
-                        propertyValuePrefix,
-                        getSearchStringProcessorProvider().getProcessors()));
+                                                    propertyValuePrefix,
+                                                    getSearchStringProcessorProvider().getProcessors()));
             }
 
             Query q;
@@ -150,7 +152,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             // do the query
             return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
         }
-        catch (IOException  e) {
+        catch (IOException e) {
             throw new SearchException("Problems creating query for '" + propertyValuePrefix + "'", e);
         }
         catch (InterruptedException e) {
@@ -158,8 +160,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
         }
     }
 
-    @Override public Collection<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources) {
-
+    @Override public List<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources) {
         if (propertyValuePrefix.isEmpty()) {
             return search(propertyType, "", sources);
         }
@@ -185,9 +186,9 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                     pqs.add(pq);
                     if (getSearchStringProcessorProvider() != null) {
                         pqs.addAll(generateProcessedQueries("name",
-                                propertyValuePrefix,
-                                getSearchStringProcessorProvider().getFilteredProcessors(
-                                        propertyType)));
+                                                            propertyValuePrefix,
+                                                            getSearchStringProcessorProvider().getFilteredProcessors(
+                                                                    propertyType)));
                     }
 
                     // build a property type query
@@ -198,7 +199,7 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                 }
 
                 if (sources.length > 0) {
-                    q = formulateExactCombinedQuery(new Query[] {q}, "source", sources);
+                    q = formulateExactCombinedQuery(new Query[]{q}, "source", sources);
                 }
 
 
@@ -212,6 +213,49 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             catch (InterruptedException e) {
                 throw new SearchException("Failed to perform query - indexing process was interrupted", e);
             }
+        }
+    }
+
+    @Override public List<String> suggest(String propertyValuePrefix, URI... sources) {
+        try {
+            initOrWait();
+
+            // first, formulate query for original propertyValuePattern
+            Query pq = formulatePrefixQuery("name", propertyValuePrefix);
+
+            // then generate a series of queries from the processed property value, using available search string processors
+            Collection<Query> pqs = new HashSet<>();
+            pqs.add(pq);
+            if (getSearchStringProcessorProvider() != null) {
+                pqs.addAll(generateProcessedQueries("name",
+                                                    propertyValuePrefix,
+                                                    getSearchStringProcessorProvider().getProcessors()));
+            }
+
+            Query q;
+            if (sources.length > 0) {
+                q = formulateExactCombinedQuery(pqs.toArray(new Query[pqs.size()]), "source", sources);
+            }
+            else {
+                // unify processed queries into a single query
+                q = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
+            }
+
+            // do the query
+            List<String> nonUnique = doQuery(q, new SingleFieldStringMapper("name"), 20);
+            List<String> results = new ArrayList<>();
+            for (String next : nonUnique) {
+                if (!results.contains(next)) {
+                    results.add(next);
+                }
+            }
+            return results;
+        }
+        catch (IOException e) {
+            throw new SearchException("Problems creating query for '" + propertyValuePrefix + "'", e);
+        }
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
         }
     }
 }

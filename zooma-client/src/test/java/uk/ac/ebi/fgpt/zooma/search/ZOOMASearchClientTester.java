@@ -15,7 +15,7 @@ public class ZOOMASearchClientTester {
     public static void main(String[] args) {
         try {
             ZOOMASearchClient client = new ZOOMASearchClient(new URL("http://wwwdev.ebi.ac.uk/fgpt/zooma"));
-            client.searchZOOMA(new SimpleTypedProperty("organism part", "head and thorax"), 80f);
+            client.annotate(new SimpleTypedProperty("organism part", "head and thorax"));
         }
         catch (MalformedURLException e) {
             e.printStackTrace();

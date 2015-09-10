@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenanceTemplate;
 import uk.ac.ebi.fgpt.zooma.model.SimpleDatabaseAnnotationSource;
+import uk.ac.ebi.fgpt.zooma.util.AnnotationProvenanceBuilder;
 
 import java.net.URI;
 import java.util.Date;
@@ -21,13 +21,12 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
      * @param name the shortname for this resource
      */
     public CSVLoadingSession(URI uri, String name) {
-        super(new SimpleAnnotationProvenanceTemplate(
-                      new SimpleDatabaseAnnotationSource(uri, name),
-                      AnnotationProvenance.Evidence.MANUAL_CURATED,
-                      uri.toString(),
-                      new Date()),
-              null,
-              null);
+        super();
+        setAnnotationProvenanceTemplate(
+                AnnotationProvenanceBuilder
+                        .createTemplate(uri.toString(), new Date())
+                        .sourceIs(new SimpleDatabaseAnnotationSource(uri, name))
+                        .evidenceIs(AnnotationProvenance.Evidence.MANUAL_CURATED));
     }
 
     /**
@@ -39,63 +38,13 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
      *                          annotations
      */
     public CSVLoadingSession(URI uri, String name, String annotationCreator) {
-        super(new SimpleAnnotationProvenanceTemplate(
-                      new SimpleDatabaseAnnotationSource(uri, name),
-                      AnnotationProvenance.Evidence.MANUAL_CURATED,
-                      AnnotationProvenance.Accuracy.NOT_SPECIFIED,
-                      uri.toString(),
-                      new Date(),
-                      annotationCreator,
-                      null),
-              null,
-              null);
-    }
-
-    /**
-     * Takes a string representing the namespace URI of this datasource and a short name for the datasource
-     *
-     * @param uri                        the namespace to use as the base URI of entities created by this loading
-     *                                   session (can be null)
-     * @param name                       the shortname for this resource
-     * @param defaultBiologicalEntityUri the shortname for this resource
-     * @param defaultStudyEntityUri      the shortname for this resource
-     */
-    public CSVLoadingSession(URI uri,
-                             String name,
-                             URI defaultBiologicalEntityUri,
-                             URI defaultStudyEntityUri) {
-        super(new SimpleAnnotationProvenanceTemplate(
-                      new SimpleDatabaseAnnotationSource(uri, name),
-                      AnnotationProvenance.Evidence.MANUAL_CURATED,
-                      uri.toString(),
-                      new Date()),
-              defaultBiologicalEntityUri,
-              defaultStudyEntityUri);
-    }
-
-    /**
-     * Takes a string representing the namespace URI of this datasource and a short name for the datasource
-     *
-     * @param uri                        the namespace to use as the base URI of entities created by this loading
-     *                                   session (can be null)
-     * @param name                       the shortname for this resource
-     * @param defaultBiologicalEntityUri the shortname for this resource
-     * @param defaultStudyEntityUri      the shortname for this resource
-     */
-    public CSVLoadingSession(URI uri,
-                             String name,
-                             String annotationCreator,
-                             URI defaultBiologicalEntityUri,
-                             URI defaultStudyEntityUri) {
-        super(new SimpleAnnotationProvenanceTemplate(
-                      new SimpleDatabaseAnnotationSource(uri, name),
-                      AnnotationProvenance.Evidence.MANUAL_CURATED,
-                      AnnotationProvenance.Accuracy.NOT_SPECIFIED,
-                      uri.toString(),
-                      new Date(),
-                      annotationCreator,
-                      null),
-              defaultBiologicalEntityUri,
-              defaultStudyEntityUri);
+        super();
+        setAnnotationProvenanceTemplate(
+                AnnotationProvenanceBuilder
+                        .createTemplate(uri.toString(), new Date())
+                        .sourceIs(new SimpleDatabaseAnnotationSource(uri, name))
+                        .evidenceIs(AnnotationProvenance.Evidence.MANUAL_CURATED)
+                        .accuracyIs(AnnotationProvenance.Accuracy.NOT_SPECIFIED)
+                        .annotatorIs(annotationCreator));
     }
 }

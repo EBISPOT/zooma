@@ -59,9 +59,6 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         AnnotationSummaryMapper preMapper = new AnnotationSummaryMapper(numAnnotations, numSummaries);
         Set<Float> allScores = new HashSet<>();
         for (int i = 0; i < numSummaries; i++) {
-            if (getReader().isDeleted(i)) {
-                continue;
-            }
             allScores.add(preMapper.mapDocument(getReader().document(i)).getQuality());
         }
         float maxScore = Collections.max(allScores);

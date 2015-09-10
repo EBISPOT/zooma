@@ -10,8 +10,8 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.spans.SpanNearQuery;
@@ -56,11 +56,10 @@ public class TestZoomaLuceneSearchService {
     public void setUp() {
         try {
             // create index setup
-            version = Version.LUCENE_35;
-            analyzer = new EnglishAnalyzer(version);
+            analyzer = new EnglishAnalyzer();
 
             // add some data to the index
-            IndexWriterConfig config = new IndexWriterConfig(version, analyzer);
+            IndexWriterConfig config = new IndexWriterConfig(analyzer);
             Directory index = new RAMDirectory();
             IndexWriter w = new IndexWriter(index, config);
             addDoc(w, "foo");
@@ -122,7 +121,7 @@ public class TestZoomaLuceneSearchService {
         // build a query
         String querystr = "foo";
         try {
-            Query q = new QueryParser(version, "name", analyzer).parse(querystr);
+            Query q = new QueryParser("name", analyzer).parse(querystr);
             Collection<String> results = searchService.doQuery(q, new SingleFieldStringMapper("name"));
             assertEquals("Wrong number of results", 4, results.size());
             assertTrue(results.contains("foo"));
@@ -130,7 +129,7 @@ public class TestZoomaLuceneSearchService {
             assertTrue(results.contains("foo bar baz"));
             assertTrue(results.contains("foo baz"));
 
-            q = new QueryParser(version, "uri", analyzer).parse(querystr);
+            q = new QueryParser("uri", analyzer).parse(querystr);
             results = searchService.doQuery(q, new SingleFieldStringMapper("uri"));
             assertEquals("Wrong number of results", 4, results.size());
             assertTrue(results.contains(convertToURI("foo").toString()));
@@ -153,19 +152,19 @@ public class TestZoomaLuceneSearchService {
         // build a query
         try {
             String querystr = "foo";
-            Query q = new QueryParser(version, "uri", analyzer).parse(querystr);
+            Query q = new QueryParser("uri", analyzer).parse(querystr);
             Collection<Identifiable> results = searchService.doQuery(q, new SingleFieldURIMapper("uri"), dao);
             assertEquals("Wrong number of results", 1, results.size());
             assertTrue("Identifiable 'foo' not found", results.contains(foo));
 
             querystr = "bar";
-            q = new QueryParser(version, "uri", analyzer).parse(querystr);
+            q = new QueryParser("uri", analyzer).parse(querystr);
             results = searchService.doQuery(q, new SingleFieldURIMapper("uri"), dao);
             assertEquals("Wrong number of results", 1, results.size());
             assertTrue("Identifiable 'bar' not found", results.contains(bar));
 
             querystr = "baz";
-            q = new QueryParser(version, "uri", analyzer).parse(querystr);
+            q = new QueryParser("uri", analyzer).parse(querystr);
             results = searchService.doQuery(q, new SingleFieldURIMapper("uri"), dao);
             assertEquals("Wrong number of results", 1, results.size());
             assertTrue("Identifiable 'baz' not found", results.contains(baz));
@@ -187,9 +186,9 @@ public class TestZoomaLuceneSearchService {
 
         // tokenize the pattern using the given analyzer
         List<String> terms = new ArrayList<>();
-        TokenStream stream = analyzer.tokenStream(field, new StringReader(QueryParser.escape(searchString)));
-        CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
-        try {
+        try (TokenStream stream = analyzer.tokenStream(field, new StringReader(QueryParser.escape(searchString)))) {
+            stream.reset();
+            CharTermAttribute termAtt = stream.addAttribute(CharTermAttribute.class);
             while (stream.incrementToken()) {
                 terms.add(termAtt.toString());
             }

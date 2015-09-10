@@ -42,7 +42,7 @@
           href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/984-24-col-fluid.css"
           type="text/css"
           media="screen">
-    <link rel="stylesheet" href="../css/zooma.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="../css/zooma-ui.css" type="text/css" media="screen">
 
     <!-- you can replace this with [projectname]-colours.css. See http://frontier.ebi.ac.uk/web/style/colour for details of how to do this -->
     <!-- also inform ES so we can host your colour palette file -->
@@ -416,11 +416,10 @@
 
 
 <!-- Zooma required JavaScript libraries, at the bottom for fast page loading -->
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script type="text/javascript" src="https://www.gstatic.com/freebase/suggest/3_1/suggest.min.js"></script>
-<script type="text/javascript" src="../scripts/zooma.min.js"></script>
-
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+
+<script type="text/javascript" src="../webjars/zooma-js/2.0.0/zooma.min.js"></script>
 
 <script type="text/javascript">var rootContextPath = "../"</script>
 <script type="text/javascript" src="../scripts/zooma-login.js"></script>
@@ -447,7 +446,7 @@
 
 <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.
 chromium.org/developers/how-tos/chrome-frame-getting-started --><!--[if lt IE 7 ]>
-<script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
 <script>window.attachEvent('onload', function() {
     CFInstall.check({mode: 'overlay'})
 })</script><![endif]-->

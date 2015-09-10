@@ -45,21 +45,6 @@ public class SimpleAnnotationSummary implements AnnotationSummary {
         this.annotationSourceURIs = annotationSourceURIs;
     }
 
-    @Override public String getAnnotationSummaryTypeID() {
-        StringBuilder typeName = new StringBuilder();
-        typeName.append("summary_from_").append(getAnnotatedPropertyType()).append("_to_");
-        Iterator<URI> uriIt = getSemanticTags().iterator();
-        while (uriIt.hasNext()) {
-            URI uri = uriIt.next();
-            String shortform = URIUtils.extractFragment(uri);
-            typeName.append(shortform);
-            if (uriIt.hasNext()) {
-                typeName.append("+");
-            }
-        }
-        return typeName.toString();
-    }
-
     @Override public String getAnnotationSummaryTypeName() {
         StringBuilder typeName = new StringBuilder();
         typeName.append(getAnnotatedPropertyType()).append("; ");

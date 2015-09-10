@@ -20,18 +20,6 @@ import java.util.Collection;
  * @date 24/05/12
  */
 public interface AnnotationSummary extends Identifiable, Qualitative {
-    static final String ANNOTATION_SUMMARY_TYPE_ID = "/zooma/annotation_summary";
-    static final String ANNOTATION_SUMMARY_TYPE_NAME = "Annotation Summary";
-
-    /**
-     * Returns the ID representing the type of this annotation summary.  This is normally a subtype of the general top
-     * level annotation summary type ID that considers the semantic tags of the annotation and represent that as part of
-     * the type.
-     *
-     * @return the annotation summary type ID
-     */
-    String getAnnotationSummaryTypeID();
-
     /**
      * Returns the type name of this annotation summary. This is normally a subtype of the general top level annotation
      * summary type name that considers the semantic tags of the annotation and represent that as part of the type.

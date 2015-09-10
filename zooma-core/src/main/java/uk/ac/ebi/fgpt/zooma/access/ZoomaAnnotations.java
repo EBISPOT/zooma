@@ -1,18 +1,31 @@
 package uk.ac.ebi.fgpt.zooma.access;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaUpdateException;
-import uk.ac.ebi.fgpt.zooma.model.*;
-import uk.ac.ebi.fgpt.zooma.service.*;
+import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationUpdate;
+import uk.ac.ebi.fgpt.zooma.model.Property;
+import uk.ac.ebi.fgpt.zooma.model.SimpleBiologicalEntity;
+import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
+import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
+import uk.ac.ebi.fgpt.zooma.model.SimpleUntypedProperty;
+import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
+import uk.ac.ebi.fgpt.zooma.service.AnnotationSearchService;
+import uk.ac.ebi.fgpt.zooma.service.AnnotationService;
+import uk.ac.ebi.fgpt.zooma.service.DataLoadingService;
+import uk.ac.ebi.fgpt.zooma.service.PropertyService;
 import uk.ac.ebi.fgpt.zooma.util.Limiter;
 import uk.ac.ebi.fgpt.zooma.util.Sorter;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
-import uk.ac.ebi.fgpt.zooma.view.FlyoutResponse;
-import uk.ac.ebi.fgpt.zooma.view.SearchResponse;
-import uk.ac.ebi.fgpt.zooma.view.SuggestResponse;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -37,7 +50,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/annotations")
-public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
+public class ZoomaAnnotations {
     private AnnotationService annotationService;
     private AnnotationSearchService annotationSearchService;
     private DataLoadingService<Annotation> dataLoadingService;
@@ -46,77 +59,49 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
     private Sorter<Annotation> annotationSorter;
     private Limiter<Annotation> annotationLimiter;
 
-    public ZoomaAnnotations() {
-        // default constructor - callers must set required properties
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    protected Logger getLog() {
+        return log;
     }
 
+    @Autowired
     public ZoomaAnnotations(AnnotationService annotationService,
                             AnnotationSearchService annotationSearchService,
+                            DataLoadingService<Annotation> dataLoadingService,
+                            PropertyService propertyService,
                             Sorter<Annotation> annotationSorter,
                             Limiter<Annotation> annotationLimiter) {
-        this();
-        setAnnotationService(annotationService);
-        setAnnotationSearchService(annotationSearchService);
-        setAnnotationSorter(annotationSorter);
-        setAnnotationLimiter(annotationLimiter);
+        this.annotationService = annotationService;
+        this.annotationSearchService = annotationSearchService;
+        this.dataLoadingService = dataLoadingService;
+        this.propertyService = propertyService;
+        this.annotationSorter = annotationSorter;
+        this.annotationLimiter = annotationLimiter;
     }
 
     public PropertyService getPropertyService() {
         return propertyService;
     }
 
-    @Autowired
-    public void setPropertyService(PropertyService propertyService) {
-        this.propertyService = propertyService;
-    }
-
     public DataLoadingService<Annotation> getDataLoadingService() {
         return dataLoadingService;
-    }
-
-    @Autowired
-    public void setDataLoadingService(DataLoadingService<Annotation> dataLoadingService) {
-        this.dataLoadingService = dataLoadingService;
     }
 
     public AnnotationService getAnnotationService() {
         return annotationService;
     }
 
-    @Autowired
-    public void setAnnotationService(AnnotationService annotationService) {
-        setIsValidated(false);
-        this.annotationService = annotationService;
-    }
-
     public AnnotationSearchService getAnnotationSearchService() {
         return annotationSearchService;
-    }
-
-    @Autowired
-    public void setAnnotationSearchService(AnnotationSearchService annotationSearchService) {
-        setIsValidated(false);
-        this.annotationSearchService = annotationSearchService;
     }
 
     public Sorter<Annotation> getAnnotationSorter() {
         return annotationSorter;
     }
 
-    @Autowired
-    public void setAnnotationSorter(Sorter<Annotation> annotationSorter) {
-        setIsValidated(false);
-        this.annotationSorter = annotationSorter;
-    }
-
     public Limiter<Annotation> getAnnotationLimiter() {
         return annotationLimiter;
-    }
-
-    @Autowired
-    public void setAnnotationLimiter(Limiter<Annotation> annotationLimiter) {
-        setIsValidated(false);
-        this.annotationLimiter = annotationLimiter;
     }
 
     public Collection<Annotation> fetch() {
@@ -126,21 +111,30 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
     @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody Collection<Annotation> fetch(@RequestParam(value = "limit", required = false) Integer limit,
                                                       @RequestParam(value = "start", required = false) Integer start,
-                                                      @RequestParam(value = "targetSourceUri", required = false) String targetSourceUri,
-                                                      @RequestParam(value = "targetUri", required = false) String targetUri,
-                                                      @RequestParam(value = "semanticTagUri", required = false) String semanticTagUri,
-                                                      @RequestParam(value = "latestOnly", required = false, defaultValue = "false") boolean latest
+                                                      @RequestParam(value = "targetSourceUri",
+                                                                    required = false) String targetSourceUri,
+                                                      @RequestParam(value = "targetUri",
+                                                                    required = false) String targetUri,
+                                                      @RequestParam(value = "semanticTagUri",
+                                                                    required = false) String semanticTagUri,
+                                                      @RequestParam(value = "latestOnly",
+                                                                    required = false,
+                                                                    defaultValue = "false") boolean latest
     ) {
 
         if (targetSourceUri != null) {
             return latest ?
-                    getLatestAnnotations(getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(targetSourceUri), null)))
+                    getLatestAnnotations(getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(
+                            targetSourceUri), null)))
                     : getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(targetSourceUri), null));
         }
         if (targetUri != null) {
             return latest ?
-                    getLatestAnnotations(getAnnotationService().getAnnotationsByBiologicalEntity(new SimpleBiologicalEntity(URI.create(targetUri), null)))
-                    : getAnnotationService().getAnnotationsByBiologicalEntity(new SimpleBiologicalEntity(URI.create(targetUri), null));
+                    getLatestAnnotations(getAnnotationService().getAnnotationsByBiologicalEntity(new SimpleBiologicalEntity(
+                            URI.create(targetUri),
+                            null)))
+                    : getAnnotationService().getAnnotationsByBiologicalEntity(new SimpleBiologicalEntity(URI.create(
+                    targetUri), null));
         }
         if (semanticTagUri != null) {
             return latest ?
@@ -176,11 +170,12 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
 
     /**
      * Annotation is considered to be the latest if it is not replaced by any other annotations
+     *
      * @param annotations collection of annotations to filter
      * @return list of latest annotations
      */
     private Collection<Annotation> getLatestAnnotations(Collection<Annotation> annotations) {
-        List<Annotation> filtered = new ArrayList<Annotation>();
+        List<Annotation> filtered = new ArrayList<>();
         for (Annotation a : annotations) {
             if (a.getReplacedBy().isEmpty()) {
                 filtered.add(a);
@@ -188,6 +183,7 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
         }
         return filtered;
     }
+
     /**
      * Retrieves an annotation with the given URI.
      *
@@ -203,109 +199,22 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
 
     public Collection<Annotation> query(String prefix) {
         getLog().trace("Querying for " + prefix);
-        validate();
         Collection<Annotation> allAnnotations = getAnnotationSearchService().searchByPrefix(prefix);
         return getAnnotationSorter().sort(allAnnotations);
     }
 
     public Collection<Annotation> query(String prefix, String type) {
         getLog().trace("Querying for " + prefix + ", " + type);
-        validate();
         Collection<Annotation> allAnnotations = getAnnotationSearchService().searchByPrefix(type, prefix);
         return getAnnotationSorter().sort(allAnnotations);
     }
 
     public Collection<Annotation> query(String prefix, String type, int limit, int start) {
         getLog().trace("Querying for " + prefix + ", " + type + ", " + limit + ", " + start);
-        validate();
         Collection<Annotation> allAnnotations = getAnnotationSearchService().searchByPrefix(type, prefix);
         List<Annotation> allAnnotationsList = getAnnotationSorter().sort(allAnnotations);
         return getAnnotationLimiter().limit(allAnnotationsList, limit, start);
     }
-
-    @Override
-    protected String extractElementName(Annotation annotation) {
-        return annotation.getAnnotatedProperty().getPropertyValue();
-    }
-
-    @Override
-    protected String extractElementTypeID() {
-        return Annotation.ANNOTATION_TYPE_ID;
-    }
-
-    @Override
-    protected String extractElementTypeName() {
-        return Annotation.ANNOTATION_TYPE_NAME;
-    }
-
-    @Override
-    @RequestMapping(value = "/suggest", method = RequestMethod.GET)
-    public @ResponseBody SuggestResponse suggest(
-            @RequestParam(value = "prefix") String prefix,
-            @RequestParam(value = "type", required = false) String type,
-            @RequestParam(value = "type_strict", required = false) String type_strict,
-            @RequestParam(value = "limit", required = false) Integer limit,
-            @RequestParam(value = "start", required = false) Integer start) {
-        // check each non-required argument and defer to appropriate query form
-        // NB. we don't use type_strict param anywhere
-        if (type != null) {
-            if (limit != null) {
-                if (start != null) {
-                    return convertToSuggestResponse(prefix, query(prefix, type, limit, start));
-                }
-                else {
-                    return convertToSuggestResponse(prefix, query(prefix, type, limit, 0));
-                }
-            }
-            else {
-                return convertToSuggestResponse(prefix, query(prefix, type));
-            }
-        }
-        else {
-            return convertToSuggestResponse(prefix, query(prefix));
-        }
-    }
-
-    @Override
-    @RequestMapping(value = "/search", method = RequestMethod.GET)
-    public @ResponseBody SearchResponse search(
-            @RequestParam(value = "query") final String query,
-            @RequestParam(value = "type", required = false) final String type,
-            @RequestParam(value = "exact", required = false, defaultValue = "false") final Boolean exact,
-            @RequestParam(value = "limit", required = false, defaultValue = "20") final Integer limit,
-            @RequestParam(value = "start", required = false, defaultValue = "0") final Integer start,
-            @RequestParam(value = "prefixed", required = false, defaultValue = "false") final Boolean prefixed,
-            @RequestParam(value = "lang", required = false) final String lang,
-            @RequestParam(value = "domain", required = false) final String domain,
-            @RequestParam(value = "filter", required = false) final String filter,
-            @RequestParam(value = "html_escape", required = false, defaultValue = "true") final Boolean html_escape,
-            @RequestParam(value = "indent", required = false, defaultValue = "false") final Boolean indent,
-            @RequestParam(value = "mql_output", required = false) final String mql_output) {
-        // NB. Limited implementations of freebase functionality so far, we only use query, type and limiting of results
-        if (type != null) {
-            if (limit != null) {
-                if (start != null) {
-                    return convertToSearchResponse(query, query(query, type, limit, start));
-                }
-                else {
-                    return convertToSearchResponse(query, query(query, type, limit, 0));
-                }
-            }
-            else {
-                return convertToSearchResponse(query, query(query, type));
-            }
-        }
-        else {
-            return convertToSearchResponse(query, query(query));
-        }
-    }
-
-    @Override
-    @RequestMapping(value = "/flyout", method = RequestMethod.GET)
-    public @ResponseBody FlyoutResponse flyout(@RequestParam(value = "id") final URI shortURI) {
-        return convertToFlyoutResponse(fetch(shortURI.toString()));
-    }
-
 
     @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody DataLoadingService.Receipt loadAnnotations(@RequestBody Collection<Annotation> annotations) {
@@ -319,7 +228,7 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
             @RequestParam(value = "semanticTagUriFilter", required = false) String semanticTagUri,
             @RequestParam(value = "studyUriFilter", required = false) String studyUri,
             @RequestParam(value = "dataSourceFilter", required = true) String datasoureUri
-    )  throws ZoomaUpdateException {
+    ) throws ZoomaUpdateException {
 
         // todo - check datasource and that user is authorised to edit
 
@@ -333,7 +242,8 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
                 if (oldProperty != null) {
                     // update semantic tags for old properties annotated to the tag filter
                     if (semanticTagUri != null) {
-                        for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri)))) {
+                        for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsBySemanticTag(
+                                URI.create(semanticTagUri)))) {
                             if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
                                 if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
                                     annotationsToUpdate.add(annoByStudy);
@@ -343,7 +253,8 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
                     }
                     else if (studyUri != null) {
                         // update all properties in this study with the new supplied info
-                        for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsByStudy(new SimpleStudy(URI.create(studyUri), null)))) {
+                        for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsByStudy(
+                                new SimpleStudy(URI.create(studyUri), null)))) {
                             if (annoByStudy.getAnnotatedProperty().equals(oldProperty)) {
                                 if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
                                     annotationsToUpdate.add(annoByStudy);
@@ -354,7 +265,8 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
                     else {
                         // if a new property type and value is supplied update the old property to the new one
                         if (update.getPropertyType() != null && update.getPropertyValue() != null) {
-                            for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(oldProperty))) {
+                            for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(
+                                    oldProperty))) {
                                 if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
                                     annotationsToUpdate.add(annoByProp);
                                 }
@@ -366,29 +278,36 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
                             if (oldProperty instanceof TypedProperty) {
                                 String oldType = ((TypedProperty) oldProperty).getPropertyType();
 
-//                                for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(oldType, null)) {
-                                    for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(new SimpleTypedProperty(oldType, null)))) {
-                                        if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
-                                            annotationsToUpdate.add(annoByProp);
-                                        }
+                                //                                for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(oldType, null)) {
+                                for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(
+                                        new SimpleTypedProperty(oldType, null)))) {
+                                    if (annoByProp.getProvenance()
+                                            .getSource()
+                                            .getURI()
+                                            .toString()
+                                            .equals(datasoureUri)) {
+                                        annotationsToUpdate.add(annoByProp);
                                     }
-//                                }
+                                }
+                                //                                }
 
                             }
                         }
                         // otherwise we are updating the property value for all properties with the old property type(e.g. human to homo sapiens)
                         else if (update.getPropertyValue() != null) {
-//                            for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(null, oldProperty.getPropertyValue())) {
-                                for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(new SimpleUntypedProperty(update.getPropertyValue())))) {
-                                    if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
-                                        annotationsToUpdate.add(annoByProp);
-                                    }
+                            //                            for (Property matchedProperty : getPropertyService().getMatchedTypedProperty(null, oldProperty.getPropertyValue())) {
+                            for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(
+                                    new SimpleUntypedProperty(update.getPropertyValue())))) {
+                                if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
+                                    annotationsToUpdate.add(annoByProp);
                                 }
-//                            }
+                            }
+                            //                            }
                         }
                         else {
                             // both update property type and value are null so preserve
-                            for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(oldProperty))) {
+                            for (Annotation annoByProp : getLatestAnnotations(getAnnotationService().getAnnotationsByProperty(
+                                    oldProperty))) {
                                 if (annoByProp.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
                                     annotationsToUpdate.add(annoByProp);
                                 }
@@ -405,7 +324,8 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
 
         }
         else if (semanticTagUri != null) {
-            for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsBySemanticTag(URI.create(semanticTagUri)))) {
+            for (Annotation annoByStudy : getLatestAnnotations(getAnnotationService().getAnnotationsBySemanticTag(URI.create(
+                    semanticTagUri)))) {
                 if (annoByStudy.getProvenance().getSource().getURI().toString().equals(datasoureUri)) {
                     annotationsToUpdate.add(annoByStudy);
                 }
@@ -413,17 +333,6 @@ public class ZoomaAnnotations extends IdentifiableSuggestEndpoint<Annotation> {
         }
 
         return getDataLoadingService().update(annotationsToUpdate, update);
-
-    }
-
-    protected void validate() throws IllegalArgumentException {
-        if (requiresValidation()) {
-            Assert.notNull(getAnnotationService(), "Annotation service must not be null");
-            Assert.notNull(getAnnotationSearchService(), "Annotation search service must not be null");
-            Assert.notNull(getAnnotationSorter(), "Annotation sorter must not be null");
-            Assert.notNull(getAnnotationLimiter(), "Annotation limiter must not be null");
-            setIsValidated(true);
-        }
     }
 }
 

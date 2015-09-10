@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenanceTemplate;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
@@ -24,16 +23,16 @@ import java.util.HashSet;
  * @author Simon Jupp
  * @date 01/10/12
  */
-public abstract class AbstractAnnotationFactory implements AnnotationFactory {
-    private AnnotationLoadingSession annotationLoadingSession;
+public abstract class AbstractAnnotationFactory<S extends AnnotationLoadingSession> implements AnnotationFactory {
+    private S annotationLoadingSession;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    public AbstractAnnotationFactory(AnnotationLoadingSession annotationLoadingSession) {
+    public AbstractAnnotationFactory(S annotationLoadingSession) {
         this.annotationLoadingSession = annotationLoadingSession;
     }
 
-    public AnnotationLoadingSession getAnnotationLoadingSession() {
+    public S getAnnotationLoadingSession() {
         return annotationLoadingSession;
     }
 
@@ -43,7 +42,7 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
 
     @Override
     public String getDatasourceName() {
-        return getAnnotationLoadingSession().getAnnotationProvenanceTemplate().getSource().getName();
+        return getAnnotationLoadingSession().getDatasourceName();
     }
 
     @Override
@@ -204,14 +203,9 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
             }
         }
 
-        AnnotationProvenanceTemplate template = getAnnotationLoadingSession().getAnnotationProvenanceTemplate();
-        if (annotator != null) {
-            template.annotatorIs(annotator);
-        }
-        if (annotationDate != null) {
-            template.annotationDateIs(annotationDate);
-        }
-        AnnotationProvenance prov = template.complete();
+        // get or create provenance
+        AnnotationProvenance prov = getAnnotationLoadingSession().getOrCreateAnnotationProvenance(annotator,
+                                                                                                  annotationDate);
 
         // and return the complete annotation
         Annotation a;
