@@ -254,8 +254,9 @@ var default_logging_div = 'zooma-log';
         else {
             // is a div?
             if (target.is('div')) {
+                target.append("Search:");
                 // create new input and tags boxes within the target div
-                var autocompleteTarget = $('<label for="zooma-search">Search:</label><input type="text" class="zooma-input" />');
+                var autocompleteTarget = $('<input type="text" class="zooma-input" />');
                 target.append(autocompleteTarget);
 
                 annotationTarget = $('<select class="zooma-tags" multiple style="display: none"></select>');
