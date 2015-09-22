@@ -73,10 +73,32 @@
     </dependencies>
 
 		<repositories>
+
+			<repository>
+				<id>ebi-repo-nexus</id>
+				<name>EBI repo</name>
+				<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo</url>
+			</repository>
+	
+			<repository>
+				<id>ebi-repo-nexus-snapshots</id>
+				<name>EBI repo</name>
+				<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots</url>
+			</repository>
+
 			<repository>
 				<id>ebi-repo</id>
 				<name>EBI repo</name>
 				<url>http://www.ebi.ac.uk/~maven/m2repo</url>
 			</repository>
+			
+			<repository>
+		    <id>EBIBioSamples-GH-repo</id>
+		    <url>https://raw.githubusercontent.com/EBIBioSamples/EBIBioSamples.github.io/maven-repo</url>
+		    <snapshots>
+	        <enabled>true</enabled>
+		    </snapshots>
+	    </repository>
+			
 		</repositories>
 </project>
