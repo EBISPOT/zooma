@@ -1,6 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.search.ontodiscover;
 
-import static uk.ac.ebi.fgpt.zooma.search.ontodiscover.CachedOntoTermDiscoverer.NULL_RESULT;
+import static uk.ac.ebi.onto_discovery.api.CachedOntoTermDiscoverer.NULL_RESULT;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,8 @@ import uk.ac.ebi.fgpt.zooma.model.SimpleUntypedProperty;
 import uk.ac.ebi.fgpt.zooma.search.StatsZOOMASearchFilter;
 import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchClient;
 import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchInterface;
+import uk.ac.ebi.onto_discovery.api.OntologyDiscoveryException;
+import uk.ac.ebi.onto_discovery.api.OntologyTermDiscoverer;
 
 /**
  * Ontology Discoverer based on <a href = 'http://www.ebi.ac.uk/fgpt/zooma/docs/'>ZOOMA2</a>.
@@ -53,16 +56,23 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 	
 	/**
 	 * Uses the top-ranked result from {@link ZOOMASearchClient}.searchZOOMA(), it sends to it a pair of value and type
-	 * label, depending on the fact that the type is null or not.  
+	 * label, depending on the fact that the type is null or not.
+	 * 
+	 * The value and type parameters are pre-processed with {@link QueryParserUtil#escape(String)}, so that
+	 * calls to the underline texta annotor requests are less error-prone (usually they're sent to Lucene).
+	 *
 	 */
 	@Override
-	public List<DiscoveredTerm> getOntologyTermUris ( String valueLabel, String typeLabel )
+	public List<DiscoveredTerm> getOntologyTerms ( String valueLabel, String typeLabel )
 		throws OntologyDiscoveryException
 	{
 		try
 		{
 			if ( (valueLabel = StringUtils.trimToNull ( valueLabel )) == null ) return NULL_RESULT;
 			typeLabel = StringUtils.trimToNull ( typeLabel );
+			
+			valueLabel = QueryParserUtil.escape ( valueLabel );
+			if ( typeLabel != null ) typeLabel = QueryParserUtil.escape ( typeLabel );
 			
 			Property zprop = typeLabel == null 
 				? new SimpleUntypedProperty ( valueLabel ) 
@@ -85,7 +95,7 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 				if ( semTags == null ) continue;
 				
 				for ( URI uri: semTags )
-					result.add ( new DiscoveredTerm ( uri, score ) );
+					result.add ( new DiscoveredTerm ( uri.toASCIIString (), score ) );
 			}
 
 			// ZOOMA uses a SortedMap internally and returns results in score descending order
@@ -94,7 +104,7 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 			List<DiscoveredTerm> resultUniqs = new ArrayList<> ();
 			DiscoveredTerm prevTerm = null;
 			for ( DiscoveredTerm t: result )
-				if ( prevTerm == null || !t.getUri ().equals ( prevTerm.getUri () ) ) {
+				if ( prevTerm == null || !t.getIri ().equals ( prevTerm.getIri () ) ) {
 					resultUniqs.add ( prevTerm = t );
 				}
 			
@@ -105,8 +115,9 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 		{
 			log.error ( String.format ( 
 				"Error while consulting ZOOMA for '%s' / '%s': %s. Returning null", 
-				valueLabel, typeLabel, ex.getMessage () ), ex 
-			);
+				valueLabel, typeLabel, ex.getMessage ()  
+			));
+			if ( log.isDebugEnabled () ) log.debug (  "Underline exception: ", ex );
 			return null;
 		}
 	}

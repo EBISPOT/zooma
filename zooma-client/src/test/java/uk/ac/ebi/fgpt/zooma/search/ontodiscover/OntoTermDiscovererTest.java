@@ -15,7 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchClient;
-import uk.ac.ebi.fgpt.zooma.search.ontodiscover.OntologyTermDiscoverer.DiscoveredTerm;
+import uk.ac.ebi.onto_discovery.api.CachedOntoTermDiscoverer;
+import uk.ac.ebi.onto_discovery.api.OntoTermDiscoveryMemCache;
+import uk.ac.ebi.onto_discovery.api.OntologyTermDiscoverer;
+import uk.ac.ebi.onto_discovery.api.OntologyTermDiscoverer.DiscoveredTerm;
 import uk.ac.ebi.utils.memory.SimpleCache;
 import uk.ac.ebi.utils.time.XStopWatch;
 
@@ -34,7 +37,7 @@ public class OntoTermDiscovererTest
 	public void testBasics ()
 	{
 		OntologyTermDiscoverer client = new ZoomaOntoTermDiscoverer ( new ZOOMASearchClient (), 50f );
-		List<DiscoveredTerm> terms = client.getOntologyTermUris ( "homo sapiens", "specie" );
+		List<DiscoveredTerm> terms = client.getOntologyTerms ( "homo sapiens", "specie" );
 
 		log.info ( "Discovered terms for Homo Sapiens:\n" + terms );
 		
@@ -42,10 +45,10 @@ public class OntoTermDiscovererTest
 		Set<String> uris = new HashSet<> ();
 		for ( DiscoveredTerm term: terms )
 		{
-			hasNCBITaxon_9606 = hasNCBITaxon_9606 || StringUtils.contains ( term.getUri ().toASCIIString (), "NCBITaxon_9606" );
-			if ( uris.contains ( term.getUri () ) )
+			hasNCBITaxon_9606 = hasNCBITaxon_9606 || StringUtils.contains ( term.getIri (), "NCBITaxon_9606" );
+			if ( uris.contains ( term.getIri () ) )
 			{
-				log.error ( "Ouch! the term '{}' is duplicated!", term.getUri () );
+				log.error ( "Ouch! the term '{}' is duplicated!", term.getIri () );
 				hasDupes = true;
 			}
 		}
@@ -66,7 +69,7 @@ public class OntoTermDiscovererTest
 		);
 		
 		timer.start ();
-		List<DiscoveredTerm> terms = client.getOntologyTermUris ( "homo sapiens", "organism" );
+		List<DiscoveredTerm> terms = client.getOntologyTerms ( "homo sapiens", "organism" );
 		long time1 = timer.getTime ();
 				
 		assertEquals ( "entry not saved in the cache!", terms, baseCache.get ( "organism:homo sapiens" ) );
@@ -75,7 +78,7 @@ public class OntoTermDiscovererTest
 		timer.start ();
 		for ( int i = 0; i < 100; i++ )
 		{
-			terms = client.getOntologyTermUris ( "homo sapiens", "organism" );
+			terms = client.getOntologyTerms ( "homo sapiens", "organism" );
 			log.trace ( "Call {}, time {}", i, timer.getTime () );
 		}
 		timer.stop ();

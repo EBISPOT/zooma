@@ -56,7 +56,20 @@
 	        <artifactId>commons-lang3</artifactId>
 	        <version>3.3</version>
 	      </dependency>
-        
+
+				<!-- We provide a ZOOMA implementation for this API -->
+				<dependency>
+					<artifactId>onto-discovery-api</artifactId>
+					<groupId>uk.ac.ebi</groupId>
+					<version>0.0.1-SNAPSHOT</version>
+				</dependency>        
+
+				<dependency>
+					<groupId>org.apache.lucene</groupId>
+					<artifactId>lucene-queryparser</artifactId>
+					<version>4.10.2</version>
+				</dependency>		
+
     </dependencies>
 
 		<repositories>
