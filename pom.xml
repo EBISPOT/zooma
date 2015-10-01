@@ -18,6 +18,12 @@
         <org.slf4j.version>1.7.5</org.slf4j.version>
     </properties>
 
+		<parent>
+		  <groupId>uk.ac.ebi.fg.biosd</groupId>
+		  <artifactId>biosd_deploy</artifactId>
+		  <version>1.0-SNAPSHOT</version>
+		</parent>
+
     <build>
         <plugins>
             <plugin>
@@ -200,14 +206,14 @@
 
     <modules>
         <module>zooma-api</module>
-        <module>zooma-core</module>
         <module>zooma-impl</module>
+        <module>zooma-client</module>
+        <!-- module>zooma-core</module>
         <module>zooma-owlapi</module>
         <module>zooma-jdbc</module>
         <module>zooma-lucene-services</module>
         <module>zooma-reporting</module>
-        <module>zooma-client</module>
-        <module>zooma-loading</module>
+        <module>zooma-loading</module -->
     </modules>
 
     <!-- dependencies required by all zooma modules -->
@@ -334,22 +340,17 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-	  <distributionManagement>
-			
-		  <repository>
-			  <id>ebi-repo-old</id>
-			  <name>EBI Repository</name>
-			  <url>sftp://ebi-001.ebi.ac.uk/homes/maven/public_html/m2repo</url>
-		  </repository>
-			
-		  <snapshotRepository>
-			  <id>ebi-repo-old-snapshots</id>
-			  <uniqueVersion>false</uniqueVersion>
-			  <name>EBI Snapshots Repository</name>
-			  <url>sftp://ebi-001.ebi.ac.uk/homes/maven/public_html/m2repo_snapshots</url>
-		  </snapshotRepository>
-	    		  	
-	  </distributionManagement>
 	
+		<repositories>
+
+			<repository>
+		    <id>EBIBioSamples-GH-repo</id>
+		    <url>https://raw.githubusercontent.com/EBIBioSamples/EBIBioSamples.github.io/maven-repo</url>
+		    <snapshots>
+	        <enabled>true</enabled>
+		    </snapshots>
+	    </repository>
+		
+		</repositories>	
+
 </project>
