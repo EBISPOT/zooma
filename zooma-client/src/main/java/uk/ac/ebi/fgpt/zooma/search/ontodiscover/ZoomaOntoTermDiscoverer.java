@@ -140,6 +140,7 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 	/**
 	 * An hack to be able to call {@link StatsZOOMASearchFilter#setMinCallDelay(long)}, when
 	 * this is the {@link #zoomaSearcher ZOOMA client} being used internally.
+	 * 
 	 */
 	public void setMinCallDelay ( long delayms )
 	{
