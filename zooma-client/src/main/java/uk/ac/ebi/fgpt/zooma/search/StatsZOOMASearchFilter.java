@@ -28,13 +28,13 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 	public static final String STATS_SAMPLING_TIME_PROP_NAME = "uk.ac.ebi.fgpt.zooma.stats_sampling_time";
 
 	/**
-	 * Change this property to enable throttling. An internal policy limit the API call hit rate, based on
+	 * Change this property to disable throttling. This is an internal policy that limit the API call hit rate, based on
 	 * performance statistics.
 	 *  
 	 */
 	public static final String THROTTLE_MODE_PROP_NAME = "uk.ac.ebi.fgpt.zooma.throttle";
 	
-	private boolean throttleMode = "true".equals ( System.getProperty ( THROTTLE_MODE_PROP_NAME ) );
+	private boolean throttleMode = !"false".equals ( System.getProperty ( THROTTLE_MODE_PROP_NAME ) );
 
 	
 	/**
