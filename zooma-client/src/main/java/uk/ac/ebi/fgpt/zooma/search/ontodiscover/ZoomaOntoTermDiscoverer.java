@@ -137,18 +137,4 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 		this.zoomaThresholdScore = zoomaThresholdScore;
 	}
 
-	/**
-	 * An hack to be able to call {@link StatsZOOMASearchFilter#setMinCallDelay(long)}, when
-	 * this is the {@link #zoomaSearcher ZOOMA client} being used internally.
-	 * 
-	 */
-	public void setMinCallDelay ( long delayms )
-	{
-		if ( ! ( this.zoomaSearcher instanceof StatsZOOMASearchFilter ) )
-			throw new UnsupportedOperationException ( 
-				"Cannot set minCallDelay for " + this.zoomaSearcher.getClass ().getName () 
-		);
-		
-		((StatsZOOMASearchFilter) this.zoomaSearcher).setMinCallDelay ( delayms );
-	}
 }
