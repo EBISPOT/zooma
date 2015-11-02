@@ -3,3 +3,6 @@ bower_components
 node_modules
 node
 etc
+
+# Mac specific files
+.DS_Store
