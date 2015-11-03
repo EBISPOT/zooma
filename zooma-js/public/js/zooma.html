@@ -1,0 +1,22 @@
+<div class="zooma-popup">
+	<header class="popup-header">
+		<h3>{{term}}</h3>
+		{{#isUserTerm}}
+			<h5>Term provided by <span class="confidence-label {{#lower}}{{confidence}}{{/lower}}-confidence-label">{{confidence}}</span></h5>
+		{{/isUserTerm}}
+		{{^isUserTerm}}
+			<h5>Term suggested by ZOOMA with <span class="confidence-label {{#lower}}{{confidence}}{{/lower}}-confidence-label">{{confidence}}</span> confidence</h5>
+		{{/isUserTerm}}
+	</header>
+	<section class="popup-body">
+		<h3>Description:</h3>
+		{{#excerpt}}
+			{{#description}}
+				<p>{{.}}</p>
+			{{/description}}
+		{{/excerpt}}
+	</section>
+	<footer class="popup-footer">
+		<a href="{{{iri}}}" target="_blank">{{{iri}}}</a>	
+	</footer>
+</div>
