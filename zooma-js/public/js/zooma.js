@@ -8,7 +8,7 @@ var default_ols_url         = 'http://www.ebi.ac.uk/ols/beta/api/ontologies/';
 var default_ols_search_end  = 'terms?short_form=';
 
 // Declares a zooma jQuery plugin
-(function($) {
+(function($,Mustache) {
     var logging; // should be one of 'console', 'div', or 'none'
     var loggingDiv; // defined if logging == 'div'
     var popupTemplate;
@@ -555,4 +555,4 @@ var default_ols_search_end  = 'terms?short_form=';
             }
         }
     };
-})(jQuery);
+})(jQuery,Mustache);

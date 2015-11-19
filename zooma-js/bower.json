@@ -25,9 +25,16 @@
     "bootstrap-tagsinput": "~0.5.0",
     "jquery": ">=1.7.1",
     "tooltipster": "~3.3.0",
-    "typeahead.js": "~0.11.1"
+    "typeahead.js": "~0.11.1",
+    "mustache.js": "~2.2.0",
+    "css-spinners": "~2.2.0"
   },
   "devDependencies": {
     "gulp": "~3.9.0"
+  },
+  "override": {
+      "css-spinners": {
+          "main": ["spinners.css"]
+      }
   }
 }
