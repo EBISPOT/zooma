@@ -5,6 +5,24 @@
         return this.slice(0);
     };
 
+    var bowerOverrides = {
+        "overrides": {
+              "css-spinners": {
+                  "main": [
+                    "./css/spinners.css",
+                    "./css/spinner/throbber.css"
+                ]
+              },
+              "tooltipster": {
+                  "main": [
+                        "js/jquery.tooltipster.min.js",
+                        "css/tooltipster.css",
+                        "css/themes/tooltipster-light.css"
+                  ]
+              }
+          }
+    };
+
     var gulp        = require('gulp');
     var rename      = require('gulp-rename');
     var uglify      = require('gulp-uglify');
@@ -14,10 +32,10 @@
     var runSequence = require('run-sequence');
     var watch       = require('gulp-watch');
     var browserSync = require('browser-sync').create();
-    var bf          = require('bower-files')();
+    var bf          = require('bower-files')(bowerOverrides);
     var filter      = require('gulp-filter');
     var order       = require('gulp-order');
-    var addsrc      = require('gulp-add-src');
+    var print       = require('gulp-print');
 
     var TARGET      = 'target/classes/META-INF/resources/webjars/zooma-js/2.0.0/';
     var PUBLIC      = 'public/';
@@ -30,45 +48,23 @@
         del(TARGET);
     });
 
-    gulp.task('copy-js-libraries', function() {
-        return gulp.src(bf.ext("js").files)
-                .pipe(gulp.dest(TARGET));
-    });
-
-    gulp.task('package-js-libraries', function() {
-        return gulp.src(bf.ext("js").files)
-                .pipe(concat('vendor.js'))
+    gulp.task('package-zooma-js', function() {
+        return gulp.src('src/main/javascript/*.js')
+                .pipe(gulp.dest(TARGET))
                 .pipe(uglify())
                 .pipe(rename({extname: '.min.js'}))
                 .pipe(gulp.dest(TARGET));
     });
 
-    gulp.task('copy-css-libraries', function() {
-        return gulp.src(bf.ext("css").files)
-                .pipe(gulp.dest(TARGET));
-    });
-
-    gulp.task('package-css-libraries', function() {
-        return gulp.src(bf.ext("css").files)
-                .pipe(concat('vendor.css'))
+    gulp.task('package-zooma-css', function() {
+        return gulp.src('src/main/stylesheets/*.css')
+                .pipe(gulp.dest(TARGET))
                 .pipe(minifyCss())
                 .pipe(rename({extname: '.min.css'}))
                 .pipe(gulp.dest(TARGET));
     });
 
-    gulp.task('copy-project-js', function() {
-        return gulp.src('src/main/javascript/*.js')
-                .pipe(gulp.dest(TARGET));
-    });
-
-    gulp.task('old-package-project-js', function() {
-        return gulp.src('src/main/javascript/*.js')
-                .pipe(uglify())
-                .pipe(rename({extname: '.min.js'}))
-                .pipe(gulp.dest(TARGET));
-    });
-
-    gulp.task('package-project-js',function(){
+    gulp.task('package-vendor-js',function(){
 
         var jsOrder    = [
             "**/jquery.js",
@@ -85,19 +81,7 @@
                     
     });
 
-    gulp.task('copy-project-css', function() {
-        return gulp.src('src/main/stylesheets/*.css')
-                .pipe(gulp.dest(TARGET));
-    });
-
-    gulp.task('old-package-project-css', function() {
-        return gulp.src('src/main/stylesheets/*.css')
-                .pipe(minifyCss())
-                .pipe(rename({extname: '.min.css'}))
-                .pipe(gulp.dest(TARGET));
-    });
-
-    gulp.task('package-project-css',function(){
+    gulp.task('package-vendor-css',function(){
 
         var cssOrder  = [
             "**/tooltipster.css",
@@ -109,8 +93,7 @@
 
         var cssFilter = cssOrder.clone();
 
-        return gulp.src(bf.ext("css").files)
-                    // .pipe(addsrc('src/main/stylesheets/*.css'))
+        return gulp.src(bf.ext('css').files)
                     .pipe(filter(cssFilter))
                     .pipe(order(cssOrder))
                     .pipe(concat('vendor.css'))
@@ -120,26 +103,27 @@
                     .pipe(gulp.dest(TARGET));
     });
 
-    gulp.task('install', function(callback) {
-        return runSequence(
-                'clean',
-                'copy-js-libraries',
-                'package-js-libraries',
-                'copy-css-libraries',
-                'package-css-libraries',
-                'copy-project-js',
-                'package-project-js',
-                'copy-project-css',
-                'package-project-css',
-                function(error) {
-                    if (error) {
-                        console.log(error.message);
-                    }
-                    else {
-                        console.log('INSTALL COMPLETE');
-                    }
-                    callback(error);
-                });
+    gulp.task('copy-zooma-to-public-js', function() {
+        return gulp.src('src/main/javascript/*.js')
+                .pipe(watch("src/main/javascript/*.js"))
+                .pipe(gulp.dest(PUBLIC_JS))
+                .pipe(uglify())
+                .pipe(rename({extname: '.min.js'}))
+                .pipe(gulp.dest(PUBLIC_JS));
+    });
+
+    gulp.task('copy-zooma-to-public-css',function() {
+        return gulp.src('src/main/stylesheets/*.css')
+                   .pipe(watch("src/main/stylesheets/*.css"))
+                   .pipe(gulp.dest(PUBLIC_CSS))
+                   .pipe(minifyCss())
+                   .pipe(rename({extname: '.min.css'}))
+                   .pipe(gulp.dest(PUBLIC_CSS));
+    });
+
+    gulp.task('copy-vendors-to-public',function() {
+        return gulp.src(TARGET + 'vendor.*')
+                   .pipe(gulp.dest(PUBLIC +'/vendor/'));
     });
 
     gulp.task('serve', function() {
@@ -154,36 +138,72 @@
             files: [
                 "public/css/**/*.css",
                 "public/js/**/*.js",
+                "public/vendor/**/*.*",
                 "public/index.html"
             ]
         });
     });
 
-    gulp.task('copy-public-js', function() {
-        return gulp.src('src/main/javascript/*.js')
-                .pipe(watch("src/main/javascript/*.js"))
-                .pipe(gulp.dest(PUBLIC_JS))
-                .pipe(uglify())
-                .pipe(rename({extname: '.min.js'}))
-                .pipe(gulp.dest(PUBLIC_JS));
+    // gulp.task('package-js-libraries', function() {
+    //     return gulp.src(bf.ext("js").files)
+    //             .pipe(concat('vendor.js'))
+    //             .pipe(uglify())
+    //             .pipe(rename({extname: '.min.js'}))
+    //             .pipe(gulp.dest(TARGET));
+    // });
+
+
+    gulp.task('copy-css-libraries', function() {
+        return gulp.src(bf.ext("css").files)
+                .pipe(gulp.dest(TARGET));
     });
 
-    gulp.task('copy-public-css',function() {
-        return gulp.src('src/main/stylesheets/*.css')
-                   .pipe(watch("src/main/stylesheets/*.css"))
-                   .pipe(gulp.dest(PUBLIC_CSS))
-                   .pipe(minifyCss())
-                   .pipe(rename({extname: '.min.css'}))
-                   .pipe(gulp.dest(PUBLIC_CSS));
+    gulp.task('copy-js-libraries', function() {
+        return gulp.src(bf.ext('js').files)
+                .pipe(gulp.dest(TARGET));
     });
 
-    gulp.task('copy-public-vendor',function() {
-        var filter = filter("vendor.min*");
-        return gulp.src(TARGET)
-                   .pipe(filter)
-                   .pipe(gulp.dest('public/vendor'));
+    // gulp.task('old-package-project-css', function() {
+    //     return gulp.src('src/main/stylesheets/*.css')
+    //             .pipe(minifyCss())
+    //             .pipe(rename({extname: '.min.css'}))
+    //             .pipe(gulp.dest(TARGET));
+
+    gulp.task('install', function(callback) {
+        return runSequence(
+                'clean',
+                'package-zooma-js',
+                'package-zooma-css',
+                'copy-css-libraries',
+                'copy-js-libraries',
+                'package-vendor-js',
+                'package-vendor-css',
+                function(error) {
+                    if (error) {
+                        console.log(error.message);
+                    }
+                    else {
+                        console.log('INSTALL COMPLETE');
+                    }
+                    callback(error);
+                });
     });
 
-
-    gulp.task('default',['serve','copy-public-js','copy-public-css']);
+    gulp.task('default', function(callback) {
+        return runSequence(
+                    'install',
+                    'serve',
+                    'copy-vendors-to-public',
+                    'copy-zooma-to-public-js',
+                    'copy-zooma-to-public-css',
+                    function(error) {
+                        if (error) {
+                            console.log(error.message);
+                        } 
+                        else {
+                            console.log('LOCAL SERVER STARTED');
+                        }
+                        callback(error);
+                    });
+    });
 })();

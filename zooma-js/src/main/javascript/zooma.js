@@ -6,32 +6,28 @@ var default_zooma_base_path = 'v2/api/services';
 var default_logging_div     = 'zooma-log';
 var default_ols_url         = 'http://www.ebi.ac.uk/ols/beta/api/ontologies/';
 var default_ols_search_end  = 'terms?short_form=';
+var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"popup-header\">\n\t\t<h3>{{term}}</h3>\n\t\t{{#isUserTerm}}\n\t\t\t<h5>Term provided by <span class=\"confidence-label {{#lower}}{{confidence}}{{/lower}}-confidence-label\">{{confidence}}</span></h5>\n\t\t{{/isUserTerm}}\n\t\t{{^isUserTerm}}\n\t\t\t<h5>Term suggested by ZOOMA with <span class=\"confidence-label {{#lower}}{{confidence}}{{/lower}}-confidence-label\">{{confidence}}</span> confidence</h5>\n\t\t{{/isUserTerm}}\n\t</header>\n\t<section class=\"popup-body\">\n\t\t<h3>Description:</h3>\n\t\t{{#excerpt}}\n\t\t\t{{#description}}\n\t\t\t\t<p>{{.}}</p>\n\t\t\t{{/description}}\n\t\t{{/excerpt}}\n\t</section>\n\t<footer class=\"popup-footer\">\n\t\t<a href=\"{{{iri}}}\" target=\"_blank\">{{{iri}}}</a>\t\n\t</footer>\n</div>';
 
 // Declares a zooma jQuery plugin
 (function($,Mustache) {
     var logging; // should be one of 'console', 'div', or 'none'
     var loggingDiv; // defined if logging == 'div'
-    var popupTemplate;
-    var spinner;
-    var ownTermButton;
+    var popupTemplate; // shared popup template
 
-    $.get('js/zooma.html',function(content){
-        popupTemplate = content;
-        Mustache.parse(popupTemplate);
-    });
 
     var commands = {
         initOptions: function(target,options) {
             var settings = extendOptions(options);
             initLogging(settings);
-            initSpinner();
-            initOwnTermButton();
+            initTooltip(settings);
             return settings;
         },
+
         autocomplete: function(target, options) {
             var settings = commands.initOptions(target,options);
             return autocomplete(target, settings);
         },
+
         annotate: function(target, options) {
             var settings = commands.initOptions(target,options);
             return annotate(target, settings);
@@ -49,16 +45,17 @@ var default_ols_search_end  = 'terms?short_form=';
             'zooma_suggest_path': _options.zooma_url + _options.zooma_base_path + '/suggest',
             'zooma_annotate_path': _options.zooma_url + _options.zooma_base_path + '/annotate',
             'logging': 'none',
-            'loggingDiv': default_logging_div
+            'loggingDiv': default_logging_div,
+            'tooltipOrigin': 'default'
         }, _options);
     };
 
-    var initSpinner = function() {
-        spinner = $('<span>').attr('id','zooma-spinner').append($('<div>').addClass('throbber-loader')).hide();
+    var createSpinner = function() {
+        return $('<span>').attr('class','zooma-spinner').append($('<div>').addClass('throbber-loader'));
     };
 
-    var initOwnTermButton = function() {
-        ownTermButton = $('<span>').attr('id','zooma-spinner').append($('<div>').addClass('throbber-loader'));
+    var createCustomTermButton = function() {
+        return $("<button class='btn-custom-term'>Use custom term</button>");   
     };
 
     var initLogging = function(settings) {
@@ -72,6 +69,22 @@ var default_ols_search_end  = 'terms?short_form=';
         else {
             throw "logging option must be one of 'console', 'div' or 'none'";
         }
+    };
+
+    var initTooltip = function(settings) {
+        if (settings.tooltipOrigin == 'default') {
+            popupTemplate = default_tooltip_template;
+        } else {
+            try {
+                $.get(settings.tooltipOrigin, function(content) {
+                    popupTemplate = content;
+                });
+            } catch (e) {
+                log('Something went wrong!\nUnable to use ' + settings.tooltipOrigin + ' as custom template.\nRelying on the default template');
+                popupTemplate = default_tooltip_template;
+            }
+        }
+        Mustache.parse(popupTemplate);
     };
 
     var log = function(msg) {
@@ -118,8 +131,7 @@ var default_ols_search_end  = 'terms?short_form=';
     };
 
     var isFunction = function(varToCheck) {
-        var getType = {};
-        return varToCheck && getType.toString.call(varToCheck) === '[object Function]';
+        return isType(varToCheck,'Function');
     };
 
     var isObject = function(varToCheck) {
@@ -154,8 +166,12 @@ var default_ols_search_end  = 'terms?short_form=';
         });
     };
 
-    var setId = function(target,id) {
-        target.attr('id',id);
+    var pressEscape = function(target, callback) {
+        return target.bind('keyup', function(e) {
+            if (e.keyCode == 27) {
+                callback.apply(this, [e]);
+            }
+        });
     };
 
     var excerpt = function(value, maxLength) {
@@ -191,7 +207,6 @@ var default_ols_search_end  = 'terms?short_form=';
             return matches[1].toLowerCase();    
         } 
         return "efo";
-        
     };
 
     var setupTooltip = function(target,zoomaInfo){
@@ -254,65 +269,20 @@ var default_ols_search_end  = 'terms?short_form=';
         // target.hintModal();
         // target.append("<div class=\"hintModal_container\">" + target.attr('id') + "</div>");
     };
-
-    var setupItemAddedFunction = function(target) {
-        var tagContainer = $(".bootstrap-tagsinput");
-        var selectContainer = $("#zooma-separated-suggestions");
-
-        target.on('itemAdded',function(event) {
-            var itemName = event.item.shortname;
-            var tag = tagContainer.find("span.tag:contains('" + itemName + "')");
-            var selectOption = selectContainer.find('option[value=' + itemName + ']');
-            tag.on('click',function(e){
-                selectContainer.children('option').each(function(index,element){
-                    $(element).removeAttr('selected');
-                });
-                tagContainer.children('.tag').removeClass('selected');
-                
-                tag.toggleClass('selected');
-                selectOption.val('selected','selected');
-            });
-            setId(tag,itemName);
-            setupTooltip(tag,event.item);
-        });
-    };
-
-    var addCustomTerm = function(target,term){
-        log("Adding user custom term " + term + " to term list");
-
-        var element = {};
-        element.shortname = term;
-        element.confidence = 'USER';
-
-        //Should change this recall to a general target
-        var tagsTarget = $("[data-role=tagsinput]");
-
-        tagsTarget.tagsinput('add',element);
-    };
-
-    var createCustomTermButton = function() {
-        return $("<button class='btn-custom-term'>Use custom term</button>");   
-    };
-
-    var setupTagsInputBox = function(target) {
-        var that = target.find('input');
-        pressEnter(that, function() {
-            addCustomTerm(target,that.val());
-        });
-    };
-
+    
     var retrieveZoomaAnnotations = function(settings, target, property) {
         log("Retrieving zooma suggested terms for " + property);
         target.siblings('.zooma-annotations-container').show();
         target.tagsinput('removeAll');
-        spinner.show();
+        target.siblings().find('.zooma-spinner').show();
+        target.find('.zooma-spinner').show();
         jQuery.getJSON(settings.zooma_annotate_path + "?propertyValue=" + encodeURI(property), function(data) {
             renderZoomaAnnotations(target, data);
         });
     };
 
     var renderZoomaAnnotations = function(target, annotations) {
-        spinner.hide();
+        target.siblings().find('.zooma-spinner').hide();
         target.tagsinput('removeAll');
         $(annotations).each(function(index, element) {
             var shortnames = [];
@@ -383,7 +353,7 @@ var default_ols_search_end  = 'terms?short_form=';
             itemValue: 'shortname', 
             itemText: 'shortname',
             freeInput: true,
-            confirmKeys: [13],
+            confirmKeys: [],
             tagClass: function(item) {
 
                 var classes = ['tooltip','label'];
@@ -413,10 +383,6 @@ var default_ols_search_end  = 'terms?short_form=';
             }
         });
 
-        setupItemAddedFunction(target);
-        
-        var tagContainer = $(".bootstrap-tagsinput");
-        setupTagsInputBox(tagContainer);
 
         log("Setup tagsinput on " + target.attr("id") + " ok!");
 
@@ -451,33 +417,40 @@ var default_ols_search_end  = 'terms?short_form=';
 
         log("Annotation detection bound ok!");
 
-        // styling
-        var container = target.parent().children(".bootstrap-tagsinput");
+        // Create and style inner elements
+        var container = target.siblings(".bootstrap-tagsinput");
         container.addClass("zooma-annotations-container");
-        var customTermInput = container.find('input').attr('id','custom-term-input');
-        customTermInput.keypress(function(e){
-            switch (e.which) { 
-                case 13: 
-                    customTermInput.val("");
-                    customTermInput.hide();
-                    break;
-            }
-        }).keyup(function(e){
-            switch(e.which) {
-                case 27:
-                    customTermInput.val("");
-                    customTermInput.hide();
-                    break;    
-            }
-        });
         
-        customTermInput.hide();
-
-        // add spinner
-        // var spinner = createSpinner();
+        // Spinner   
+        var spinner   = createSpinner();
         spinner.prependTo(container);
+        spinner.hide();
+        
+        // Input form
+        var customTermInput = target.tagsinput('input');
+        customTermInput.attr('data-role','custom-term-input');
 
-        // add button
+        pressEnter(customTermInput, function(e) {
+            var element = {};
+            element.shortname = customTermInput.val();
+            element.confidence = 'USER';
+        
+            target.tagsinput('add',element);
+
+            customTermInput.val("");
+            customTermInput.hide();
+        });
+
+        pressEscape(customTermInput, function(e) {
+            customTermInput.val("");
+            customTermInput.hide();
+        });
+
+        customTermInput.val("");
+        customTermInput.hide();
+        
+        
+        // Custom term button
         var customTermButton = createCustomTermButton();
         customTermButton.appendTo(container);
         customTermButton.on('click',function(event){
@@ -485,13 +458,29 @@ var default_ols_search_end  = 'terms?short_form=';
         });
 
         container.hide();
+
+        // Setup Item Added Event
+        log("Setup annotation added event binding");
+
+        target.on('itemAdded',function(event) {
+            var itemName = event.item.shortname;
+            var tag = container.find("span.tag:contains('" + itemName + "')");
+            
+            tag.attr('data-shortcode',itemName);
+            setupTooltip(tag,event.item);
+        });
+
+        log("Event annotation added bound ok");
         
         return container;
     };
 
     var setupZoomaWidget = function(target, options) {
-        var settings = extendOptions(options);
-        initLogging(settings);
+        // var settings = extendOptions(options);
+        // initLogging(settings);
+        // initSpinner();
+        // commands['initOptions'].apply();
+        var settings =  commands.initOptions(target,options);
         log("Attempting to set up unified zooma widget from " + target.attr('id') + "...");
 
         // if target is an input box, use as target for autocomplete
@@ -504,7 +493,7 @@ var default_ols_search_end  = 'terms?short_form=';
             // add autocomplete and annotation functions
             var autocompleteContainer = autocomplete(target, settings);
             _settings = $.extend({'annotation_source': target}, settings);
-            annotate(annotationTarget, _settings);
+            var annotationContainer = annotate(annotationTarget, _settings);
 
             // styling
             var container = $('<div class="zooma-container"></div>');

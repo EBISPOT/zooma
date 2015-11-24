@@ -31,10 +31,5 @@
   },
   "devDependencies": {
     "gulp": "~3.9.0"
-  },
-  "override": {
-      "css-spinners": {
-          "main": ["spinners.css"]
-      }
   }
 }
