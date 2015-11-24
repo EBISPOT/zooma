@@ -187,6 +187,14 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
                                                                                    requiredSources));
     }
 
+//    @RequestMapping(value = "/search", method = RequestMethod.GET)
+//    @ResponseBody List<AnnotationPrediction> searchEndpoint(@RequestParam String propertyValue,
+//                                                                @RequestParam(required = false) String propertyType,
+//                                                                @RequestParam(required = false,
+//                                                                        defaultValue = "") String filter) {
+//
+//    }
+
     @RequestMapping(value = "/annotate", method = RequestMethod.GET)
     @ResponseBody List<AnnotationPrediction> annotationEndpoint(@RequestParam String propertyValue,
                                                                 @RequestParam(required = false) String propertyType,
