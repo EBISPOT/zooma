@@ -3,3 +3,9 @@ bower_components
 node_modules
 node
 etc
+
+# Maven
+**/target/**
+
+# Mac specific files
+.DS_Store

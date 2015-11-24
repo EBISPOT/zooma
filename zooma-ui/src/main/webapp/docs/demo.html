@@ -49,9 +49,7 @@
     <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">-->
     <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap-theme.min.css">-->
 
-    <!-- Zooma packaged stylesheets -->
-    <link rel="stylesheet" href="../webjars/zooma-js/2.0.0/zooma.css">
-    <!--<link rel="stylesheet" href="../webjars/zooma-js/2.0.0/vendor.min.css">-->
+    
 
     <!-- you can replace this with [projectname]-colours.css. See http://frontier.ebi.ac.uk/web/style/colour for details of how to do this -->
     <!-- also inform ES so we can host your colour palette file -->
@@ -71,6 +69,10 @@
             margin: 0 auto;
         }
     </style>
+
+    <!-- Zooma packaged stylesheets -->
+    <link rel="stylesheet" href="../webjars/zooma-js/2.0.0/vendor.css">
+    <link rel="stylesheet" href="../webjars/zooma-js/2.0.0/zooma.css">
 
     <!-- end CSS-->
 
@@ -330,17 +332,18 @@
 <script type="text/javascript" src="../webjars/zooma-js/2.0.0/zooma.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
+        var zooma_url = "http://snarf.ebi.ac.uk:8580/spot/zooma/";
         // first demo
-        $('#zooma-search-div').zooma({'zooma_url': '../', 'logging': 'console'});
+        $('#zooma-search-div').zooma({'zooma_url' : zooma_url, 'logging': 'console'});
 
         // second demo
-        $('#zooma-search-input').zooma({'zooma_url': '../', 'logging': 'console'});
+        $('#zooma-search-input').zooma({'zooma_url' : zooma_url, 'logging': 'console'});
 
         // third demo
-        $('#zooma-separated-search').zooma('autocomplete', {'zooma_url': '../', 'logging': 'console'});
+        $('#zooma-separated-search').zooma('autocomplete', {'zooma_url' : zooma_url, 'logging': 'console'});
         $('#zooma-separated-suggestions').zooma('annotate',
                 {
-                    'zooma_url': '../',
+                    'zooma_url': zooma_url, 
                     'logging': 'console',
                     'annotation_source': $('#zooma-separated-search')
                 });
