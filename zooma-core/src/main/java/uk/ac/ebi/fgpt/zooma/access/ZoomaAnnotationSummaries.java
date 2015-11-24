@@ -87,30 +87,59 @@ public class ZoomaAnnotationSummaries {
     }
 
     public Collection<AnnotationSummary> fetch() {
-        return fetch(100, 0);
+        return fetch(100, 0, null);
     }
+
+//    @RequestMapping(method = RequestMethod.GET)
+//    public @ResponseBody Collection<AnnotationSummary> fetch(
+//            @RequestParam(value = "limit", required = false) Integer limit,
+//            @RequestParam(value = "start", required = false) Integer start) {
+//        if (start == null) {
+//            if (limit == null) {
+//                return getAnnotationSummaryService().getAnnotationSummaries(100, 0);
+//            }
+//            else {
+//                return getAnnotationSummaryService().getAnnotationSummaries(limit, 0);
+//            }
+//        }
+//        else {
+//            if (limit == null) {
+//                return getAnnotationSummaryService().getAnnotationSummaries(100, start);
+//            }
+//            else {
+//                return getAnnotationSummaryService().getAnnotationSummaries(limit, start);
+//            }
+//        }
+//    }
+
+
 
     @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody Collection<AnnotationSummary> fetch(
             @RequestParam(value = "limit", required = false) Integer limit,
-            @RequestParam(value = "start", required = false) Integer start) {
-        if (start == null) {
-            if (limit == null) {
-                return getAnnotationSummaryService().getAnnotationSummaries(100, 0);
-            }
-            else {
-                return getAnnotationSummaryService().getAnnotationSummaries(limit, 0);
-            }
-        }
-        else {
-            if (limit == null) {
-                return getAnnotationSummaryService().getAnnotationSummaries(100, start);
-            }
-            else {
-                return getAnnotationSummaryService().getAnnotationSummaries(limit, start);
+            @RequestParam(value = "start", required = false) Integer start,
+            @RequestParam(value = "query", required = false) String query) {
+        if(query!=null){
+            return getAnnotationSummarySearchService().search(query);
+
+        }else {
+            if (start == null) {
+                if (limit == null) {
+                    return getAnnotationSummaryService().getAnnotationSummaries(100, 0);
+                } else {
+                    return getAnnotationSummaryService().getAnnotationSummaries(limit, 0);
+                }
+            } else {
+                if (limit == null) {
+                    return getAnnotationSummaryService().getAnnotationSummaries(100, start);
+                } else {
+                    return getAnnotationSummaryService().getAnnotationSummaries(limit, start);
+                }
             }
         }
     }
+
+
 
     public Collection<AnnotationSummary> queryBySemanticTags(String... semanticTagShortnames) {
         return getAnnotationSummarySearchService().searchBySemanticTags(semanticTagShortnames);
