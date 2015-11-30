@@ -186,6 +186,8 @@
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;
+    &lt;/script&gt;
     &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;
     &lt;/script&gt;
 &lt;/head&gt;
@@ -213,6 +215,8 @@
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;
+    &lt;/script&gt;
     &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;
     &lt;/script&gt;
 &lt;/head&gt;
@@ -246,6 +250,8 @@
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;
+    &lt;/script&gt;
     &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;
     &lt;/script&gt;
 &lt;/head&gt;
@@ -332,18 +338,17 @@
 <script type="text/javascript" src="../webjars/zooma-js/2.0.0/zooma.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-        var zooma_url = "http://snarf.ebi.ac.uk:8580/spot/zooma/";
         // first demo
-        $('#zooma-search-div').zooma({'zooma_url' : zooma_url, 'logging': 'console'});
+        $('#zooma-search-div').zooma({'zooma_url' : '../', 'logging': 'console'});
 
         // second demo
-        $('#zooma-search-input').zooma({'zooma_url' : zooma_url, 'logging': 'console'});
+        $('#zooma-search-input').zooma({'zooma_url' : '../', 'logging': 'console'});
 
         // third demo
-        $('#zooma-separated-search').zooma('autocomplete', {'zooma_url' : zooma_url, 'logging': 'console'});
+        $('#zooma-separated-search').zooma('autocomplete', {'zooma_url' : '../', 'logging': 'console'});
         $('#zooma-separated-suggestions').zooma('annotate',
                 {
-                    'zooma_url': zooma_url, 
+                    'zooma_url': '../', 
                     'logging': 'console',
                     'annotation_source': $('#zooma-separated-search')
                 });
