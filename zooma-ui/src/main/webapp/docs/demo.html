@@ -166,11 +166,13 @@
         <section class="grid_18 alpha">
             <h3>Zooma jQuery Plugin</h3>
 
-            <p>Zooma is available as a jQuery plugin:
-                <a href="../webjars/zooma-js/2.0.0/zooma.min.js">zooma.min.js</a>.</p>
+            <!-- <p>Zooma is available as a jQuery plugin:
+                <a href="../webjars/zooma-js/2.0.0/zooma.min.js">zooma.min.js</a>.</p> -->
 
-            <p>Simply include this in your HTML to enable Zooma-enhanced searches and tagging. Some examples on
-               how to include the Zooma plugin in your web applications are shown below</p>
+            <!-- <p>Simply include this in your HTML to enable Zooma-enhanced searches and tagging. Some examples on
+               how to include the Zooma plugin in your web applications are shown below</p> -->
+            <p>In this page you can find some examples of the Zooma plugin. At the <a href="#download_section">end of the page</a> you will find
+            the link to the files</p>
 
             <h4>Examples:</h4>
 
@@ -186,10 +188,10 @@
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
-    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;
-    &lt;/script&gt;
-    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;
-    &lt;/script&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.css&quot;&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.css&quot;&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;&lt;/script&gt;
 &lt;/head&gt;
 &lt;body onload="$('#zooma-search').zooma();"&gt;
     &lt;div id="zooma-search" style="width: 500px;" /&gt;
@@ -215,10 +217,10 @@
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
-    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;
-    &lt;/script&gt;
-    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;
-    &lt;/script&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.css&quot;&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.css&quot;&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;&lt;/script&gt;
 &lt;/head&gt;
 &lt;body onload="$('#zooma-search').zooma();"&gt;
     &lt;label for="zooma_search"&gt;Enter your term:&lt;/label&gt;
@@ -250,10 +252,10 @@
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
-    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;
-    &lt;/script&gt;
-    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;
-    &lt;/script&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.css&quot;&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.css&quot;&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;&lt;/script&gt;
 &lt;/head&gt;
 &lt;body onload="$('#zooma-separated-search').zooma('autocomplete'); $('#zooma-separated-suggestions').zooma('annotate', {'annotation_source': $('#zooma-separated-search')};);"&gt;
     &lt;label for="zooma_search"&gt;Enter your term:&lt;/label&gt;
@@ -264,6 +266,19 @@
 &lt;/body&gt;
 &lt;/html&gt;
                 </div>
+            </div>
+
+            <div id="#download_section">
+            <h5>Zooma files</h5>
+            <p>Here you can find the list of files (minimized) that you can use in order to obtain the same look and feel you found in this demo page</p>
+            <p>
+                <ul>
+                    <li><b>Vendor Stylesheet</b> - <a href="../webjars/zooma-js/2.0.0/vendor.min.css">vendor.min.css</a></li>
+                    <li><b>Vendor Javascript</b> - <a href="../webjars/zooma-js/2.0.0/vendor.min.js">vendor.min.js</a></li>
+                    <li><b>Zooma Stylesheet</b> - <a href="../webjars/zooma-js/2.0.0/zooma.min.css">zooma.min.js</a></li>
+                    <li><b>Zooma Javascript</b> - <a href="../webjars/zooma-js/2.0.0/zooma.min.js">zooma.min.js</a></li>
+                </ul>
+            </p>    
             </div>
         </section>
 
