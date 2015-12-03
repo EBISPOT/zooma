@@ -18,17 +18,12 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationPredictionTemplate;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.util.AnnotationPredictionBuilder;
+import uk.ac.ebi.fgpt.zooma.util.ScoreBasedSorter;
+import uk.ac.ebi.fgpt.zooma.util.Sorter;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -308,6 +303,7 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
                                                final String propertyType,
                                                final List<URI> preferredSources,
                                                final URI... requiredSources) {
+
         Future<List<AnnotationPrediction>> f = executorService.submit(
                 new Callable<List<AnnotationPrediction>>() {
                     @Override
@@ -316,7 +312,10 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
                                                                                                          propertyType,
                                                                                                          preferredSources,
                                                                                                          requiredSources);
-                        return createPredictions(propertyValue, propertyType, summaries);
+
+                        List<AnnotationPrediction> predictions = createPredictions(propertyValue, propertyType, summaries);
+
+                        return predictions;
                     }
                 }
         );
@@ -364,15 +363,23 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
 
         // now use client to test and filter them
         if (!summaries.isEmpty()) {
+
+            getLog().error("\n\n\n");
+
             // get well scored annotation summaries
-            Set<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(summaries,
-                                                                                        cutoffPercentage);
+            List<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(summaries,
+                    cutoffPercentage);
 
             // for each good summary, extract an example annotation
             boolean achievedScore = false;
             List<Annotation> goodAnnotations = new ArrayList<>();
 
             for (AnnotationSummary goodSummary : goodSummaries) {
+                getLog().error("\n\n!!!!!!!!! summaries.get(goodSummary) !!!!!!!!" + summaries.get(goodSummary));
+                getLog().error("goodSummary.getQuality() = " + goodSummary.getQuality());
+                getLog().error("goodSummary.getAnnotatedPropertyValue() = " + goodSummary.getAnnotatedPropertyValue());
+
+
                 if (!achievedScore && summaries.get(goodSummary) > cutoffScore) {
                     achievedScore = true;
                 }
@@ -382,14 +389,12 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
                     Annotation goodAnnotation = zoomaAnnotations.getAnnotationService().getAnnotation(annotationURI);
                     if (goodAnnotation != null) {
                         goodAnnotations.add(goodAnnotation);
-                    }
-                    else {
+                    } else {
                         throw new SearchException(
                                 "An annotation summary referenced an annotation that " +
                                         "could not be found - ZOOMA's indexes may be out of date");
                     }
-                }
-                else {
+                } else {
                     String message = "An annotation summary with no associated annotations was found - " +
                             "this is probably an error in inferring a new summary from lexical matches";
                     getLog().warn(message);
@@ -419,6 +424,8 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
                     }
                 }
             }
+
+
 
             // ... code to create new annotation predictions goes here
             for (Annotation annotation : goodAnnotations) {
