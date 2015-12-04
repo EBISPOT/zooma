@@ -375,10 +375,6 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
             List<Annotation> goodAnnotations = new ArrayList<>();
 
             for (AnnotationSummary goodSummary : goodSummaries) {
-                getLog().error("\n\n!!!!!!!!! summaries.get(goodSummary) !!!!!!!!" + summaries.get(goodSummary));
-                getLog().error("goodSummary.getQuality() = " + goodSummary.getQuality());
-                getLog().error("goodSummary.getAnnotatedPropertyValue() = " + goodSummary.getAnnotatedPropertyValue());
-
 
                 if (!achievedScore && summaries.get(goodSummary) > cutoffScore) {
                     achievedScore = true;
