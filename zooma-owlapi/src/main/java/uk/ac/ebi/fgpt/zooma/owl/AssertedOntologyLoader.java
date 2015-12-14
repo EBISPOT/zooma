@@ -1,19 +1,16 @@
 package uk.ac.ebi.fgpt.zooma.owl;
 
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLAnnotationProperty;
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLClassExpression;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import com.google.common.base.Optional;
+import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.reasoner.NodeSet;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
+import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Loads an ontology using the OWLAPI, and considers only axioms that are asserted in the loaded ontology when
@@ -30,10 +27,10 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
 
         getLog().debug("Loading ontology...");
         OWLOntology ontology = getManager().loadOntology(IRI.create(getOntologyURI()));
-        IRI ontologyIRI = ontology.getOntologyID().getOntologyIRI();
+        Optional<IRI> ontologyIRI = ontology.getOntologyID().getOntologyIRI();
         setOntologyIRI(ontologyIRI);
         if (getOntologyName() == null) {
-            String name = URIUtils.getShortform(ontologyIRI.toURI());
+            String name = URIUtils.getShortform(ontologyIRI.get().toURI());
             if (name == null) {
                 getLog().warn("Can't generate a short form for " + ontologyIRI.toString() +
                                       " - you should register this namespace in zooma/prefix.properties " +
@@ -44,13 +41,27 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
             }
         }
         getLog().debug("Successfully loaded ontology " + ontologyIRI);
-        Set<OWLClass> allClasses = ontology.getClassesInSignature(false);
+//      Before :  Set<OWLClass> allClasses = ontology.getClassesInSignature(false);
+//      Now :
+        Set<OWLClass> allClasses = ontology.getClassesInSignature();
+
         Set<URI> allObservedNamespaces = new HashSet<>();
+
+
 
         // remove excluded classes from allClasses by subclass
         if (getExclusionClassURI() != null) {
             OWLClass excludeClass = getFactory().getOWLClass(IRI.create(getExclusionClassURI()));
-            for (OWLClassExpression subClassExpression : excludeClass.getSubClasses(ontology)) {
+
+            // Before : for (OWLClassExpression subClassExpression : excludeClass.getSubClasses(ontology)) {
+            //Now :
+            Set<OWLSubClassOfAxiom> subclassAxioms = ontology.getSubClassAxiomsForSuperClass(excludeClass);
+            Collection<OWLClassExpression> subClasses = new ArrayList<>();
+            for(OWLSubClassOfAxiom subClassAxiom : subclassAxioms){
+                subClasses.add(subClassAxiom.getSubClass());
+            }
+
+            for (OWLClassExpression subClassExpression :subClasses) {
                 OWLClass subclass = subClassExpression.asOWLClass();
                 allClasses.remove(subclass);
             }
@@ -58,12 +69,12 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
 
         // remove excluded classes from allClasses by annotation property
         if (getExclusionAnnotationURI() != null) {
-            OWLAnnotationProperty excludeAnnotation =
-                    getFactory().getOWLAnnotationProperty(IRI.create(getExclusionAnnotationURI()));
+            OWLAnnotationProperty excludeAnnotation = getFactory().getOWLAnnotationProperty(IRI.create(getExclusionAnnotationURI()));
             Iterator<OWLClass> allClassesIt = allClasses.iterator();
             while (allClassesIt.hasNext()) {
                 OWLClass owlClass = allClassesIt.next();
-                if (!owlClass.getAnnotations(ontology, excludeAnnotation).isEmpty()) {
+//                if (!owlClass.getAnnotations(ontology, excludeAnnotation).isEmpty()) {
+                if (! ontology.getAnnotationAssertionAxioms(owlClass.getIRI()).isEmpty()) {
                     allClassesIt.remove();
                 }
             }
@@ -116,9 +127,30 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
                 }
             }
 
-            // get types
+//            // get types
+//            Set<String> ontologyTypeLabelSet = new HashSet<>();
+//
+//            Set<OWLSubClassOfAxiom> subClassAxioms = ontology.getSubClassAxiomsForSuperClass(ontologyClass);
+//            Set<OWLClassExpression> superClasses = new HashSet<>();
+//            for(OWLSubClassOfAxiom subClassAxiom : subClassAxioms){
+//                superClasses.add(subClassAxiom.getSuperClass());
+//
+//            }
+
+
+
+            //Before :  for (OWLClassExpression parentClassExpression : ontologyClass.getSuperClasses(ontology)) {
+            //Now :
+            Set<OWLSubClassOfAxiom> subClassAxioms = ontology.getSubClassAxiomsForSuperClass(ontologyClass);
+            Set<OWLClassExpression> superClasses = new HashSet<>();
+            for(OWLSubClassOfAxiom subClassAxiom : subClassAxioms){
+                superClasses.add(subClassAxiom.getSuperClass());
+
+            }
             Set<String> ontologyTypeLabelSet = new HashSet<>();
-            for (OWLClassExpression parentClassExpression : ontologyClass.getSuperClasses(ontology)) {
+
+            for (OWLClassExpression parentClassExpression : superClasses) {
+            // end now
                 if (!parentClassExpression.isAnonymous()) {
                     OWLClass parentClass = parentClassExpression.asOWLClass();
                     getLog().trace("Next parent of " + label + ": " + parentClass);
@@ -162,9 +194,11 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
                                "from " + ontologyIRI.toString() + ". Those namespaces are...\n" + sb.toString());
 
         getLog().debug("Successfully loaded " + labelCount + " labels on " + labelledClassCount + " classes and " +
-                               synonymCount + " synonyms on " + synonymedClassCount + " classes " +
-                               "from " + ontologyIRI.toString() + ".");
+                synonymCount + " synonyms on " + synonymedClassCount + " classes " +
+                "from " + ontologyIRI.toString() + ".");
 
         return ontology;
     }
+
+
 }

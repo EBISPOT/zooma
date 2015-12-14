@@ -1,11 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.owl;
 
 import org.semanticweb.HermiT.Reasoner;
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLAnnotationProperty;
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.ConsoleProgressMonitor;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerConfiguration;
@@ -15,6 +11,8 @@ import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import org.slf4j.Logger;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
+import com.google.common.base.Optional;
+
 
 import java.net.URI;
 import java.util.Collection;
@@ -33,7 +31,7 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
     protected OWLOntology loadOntology() throws OWLOntologyCreationException {
         getLog().debug("Loading ontology...");
         OWLOntology ontology = getManager().loadOntology(IRI.create(getOntologyURI()));
-        IRI ontologyIRI = ontology.getOntologyID().getOntologyIRI();
+        Optional<IRI> ontologyIRI = ontology.getOntologyID().getOntologyIRI();
         setOntologyIRI(ontologyIRI);
         getLog().debug("Successfully loaded ontology " + ontologyIRI);
 
@@ -77,7 +75,21 @@ public class ReasonedOntologyLoader extends AbstractOntologyLoader {
             Iterator<OWLClass> allClassesIt = allClasses.iterator();
             while (allClassesIt.hasNext()) {
                 OWLClass owlClass = allClassesIt.next();
-                if (!owlClass.getAnnotations(ontology, excludeAnnotation).isEmpty()) {
+
+//              Before :  if (!owlClass.getAnnotations(ontology, excludeAnnotation).isEmpty()) {
+//              Now :
+                Set<OWLAnnotationAssertionAxiom> annotationAssertionAxioms = ontology.getAnnotationAssertionAxioms(owlClass.getIRI());
+
+                Set<OWLAnnotation> annotations = new HashSet<>();
+                for(OWLAnnotationAssertionAxiom annotationAssertionAxiom : annotationAssertionAxioms){
+                    OWLAnnotation  annotation = annotationAssertionAxiom.getAnnotation();
+                    if(excludeAnnotation.equals(annotation.getProperty())) {
+                        annotations.add(annotationAssertionAxiom.getAnnotation());
+                    }
+                }
+
+                if (!annotations.isEmpty()) {
+                //end now
                     allClassesIt.remove();
                 }
             }

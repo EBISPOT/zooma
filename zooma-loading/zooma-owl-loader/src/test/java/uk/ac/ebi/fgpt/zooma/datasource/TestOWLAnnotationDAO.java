@@ -51,7 +51,9 @@ public class TestOWLAnnotationDAO {
             annotationFactory = mock(AnnotationFactory.class);
             annotationDAO = new OWLAnnotationDAO(annotationFactory, owlLoader, "test");
         }
-        catch (URISyntaxException | OWLOntologyCreationException e) {
+//Before :        catch (URISyntaxException | OWLOntologyCreationException e) {
+//now :
+        catch (OWLOntologyCreationException e) {
             e.printStackTrace();
             fail();
         }

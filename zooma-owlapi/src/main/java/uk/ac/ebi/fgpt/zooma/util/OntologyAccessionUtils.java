@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
@@ -127,4 +128,9 @@ public class OntologyAccessionUtils {
             return uri.getPath().substring(uri.getPath().lastIndexOf('/') + 1);
         }
     }
+
+    public static void main(String[] args) throws IOException {
+        OntologyAccessionUtils.loadOntology(new URL("http://compbio.charite.de/hudson/job/hpo/lastStableBuild/artifact/hp/hp.owl"));
+    }
+
 }

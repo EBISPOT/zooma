@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.zooma;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.env.ZoomaEnv;
 import uk.ac.ebi.fgpt.zooma.env.ZoomaHome;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
@@ -17,6 +18,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -27,6 +29,8 @@ import java.util.Date;
  */
 public class ZOOMA2LoaderDriver {
     public static void main(String[] args) {
+
+        System.out.println("Youuuuuuuhooooooooooo");
         if (args.length > 0) {
             System.err.println("This application does not take any arguments; configuration can be updated in " +
                                        "$ZOOMA_HOME/config/zooma.properties");
@@ -114,6 +118,13 @@ public class ZOOMA2LoaderDriver {
                 "classpath*:zooma-annotation-dao.xml");
         DataLoadingService loader = ctx.getBean("dataLoadingService", DataLoadingService.class);
         getLog().debug("Found and loaded " + loader.getAvailableDatasources().size() + " AnnotationDAOs");
+        System.out.println("Found and loaded " + loader.getAvailableDatasources().size() + " AnnotationDAOs");
+
+        Collection<ZoomaDAO> zoomaDAOs =  loader.getAvailableDatasources();
+        for(ZoomaDAO zoomaDAO : zoomaDAOs ){
+            System.out.println("zoomaDAO.getDatasourceName() = " + zoomaDAO.getDatasourceName());
+        }
+
 
         // create a thread to print to standard out while invoker is running
         final Thread t = new Thread(new Runnable() {
@@ -149,7 +160,12 @@ public class ZOOMA2LoaderDriver {
             t.start();
             getLog().info("Loading annotations from available sources and converting to RDF");
             DataLoadingService.Receipt receipt = loader.load();
+
             getLog().debug("Received receipt '" + receipt.getID() + "' " +
+                    "(datasource \"" + receipt.getDatasourceName() + "\")");
+
+            System.out.println("BOnjour");
+            System.out.println("Received receipt '" + receipt.getID() + "' " +
                                    "(datasource \"" + receipt.getDatasourceName() + "\")");
             while (true) {
                 try {

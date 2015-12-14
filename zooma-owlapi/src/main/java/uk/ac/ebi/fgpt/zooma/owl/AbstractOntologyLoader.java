@@ -1,25 +1,15 @@
 package uk.ac.ebi.fgpt.zooma.owl;
 
+import com.google.common.base.Optional;
+import org.openrdf.model.vocabulary.OWL;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLAnnotation;
-import org.semanticweb.owlapi.model.OWLAnnotationProperty;
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLDataFactory;
-import org.semanticweb.owlapi.model.OWLLiteral;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.SimpleIRIMapper;
 import org.springframework.core.io.Resource;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An abstract implementation of an ontology loader.  Implementations should extend this class with the {@link
@@ -41,7 +31,7 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
 
     private OWLOntologyManager manager;
     private OWLDataFactory factory;
-    private IRI ontologyIRI;
+    private com.google.common.base.Optional<IRI> ontologyIRI;
     private OWLOntology ontology;
 
     private Map<IRI, String> ontologyLabels;
@@ -210,7 +200,7 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
     @Override public IRI getOntologyIRI() {
         try {
             initOrWait();
-            return ontologyIRI;
+            return ontologyIRI.get();
         }
         catch (InterruptedException e) {
             throw new IllegalStateException(getClass().getSimpleName() + " failed to initialize", e);
@@ -285,7 +275,19 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
                                                            OWLClass ontologyClass,
                                                            OWLAnnotationProperty annotationProperty) {
         Set<String> vals = new HashSet<>();
-        for (OWLAnnotation annotation : ontologyClass.getAnnotations(ontology, annotationProperty)) {
+
+        // Before :         for (OWLAnnotation annotation : ontologyClass.getAnnotations(ontology, annotationProperty)) {
+        // Now :
+        Set<OWLAnnotationAssertionAxiom> annotationAssertionAxioms = ontology.getAnnotationAssertionAxioms(ontologyClass.getIRI());
+        Set<OWLAnnotation> annotations = new HashSet<>();
+        for(OWLAnnotationAssertionAxiom annotationAssertionAxiom : annotationAssertionAxioms){
+            OWLAnnotation  annotation = annotationAssertionAxiom.getAnnotation();
+            if(annotationProperty.equals(annotation.getProperty())) {
+                annotations.add(annotationAssertionAxiom.getAnnotation());
+            }
+        }
+        // end now
+        for (OWLAnnotation annotation : annotations) {
             if (annotation.getValue() instanceof OWLLiteral) {
                 OWLLiteral val = (OWLLiteral) annotation.getValue();
                 vals.add(val.getLiteral());
@@ -294,7 +296,7 @@ public abstract class AbstractOntologyLoader extends Initializable implements On
         return vals;
     }
 
-    protected void setOntologyIRI(IRI ontologyIRI) {
+    protected void setOntologyIRI(Optional<IRI> ontologyIRI) {
         this.ontologyIRI = ontologyIRI;
     }
 
