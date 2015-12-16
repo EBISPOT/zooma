@@ -540,7 +540,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
         }
 
         @Override public void waitUntilCompletion() throws InterruptedException {
-            throw new RuntimeException(throwable);
+            throw new RuntimeException("A " + getDatasourceName() + " loading task failed", throwable);
         }
     }
 
@@ -555,7 +555,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
 
         @Override public void waitUntilCompletion() throws InterruptedException {
             scheduler.waitUntilComplete();
-            getLog().debug("Single workload is complete, completed receipt ID = " + getID());
+            getLog().debug("Single " + getDatasourceName() + " workload is complete, completed receipt ID = " + getID());
         }
     }
 
