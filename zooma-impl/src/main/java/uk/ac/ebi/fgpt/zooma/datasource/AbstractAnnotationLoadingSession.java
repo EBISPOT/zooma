@@ -16,7 +16,6 @@ import uk.ac.ebi.fgpt.zooma.model.SimpleUntypedProperty;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
 import uk.ac.ebi.fgpt.zooma.util.TransientCacheable;
-import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -263,7 +262,7 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
             }
             if (biologicalEntity.getTypes() != null) {
                 for (URI type : biologicalEntity.getTypes()) {
-                    idContents.add(URIUtils.getShortform(type, URIUtils.ShortformStrictness.ALLOW_SLASHES_AND_HASHES));
+                    idContents.add(type.toString());
                 }
             }
         }
@@ -272,7 +271,7 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
         }
         idContents.add(property.getPropertyValue());
         for (URI semanticTag : semanticTags) {
-            idContents.add(URIUtils.getShortform(semanticTag, URIUtils.ShortformStrictness.ALLOW_SLASHES_AND_HASHES));
+            idContents.add(semanticTag.toString());
         }
         idContents.add(annotationProvenance.getAnnotator() != null ? annotationProvenance.getAnnotator() : "");
         idContents.add(
