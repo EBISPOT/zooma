@@ -4,16 +4,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import uk.ac.ebi.fgpt.zooma.env.ZoomaEnv;
 import uk.ac.ebi.fgpt.zooma.env.ZoomaHome;
 import uk.ac.ebi.fgpt.zooma.service.StatusService;
+import uk.ac.ebi.fgpt.zooma.util.ProgressLogger;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -24,7 +20,7 @@ import java.util.Date;
  * @author Tony Burdett
  * @date 28/02/13
  */
-public class ZOOMA2LuceneIndexDriver {
+public class ZOOMA2LuceneIndexDriver extends ZOOMA2BackingUpDriver {
     public static void main(String[] args) {
         if (args.length > 0) {
             System.err.println("This application does not take any arguments; configuration can be updated in " +
@@ -32,26 +28,21 @@ public class ZOOMA2LuceneIndexDriver {
         }
         else {
             try {
-                ZOOMA2LuceneIndexDriver driver = new ZOOMA2LuceneIndexDriver();
+                final ZOOMA2LuceneIndexDriver driver = new ZOOMA2LuceneIndexDriver();
                 driver.createOutputDirectory();
 
-                // trigger index building
-                String preamble = "Building ZOOMA indices...";
-                System.out.print(preamble);
+                ProgressLogger progress = new ProgressLogger(System.out, "Building ZOOMA indices...", 15) {
+                    @Override public boolean test() {
+                        return !driver.isComplete();
+                    }
+                };
+
+                progress.start();
                 driver.generateIndices();
 
-                // test for completion
-                int chars = preamble.length();
-                final Object lock = new Object();
+                Object lock = new Object();
                 while (!driver.isComplete()) {
                     synchronized (lock) {
-                        chars++;
-                        if (chars % 40 == 0) {
-                            System.out.println(".");
-                        }
-                        else {
-                            System.out.print(".");
-                        }
                         try {
                             lock.wait(15000);
                         }
@@ -60,7 +51,7 @@ public class ZOOMA2LuceneIndexDriver {
                         }
                     }
                 }
-                System.out.println("ok!");
+                progress.ping();
                 System.out.println("ZOOMA indices completed successfully.");
             }
             catch (IOException e) {
@@ -93,35 +84,7 @@ public class ZOOMA2LuceneIndexDriver {
             Path oldZoomaHome = luceneHome.toPath();
             Path newZoomaHome = backupFile.toPath();
 
-            if (!Files.exists(newZoomaHome)) {
-                System.out.print(
-                        "Backing up " + oldZoomaHome.toString() + " to " + newZoomaHome.toString() + "...");
-                Files.move(oldZoomaHome,
-                           newZoomaHome,
-                           StandardCopyOption.REPLACE_EXISTING,
-                           StandardCopyOption.ATOMIC_MOVE);
-                System.out.println("ok!");
-            }
-            else {
-                System.out.print(
-                        "Backup already exists for today, clearing " + oldZoomaHome.toString() + "...");
-                Files.walkFileTree(oldZoomaHome, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                            throws IOException {
-                        Files.delete(file);
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir, IOException exc)
-                            throws IOException {
-                        Files.delete(dir);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
-                System.out.println("ok!");
-            }
+            backupFiles(oldZoomaHome, newZoomaHome, System.out);
             System.out.println("ZOOMA lucene indices will now be created afresh in " +
                                        luceneHome.getAbsolutePath());
         }

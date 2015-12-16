@@ -7,15 +7,11 @@ import uk.ac.ebi.fgpt.zooma.env.ZoomaEnv;
 import uk.ac.ebi.fgpt.zooma.env.ZoomaHome;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
 import uk.ac.ebi.fgpt.zooma.service.DataLoadingService;
+import uk.ac.ebi.fgpt.zooma.util.ProgressLogger;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -25,7 +21,7 @@ import java.util.Date;
  * @author Tony Burdett
  * @date 16/10/12
  */
-public class ZOOMA2LoaderDriver {
+public class ZOOMA2LoaderDriver extends ZOOMA2BackingUpDriver {
     public static void main(String[] args) {
         if (args.length > 0) {
             System.err.println("This application does not take any arguments; configuration can be updated in " +
@@ -45,7 +41,6 @@ public class ZOOMA2LoaderDriver {
         }
     }
 
-    private final Object lock = new Object();
     private boolean invokerRunning;
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -72,33 +67,7 @@ public class ZOOMA2LoaderDriver {
             Path oldRDFHome = rdfHome.toPath();
             Path newRDFHome = backupFile.toPath();
 
-            if (!Files.exists(newRDFHome)) {
-                System.out.print(
-                        "Backing up " + oldRDFHome.toString() + " to " + newRDFHome.toString() + "...");
-                Files.move(oldRDFHome,
-                           newRDFHome,
-                           StandardCopyOption.REPLACE_EXISTING,
-                           StandardCopyOption.ATOMIC_MOVE);
-                System.out.println("ok!");
-            }
-            else {
-                System.out.print(
-                        "Backup already exists for today, clearing " + oldRDFHome.toString() + "...");
-                Files.walkFileTree(oldRDFHome, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        Files.delete(file);
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                        Files.delete(dir);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
-                System.out.println("ok!");
-            }
+            backupFiles(oldRDFHome, newRDFHome, System.out);
             System.out.println("RDF files will now be created afresh in " + rdfHome.getAbsolutePath());
         }
         else {
@@ -114,39 +83,15 @@ public class ZOOMA2LoaderDriver {
                 "classpath*:zooma-annotation-dao.xml");
         DataLoadingService loader = ctx.getBean("dataLoadingService", DataLoadingService.class);
         getLog().debug("Found and loaded " + loader.getAvailableDatasources().size() + " AnnotationDAOs");
-
-        // create a thread to print to standard out while invoker is running
-        final Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String preamble = "Loading annotations...";
-                System.out.print(preamble);
-                int chars = preamble.length();
-
-                while (invokerRunning) {
-                    synchronized (lock) {
-                        chars++;
-                        if (chars % 40 == 0) {
-                            System.out.println(".");
-                        }
-                        else {
-                            System.out.print(".");
-                        }
-                        try {
-                            lock.wait(15000);
-                        }
-                        catch (InterruptedException e) {
-                            // do nothing
-                        }
-                    }
-                }
-                System.out.println("ok!");
+        ProgressLogger progress = new ProgressLogger(System.out, "Loading annotations...", 15) {
+            @Override public boolean test() {
+                return invokerRunning;
             }
-        });
+        };
 
         try {
             invokerRunning = true;
-            t.start();
+            progress.start();
             getLog().info("Loading annotations from available sources and converting to RDF");
             DataLoadingService.Receipt receipt = loader.load();
             getLog().debug("Received receipt '" + receipt.getID() + "' " +
@@ -172,9 +117,7 @@ public class ZOOMA2LoaderDriver {
         finally {
             getLog().info("Annotation loading from all available annotation sources is complete");
             invokerRunning = false;
-            synchronized (lock) {
-                lock.notifyAll();
-            }
+            progress.ping();
             getLog().info("Shutting down " + getClass().getSimpleName() + "...");
             ctx.destroy();
             getLog().info("Shut down " + getClass().getSimpleName() + " OK.");
