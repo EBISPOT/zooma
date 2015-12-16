@@ -59,15 +59,7 @@ public class ZOOMA2LoaderDriver extends ZOOMA2BackingUpDriver {
         File rdfHome = new File(System.getProperty("zooma.data.dir"), "rdf");
         if (rdfHome.exists()) {
             System.out.println("RDF directory already exists at " + rdfHome.getAbsolutePath());
-            // backup old RDF directory
-            String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-            String backupFileName = rdfHome.getName().concat(".backup.").concat(dateStr);
-            File backupFile = new File(rdfHome.getAbsoluteFile().getParentFile(), backupFileName);
-
-            Path oldRDFHome = rdfHome.toPath();
-            Path newRDFHome = backupFile.toPath();
-
-            backupFiles(oldRDFHome, newRDFHome, System.out);
+            makeBackup(rdfHome, System.out);
             System.out.println("RDF files will now be created afresh in " + rdfHome.getAbsolutePath());
         }
         else {
