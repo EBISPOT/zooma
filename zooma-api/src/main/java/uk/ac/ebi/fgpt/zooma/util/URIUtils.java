@@ -76,15 +76,29 @@ public class URIUtils {
         getLog().debug("Attempting to load prefix mappings from properties files...");
         prefixMappings.clear();
         try {
-            File prefixPropertyFile = FileSystems.getDefault()
-                    .getPath(System.getProperty("zooma.home"), "config", "naming", "prefix.properties")
-                    .toFile();
-            Properties prefixProperties = new Properties();
-            prefixProperties.load(new FileInputStream(prefixPropertyFile));
-            for (String prefix : prefixProperties.stringPropertyNames()) {
-                String namespace = prefixProperties.getProperty(prefix);
-                getLog().debug("Next prefix mapping: " + prefix + " = " + namespace);
-                prefixMappings.put(prefix, namespace);
+            String zooma_home = System.getProperty("zooma.home");
+            if (zooma_home != null) {
+                File prefixPropertyFile = FileSystems.getDefault()
+                        .getPath(zooma_home, "config", "naming", "prefix.properties")
+                        .toFile();
+                if (prefixPropertyFile.exists()) {
+                    Properties prefixProperties = new Properties();
+                    prefixProperties.load(new FileInputStream(prefixPropertyFile));
+                    for (String prefix : prefixProperties.stringPropertyNames()) {
+                        String namespace = prefixProperties.getProperty(prefix);
+                        getLog().debug("Next prefix mapping: " + prefix + " = " + namespace);
+                        prefixMappings.put(prefix, namespace);
+                    }
+                }
+                else {
+                    getLog().warn("Could not locate prefix mappings (no prefix.properties file " +
+                                          "at " + prefixPropertyFile.getAbsolutePath() + "); " +
+                                          "prefix mappings will be empty");
+                }
+            }
+            else {
+                getLog().warn("Could not locate prefix mappings (no ZOOMA home directory set); " +
+                                      "prefix mappings will be empty");
             }
         }
         catch (IOException e) {
