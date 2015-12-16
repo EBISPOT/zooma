@@ -89,13 +89,13 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 			List<DiscoveredTerm> result = new ArrayList<> ();
 			for ( AnnotationSummary zsum: zresult.keySet () )
 			{
-				float score = zsum.getQualityScore ();
+				double score = zsum.getQualityScore ();
 				
 				Collection<URI> semTags = zsum.getSemanticTags (); 
 				if ( semTags == null ) continue;
 				
 				for ( URI uri: semTags )
-					result.add ( new DiscoveredTerm ( uri.toASCIIString (), score ) );
+					result.add ( new DiscoveredTerm ( uri.toASCIIString (), score, null, "ZOOMA" ) );
 			}
 
 			// ZOOMA uses a SortedMap internally and returns results in score descending order
