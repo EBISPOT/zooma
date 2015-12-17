@@ -363,9 +363,6 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
 
         // now use client to test and filter them
         if (!summaries.isEmpty()) {
-
-            getLog().error("\n\n\n");
-
             // get well scored annotation summaries
             List<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(summaries,
                     cutoffPercentage);
@@ -421,8 +418,6 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
                 }
             }
 
-
-
             // ... code to create new annotation predictions goes here
             for (Annotation annotation : goodAnnotations) {
                 AnnotationPredictionTemplate pt = AnnotationPredictionBuilder.predictFromAnnotation(annotation);
@@ -436,7 +431,6 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
                 predictions.add(pt.build());
             }
         }
-
         return predictions;
     }
 
