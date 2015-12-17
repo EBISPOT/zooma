@@ -618,6 +618,11 @@ function renderResults(data) {
                             "<img src='images/uniprot_logo.gif' " +
                             "alt='UniProt' style='height: 20px;'/> UniProt</a></td>";
                 }
+                else if (result[7] == "http://purl.obolibrary.org/obo/mp.owl") {
+                    row = row + "<td><a href='http://www.informatics.jax.org/searches/MP_form.shtml' target='_blank'>" +
+                            "<img src='images/mpi_logo.gif' " +
+                            "alt='MP' style='height: 20px;'/> MP</a></td>";
+                }
                 else {
                     row = row + "<td>" + result[7] + "</td>";
                 }
