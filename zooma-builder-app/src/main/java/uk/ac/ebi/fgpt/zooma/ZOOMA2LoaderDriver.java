@@ -111,7 +111,7 @@ public class ZOOMA2LoaderDriver extends ZOOMA2BackingUpDriver {
                 throw (ZoomaLoadingException) e.getCause();
             }
             else {
-                throw new ZoomaLoadingException("A load task failed", e);
+                throw new ZoomaLoadingException(e);
             }
         }
         finally {
