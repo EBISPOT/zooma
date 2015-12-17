@@ -76,15 +76,7 @@ public class ZOOMA2LuceneIndexDriver extends ZOOMA2BackingUpDriver {
         luceneHome = FileSystems.getDefault().getPath(System.getProperty("zooma.data.dir"), "index", "lucene").toFile();
         if (luceneHome.exists()) {
             System.out.println("ZOOMA lucene indices already exist in " + luceneHome.getAbsolutePath());
-            // backup old index
-            String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-            String backupFileName = luceneHome.getName().concat(".backup.").concat(dateStr);
-            File backupFile = new File(luceneHome.getAbsoluteFile().getParentFile(), backupFileName);
-
-            Path oldZoomaHome = luceneHome.toPath();
-            Path newZoomaHome = backupFile.toPath();
-
-            backupFiles(oldZoomaHome, newZoomaHome, System.out);
+            makeBackup(luceneHome, System.out);
             System.out.println("ZOOMA lucene indices will now be created afresh in " +
                                        luceneHome.getAbsolutePath());
         }
