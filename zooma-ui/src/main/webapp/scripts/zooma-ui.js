@@ -620,7 +620,7 @@ function renderResults(data) {
                 }
                 else if (result[7] == "http://purl.obolibrary.org/obo/mp.owl") {
                     row = row + "<td><a href='http://www.informatics.jax.org/searches/MP_form.shtml' target='_blank'>" +
-                            "<img src='images/mpi_logo.gif' " +
+                            "<img src='images/mgi_logo.gif' " +
                             "alt='MP' style='height: 20px;'/> MP</a></td>";
                 }
                 else {
