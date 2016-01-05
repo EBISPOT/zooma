@@ -62,7 +62,7 @@ public abstract class ProgressLogger {
                         }
                     }
                 }
-                System.out.println("ok!");
+                out.println("ok!");
             }
         });
         t.start();

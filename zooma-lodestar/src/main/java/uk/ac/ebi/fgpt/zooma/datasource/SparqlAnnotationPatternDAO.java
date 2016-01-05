@@ -106,7 +106,6 @@ public class SparqlAnnotationPatternDAO implements AnnotationPatternDAO {
         // no filter
         String filter = "FILTER (str(?" + QueryVariables.PROPERTY_VALUE_ID.toString() + ") = '" + property.getURI() + "')";
         query = query.replace("filter", filter);
-//        System.out.println(query);
         QueryExecution execute = null;
         try {
             execute = getQueryService().getQueryExecution(g, query, new QuerySolutionMap(), false);

@@ -160,7 +160,6 @@ public class SparqlAnnotationSourceDAO implements AnnotationSourceDAO {
         String filter = " FILTER regex ( ?" + QueryVariables.SOURCENAME.toString() + ", \"" + sourceName + "\", \"i\")";
         query = query.replace("filter", filter);
 
-        System.out.println(query);
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
 
