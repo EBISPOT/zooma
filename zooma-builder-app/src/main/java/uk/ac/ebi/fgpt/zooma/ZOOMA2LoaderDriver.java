@@ -164,7 +164,6 @@ public class ZOOMA2LoaderDriver {
             getLog().debug("Received receipt '" + receipt.getID() + "' " +
                     "(datasource \"" + receipt.getDatasourceName() + "\")");
 
-            System.out.println("BOnjour");
             System.out.println("Received receipt '" + receipt.getID() + "' " +
                                    "(datasource \"" + receipt.getDatasourceName() + "\")");
             while (true) {

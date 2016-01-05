@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.owl;
 
 import com.google.common.base.Optional;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.NodeSet;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
@@ -198,6 +199,11 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
                 "from " + ontologyIRI.toString() + ".");
 
         return ontology;
+    }
+
+    public static void main(String[] args) throws OWLOntologyCreationException {
+//        OWLManager.createOWLOntologyManager().loadOntology(IRI.create("http://purl.obolibrary.org/obo/hp.owl"));
+        OWLManager.createOWLOntologyManager().loadOntology(IRI.create("http://compbio.charite.de/hudson/job/hpo/lastStableBuild/artifact/hp/hp.owl"));
     }
 
 

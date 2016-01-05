@@ -146,9 +146,7 @@ public class MultithreadedDataLoadingService<T extends Identifiable> implements 
             getLog().error(msg);
             throw new NullPointerException(msg);
         }
-        else {
-            getLog().debug("Loading data from " + getAvailableDatasources().size() + " datasources");
-        }
+
 
         // create a receipt to track nested loads
         final CompositingReceipt receipt = new CompositingReceipt("All Available", LoadType.LOAD_ALL);
