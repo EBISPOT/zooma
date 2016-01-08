@@ -10,11 +10,11 @@ Developer documentation is available as part of the ZOOMA documentation at the l
 
 ### ZOOMA homepage
 
-http://www.ebi.ac.uk/fgpt/zooma
+http://www.ebi.ac.uk/spot/zooma
 
 ### ZOOMA documentation
 
-http://www.ebi.ac.uk/fgpt/zooma/docs
+http://www.ebi.ac.uk/spot/zooma/docs
 
 ### EBI
 
