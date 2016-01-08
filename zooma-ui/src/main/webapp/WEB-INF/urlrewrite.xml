@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 2.6//EN"
+        "http://tuckey.org/res/dtds/urlrewrite2.6.dtd">
+
+<!--
+
+    Configuration file for UrlRewriteFilter
+    http://tuckey.org/urlrewrite/
+
+-->
+<urlrewrite>
+
+    <rule>
+        <from>/results.txt</from>
+        <to>/v2/api/services/map</to>
+    </rule>
+
+    <rule>
+        <condition type="method" operator='equal'>POST</condition>
+        <from>/sparql$</from>
+        <to last="true">/v2/api/query$1</to>
+    </rule>
+
+
+    <rule>
+        <condition name="Accept" type="header" next="or">text/html</condition>
+        <condition name="user-agent">MSIE</condition>
+        <from>/sparql$</from>
+        <to>/query.html</to>
+    </rule>
+
+
+    <rule>
+        <condition name="Accept" type="header" >text/html</condition>
+        <from>/sparql$</from>
+        <to>/query.html</to>
+    </rule>
+
+    <rule>
+        <condition name="Accept" type="header" operator="notequal">text/html</condition>
+        <from>/sparql$</from>
+        <to>/v2/api/query$1</to>
+    </rule>
+
+
+    <rule>
+        <condition name="Accept" type="header" >text/html</condition>
+        <from>/describe$</from>
+        <to>/explore.html</to>
+    </rule>
+
+
+    <rule>
+        <condition name="Accept" type="header" next="or">text/html</condition>
+        <condition name="user-agent">MSIE</condition>
+        <from>/describe$</from>
+        <to>/explore.html</to>
+    </rule>
+
+    <!-- sparql service rewriting -->
+    <rule>
+        <condition name="Accept" type="header">application/rdf.*</condition>
+        <from>/sparql(.*)$</from>
+        <to>/v2/api/query$1</to>
+    </rule>
+
+    <rule>
+        <condition name="Accept" type="header">application/sparql.*</condition>
+        <from>/sparql(.*)$</from>
+        <to>/v2/api/query$1</to>
+    </rule>
+
+    <rule>
+        <condition name="Accept" type="header">text/*</condition>
+        <from>/sparql(.*)$</from>
+        <to>/v2/api/query$1</to>
+    </rule>
+
+    <!-- explore service rewriting -->
+    <rule>
+        <condition name="Accept" type="header" operator="notequal">text/html</condition>
+        <from>/describe$</from>
+        <to>/v2/api/explore$1</to>
+    </rule>
+
+    <rule>
+        <condition name="Accept" type="header">application/rdf.*</condition>
+        <from>/describe(.*)$</from>
+        <to>/v2/api/explore$1</to>
+    </rule>
+
+
+</urlrewrite>

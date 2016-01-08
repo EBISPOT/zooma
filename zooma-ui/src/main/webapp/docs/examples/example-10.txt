@@ -1,0 +1,100 @@
+Homo sapiens	Organism
+shRNA mSin3a-b	RNAi
+mixed C57B6 and B6129	background
+AG11513	cell_line
+C2C13	cell_line
+CT27	cell_line
+G121	cell_line
+GM17776	cell_line
+HCC-2998	cell_line
+Lu139	cell_line
+MDA-MB-435s	cell_line
+MDA175	cell_line
+SHEP-2	cell_line
+SYF cells	cell_line
+cal 27, transfected with pEGFPC1-nm23-H2	cell_line
+endothelial cells and pericytes	cell_type
+hMOF knock-down	cell_type
+mammary luminal ER- cell	cell_type
+myeloblast	cell_type
+nonmesodermal cell	cell_type
+parental	cell_type
+axotomy - ipsilateral left hind limb	clinical_treatment
+Penicillin G 1000 micromolar	compound
+RAF inhibitor #1	compound
+RU486 200 micromolar	compound
+caesium-137	compound
+corn oil	compound
+cyclosporine A 1.2 micromolar	compound
+methyl jasmonate 0.1 micromolar	compound
+miR-146a 50 nanomolar	compound
+negative control	compound
+promethazine 16 micromolar	compound
+sCD154 2 micrograms per milliliter	compound
+saline control	compound
+trimethadione 2000 micromolar	compound
+tumor necrosis factor a	compound
+verapamil 0.00001 molar	compound
+E-MEXP-122	datasource
+E-MEXP-391	datasource
+GSE2018	datasource
+GSE4271	datasource
+GSE5090	datasource
+ES cells	developmental_stage
+NF stage 11	developmental_stage
+embryo, Nieuwkoop Faber stage 10.5	developmental_stage
+late 11 to late 12 floral stage	developmental_stage
+STZ-treated fed AIN93G diet for 14 days	diet
+III/2	disease_staging
+T2N0G2	disease_staging
+T4N0G2	disease_staging
+tumor stage: T3a	disease_staging
+zone_0	disease_staging
+acute lymphoblastic leukemia, chemotherapy response	disease_state
+chronic malaria	disease_state
+oncocytoma	disease_state
+primary-progressive multiple sclerosis	disease_state
+SALK_014999	ecotype
+Wassilewskija-0	ecotype
+C/EBP epsilon	genetic_modification
+HCC78 lung non-small cell carcinoma	groups_369
+HCC827 lung adenocarcinoma	groups_369
+SN12C renal cell carcinoma	groups_369
+embryonic skin fibroblast	groups_96
+confluent quiescence	growth_condition
+estrogen plus fulvestrant	growth_condition
+in vivo followed by 5 hours in pollen growth medium	growth_condition
+optimum photosynthesis temperature	growth_condition
+pellet diet	growth_condition
+Pseudomonas aeruginosa FRD1234	infect
+Yersinia enterocolitica	infect
+Agnieszka,Maria,Lichanska	operator_variation
+Claire,Mulligan	operator_variation
+Geoffrey,Girnun	operator_variation
+Katrine,B,Fronsdal	operator_variation
+Sjur,Reppe	operator_variation
+Thomas,Cappola	operator_variation
+C2C12 myotube	organism_part
+Root Decelerating Elongation Zone	organism_part
+cytarabine resistant	phenotype
+slow-evolving infertility	phenotype
+Eberwine biotin method	protocol_type
+Not determined	sex
+A1-1	strain_or_line
+BXD14	strain_or_line
+BXD73	strain_or_line
+BXH12	strain_or_line
+C57BL/6J	strain_or_line
+FVB129P2	strain_or_line
+HFY871	strain_or_line
+J03A	strain_or_line
+KY640	strain_or_line
+Tempe-T	strain_or_line
+high IGF1R	strain_or_line
+Concentration: 6.6 mM	test_result
+ERBB2 absent; ESR1 present; KRT absent	test_result
+day 5	time
+Hsp90 inhibitor	treatment
+i.p. kainic acid, i.a. kainic acid	treatment
+in vitro fertilzed and in vitro culture embryo	treatment
+in-utero exposure to SHS, adult exposure to SHS	treatment

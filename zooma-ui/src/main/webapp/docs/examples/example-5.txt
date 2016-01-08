@@ -1,0 +1,100 @@
+E14+8 days	age
+Size: 176 cm	biometrics
+A459	cell_line
+GM10845	cell_line
+GM14582	cell_line
+GM17112	cell_line
+GM17217	cell_line
+GM17790	cell_line
+H1672	cell_line
+I-6 ES	cell_line
+VCaP	cell_line
+W9.5	cell_line
+hiPS_PDB2lox_22	cell_line
+CD4+CD45RA-CD40L+	cell_type
+hepatocytes	cell_type
+lung epithelial cells from tracheas of Gprc5a wild_type	cell_type
+non-tumorigenic cancer cell	cell_type
+osteoblast like cells	cell_type
+small PDF circadian neurons	cell_type
+Mass: 30 mg	clinical_treatment
+transverse aortic constriction	clinical_treatment
+MACA	compound
+R547	compound
+coumarin 60 micromolar	compound
+coumarin 60 micromolar	compound
+doxorubicin 3 milligrams per kilogram	compound
+fluphenazine 4 micromolar	compound
+hexaconazole 6 micromolar	compound
+interleukin 1 beta	compound
+naphthyl isothiocyanate 40 micromolar	compound
+naphthyl isothiocyanate 8 micromolar	compound
+phenformin 15 micromolar	compound
+sodium phenylbutyrate 0.001 molar	compound
+E-MEXP-243	datasource
+Stasis	developmental_stage
+adult plant	developmental_stage
+cycle 14	developmental_stage
+differentiated to day 14 (orthochromatic stage)	developmental_stage
+DFS = 36 months	dfs_follow_up
+restricted	diet
+Dukes C	disease_staging
+T2N1G1	disease_staging
+T4N3M0	disease_staging
+Daudi Burkitt's lymphoma	disease_state
+blastic NK-cell lymphoma	disease_state
+inflammatory breast carcinoma	disease_state
+non-tumoral HBV cirrhosis	disease_state
+parasitoid infected	disease_state
+toxicity	disease_state
+Cabernet Sauvignon	ecotype
+Columbia glabra	ecotype
+SALK_039478	ecotype
+OX0197:MZ twin	family_relationship
+OX0206:MZ twin	family_relationship
+OX0213:MZ twin	family_relationship
+OX0260:DZ twin	family_relationship
+OX0274:DZ twin	family_relationship
+OX0287:MZ twin	family_relationship
+OX0292:MZ twin	family_relationship
+litter 2	generation
+stage III	gold_stage
+BT474 breast cancer	groups_369
+T cell diseased	groups_96
+baseline growth temperature	growth_condition
+complete solution minus iron	growth_condition
+increased salinity	growth_condition
+low nitrogen	growth_condition
+nutrient medium minus phosphate	growth_condition
+training	growth_condition
+borderline changes	histology
+pleomorphic	histology
+poorly differentiated	histology
+human rhinovirus	infect
+t(8;21)	karyotype
+unfiltered	light
+J10A	line
+nervous system neoplasm	metagroups_15
+Canis lupus familiaris	organism
+cultured explant	organism_part
+glomeruli of human kidney	organism_part
+normal skin tissue	organism_part
+pancreatic islet	organism_part
+ureteric bud tip	organism_part
+Notch2-IC expression	phenotype
+day 4	sampling_time_point
+ApoE3Leiden	strain_or_line
+FVB/N x C57BL/6	strain_or_line
+Oryza sativa L.dst mutant	strain_or_line
+SAP-/- C57BL6/J Mice	strain_or_line
+W303-1B DF	strain_or_line
+W303-1B rho0 delta-yhb1	strain_or_line
+CD38hiCD24hiCD27-IgD+ transitional B cells	targeted_cell_type
+Concentration: 40.4 pM	test_result
+carboplatin sensitive	test_result
+plasma acetaminophen: 13.2 ug_per_ml; plasma glucagon: 70.1 pg_per_ml	test_result
+IL3+SCF	treatment
+LTX transfection reagent	treatment
+Pam3CSK4 stimulation	treatment
+latex beads	treatment
+stably transfected with empty vector, transfected with TAZ siRNA	treatment

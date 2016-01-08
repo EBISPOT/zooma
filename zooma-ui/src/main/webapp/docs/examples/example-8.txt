@@ -1,0 +1,100 @@
+fresh_sample	BioSourceType
+BG01	cell_line
+BT-20	cell_line
+GI-ME-N	cell_line
+GM17157	cell_line
+GM17223	cell_line
+GM17250	cell_line
+GM17733	cell_line
+GM17744	cell_line
+GS-3 clone 2	cell_line
+H460a	cell_line
+HSB2	cell_line
+KMS28	cell_line
+KS Y-1	cell_line
+hgps-ipsc_1: Human HGPS fibroblasts AG01972, AG11498, AG06297, and normal fibroblasts GM00038 (9 year), AG05247 (87 year), AG09602 (92 year) were purchased from Coriell Cell Repository and reprogrammed using the protocol below	cell_line
+CD161++CD8ab T cells	cell_type
+T cells	cell_type
+epidermal keratinocyte, P-2 treatment	cell_type
+lin- cell	cell_type
+myofibroblast	cell_type
+myotubes	cell_type
+non-mushroom body neuron	cell_type
+vascular smooth muscle cell	cell_type
+LHRH	clinical_treatment
+IgE+antigen	compound
+PDL1	compound
+Phenytoin 1 micromolar	compound
+V. cholerae hemolysin mutant of E7946	compound
+bromobenzene 8 micromolar	compound
+chloroguine	compound
+dantrolene 0.4 micromolar	compound
+flg22	compound
+monensin 0.0000109 molar	compound
+omeprazole 600 micromolar	compound
+phenformin 400 milligrams per kilogram	compound
+phenylanthranilic acid 200 micromolar	compound
+phorbol 12-myristate 13-acetate + ionomycin	compound
+pyrrole-imidazole polyamide: FA1 2 micromolar	compound
+tumor necrosis factor alpha	compound
+GSE1297	datasource
+GSE1729	datasource
+late third larval instar-puparium formation	developmental_stage
+Follow-up = 112 months	dfs_follow_up
+calorie restricted diet	diet
+IIIc/3	disease_staging
+T4aN2	disease_staging
+stage 2C	disease_staging
+stage 4	disease_staging
+healthy control	disease_state
+healthy volunteers	disease_state
+infected with Sclerotinia sclerotiorum	disease_state
+osteosarcoma subtype fibroblastic	disease_state
+osteosarcoma subtype telangiectatic	disease_state
+seizure	disease_state
+oxidative stress	environmental_stress
+emerged during the flight and within 4 hours of landing	environmental_treatment_group
+race unknown	ethnicity
+OX0289:MZ twin	family_relationship
+Evi1 retroviral transduction	genetic_modification
+l(3)mbt_T1	group
+Calu-6 lung anaplastic carcinoma	groups_369
+JEG3 placental choriocarcinoma	groups_369
+SK-N-SH neuroblastoma cell	groups_369
+regenerating cell periodontitis	groups_369
+skeletal muscle muscular dystrophy	groups_with_10_and_more_replicates
+continuous white light	growth_condition
+cultured	growth_condition
+excess light (1300 umol photons m-2 s-1)	growth_condition
+chronic allograft nephropathy grade II	histology
+rabbit IgG (control)	immunoprecipitate
+Pseudomonas syringae pv. tomato DC3000 avrRpm1	infect
+partial hepatectomy	injury
+Roel,Verhaak	operator_variation
+Vitis riparia x Vitis berlandieri	organism
+Mammary epithelium	organism_part
+calvaria	organism_part
+medial temporal lobe	organism_part
+not specified	original_diagnosis
+insulin sensitive	phenotype
+pale	phenotype
+not specified	sampling_time_point
+stage 54 tadpoles (larvae)	stage
+BXD9	strain_or_line
+C57BL/Ka-CD45.2:Thy-1.1	strain_or_line
+CBA/Ca	strain_or_line
+FVB/NHsd	strain_or_line
+KY656	strain_or_line
+Mali-NIH	strain_or_line
+PER-606	strain_or_line
+SAMP10	strain_or_line
+CD27+IgM+IgD+ B cells	targeted_cell_type
+Concentration: 117 uM	test_result
+ZT24	time_point
+FGF3+10	treatment
+Fraction + LPS	treatment
+RML infected	treatment
+cecal ligation and puncture surgery	treatment
+control + lipopolysaccharides (LPS)	treatment
+gibberellin and jasmonic acid followed by flg22	treatment
+G1-G2	tumor_grading

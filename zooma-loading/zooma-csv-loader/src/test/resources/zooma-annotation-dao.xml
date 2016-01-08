@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Configure AnnotationDAOs for this datasourceURL -->
+    <bean name="csvAnnotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.CSVAnnotationDAO">
+        <constructor-arg name="annotationFactory" ref="csvAnnotationFactory" />
+        <constructor-arg name="url"
+                         value="http://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/curation/zoomage_report.CURATED.tsv" />
+        <constructor-arg name="delimiter" value="\t" />
+    </bean>
+
+    <bean name="csvAnnotationFactory" class="uk.ac.ebi.fgpt.zooma.datasource.DefaultAnnotationFactory">
+        <constructor-arg name="annotationLoadingSession" ref="csvAnnotationLoadingSession" />
+    </bean>
+
+    <bean name="csvAnnotationLoadingSession" class="uk.ac.ebi.fgpt.zooma.datasource.CSVLoadingSession">
+        <constructor-arg name="namespace" value="http://www.ebi/ac/uk/gxa" />
+        <constructor-arg name="resourceName" value="atlas" />
+        <constructor-arg name="annotationCreator" value="Tony Burdett" />
+    </bean>
+
+</beans>

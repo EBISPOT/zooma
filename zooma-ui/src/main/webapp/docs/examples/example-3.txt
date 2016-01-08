@@ -1,0 +1,100 @@
+postnatal day 7	age
+proliferative	cancer_site
+BM-MSC	cell_line
+C2C13	cell_line
+Coriell GM15242	cell_line
+EKVX	cell_line
+GM17160	cell_line
+KBM-7/B5 clone 180^3	cell_line
+MDA-361	cell_line
+ND00022	cell_line
+OVCAR-8	cell_line
+SF-268	cell_line
+SW527	cell_line
+CD38dimCD24dimCD5-CD27+IgM+IgD- IgM-only memory B cells	cell_type
+CD90 positive	cell_type
+MHC class II high thymic medullary epithelial cells	cell_type
+SP CD8+ thymocyte	cell_type
+fetal fibroblast cell line	cell_type
+forelimb distal mesenchymal cell	cell_type
+human bone marrow CD10+	cell_type
+mature naive B cell	cell_type
+synergid	cell_type
+trophoblast	cell_type
+tumorigenic cancer cell	cell_type
+TEL-AML1	chromosomal_aberration
+sham surgery	clinical_treatment
+Angiotensin II 100 nanomolar	compound
+Angiotensin II 100 nanomolar	compound
+Leukemia Inhibitory Factor	compound
+Tris(2,3-dibromopropyl)phosphate 1000 parts per million	compound
+echinomycin	compound
+metformin 50 milligrams per kilogram	compound
+naproxen 120 micromolar	compound
+naproxen 120 micromolar	compound
+nitrosodiethylamine 2000 micromolar	compound
+pegylated granulocyte colony stimulating factor	compound
+phenylanthranilic acid 200 micromolar	compound
+sulpiride 1000 micromolar	compound
+E-MEXP-168	datasource
+GSE2555	datasource
+Wandering third instar larvae (staged by gut colour intensity)	developmental_stage
+prepartum	developmental_stage
+Prostate Epithalial Stem Cells	differentiation_state
+IIIb/2	disease_staging
+T4N2b	disease_staging
+castration-induced regression nadir	disease_staging
+hepatocellular carcinoma HBV+	disease_state
+low bone mineral density	disease_state
+non-tumoral HBV cirrhosis	disease_state
+normal	disease_state
+ovarian cancer patient invasive malignant	disease_state
+Nipponbare 1	ecotype
+High levels of social isolation	environmental_history
+nitrogen	environmental_stress
+OX0189:MZ twin	family_relationship
+OX0275:MZ twin	family_relationship
+OX0282:MZ twin	family_relationship
+stromovascular fraction	fraction
+QG-56 lung squamous cell cancer	groups_369
+SUM1315MO2 breast cancer	groups_369
+placenta basal plate	groups_369
+unknown gliobastoma	groups_369
+low light (65 umol photons m-2 s-1)	growth_condition
+media changed	growth_condition
+no treatment	growth_condition
+simulated continuous white light	growth_condition
+whey diet	growth_condition
+borderline changes	histology
+Pseudomonas syringae pv. tomato avrB	infect
+inhalation injury	inhalationinjury
+iso(11)(q10)	karyotype
+monosomal RNA	material_type
+monosomal RNA	material_type
+nitrogen limiting	media
+solid tissue	metagroups_6
+Alexei,Gratchev	operator_variation
+Avrum,Spira	operator_variation
+Dorothee,Viemann	operator_variation
+John,A,Copland	operator_variation
+Right Internal Mammary Artery (RIMA)	organism_part
+chalazal seed coat	organism_part
+fibromuscular tissue from endometriotic nodule	organism_part
+spinal cord lower	organism_part
+subcutaneous adipose	organism_part
+CSB wild_type rescue	phenotype
+LSK, Flk2- Ncad+	phenotype
+cytarabine resistant	phenotype
+isolation of polysomal mRNA by ribosomal immunopurification	protocol_type
+BB12	strain_or_line
+BMA64	strain_or_line
+Cvi-1	strain_or_line
+SCARKO	strain_or_line
+Tir1AA	strain_or_line
+Concentration: 9.7 pM	test_result
+ZT18	time_point
+LPS stimulation	treatment
+fresh air, treatment over 2 month, 4x1h exposure per day	treatment
+no bacteria	treatment
+transfected with pCMV-FLAG-Gadd45a (right TA)	treatment
+unexposed	treatment
