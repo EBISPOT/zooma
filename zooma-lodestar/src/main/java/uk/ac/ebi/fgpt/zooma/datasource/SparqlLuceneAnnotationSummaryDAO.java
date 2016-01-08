@@ -122,8 +122,8 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
             Literal propertyTypeLiteral = solution.getLiteral(QueryVariables.PROPERTY_NAME.toString());
             Literal propertyValueLiteral = solution.getLiteral(QueryVariables.PROPERTY_VALUE.toString());
             String propertyURI = propertyID.getURI();
-            String propertyType = propertyTypeLiteral.getLexicalForm();
-            String propertyValue = propertyValueLiteral.getLexicalForm();
+            String propertyType = propertyTypeLiteral == null ? "" : propertyTypeLiteral.getLexicalForm();
+            String propertyValue = propertyValueLiteral == null ? "" : propertyValueLiteral.getLexicalForm();
 
             Resource oldAnnotationID = solution.getResource(QueryVariables.PREV_ANNOTATION_ID.toString());
             Resource oldPropertyID = solution.getResource(QueryVariables.PREV_PROPERTY_ID.toString());
