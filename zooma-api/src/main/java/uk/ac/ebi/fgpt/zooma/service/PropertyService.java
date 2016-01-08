@@ -52,13 +52,13 @@ public interface PropertyService {
     Property getProperty(URI uri);
 
     /**
-     * Returns a property from ZOOMA, assuming an exact match on property type and value
+     * Returns a property from ZOOMA, assuming an exact match on property type and/or value
      *
      * @param type  the type of the property to fetch (can be empty or null)
-     * @param value the value of the property to fetch
+     * @param value the value of the property to fetch (can be null if a type is supplied)
      * @return a single matching property, if one is present, or null otherwise
      */
-    Property getMatchedTypedProperty(String type, String value);
+    Collection<Property> getMatchedTypedProperty(String type, String value);
 
     /**
      * Returns a property from ZOOMA, assuming an exact match on property value.  Typed properties will not be returned
@@ -86,24 +86,4 @@ public interface PropertyService {
      */
     Property saveProperty(Property property) throws ZoomaUpdateException;
 
-    /**
-     * Updates a property in ZOOMA, replacing it with the new one.  Depending on the implementation, the old property
-     * may or may not be deleted straight away, and the URI of the old property may or may not be reused.  You should
-     * always assume the new property will be assigned a new URI and use the returned reference once the update is
-     * completed.
-     *
-     * @param oldProperty the property to update
-     * @param newProperty the new property to update to
-     * @return a reference to the new property after the update has completed
-     */
-    Property updateProperty(Property oldProperty, Property newProperty) throws ZoomaUpdateException;
-
-    /**
-     * Delete a property from ZOOMA.  This is a batch update operation that should remove the property instance from
-     * ZOOMA and update any annotations that use this property.  Implementations are free to define how this operation
-     * happens, but normally you would expect that annotations using the deleted property are also removed.
-     *
-     * @param property the property that needs to be deleted
-     */
-    void deleteProperty(Property property) throws ZoomaUpdateException;
 }

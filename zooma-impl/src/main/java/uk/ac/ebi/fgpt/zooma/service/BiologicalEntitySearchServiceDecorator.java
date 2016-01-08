@@ -37,22 +37,4 @@ public abstract class BiologicalEntitySearchServiceDecorator implements Biologic
     @Override public Collection<BiologicalEntity> searchBySemanticTags(boolean useInference, URI... semanticTags) {
         return _biologicalEntitySearchService.searchBySemanticTags(useInference, semanticTags);
     }
-
-    @Override public Map<BiologicalEntity, Float> searchAndScoreBySemanticTags(String... semanticTagShortnames) {
-        return _biologicalEntitySearchService.searchAndScoreBySemanticTags(semanticTagShortnames);
-    }
-
-    @Override public Map<BiologicalEntity, Float> searchAndScoreBySemanticTags(URI... semanticTags) {
-        return _biologicalEntitySearchService.searchAndScoreBySemanticTags(semanticTags);
-    }
-
-    @Override public Map<BiologicalEntity, Float> searchAndScoreBySemanticTags(boolean useInference,
-                                                                               String... semanticTagShortnames) {
-        return _biologicalEntitySearchService.searchAndScoreBySemanticTags(useInference, semanticTagShortnames);
-    }
-
-    @Override public Map<BiologicalEntity, Float> searchAndScoreBySemanticTags(boolean useInference,
-                                                                               URI... semanticTags) {
-        return _biologicalEntitySearchService.searchAndScoreBySemanticTags(useInference, semanticTags);
-    }
 }

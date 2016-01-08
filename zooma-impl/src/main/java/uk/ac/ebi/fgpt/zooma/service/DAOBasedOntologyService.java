@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 import uk.ac.ebi.fgpt.zooma.datasource.OntologyDAO;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -33,5 +34,10 @@ public class DAOBasedOntologyService extends AbstractShortnameResolver implement
 
     @Override public Set<String> getSynonyms(URI semanticTag) {
         return getOntologyDAO().getSemanticTagSynonyms(semanticTag);
+    }
+
+    @Override
+    public Set<String> getChildren(URI semanticTag, boolean infer) {
+        return getOntologyDAO().getChildren(semanticTag, infer);
     }
 }

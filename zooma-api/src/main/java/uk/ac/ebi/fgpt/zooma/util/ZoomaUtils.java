@@ -4,17 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.zip.ZipInputStream;
 
 /**
  * Some general ZOOMA utility functions
@@ -114,11 +110,14 @@ public class ZoomaUtils {
      *                         being filtered
      * @return a filtered set of annotations, only including those that scored inside the confidence interval
      */
-    public static Set<AnnotationSummary> filterAnnotationSummaries(Map<AnnotationSummary, Float> summaries,
+    public static List<AnnotationSummary> filterAnnotationSummaries(Map<AnnotationSummary, Float> summaries,
                                                                    float cutoffPercentage) {
         return filterAnnotationSummaries(summaries, 0, cutoffPercentage);
 
     }
+
+
+
 
 
     /**
@@ -134,7 +133,7 @@ public class ZoomaUtils {
      * @param cutoffPercentage the maximum
      * @return a filtered set of annotations, only including those that scored inside the confidence interval
      */
-    public static Set<AnnotationSummary> filterAnnotationSummaries(Map<AnnotationSummary, Float> summaries,
+    public static List<AnnotationSummary> filterAnnotationSummaries(final Map<AnnotationSummary, Float> summaries,
                                                                    float cutoffScore,
                                                                    float cutoffPercentage) {
         Iterator<AnnotationSummary> summaryIterator = summaries.keySet().iterator();
@@ -172,7 +171,7 @@ public class ZoomaUtils {
         }
 
         // return top scored summary
-        Set<AnnotationSummary> results = new HashSet<>();
+        List<AnnotationSummary> results = new ArrayList<>();
         float topScore = Collections.max(summaries.values());
         for (AnnotationSummary as : referenceSummaries) {
             float score = summaries.get(as);
@@ -183,6 +182,17 @@ public class ZoomaUtils {
                 results.add(as);
             }
         }
+
+        //Make sure the results are sorted (highest score first).
+        Collections.sort(results, new Comparator<AnnotationSummary>() {
+            @Override public int compare(AnnotationSummary o1, AnnotationSummary o2) {
+                return summaries.get(o2).compareTo(summaries.get(o1));
+            }
+        });
+
+
+
+
         return results;
     }
 

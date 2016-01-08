@@ -1,6 +1,5 @@
 package uk.ac.ebi.fgpt.zooma.model;
 
-import java.net.URI;
 import java.util.Date;
 
 /**
@@ -10,27 +9,27 @@ import java.util.Date;
  * @author Simon Jupp
  * @date 10/04/12
  */
-public class SimpleAnnotationProvenance implements AnnotationProvenance {
-    private AnnotationSource source;
-    private Evidence evidence;
-    private Accuracy accuracy;
-    private String generator;
-    private Date generationDate;
-    private String annotator;
-    private Date annotationDate;
+public class SimpleAnnotationProvenance implements AnnotationProvenance  {
+    private final AnnotationSource source;
+    private final Evidence evidence;
+    private final Accuracy accuracy;
+    private final String generator;
+    private final Date generatedDate;
+    private final String annotator;
+    private final Date annotationDate;
 
     public SimpleAnnotationProvenance(AnnotationSource source,
                                       Evidence evidence,
                                       Accuracy accuracy,
                                       String generator,
-                                      Date generationDate,
+                                      Date generatedDate,
                                       String annotator,
                                       Date annotationDate) {
         this.source = source;
         this.evidence = evidence;
         this.accuracy = accuracy;
         this.generator = generator;
-        this.generationDate = generationDate;
+        this.generatedDate = generatedDate;
         this.annotator = annotator;
         this.annotationDate = annotationDate;
     }
@@ -38,11 +37,8 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
     public SimpleAnnotationProvenance(AnnotationSource source,
                                       Evidence evidence,
                                       String generator,
-                                      Date generationDate) {
-        this.source = source;
-        this.evidence = evidence;
-        this.generator = generator;
-        this.generationDate = generationDate;
+                                      Date generatedDate) {
+        this(source, evidence, null, generator, generatedDate, null, null);
     }
 
     public AnnotationSource getSource() {
@@ -58,7 +54,7 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
     }
 
     public Date getGeneratedDate() {
-        return generationDate;
+        return generatedDate;
     }
 
     public String getAnnotator() {
@@ -73,10 +69,6 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
         return accuracy;
     }
 
-    public Date getGenerationDate() {
-        return generationDate;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -88,7 +80,7 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
 
         SimpleAnnotationProvenance that = (SimpleAnnotationProvenance) o;
 
-        if (generationDate != null ? !generationDate.equals(that.generationDate) : that.generationDate != null) {
+        if (generatedDate != null ? !generatedDate.equals(that.generatedDate) : that.generatedDate != null) {
             return false;
         }
         if (generator != null ? !generator.equals(that.generator) : that.generator != null) {
@@ -115,7 +107,7 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
         int result = source != null ? source.hashCode() : 0;
         result = 31 * result + (evidence != null ? evidence.hashCode() : 0);
         result = 31 * result + (generator != null ? generator.hashCode() : 0);
-        result = 31 * result + (generationDate != null ? generationDate.hashCode() : 0);
+        result = 31 * result + (generatedDate != null ? generatedDate.hashCode() : 0);
         result = 31 * result + (annotator != null ? annotator.hashCode() : 0);
         result = 31 * result + (annotationDate != null ? annotationDate.hashCode() : 0);
         return result;
@@ -128,14 +120,9 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
                 ", evidence=" + evidence +
                 ", accuracy=" + accuracy +
                 ", generator='" + generator + '\'' +
-                ", generationDate=" + generationDate +
+                ", generatedDate=" + generatedDate +
                 ", annotator='" + annotator + '\'' +
                 ", annotationDate=" + annotationDate +
                 '}';
-    }
-
-    @Override
-    public URI getURI() {
-        throw new UnsupportedOperationException();
     }
 }

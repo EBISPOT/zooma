@@ -89,7 +89,7 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 			List<DiscoveredTerm> result = new ArrayList<> ();
 			for ( AnnotationSummary zsum: zresult.keySet () )
 			{
-				double score = zsum.getQualityScore ();
+				double score = zsum.getQuality ();
 				
 				Collection<URI> semTags = zsum.getSemanticTags (); 
 				if ( semTags == null ) continue;

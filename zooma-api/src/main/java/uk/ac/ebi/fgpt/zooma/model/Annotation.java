@@ -15,9 +15,6 @@ import java.util.Collection;
  * @date 08/03/12
  */
 public interface Annotation extends Identifiable {
-    static final String ANNOTATION_TYPE_ID = "/zooma/annotation";
-    static final String ANNOTATION_TYPE_NAME = "Annotation";
-
     /**
      * Returns a collection of biological entities to which this annotation applies
      *
@@ -57,7 +54,7 @@ public interface Annotation extends Identifiable {
      *
      * @return a collection of URIs identifying the annotations that replaced this annotation
      */
-    Collection<URI> replacedBy();
+    Collection<URI> getReplacedBy();
 
     /**
      * Designates the URIs specified as annotations that replace this annotation
@@ -74,7 +71,7 @@ public interface Annotation extends Identifiable {
      *
      * @return a collection of URIs identifying the annotations that this annotation replaces
      */
-    Collection<URI> replaces();
+    Collection<URI> getReplaces();
 
     /**
      * Designates the URIs specified as annotations that were replaced by this annotation

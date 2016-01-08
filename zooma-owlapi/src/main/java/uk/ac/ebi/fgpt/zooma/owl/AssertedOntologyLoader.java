@@ -24,7 +24,10 @@ import java.util.Set;
  * @date 15/02/12
  */
 public class AssertedOntologyLoader extends AbstractOntologyLoader {
-    protected void loadOntology() throws OWLOntologyCreationException {
+    protected OWLOntology loadOntology() throws OWLOntologyCreationException {
+        int missingLabelsCount = 0;
+        boolean hasMissingLabels = false;
+
         getLog().debug("Loading ontology...");
         OWLOntology ontology = getManager().loadOntology(IRI.create(getOntologyURI()));
         IRI ontologyIRI = ontology.getOntologyID().getOntologyIRI();
@@ -41,8 +44,8 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
             }
         }
         getLog().debug("Successfully loaded ontology " + ontologyIRI);
-        Set<OWLClass> allClasses = ontology.getClassesInSignature();
-        Set<URI> allKnownNamespaces = new HashSet<>();
+        Set<OWLClass> allClasses = ontology.getClassesInSignature(false);
+        Set<URI> allObservedNamespaces = new HashSet<>();
 
         // remove excluded classes from allClasses by subclass
         if (getExclusionClassURI() != null) {
@@ -82,22 +85,22 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
 
             // get namespace for this IRI
             URI namespace = URIUtils.extractNamespace(clsIri.toURI());
-            if (!URIUtils.isNamespaceKnown(namespace)) {
+            if (!URIUtils.isNamespaceKnown(namespace) && !allObservedNamespaces.contains(namespace)) {
                 getLog().warn(
                         "Namespace <" + namespace + "> (present in ontology " + ontologyIRI.toString() + ") " +
                                 "is not known - you should register this namespace in zooma/prefix.properties " +
                                 "to ensure ZOOMA can correctly shorten URIs in this namespace");
             }
-            else {
-                allKnownNamespaces.add(namespace);
-            }
+            allObservedNamespaces.add(namespace);
 
             // get label annotations
             Set<String> labels = getStringLiteralAnnotationValues(ontology, ontologyClass, rdfsLabel);
             String label = null;
             if (labels.isEmpty()) {
-                getLog().warn("OWLClass " + ontologyClass + " contains no label. " +
-                                      "No labels for this class will be loaded.");
+                getLog().trace("OWLClass " + ontologyClass + " contains no label. " +
+                                       "No labels for this class will be loaded.");
+                hasMissingLabels = true;
+                missingLabelsCount++;
             }
             else {
                 if (labels.size() > 1) {
@@ -118,7 +121,7 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
             for (OWLClassExpression parentClassExpression : ontologyClass.getSuperClasses(ontology)) {
                 if (!parentClassExpression.isAnonymous()) {
                     OWLClass parentClass = parentClassExpression.asOWLClass();
-                    getLog().debug("Next parent of " + label + ": " + parentClass);
+                    getLog().trace("Next parent of " + label + ": " + parentClass);
                     Set<String> typeVals = getStringLiteralAnnotationValues(ontology, parentClass, rdfsLabel);
                     ontologyTypeLabelSet.addAll(typeVals);
                 }
@@ -145,14 +148,23 @@ public class AssertedOntologyLoader extends AbstractOntologyLoader {
         }
 
         StringBuilder sb = new StringBuilder();
-        for (URI namespace : allKnownNamespaces) {
+        for (URI namespace : allObservedNamespaces) {
             sb.append("\t").append(namespace.toString()).append("\n");
         }
 
-        getLog().debug("Loaded classes with " + allKnownNamespaces.size() + " different namespaces " +
+        if (hasMissingLabels) {
+            getLog().warn("Some classes in ontology " + ontologyIRI.toString() + " have missing/multiple " +
+                                  "labels and could not be loaded. This problem affected " +
+                                  missingLabelsCount + "/" + allClasses.size() + " classes.");
+        }
+
+        getLog().debug("Loaded classes with " + allObservedNamespaces.size() + " different namespaces " +
                                "from " + ontologyIRI.toString() + ". Those namespaces are...\n" + sb.toString());
 
         getLog().debug("Successfully loaded " + labelCount + " labels on " + labelledClassCount + " classes and " +
-                               synonymCount + " synonyms on " + synonymedClassCount + " classes!");
+                               synonymCount + " synonyms on " + synonymedClassCount + " classes " +
+                               "from " + ontologyIRI.toString() + ".");
+
+        return ontology;
     }
 }

@@ -2,8 +2,8 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import uk.ac.ebi.fgpt.zooma.model.Property;
 
-import java.util.Collection;
-import java.util.Map;
+import java.net.URI;
+import java.util.List;
 
 /**
  * A ZOOMA service that allows searching over the set of {@link Property}s known to ZOOMA.  Two fundamental types of
@@ -25,7 +25,7 @@ public interface PropertySearchService {
      * @param propertyValuePattern the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> search(String propertyValuePattern);
+    List<Property> search(String propertyValuePattern, URI... sources);
 
     /**
      * Search the set of properties known to ZOOMA for those which have a value that matches the supplied pattern. The
@@ -39,7 +39,7 @@ public interface PropertySearchService {
      * @param propertyValuePattern the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> search(String propertyType, String propertyValuePattern);
+    List<Property> search(String propertyType, String propertyValuePattern, URI... sources);
 
     /**
      * Search the set of properties known to ZOOMA for those which have a value that matches the supplied prefix
@@ -49,7 +49,7 @@ public interface PropertySearchService {
      * @param propertyValuePrefix the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> searchByPrefix(String propertyValuePrefix);
+    List<Property> searchByPrefix(String propertyValuePrefix, URI... sources);
 
     /**
      * Search the set of properties known to ZOOMA for those which have a value that matches the supplied prefix. The
@@ -63,65 +63,17 @@ public interface PropertySearchService {
      * @param propertyValuePrefix the property value that should be searched for
      * @return a collection of matching properties
      */
-    Collection<Property> searchByPrefix(String propertyType, String propertyValuePrefix);
+    List<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources);
 
     /**
-     * Search the set of properties known to ZOOMA for those which have a value that matches the supplied pattern.
-     * <p/>
-     * Implementations are free to define their own search algorithms for text matching.
-     * <p/>
-     * This form returns a map of matching properties linked to a metric that describes the quality of the match.  You
-     * may need to sort results based on their score to determine the best match order
-     *
-     * @param propertyValuePattern the property value that should be searched for
-     * @return a collection of matching properties
-     */
-    Map<Property, Float> searchAndScore(String propertyValuePattern);
-
-    /**
-     * Search the set of properties known to ZOOMA for those which have a value that matches the supplied pattern. The
-     * set of results should only include those which exactly map the supplied type.  To expand the search tbased on
-     * typing information, first use a {@link PropertyTypeSearchService} to find possible matches for the property
-     * type.
-     * <p/>
-     * Implementations are free to define their own search algorithms for text matching.
-     * <p/>
-     * This form returns a map of matching properties linked to a metric that describes the quality of the match.  You
-     * may need to sort results based on their score to determine the best match order
-     *
-     * @param propertyType         the property type that should be searched for
-     * @param propertyValuePattern the property value that should be searched for
-     * @return a collection of matching properties
-     */
-    Map<Property, Float> searchAndScore(String propertyType, String propertyValuePattern);
-
-    /**
-     * Search the set of properties known to ZOOMA for those which have a value that matches the supplied prefix
+     * Suggest properties known to ZOOMA for those which have a value that matches the supplied prefix.  This method is
+     * similar to {@link #suggest(String, URI...)} but returns a limited set of results (first 20 by default, some
+     * implementations may allow configuration) and only provides the string values of matching property values.
      * <p/>
      * Results should always match based on an exact prefix match (essentially, {@link String#startsWith(String)}).
-     * <p/>
-     * This form returns a map of matching properties linked to a metric that describes the quality of the match.  You
-     * may need to sort results based on their score to determine the best match order
      *
      * @param propertyValuePrefix the property value that should be searched for
      * @return a collection of matching properties
      */
-    Map<Property, Float> searchAndScoreByPrefix(String propertyValuePrefix);
-
-    /**
-     * Search the set of properties known to ZOOMA for those which have a value that matches the supplied prefix. The
-     * set of results should only include those which exactly map the supplied type.  To expand the search tbased on
-     * typing information, first use a {@link PropertyTypeSearchService} to find possible matches for the property
-     * type.
-     * <p/>
-     * Results should always match based on an exact prefix match (essentially, {@link String#startsWith(String)}).
-     * <p/>
-     * This form returns a map of matching properties linked to a metric that describes the quality of the match.  You
-     * may need to sort results based on their score to determine the best match order
-     *
-     * @param propertyType        the property type that should be searched for
-     * @param propertyValuePrefix the property value that should be searched for
-     * @return a collection of matching properties
-     */
-    Map<Property, Float> searchAndScoreByPrefix(String propertyType, String propertyValuePrefix);
+    List<String> suggest(String propertyValuePrefix, URI... sources);
 }

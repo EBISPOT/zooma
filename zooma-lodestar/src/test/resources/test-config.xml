@@ -12,6 +12,16 @@
 
     <context:annotation-config />
 
+    <!--<bean id="sesameRepositoryManager"-->
+    <!--class="uk.ac.ebi.fgpt.zooma.service.SesameRepositoryManager"-->
+    <!--init-method="initialise"-->
+    <!--destroy-method="disconnect">-->
+    <!--<property name="serverUrl" value="http://orange.ebi.ac.uk:14096/openrdf-sesame/" />-->
+    <!--<property name="repositoryId" value="zooma2.2" />-->
+    <!--<property name="queryManager" ref="queryManager" />-->
+    <!--<property name="propertiesMapAdapter" ref="propertiesMapAdapter" />-->
+    <!--</bean>-->
+
     <bean id="prefixProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="location" value="classpath:zooma/prefix.properties" />
     </bean>
@@ -20,12 +30,37 @@
         <property name="properties" ref="prefixProperties" />
     </bean>
 
+
     <bean id="queryManager" class="uk.ac.ebi.fgpt.zooma.service.QueryManager" init-method="init">
         <property name="sparqlQueryResource" value="classpath:queries.sparql" />
         <property name="propertiesMapAdapter" ref="propertiesMapAdapter" />
     </bean>
 
+    <!--<bean id="annotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationDAO" autowire-candidate="false">-->
+    <!--<property name="manager" ref="sesameRepositoryManager" />-->
+    <!--<property name="biologicalEntityDAO" ref="biologicalEntityDAO" />-->
+    <!--</bean>-->
+
+    <!--<bean id="biologicalEntityDAO"-->
+    <!--class="uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO"-->
+    <!--autowire-candidate="false">-->
+    <!--<property name="manager" ref="sesameRepositoryManager" />-->
+    <!--</bean>-->
+
+    <!--<bean id="ontologyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlOntologyDAO" autowire-candidate="false">-->
+    <!--<property name="manager" ref="sesameRepositoryManager" />-->
+    <!--</bean>-->
+
+    <!--<bean id="propertyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlPropertyDAO" autowire-candidate="false">-->
+    <!--<property name="manager" ref="sesameRepositoryManager" />-->
+    <!--</bean>-->
+
+    <!--<bean id="studyDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlStudyDAO" autowire-candidate="false">-->
+    <!--<property name="manager" ref="sesameRepositoryManager" />-->
+    <!--</bean>-->
+
     <bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoExecutorService"></bean>
+
 
     <bean id="lodeSparqlService" class="uk.ac.ebi.fgpt.lode.impl.JenaSparqlService">
         <property name="maxQueryLimit" value="${lode.sparql.query.maxlimit}" />
@@ -79,6 +114,13 @@
 
     <bean id="lodeAnnotationSummaryDAO"
           class="uk.ac.ebi.fgpt.zooma.datasource.SparqlLuceneAnnotationSummaryDAO"
+          autowire-candidate="false">
+        <property name="queryManager" ref="queryManager" />
+        <property name="queryService" ref="jenaVirtuosoExecutorService" />
+    </bean>
+
+    <bean id="lodeAnnotationPatternDAO"
+          class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationPatternDAO"
           autowire-candidate="false">
         <property name="queryManager" ref="queryManager" />
         <property name="queryService" ref="jenaVirtuosoExecutorService" />

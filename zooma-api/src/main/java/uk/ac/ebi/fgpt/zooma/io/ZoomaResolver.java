@@ -10,6 +10,7 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 11/06/13
  */
+@Deprecated
 public interface ZoomaResolver<T> {
     /**
      * For the given set of objects, resolve them all to objects in ZOOMA.  This method will create new objects, create
@@ -24,6 +25,7 @@ public interface ZoomaResolver<T> {
      * @param objectsToResolve the collection of objects requiring resolving
      * @return an update collection of objects that can be loaded into ZOOMA
      */
+    @Deprecated
     Collection<T> resolve(String datasourceName, Collection<T> objectsToResolve)
             throws ZoomaResolutionException;
 
@@ -40,6 +42,7 @@ public interface ZoomaResolver<T> {
      * @return an updated object that can be loaded into ZOOMA, or null if this object pre-exists exactly in it's
      *         current form
      */
+    @Deprecated
     T resolve(T objectToResolve) throws ZoomaResolutionException;
 
     /**
@@ -50,6 +53,7 @@ public interface ZoomaResolver<T> {
      * @param objects the set of objects to filter
      * @return a filtered set of objects excluding those which do not declare any semantic tags
      */
+    @Deprecated
     Collection<T> filter(Collection<T> objects);
 
     /**
@@ -60,6 +64,7 @@ public interface ZoomaResolver<T> {
      * @param object the object to perform a lookup for
      * @return true if an object with the same URI exists, false otherwise
      */
+    @Deprecated
     boolean exists(T object);
 
     /**
@@ -78,6 +83,7 @@ public interface ZoomaResolver<T> {
      * @param referenceObject the reference object, that should be present in ZOOMA
      * @return true if object is updated with respect to referenceobject
      */
+    @Deprecated
     boolean isUpdated(T object, T referenceObject);
 
     /**
@@ -102,6 +108,7 @@ public interface ZoomaResolver<T> {
      * @param object the object to examine
      * @return true if this is shown to be an update, false otherwise
      */
+    @Deprecated
     boolean wasModified(T object);
 
     /**
@@ -113,6 +120,7 @@ public interface ZoomaResolver<T> {
      *               ZOOMA
      * @return the unmodified object from ZOOMA
      */
+    @Deprecated
     T findModified(T object);
 
     /**
@@ -122,17 +130,25 @@ public interface ZoomaResolver<T> {
      * @param referenceObject the unmodified version of the new object
      * @return the type of object modification that was shown to occur
      */
+    @Deprecated
     Modification getModification(T object, T referenceObject);
 
     /**
      * Types of modification that may occur between versions of ZOOMA model objects
      */
+    @Deprecated
     public enum Modification {
+        @Deprecated
         PROPERTY_TYPE_MODIFICATION,
+        @Deprecated
         PROPERTY_VALUE_MODIFICATION,
+        @Deprecated
         BIOLOGICAL_ENTITY_MODIFICATION,
+        @Deprecated
         SEMANTIC_TAG_MODIFICATION,
+        @Deprecated
         PROVENANCE_MODIFICATION,
+        @Deprecated
         NO_MODIFICATION
     }
 }

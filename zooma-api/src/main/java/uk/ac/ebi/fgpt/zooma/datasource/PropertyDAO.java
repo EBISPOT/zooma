@@ -40,11 +40,11 @@ public interface PropertyDAO extends ZoomaDAO<Property> {
     /**
      * Retrieves a property from a zooma datasource by exactly matching on type and value
      *
-     * @param type  the type to match on
-     * @param value the value to match on
+     * @param type  the type to match on (can be null if value is supplied)
+     * @param value the value to match on (can be null if type supplied)
      * @return the matching property
      */
-    Property readByTypeAndValue(String type, String value);
+    Collection<Property> readByTypeAndValue(String type, String value);
 
     /**
      * Retrieves a property from a zooma datasource by exactly matching on value.  Returned properties must have NO

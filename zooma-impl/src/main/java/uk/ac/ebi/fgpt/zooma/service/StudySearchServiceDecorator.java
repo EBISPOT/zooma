@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
+import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
 
 import java.net.URI;
@@ -36,28 +37,12 @@ public abstract class StudySearchServiceDecorator implements StudySearchService 
         return _studySearchService.searchBySemanticTags(useInference, semanticTags);
     }
 
+    @Override
+    public Collection<Study> searchByProperty(Property... property) {
+        return _studySearchService.searchByProperty(property);
+    }
+
     @Override public Collection<Study> searchByStudyAccession(String accession) {
         return _studySearchService.searchByStudyAccession(accession);
-    }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(String... semanticTagShortnames) {
-        return _studySearchService.searchAndScoreBySemanticTags(semanticTagShortnames);
-    }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(URI... semanticTags) {
-        return _studySearchService.searchAndScoreBySemanticTags(semanticTags);
-    }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(boolean useInference,
-                                                                    String... semanticTagShortnames) {
-        return _studySearchService.searchAndScoreBySemanticTags(useInference, semanticTagShortnames);
-    }
-
-    @Override public Map<Study, Float> searchAndScoreBySemanticTags(boolean useInference, URI... semanticTags) {
-        return _studySearchService.searchAndScoreBySemanticTags(useInference, semanticTags);
-    }
-
-    @Override public Map<Study, Float> searchAndScoreByStudyAccession(String accession) {
-        return _studySearchService.searchAndScoreByStudyAccession(accession);
     }
 }

@@ -1,14 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.QuerySolutionMap;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.query.*;
 import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +16,7 @@ import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,7 +31,7 @@ public class SparqlOntologyDAO implements OntologyDAO {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    @Value("${zooma.ontology.synonym.predicates}")
+    @Value("${synonym.predicates}")
     private String synonymPredicates;
 
     protected Logger getLog() {
@@ -75,7 +71,7 @@ public class SparqlOntologyDAO implements OntologyDAO {
             String label = evaluateLabelQueryResult(results);
 
             if (label == null) {
-                label = URIUtils.extractFragment(semanticTagURI);
+//                label = URIUtils.extractFragment(semanticTagURI);
                 getLog().warn("No rdfs:label present for <" + semanticTagURI + ">");
             }
 
@@ -125,6 +121,46 @@ public class SparqlOntologyDAO implements OntologyDAO {
         }
     }
 
+    @Override
+    public Set<String> getChildren(URI semanticTagURI, boolean infer) {
+
+        String query = getQueryManager().getSparqlQuery("ONTOLOGY.children");
+        if (infer) {
+            query =  getQueryManager().getSparqlQuery("ONTOLOGY.descendants");
+        }
+        Graph g = getQueryService().getDefaultGraph();
+        QuerySolutionMap initialBinding = new QuerySolutionMap();
+        initialBinding.add(QueryVariables.SEMANTIC_TAG.toString(), new ResourceImpl(semanticTagURI.toString()));
+
+        ParameterizedSparqlString queryString = new ParameterizedSparqlString(query, initialBinding);
+
+        QueryExecution execute = null;
+        try {
+            execute = getQueryService().getQueryExecution(g, queryString.toString(), new QuerySolutionMap(), false);
+            ResultSet results = execute.execSelect();
+            Set<String> childTags = new HashSet<String>();
+
+            while (results.hasNext()) {
+                String childUri = getChildTagsFromBindingSet(results.next());
+                if (childUri != null) {
+                    childTags.add(childUri);
+                }
+            }
+            return childTags;
+        }
+        catch (LodeException e) {
+            throw new SPARQLQueryException("Failed to retrieve annotation summaries", e);
+        }
+        finally {
+            if (execute != null) {
+                execute.close();
+                if (g != null) {
+                    g.close();
+                }
+            }
+        }
+    }
+
     private Set<String> evaluateSynonymQueryResult(ResultSet result) {
         Set<String> synonyms = new HashSet<>();
         while (result.hasNext()) {
@@ -136,6 +172,16 @@ public class SparqlOntologyDAO implements OntologyDAO {
         }
         return synonyms;
 
+    }
+
+    private String getChildTagsFromBindingSet(QuerySolution solution) {
+        Resource child = solution.getResource(QueryVariables.CHILD_TAG.toString());
+        if (child != null) {
+            return child.getURI();
+        }
+        else {
+            return null;
+        }
     }
 
     private String getSynonymFromBindingSet(QuerySolution solution) {
@@ -153,7 +199,7 @@ public class SparqlOntologyDAO implements OntologyDAO {
     @Override public Set<String> getSemanticTagSynonyms(URI semanticTagURI) {
         Set<String> synonyms = new HashSet<String>();
         synonyms.addAll(getSemanticTagSynonyms(URI.create("http://www.ebi.ac.uk/efo/alternative_term"),
-                                               semanticTagURI));
+                semanticTagURI));
 
         if (synonymPredicates != null) {
             String[] syns = synonymPredicates.split(",");

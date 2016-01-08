@@ -3,9 +3,13 @@ package uk.ac.ebi.fgpt.zooma.util;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import static junit.framework.Assert.*;
 
@@ -20,6 +24,8 @@ public class TestURIUtils {
     private String prefix2;
     private String prefix3;
 
+    private String inferredPrefix;
+
     private String namespace1;
     private String namespace2;
     private String namespace3;
@@ -27,8 +33,12 @@ public class TestURIUtils {
     private String namespace5;
     private String namespace6;
 
+    private String inferredNamespace;
+
     private String shortform1;
     private String shortform2;
+
+    private String inferredShortform;
 
     private URI uri1;
     private URI uri2;
@@ -40,19 +50,31 @@ public class TestURIUtils {
     private URI uri8;
     private URI uri9;
 
+    private URI inferredURI;
+
     @Before
     public void setUp() {
+        URL url = getClass().getClassLoader().getResource("config/naming/prefix.properties");
+        String path = url != null ? url.toString().replace("file:", "").replace("config/naming/prefix.properties", "") : "";
+        System.setProperty("zooma.home", new File(path).getAbsolutePath());
+
         prefix1 = "slash";
         prefix2 = "hash";
         prefix3 = "baz";
+
+        inferredPrefix = "fooresource";
 
         namespace1 = "http://www.test.com/";
         namespace2 = "http://www.test.com/foo/";
         namespace3 = "http://www.test.com/bar#";
         namespace4 = "http://www.test.com/foo/bar/baz#";
 
+        inferredNamespace = "http://rdf.ebi.ac.uk/resource/zooma/foo/";
+
         shortform1 = prefix1 + ":term";
         shortform2 = prefix2 + ":term";
+
+        inferredShortform = inferredPrefix + ":term";
 
         uri1 = URI.create(namespace2 + "term");
         uri2 = URI.create(namespace3 + "term");
@@ -69,19 +91,24 @@ public class TestURIUtils {
         uri8 = URI.create(namespace1);
         uri9 = URI.create(namespace2 + "bar#term");
 
+        inferredURI = URI.create(inferredNamespace + "term");
+
         // reload "clean" prefix mappings
         URIUtils.loadPrefixMappings();
-    }
-
-    public void tearDown() {
-        URIUtils.PREFIX_CREATION_MODE = URIUtils.DEFAULT_PREFIX_CREATION_MODE;
-        URIUtils.SHORTFORM_STRICTNESS = URIUtils.DEFAULT_SHORTFORM_STRICTNESS;
     }
 
     @Test
     public void testGetPrefixMappings() {
         Map<String, String> prefixMappings = URIUtils.getPrefixMappings();
-        assertEquals("Unexpected number of prefixes", 4, prefixMappings.size());
+        Properties properties = new Properties();
+        try {
+            properties.load(getClass().getClassLoader().getResourceAsStream("config/naming/prefix.properties"));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            fail("Couldn't load prefix properties");
+        }
+        assertEquals("Unexpected number of prefixes", properties.size(), prefixMappings.size());
         assertTrue("Could not find 'slash' prefix", prefixMappings.containsKey("slash"));
         assertTrue("Could not find 'hash' prefix", prefixMappings.containsKey("hash"));
         System.out.println("Contents of prefix mappings: " + prefixMappings.toString());
@@ -142,14 +169,14 @@ public class TestURIUtils {
     @Test
     public void testGetUnknownRoundTripWithCaching() {
         // this test requires strict creation of a new, cached shortform to work
-        URIUtils.PREFIX_CREATION_MODE = URIUtils.PrefixCreation.CREATE_AND_CACHE;
-        URIUtils.SHORTFORM_STRICTNESS = URIUtils.ShortformStrictness.STRICT;
+        URIUtils.PrefixCreationMode prefixCreationMode = URIUtils.PrefixCreationMode.CREATE_AND_CACHE;
+        URIUtils.ShortformStrictness strictness = URIUtils.ShortformStrictness.STRICT;
 
         String shortform;
         URI uri;
 
         // first pass
-        shortform = URIUtils.getShortform(uri4);
+        shortform = URIUtils.getShortform(uri4, strictness, prefixCreationMode);
         System.out.println("Shortened " + uri4 + " -> " + shortform);
         assertEquals("Unexpected shortened form", "anoth:term", shortform);
         uri = URIUtils.getURI(shortform);
@@ -157,7 +184,7 @@ public class TestURIUtils {
         assertEquals("Unexpected uri", uri4, uri);
 
         // second pass, should reuse cached prefix zooma1
-        shortform = URIUtils.getShortform(uri4);
+        shortform = URIUtils.getShortform(uri4, strictness, prefixCreationMode);
         System.out.println("Shortened " + uri4 + " -> " + shortform);
         assertEquals("Unexpected shortened form", "anoth:term", shortform);
         uri = URIUtils.getURI(shortform);
@@ -165,7 +192,7 @@ public class TestURIUtils {
         assertEquals("Unexpected uri", uri4, uri);
 
         // test namespace ends in # instead of /
-        shortform = URIUtils.getShortform(uri5);
+        shortform = URIUtils.getShortform(uri5, strictness, prefixCreationMode);
         System.out.println("Shortened " + uri5 + " -> " + shortform);
         assertEquals("Unexpected shortened form", "yetan:term", shortform);
         uri = URIUtils.getURI(shortform);
@@ -176,11 +203,11 @@ public class TestURIUtils {
     @Test
     public void testCompoundingStrict() {
         // this tests strict creation of a new shortform
-        URIUtils.PREFIX_CREATION_MODE = URIUtils.PrefixCreation.CREATE;
-        URIUtils.SHORTFORM_STRICTNESS = URIUtils.ShortformStrictness.STRICT;
+        URIUtils.PrefixCreationMode prefixCreationMode = URIUtils.PrefixCreationMode.CREATE;
+        URIUtils.ShortformStrictness strictness = URIUtils.ShortformStrictness.STRICT;
 
         String result;
-        result = URIUtils.getShortform(uri6);
+        result = URIUtils.getShortform(uri6, strictness, prefixCreationMode);
         System.out.println("Shortened " + uri6 + " -> " + result);
         assertFalse("Short form results in an invalid localname", result.contains("/") || result.contains("#"));
     }
@@ -188,11 +215,11 @@ public class TestURIUtils {
     @Test
     public void testCompoundingRelaxed() {
         // this tests strict creation of a new shortform
-        URIUtils.PREFIX_CREATION_MODE = URIUtils.PrefixCreation.DO_NOT_CREATE;
-        URIUtils.SHORTFORM_STRICTNESS = URIUtils.ShortformStrictness.ALLOW_HASHES;
+        URIUtils.PrefixCreationMode prefixCreationMode = URIUtils.PrefixCreationMode.DO_NOT_CREATE;
+        URIUtils.ShortformStrictness strictness = URIUtils.ShortformStrictness.ALLOW_HASHES;
 
         String result;
-        result = URIUtils.getShortform(uri9);
+        result = URIUtils.getShortform(uri9, strictness, prefixCreationMode);
         System.out.println("Shortened " + uri9 + " -> " + result);
         assertFalse("Short form results in an invalid localname", result.contains("/"));
     }
@@ -223,5 +250,15 @@ public class TestURIUtils {
         System.out.println("Namespace for <" + uri4 + "> is " + result);
         assertEquals(URI.create(namespace5), result);
         assertFalse(URIUtils.isNamespaceKnown(result));
+    }
+
+    @Test
+    public void testExpandCollapseInferred() {
+        String result;
+        result = URIUtils.getShortform(inferredURI);
+        System.out.println("Shortened " + inferredURI + " -> " + result);
+        assertEquals("Unexpected shortened form", inferredPrefix + ":term", result);
+
+        assertEquals("Unexpected lengthened form", inferredURI, URIUtils.getURI(inferredShortform));
     }
 }

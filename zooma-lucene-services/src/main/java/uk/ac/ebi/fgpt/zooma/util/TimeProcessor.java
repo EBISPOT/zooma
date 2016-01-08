@@ -12,25 +12,13 @@ import java.util.regex.Pattern;
  * @date 16/08/13
  */
 public class TimeProcessor implements SearchStringProcessor {
-    // should only be invoked if type is some derivation of 'time', 'time unit' or 'age', e.g.
-//    if (searchStringType.contentEquals("time") ||
-//            searchStringType.contentEquals("time unit") ||
-//            searchStringType.contentEquals("time_unit") ||
-//            searchStringType.contentEquals("timeunit") ||
-//            searchStringType.contentEquals("age") ||
-//            searchStringType.contentEquals("derived time unit") ||
-//            searchStringType.contentEquals("time derived unit") ||
-//            searchStringType.contentEquals("period")) {
-//        return true;
-//    }
-
     @Override
     public float getBoostFactor() {
         return 0.95f;
     }
 
     /**
-     * Returns true if the property type is equal to time,age, ect.. Returns false otherwise.
+     * Returns true if the search string contains any decimal or numeric values.
      */
     @Override
     public boolean canProcess(String searchString) {
@@ -39,19 +27,16 @@ public class TimeProcessor implements SearchStringProcessor {
         return m.find();
     }
 
-
     /**
      * Takes a string, looks for numbers (such as: int,floats and intervals) in the string, removes them and returns the
      * processed string.
      */
     @Override
     public List<String> processSearchString(String searchString) throws IllegalArgumentException {
-        String processedString = "";
-
         String space = "\\s{0,2}";
 
         //pattern for number: int or float..
-        String number_float = space + "\\d{1,10}.\\d{1,10}" + space;
+        String number_float = space + "\\d{1,10}\\.\\d{1,10}" + space;
         String number_int = space + "\\d{1,10}" + space;
 
         //pattern for interval (e.g: 3-4 days)..
@@ -64,30 +49,36 @@ public class TimeProcessor implements SearchStringProcessor {
         Pattern pattern_number_float = Pattern.compile(number_float);
         Pattern pattern_number_int = Pattern.compile(number_int);
 
-        Matcher matcher_interval_float = pattern_interval_float.matcher(searchString);
-        Matcher matcher_interval_int = pattern_interval_int.matcher(searchString);
-        Matcher matcher_number_float = pattern_number_float.matcher(searchString);
-        Matcher matcher_number_int = pattern_number_int.matcher(searchString);
+        String matchedNumber;
+        String processedString = searchString;
 
-        String substring_number = null;
-
-        if (matcher_interval_float != null && matcher_interval_float.find()) {
-            substring_number = matcher_interval_float.group();
-        }
-        else if (matcher_interval_int != null && matcher_interval_int.find()) {
-            substring_number = matcher_interval_int.group();
-        }
-        else if (matcher_number_float != null && matcher_number_float.find()) {
-            substring_number = matcher_number_float.group();
-        }
-        else if (matcher_number_int != null && matcher_number_int.find()) {
-            substring_number = matcher_number_int.group();
+        // replace all matched numbers and intervals
+        Matcher matcher_interval_float = pattern_interval_float.matcher(processedString);
+        while (matcher_interval_float.find()) {
+            matchedNumber = RegexUtils.escapeString(matcher_interval_float.group());
+            processedString = processedString.replaceFirst(matchedNumber, "");
         }
 
-        if (substring_number != null) {
-            processedString = searchString.replaceAll(substring_number, " ");
-            processedString = processedString.trim().replaceAll(" +", " ");
+        Matcher matcher_interval_int = pattern_interval_int.matcher(processedString);
+        while (matcher_interval_int.find()) {
+            matchedNumber = matcher_interval_int.group();
+            processedString = processedString.replaceFirst(matchedNumber, "");
         }
+
+        Matcher matcher_number_float = pattern_number_float.matcher(processedString);
+        while (matcher_number_float.find()) {
+            matchedNumber = matcher_number_float.group();
+            processedString = processedString.replaceFirst(matchedNumber, "");
+        }
+
+        Matcher matcher_number_int = pattern_number_int.matcher(processedString);
+        while (matcher_number_int.find()) {
+            matchedNumber = matcher_number_int.group();
+            processedString = processedString.replaceFirst(matchedNumber, "");
+        }
+
+        // finally, tidy up whitespace
+        processedString = processedString.trim().replaceAll("\\s+", " ");
 
         if (!processedString.isEmpty()) {
             return Collections.singletonList(processedString);

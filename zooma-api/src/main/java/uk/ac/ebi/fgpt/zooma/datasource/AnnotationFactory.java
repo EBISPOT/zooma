@@ -1,8 +1,12 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
+import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
+import uk.ac.ebi.fgpt.zooma.model.Property;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -15,9 +19,22 @@ import java.util.Date;
  */
 public interface AnnotationFactory {
     /**
+     * Retrieves a name that represents the datasource that this annotation factory is capable of generating data for.
+     * Although this is not treated as a unique key, it is best to take care to ensure that implementations define a
+     * reasonably unique name so as to avoid confusion when users attempt to identify annotation factories using this
+     * field.
+     * <p>
+     * If you want to categorize datasources into subsets, the recommended separator to use is a period (".") to split
+     * into Java-like packages.
+     *
+     * @return the user-friendly name of the datasource this factory can generate annotations for
+     */
+    String getDatasourceName();
+
+    /**
      * Generates a fully formed annotation object (including any associated studies, bioentities, properties, semantic
      * tags and provenance objects) given the supplied string forms.
-     * <p/>
+     * <p>
      * Some of the arguments taken by this method are optional and can be null, others are required.  Annotation, Study,
      * Bioentity and Property URIs and IDs are all optional and, if absent from the dataset, can be null.  Study
      * accession is required, as is bioentity name.  It is assumed that study accessions are unique within a dataset,
@@ -62,4 +79,24 @@ public interface AnnotationFactory {
                                 URI semanticTag,
                                 String annotator,
                                 Date annotationDate);
+
+    /**
+     * Generates a fully formed annotation object (including any associated studies, bioentities, properties, semantic
+     * tags and provenance objects) given the supplied objects.
+     * <p>
+     * Some of the arguments taken by this method are optional and can be null, others are required. Bioentity,
+     * replaces, replacedBy and semantic tags are all optional and, if absent from the dataset, can be null. Property
+     * and AnnotationProvenance are required.
+     *
+     * @param annotatedBiologicalEntities collection of biological entities being annotated, can be null
+     * @param annotatedProperty           property that form the main body of the annotation, not null
+     * @param semanticTags                optional collection of semantic tags for the annotation
+     * @param replaces                    collection of URI for annotations this new annotation replaces
+     * @return the fully created annotation
+     */
+    Annotation createAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
+                                Property annotatedProperty,
+                                AnnotationProvenance annotationProvenance,
+                                Collection<URI> semanticTags,
+                                Collection<URI> replaces);
 }

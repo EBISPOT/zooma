@@ -4,7 +4,7 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 /**
  * A ZOOMA service that allows direct retrieval of {@link uk.ac.ebi.fgpt.zooma.model.AnnotationSummary} objects (that
@@ -16,40 +16,48 @@ import java.util.Map;
  */
 public interface AnnotationSummarySearchService {
     /**
-     * Retrieves a collection of annotation summaries that describe annotations about the given property value
+     * Retrieves a collection of annotation summaries that describe annotations about the given property value, as long
+     * as they have been asserted in one of the required supplied sources.
      *
      * @param propertyValuePattern the property value to fetch annotation summaries for
+     * @param sources              the URI of the datasources that AnnotationSummaries should be present in
      * @return a collection of annotation summaries about the property with a value matching the given one
      */
-    Collection<AnnotationSummary> search(String propertyValuePattern);
+    Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources);
 
     /**
-     * Retrieves a collection of annotation summaries that describe annotations about the given property value and type
+     * Retrieves a collection of annotation summaries that describe annotations about the given property value and type,
+     * as long as they have been asserted in one of the required supplied sources.
      *
-     * @param propertyValuePattern the property value to fetch annotation summaries for
      * @param propertyType         the property type to fetch annotation summaries for
+     * @param propertyValuePattern the property value to fetch annotation summaries for
+     * @param sources              the URI of the datasources that AnnotationSummaries should be present in
      * @return a collection of annotation summaries about the property with a value matching the given one and matching
-     *         type
+     * type
      */
-    Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern);
+    Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern, URI... sources);
 
     /**
-     * Retrieves a collection of annotation summaries that describe annotations about the given property value
+     * Retrieves a collection of annotation summaries that describe annotations about the given property value, as long
+     * as they have been asserted in one of the supplied sources
      *
      * @param propertyValuePrefix the property value to fetch annotation summaries for
+     * @param sources             the URI of the datasources that AnnotationSummaries should be present in
      * @return a collection of annotation summaries about the property with a value matching the given prefix
      */
-    Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix);
+    Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI... sources);
 
     /**
-     * Retrieves a collection of annotation summaries that describe annotations about the given property value and type
+     * Retrieves a collection of annotation summaries that describe annotations about the given property value and type,
+     * as long as they have been asserted in the supplied source
      *
-     * @param propertyValuePrefix the property value to fetch annotation summaries for
      * @param propertyType        the property type to fetch annotation summaries for
+     * @param propertyValuePrefix the property value to fetch annotation summaries for
+     * @param sources             the URI of the datasource that AnnotationSummaries should be present in
      * @return a collection of annotation summaries about the property with a value matching the given prefix and
-     *         matching type
+     * matching type
      */
-    Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix);
+    Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources);
 
     /**
      * Search the set of annotation summaries in ZOOMA for those with annotations that closely match the set of supplied
@@ -70,72 +78,31 @@ public interface AnnotationSummarySearchService {
     Collection<AnnotationSummary> searchBySemanticTags(URI... semanticTags);
 
     /**
-     * Retrieves a collection of annotation summaries that describe annotations about the given property value.
-     * <p/>
-     * This form returns a map of matching annotation summaries linked to a metric that describes the quality of the
-     * match.  You may need to sort results based on their score to determine the best match order
+     * Retrieves a collection of annotation summaries that describe annotations about the given property value, using
+     * the list of supplied sources as a ranking order, as long as they have been asserted in one of the required
+     * sources
      *
      * @param propertyValuePattern the property value to fetch annotation summaries for
-     * @return a map of annotation summaries about this property, linked to the score for the match
+     * @param preferredSources     the preferred order of AnnotationSummary datasources
+     * @param requiredSources      the URI of the datasources that AnnotationSummaries should be present in
+     * @return a collection of annotation summaries about the property with a value matching the given one
      */
-    Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern);
+    Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
+                                                           List<URI> preferredSources,
+                                                           URI... requiredSources);
 
     /**
-     * Retrieves a collection of annotation summaries that describe annotations about the given property value and
-     * type.
-     * <p/>
-     * This form returns a map of matching annotation summaries linked to a metric that describes the quality of the
-     * match.  You may need to sort results based on their score to determine the best match order
+     * Retrieves a collection of annotation summaries that describe annotations about the given property value and type,
+     * using the list of supplied sources as a ranking order, as long as they have been asserted in one of the required
+     * sources
      *
      * @param propertyValuePattern the property value to fetch annotation summaries for
-     * @param propertyType         the property type to fetch annotation summaries for
-     * @return a map of annotation summaries about this property, linked to the score for the match
+     * @param preferredSources     the preferred order of AnnotationSummary datasources
+     * @param requiredSources      the URI of the datasources that AnnotationSummaries should be present in
+     * @return a collection of annotation summaries about the property with a value matching the given one
      */
-    Map<AnnotationSummary, Float> searchAndScore(String propertyType, String propertyValuePattern);
-
-    /**
-     * Retrieves a collection of annotation summaries that describe annotations about the given property value.
-     * <p/>
-     * This form returns a map of matching annotation summaries linked to a metric that describes the quality of the
-     * match.  You may need to sort results based on their score to determine the best match order
-     *
-     * @param propertyValuePrefix the property value to fetch annotation summaries for
-     * @return a map of annotation summaries about this property, linked to the score for the match
-     */
-    Map<AnnotationSummary, Float> searchAndScoreByPrefix(String propertyValuePrefix);
-
-    /**
-     * Retrieves a collection of annotation summaries that describe annotations about the given property value and
-     * type.
-     * <p/>
-     * This form returns a map of matching annotation summaries linked to a metric that describes the quality of the
-     * match.  You may need to sort results based on their score to determine the best match order
-     *
-     * @param propertyValuePrefix the property value to fetch annotation summaries for
-     * @param propertyType        the property type to fetch annotation summaries for
-     * @return a map of annotation summaries about this property, linked to the score for the match
-     */
-    Map<AnnotationSummary, Float> searchAndScoreByPrefix(String propertyType, String propertyValuePrefix);
-
-
-    /**
-     * Search the set of annotation summaries in ZOOMA for those with annotations that closely match the set of supplied
-     * semantic tags.
-     * <p/>
-     * This form returns a map of matching annotation summaries linked to a metric that describes the quality of the
-     * match.  You may need to sort results based on their score to determine the best match order
-     *
-     * @param semanticTagShortnames the set of semantic tags that all results should annotate to
-     * @return a collection of studies that annotate to all of the supplied entities
-     */
-    Map<AnnotationSummary, Float> searchAndScoreBySemanticTags(String... semanticTagShortnames);
-
-    /**
-     * Search the set of annotation summaries in ZOOMA for those with annotations that closely match the set of supplied
-     * semantic tags.
-     *
-     * @param semanticTags the set of semantic tags that all results should annotate to
-     * @return a collection of studies that annotate to all of the supplied entities
-     */
-    Map<AnnotationSummary, Float> searchAndScoreBySemanticTags(URI... semanticTags);
+    Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
+                                                           String propertyValuePattern,
+                                                           List<URI> preferredSources,
+                                                           URI... requiredSources);
 }

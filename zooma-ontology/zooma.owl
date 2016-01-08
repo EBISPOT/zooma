@@ -119,6 +119,23 @@
     
 
 
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/isReplacedBy -->
+
+    <owl:ObjectProperty rdf:about="&zooma;isReplacedBy">
+        <rdf:type rdf:resource="&owl;TransitiveProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://rdf.ebi.ac.uk/terms/zooma/replaces -->
+
+    <owl:ObjectProperty rdf:about="&zooma;replaces">
+        <rdf:type rdf:resource="&owl;TransitiveProperty"/>
+        <owl:inverseOf rdf:resource="&zooma;isReplacedBy"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://www.openannotation.org/ns/annotator -->
 
     <owl:ObjectProperty rdf:about="&ns;annotator">
@@ -409,16 +426,16 @@ There SHOULD be exactly 1 oa:annotatedAt property per Annotation, and MUST NOT b
         <oboInOwl:created_by rdf:datatype="&xsd;string">mchibucos</oboInOwl:created_by>
     </owl:Class>
     <owl:Axiom>
-        <owl:annotatedTarget rdf:datatype="&xsd;string">A type of curator inference that is used in a manual assertion.</owl:annotatedTarget>
-        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
-        <owl:annotatedSource rdf:resource="&obo;ECO_0000305"/>
-        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
-    </owl:Axiom>
-    <owl:Axiom>
         <rdfs:label rdf:datatype="&xsd;string">inferred by curator</rdfs:label>
         <owl:annotatedTarget rdf:datatype="&xsd;string">GOECO:IC</owl:annotatedTarget>
         <owl:annotatedSource rdf:resource="&obo;ECO_0000305"/>
         <owl:annotatedProperty rdf:resource="&oboInOwl;hasDbXref"/>
+    </owl:Axiom>
+    <owl:Axiom>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">A type of curator inference that is used in a manual assertion.</owl:annotatedTarget>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:MCC</oboInOwl:hasDbXref>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000305"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
     </owl:Axiom>
     
 
@@ -549,15 +566,21 @@ There SHOULD be exactly 1 oa:annotatedAt property per Annotation, and MUST NOT b
     </owl:Class>
     <owl:Axiom>
         <oboInOwl:hasDbXref rdf:datatype="&xsd;string">GOECO:IEA</oboInOwl:hasDbXref>
-        <owl:annotatedTarget rdf:datatype="&xsd;string">IEA</owl:annotatedTarget>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">inferred from electronic annotation</owl:annotatedTarget>
         <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
         <owl:annotatedProperty rdf:resource="&oboInOwl;hasExactSynonym"/>
     </owl:Axiom>
     <owl:Axiom>
-        <owl:annotatedTarget rdf:datatype="&xsd;string">A type of evidence that is used in an automatic assertion.</owl:annotatedTarget>
-        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:cjm</oboInOwl:hasDbXref>
+        <rdfs:label rdf:datatype="&xsd;string">inferred from electronic annotation</rdfs:label>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">GOECO:IEA</owl:annotatedTarget>
         <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
-        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+        <owl:annotatedProperty rdf:resource="&oboInOwl;hasDbXref"/>
+    </owl:Axiom>
+    <owl:Axiom>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">GOECO:IEA</oboInOwl:hasDbXref>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">IEA</owl:annotatedTarget>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
+        <owl:annotatedProperty rdf:resource="&oboInOwl;hasExactSynonym"/>
     </owl:Axiom>
     <owl:Axiom>
         <rdfs:label rdf:datatype="&xsd;string">Gene Ontology annotation based on Swiss-Prot Subcellular Location vocabulary mapping.</rdfs:label>
@@ -566,20 +589,14 @@ There SHOULD be exactly 1 oa:annotatedAt property per Annotation, and MUST NOT b
         <owl:annotatedProperty rdf:resource="&oboInOwl;hasDbXref"/>
     </owl:Axiom>
     <owl:Axiom>
+        <owl:annotatedTarget rdf:datatype="&xsd;string">A type of evidence that is used in an automatic assertion.</owl:annotatedTarget>
+        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">ECO:cjm</oboInOwl:hasDbXref>
+        <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
+        <owl:annotatedProperty rdf:resource="&obo;IAO_0000115"/>
+    </owl:Axiom>
+    <owl:Axiom>
         <rdfs:label rdf:datatype="&xsd;string">Gene Ontology annotation based on Swiss-Prot keyword mapping.</rdfs:label>
         <owl:annotatedTarget rdf:datatype="&xsd;string">GO_REF:0000004</owl:annotatedTarget>
-        <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
-        <owl:annotatedProperty rdf:resource="&oboInOwl;hasDbXref"/>
-    </owl:Axiom>
-    <owl:Axiom>
-        <oboInOwl:hasDbXref rdf:datatype="&xsd;string">GOECO:IEA</oboInOwl:hasDbXref>
-        <owl:annotatedTarget rdf:datatype="&xsd;string">inferred from electronic annotation</owl:annotatedTarget>
-        <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
-        <owl:annotatedProperty rdf:resource="&oboInOwl;hasExactSynonym"/>
-    </owl:Axiom>
-    <owl:Axiom>
-        <rdfs:label rdf:datatype="&xsd;string">inferred from electronic annotation</rdfs:label>
-        <owl:annotatedTarget rdf:datatype="&xsd;string">GOECO:IEA</owl:annotatedTarget>
         <owl:annotatedSource rdf:resource="&obo;ECO_0000501"/>
         <owl:annotatedProperty rdf:resource="&oboInOwl;hasDbXref"/>
     </owl:Axiom>
@@ -778,32 +795,14 @@ There SHOULD be exactly 1 oa:annotatedAt property per Annotation, and MUST NOT b
         <rdfs:label xml:lang="en">Annotation</rdfs:label>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&zooma;accuracy"/>
-                <owl:someValuesFrom rdf:resource="&zooma;accuracy"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns;annotator"/>
-                <owl:someValuesFrom rdf:resource="&owl;Thing"/>
+                <owl:onProperty rdf:resource="&ns;annotated"/>
+                <owl:someValuesFrom rdf:resource="&xsd;dateTime"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&ns;hasBody"/>
-                <owl:someValuesFrom rdf:resource="&zooma;Property"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&zooma;hadEvidence"/>
-                <owl:someValuesFrom rdf:resource="&obo;ECO_0000000"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns;hasTarget"/>
-                <owl:someValuesFrom rdf:resource="&zooma;Target"/>
+                <owl:someValuesFrom rdf:resource="&ns;SemanticTag"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
@@ -814,14 +813,32 @@ There SHOULD be exactly 1 oa:annotatedAt property per Annotation, and MUST NOT b
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns;annotated"/>
-                <owl:someValuesFrom rdf:resource="&xsd;dateTime"/>
+                <owl:onProperty rdf:resource="&ns;hasBody"/>
+                <owl:someValuesFrom rdf:resource="&zooma;Property"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&ns;hasBody"/>
-                <owl:someValuesFrom rdf:resource="&ns;SemanticTag"/>
+                <owl:onProperty rdf:resource="&zooma;accuracy"/>
+                <owl:someValuesFrom rdf:resource="&zooma;accuracy"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&ns;hasTarget"/>
+                <owl:someValuesFrom rdf:resource="&zooma;Target"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&zooma;hadEvidence"/>
+                <owl:someValuesFrom rdf:resource="&obo;ECO_0000000"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&ns;annotator"/>
+                <owl:someValuesFrom rdf:resource="&owl;Thing"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">Typically an Annotation has a single Body (oa:hasBody), which is the comment or other descriptive resource, and a single Target (oa:hasTarget) that the Body is somehow &quot;about&quot;. The Body provides the information which is annotating the Target. 

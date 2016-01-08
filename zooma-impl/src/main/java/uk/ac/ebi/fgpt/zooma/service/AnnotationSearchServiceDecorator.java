@@ -3,7 +3,6 @@ package uk.ac.ebi.fgpt.zooma.service;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * An abstract decorator of a {@link AnnotationSearchService}.  You should subclass this decorator to create different
@@ -28,27 +27,11 @@ public abstract class AnnotationSearchServiceDecorator implements AnnotationSear
         return _annotationSearchService.search(propertyType, propertyValuePattern);
     }
 
-    @Override public Collection<Annotation> searchPrefix(String propertyValuePrefix) {
-        return _annotationSearchService.searchPrefix(propertyValuePrefix);
+    @Override public Collection<Annotation> searchByPrefix(String propertyValuePrefix) {
+        return _annotationSearchService.searchByPrefix(propertyValuePrefix);
     }
 
-    @Override public Collection<Annotation> searchPrefix(String propertyType, String propertyValuePrefix) {
-        return _annotationSearchService.searchPrefix(propertyType, propertyValuePrefix);
-    }
-
-    @Override public Map<Annotation, Float> searchAndScore(String propertyValuePattern) {
-        return _annotationSearchService.searchAndScore(propertyValuePattern);
-    }
-
-    @Override public Map<Annotation, Float> searchAndScore(String propertyType, String propertyValuePattern) {
-        return _annotationSearchService.searchAndScore(propertyType, propertyValuePattern);
-    }
-
-    @Override public Map<Annotation, Float> searchAndScoreByPrefix(String propertyValuePrefix) {
-        return _annotationSearchService.searchAndScoreByPrefix(propertyValuePrefix);
-    }
-
-    @Override public Map<Annotation, Float> searchAndScoreByPrefix(String propertyType, String propertyValuePrefix) {
-        return _annotationSearchService.searchAndScoreByPrefix(propertyType, propertyValuePrefix);
+    @Override public Collection<Annotation> searchByPrefix(String propertyType, String propertyValuePrefix) {
+        return _annotationSearchService.searchByPrefix(propertyType, propertyValuePrefix);
     }
 }

@@ -6,7 +6,7 @@ package uk.ac.ebi.fgpt.zooma.exception;
  * @author Tony Burdett
  * @date 31/08/12
  */
-public class QueryCreationException extends Exception {
+public class QueryCreationException extends RuntimeException {
     public QueryCreationException() {
         super();
     }

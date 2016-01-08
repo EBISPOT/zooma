@@ -2,15 +2,14 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.fgpt.zooma.exception.InvalidDataFormatException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
+import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
 
 import java.net.URI;
-import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -24,18 +23,16 @@ import java.util.HashSet;
  * @author Simon Jupp
  * @date 01/10/12
  */
-public abstract class AbstractAnnotationFactory implements AnnotationFactory {
-    private AnnotationLoadingSession annotationLoadingSession;
-
-    private long lastRequestTime = -1;
+public abstract class AbstractAnnotationFactory<S extends AnnotationLoadingSession> implements AnnotationFactory {
+    private S annotationLoadingSession;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
-    public AbstractAnnotationFactory(AnnotationLoadingSession annotationLoadingSession) {
+    public AbstractAnnotationFactory(S annotationLoadingSession) {
         this.annotationLoadingSession = annotationLoadingSession;
     }
 
-    public AnnotationLoadingSession getAnnotationLoadingSession() {
+    public S getAnnotationLoadingSession() {
         return annotationLoadingSession;
     }
 
@@ -43,29 +40,61 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
         return log;
     }
 
-    @Override public Annotation createAnnotation(URI annotationURI,
-                                                 String annotationID,
-                                                 String studyAccession,
-                                                 URI studyURI,
-                                                 String studyID,
-                                                 URI studyType,
-                                                 String bioentityName,
-                                                 URI bioentityURI,
-                                                 String bioentityID,
-                                                 String bioentityTypeName,
-                                                 URI bioentityTypeURI,
-                                                 String propertyType,
-                                                 String propertyValue,
-                                                 URI propertyURI,
-                                                 String propertyID,
-                                                 URI semanticTag,
-                                                 String annotator,
-                                                 Date annotationDate) {
-        // monitor for cache cleanup
-        cacheMonitoring();
+    @Override
+    public String getDatasourceName() {
+        return getAnnotationLoadingSession().getDatasourceName();
+    }
 
-        Collection<URI> studyTypes = new HashSet<URI>();
-        if (studyType!=null) {
+    @Override
+    public Annotation createAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
+                                       Property annotatedProperty,
+                                       AnnotationProvenance annotationProvenance,
+                                       Collection<URI> semanticTags,
+                                       Collection<URI> replaces) {
+
+        for (BiologicalEntity be : annotatedBiologicalEntities) {
+            if (be.getURI() == null) {
+                throw new IllegalArgumentException(
+                        "A biological entity without a URI was submitted, can't create annotation");
+                // todo handle this case better
+            }
+        }
+
+        // create new property using regular URI minting strategy
+        Property newProperty = annotatedProperty instanceof TypedProperty ?
+                getAnnotationLoadingSession().getOrCreateProperty(((TypedProperty) annotatedProperty).getPropertyType(),
+                                                                  annotatedProperty.getPropertyValue())
+                : getAnnotationLoadingSession().getOrCreateProperty("", annotatedProperty.getPropertyValue());
+
+        // and return the complete annotation
+        return getAnnotationLoadingSession().getOrCreateAnnotation(
+                annotatedBiologicalEntities,
+                newProperty,
+                annotationProvenance,
+                semanticTags);
+    }
+
+    @Override
+    public Annotation createAnnotation(URI annotationURI,
+                                       String annotationID,
+                                       String studyAccession,
+                                       URI studyURI,
+                                       String studyID,
+                                       URI studyType,
+                                       String bioentityName,
+                                       URI bioentityURI,
+                                       String bioentityID,
+                                       String bioentityTypeName,
+                                       URI bioentityTypeURI,
+                                       String propertyType,
+                                       String propertyValue,
+                                       URI propertyURI,
+                                       String propertyID,
+                                       URI semanticTag,
+                                       String annotator,
+                                       Date annotationDate) {
+        Collection<URI> studyTypes = new HashSet<>();
+        if (studyType != null) {
             studyTypes.add(studyType);
         }
 
@@ -96,11 +125,11 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
 
 
         BiologicalEntity be;
-        Collection<String> bioEntityTypeNames = new HashSet<String>();
+        Collection<String> bioEntityTypeNames = new HashSet<>();
         if (bioentityTypeName != null) {
             bioEntityTypeNames.add(bioentityTypeName);
         }
-        Collection<URI> bioEntityTypeURIs = new HashSet<URI>();
+        Collection<URI> bioEntityTypeURIs = new HashSet<>();
         if (bioentityTypeURI != null) {
             bioEntityTypeURIs.add(bioentityTypeURI);
         }
@@ -174,116 +203,37 @@ public abstract class AbstractAnnotationFactory implements AnnotationFactory {
             }
         }
 
-        AnnotationProvenance prov;
-        if (annotator != null) {
-            if (annotationDate != null) {
-                prov = getAnnotationProvenance(annotator, annotationDate);
-            }
-            else {
-                throw new InvalidDataFormatException("ANNOTATOR supplied without a corresponding ANNOTATION_DATE");
-            }
-        }
-        else {
-            prov = getAnnotationProvenance();
-        }
+        // get or create provenance
+        AnnotationProvenance prov = getAnnotationLoadingSession().getOrCreateAnnotationProvenance(annotator,
+                                                                                                  annotationDate);
 
         // and return the complete annotation
         Annotation a;
-        if (be != null) {
-            if (annotationURI != null) {
-                a = getAnnotationLoadingSession().getOrCreateAnnotation(p,
-                                                                        prov,
-                                                                        semanticTag,
-                                                                        annotationURI,
-                                                                        be);
-            }
-            else {
-                if (annotationID != null) {
-                    a = getAnnotationLoadingSession().getOrCreateAnnotation(p,
-                                                                            prov,
-                                                                            semanticTag,
-                                                                            annotationID,
-                                                                            be);
-                }
-                else {
-                    a = getAnnotationLoadingSession().getOrCreateAnnotation(p,
-                                                                            prov,
-                                                                            semanticTag,
-                                                                            be);
-                }
-            }
+        if (annotationURI != null) {
+            a = getAnnotationLoadingSession().getOrCreateAnnotation(
+                    annotationURI,
+                    be != null ? Collections.singleton(be) : Collections.<BiologicalEntity>emptySet(),
+                    p,
+                    prov,
+                    semanticTag != null ? Collections.singleton(semanticTag) : Collections.<URI>emptySet());
         }
         else {
-            if (annotationURI != null) {
-                a = getAnnotationLoadingSession().getOrCreateAnnotation(p,
-                                                                        prov,
-                                                                        semanticTag,
-                                                                        annotationURI);
+            if (annotationID != null) {
+                a = getAnnotationLoadingSession().getOrCreateAnnotation(
+                        annotationID,
+                        be != null ? Collections.singleton(be) : Collections.<BiologicalEntity>emptySet(),
+                        p,
+                        prov,
+                        semanticTag != null ? Collections.singleton(semanticTag) : Collections.<URI>emptySet());
             }
             else {
-                if (annotationID != null) {
-                    a = getAnnotationLoadingSession().getOrCreateAnnotation(p,
-                                                                            prov,
-                                                                            semanticTag,
-                                                                            annotationID);
-                }
-                else {
-                    a = getAnnotationLoadingSession().getOrCreateAnnotation(p, prov, semanticTag);
-                }
+                a = getAnnotationLoadingSession().getOrCreateAnnotation(
+                        be != null ? Collections.singleton(be) : Collections.<BiologicalEntity>emptySet(),
+                        p,
+                        prov,
+                        semanticTag != null ? Collections.singleton(semanticTag) : Collections.<URI>emptySet());
             }
         }
         return a;
-
-    }
-
-    protected abstract AnnotationProvenance getAnnotationProvenance();
-
-    protected abstract AnnotationProvenance getAnnotationProvenance(String annotator, Date annotationDate);
-
-    protected abstract AnnotationProvenance getAnnotationProvenance(String annotator,
-                                                                    AnnotationProvenance.Accuracy accuracy,
-                                                                    Date annotationDate);
-
-    private Thread t;
-
-    private synchronized void cacheMonitoring() {
-        if (t == null || !t.isAlive()) {
-            t = new Thread(new Runnable() {
-                @Override public void run() {
-                    getLog().debug("Starting cache monitoring daemon thread " +
-                                           "'" + Thread.currentThread().getName() + "'");
-                    boolean cleanup = false;
-                    while (!cleanup) {
-                        // a request has been made
-                        if (lastRequestTime > -1) {
-                            // if the last request was more than 1 minute ago, clear the cache
-                            long time = System.currentTimeMillis() - lastRequestTime;
-                            String estimate = new DecimalFormat("#,###").format(((float) time) / 1000);
-                            getLog().debug("Polling for cache cleanup - last request was " + estimate + "s ago.");
-                            if (System.currentTimeMillis() - lastRequestTime > 60000) {
-                                // if so, clear caches and allow to exit
-                                getAnnotationLoadingSession().clearCaches();
-                                cleanup = true;
-                            }
-                        }
-
-                        if (!cleanup) {
-                            // build in a delay
-                            synchronized (this) {
-                                try {
-                                    wait(60000);
-                                }
-                                catch (InterruptedException e) {
-                                    // just continue
-                                }
-                            }
-                        }
-                    }
-                }
-            }, AbstractAnnotationFactory.this.getClass().getSimpleName() + "-Cache-Daemon");
-            t.setDaemon(true);
-            t.start();
-        }
-        this.lastRequestTime = System.currentTimeMillis();
     }
 }

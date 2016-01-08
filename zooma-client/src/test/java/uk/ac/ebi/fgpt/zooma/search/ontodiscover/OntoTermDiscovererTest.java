@@ -8,11 +8,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchClient;
 import uk.ac.ebi.onto_discovery.api.CachedOntoTermDiscoverer;
@@ -63,7 +67,10 @@ public class OntoTermDiscovererTest
 	{
 		XStopWatch timer = new XStopWatch ();
 		
-		Map<String, List<DiscoveredTerm>> baseCache = new SimpleCache<> ( 1000 );
+		CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder ().maximumSize ( 1000 );
+		Cache<String, List<DiscoveredTerm>> cache = cacheBuilder.build();
+		ConcurrentMap<String, List<DiscoveredTerm>> baseCache = cache.asMap ();
+		
 		OntologyTermDiscoverer client = new CachedOntoTermDiscoverer ( 
 			new ZoomaOntoTermDiscoverer ( new ZOOMASearchClient () ), new OntoTermDiscoveryMemCache ( baseCache )
 		);

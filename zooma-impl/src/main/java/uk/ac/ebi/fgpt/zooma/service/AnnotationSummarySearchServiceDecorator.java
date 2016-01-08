@@ -5,7 +5,7 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 /**
  * An abstract decorator of an {@link AnnotationSummarySearchService}.  You should subclass this decorator to create
@@ -23,20 +23,24 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
         this._annotatationSummarySearchService = annotationSummarySearchService;
     }
 
-    @Override public Collection<AnnotationSummary> search(String propertyValuePattern) {
-        return _annotatationSummarySearchService.search(propertyValuePattern);
+    @Override public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
+        return _annotatationSummarySearchService.search(propertyValuePattern, sources);
     }
 
-    @Override public Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern) {
-        return _annotatationSummarySearchService.search(propertyType, propertyValuePattern);
+    @Override public Collection<AnnotationSummary> search(String propertyType,
+                                                          String propertyValuePattern,
+                                                          URI... sources) {
+        return _annotatationSummarySearchService.search(propertyType, propertyValuePattern, sources);
     }
 
-    @Override public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix) {
-        return _annotatationSummarySearchService.searchByPrefix(propertyValuePrefix);
+    @Override
+    public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI... sources) {
+        return _annotatationSummarySearchService.searchByPrefix(propertyValuePrefix, sources);
     }
 
-    @Override public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix) {
-        return _annotatationSummarySearchService.searchByPrefix(propertyType, propertyValuePrefix);
+    @Override
+    public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources) {
+        return _annotatationSummarySearchService.searchByPrefix(propertyType, propertyValuePrefix, sources);
     }
 
     @Override public Collection<AnnotationSummary> searchBySemanticTags(String... semanticTagShortnames) {
@@ -47,29 +51,22 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
         return _annotatationSummarySearchService.searchBySemanticTags(semanticTags);
     }
 
-    @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyValuePattern) {
-        return _annotatationSummarySearchService.searchAndScore(propertyValuePattern);
+    @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
+                                                                            List<URI> preferredSources,
+                                                                            URI... requiredSources) {
+        return _annotatationSummarySearchService.searchByPreferredSources(propertyValuePattern,
+                                                                          preferredSources,
+                                                                          requiredSources);
     }
 
-    @Override public Map<AnnotationSummary, Float> searchAndScore(String propertyType, String propertyValuePattern) {
-        return _annotatationSummarySearchService.searchAndScore(propertyType, propertyValuePattern);
-    }
-
-    @Override public Map<AnnotationSummary, Float> searchAndScoreByPrefix(String propertyValuePrefix) {
-        return _annotatationSummarySearchService.searchAndScoreByPrefix(propertyValuePrefix);
-    }
-
-    @Override public Map<AnnotationSummary, Float> searchAndScoreByPrefix(String propertyType,
-                                                                          String propertyValuePrefix) {
-        return _annotatationSummarySearchService.searchAndScoreByPrefix(propertyType, propertyValuePrefix);
-    }
-
-    @Override public Map<AnnotationSummary, Float> searchAndScoreBySemanticTags(String... semanticTagShortnames) {
-        return _annotatationSummarySearchService.searchAndScoreBySemanticTags(semanticTagShortnames);
-    }
-
-    @Override public Map<AnnotationSummary, Float> searchAndScoreBySemanticTags(URI... semanticTags) {
-        return _annotatationSummarySearchService.searchAndScoreBySemanticTags(semanticTags);
+    @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
+                                                                            String propertyValuePattern,
+                                                                            List<URI> preferredSources,
+                                                                            URI... requiredSources) {
+        return _annotatationSummarySearchService.searchByPreferredSources(propertyType,
+                                                                          propertyValuePattern,
+                                                                          preferredSources,
+                                                                          requiredSources);
     }
 
     @Override protected void doInitialization() throws Exception {

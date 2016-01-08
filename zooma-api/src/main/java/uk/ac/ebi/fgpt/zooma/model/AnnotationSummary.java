@@ -19,19 +19,7 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 24/05/12
  */
-public interface AnnotationSummary extends Identifiable {
-    static final String ANNOTATION_SUMMARY_TYPE_ID = "/zooma/annotation_summary";
-    static final String ANNOTATION_SUMMARY_TYPE_NAME = "Annotation Summary";
-
-    /**
-     * Returns the ID representing the type of this annotation summary.  This is normally a subtype of the general top
-     * level annotation summary type ID that considers the semantic tags of the annotation and represent that as part of
-     * the type.
-     *
-     * @return the annotation summary type ID
-     */
-    String getAnnotationSummaryTypeID();
-
+public interface AnnotationSummary extends Identifiable, Qualitative {
     /**
      * Returns the type name of this annotation summary. This is normally a subtype of the general top level annotation
      * summary type name that considers the semantic tags of the annotation and represent that as part of the type.
@@ -47,6 +35,14 @@ public interface AnnotationSummary extends Identifiable {
      * @return an ID assigned to this summary
      */
     String getID();
+
+    /**
+     * Returns the property value that was used to describe the biological entities in the series of annotations this
+     * summary encapsulates.
+     *
+     * @return the property value text
+     */
+    URI getAnnotatedPropertyUri();
 
     /**
      * Returns the property value that was used to describe the biological entities in the series of annotations this
@@ -91,5 +87,11 @@ public interface AnnotationSummary extends Identifiable {
      *
      * @return a float representing the maximum single annotation score for this summary
      */
-    float getQualityScore();
+    float getQuality();
+
+    /**
+     * Returns the collection of sources where this annotation summary holds
+     */
+
+    Collection<URI> getAnnotationSourceURIs();
 }

@@ -1,7 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.io;
 
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
+import uk.ac.ebi.fgpt.zooma.model.Update;
 
+import java.io.InputStream;
 import java.util.Collection;
 
 /**
@@ -16,6 +18,7 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 11/06/13
  */
+@Deprecated
 public interface ZoomaLoader<T> {
     /**
      * Loads the collection of supplied zooma objects into ZOOMA by resolving, serializing and storing (as required by
@@ -26,7 +29,7 @@ public interface ZoomaLoader<T> {
      * @param zoomaObjects   the collection of objects being loaded
      * @throws ZoomaLoadingException
      */
-    void load(String datasourceName, Collection<T> zoomaObjects) throws ZoomaLoadingException;
+    @Deprecated void load(String datasourceName, Collection<T> zoomaObjects) throws ZoomaLoadingException;
 
     /**
      * Loads the supplied zooma object into ZOOMA by resolving, serializing and storing (as required by the
@@ -35,5 +38,17 @@ public interface ZoomaLoader<T> {
      * @param zoomaObject the object being loaded
      * @throws ZoomaLoadingException
      */
-    void load(T zoomaObject) throws ZoomaLoadingException;
+    @Deprecated void load(T zoomaObject) throws ZoomaLoadingException;
+
+    @Deprecated void loadSupplementaryData(String datasourceName, InputStream rdfInputStream)
+            throws ZoomaLoadingException;
+
+    /**
+     * Updates the supplied zooma objects into ZOOMA by resolving, serializing and storing (as required by the
+     * implementation)
+     *
+     * @param zoomaObject the object being loaded
+     * @throws ZoomaLoadingException
+     */
+    void update(Collection<T> zoomaObject, Update<T> update) throws ZoomaLoadingException;
 }

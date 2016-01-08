@@ -2,8 +2,8 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import uk.ac.ebi.fgpt.zooma.model.Property;
 
-import java.util.Collection;
-import java.util.Map;
+import java.net.URI;
+import java.util.List;
 
 /**
  * An abstract decorator of a {@link PropertySearchService}.  You should subclass this decorator to create different
@@ -19,35 +19,23 @@ public abstract class PropertySearchServiceDecorator implements PropertySearchSe
         this._propertySearchService = propertySearchService;
     }
 
-    @Override public Collection<Property> search(String propertyValuePattern) {
-        return _propertySearchService.search(propertyValuePattern);
+    @Override public List<Property> search(String propertyValuePattern, URI... sources) {
+        return _propertySearchService.search(propertyValuePattern, sources);
     }
 
-    @Override public Collection<Property> search(String propertyType, String propertyValuePattern) {
-        return _propertySearchService.search(propertyType, propertyValuePattern);
+    @Override public List<Property> search(String propertyType, String propertyValuePattern, URI... sources) {
+        return _propertySearchService.search(propertyType, propertyValuePattern, sources);
     }
 
-    @Override public Collection<Property> searchByPrefix(String propertyValuePrefix) {
-        return _propertySearchService.searchByPrefix(propertyValuePrefix);
+    @Override public List<Property> searchByPrefix(String propertyValuePrefix, URI... sources) {
+        return _propertySearchService.searchByPrefix(propertyValuePrefix, sources);
     }
 
-    @Override public Collection<Property> searchByPrefix(String propertyType, String propertyValuePrefix) {
-        return _propertySearchService.searchByPrefix(propertyType, propertyValuePrefix);
+    @Override public List<Property> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources) {
+        return _propertySearchService.searchByPrefix(propertyType, propertyValuePrefix, sources);
     }
 
-    @Override public Map<Property, Float> searchAndScore(String propertyValuePattern) {
-        return _propertySearchService.searchAndScore(propertyValuePattern);
-    }
-
-    @Override public Map<Property, Float> searchAndScore(String propertyType, String propertyValuePattern) {
-        return _propertySearchService.searchAndScore(propertyType, propertyValuePattern);
-    }
-
-    @Override public Map<Property, Float> searchAndScoreByPrefix(String propertyValuePrefix) {
-        return _propertySearchService.searchAndScoreByPrefix(propertyValuePrefix);
-    }
-
-    @Override public Map<Property, Float> searchAndScoreByPrefix(String propertyType, String propertyValuePrefix) {
-        return _propertySearchService.searchAndScoreByPrefix(propertyType, propertyValuePrefix);
+    @Override public List<String> suggest(String propertyValuePrefix, URI... sources) {
+        return _propertySearchService.suggest(propertyValuePrefix, sources);
     }
 }

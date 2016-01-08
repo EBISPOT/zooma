@@ -62,7 +62,7 @@ public class DAOBasedPropertyService extends AbstractShortnameResolver implement
         return getPropertyDAO().read(uri);
     }
 
-    @Override public Property getMatchedTypedProperty(String type, String value) {
+    @Override public Collection<Property> getMatchedTypedProperty(String type, String value) {
         return getPropertyDAO().readByTypeAndValue(type, value);
     }
 
@@ -82,32 +82,5 @@ public class DAOBasedPropertyService extends AbstractShortnameResolver implement
             getPropertyDAO().create(property);
         }
         return property;
-    }
-
-    public Property updateProperty(Property oldProperty, Property newProperty) throws ZoomaUpdateException {
-        // save the newProperty (if it doesn't already exist)
-        newProperty = saveProperty(newProperty);
-
-        // now we have saved the new property, update all the annotations that use oldProperty to use the newProperty
-        Collection<Annotation> annotations = getAnnotationDAO().readByProperty(oldProperty);
-
-        for (Annotation annotation : annotations) {
-            getAnnotationService().replacePropertyForAnnotation(annotation, newProperty);
-        }
-        return newProperty;
-    }
-
-    @Override
-    public void deleteProperty(Property property) throws ZoomaUpdateException {
-        // first, check that the property is not used before deleting it
-        Collection<Annotation> annotation = getAnnotationDAO().readByProperty(property);
-        if (annotation.isEmpty()) {
-            getPropertyDAO().delete(property);
-        }
-        else {
-            throw new ZoomaUpdateException(
-                    "There are " + annotation.size() + " annotations using property '" + property.getURI() + "'. " +
-                            "DELETE operations on this property are therefore not allowed.");
-        }
     }
 }

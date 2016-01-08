@@ -1,5 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -317,34 +319,31 @@ public class SparqlPropertyDAO implements PropertyDAO {
         return "";
     }
 
-    @Override public Property readByTypeAndValue(String type, String value) {
-        String query = getQueryManager().getSparqlQuery("Property.read");
+    @Override public Collection<Property> readByTypeAndValue(String type, String value) {
+
+        if (type == null && value == null) {
+            throw new IllegalArgumentException("You supply at least a type or value to search on");
+        }
+
+        String query = getQueryManager().getSparqlQuery("Property.search");
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
         QuerySolutionMap initialBinding = new QuerySolutionMap();
         Model m = ModelFactory.createDefaultModel();
 
-        initialBinding.add(QueryVariables.PROPERTY_NAME.toString(), m.createLiteral(type));
-        initialBinding.add(QueryVariables.PROPERTY_VALUE.toString(), m.createLiteral(value));
+        if (type != null) {
+            initialBinding.add(QueryVariables.PROPERTY_NAME.toString(), m.createTypedLiteral(type, XSDDatatype.XSDstring));
+        }
+        if (value != null) {
+            initialBinding.add(QueryVariables.PROPERTY_VALUE.toString(), m.createTypedLiteral(value, XSDDatatype.XSDstring));
+        }
 
         QueryExecution execute = null;
         try {
             execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
             ResultSet results = execute.execSelect();
-            List<Property> ps = evaluateQueryResults(results);
-            if (ps.size() > 1) {
-                getLog().error("Too many results looking for property [" + type + ": " + value + "]");
-                throw new TooManyResultsException(
-                        "Expected one result, got " + ps.size() + " for property [" + type + ": " + value + "]");
-            }
-            else {
-                if (ps.size() == 0) {
-                    return null;
-                }
-                else {
-                    return ps.get(0);
-                }
-            }
+            return evaluateQueryResults(results);
+
         }
         catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);

@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.ac.ebi.fgpt</groupId>
     <artifactId>zooma2</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ZOOMA 2</name>
@@ -14,15 +12,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.springframework.version>3.2.2.RELEASE</org.springframework.version>
+        <org.springframework.version>4.1.2.RELEASE</org.springframework.version>
+        <org.springframework.security.version>3.2.5.RELEASE</org.springframework.security.version>
         <org.slf4j.version>1.7.5</org.slf4j.version>
     </properties>
-
-		<parent>
-		  <groupId>uk.ac.ebi.fg.biosd</groupId>
-		  <artifactId>biosd_deploy</artifactId>
-		  <version>1.0-SNAPSHOT</version>
-		</parent>
 
     <build>
         <plugins>
@@ -116,8 +109,8 @@
     <!-- Licensing -->
     <licenses>
         <license>
-            <name>GNU Lesser General Public License</name>
-            <url>http://www.gnu.org/copyleft/lesser.html</url>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -135,7 +128,7 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties />
+            <properties/>
         </developer>
         <developer>
             <id>jupp</id>
@@ -147,7 +140,7 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties />
+            <properties/>
         </developer>
     </developers>
 
@@ -155,6 +148,8 @@
     <mailingLists>
         <mailingList>
             <name>EBI Functional Genomics Production Team Mailing List</name>
+            <!--<subscribe>ebi-gwas-oc@ebi.ac.uk</subscribe>-->
+            <!--<unsubscribe>ebi-gwas-oc@ebi.ac.uk</unsubscribe>-->
             <post>fgpt@ebi.ac.uk</post>
         </mailingList>
     </mailingLists>
@@ -165,11 +160,13 @@
         <url>http://www.ebi.ac.uk/panda/jira/browse/FGPTO/component/10874</url>
     </issueManagement>
 
-    <!-- Version control (GitHub) -->
+    <!-- Version control (GitHub repository) -->
     <scm>
-        <connection>scm:git:git@github.com:EBIBioSamples/zooma.git</connection>
+        <connection>scm:git:git@github.com:EBISPOT/zooma</connection>
+        <developerConnection>scm:git:git@github.com:EBISPOT/zooma.git</developerConnection>
         <url>http://github.com/EBISPOT/zooma</url>
-    </scm>
+      <tag>HEAD</tag>
+  </scm>
 
     <!-- Reporting/Documentation output -->
     <reporting>
@@ -177,7 +174,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.7</version>
+                <version>2.8</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -205,16 +202,25 @@
     </reporting>
 
     <modules>
+        <module>zooma-spi</module>
         <module>zooma-api</module>
+        <module>zooma-core</module>
         <module>zooma-impl</module>
-        <module>zooma-client</module>
-        <!-- module>zooma-core</module>
         <module>zooma-owlapi</module>
         <module>zooma-jdbc</module>
         <module>zooma-lucene-services</module>
+        <module>lodestar</module>
+        <module>zooma-lodestar</module>
+        <module>zooma-security</module>
+        <module>zooma-loading</module>
+        <module>zooma-bootstrap</module>
         <module>zooma-reporting</module>
-        <module>zooma-loading</module -->
-    </modules>
+        <module>zooma-client</module>
+        <module>zooma-builder-app</module>
+        <module>zooma-searcher-app</module>
+        <module>zooma-js</module>
+        <module>zooma-ui</module>
+  </modules>
 
     <!-- dependencies required by all zooma modules -->
     <dependencies>
@@ -267,6 +273,18 @@
             <!-- spring dependencies should be declared here and used in submodules if required -->
             <dependency>
                 <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
@@ -279,7 +297,13 @@
 
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
+                <artifactId>spring-expression</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
 
@@ -301,12 +325,74 @@
                 <version>${org.springframework.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>${org.springframework.security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${org.springframework.security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${org.springframework.security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-openid</artifactId>
+                <version>${org.springframework.security.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-ldap</artifactId>
+                <version>${org.springframework.security.version}</version>
+            </dependency>
+
             <!-- Jackson, JSON object mapping -->
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>1.9.9</version>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.3.3</version>
             </dependency>
+
+						<dependency>
+							<groupId>org.apache.lucene</groupId>
+							<artifactId>lucene-queryparser</artifactId>
+							<version>5.3.0</version>
+						</dependency>		
+
+		        <dependency>
+		            <groupId>uk.ac.ebi.fgpt</groupId>
+		            <artifactId>zooma-lucene-services</artifactId>
+		            <version>2.0.0-SNAPSHOT</version>
+		            <exclusions>
+		            	<!-- Use 3.3.1 -->
+		            	<exclusion>
+		            		<groupId>org.apache.commons</groupId>
+		            		<artifactId>commons-lang3</artifactId>
+		            	</exclusion>
+		            </exclusions>
+		        </dependency>
+
+						<dependency>
+	        		<groupId>org.apache.commons</groupId>
+	        		<artifactId>commons-lang3</artifactId>
+							<version>3.3.1</version>						
+						</dependency>
+
 
             <!-- test scope dependencies -->
             <dependency>
@@ -340,17 +426,46 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-	
-		<repositories>
 
-			<repository>
-		    <id>EBIBioSamples-GH-repo</id>
-		    <url>https://raw.githubusercontent.com/EBIBioSamples/EBIBioSamples.github.io/maven-repo</url>
-		    <snapshots>
-	        <enabled>true</enabled>
-		    </snapshots>
-	    </repository>
-		
-		</repositories>	
+    <profiles>
+        <profile>
+            <id>developer</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <!-- Handy enforce plugin to check dependency convergence.  Currently only problems in third party libs -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.3</version>
+                        <executions>
+                            <execution>
+                                <id>enforce</id>
+                                <configuration>
+                                    <rules>
+                                        <DependencyConvergence/>
+                                    </rules>
+                                </configuration>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <phase>validate</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>production</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
 
 </project>

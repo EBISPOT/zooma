@@ -5,9 +5,7 @@ import uk.ac.ebi.fgpt.zooma.model.Property;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A ZOOMA annotation search service that can be used to search over the set of {@link Annotation}s known to ZOOMA.
@@ -73,7 +71,7 @@ public class PropertyBasedAnnotationSearchService implements AnnotationSearchSer
         return results;
     }
 
-    @Override public Collection<Annotation> searchPrefix(String propertyValuePrefix) {
+    @Override public Collection<Annotation> searchByPrefix(String propertyValuePrefix) {
         // find most relevant properties
         Collection<Property> properties = getPropertySearchService().searchByPrefix(propertyValuePrefix);
 
@@ -88,7 +86,7 @@ public class PropertyBasedAnnotationSearchService implements AnnotationSearchSer
         return results;
     }
 
-    @Override public Collection<Annotation> searchPrefix(String propertyType, String propertyValuePrefix) {
+    @Override public Collection<Annotation> searchByPrefix(String propertyType, String propertyValuePrefix) {
         // find most relevant properties
         Collection<Property> properties = getPropertySearchService().searchByPrefix(propertyType, propertyValuePrefix);
 
@@ -99,52 +97,6 @@ public class PropertyBasedAnnotationSearchService implements AnnotationSearchSer
         for (Property property : properties) {
             Collection<Annotation> annotations = getAnnotationService().getAnnotationsByProperty(property);
             results.addAll(annotations);
-        }
-        return results;
-    }
-
-    @Override public LinkedHashMap<Annotation, Float> searchAndScore(String propertyValuePattern) {
-        // find most relevant properties
-        Map<Property, Float> properties = getPropertySearchService().searchAndScore(propertyValuePattern);
-        // extract the annotations for these properties
-        return collateScoredAnnotations(properties);
-    }
-
-    @Override
-    public LinkedHashMap<Annotation, Float> searchAndScore(String propertyType, String propertyValuePattern) {
-        // find most relevant properties
-        Map<Property, Float> properties = getPropertySearchService().searchAndScore(propertyType, propertyValuePattern);
-        // extract the annotations for these properties
-        return collateScoredAnnotations(properties);
-    }
-
-    @Override public LinkedHashMap<Annotation, Float> searchAndScoreByPrefix(String propertyValuePrefix) {
-        // find most relevant properties
-        Map<Property, Float> properties = getPropertySearchService().searchAndScore(propertyValuePrefix);
-        // extract the annotations for these properties
-        return collateScoredAnnotations(properties);
-    }
-
-    @Override public LinkedHashMap<Annotation, Float> searchAndScoreByPrefix(String propertyType,
-                                                                             String propertyValuePrefix) {
-        // find most relevant properties
-        Map<Property, Float> properties = getPropertySearchService().searchAndScore(propertyType, propertyValuePrefix);
-        // extract the annotations for these properties
-        return collateScoredAnnotations(properties);
-    }
-
-    private LinkedHashMap<Annotation, Float> collateScoredAnnotations(Map<Property, Float> propertyResults) {
-        LinkedHashMap<Annotation, Float> results = new LinkedHashMap<>();
-
-        // find annotations for each of the properties in our property results
-        for (Property property : propertyResults.keySet()) {
-            // get the score
-            float score = propertyResults.get(property);
-            Collection<Annotation> annotations = getAnnotationService().getAnnotationsByProperty(property);
-            for (Annotation annotation : annotations) {
-                // assign each annotation on this property the same score
-                results.put(annotation, score);
-            }
         }
         return results;
     }

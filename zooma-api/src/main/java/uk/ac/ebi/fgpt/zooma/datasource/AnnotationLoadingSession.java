@@ -8,6 +8,7 @@ import uk.ac.ebi.fgpt.zooma.model.Study;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * A session that should be opened when you begin loading annotations from a source.  Each session should retain a cache
@@ -18,11 +19,11 @@ import java.util.Collection;
  * @date 28/09/12
  */
 public interface AnnotationLoadingSession {
+    String getDatasourceName();
+
     Study getOrCreateStudy(String studyAccession, Collection<URI> studyTypes);
 
     Study getOrCreateStudy(String studyAccession, String studyID, Collection<URI> studyTypes);
-
-//    Study getOrCreateStudy(String studyAccession, URI studyURI);
 
     Study getOrCreateStudy(String studyAccession, URI studyURI, Collection<URI> studyTypes);
 
@@ -78,17 +79,22 @@ public interface AnnotationLoadingSession {
 
     Property getOrCreateProperty(String propertyType, String propertyValue, URI propertyURI);
 
-    Annotation getOrCreateAnnotation(Property p,
-                                     AnnotationProvenance ap, URI semanticTag, BiologicalEntity... bioentities);
-
-    Annotation getOrCreateAnnotation(Property property,
+    Annotation getOrCreateAnnotation(Collection<BiologicalEntity> biologicalEntity,
+                                     Property property,
                                      AnnotationProvenance annotationProvenance,
-                                     URI semanticTag, URI annotationURI, BiologicalEntity... bioentities);
+                                     Collection<URI> semanticTag);
 
-    Annotation getOrCreateAnnotation(Property p,
-                                     AnnotationProvenance ap,
-                                     URI semanticTag,
-                                     String annotationID, BiologicalEntity... bioentities);
+    Annotation getOrCreateAnnotation(String annotationID,
+                                     Collection<BiologicalEntity> biologicalEntity,
+                                     Property property,
+                                     AnnotationProvenance annotationProvenance,
+                                     Collection<URI> semanticTag);
 
-    void clearCaches();
+    Annotation getOrCreateAnnotation(URI annotationURI,
+                                     Collection<BiologicalEntity> biologicalEntity,
+                                     Property property,
+                                     AnnotationProvenance annotationProvenance,
+                                     Collection<URI> semanticTag);
+
+    AnnotationProvenance getOrCreateAnnotationProvenance(String annotator, Date annotationDate);
 }

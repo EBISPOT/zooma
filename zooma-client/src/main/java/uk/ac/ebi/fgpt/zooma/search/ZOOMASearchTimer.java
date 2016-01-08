@@ -46,6 +46,13 @@ public class ZOOMASearchTimer {
         return this;
     }
 
+    public synchronized ZOOMASearchTimer finish() {
+        while (completedCount < totalCount) {
+            completedNext();
+        }
+        return this;
+    }
+
     public synchronized ZOOMASearchTimer completedNext() {
         long finishTime, benchmarkTime, average;
         int remaining, sampled;

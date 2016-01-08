@@ -1,10 +1,9 @@
 package uk.ac.ebi.fgpt.zooma.xml;
 
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.semanticweb.owlapi.model.IRI;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionDefaults;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -12,18 +11,18 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import uk.ac.ebi.fgpt.zooma.datasource.DefaultAnnotationFactory;
 import uk.ac.ebi.fgpt.zooma.datasource.OWLAnnotationDAO;
-import uk.ac.ebi.fgpt.zooma.datasource.OWLAnnotationFactory;
 import uk.ac.ebi.fgpt.zooma.datasource.OWLLoadingSession;
 import uk.ac.ebi.fgpt.zooma.owl.AssertedOntologyLoader;
 import uk.ac.ebi.fgpt.zooma.owl.ReasonedOntologyLoader;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An implementation of Spring's BeanDefinitionParser class that generates a fully preconfigured OWLAnnotationDAO by
@@ -50,16 +49,27 @@ public class OWLAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         if (StringUtils.hasText(loadFrom)) {
             ontologyResource = new DefaultResourceLoader().getResource(loadFrom);
         }
-        Collection<URI> synonymURIs = null;
 
+        Collection<URI> synonymURIs = null;
         List<Element> synonymElements = DomUtils.getChildElementsByTagName(element, "synonym");
         if (synonymElements != null) {
-            synonymURIs = new HashSet<URI>();
+            synonymURIs = new HashSet<>();
             for (Element synonymElement : synonymElements) {
                 String synonymURIStr = synonymElement.getAttribute("uri");
                 if (StringUtils.hasText(synonymURIStr)) {
                     synonymURIs.add(URI.create(synonymURIStr));
                 }
+            }
+        }
+
+        Map<IRI, IRI> ontologyImportMappings = null;
+        List<Element> importMappingElements = DomUtils.getChildElementsByTagName(element, "importMapping");
+        if (importMappingElements != null) {
+            ontologyImportMappings = new HashMap<>();
+            for (Element importMappingElement : importMappingElements) {
+                String uriStr = importMappingElement.getAttribute("uri");
+                String loadFromStr = importMappingElement.getAttribute("loadFrom");
+                ontologyImportMappings.put(IRI.create(uriStr), IRI.create(loadFromStr));
             }
         }
 
@@ -103,6 +113,9 @@ public class OWLAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         if (synonymURIs != null) {
             owlLoader.addPropertyValue("synonymURIs", synonymURIs);
         }
+        if (ontologyImportMappings != null) {
+            owlLoader.addPropertyValue("ontologyImportMappings", ontologyImportMappings);
+        }
         if (exclusionClassURI != null) {
             owlLoader.addPropertyValue("exclusionClassURI", exclusionClassURI);
         }
@@ -127,9 +140,8 @@ public class OWLAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         //         <constructor-arg name="owlLoader" ref="owlLoader" />
         //     </bean>
         BeanDefinitionBuilder owlAnnotationFactory =
-                BeanDefinitionBuilder.rootBeanDefinition(OWLAnnotationFactory.class);
+                BeanDefinitionBuilder.rootBeanDefinition(DefaultAnnotationFactory.class);
         owlAnnotationFactory.addConstructorArgReference(name + "-owlLoadingSession");
-        owlAnnotationFactory.addConstructorArgReference(name + "-owlLoader");
         parserContext.registerBeanComponent(new BeanComponentDefinition(owlAnnotationFactory.getBeanDefinition(),
                                                                         name + "-owlAnnotationFactory"));
 

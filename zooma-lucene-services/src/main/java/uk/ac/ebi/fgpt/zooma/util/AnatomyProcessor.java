@@ -12,8 +12,6 @@ import java.util.List;
  * @date 16/08/13
  */
 public class AnatomyProcessor extends AbstractDictionaryLoadingProcessor {
-    // should only be invoked if type is some derivation of 'organism part'
-
     // organism part qualifier dictionary contains all subclasses of "anatomical modifier" (EFO)
     // and all subclasses of "position" (PATO)
     public AnatomyProcessor(String dictionaryResourceName) {

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Collection;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An abstract implementation of a {@link ZoomaSerializer} for the OWLAPI.  This implementation specifies that the
@@ -56,17 +57,11 @@ public abstract class OWLAPIZoomaSerializer<T> implements ZoomaSerializer<T, OWL
             throws ZoomaSerializationException {
         if (zoomaObjects.size() > 0) {
             T zoomaObject = zoomaObjects.iterator().next();
-            getLog().info("Serializing " + zoomaObjects.size() + " " + zoomaObject.getClass().getSimpleName() +
-                                  " objects to " + file.getAbsolutePath());
+            getLog().info("Writing " + zoomaObjects.size() + " " + zoomaObject.getClass().getSimpleName() +
+                                  " objects from " + datasourceName + " to " + file.getAbsolutePath());
         }
         OutputStream out = null;
         try {
-            if (!file.getAbsoluteFile().getParentFile().exists()) {
-                if (!file.getAbsoluteFile().getParentFile().mkdirs()) {
-                    throw new ZoomaSerializationException(
-                            "Unable to create directory '" + file.getParentFile().getAbsolutePath() + "'");
-                }
-            }
             out = new BufferedOutputStream(new FileOutputStream(file));
             serialize(datasourceName, zoomaObjects, out);
         }

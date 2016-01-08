@@ -17,8 +17,6 @@ import java.util.regex.Pattern;
  * @date 16/08/13
  */
 public class ChemicalCompoundProcessor extends AbstractDictionaryLoadingProcessor {
-    // should only be invoked if type is some derivation of 'compound' or 'growth condition'
-
     // units dictionary contains all subclasses of "concentration unit" (UO_0000051).
     public ChemicalCompoundProcessor(String dictionaryResourceName) {
         super(dictionaryResourceName);
@@ -39,10 +37,10 @@ public class ChemicalCompoundProcessor extends AbstractDictionaryLoadingProcesso
      */
     @Override
     public List<String> processSearchString(String searchString) throws IllegalArgumentException {
-        String processedString = searchString.toLowerCase();
+        String processedString = searchString;
 
         // space is important in order not to remove numbers within compounds.. (e.g indole-3-acetic acid)
-        String space = "\\s{1}";
+        String space = "\\s";
         // pattern for number: int or float..
         String number_float = "\\d{1,10}.\\d{1,10}" + space;
         String number_int = "\\d{1,10}" + space;
@@ -54,10 +52,10 @@ public class ChemicalCompoundProcessor extends AbstractDictionaryLoadingProcesso
         Matcher matcher_number_int = pattern_number_int.matcher(searchString);
 
         String substring_number = null;
-        if (matcher_number_float != null && matcher_number_float.find()) {
+        if (matcher_number_float.find()) {
             substring_number = matcher_number_float.group();
         }
-        else if (matcher_number_int != null && matcher_number_int.find()) {
+        else if (matcher_number_int.find()) {
             substring_number = matcher_number_int.group();
         }
 
@@ -92,7 +90,7 @@ public class ChemicalCompoundProcessor extends AbstractDictionaryLoadingProcesso
         // remove extraneous whitespace
         processedString = processedString.trim().replaceAll(" +", " ");
         // return processed string, only if it is different from the original
-        if (!processedString.contentEquals(searchString.toLowerCase())) {
+        if (!processedString.contentEquals(searchString)) {
             return Collections.singletonList(processedString);
         }
         else {

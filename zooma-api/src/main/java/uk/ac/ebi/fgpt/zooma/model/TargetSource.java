@@ -11,13 +11,10 @@ import java.util.Collection;
  * @date 07/10/2013 Functional Genomics Group EMBL-EBI
  */
 public interface TargetSource extends Identifiable {
-
     /**
      * Returns the types that were assigned to this source target
      *
      * @return the set of URIs of types of the target source
      */
     Collection<URI> getTypes();
-
-
 }

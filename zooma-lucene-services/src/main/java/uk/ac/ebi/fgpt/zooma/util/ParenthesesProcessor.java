@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.util;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -44,21 +45,27 @@ public class ParenthesesProcessor implements SearchStringProcessor {
      */
     @Override
     public List<String> processSearchString(String searchString) throws IllegalArgumentException {
-        int pos_ini = searchString.indexOf("(");
-        int pos_fin = searchString.indexOf(")");
+        String processedString = searchString;
+        Pattern p = Pattern.compile(".*(\\([^\\)]*\\)).*");
+        Matcher m = p.matcher(processedString);
+        while (m.matches()) {
+            int pos_ini = m.start(1);
+            int pos_fin = m.end(1);
+            if (pos_fin > pos_ini) {
+                // extract the "content" - i.e. everything from opening to closing brackets
+                String content = processedString.substring(pos_ini, pos_fin);
+                content = RegexUtils.escapeString(content);
 
-        // extract the "content" - i.e. everything from opening to closing brackets
-        String content = "\\" + searchString.substring(pos_ini, pos_fin) + "\\)";
-        content = content.replaceAll("\\+", "\\\\+");
-        content = content.replaceAll("\\*", "\\\\*");
-
-        // and replace it with a single whitespace
-        String processedString = searchString.replaceAll(content, " ");
+                // and replace it with a single whitespace
+                processedString = processedString.replaceAll(content, "");
+                m = p.matcher(processedString);
+            }
+        }
 
         // remove extraneous whitespace
-        processedString = processedString.trim().replaceAll(" +", " ");
+        processedString = processedString.trim();
         // return processed string, only if it is different from the original
-        if (!processedString.contentEquals(searchString.toLowerCase())) {
+        if (!processedString.contentEquals(searchString)) {
             return Collections.singletonList(processedString);
         }
         else {

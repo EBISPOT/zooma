@@ -26,10 +26,13 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.anyMap;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TestZoomaPropertySearchEngine {
-    private ZoomaPropertySearcher propertySearchEngine;
+    private ZoomaProperties propertySearchEngine;
 
     private PropertySearchService propertySearchService;
 
@@ -125,12 +128,8 @@ public class TestZoomaPropertySearchEngine {
         // create test stubs
         when(propertySearchService.searchByPrefix(argThat(new PropertyPrefixMatcher(numbers))))
                 .thenReturn(numbers);
-        when(propertySearchService.searchByPrefix(argThat(new PropertyPrefixMatcher(numbers)), anyString()))
+        when(propertySearchService.searchByPrefix(anyString(), argThat(new PropertyPrefixMatcher(numbers))))
                 .thenReturn(numbers);
-        when(propertySearchService.searchAndScoreByPrefix(argThat(new PropertyPrefixMatcher(numbers))))
-                .thenReturn(scoredNumbers);
-        when(propertySearchService.searchAndScoreByPrefix(argThat(new PropertyPrefixMatcher(numbers)), anyString()))
-                .thenReturn(scoredNumbers);
         when(propertySorter.sort(anyCollection()))
                 .thenReturn(numbers);
         when(propertySorter.sort(anyMap()))
@@ -141,7 +140,7 @@ public class TestZoomaPropertySearchEngine {
                 .thenReturn(limitedProperties);
 
         // create search engine
-        propertySearchEngine = new ZoomaPropertySearcher(propertyService,
+        propertySearchEngine = new ZoomaProperties(propertyService,
                                                          propertySearchService,
                                                          propertySorter,
                                                          propertyLimiter);
@@ -171,7 +170,7 @@ public class TestZoomaPropertySearchEngine {
             getLog().debug("Testing query for " + prefix + ", " + type);
             Collection<Property> searchResults = propertySearchEngine.query(prefix, type);
             assertSame("Unexpected prefix and type search results returned for " + prefix, numbers, searchResults);
-            verify(propertySearchService).searchByPrefix(prefix, type);
+            verify(propertySearchService).searchByPrefix(type, prefix);
         }
     }
 
@@ -186,8 +185,8 @@ public class TestZoomaPropertySearchEngine {
             assertSame("Unexpected prefix, type, limit search results returned for " + prefix,
                        limitedProperties,
                        searchResults);
-            verify(propertySearchService).searchAndScoreByPrefix(prefix, type);
-            verify(propertySorter, times(i)).sort(scoredNumbers);
+            verify(propertySearchService).searchByPrefix(type, prefix);
+            verify(propertySorter, times(i)).sort(numbers);
             verify(propertyLimiter, times(i++)).limit(numbers, 10, 0);
         }
     }
