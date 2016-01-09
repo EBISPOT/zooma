@@ -16,6 +16,8 @@ import uk.ac.ebi.utils.runcontrol.StatsExecutor;
  * It also has a capability to throttle the client throughput, so that the server is not crashed by too many
  * requests.
  * 
+ * TODO: support new methods, as explained in {@link ZOOMASearchInterface}.
+ *
  * <dl><dt>date</dt><dd>16 Nov 2014</dd></dl>
  * @author Marco Brandizi
  *
