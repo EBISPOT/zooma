@@ -24,7 +24,9 @@ import uk.ac.ebi.onto_discovery.api.OntologyDiscoveryException;
 import uk.ac.ebi.onto_discovery.api.OntologyTermDiscoverer;
 
 /**
- * Ontology Discoverer based on <a href = 'http://www.ebi.ac.uk/fgpt/zooma/docs/'>ZOOMA2</a>.
+ * <a href = 'https://github.com/EBIBioSamples/onto-discovery-api'>Ontology Discoverer</a> based on 
+ * <a href = 'http://www.ebi.ac.uk/fgpt/zooma/docs/'>ZOOMA2</a>.
+ * 
  *
  * <dl><dt>date</dt><dd>23 Oct 2013</dd></dl>
  * @author Marco Brandizi
