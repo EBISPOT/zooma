@@ -12,7 +12,11 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 
 /**
- * TODO: comment me!
+ * A filter for {@link ZOOMASearchInterface}, which is intended to implement decorators, performing some additional
+ * operations before/after the upstream call. For example, @see {@link StatsZOOMASearchFilter}.
+ * 
+ * TODO: support new methods, as explained in {@link ZOOMASearchInterface}.
+ *
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>17 Dec 2014</dd>

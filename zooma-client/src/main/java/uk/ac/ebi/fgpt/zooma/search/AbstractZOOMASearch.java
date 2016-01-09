@@ -14,6 +14,8 @@ import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
 /**
  * A base implementation of common elements in {@link ZOOMASearchInterface}.
  *
+ * TODO: support new methods, as explained in {@link ZOOMASearchInterface}.
+ *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>17 Dec 2014</dd>
  *

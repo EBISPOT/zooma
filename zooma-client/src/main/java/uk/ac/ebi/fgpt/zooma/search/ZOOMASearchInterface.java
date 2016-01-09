@@ -11,6 +11,10 @@ import uk.ac.ebi.fgpt.zooma.model.Property;
 
 /**
  * A common interface to represent the ZOMMA searching functionality.
+ * 
+ * TODO: for the moment, it doesn't support the signatures for the new methods in {@link ZOOMASearchClient}, e.g., 
+ * {@link ZOOMASearchClient#annotate(Property, java.util.List, java.util.List)}. This is because this code was
+ * derived from an old fork of ZOOMA and we still haven't found time to align it completely.  
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>17 Dec 2014</dd>

@@ -55,7 +55,6 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
     private final String zoomaAnnotationsBase;
 
     private final String zoomaServicesBase;
-//TODO: remove    private final String zoomaAnnotateServiceBase;
 
     private final String zoomaPropertyValueArgument;
     private final String zoomaPropertyTypeArgument;
@@ -373,12 +372,20 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
 
     
     /**
+     * This is a legacy method, coming from the old client, and kept here to ensure backward compatibility
+     * with some ZOOMA dependant project. 
+     * 
+     * This method search the ontology terms corresponding to a textual value or pair. It basically returns a top 
+     * score-ordered set of {@link AnnotationSummary} instances, i.e., ontology term URIs, their scores and a few 
+     * other details.  
+     * 
      * @param property      what you're looking for
      * @param score         returns only the summaries above this threshold
      * @param excludeType   generic, search, with no type specification
      * @param noEmptyResult if true and there is no summary scored above the threshold, tries to return something
      *                      anyway, i.e., summaries that are not so well scored. If this flag is false, the search
      *                      returns only summaries with score above the score parameter, possibly an empty Map.
+     *                      
      * @return a {@link LinkedHashMap} map, where the entries are ordered by decreasing score.
      */
     @Override
