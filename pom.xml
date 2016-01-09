@@ -221,22 +221,22 @@
     <modules>
         <module>zooma-spi</module>
         <module>zooma-api</module>
-        <module>zooma-core</module>
+<!--         <module>zooma-core</module> -->
         <module>zooma-impl</module>
-        <module>zooma-owlapi</module>
-        <module>zooma-jdbc</module>
-        <module>zooma-lucene-services</module>
-        <!--  Not working with Bamboo module>lodestar</module -->
-        <module>zooma-lodestar</module>
-        <module>zooma-security</module>
-        <module>zooma-loading</module>
-        <module>zooma-bootstrap</module>
-        <module>zooma-reporting</module>
+<!--         <module>zooma-owlapi</module> -->
+<!--         <module>zooma-jdbc</module> -->
+<!--         <module>zooma-lucene-services</module> -->
+<!--         <module>lodestar</module> -->
+<!--         <module>zooma-lodestar</module> -->
+<!--         <module>zooma-security</module> -->
+<!--         <module>zooma-loading</module> -->
+<!--         <module>zooma-bootstrap</module> -->
+<!--         <module>zooma-reporting</module> -->
         <module>zooma-client</module>
-        <module>zooma-builder-app</module>
-        <module>zooma-searcher-app</module>
-        <module>zooma-js</module>
-        <module>zooma-ui</module>
+<!--         <module>zooma-builder-app</module> -->
+<!--         <module>zooma-searcher-app</module> -->
+<!--         <module>zooma-js</module> -->
+<!--         <module>zooma-ui</module> -->
   </modules>
 
     <!-- dependencies required by all zooma modules -->
