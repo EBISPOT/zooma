@@ -226,7 +226,7 @@
         <module>zooma-owlapi</module>
         <module>zooma-jdbc</module>
         <module>zooma-lucene-services</module>
-        <module>lodestar</module>
+        <!--  Not working with Bamboo module>lodestar</module -->
         <module>zooma-lodestar</module>
         <module>zooma-security</module>
         <module>zooma-loading</module>
