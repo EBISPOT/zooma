@@ -17,6 +17,12 @@
         <org.slf4j.version>1.7.5</org.slf4j.version>
     </properties>
 
+		<parent>
+		  <groupId>uk.ac.ebi.fg.biosd</groupId>
+		  <artifactId>biosd_deploy</artifactId>
+		  <version>1.0-SNAPSHOT</version>
+		</parent>
+
     <build>
         <plugins>
             <plugin>
@@ -142,6 +148,18 @@
             <timezone>0</timezone>
             <properties/>
         </developer>
+        <developer>
+            <id>mbrandizi</id>
+            <name>Marco Brandizi</name>
+            <email>brandizi@ebi.ac.uk</email>
+            <organization>EBI</organization>
+            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties/>
+        </developer>
     </developers>
 
     <!-- Mailing Lists -->
@@ -162,8 +180,7 @@
 
     <!-- Version control (GitHub repository) -->
     <scm>
-        <connection>scm:git:git@github.com:EBISPOT/zooma</connection>
-        <developerConnection>scm:git:git@github.com:EBISPOT/zooma.git</developerConnection>
+        <connection>scm:git:git@github.com:EBIBioSamples/zooma.git</connection>
         <url>http://github.com/EBISPOT/zooma</url>
       <tag>HEAD</tag>
   </scm>
@@ -426,6 +443,20 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+		<repositories>
+
+			<repository>
+		    <id>EBIBioSamples-GH-repo</id>
+		    <url>https://raw.githubusercontent.com/EBIBioSamples/EBIBioSamples.github.io/maven-repo</url>
+		    <snapshots>
+	        <enabled>true</enabled>
+		    </snapshots>
+	    </repository>
+		
+		</repositories>	
+
+
 
     <profiles>
         <profile>
