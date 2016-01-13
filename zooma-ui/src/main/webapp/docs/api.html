@@ -150,7 +150,7 @@
 </header>
 <div id="content" role="main" class="grid_24 clearfix">
 
-    <section id="docs" class="grid_18 alpha">
+    <b id="docs" class="grid_18 alpha">
         <h2>REST API Documentation</h2>
         <section>
         <h3>Introduction</h3>
@@ -163,120 +163,275 @@
 
         <section>
         <h3>Annotation Summaries</h3>
-        You can search for annotation summary objects in ZOOMA given a property value (and optionally a property type)
-        or retrieve annotation summaries by ID if you know it
+        You can search for annotation summary objects in ZOOMA given a property value (and optionally a property type).
 
         <h4>Search Example:</h4>
-        <span class="eg-description">To search for annotation summaries about "cancer"</span><br/>
+        <span class="eg-description">To search for annotation summaries about "mus musculus"</span><br/>
         <!--<pre style="border: 1px solid #E2E1D5; padding: 10px; border-radius: 2px">&lt;<span style="font-style: italic;">zooma.api</span>&gt;/summaries/search?query=cancer</pre>-->
-        <div class="eg-content">&lt;<span class="eg-var">zooma.api</span>&gt;/summaries/search?query=cancer</div><br/>
+        <table>
+            <thead>
+            <tr>
+                <th>method</th>
+                <th>url</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>GET</td>
+                <td>&lt;<span class="eg-var">zooma.api</span>&gt;/services/annotate?propertyValue=mus+musculus</td>
+            </tr>
+            </tbody>
+        </table>
         <span class="eg-description">Response:</span><br/>
         <div class="eg-content">
-{
-  result: [
+[
     {
-      name: "cancer",
-      mid: "44229DD38831FABF7607132EDB3BAD64893A611D",
-      score: "38.44594",
-      notable: {
-        name: "disease_state; EFO_0000311",
-        id: "summary_from_disease_state_to_EFO_0000311"
-      }
-    },
-    {
-      name: "cancer",
-      mid: "42CC496DEE019A29717FF9F18077B4B83EE1D728",
-      score: "38.44149",
-      notable: {
-        name: "cell_type; EFO_0000311",
-        id: "summary_from_cell_type_to_EFO_0000311"
-      }
-    },
-    {
-      name: "cancer",
-      mid: "076362CAE3B9B4078CC3CF40A8CE18F8C3A37EAB",
-      score: "37.439922",
-      notable: {
-        name: "DiseaseState; EFO_0000292",
-        id: "summary_from_DiseaseState_to_EFO_0000292"
-      }
+        uri: null,
+        annotatedProperty: {
+            uri: null,
+            propertyValue: "mus musculus"
+        },
+        semanticTags: ["http://purl.obolibrary.org/obo/NCBITaxon_10090"],
+        replacedBy: [ ],
+        replaces: [ ],
+        derivedFrom: {
+            uri: "http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907",
+            annotatedProperty: {
+                uri: "http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143",
+                propertyType: "organism",
+                propertyValue: "Mus musculus"
+            },
+            semanticTags: ["http://purl.obolibrary.org/obo/NCBITaxon_10090"],
+            replacedBy: [ ],
+            replaces: [ ],
+            provenance: {
+                source: {
+                    type: "DATABASE",
+                    name: "gxa",
+                    uri: "http://www.ebi.ac.uk/gxa"
+                },
+                evidence: "ZOOMA_INFERRED_FROM_CURATED",
+                accuracy: "NOT_SPECIFIED",
+                generator: "ZOOMA",
+                generatedDate: 1450439979000,
+                annotator: "UNKNOWN",
+                annotationDate: null
+            },
+            annotatedBiologicalEntities: [
+                {
+                    uri: "http://rdf.ebi.ac.uk/resource/zooma/gxa/636196CF38C074D81ED37DA4009E3133",
+                    name: "ebi.ac.uk:Tab2MAGE:E-GEOD-1579.18.Extract",
+                    types: [
+                        "http://www.w3.org/2002/07/owl#NamedIndividual",
+                        "http://rdf.ebi.ac.uk/terms/zooma/Target"
+                    ],
+                    studies: [
+                        {
+                            uri: "http://rdf.ebi.ac.uk/resource/zooma/gxa/DA13D971C08AFD60E64ADFDEAE5CB7EA",
+                            accession: "E-GEOD-1579",
+                            types: [
+                                "http://www.w3.org/2002/07/owl#NamedIndividual",
+                                "http://rdf.ebi.ac.uk/terms/zooma/DatabaseEntrySource"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        confidence: "HIGH",
+        provenance: {
+            source: {
+                type: "DATABASE",
+                name: "zooma",
+                uri: "http://www.ebi.ac.uk/spot/zooma"
+            },
+            evidence: "COMPUTED_FROM_TEXT_MATCH",
+            accuracy: null,
+            generator: "ZOOMA",
+            generatedDate: 1452693184607,
+            annotator: "ZOOMA",
+            annotationDate: 1452693184607
+        },
+        annotatedBiologicalEntities: [ ]
     }
-  ],
-  status: "/api/status/ok"
-}
+]
         </div>
-        <p>
-            This example clearly shows that there are three types of cancer annotation summary (disease_state: cancer;
-            cell_type: cancer; and DiseaseState: cancer), two of which map to EFO_000311 and one of which maps to
-            EF)_0000292
-        </p>
 
-        <h4>Retrieve Example:</h4>
-        <span class="eg-description">To retrieve annotation summary '44229DD38831FABF7607132EDB3BAD64893A611D'</span><br/>
-        <div class="eg-content">&lt;<span class="eg-var">zooma.api</span>&gt;/summaries/44229DD38831FABF7607132EDB3BAD64893A611D</div>
-        <span class="eg-description">Response:</span><br/>
-        <div class="eg-content">
-{
-  id: "44229DD38831FABF7607132EDB3BAD64893A611D",
-  semanticTags: [
-    "http://www.ebi.ac.uk/efo/EFO_0000311"
-  ],
-  annotationSummaryTypeID: "summary_from_disease_state_to_EFO_0000311",
-  annotationSummaryTypeName: "disease_state; EFO_0000311",
-  annotatedPropertyValue: "cancer",
-  annotatedPropertyType: "disease_state",
-  annotationURIs: [
-    "http://www.ebi.ac.uk/zooma/annotation/ANNO_00095246",
-    "http://www.ebi.ac.uk/zooma/annotation/ANNO_00218829",
-    "http://www.ebi.ac.uk/zooma/annotation/ANNO_00218821",
-    "http://www.ebi.ac.uk/zooma/annotation/ANNO_00023571",
-    "http://www.ebi.ac.uk/zooma/annotation/ANNO_00023506",
-    ...
-  ]
-}
-        </div>
+        <p>
+            This example shows that 'mus musculus' is associated to semantic tag http://purl.obolibrary.org/obo/NCBITaxon_10090.
+            The confidence for this association is 'HIGH' and derives from the annotation summary with the following uri :<br>
+            http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907.<br>
+            This annotation summary links 'mus musculus' to http://purl.obolibrary.org/obo/NCBITaxon_10090 and comes from
+            the 'gxa' database.
+        </p>
+        <p>To search a term specifying a property type, you would use the following url :
+
+            <table>
+                <thead>
+                <tr>
+                    <th>method</th>
+                    <th>url</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>GET</td>
+                    <td>&lt;<span class="eg-var">zooma.api</span>&gt;/services/annotate?propertyValue=mus+musculus&propertyType=organism</td>
+                </tr>
+                </tbody>
+            </table>
+            To get a list of all the property types do :
+            <table>
+                <thead>
+                <tr>
+                    <th>method</th>
+                    <th>url</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>GET</td>
+                    <td>&lt;<span class="eg-var">zooma.api</span>&gt;/properties/types?limit=10000</td>
+                </tr>
+                </tbody>
+            </table>
+        </p>
+        <p>
+            You can also add a filter to select the datasources zooma should use :
+            <table>
+                <thead>
+                <tr>
+                    <th>method</th>
+                    <th>url</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>GET</td>
+                    <td>&lt;<span class="eg-var">zooma.api</span>&gt;/services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:%5Batlas,gxa%5Dpreferred:%5Batlas,gxa%5D</td>
+                </tr>
+                </tbody>
+            </table>
+            This filter tells Zooma to look for a semantic tag for 'mus musculus' using only atlas and gxa as
+            datasources. The 'preferred' section of the url allows you to set on order of preferred datasources (going
+            from the datasource you trust the most, to the one you trust less) and this will affect the score.<br>
+            To know which filters you can use for the EBI Zooma, go to the Zooma main page (www.ebi.ac.uk/spot/zooma),
+            the different datasources will be listed in the box on the top right hand side of the page.
+            </p>
+
         </section>
 
+
         <section>
-        <h3>Annotations</h3>
+            <h3>Getting more information</h3>
 
-        <h4>Example:</h4>
-        <span class="eg-description">To retrieve the annotation 'ANNO_00095246'</span><br>
 
-        <div class="eg-content">&lt;<span class="eg-var">zooma.api</span>&gt;/annotations/ANNO_00095246</div>
-        <span class="eg-description">Response:</span><br>
-
-        <div class="eg-content">
+            <h4>derivedFrom </h4>
+            If you want to get more information about the derivedFrom object use its uri and do the following :
+            <table>
+                <thead>
+                <tr>
+                    <th>url</th>
+                    <th>method</th>
+                    <th>Content-Type</th>
+                    <th>content</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>http://www.ebi.ac.uk/spot/zooma/v2/api/services/collapse</td>
+                        <td>post</td>
+                        <td>application/json</td>
+                        <td>{"uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907"}</td>
+                    </tr>
+                </tbody>
+            </table>
+            This will return the following json :
+            <div class="eg-content">
 {
-  annotatedBiologicalEntities: [
-    {
-      name: "GSM636920 1",
-      studies: [
-        {
-          accession: "E-GEOD-25932",
-          uri: "http://www.ebi.ac.uk/arrayexpress/experiment/E-GEOD-25932"
-        }
-      ],
-      uri: "http://www.ebi.ac.uk/gxa/sample/SAMPLE_00031000"
-    }
-  ],
-  annotatedProperty: {
-    propertyType: "disease_state",
-    propertyValue: "cancer",
-    uri: null
-  },
-  semanticTags: [
-    "http://www.ebi.ac.uk/efo/EFO_0000311"
-  ],
-  provenance: {
-    source: "http://www.ebi.ac.uk/zooma/db/ATLAS",
-    creationDate: 1343303275135,
-    evidence: "INFERRED_FROM_CURATION",
-    creator: "ZOOMA"
-  },
-  uri: "http://www.ebi.ac.uk/zooma/annotation/ANNO_00095246"
+    "fragment": "90E386B39F0AD3DA5CCBD8AAA6F14907"
+    "namespace": "http://rdf.ebi.ac.uk/resource/zooma/gxa/"
+    "uri": "http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907"
+    "shortname": "gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907"
 }
-        </div>
+            </div>
+            Use the shortname to querry zooma, and because you're querying an annotationSummary add 'annotations' in the url : <br>
+            http://www.ebi.ac.uk/spot/zooma/v2/api/<b>annotations</b>/<b>gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907</b>
+
+
+
+
+
+
+
+            <h4>derivedFrom annotatedProperty</h4>
+            If you want to get more information about the derivedFrom annotatedProperty object use its uri and do
+            the following :
+            <table>
+                <thead>
+                    <tr>
+                        <th>url</th>
+                        <th>method</th>
+                        <th>Content-Type</th>
+                        <th>content</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>http://www.ebi.ac.uk/spot/zooma/v2/api/services/collapse</td>
+                        <td>post</td>
+                        <td>application/json</td>
+                        <td>{"uri":"http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143"}</td>
+                    </tr>
+                </tbody>
+            </table>
+            This will return the following json :
+            <div> class="eg-content">
+{
+    "fragment": "461CE7ADFDA7E46E0AAEA17AC66AF143"
+    "namespace": "http://rdf.ebi.ac.uk/resource/zooma/"
+    "uri": "http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143"
+    "shortname": "zoomaresource:461CE7ADFDA7E46E0AAEA17AC66AF143"
+}
+            </div>
+            Use the shortname to querry zooma, and because you're querying a property add 'properties' in the url : <br>
+            http://www.ebi.ac.uk/spot/zooma/v2/api/<b>properties</b>/<b>zoomaresource:461CE7ADFDA7E46E0AAEA17AC66AF143</b>
+
+
+
+            <h4>derivedFrom annotatedBiologicalEntities</h4>
+            If you want to get more information about the derivedFrom annotatedBiologicalEntities object use its uri and do
+            the following :
+            <table>
+                <thead>
+                <tr>
+                <th>url</th>
+                <th>method</th>
+                <th>Content-Type</th>
+                <th>content</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>http://www.ebi.ac.uk/spot/zooma/v2/api/services/collapse</td>
+                    <td>post</td>
+                    <td>application/json</td>
+                    <td>{"uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/636196CF38C074D81ED37DA4009E3133"}</td>
+                </tr>
+
+                </tbody>
+            </table>
+            This will return the following json :
+            <div class="eg-content">
+{
+    "fragment": "636196CF38C074D81ED37DA4009E3133"
+    "namespace": "http://rdf.ebi.ac.uk/resource/zooma/gxa/"
+    "uri": "http://rdf.ebi.ac.uk/resource/zooma/gxa/636196CF38C074D81ED37DA4009E3133"
+    "shortname": "gxaresource:636196CF38C074D81ED37DA4009E3133"
+}
+            </div>
+            Use the shorname to querry zooma, and because you're querying a biologicalEntity add biologicalEntities in the url:<br>
+            http://www.ebi.ac.uk/spot/zooma/v2/api/<b>biologicalEntities</b>/<b>gxaresource:636196CF38C074D81ED37DA4009E3133</b><br>
         </section>
 
         <section>
@@ -310,7 +465,6 @@
             <input type="text" id="zooma_search" name="zooma_search" />
         </section>
 
-    </section>
 
     <section class="grid_6 omega">
         <h3>Documentation</h3>
