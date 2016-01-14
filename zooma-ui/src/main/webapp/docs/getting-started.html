@@ -268,6 +268,86 @@
                     future. For example, if you found results in the worked example above that looked wrong, or if Zooma
                     gave multiple hits, or if there was something that did not map that you think should map, you can
                     add new mappings to Zooma to help improve it's output. Below, we're going to see how to do this.
+                    <br><br>
+                    Let say that you've copied/pasted example 9 in zooma and clicked on the 'annotate' button.<br>
+                    Looking at the term 'ripening' you can see that it is mapped to semantic tag PO_0007010 ("whole plant fruit ripening stage")
+                    which is the ripening stage of the whole plant starting when the first fruit starts ripening and ending
+                    when the last fruit finishes ripening.
+                    <br>Maybe you think that this association is wrong and you'd rather see 'ripening' being associated
+                    with semantic tag PO_0025502 ("fruit ripening stage") which is the ripening of one fruit.<br>
+                    Then you can submit a tab file to our <a href="http://www.ebi.ac.uk/panda/jira/browse/FGPTO/component/10874"
+                    target="_blank"><span class="external">JIRA bug tracker</span></a> which would be as follow :<br>
+                    <table>
+                    <thead>
+                    <tr>
+                        <th>STUDY</th>
+                        <th>BIOENTITY</th>
+                        <th>PROPERTY_TYPE</th>
+                        <th>PROPERTY_VALUE</th>
+                        <th>SEMANTIC_TAG</th>
+                        <th>ANNOTATOR</th>
+                        <th>ANNOTATION_DATE</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>plant structure development stage</td>
+                        <td>ripening</td>
+                        <td>http://purl.obolibrary.org/obo/PO_0025502</td>
+                        <td>your_name</td>
+                        <td>the_date</td>
+                    </tr>
+                    </tbody>
+                    </table>
+                    The study, bioentity and type are not mandatory but help enriching the annotation for searches with
+                    more context.<br>
+                    The date should be in the following format : 2015-08-21 12:00:00<br>
+                    We will then load that file to Zooma in one of our weekly data releases. Once that done, when
+                    searching for 'ripening', Zooma would also suggest the PO_0025502 term you added.
+                    <br>
+                    <br>
+                    Below is an example of an annotation submited by the <a href="https://www.ebi.ac.uk/gxa/home">Expression
+                    Atlas</a> group at the EBI :
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>STUDY</th>
+                        <th>BIOENTITY</th>
+                        <th>PROPERTY_TYPE</th>
+                        <th>PROPERTY_VALUE</th>
+                        <th>SEMANTIC_TAG</th>
+                        <th>ANNOTATOR</th>
+                        <th>ANNOTATION_DATE</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>E-GEOD-10927</td>
+                        <td>GSE10927GSM277147</td>
+                        <td>biopsy site</td>
+                        <td>left</td>
+                        <td>http://www.ebi.ac.uk/efo/EFO_0001658</td>
+                        <td>Eleanor Williams</td>
+                        <td>01/10/2014 18:32</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <br>
+                <br>
+                Now imagine that, to save curator time and energy, you've got this pipeline which uses the zooma rest api to
+                automatically annotate your data. Because you want to be on the safe side, the pipeline only accept annotations
+                which come back with a 'HIGH' mapping confidence.<br>
+                Looking back at the 'example 9', you can see that the term 'GM08928' is mapped to semantic tag 'CLO_0011237'.
+                You know that this is true but in Zooma, because not many sources say so, it comes back with a 'GOOD' score
+                rather then a 'HIGH' score. So even though your automatic pipeline runs every week, you find yourself
+                having to annotate the same term over an over again.<br>
+                To avoid that, you can also submit a spreadsheet, as described above, associating term 'GM08928' to semantic
+                tag 'CLO_0011237' and submit it to us. Because now zooma has the same association from 2 different datasources
+                then it is likely to come back next time with a 'HIGH' score and your annotation will be done automatically.
+
                 </p>
             </div>
 
