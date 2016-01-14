@@ -56,7 +56,7 @@
     -->
 
     <style type=text/css>
-            /* You have the option of setting a maximum width for your page, and making sure everything is centered */
+        /* You have the option of setting a maximum width for your page, and making sure everything is centered */
         body {
             max-width: 1366px;
             margin: 0 auto;
@@ -90,320 +90,250 @@
 </div>
 
 <div id="wrapper" class="container_24">
-<header>
-    <div id="global-masthead" class="masthead grid_24">
-        <!--This has to be one line and no newline characters-->
-        <a href="http://www.ebi.ac.uk/"
-           title="Go to the EMBL-EBI homepage"><img src="//www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
-                                                    alt="EMBL European Bioinformatics Institute"></a>
+    <header>
+        <div id="global-masthead" class="masthead grid_24">
+            <!--This has to be one line and no newline characters-->
+            <a href="http://www.ebi.ac.uk/"
+               title="Go to the EMBL-EBI homepage"><img src="//www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
+                                                        alt="EMBL European Bioinformatics Institute"></a>
 
-        <nav>
-            <ul id="global-nav">
-                <!-- set active class as appropriate -->
-                <li class="first active" id="services"><a href="http://www.ebi.ac.uk/services">Services</a></li>
-                <li id="research"><a href="http://www.ebi.ac.uk/research">Research</a></li>
-                <li id="training"><a href="http://www.ebi.ac.uk/training">Training</a></li>
-                <li id="industry"><a href="http://www.ebi.ac.uk/industry">Industry</a></li>
-                <li id="about" class="last"><a href="http://www.ebi.ac.uk/about">About us</a></li>
-            </ul>
-        </nav>
+            <nav>
+                <ul id="global-nav">
+                    <!-- set active class as appropriate -->
+                    <li class="first active" id="services"><a href="http://www.ebi.ac.uk/services">Services</a></li>
+                    <li id="research"><a href="http://www.ebi.ac.uk/research">Research</a></li>
+                    <li id="training"><a href="http://www.ebi.ac.uk/training">Training</a></li>
+                    <li id="industry"><a href="http://www.ebi.ac.uk/industry">Industry</a></li>
+                    <li id="about" class="last"><a href="http://www.ebi.ac.uk/about">About us</a></li>
+                </ul>
+            </nav>
 
-    </div>
-
-    <div id="local-masthead" class="masthead grid_24 nomenu">
-
-        <!-- local-title -->
-        <!-- NB: for additional title style patterns, see http://frontier.ebi.ac.uk/web/style/patterns -->
-
-        <div class="grid_12 alpha" id="local-title">
-            <h1><a href="../" title="">ZOOMA</a></h1>
-        </div>
-        <!-- /local-title -->
-
-        <!-- local-nav -->
-        <nav>
-            <ul class="grid_24" id="local-nav">
-                <li class="first">
-                    <a href="../">Home</a>
-                </li>
-                <li>
-                    <a href="../sparql">Explore</a>
-                </li>
-                <li class="active">
-                    <a href="../docs">Help</a>
-                </li>
-                <li class="last">
-                    <a href="../about.html">About ZOOMA</a>
-                </li>
-            </ul>
-        </nav>
-        <!-- /local-nav -->
-  </div>
-</header>
-
-<div id="content" role="main" class="grid_24 clearfix">
-
-<section id="docs" class="grid_18 alpha">
-    <h2>Getting Started</h2>
-
-    <div id="gs-intro">
-        <div id="basics" class="grid_24 clearfix">
-            <h3>Basics</h3>
-
-            <p class="grid_16 alpha">
-                The ZOOMA <a href="../index.html">homepage</a> contains a text box that allows you to discover
-                possible ontology mappings for your terms. Try clicking the "Show me some examples..." link above
-                this box - it should populate the box with three example terms. Hit "Annotate". A progress bar
-                appears, showing you when ZOOMA has mapped your terms.
-            </p>
-            <img src="images/show-me-examples.png" class="grid_6 omega" alt="Show me some examples..."/>
         </div>
 
-        <p>
-            Once complete, you should see a table of results. Green shows that ZOOMA could map this term
-            "automatically", or with a high degree of confidence. Yellow shows that ZOOMA was less sure, and
-            results might need further curator intervention to determine if ZOOMA is correct.
-        </p>
-        <img style="text-align: center" src="images/results.png" alt="A ZOOMA table of results"/>
+        <div id="local-masthead" class="masthead grid_24 nomenu">
 
-        <p>
-            Let's look at these examples in a little more detail. The third row of your results should be listed
-            in green - property type "compound" and value "cooked broccoli". ZOOMA mapped this term with a high
-            degree of confidence, in part because we could supply some additional context by adding a type to
-            our search. If you look at the text box, you'll see when you clicked "Show me some examples..." it
-            populated a type after the value, with a tab between them.
-        </p>
+            <!-- local-title -->
+            <!-- NB: for additional title style patterns, see http://frontier.ebi.ac.uk/web/style/patterns -->
 
-        <p>
-            If we add a type to one of the other examples, we can improve our confidence. Modify the input box -
-            after the term CD4-positive, put a tab and add "cell type". Now hit "Annotate" again. You should see
-            that the second result in our table has gone green.
-        </p>
-        <img style="text-align: center" src="images/results-extra-type.png" alt="More results, with additional typing"/>
-    </div>
+            <div class="grid_12 alpha" id="local-title">
+                <h1><a href="../" title="">ZOOMA</a></h1>
+            </div>
+            <!-- /local-title -->
 
-    <div id="gs-examples">
-        <h3>Worked Examples</h3>
+            <!-- local-nav -->
+            <nav>
+                <ul class="grid_24" id="local-nav">
+                    <li class="first">
+                        <a href="../">Home</a>
+                    </li>
+                    <li>
+                        <a href="../sparql">Explore</a>
+                    </li>
+                    <li class="active">
+                        <a href="../docs">Help</a>
+                    </li>
+                    <li class="last">
+                        <a href="../about.html">About ZOOMA</a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- /local-nav -->
+        </div>
+    </header>
 
-        <p>
-            Below are some example inputs you can run against ZOOMA. These datasets are all taken from
-            ArrayExpress. You can open any of these files and copy and paste everything into the ZOOMA search
-            box to see what coverage you get.
-        </p>
+    <div id="content" role="main" class="grid_24 clearfix">
 
-        <ul>
-            <li><a href="./examples/example-1.txt">ZOOMA example input 1</a></li>
-            <li><a href="./examples/example-2.txt">ZOOMA example input 2</a></li>
-            <li><a href="./examples/example-3.txt">ZOOMA example input 3</a></li>
-            <li><a href="./examples/example-4.txt">ZOOMA example input 4</a></li>
-            <li><a href="./examples/example-5.txt">ZOOMA example input 5</a></li>
-            <li><a href="./examples/example-6.txt">ZOOMA example input 6</a></li>
-            <li><a href="./examples/example-7.txt">ZOOMA example input 7</a></li>
-            <li><a href="./examples/example-8.txt">ZOOMA example input 8</a></li>
-            <li><a href="./examples/example-9.txt">ZOOMA example input 9</a></li>
-            <li><a href="./examples/example-10.txt">ZOOMA example input 10</a></li>
-        </ul>
-    </div>
+        <section id="docs" class="grid_18 alpha">
+            <h2>Getting Started</h2>
 
-    <div id="gs-workshop">
-        <h3>ZOOMA Workshop Evaluation Procedure</h3>
+            <div id="gs-intro">
+                <div id="basics" class="grid_24 clearfix">
+                    <h3>Basics</h3>
 
-        <p>
-            Copy and paste the data from one of the example input files, above, into the ZOOMA search box. Hit
-            annotate and check you have some sensible looking results.
-        </p>
+                    <p class="grid_16 alpha">
+                        The ZOOMA <a href="../index.html">homepage</a> contains a text box that allows you to discover
+                        possible ontology mappings for your terms. Try clicking the "Show me some examples..." link
+                        above
+                        this box - it should populate the box with three example terms. Hit "Annotate". A progress bar
+                        appears, showing you when ZOOMA has mapped your terms.
+                    </p>
+                    <img src="images/show-me-examples.png" class="grid_6 omega" alt="Show me some examples..."/>
+                </div>
 
-        <p>
-            We're going to export and inspect ZOOMA's output to see how well it did. Above your table of results,
-            you should see an option to "Download my results". If you click this, you should be able to open a
-            complete report from ZOOMA in a tab delimited text format in your browser.
-        </p>
+                <p>
+                    Once complete, you should see a table of results. Green shows that ZOOMA could map this term
+                    "automatically", or with a high degree of confidence. Yellow shows that ZOOMA was less sure, and
+                    results might need further curator intervention to determine if ZOOMA is correct.
+                </p>
+                <img style="text-align: center" src="images/results.png" alt="A ZOOMA table of results"/>
 
-        <p>
-            Either right-click this link, then "Save as..." or else open the link and copy and paste the data. Open
-            it in your spreadsheet editor of choice (Excel or Google Drive should work fine). We'd like you to see
-            if you agree with ZOOMA's results by adding a new "CURATOR" column to this spreadsheet.
-        </p>
+                <p>
+                    Let's look at these examples in a little more detail. The third row of your results should be listed
+                    in green - property type "compound" and value "cooked broccoli". ZOOMA mapped this term with a high
+                    degree of confidence, in part because we could supply some additional context by adding a type to
+                    our search. If you look at the text box, you'll see when you clicked "Show me some examples..." it
+                    populated a type after the value, with a tab between them.
+                </p>
 
-        <p>
-            For example, you might get ZOOMA output like this:
-        </p>
-        <table>
-            <thead>
-            <tr>
-                <th>PROPERTY TYPE</th>
-                <th>PROPERTY VALUE</th>
-                <th>ONTOLOGY TERM LABEL(S)</th>
-                <th>MAPPING TYPE</th>
-                <th>ONTOLOGY TERM(S)</th>
-                <th>SOURCE(S)</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>Organism</td>
-                <td>Arabidopsis thaliana</td>
-                <td>Arabidopsis thaliana</td>
-                <td>Automatic</td>
-                <td><a href="http://purl.obolibrary.org/obo/NCBITaxon_3702" target="_blank">NCBITaxon_3702</a></td>
-                <td>http://www.ebi.ac.uk/arrayexpress/</td>
-            </tr>
-            </tbody>
-        </table>
-        <p>
-            If you agree that the given property type/value pair should match to the given ontology term, you should
-            modify this row to look like this:
-        </p>
-        <table>
-            <thead>
-            <tr>
-                <th>PROPERTY TYPE</th>
-                <th>PROPERTY VALUE</th>
-                <th>ONTOLOGY TERM LABEL(S)</th>
-                <th>MAPPING TYPE</th>
-                <th>ONTOLOGY TERM(S)</th>
-                <th>SOURCE(S)</th>
-                <th>CURATOR</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>Organism</td>
-                <td>Arabidopsis thaliana</td>
-                <td>Arabidopsis thaliana</td>
-                <td>Automatic</td>
-                <td><a href="http://purl.obolibrary.org/obo/NCBITaxon_3702" target="_blank">NCBITaxon_3702</a></td>
-                <td>http://www.ebi.ac.uk/arrayexpress/</td>
-                <td>y</td>
-            </tr>
-            </tbody>
-        </table>
-        <p>
-            If you think this mapping is wrong, change the "y" value to "n"
-        </p>
+                <p>
+                    If we add a type to one of the other examples, we can improve our confidence. Modify the input box -
+                    after the term CD4-positive, put a tab and add "cell type". Now hit "Annotate" again. You should see
+                    that the second result in our table has gone green.
+                </p>
+                <img style="text-align: center"
+                     src="images/results-extra-type.png"
+                     alt="More results, with additional typing"/>
+            </div>
 
-        <p>
-            Alternatively, if ZOOMA suggests a mapping of "Did not map", for example...
-        </p>
-        <table>
-            <thead>
-            <tr>
-                <th>PROPERTY TYPE</th>
-                <th>PROPERTY VALUE</th>
-                <th>ONTOLOGY TERM LABEL(S)</th>
-                <th>MAPPING TYPE</th>
-                <th>ONTOLOGY TERM(S)</th>
-                <th>SOURCE(S)</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>StrainOrLine</td>
-                <td>BALB/c (H-2Kd, Thy-1.2)</td>
-                <td>N/A</td>
-                <td>Did not map</td>
-                <td>N/A</td>
-                <td>N/A</td>
-            </tr>
-            </tbody>
-        </table>
-        <p>
-            ...but you think an ontology term DOES exist for this term that ZOOMA should have detected, you would
-            modify the spreadsheet to look like this:
-        </p>
-        <table>
-            <thead>
-            <tr>
-                <th>PROPERTY TYPE</th>
-                <th>PROPERTY VALUE</th>
-                <th>ONTOLOGY TERM LABEL(S)</th>
-                <th>MAPPING TYPE</th>
-                <th>ONTOLOGY TERM(S)</th>
-                <th>SOURCE(S)</th>
-                <th>CURATOR</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>StrainOrLine</td>
-                <td>BALB/c (H-2Kd, Thy-1.2)</td>
-                <td>N/A</td>
-                <td>Did not map</td>
-                <td>N/A</td>
-                <td>N/A</td>
-                <td>n</td>
-            </tr>
-            </tbody>
-        </table>
-        <p>
-            If ZOOMA suggests "requires curation" and the correct hit is present, you can put a "y" next to that hit.
-        </p>
+            <div id="gs-examples">
+                <h3>Worked Examples</h3>
+
+                <p>
+                    Below are some example inputs you can run against ZOOMA. These datasets are all taken from
+                    ArrayExpress. You can open any of these files and copy and paste everything into the ZOOMA search
+                    box to see what coverage you get.
+                </p>
+
+                <ul>
+                    <li><a href="./examples/example-1.txt">ZOOMA example input 1</a></li>
+                    <li><a href="./examples/example-2.txt">ZOOMA example input 2</a></li>
+                    <li><a href="./examples/example-3.txt">ZOOMA example input 3</a></li>
+                    <li><a href="./examples/example-4.txt">ZOOMA example input 4</a></li>
+                    <li><a href="./examples/example-5.txt">ZOOMA example input 5</a></li>
+                    <li><a href="./examples/example-6.txt">ZOOMA example input 6</a></li>
+                    <li><a href="./examples/example-7.txt">ZOOMA example input 7</a></li>
+                    <li><a href="./examples/example-8.txt">ZOOMA example input 8</a></li>
+                    <li><a href="./examples/example-9.txt">ZOOMA example input 9</a></li>
+                    <li><a href="./examples/example-10.txt">ZOOMA example input 10</a></li>
+                </ul>
+
+                <p>
+                    Copy and paste the data from one of the example input files, above, into the ZOOMA search box. Hit
+                    annotate and check you have some sensible looking results.
+                </p>
+            </div>
+
+            <div id="gs-inspections">
+                <h4>Zooma Results</h4>
+
+                <p>
+                    We're going to export and inspect ZOOMA's output to see how well it did. Above your table of
+                    results,
+                    you should see an option to "Download my results". If you click this, you should be able to open a
+                    complete report from ZOOMA in a tab delimited text format in your browser.
+                </p>
+
+                <p>
+                    Either right-click this link, then "Save as..." or else open the link and copy and paste the data.
+                    Open
+                    it in your spreadsheet editor of choice (Excel or Google Drive should work fine).
+                </p>
+
+                <p>
+                    For example, you might get ZOOMA output like this:
+                </p>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>PROPERTY TYPE</th>
+                        <th>PROPERTY VALUE</th>
+                        <th>ONTOLOGY TERM LABEL(S)</th>
+                        <th>MAPPING TYPE</th>
+                        <th>ONTOLOGY TERM(S)</th>
+                        <th>SOURCE(S)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Organism</td>
+                        <td>Arabidopsis thaliana</td>
+                        <td>Arabidopsis thaliana</td>
+                        <td>Automatic</td>
+                        <td><a href="http://purl.obolibrary.org/obo/NCBITaxon_3702" target="_blank">NCBITaxon_3702</a>
+                        </td>
+                        <td>http://www.ebi.ac.uk/arrayexpress/</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p>
+                    Does this look like a reasonable result?
+                </p>
+            </div>
+
+            <div id="gs-feedback">
+                <h3>Adding New Mappings to Zooma</h3>
+                
+                <p>
+                    From here on, we're going to review how to feed back data to Zooma to help improve mappings in
+                    future. For example, if you found results in the worked example above that looked wrong, or if Zooma
+                    gave multiple hits, or if there was something that did not map that you think should map, you can
+                    add new mappings to Zooma to help improve it's output. Below, we're going to see how to do this.
+                </p>
+            </div>
+
+        </section>
+
+        <section class="grid_6 omega">
+            <h3>Documentation</h3>
+            <ul id="secondary-nav">
+                <li class="first"><a href="./index.html">Home</a></li>
+                <li class="active"><a href="./getting-started.html">Getting Started</a></li>
+                <li><a href="./api.html">REST API Documentation</a></li>
+                <li class="last"><a href="./developers.html">Developer Documentation</a></li>
+            </ul>
+        </section>
 
     </div>
 
-</section>
-
-<section class="grid_6 omega">
-    <h3>Documentation</h3>
-    <ul id="secondary-nav">
-        <li class="first"><a href="./index.html">Home</a></li>
-        <li class="active"><a href="./getting-started.html">Getting Started</a></li>
-        <li><a href="./api.html">REST API Documentation</a></li>
-        <li class="last"><a href="./developers.html">Developer Documentation</a></li>
-    </ul>
-</section>
-
-</div>
-
-<footer>
-    <!-- Optional local footer (insert citation / project-specific copyright / etc here --><!--
+    <footer>
+        <!-- Optional local footer (insert citation / project-specific copyright / etc here --><!--
     <div id="local-footer" class="grid_24 clearfix">
 
     </div>
      --><!-- End optional local footer -->
 
-    <div id="global-footer" class="grid_24 clearfix">
+        <div id="global-footer" class="grid_24 clearfix">
 
-        <nav id="global-nav-expanded">
+            <nav id="global-nav-expanded">
 
-            <div class="grid_4 alpha">
-                <h3 class="explore">Explore</h3>
-            </div>
+                <div class="grid_4 alpha">
+                    <h3 class="explore">Explore</h3>
+                </div>
 
-            <div class="grid_4">
-                <h3 class="services"><a href="/services" title="Services">Services</a></h3>
-            </div>
+                <div class="grid_4">
+                    <h3 class="services"><a href="/services" title="Services">Services</a></h3>
+                </div>
 
-            <div class="grid_4">
-                <h3 class="research"><a href="/research" title="Research">Research</a></h3>
-            </div>
+                <div class="grid_4">
+                    <h3 class="research"><a href="/research" title="Research">Research</a></h3>
+                </div>
 
-            <div class="grid_4">
-                <h3 class="training"><a href="/training" title="Training">Training</a></h3>
-            </div>
+                <div class="grid_4">
+                    <h3 class="training"><a href="/training" title="Training">Training</a></h3>
+                </div>
 
-            <div class="grid_4">
-                <h3 class="industry"><a href="/industry" title="Industry">Industry</a></h3>
-            </div>
+                <div class="grid_4">
+                    <h3 class="industry"><a href="/industry" title="Industry">Industry</a></h3>
+                </div>
 
-            <div class="grid_4 omega">
-                <h3 class="about"><a href="/about" title="About us">About us</a></h3>
-            </div>
+                <div class="grid_4 omega">
+                    <h3 class="about"><a href="/about" title="About us">About us</a></h3>
+                </div>
 
-        </nav>
-        <script src="//www.ebi.ac.uk/web_guidelines/js/foot.js"></script>
+            </nav>
+            <script src="//www.ebi.ac.uk/web_guidelines/js/foot.js"></script>
 
-    </div>
+        </div>
 
-    <div class="grid_24">
-        <section id="ebi-footer-meta">
-            <p> &copy; EMBL-EBI European Bioinformatics Institute | <a href="#" title="">Privacy</a> | <a href="#"
-                                                                                                          title="">Cookies</a>
-                       | <a href="#" title="">Terms of use</a></p>
-        </section>
-    </div>
+        <div class="grid_24">
+            <section id="ebi-footer-meta">
+                <p> &copy; EMBL-EBI European Bioinformatics Institute | <a href="#" title="">Privacy</a> | <a href="#"
+                                                                                                              title="">Cookies</a>
+                           | <a href="#" title="">Terms of use</a></p>
+            </section>
+        </div>
 
-</footer>
+    </footer>
 </div>
 <!--! end of #wrapper -->
 
