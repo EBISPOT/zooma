@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.4, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="32px" height="32px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
+<g>
+	<path d="M21.999,7c-5.522,0.002-10,4.48-10,10.001c0,5.521,4.478,9.997,10,9.999C27.521,26.998,32,22.521,32,17.001
+		C32,11.48,27.523,7.001,21.999,7z M21.999,25c-4.418-0.01-7.991-3.583-8-7.999c0.008-4.418,3.583-7.993,8-8.001
+		c4.418,0.008,7.992,3.583,8,8.001C29.991,21.417,26.417,24.99,21.999,25z"/>
+	<polygon points="23,11 21,11 21,18 26,18 26,16 23,16 	"/>
+	<rect x="2" y="12" width="8" height="8"/>
+	<rect x="2" y="22" width="8" height="8"/>
+	<path d="M2,10h8V2H2V10z M3.999,3.999H8v4H3.999V3.999z"/>
+</g>
+</svg>

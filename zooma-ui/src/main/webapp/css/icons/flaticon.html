@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Flaticon WebFont</title>
+    <link rel="stylesheet" type="text/css" href="flaticon.css">
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.5;
+            font-size: 16px;
+            padding: 20px;
+            color: #333;
+        }
+
+        * {
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        [class^="flaticon-"]:before, [class*=" flaticon-"]:before, [class^="flaticon-"]:after, [class*=" flaticon-"]:after {
+            font-family: Flaticon;
+            font-size: 30px;
+            font-style: normal;
+            margin-left: 20px;
+            color: #333;
+        }
+
+        .image p {
+            font-size: 12px;
+            margin: 0px;
+            clear: none;
+            width: 300px;
+            line-height: 40px;
+        }
+
+        .text {
+            float: left;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .text ul {
+            margin-left: 0px;
+            color: #111;
+            margin-bottom: 20px;
+        }
+
+        .text .ex {
+            font-size: 12px;
+            color: #666;
+            margin-left: 35px;
+            display: block;
+        }
+
+        .text ul li {
+            margin-top: 10px;
+            list-style: none;
+        }
+
+        .num {
+            background: #66A523;
+            color: #fff;
+            border-radius: 20px;
+            padding: 1px;
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            text-align: center;
+            margin-right: 5px;
+        }
+
+        .text ul strong {
+            font-weight: normal;
+            color: #000;
+        }
+
+        .image {
+            width: 280px;
+            float: left;
+            margin-bottom: 15px;
+            margin-right: 30px;
+        }
+
+        #glyphs {
+            clear: both;
+        }
+
+        .image p:nth-child(even) i {
+            clear: none;
+        }
+
+        .glyph {
+            display: inline-block;
+            width: 120px;
+            margin: 10px;
+            text-align: center;
+            vertical-align: top;
+            background: #FFF;
+        }
+
+        .glyph .glyph-icon {
+            padding: 10px;
+            display: block;
+            font-family: "Flaticon";
+            font-size: 64px;
+            line-height: 1;
+        }
+
+        .glyph .glyph-icon:before {
+            font-size: 64px;
+            color: #666;
+            margin-left: 0;
+        }
+
+        .class-name {
+            font-size: 12px;
+        }
+
+        .author-name {
+            font-size: 10px;
+        }
+
+        a {
+            color: #66A523;
+        }
+
+        .instructions {
+            font-style: italic;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .iconsuse {
+            font-size: 22px;
+            font-style: italic;
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 1px solid #bbb;
+        }
+
+        .usetitle {
+            margin-bottom: 10px;
+            font-size: 20px;
+            font-style: italic;
+        }
+
+        .class-name:last-child {
+            font-size: 10px;
+            color: #888;
+        }
+
+        .class-name:last-child a {
+            font-size: 10px;
+            color: #555;
+        }
+
+        .class-name:last-child a:hover {
+            color: #66A523;
+        }
+
+        .glyph > input {
+            display: block;
+            width: 100px;
+            margin: 5px auto;
+            text-align: center;
+            font-size: 12px;
+            cursor: text;
+        }
+
+        .glyph > input.icon-input {
+            font-family: "Flaticon";
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        h1.logo {
+            font-size: 40px;
+            letter-spacing: -1px;
+            margin-top: -16px;
+            text-transform: lowercase;
+            border-bottom: 1px solid #bbb;
+        }
+
+        h1.logo strong {
+            font-size: 16px;
+            font-family: sans-serif;
+            font-weight: normal;
+            color: #333;
+        }
+
+        h1.logo a {
+            color: #34302d;
+            text-decoration: none;
+        }
+
+        h1.logo a span {
+            color: #66A523;
+        }
+
+        #footer {
+            padding-top: 40px;
+            clear: both;
+            text-align: center;
+        }
+
+        #footer a {
+            color: #66A523;
+        }
+
+        textarea {
+            margin: 0px;
+            width: 800px;
+            height: 150px;
+            border: 1px solid #CCC;
+            resize: none;
+            background: #EEE;
+        }
+
+        .author-link, .attrDiv a {
+            font-size: 12px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .external {
+            display: block;
+        }
+
+        .attrDiv {
+            font-size: 12px;
+        }
+
+        .attribution {
+            border-top: 1px solid #AAA;
+            margin: 10px 0;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <h1 class="logo">
+        <a href="http://www.flaticon.com">
+            <span>FLAT</span>ICON</a>
+        <strong>Font Demo</strong>
+    </h1>
+</header>
+
+<section class="demo">
+    <div class="text">
+
+        <div class="instructions">Instructions:</div>
+
+        <ul>
+            <li>
+                <p>
+                    <span class="num">1</span>Copy the "Fonts" files and CSS files to your website CSS folder.
+            </li>
+            <li>
+                <p>
+                    <span class="num">2</span>Add the CSS link to your website source code on header.
+                    <br/>
+                        <span class="ex">&lt;head&gt;
+                            <br/>...
+                            <br/>&lt;link rel="stylesheet" type="text/css" href="your_website_domain/css_root/flaticon.css"&gt;
+                            <br/>...
+                            <br/>&lt;/head&gt;</span>
+            </li>
+
+            <li>
+                <p>
+                    <span class="num">3</span>Use the icon class on "display:inline" elements:
+                    <br/>
+                    <span class="ex">Use example: &lt;i class=&quot;flaticon-airplane49&quot;&gt;&lt;/i&gt; or &lt;span class=&quot;flaticon-airplane49&quot;&gt;&lt;/span&gt;</span>
+            </li>
+        </ul>
+    </div>
+
+</section>
+
+<section id="glyphs">
+    <div class="glyph">
+        <div class="glyph-icon flaticon-add43"></div>
+        <div class="class-name">.flaticon-add43</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/network-button-add_14670">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-bold4"></div>
+        <div class="class-name">.flaticon-bold4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/bold-text_13847">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-car16"></div>
+        <div class="class-name">.flaticon-car16</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/car-transport_14032">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-earth3"></div>
+        <div class="class-name">.flaticon-earth3</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/earth-globe-with-grid_14400">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-edit14"></div>
+        <div class="class-name">.flaticon-edit14</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/edit-image_13781">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-edit15"></div>
+        <div class="class-name">.flaticon-edit15</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/edit-wireless-network_14038">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-edit20"></div>
+        <div class="class-name">.flaticon-edit20</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/edit-link_14698">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-eject10"></div>
+        <div class="class-name">.flaticon-eject10</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/eject-hard-disk_14432">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-expand11"></div>
+        <div class="class-name">.flaticon-expand11</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/expand-both-sizes_14810">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-fwd"></div>
+        <div class="class-name">.flaticon-fwd</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/fwd-mail-button_14370">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-game3"></div>
+        <div class="class-name">.flaticon-game3</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/game-controller_14039">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-golf2"></div>
+        <div class="class-name">.flaticon-golf2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/golf-ball_13697">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-group11"></div>
+        <div class="class-name">.flaticon-group11</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/group-edit-button_13737">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-group12"></div>
+        <div class="class-name">.flaticon-group12</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/group-of-people_14323">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-group13"></div>
+        <div class="class-name">.flaticon-group13</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/group-remove-button-half-bodies_14411">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-group14"></div>
+        <div class="class-name">.flaticon-group14</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/group-add-button-for-interface-with-full-bodies-shapes_14508">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-group15"></div>
+        <div class="class-name">.flaticon-group15</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/group-full-remove-button_14540">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-group16"></div>
+        <div class="class-name">.flaticon-group16</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/group-security_14547">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-group17"></div>
+        <div class="class-name">.flaticon-group17</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/group-with-half-body-shape_14701">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-group18"></div>
+        <div class="class-name">.flaticon-group18</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/group-edit-with-full-body-shapes-and-a-pencil_14708">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-group19"></div>
+        <div class="class-name">.flaticon-group19</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/group-add-button-with-half-body-shape_14746">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-group22"></div>
+        <div class="class-name">.flaticon-group22</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/group-security_15179">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-hard2"></div>
+        <div class="class-name">.flaticon-hard2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/hard-disk_13652">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-hard3"></div>
+        <div class="class-name">.flaticon-hard3</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/hard-drive-settings_13700">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-hard4"></div>
+        <div class="class-name">.flaticon-hard4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/hard-disk-security_13769">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-height1"></div>
+        <div class="class-name">.flaticon-height1</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/height-size-edit_13771">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-height2"></div>
+        <div class="class-name">.flaticon-height2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/height-size-cancel_13813">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-height3"></div>
+        <div class="class-name">.flaticon-height3</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/height-size-accept_14158">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-height4"></div>
+        <div class="class-name">.flaticon-height4</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/height-size-security_14308">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-height5"></div>
+        <div class="class-name">.flaticon-height5</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/height-size-add-button_14686">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-height6"></div>
+        <div class="class-name">.flaticon-height6</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/height-size-symbol-of-a-square-with-arrows_14751">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-height"></div>
+        <div class="class-name">.flaticon-height</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/height-size-remove-button_13684">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-hierarchy"></div>
+        <div class="class-name">.flaticon-hierarchy</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/hierarchy_13692">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-home21"></div>
+        <div class="class-name">.flaticon-home21</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/home-side-view_14543">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-image11"></div>
+        <div class="class-name">.flaticon-image11</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/image-interface-symbol_12987">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-image13"></div>
+        <div class="class-name">.flaticon-image13</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/image-settings_14035">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-image15"></div>
+        <div class="class-name">.flaticon-image15</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/image-add-button_14232">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-image16"></div>
+        <div class="class-name">.flaticon-image16</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/image-locked_14242">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-image17"></div>
+        <div class="class-name">.flaticon-image17</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/image-reproduce-button_14249">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-image19"></div>
+        <div class="class-name">.flaticon-image19</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/image-remove-button_14292">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-image25"></div>
+        <div class="class-name">.flaticon-image25</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/image-accept_14441">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-image27"></div>
+        <div class="class-name">.flaticon-image27</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/image-viewer_14494">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-image29"></div>
+        <div class="class-name">.flaticon-image29</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/image-pause_14541">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-image31"></div>
+        <div class="class-name">.flaticon-image31</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/image-cancel_14600">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-imprint"></div>
+        <div class="class-name">.flaticon-imprint</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/imprint_14228">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-information9"></div>
+        <div class="class-name">.flaticon-information9</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/information-symbol_13764">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-internet6"></div>
+        <div class="class-name">.flaticon-internet6</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/internet_14058">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-intranet"></div>
+        <div class="class-name">.flaticon-intranet</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/intranet-network_14545">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-kennel"></div>
+        <div class="class-name">.flaticon-kennel</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/kennel-side-view_14230">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-keyboard4"></div>
+        <div class="class-name">.flaticon-keyboard4</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/keyboard-black-shape_14233">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-label2"></div>
+        <div class="class-name">.flaticon-label2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/label_14290">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-label3"></div>
+        <div class="class-name">.flaticon-label3</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/label-edit-button_14330">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-label4"></div>
+        <div class="class-name">.flaticon-label4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/label-add_14572">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-label5"></div>
+        <div class="class-name">.flaticon-label5</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/label-remove-button_14782">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-leaf6"></div>
+        <div class="class-name">.flaticon-leaf6</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/leaf-shape_14324">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-light10"></div>
+        <div class="class-name">.flaticon-light10</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/light-off_14149">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-light9"></div>
+        <div class="class-name">.flaticon-light9</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/light-bulb_13810">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-link10"></div>
+        <div class="class-name">.flaticon-link10</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/link-remove_13786">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-link12"></div>
+        <div class="class-name">.flaticon-link12</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/link-add-button_14764">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-link9"></div>
+        <div class="class-name">.flaticon-link9</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/link_13654">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-list18"></div>
+        <div class="class-name">.flaticon-list18</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/list_14173">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-list19"></div>
+        <div class="class-name">.flaticon-list19</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/list-with-numbered-items_14332">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mail10"></div>
+        <div class="class-name">.flaticon-mail10</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mail-accept_13003">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mail11"></div>
+        <div class="class-name">.flaticon-mail11</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mail_14059">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mail12"></div>
+        <div class="class-name">.flaticon-mail12</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mail-add-button_14150">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mail13"></div>
+        <div class="class-name">.flaticon-mail13</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mail-remove-button_14300">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mail15"></div>
+        <div class="class-name">.flaticon-mail15</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mail-edit-button_14531">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mail16"></div>
+        <div class="class-name">.flaticon-mail16</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mail-run_14583">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mail17"></div>
+        <div class="class-name">.flaticon-mail17</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/mail-security-button_14592">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mail6"></div>
+        <div class="class-name">.flaticon-mail6</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mail-cancel_12991">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mailbox2"></div>
+        <div class="class-name">.flaticon-mailbox2</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/mailbox-incoming-interface-symbol_14652">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mailbox3"></div>
+        <div class="class-name">.flaticon-mailbox3</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/mailbox-outgoing-interface-symbol_14664">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mailbox4"></div>
+        <div class="class-name">.flaticon-mailbox4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mailbox-down-arrow-button_14697">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mailbox5"></div>
+        <div class="class-name">.flaticon-mailbox5</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mailbox_14772">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mailbox6"></div>
+        <div class="class-name">.flaticon-mailbox6</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/mailbox-eject-button_14776">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mailbox"></div>
+        <div class="class-name">.flaticon-mailbox</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/mailbox-settings-button_14359">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mainframe"></div>
+        <div class="class-name">.flaticon-mainframe</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mainframe_14260">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mashup"></div>
+        <div class="class-name">.flaticon-mashup</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mashup_13645">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-minus14"></div>
+        <div class="class-name">.flaticon-minus14</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/minus-symbol_14774">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-mobile13"></div>
+        <div class="class-name">.flaticon-mobile13</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/mobile-phone_14289">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-monitor10"></div>
+        <div class="class-name">.flaticon-monitor10</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/monitor-screen_14348">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-move10"></div>
+        <div class="class-name">.flaticon-move10</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/move_13811">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music17"></div>
+        <div class="class-name">.flaticon-music17</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/musical-note_13679">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music19"></div>
+        <div class="class-name">.flaticon-music19</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-run_13011">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music21"></div>
+        <div class="class-name">.flaticon-music21</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-edit-button_13704">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music22"></div>
+        <div class="class-name">.flaticon-music22</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-cancel_13708">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music23"></div>
+        <div class="class-name">.flaticon-music23</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-remove-button_13765">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music25"></div>
+        <div class="class-name">.flaticon-music25</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-pause-button_13812">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music29"></div>
+        <div class="class-name">.flaticon-music29</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-disc-eject-control_14031">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music30"></div>
+        <div class="class-name">.flaticon-music30</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-stop-button_14054">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music33"></div>
+        <div class="class-name">.flaticon-music33</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-information_14291">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music36"></div>
+        <div class="class-name">.flaticon-music36</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-accept-button_14352">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music37"></div>
+        <div class="class-name">.flaticon-music37</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-add-button_14391">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music42"></div>
+        <div class="class-name">.flaticon-music42</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-settings_14590">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-music45"></div>
+        <div class="class-name">.flaticon-music45</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/music-information_14769">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-network11"></div>
+        <div class="class-name">.flaticon-network11</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/network-edit-button_14055">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-network12"></div>
+        <div class="class-name">.flaticon-network12</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/network-locked-button_14272">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-network13"></div>
+        <div class="class-name">.flaticon-network13</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/network-protocol_14536">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-network14"></div>
+        <div class="class-name">.flaticon-network14</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/network-remove-button_14757">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-network9"></div>
+        <div class="class-name">.flaticon-network9</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/network_13701">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-news3"></div>
+        <div class="class-name">.flaticon-news3</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/news_14711">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-notes10"></div>
+        <div class="class-name">.flaticon-notes10</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/notes-accept-button_14735">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-notes2"></div>
+        <div class="class-name">.flaticon-notes2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/notes-cancel-button_13613">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-notes3"></div>
+        <div class="class-name">.flaticon-notes3</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/notes-up_13633">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-notes4"></div>
+        <div class="class-name">.flaticon-notes4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/notes-edit-button_13642">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-notes5"></div>
+        <div class="class-name">.flaticon-notes5</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/notes-settings_13717">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-notes6"></div>
+        <div class="class-name">.flaticon-notes6</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/notes-remove-button_13739">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-notes7"></div>
+        <div class="class-name">.flaticon-notes7</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/notes-add-button_14159">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-notes8"></div>
+        <div class="class-name">.flaticon-notes8</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/notes-down_14445">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-notes9"></div>
+        <div class="class-name">.flaticon-notes9</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/notes_14604">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-ontology"></div>
+        <div class="class-name">.flaticon-ontology</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/ontology_13678">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-owl1"></div>
+        <div class="class-name">.flaticon-owl1</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/owl-full-symbol_14225">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-owl2"></div>
+        <div class="class-name">.flaticon-owl2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/owl-dl-document_14448">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-owl3"></div>
+        <div class="class-name">.flaticon-owl3</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/owl-dl_14522">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-owl4"></div>
+        <div class="class-name">.flaticon-owl4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/owl-lite-rotated_14538">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-owl5"></div>
+        <div class="class-name">.flaticon-owl5</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/owl-lite-document_14654">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-owl6"></div>
+        <div class="class-name">.flaticon-owl6</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/owl-full-document_14770">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-padlock6"></div>
+        <div class="class-name">.flaticon-padlock6</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/padlock-locked_14240">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-padlock7"></div>
+        <div class="class-name">.flaticon-padlock7</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/padlock-unlocked_14245">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-page39"></div>
+        <div class="class-name">.flaticon-page39</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/page-with-two-folded-corners_14762">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-paragraph10"></div>
+        <div class="class-name">.flaticon-paragraph10</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/paragraph-symbol_13711">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-paste"></div>
+        <div class="class-name">.flaticon-paste</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/paste-button_13614">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-path1"></div>
+        <div class="class-name">.flaticon-path1</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/path_14493">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-pda"></div>
+        <div class="class-name">.flaticon-pda</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/pda-personal-digital-assistant_13726">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-pear"></div>
+        <div class="class-name">.flaticon-pear</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/pear-shape_14727">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-phone24"></div>
+        <div class="class-name">.flaticon-phone24</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/phone-home_13843">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-phone28"></div>
+        <div class="class-name">.flaticon-phone28</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/phone-ringing_14151">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-phone29"></div>
+        <div class="class-name">.flaticon-phone29</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/phone-use-prohibited_14174">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-pin13"></div>
+        <div class="class-name">.flaticon-pin13</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/pin-filled-for-locations_14768">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-pin9"></div>
+        <div class="class-name">.flaticon-pin9</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/pin-mark-shape-for-maps_13853">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-plus12"></div>
+        <div class="class-name">.flaticon-plus12</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/plus-symbol_13685">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-point2"></div>
+        <div class="class-name">.flaticon-point2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/point-of-interest_14738">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-printer10"></div>
+        <div class="class-name">.flaticon-printer10</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/printer-cancel_12994">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-printer12"></div>
+        <div class="class-name">.flaticon-printer12</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/printer-pause_13008">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-printer15"></div>
+        <div class="class-name">.flaticon-printer15</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/printer-remove-button_13805">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-printer17"></div>
+        <div class="class-name">.flaticon-printer17</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/printer-stop-button_14280">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-printer18"></div>
+        <div class="class-name">.flaticon-printer18</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/printer-with-paper_14336">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-printer19"></div>
+        <div class="class-name">.flaticon-printer19</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/printer-settings_14412">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-printer20"></div>
+        <div class="class-name">.flaticon-printer20</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/printer-run_14483">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-printer21"></div>
+        <div class="class-name">.flaticon-printer21</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/printer-information-button_14606">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-printer22"></div>
+        <div class="class-name">.flaticon-printer22</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/printer-add-button_14736">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-question10"></div>
+        <div class="class-name">.flaticon-question10</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/question-mark_13632">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-rdf1"></div>
+        <div class="class-name">.flaticon-rdf1</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/rdf-resource-description-framework-symbol_14661">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-rdf"></div>
+        <div class="class-name">.flaticon-rdf</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/rdf-document_14271">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-recent"></div>
+        <div class="class-name">.flaticon-recent</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/recent-changes_14397">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-refresh23"></div>
+        <div class="class-name">.flaticon-refresh23</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/refresh-button-with-circular-arrow_14603">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-relevance"></div>
+        <div class="class-name">.flaticon-relevance</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/relevance_14465">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-remove8"></div>
+        <div class="class-name">.flaticon-remove8</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/remove-user-button-with-half-body-shape_14615">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-rotate5"></div>
+        <div class="class-name">.flaticon-rotate5</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/rotate_14413">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-route"></div>
+        <div class="class-name">.flaticon-route</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/route-flag_14384">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-satellite1"></div>
+        <div class="class-name">.flaticon-satellite1</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/satellite-of-ground_14142">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-satellite2"></div>
+        <div class="class-name">.flaticon-satellite2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/satellite_14529">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-screen6"></div>
+        <div class="class-name">.flaticon-screen6</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/screen_13821">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-script"></div>
+        <div class="class-name">.flaticon-script</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/script_14767">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-search11"></div>
+        <div class="class-name">.flaticon-search11</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/search-symbol_14435">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-security2"></div>
+        <div class="class-name">.flaticon-security2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/security-server_14372">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-security3"></div>
+        <div class="class-name">.flaticon-security3</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/security-label_14659">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-semantic"></div>
+        <div class="class-name">.flaticon-semantic</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/semantic-web_13734">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-server10"></div>
+        <div class="class-name">.flaticon-server10</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/server-run-button_14684">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-server11"></div>
+        <div class="class-name">.flaticon-server11</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/server_14725">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-server2"></div>
+        <div class="class-name">.flaticon-server2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/server-settings_13667">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-server3"></div>
+        <div class="class-name">.flaticon-server3</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/server-cancel-button_13742">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-server4"></div>
+        <div class="class-name">.flaticon-server4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/server-stop-button_13788">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-server5"></div>
+        <div class="class-name">.flaticon-server5</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/server-add-button_14311">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-server6"></div>
+        <div class="class-name">.flaticon-server6</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/server-remove-button_14362">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-server7"></div>
+        <div class="class-name">.flaticon-server7</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/server-eject-button_14452">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-server8"></div>
+        <div class="class-name">.flaticon-server8</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/server-edit-interface-button_14524">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-server9"></div>
+        <div class="class-name">.flaticon-server9</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/server-accept_14534">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-server"></div>
+        <div class="class-name">.flaticon-server</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/server-information_13036">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-settings11"></div>
+        <div class="class-name">.flaticon-settings11</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/settings-gear-symbol_14507">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-ship"></div>
+        <div class="class-name">.flaticon-ship</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/ship-transportation_14351">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-shopping17"></div>
+        <div class="class-name">.flaticon-shopping17</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/shopping-cart-variant_13714">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-sitemap"></div>
+        <div class="class-name">.flaticon-sitemap</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/sitemap_14588">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-size1"></div>
+        <div class="class-name">.flaticon-size1</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/size-height-settings-button_13746">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-size2"></div>
+        <div class="class-name">.flaticon-size2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/size-accept_13799">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-size3"></div>
+        <div class="class-name">.flaticon-size3</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/size-add-button_14161">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-size4"></div>
+        <div class="class-name">.flaticon-size4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/size-security_14299">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-size5"></div>
+        <div class="class-name">.flaticon-size5</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/size-cancel_14436">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-size6"></div>
+        <div class="class-name">.flaticon-size6</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/size-width-security_14580">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-size7"></div>
+        <div class="class-name">.flaticon-size7</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/size-settings_14702">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-size8"></div>
+        <div class="class-name">.flaticon-size8</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/size-edition_14710">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-size"></div>
+        <div class="class-name">.flaticon-size</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/size-remove_13619">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-soccer4"></div>
+        <div class="class-name">.flaticon-soccer4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/soccer-ball-with-pentagrams_13035">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-social98"></div>
+        <div class="class-name">.flaticon-social98</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/social-network_14139">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-source2"></div>
+        <div class="class-name">.flaticon-source2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/source-code_14460">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-speaker6"></div>
+        <div class="class-name">.flaticon-speaker6</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/speaker-with-low-volume-symbol_14251">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-speaker7"></div>
+        <div class="class-name">.flaticon-speaker7</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/speaker-off_14361">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-speaker9"></div>
+        <div class="class-name">.flaticon-speaker9</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/speaker-with-maximum-sound_14706">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-star21"></div>
+        <div class="class-name">.flaticon-star21</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/star-outline_14345">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-star22"></div>
+        <div class="class-name">.flaticon-star22</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/star-black-shape_14440">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-statistics"></div>
+        <div class="class-name">.flaticon-statistics</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/statistics_13628">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-stop12"></div>
+        <div class="class-name">.flaticon-stop12</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/stop-video_13631">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-stop19"></div>
+        <div class="class-name">.flaticon-stop19</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/stop-upload-button_15180">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-synchronize"></div>
+        <div class="class-name">.flaticon-synchronize</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/synchronize-arrows-symbol_13038">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-tablet12"></div>
+        <div class="class-name">.flaticon-tablet12</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/tablet-electronic-tool_13721">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-tab"></div>
+        <div class="class-name">.flaticon-tab</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/tab_13627">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-target4"></div>
+        <div class="class-name">.flaticon-target4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/target_13730">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-text19"></div>
+        <div class="class-name">.flaticon-text19</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/text-edit-cursor_13478">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-text21"></div>
+        <div class="class-name">.flaticon-text21</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/text-viewer_13665">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-text22"></div>
+        <div class="class-name">.flaticon-text22</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/text-align-left_13699">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-text24"></div>
+        <div class="class-name">.flaticon-text24</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/text-align-center_13772">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-text25"></div>
+        <div class="class-name">.flaticon-text25</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/text-align-justified_13831">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-text34"></div>
+        <div class="class-name">.flaticon-text34</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/text-align-right_14385">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-text36"></div>
+        <div class="class-name">.flaticon-text36</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/text-strikethrough_14491">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-text37"></div>
+        <div class="class-name">.flaticon-text37</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/text-italic_14610">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-train9"></div>
+        <div class="class-name">.flaticon-train9</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/high-speed-train-transportation_14756">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-transportation1"></div>
+        <div class="class-name">.flaticon-transportation1</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/transportation-bus_14401">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-transportation"></div>
+        <div class="class-name">.flaticon-transportation</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/transportation-plane_13806">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-trash12"></div>
+        <div class="class-name">.flaticon-trash12</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/trash-bin_13783">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-trash14"></div>
+        <div class="class-name">.flaticon-trash14</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/trash-full_14486">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-tree7"></div>
+        <div class="class-name">.flaticon-tree7</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/tree-silhouette-with-rounded-folliage_14666">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-upload14"></div>
+        <div class="class-name">.flaticon-upload14</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/upload-to-internet-interface-symbol_13830">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-upload17"></div>
+        <div class="class-name">.flaticon-upload17</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/upload-accept-button_14257">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-upload18"></div>
+        <div class="class-name">.flaticon-upload18</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/upload-pause-button_14360">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-upload20"></div>
+        <div class="class-name">.flaticon-upload20</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/upload-security_14472">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-upload21"></div>
+        <div class="class-name">.flaticon-upload21</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/upload-settings_14561">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-upload22"></div>
+        <div class="class-name">.flaticon-upload22</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/upload-run-button_14709">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-upload23"></div>
+        <div class="class-name">.flaticon-upload23</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/upload-cancel-button_14724">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user22"></div>
+        <div class="class-name">.flaticon-user22</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/user-edit-button_13624">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user23"></div>
+        <div class="class-name">.flaticon-user23</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-settings-interface-button-with-full-body-shape-and-a-gear-inside-a-circle_13707">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user24"></div>
+        <div class="class-name">.flaticon-user24</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/user-information_13744">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user26"></div>
+        <div class="class-name">.flaticon-user26</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/user-half-shape_13839">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user29"></div>
+        <div class="class-name">.flaticon-user29</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-add-button-with-half-body-shape_14146">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user30"></div>
+        <div class="class-name">.flaticon-user30</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/user-edit-button_14261">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user31"></div>
+        <div class="class-name">.flaticon-user31</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-edit-button-with-full-body-shape_14297">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user32"></div>
+        <div class="class-name">.flaticon-user32</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/user-profile_14331">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user33"></div>
+        <div class="class-name">.flaticon-user33</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/user-protection_14337">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user35"></div>
+        <div class="class-name">.flaticon-user35</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/user-close-up-add-button_14390">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user36"></div>
+        <div class="class-name">.flaticon-user36</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-remove-button-with-close-up-shape_14422">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user37"></div>
+        <div class="class-name">.flaticon-user37</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/user-close-up_14437">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user38"></div>
+        <div class="class-name">.flaticon-user38</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-information-with-full-body-shape-and-info-badge_14444">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user39"></div>
+        <div class="class-name">.flaticon-user39</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-of-full-shape-interface-add-button_14456">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user40"></div>
+        <div class="class-name">.flaticon-user40</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-remove-button-with-full-body-black-shape_14499">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user41"></div>
+        <div class="class-name">.flaticon-user41</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-full-body-shape_14519">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user42"></div>
+        <div class="class-name">.flaticon-user42</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/user-security_14569">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user43"></div>
+        <div class="class-name">.flaticon-user43</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-security-half-body-shape_14649">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user45"></div>
+        <div class="class-name">.flaticon-user45</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-information-button-with-half-body-shape_14749">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user46"></div>
+        <div class="class-name">.flaticon-user46</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-settings-button-with-half-body-shape-and-a-gear_14809">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user47"></div>
+        <div class="class-name">.flaticon-user47</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/user-profile-edit-button_14853">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-user48"></div>
+        <div class="class-name">.flaticon-user48</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/user-settings-with-body-close-up-shape_15178">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video16"></div>
+        <div class="class-name">.flaticon-video16</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-viewer_13705">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video17"></div>
+        <div class="class-name">.flaticon-video17</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-remove-button_13710">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video18"></div>
+        <div class="class-name">.flaticon-video18</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/video-interface-symbol_12995">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video19"></div>
+        <div class="class-name">.flaticon-video19</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-edit-button_13785">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video22"></div>
+        <div class="class-name">.flaticon-video22</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-add-button_13832">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video23"></div>
+        <div class="class-name">.flaticon-video23</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-settings_14014">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video26"></div>
+        <div class="class-name">.flaticon-video26</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/video-security-button_14163">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video28"></div>
+        <div class="class-name">.flaticon-video28</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-cancel-button_14286">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video32"></div>
+        <div class="class-name">.flaticon-video32</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-down-button_14475">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video33"></div>
+        <div class="class-name">.flaticon-video33</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-information-button_14497">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video40"></div>
+        <div class="class-name">.flaticon-video40</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-run_14731">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video41"></div>
+        <div class="class-name">.flaticon-video41</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-pause-button_14737">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video42"></div>
+        <div class="class-name">.flaticon-video42</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-up-button_14742">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-video43"></div>
+        <div class="class-name">.flaticon-video43</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/video-accept-button_14781">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-view5"></div>
+        <div class="class-name">.flaticon-view5</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/view_14164">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-vuvuzela"></div>
+        <div class="class-name">.flaticon-vuvuzela</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/vuvuzela_14376">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-website4"></div>
+        <div class="class-name">.flaticon-website4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/website_14714">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-weight1"></div>
+        <div class="class-name">.flaticon-weight1</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/weight-silhouette_13760">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-width1"></div>
+        <div class="class-name">.flaticon-width1</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/width-size-edit-button_13688">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-width2"></div>
+        <div class="class-name">.flaticon-width2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/width-size-remove-button_14156">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-width3"></div>
+        <div class="class-name">.flaticon-width3</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/width-size_14325">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-width4"></div>
+        <div class="class-name">.flaticon-width4</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/width-size-button-cancel_14389">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-width5"></div>
+        <div class="class-name">.flaticon-width5</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/width-size-settings_14555">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-width6"></div>
+        <div class="class-name">.flaticon-width6</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/width-size-accept-button_14750">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-width7"></div>
+        <div class="class-name">.flaticon-width7</div>
+        <div class="author-name">Author:
+            <a href="http://www.flaticon.com/free-icon/width-size-add-button_14775">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-wireless2"></div>
+        <div class="class-name">.flaticon-wireless2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/wireless-network_13643">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-wireless5"></div>
+        <div class="class-name">.flaticon-wireless5</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/wireless-network-add-button_14256">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-wireless7"></div>
+        <div class="class-name">.flaticon-wireless7</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/wireless-network-security_14419">Picol</a>
+        </div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-xml1"></div>
+        <div class="class-name">.flaticon-xml1</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/xml-document_13039">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-xml2"></div>
+        <div class="class-name">.flaticon-xml2</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/xml_13693">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-zoom12"></div>
+        <div class="class-name">.flaticon-zoom12</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/zoom-in_14719">Picol</a></div>
+    </div>
+    <div class="glyph">
+        <div class="glyph-icon flaticon-zoom9"></div>
+        <div class="class-name">.flaticon-zoom9</div>
+        <div class="author-name">Author: <a href="http://www.flaticon.com/free-icon/zoom-out_13774">Picol</a></div>
+    </div>
+</section>
+
+<section class="attribution">
+
+    <div class="usetitle">License and attribution:</div>
+    <div class="attrDiv">Font generated by <a href="http://www.flaticon.com">flaticon.com</a>
+                         under <a href="http://creativecommons.org/licenses/by/3.0/">CC BY</a>. The authors are:
+        <a href="http://picol.org">Picol</a>.
+    </div>
+    <div class="usetitle">Copy the Attribution License:</div>
+
+<textarea onclick="this.focus();this.select();">Font generated by &lt;a href=&quot;http://www.flaticon.com&quot;&gt;flaticon.com&lt;/a&gt;
+ under &lt;a href=&quot;http://creativecommons.org/licenses/by/3.0/&quot;&gt;CC BY&lt;/a&gt;. The authors are: &lt;a href=&quot;http://picol.org&quot;&gt;Picol&lt;/a&gt;.</textarea>
+
+</section>
+
+<section class="iconsuse">
+    <div class="usetitle">Examples:</div>
+    <div class="image"><p>&lt;i class=&quot;flaticon-add43&quot;&gt;&lt;/i&gt; <i class="flaticon-add43"></i></p>
+
+        <p>&lt;i class=&quot;flaticon-bold4&quot;&gt;&lt;/i&gt; <i class="flaticon-bold4"></i></p>
+
+        <p>&lt;i class=&quot;flaticon-car16&quot;&gt;&lt;/i&gt; <i class="flaticon-car16"></i></p>
+
+        <p>&lt;i class=&quot;flaticon-earth3&quot;&gt;&lt;/i&gt; <i class="flaticon-earth3"></i></p>
+
+        <p>&lt;i class=&quot;flaticon-edit14&quot;&gt;&lt;/i&gt; <i class="flaticon-edit14"></i></p></div>
+    <div class="image"><p>&lt;span class=&quot;flaticon-edit15&quot;&gt;&lt;/span&gt;
+        <span class="flaticon-edit15"></span></p>
+
+        <p>&lt;span class=&quot;flaticon-edit20&quot;&gt;&lt;/span&gt; <span class="flaticon-edit20"></span></p>
+
+        <p>&lt;span class=&quot;flaticon-eject10&quot;&gt;&lt;/span&gt; <span class="flaticon-eject10"></span></p>
+
+        <p>&lt;span class=&quot;flaticon-expand11&quot;&gt;&lt;/span&gt; <span class="flaticon-expand11"></span></p>
+
+        <p>&lt;span class=&quot;flaticon-fwd&quot;&gt;&lt;/span&gt; <span class="flaticon-fwd"></span></p></div>
+    <div class="image"><p>&lt;span class=&quot;flaticon-game3&quot;&gt;&lt;/span&gt;
+        <span class="flaticon-game3"></span></p>
+
+        <p>&lt;i class=&quot;flaticon-golf2&quot;&gt;&lt;/i&gt; <i class="flaticon-golf2"></i></p>
+
+        <p>&lt;i class=&quot;flaticon-group11&quot;&gt;&lt;/i&gt; <i class="flaticon-group11"></i></p>
+
+        <p>&lt;i class=&quot;flaticon-group12&quot;&gt;&lt;/i&gt; <i class="flaticon-group12"></i></p>
+
+        <p>&lt;i class=&quot;flaticon-group13&quot;&gt;&lt;/i&gt; <i class="flaticon-group13"></i></p></div>
+    <div class="image"><p>&lt;span class=&quot;flaticon-group14&quot;&gt;&lt;/span&gt;
+        <span class="flaticon-group14"></span></p>
+
+        <p>&lt;span class=&quot;flaticon-group15&quot;&gt;&lt;/span&gt; <span class="flaticon-group15"></span></p>
+
+        <p>&lt;span class=&quot;flaticon-group16&quot;&gt;&lt;/span&gt; <span class="flaticon-group16"></span></p>
+
+        <p>&lt;span class=&quot;flaticon-group17&quot;&gt;&lt;/span&gt; <span class="flaticon-group17"></span></p>
+
+        <p>&lt;span class=&quot;flaticon-group18&quot;&gt;&lt;/span&gt; <span class="flaticon-group18"></span></p></div>
+    <div class="image"></div>
+</section>
+<div id="footer">
+    <div>Generated by <a href="http://www.flaticon.com">flaticon.com</a>
+    </div>
+</div>
+</body>
+</html>
