@@ -91,6 +91,11 @@
     border-radius: 2px;
 }
 
+span.uri {
+    font-family: monospace;
+    font-size: 85%;
+}
+
 .eg-var {
     font-family: monospace;
     font-style: italic;

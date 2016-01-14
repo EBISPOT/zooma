@@ -56,7 +56,7 @@
     -->
 
     <style type=text/css>
-            /* You have the option of setting a maximum width for your page, and making sure everything is centered */
+        /* You have the option of setting a maximum width for your page, and making sure everything is centered */
         body {
             max-width: 1366px;
             margin: 0 auto;
@@ -85,98 +85,95 @@
         <li><a href="#local-nav" title="">Skip to local navigation</a></li>
         <li><a href="#global-nav" title="">Skip to EBI global navigation menu</a></li>
         <li><a href="#global-nav-expanded" title="">Skip to expanded EBI global navigation menu (includes all
-            sub-sections)</a></li>
+                                                    sub-sections)</a></li>
     </ul>
 </div>
 
-< id="wrapper" class="container_24">
-<header>
-    <div id="global-masthead" class="masthead grid_24">
-        <!--This has to be one line and no newline characters-->
-        <a href="http://www.ebi.ac.uk/"
-           title="Go to the EMBL-EBI homepage"><img src="//www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
-                                                    alt="EMBL European Bioinformatics Institute"></a>
+<div id="wrapper" class="container_24">
+    <header>
+        <div id="global-masthead" class="masthead grid_24">
+            <!--This has to be one line and no newline characters-->
+            <a href="http://www.ebi.ac.uk/"
+               title="Go to the EMBL-EBI homepage"><img src="//www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
+                                                        alt="EMBL European Bioinformatics Institute"></a>
 
-        <nav>
-            <ul id="global-nav">
-                <!-- set active class as appropriate -->
-                <li class="first active" id="services"><a href="http://www.ebi.ac.uk/services">Services</a></li>
-                <li id="research"><a href="http://www.ebi.ac.uk/research">Research</a></li>
-                <li id="training"><a href="http://www.ebi.ac.uk/training">Training</a></li>
-                <li id="industry"><a href="http://www.ebi.ac.uk/industry">Industry</a></li>
-                <li id="about" class="last"><a href="http://www.ebi.ac.uk/about">About us</a></li>
-            </ul>
-        </nav>
+            <nav>
+                <ul id="global-nav">
+                    <!-- set active class as appropriate -->
+                    <li class="first active" id="services"><a href="http://www.ebi.ac.uk/services">Services</a></li>
+                    <li id="research"><a href="http://www.ebi.ac.uk/research">Research</a></li>
+                    <li id="training"><a href="http://www.ebi.ac.uk/training">Training</a></li>
+                    <li id="industry"><a href="http://www.ebi.ac.uk/industry">Industry</a></li>
+                    <li id="about" class="last"><a href="http://www.ebi.ac.uk/about">About us</a></li>
+                </ul>
+            </nav>
 
-    </div>
-
-    <div id="local-masthead" class="masthead grid_24 nomenu">
-
-        <!-- local-title -->
-        <!-- NB: for additional title style patterns, see http://frontier.ebi.ac.uk/web/style/patterns -->
-
-        <div class="grid_12 alpha" id="local-title">
-            <h1><a href="../" title="">ZOOMA</a></h1>
         </div>
-        <!-- /local-title -->
 
-        <!-- local-nav -->
-        <nav>
-            <ul class="grid_24" id="local-nav">
-                <li class="first">
-                    <a href="../">Home</a>
-                </li>
-                <li>
-                    <a href="../sparql">Explore</a>
-                </li>
-                <li class="active">
-                    <a href="../docs">Help</a>
-                </li>
-                <li class="last">
-                    <a href="../about.html">About ZOOMA</a>
-                </li>
-            </ul>
-        </nav>
-        <!-- /local-nav -->
+        <div id="local-masthead" class="masthead grid_24 nomenu">
 
-    </div>
-</header>
-<div id="content" role="main" class="grid_24 clearfix">
+            <!-- local-title -->
+            <!-- NB: for additional title style patterns, see http://frontier.ebi.ac.uk/web/style/patterns -->
 
-    <b id="docs" class="grid_18 alpha">
-        <h2>REST API Documentation</h2>
+            <div class="grid_12 alpha" id="local-title">
+                <h1><a href="../" title="">ZOOMA</a></h1>
+            </div>
+            <!-- /local-title -->
+
+            <!-- local-nav -->
+            <nav>
+                <ul class="grid_24" id="local-nav">
+                    <li class="first">
+                        <a href="../">Home</a>
+                    </li>
+                    <li>
+                        <a href="../sparql">Explore</a>
+                    </li>
+                    <li class="active">
+                        <a href="../docs">Help</a>
+                    </li>
+                    <li class="last">
+                        <a href="../about.html">About ZOOMA</a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- /local-nav -->
+
+        </div>
+    </header>
+    <div id="content" role="main" class="grid_24 clearfix">
+
+        <b id="docs" class="grid_18 alpha">
+            <h2>REST API Documentation</h2>
+            <section>
+                <h3>Introduction</h3>
+
+                <p>
+                    This page describes how to develop against the ZOOMA REST API to search for and retrieve ZOOMA
+                    objects.
+                </p>
+
+                <p>
+                    All requests should be made to the root URL of the Zooma API, which is not shown in the example
+                    requests. The root URL for the API is <pre>http://www.ebi.ac.uk/spot/zooma/v2/api</pre>
+                </p>
+            </section>
+
         <section>
-        <h3>Introduction</h3>
+            <h3>Predicting Annotations</h3>
+            <p>
+                You can use Zooma to predict an ontology annotation given a property value (and optionally a property
+                type).
+            </p>
+            <h4>Example Request:</h4>
+            <p>
+                Predict an ontology annotation for the text value "mus musculus"
+            </p>
+            <!--<pre style="border: 1px solid #E2E1D5; padding: 10px; border-radius: 2px">&lt;<span style="font-style: italic;">zooma.api</span>&gt;/summaries/search?query=cancer</pre>-->
+            <pre>GET /services/annotate?propertyValue=mus+musculus</pre>
 
-        This page describes how to develop against the ZOOMA REST API to search for and retrieve ZOOMA objects.<br/>
-
-        &lt;<span class="eg-var">zooma.api</span>&gt; refers to the URL of the zooma service you are
-        querying - use <span style="font-family: monospace">http://www.ebi.ac.uk/spot/zooma/v2/api</span> to use the EBI zooma service.
-        </section>
-
-        <section>
-        <h3>Annotation Summaries</h3>
-        You can search for annotation summary objects in ZOOMA given a property value (and optionally a property type).
-
-        <h4>Search Example:</h4>
-        <span class="eg-description">To search for annotation summaries about "mus musculus"</span><br/>
-        <!--<pre style="border: 1px solid #E2E1D5; padding: 10px; border-radius: 2px">&lt;<span style="font-style: italic;">zooma.api</span>&gt;/summaries/search?query=cancer</pre>-->
-        <table>
-            <thead>
-            <tr>
-                <th>method</th>
-                <th>url</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>GET</td>
-                <td>&lt;<span class="eg-var">zooma.api</span>&gt;/services/annotate?propertyValue=mus+musculus</td>
-            </tr>
-            </tbody>
-        </table>
-        <span class="eg-description">Response:</span><br/>
-        <div class="eg-content">
+            <h4>Response:</h4>
+            <div class="eg-content">
 [
     {
         uri: null,
@@ -250,90 +247,72 @@
 ]
         </div>
 
-        <p>
-            This example shows that 'mus musculus' is associated to semantic tag http://purl.obolibrary.org/obo/NCBITaxon_10090.
-            The confidence for this association is 'HIGH' and derives from the annotation summary with the following uri :<br>
-            http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907.<br>
-            This annotation summary links 'mus musculus' to http://purl.obolibrary.org/obo/NCBITaxon_10090 and comes from
-            the 'gxa' database.
-        </p>
-        <p>To search a term specifying a property type, you would use the following url :
-
-            <table>
-                <thead>
-                <tr>
-                    <th>method</th>
-                    <th>url</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>GET</td>
-                    <td>&lt;<span class="eg-var">zooma.api</span>&gt;/services/annotate?propertyValue=mus+musculus&propertyType=organism</td>
-                </tr>
-                </tbody>
-            </table>
-            To get a list of all the property types do :
-            <table>
-                <thead>
-                <tr>
-                    <th>method</th>
-                    <th>url</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>GET</td>
-                    <td>&lt;<span class="eg-var">zooma.api</span>&gt;/properties/types?limit=10000</td>
-                </tr>
-                </tbody>
-            </table>
-        </p>
-        <p>
-            You can also add a filter to select the datasources zooma should use :
-            <table>
-                <thead>
-                <tr>
-                    <th>method</th>
-                    <th>url</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>GET</td>
-                    <td>&lt;<span class="eg-var">zooma.api</span>&gt;/services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:%5Batlas,gxa%5Dpreferred:%5Batlas,gxa%5D</td>
-                </tr>
-                </tbody>
-            </table>
-            This filter tells Zooma to look for a semantic tag for 'mus musculus' using only atlas and gxa as
-            datasources. The 'preferred' section of the url allows you to set on order of preferred datasources (going
-            from the datasource you trust the most, to the one you trust less) and this will affect the score.<br>
-            To know which filters you can use for the EBI Zooma, go to the Zooma main page (www.ebi.ac.uk/spot/zooma),
-            the different datasources will be listed in the box on the top right hand side of the page.
+            <p>
+                This example predicts that 'mus musculus' should be annotated with the ontology term
+                <span class="uri">http://purl.obolibrary.org/obo/NCBITaxon_10090</span>. The confidence for this prediction is 'HIGH', and
+                derives from an existing annotation the URI <span class="uri">http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907</span>.
+                This annotation was predicted based on curated mappings in the 'gxa' database.
             </p>
 
-        </section>
+            <h4>Additional Parameters:</h4>
+            <p>
+                Predict an ontology annotation for the text value "mus musculus" and type "organism"
+            </p>
+            <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism</pre>
+
+            <p>
+                Predict an ontology annotation for the text value "mus musculus" and type "organism" using annotations that are present in a defined list of datasources
+            </p>
+            <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:[atlas,efo]</pre>
+
+            <p>
+                Predict an ontology annotation for the text value "mus musculus" and type "organism" using annotations
+                that are present in a defined list of datasources, and specify a preference ranking for these
+                datasources. The 'preferred' parameter allows you to set on order of preferred datasources
+                (going from the datasource you trust the most, to the one you trust less) and this will affect the score.
+            </p>
+            <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:[atlas,efo],preferred:[atlas]</pre>
+
+            To get a list of all the property types do :
+                <table>
+                    <thead>
+                    <tr>
+                        <th>method</th>
+                        <th>url</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>GET</td>
+                        <td>&lt;<span class="eg-var">zooma.api</span>&gt;/properties/types?limit=10000</td>
+                    </tr>
+                    </tbody>
+                </table>
+                </p>
+            </section>
 
 
-        <section>
-            <h3>Getting more information</h3>
-            The first query shown on this page, allows you to annotate your given property with a semantic tag. However,
-            you might be interested in getting more information about the annotation, the annotated
-            property or the biological entity.
+            <section>
+                <h3>Getting more information</h3>
+                The first query shown on this page, allows you to annotate your given property with a semantic tag.
+                However,
+                you might be interested in getting more information about the annotation, the annotated
+                property or the biological entity.
 
-            <h4>More about the annotation </h4>
-            In the first json represented on this page, the annotation starts with the 'derivedFrom' tag. If you want to
-            get more information about the annotation object use its uri and do the following :
-            <table>
-                <thead>
-                <tr>
-                    <th>url</th>
-                    <th>method</th>
-                    <th>Content-Type</th>
-                    <th>content</th>
-                </tr>
-                </thead>
-                <tbody>
+                <h4>More about the annotation </h4>
+                In the first json represented on this page, the annotation starts with the 'derivedFrom' tag. If you
+                want to
+                get more information about the annotation object use its uri and do the following :
+                <table>
+                    <thead>
+                    <tr>
+                        <th>url</th>
+                        <th>method</th>
+                        <th>Content-Type</th>
+                        <th>content</th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     <tr>
                         <td>http://www.ebi.ac.uk/spot/zooma/v2/api/services/collapse</td>
                         <td>post</td>
@@ -357,24 +336,19 @@
             http://www.ebi.ac.uk/spot/zooma/v2/api/<b>annotations</b>/<b>gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907</b>
 
 
-
-
-
-
-
-            <h4>More about the derivedFrom annotatedProperty</h4>
-            If you want to get more information about the derivedFrom annotatedProperty object use its uri and do
-            the following :
-            <table>
-                <thead>
+                <h4>More about the derivedFrom annotatedProperty</h4>
+                If you want to get more information about the derivedFrom annotatedProperty object use its uri and do
+                the following :
+                <table>
+                    <thead>
                     <tr>
                         <th>url</th>
                         <th>method</th>
                         <th>Content-Type</th>
                         <th>content</th>
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody>
                     <tr>
                         <td>http://www.ebi.ac.uk/spot/zooma/v2/api/services/collapse</td>
                         <td>post</td>
@@ -398,6 +372,26 @@
             http://www.ebi.ac.uk/spot/zooma/v2/api/<b>properties</b>/<b>zoomaresource:461CE7ADFDA7E46E0AAEA17AC66AF143</b>
 
 
+                <h4>More about the derivedFrom annotatedBiologicalEntities</h4>
+                If you want to get more information about the derivedFrom annotatedBiologicalEntities object use its uri
+                and do
+                the following :
+                <table>
+                    <thead>
+                    <tr>
+                        <th>url</th>
+                        <th>method</th>
+                        <th>Content-Type</th>
+                        <th>content</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>http://www.ebi.ac.uk/spot/zooma/v2/api/services/collapse</td>
+                        <td>post</td>
+                        <td>application/json</td>
+                        <td>{"uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/636196CF38C074D81ED37DA4009E3133"}</td>
+                    </tr>
 
             <h4>More about the derivedFrom annotatedBiologicalEntities</h4>
             If you want to get more information about the derivedFrom annotatedBiologicalEntities object use its uri and do
@@ -418,54 +412,9 @@
                     <td>application/json</td>
                     <td>{"uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/636196CF38C074D81ED37DA4009E3133"}</td>
                 </tr>
-
                 </tbody>
             </table>
-            <br>
-            This will return the following json :
-            <div class="eg-content">
-{
-    "fragment": "636196CF38C074D81ED37DA4009E3133"
-    "namespace": "http://rdf.ebi.ac.uk/resource/zooma/gxa/"
-    "uri": "http://rdf.ebi.ac.uk/resource/zooma/gxa/636196CF38C074D81ED37DA4009E3133"
-    "shortname": "gxaresource:636196CF38C074D81ED37DA4009E3133"
-}
-            </div>
-            <br>
-            Use the shorname to querry zooma, and because you're querying a biologicalEntity add biologicalEntities in the url:<br>
-            http://www.ebi.ac.uk/spot/zooma/v2/api/<b>biologicalEntities</b>/<b>gxaresource:636196CF38C074D81ED37DA4009E3133</b><br>
-        </section>
 
-        <section>
-        <h3>ZOOMA 2 jQuery Plugin</h3>
-
-        <p>ZOOMA 2 is available as a jQuery plugin: <a href="../scripts/zooma.min.js">zooma.min.js</a>. Simply include
-            this in your HTML to enable ZOOMA based searches.</p>
-
-        <h4>Example:</h4>
-        <span class="eg-description">To create a ZOOMA search input box:</span><br>
-
-        <div class="eg-content">
-&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-    &lt;script type="text/javascript"
-            src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"&gt;
-    &lt;/script&gt;
-    &lt;script type="text/javascript"
-            src="http://www.ebi.ac.uk/spot/zooma/scripts/zooma.min.js"&gt;
-    &lt;/script&gt;
-&lt;/head&gt;
-&lt;body onload="$('#zooma_search').zooma();"&gt;
-    &lt;label for="zooma_search"&gt;Find Annotations:&lt;/label&gt;
-    &lt;input type="text" id="zooma_search"/&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-        </div>
-        <h4>Demo:</h4>
-            <label for="zooma_search">Find Annotations:</label>
-            <input type="text" id="zooma_search" name="zooma_search" />
-        </section>
 
 
     <section class="grid_6 omega">
@@ -529,7 +478,7 @@
         </section>
     </div>
 
-</footer>
+    </footer>
 </div>
 <!--! end of #wrapper -->
 
