@@ -324,10 +324,13 @@
 
         <section>
             <h3>Getting more information</h3>
+            The first query shown on this page, allows you to annotate your given property with a semantic tag. However,
+            you might be interested in getting more information about the annotation, the annotated
+            property or the biological entity.
 
-
-            <h4>derivedFrom </h4>
-            If you want to get more information about the derivedFrom object use its uri and do the following :
+            <h4>More about the annotation </h4>
+            In the first json represented on this page, the annotation starts with the 'derivedFrom' tag. If you want to
+            get more information about the annotation object use its uri and do the following :
             <table>
                 <thead>
                 <tr>
@@ -346,6 +349,7 @@
                     </tr>
                 </tbody>
             </table>
+            <br>
             This will return the following json :
             <div class="eg-content">
 {
@@ -355,6 +359,7 @@
     "shortname": "gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907"
 }
             </div>
+            <br>
             Use the shortname to querry zooma, and because you're querying an annotationSummary add 'annotations' in the url : <br>
             http://www.ebi.ac.uk/spot/zooma/v2/api/<b>annotations</b>/<b>gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907</b>
 
@@ -364,7 +369,7 @@
 
 
 
-            <h4>derivedFrom annotatedProperty</h4>
+            <h4>More about the derivedFrom annotatedProperty</h4>
             If you want to get more information about the derivedFrom annotatedProperty object use its uri and do
             the following :
             <table>
@@ -385,6 +390,7 @@
                     </tr>
                 </tbody>
             </table>
+            <br>
             This will return the following json :
             <div> class="eg-content">
 {
@@ -394,12 +400,13 @@
     "shortname": "zoomaresource:461CE7ADFDA7E46E0AAEA17AC66AF143"
 }
             </div>
+            <br>
             Use the shortname to querry zooma, and because you're querying a property add 'properties' in the url : <br>
             http://www.ebi.ac.uk/spot/zooma/v2/api/<b>properties</b>/<b>zoomaresource:461CE7ADFDA7E46E0AAEA17AC66AF143</b>
 
 
 
-            <h4>derivedFrom annotatedBiologicalEntities</h4>
+            <h4>More about the derivedFrom annotatedBiologicalEntities</h4>
             If you want to get more information about the derivedFrom annotatedBiologicalEntities object use its uri and do
             the following :
             <table>
@@ -421,6 +428,7 @@
 
                 </tbody>
             </table>
+            <br>
             This will return the following json :
             <div class="eg-content">
 {
@@ -430,6 +438,7 @@
     "shortname": "gxaresource:636196CF38C074D81ED37DA4009E3133"
 }
             </div>
+            <br>
             Use the shorname to querry zooma, and because you're querying a biologicalEntity add biologicalEntities in the url:<br>
             http://www.ebi.ac.uk/spot/zooma/v2/api/<b>biologicalEntities</b>/<b>gxaresource:636196CF38C074D81ED37DA4009E3133</b><br>
         </section>
