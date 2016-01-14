@@ -73,7 +73,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
     public ZoomaMappingController(Zooma zooma, OntologyService ontologyService) {
         this.zooma = zooma;
         this.ontologyService = ontologyService;
-        this.searchTimeout = 10;
+        this.searchTimeout = 5;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = "application/json")
