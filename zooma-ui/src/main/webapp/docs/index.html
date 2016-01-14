@@ -17,7 +17,7 @@
     More info: h5bp.com/b/378 --><!-- <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> -->
     <!-- Not yet implemented -->
 
-    <title>ZOOMA &lt; FGPT &lt; EMBL-EBI</title>
+    <title>ZOOMA &lt; SPOT &lt; EMBL-EBI</title>
     <meta name="description" content="ZOOMA | Ontology Mapping and Annotation"/>
     <meta name="author" content="Tony Burdett"/>
     <meta name="keywords" content="ZOOMA, ZOOMA2, ZOOMA 2, ontology mapping, ontology annotation"/>
@@ -43,6 +43,7 @@
           type="text/css"
           media="screen">
     <link rel="stylesheet" href="../css/zooma-ui.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="../css/icons/flaticon.css" type="text/css" media="screen"/>
 
     <!-- you can replace this with [projectname]-colours.css. See http://frontier.ebi.ac.uk/web/style/colour for details of how to do this -->
     <!-- also inform ES so we can host your colour palette file -->
@@ -56,7 +57,7 @@
     -->
 
     <style type=text/css>
-            /* You have the option of setting a maximum width for your page, and making sure everything is centered */
+        /* You have the option of setting a maximum width for your page, and making sure everything is centered */
         body {
             max-width: 1366px;
             margin: 0 auto;
@@ -85,236 +86,145 @@
         <li><a href="#local-nav" title="">Skip to local navigation</a></li>
         <li><a href="#global-nav" title="">Skip to EBI global navigation menu</a></li>
         <li><a href="#global-nav-expanded" title="">Skip to expanded EBI global navigation menu (includes all
-            sub-sections)</a></li>
+                                                    sub-sections)</a></li>
     </ul>
 </div>
 
 <div id="wrapper" class="container_24">
-<header>
-    <div id="global-masthead" class="masthead grid_24">
-        <!--This has to be one line and no newline characters-->
-        <a href="http://www.ebi.ac.uk/"
-           title="Go to the EMBL-EBI homepage"><img src="//www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
-                                                    alt="EMBL European Bioinformatics Institute"></a>
+    <header>
+        <div id="global-masthead" class="masthead grid_24">
+            <!--This has to be one line and no newline characters-->
+            <a href="http://www.ebi.ac.uk/"
+               title="Go to the EMBL-EBI homepage"><img src="//www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png"
+                                                        alt="EMBL European Bioinformatics Institute"></a>
 
-        <nav>
-            <ul id="global-nav">
-                <!-- set active class as appropriate -->
-                <li class="first active" id="services"><a href="http://www.ebi.ac.uk/services">Services</a></li>
-                <li id="research"><a href="http://www.ebi.ac.uk/research">Research</a></li>
-                <li id="training"><a href="http://www.ebi.ac.uk/training">Training</a></li>
-                <li id="industry"><a href="http://www.ebi.ac.uk/industry">Industry</a></li>
-                <li id="about" class="last"><a href="http://www.ebi.ac.uk/about">About us</a></li>
-            </ul>
-        </nav>
+            <nav>
+                <ul id="global-nav">
+                    <!-- set active class as appropriate -->
+                    <li class="first active" id="services"><a href="http://www.ebi.ac.uk/services">Services</a></li>
+                    <li id="research"><a href="http://www.ebi.ac.uk/research">Research</a></li>
+                    <li id="training"><a href="http://www.ebi.ac.uk/training">Training</a></li>
+                    <li id="industry"><a href="http://www.ebi.ac.uk/industry">Industry</a></li>
+                    <li id="about" class="last"><a href="http://www.ebi.ac.uk/about">About us</a></li>
+                </ul>
+            </nav>
+
+        </div>
+
+        <div id="local-masthead" class="masthead grid_24 nomenu">
+
+            <!-- local-title -->
+            <!-- NB: for additional title style patterns, see http://frontier.ebi.ac.uk/web/style/patterns -->
+
+            <div class="grid_12 alpha" id="local-title">
+                <h1><a href="../" title="">ZOOMA</a></h1>
+            </div>
+            <!-- /local-title -->
+
+            <!-- local-nav -->
+            <nav>
+                <ul class="grid_24" id="local-nav">
+                    <li class="first">
+                        <a href="../">Home</a>
+                    </li>
+                    <li>
+                        <a href="../sparql">Explore</a>
+                    </li>
+                    <li class="active">
+                        <a href="../docs">Help</a>
+                    </li>
+                    <li class="last">
+                        <a href="../about.html">About ZOOMA</a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- /local-nav -->
+
+        </div>
+    </header>
+
+    <div id="content" role="main" class="grid_24 clearfix">
+        <section id="docs">
+            <div id="left_gutter" class="grid_3 alpha" style="height: 5px"></div>
+
+            <a href="getting-started.html">
+                <div class="grid_6 toplevel-view">
+                    <h2 class="flaticon-search11">Search</h2>
+
+                    <p>Check here for an overview on how to use Zooma, and how to search for ontology mappings
+                       given metadata descriptions</p>
+                </div>
+            </a>
+            <a href="api.html">
+                <div class="grid_6 toplevel-view">
+                    <h2 class="flaticon-source2">Develop</h2>
+
+                    <p>Zooma developer documentation, including how to code tools against the Zooma REST API.</p>
+                </div>
+            </a>
+            <a href="demo.html">
+                <div class="grid_6 toplevel-view">
+                    <h2 class="flaticon-owl3">Include</h2>
+
+                    <p>Documentation on how to include Zooma javascript widgets in your web pages, including a
+                       demo.</p>
+                </div>
+            </a>
+
+            <div id="right_gutter" class="grid_3 omega" style="height: 5px"></div>
+        </section>
 
     </div>
 
-    <div id="local-masthead" class="masthead grid_24 nomenu">
-
-        <!-- local-title -->
-        <!-- NB: for additional title style patterns, see http://frontier.ebi.ac.uk/web/style/patterns -->
-
-        <div class="grid_12 alpha" id="local-title">
-            <h1><a href="../" title="">ZOOMA</a></h1>
-        </div>
-        <!-- /local-title -->
-
-        <!-- local-nav -->
-        <nav>
-            <ul class="grid_24" id="local-nav">
-                <li class="first">
-                    <a href="../">Home</a>
-                </li>
-                <li>
-                    <a href="../sparql">SPARQL</a>
-                </li>
-                <li class="active">
-                    <a href="./">Documentation</a>
-                </li>
-                <li>
-                    <a href="/fgpt/corona">Corona</a>
-                </li>
-                <li>
-                    <a href="/efo">EFO</a>
-                </li>
-                <li class="last">
-                    <a href="../about.html">About ZOOMA</a>
-                </li>
-                <li class="functional last login" id="zooma-login"></li>
-            </ul>
-        </nav>
-        <!-- /local-nav -->
-
-    </div>
-</header>
-
-<div id="content" role="main" class="grid_24 clearfix">
-
-    <section id="docs" class="grid_18 alpha">
-        <h2>Documentation Home</h2>
-
-        <div id="what">
-            <h3>What is ZOOMA?</h3>
-
-            <p>
-                ZOOMA is an application for discovering optimal ontology mappings. It can be used to automatically
-                annotate "properties" (plain text, descriptive values about biological entities) with "semantic tags"
-                (ontology classes).
-            </p>
-
-            <p>
-                If you are new to ZOOMA, take a look at our <a href="./getting-started.html">getting started guide</a>.
-            </p>
-
-            <h4>Background</h4>
-
-            <p>
-                ZOOMA was developed by the Functional Genomics Production Team at the EBI. We deal with all submissions
-                to <a href="http://www.ebi.ac.uk/arrayexpress"
-                      target="_blank"><span class="external">ArrayExpress</span></a>, the
-                <a href="http://www.ebi.ac.uk/gxa"
-                   target="_blank"><span class="external">Gene Expression Atlas</span></a>, and the
-                <a href="http://www.ebi.ac.uk/biosamples"
-                   target="_blank"><span class="external">BioSamples database</span></a> - a large volume of highly
-                diverse data about biological samples and assays. The use of ontologies to annotate data is an
-                established method for adding semantics to metadata, facilitating integration and richer querying.
-            </p>
-
-            <p>
-                To support richer querying, we annotate data to the Experimental Factor Ontology
-                (<a href="http://www.ebi.ac.uk/efo" target="_blank"><span class="external">EFO</span></a>). In this way,
-                we can harmonise data across experiments to drive advanced searches and improve data visualisation.
-                However, generating these annotations is a manually intensive operation that requires considerable
-                curation. And, as ontologies evolve and new technologies for performing functional genomics experiments
-                emerge, annotations need reviewing and improving. We call the difference between the data we have
-                submitted, and the data that is accurately mapped to ontology terms, an <span style="font-weight: bold">"annotation gap"</span>.
-            </p>
-
-            <p>
-                ZOOMA exists to reduce this annotation gap through automatic annotation. ZOOMA contains a linked data
-                repository of annotation knowledge and highly annotated data that has been seeded with manually curated
-                annotation derived from the ArrayExpress and Gene Expression Atlas databases, as well as other sources.
-                By creating this repository of annotations, tracking their provenance and scoring their quality, we have
-                been able to build a "smart" annotation search service. Because the source data has been curated by
-                hand, it is a rich source of knowledge that is optimised for this task of semantic mark-up of keywords,
-                in contrast with text-mining approaches. It is also capable of capturing more obscure types of
-                annotations such as those involving compound properties.
-            </p>
-        </div>
-
-        <div id="why">
-            <h3>Why use ZOOMA?</h3>
-
-            <p>
-                You should use ZOOMA if you have data that has been described with any series of keywords. ZOOMA
-                provides a mechanism to search for these keywords, using typing or context information or combinations
-                of co-occuring keywords to improve accuracy, and automatically annotate your data to ontology terms.
-            </p>
-
-            <p>
-                Using ZOOMA, it is trivially easy to automatically annotate any data that has been richly described
-                previously. This improves the interoperability of your data, but also frees up curators to work on more
-                difficult and interesting tasks, rather than spending time making the same old fixes and corrections to
-                align data with the current state of the art in ontologies.
-            </p>
-        </div>
-
-        <div id="where">
-            <h3>Where can I try ZOOMA?</h3>
-
-            <p>
-                For the ZOOMA simple search interface or the ability to produce a series of mappings from a list of
-                terms, take a look at the ZOOMA service, available here:<br>
-                <span style="margin-left: 20px"><a href="http://www.ebi.ac.uk/spot/zooma">http://www.ebi.ac.uk/spot/zooma</a>.</span>
-            </p>
-
-            <p>
-                To download a ZOOMA java client, a simple command line client, or example applications, you could take a
-                look at the downloads page:<br>
-                <span style="margin-left: 20px"><a href="http://www.ebi.ac.uk/fgpt/sw/downloads">http://www.ebi.ac.uk/fgpt/sw/downloads</a>.</span>
-            </p>
-
-
-        </div>
-
-        <div id="how">
-            <h3>How can I use ZOOMA in my own applications?</h3>
-
-            <p>
-                To find out how to develop against ZOOMA, you can either download the client or examples (see above) or
-                have a read of the <a href="./api.html">REST API documentation</a><br>
-            </p>
-
-            <p>
-                The raw database annotations are stored in an RDF triple store and published as linked data. This data can be
-                queried directly from our <a href="../sparql">SPARQL endpoint</a>.
-            </p>
-        </div>
-
-    </section>
-
-    <section class="grid_6 omega">
-        <h3>Documentation</h3>
-        <ul id="secondary-nav">
-            <li class="first active"><a href="./index.html">Home</a></li>
-            <li><a href="./getting-started.html">Getting Started</a></li>
-            <li><a href="./api.html">REST API Documentation</a></li>
-            <li class="last"><a href="./developers.html">Developer Documentation</a></li>
-        </ul>
-    </section>
-
-</div>
-
-<footer>
-    <!-- Optional local footer (insert citation / project-specific copyright / etc here --><!--
+    <footer>
+        <!-- Optional local footer (insert citation / project-specific copyright / etc here --><!--
     <div id="local-footer" class="grid_24 clearfix">
 
     </div>
      --><!-- End optional local footer -->
 
-    <div id="global-footer" class="grid_24 clearfix">
+        <div id="global-footer" class="grid_24 clearfix">
 
-        <nav id="global-nav-expanded">
+            <nav id="global-nav-expanded">
 
-            <div class="grid_4 alpha">
-                <h3 class="explore">Explore</h3>
-            </div>
+                <div class="grid_4 alpha">
+                    <h3 class="explore">Explore</h3>
+                </div>
 
-            <div class="grid_4">
-                <h3 class="services"><a href="/services" title="Services">Services</a></h3>
-            </div>
+                <div class="grid_4">
+                    <h3 class="services"><a href="/services" title="Services">Services</a></h3>
+                </div>
 
-            <div class="grid_4">
-                <h3 class="research"><a href="/research" title="Research">Research</a></h3>
-            </div>
+                <div class="grid_4">
+                    <h3 class="research"><a href="/research" title="Research">Research</a></h3>
+                </div>
 
-            <div class="grid_4">
-                <h3 class="training"><a href="/training" title="Training">Training</a></h3>
-            </div>
+                <div class="grid_4">
+                    <h3 class="training"><a href="/training" title="Training">Training</a></h3>
+                </div>
 
-            <div class="grid_4">
-                <h3 class="industry"><a href="/industry" title="Industry">Industry</a></h3>
-            </div>
+                <div class="grid_4">
+                    <h3 class="industry"><a href="/industry" title="Industry">Industry</a></h3>
+                </div>
 
-            <div class="grid_4 omega">
-                <h3 class="about"><a href="/about" title="About us">About us</a></h3>
-            </div>
+                <div class="grid_4 omega">
+                    <h3 class="about"><a href="/about" title="About us">About us</a></h3>
+                </div>
 
-        </nav>
-        <script src="//www.ebi.ac.uk/web_guidelines/js/foot.js"></script>
+            </nav>
+            <script src="//www.ebi.ac.uk/web_guidelines/js/foot.js"></script>
 
-    </div>
+        </div>
 
-    <div class="grid_24">
-        <section id="ebi-footer-meta">
-            <p> &copy; EMBL-EBI European Bioinformatics Institute | <a href="#" title="">Privacy</a> | <a href="#"
-                                                                                                          title="">Cookies</a>
-                | <a href="#" title="">Terms of use</a></p>
-        </section>
-    </div>
+        <div class="grid_24">
+            <section id="ebi-footer-meta">
+                <p> &copy; EMBL-EBI European Bioinformatics Institute | <a href="#" title="">Privacy</a> | <a href="#"
+                                                                                                              title="">Cookies</a>
+                           | <a href="#" title="">Terms of use</a></p>
+            </section>
+        </div>
 
-</footer>
+    </footer>
 </div>
 <!--! end of #wrapper -->
 

@@ -56,7 +56,7 @@
     -->
 
     <style type=text/css>
-            /* You have the option of setting a maximum width for your page, and making sure everything is centered */
+        /* You have the option of setting a maximum width for your page, and making sure everything is centered */
         body {
             max-width: 1366px;
             margin: 0 auto;
@@ -85,7 +85,7 @@
         <li><a href="#local-nav" title="">Skip to local navigation</a></li>
         <li><a href="#global-nav" title="">Skip to EBI global navigation menu</a></li>
         <li><a href="#global-nav-expanded" title="">Skip to expanded EBI global navigation menu (includes all
-            sub-sections)</a></li>
+                                                    sub-sections)</a></li>
     </ul>
 </div>
 
@@ -124,21 +124,15 @@
             <nav>
                 <ul class="grid_24" id="local-nav">
                     <li class="first">
-                        <a href="index.html">Home</a>
+                        <a href="./">Home</a>
                     </li>
                     <li>
-                        <a href="./sparql">SPARQL</a>
+                        <a href="./sparql">Explore</a>
                     </li>
                     <li>
-                        <a href="./docs">Documentation</a>
+                        <a href="./docs">Help</a>
                     </li>
-                    <li>
-                        <a href="/efo">EFO</a>
-                    </li>
-                    <li>
-                        <a href="/fgpt">FGPT</a>
-                    </li>
-                    <li class="active last">
+                    <li class="last active">
                         <a href="./about.html">About ZOOMA</a>
                     </li>
                 </ul>
@@ -153,130 +147,240 @@
 
         <h3>About ZOOMA</h3>
 
-        <p>
-            An automatic curation tool, designed for discovering optimal ontology mappings.<br/> Developed by the <a
-                href="http://www.ebi.ac.uk/fgpt">Functional Genomics Production Team</a> at EBI.
-        </p>
+        <section class="grid_24">
+            <div id="what" class="grid_16 alpha">
+                <p>
+                    ZOOMA is an application for discovering optimal ontology mappings, developed by the <a
+                        href="http://www.ebi.ac.uk/about/spot-team">Samples, Phenotypes and Ontologies Team</a> at EBI.
+                    It can be used to automatically annotate "properties" (plain text, descriptive values about
+                    biological entities) with "semantic tags" (ontology classes).
+                </p>
 
-        <!-- Dynamically fetch status information from server -->
-        <div id="status">
-            <table class="version">
-                <tr>
-                    <td style="font-style: italic;">Version:</td>
-                    <td id="version"></td>
-                </tr>
-                <tr>
-                    <td style="font-style: italic;">Release Date:</td>
-                    <td id="release-date"></td>
-                </tr>
-                <tr>
-                    <td style="font-style: italic;">Build number:</td>
-                    <td id="build-number"></td>
-                </tr>
-                <tr>
-                    <td style="font-style: italic;">Up since:</td>
-                    <td id="uptime"></td>
-                </tr>
-            </table>
-        </div>
+                <p>
+                    If you are new to ZOOMA, take a look at our <a href="./getting-started.html">getting started
+                                                                                                 guide</a>.
+                </p>
+            </div>
 
-        <h3>Related Links</h3>
-        <!-- links to ZOOMA resources go here -->
-        <ul>
-            <li>
-                <div class="pubtitle">Zooma2 - A repository of annotation knowledge and curation API</div>
-                <div class="pubauthors">Tony Burdett</div>
-                <div class="pubjournal">ISMB Long Beach Technology Track, June 2012</div>
-                <a href="http://prezi.com/xiaiubhw-jjl/zooma-2/" class="pubpdf">Online Prezi Presentation</a>
-            </li>
-        </ul>
+            <!-- Dynamically fetch status information from server -->
+            <div id="status" class="grid_8 omega">
+                <table class="version">
+                    <tr>
+                        <td style="font-style: italic;">Version:</td>
+                        <td id="version"></td>
+                    </tr>
+                    <tr>
+                        <td style="font-style: italic;">Release Date:</td>
+                        <td id="release-date"></td>
+                    </tr>
+                    <tr>
+                        <td style="font-style: italic;">Build number:</td>
+                        <td id="build-number"></td>
+                    </tr>
+                    <tr>
+                        <td style="font-style: italic;">Up since:</td>
+                        <td id="uptime"></td>
+                    </tr>
+                </table>
+            </div>
+        </section>
 
-        <h3>Contact</h3>
+        <section>
+            <div id="background" class="grid_24">
+                <h4>Background</h4>
 
-        <p>For questions and to provide feedback, please contact <a href="mailto:tburdett@ebi.ac.uk">Tony Burdett</a> at
-            EBI.
-        </p>
+                <p>
+                    ZOOMA was developed by the Samples, Phenotypes and Ontologies Team at the EBI. We help a number of
+                    groups and databases annotate their data to ontologies, including
+                    <a href="http://www.ebi.ac.uk/arrayexpress"
+                       target="_blank"><span class="external">ArrayExpress</span></a>, the
+                    <a href="http://www.ebi.ac.uk/gxa"
+                       target="_blank"><span class="external">Gene Expression Atlas</span></a>, the
+                    <a href="http://www.ebi.ac.uk/biosamples"
+                       target="_blank"><span class="external">BioSamples database</span></a>,
+                    <a href="https://www.targetvalidation.org/" target="_blank"><span class="external">CTTV</span></a>
+                    and
+                    many others. This means we handle a wide variety of diverse datasets that contain metadata
+                    descriptions
+                    about species, anatomical components, cell types, drugs treatments and compounds, diseases and
+                    phenotypes and many others.
+                </p>
 
-        <p>For bug reports and feature requests, please use our
-            <a href="http://www.ebi.ac.uk/panda/jira/browse/FGPTO/component/10874"
-               target="_blank"><span class="external">JIRA bug tracker</span></a>.
-        </p>
+                <p>
+                    To support richer querying, we assist with the annotation of these metadata descriptions to a series
+                    of
+                    ontologies, allowing us to harmonise data across experiments to drive advanced searches and improve
+                    data
+                    visualisation. Generating such annotations is a manually intensive operation that requires
+                    considerable
+                    curation. And, as ontologies evolve and new technologies for performing functional genomics
+                    experiments
+                    emerge, annotations need reviewing and improving. We call the difference between the data we have
+                    submitted, and the data that is accurately mapped to ontology terms, an
+                    <span style="font-weight: bold">"annotation gap"</span>.
+                </p>
 
-        <h3>Thanks</h3>
+                <p>
+                    ZOOMA exists to reduce this annotation gap through automatic annotation. ZOOMA contains a linked
+                    data
+                    repository of annotation knowledge and highly annotated data that has been seeded with manually
+                    curated
+                    annotation derived from the ArrayExpress and Gene Expression Atlas databases, as well as other
+                    sources.
+                    By creating this repository of annotations, tracking their provenance and scoring their quality, we
+                    have
+                    been able to build a "smart" annotation search service. Because the source data has been curated by
+                    hand, it is a rich source of knowledge that is optimised for this task of semantic mark-up of
+                    keywords,
+                    in contrast with text-mining approaches. It is also capable of capturing more obscure types of
+                    annotations such as those involving compound properties.
+                </p>
 
-        <p>
-            <a href="http://atlassian.com/software/bamboo/overview">Bamboo</a>: Continuous integration, continuous
-            deployment and release management.
-        </p>
+                <p>
+                    The Samples, Phenotypes and Ontologies Team is also responsible for the development and maintainence
+                    of
+                    the Experimental Factor Ontology (<a href="http://www.ebi.ac.uk/efo"
+                                                         target="_blank"><span class="external">EFO</span></a>) and the
+                    Ontology Lookup Service (<a href="http://www.ebi.ac.uk/ontology-lookup" target="_blank">OLS</a>). If
+                    you'd like to know more about ontologies, need new know where to find or request terms to describe
+                    your
+                    data, or would just like some information, check out the EFO or OLS websites, or have a look at our
+                    <a
+                            href="http://www.ebi.ac.uk/about/spot-team"
+                            target="_blank">SPOT homepage</a>. Alternatively, you can get in touch using the contact
+                    details
+                    below.
+                </p>
+            </div>
+        </section>
 
-        <p>
-            <a href="http://atlassian.com/software/fisheye/overview">Fisheye</a>: Browse, search and track your source code
-            repositories.
-        </p>
+        <section>
+            <div id="why" class="grid_24">
+                <h3>Why use ZOOMA?</h3>
 
-        <p>
-            <a href="http://www.jetbrains.com/idea/index.html">IntelliJ IDEA</a> is the full-featured commercial IDE — with
-            a complete set of tools and integrations with the most important modern technologies and frameworks, such as
-            Spring and Hibernate — a must-have for effective Web and Java EE development.
-        </p>
+                <p>
+                    You should use ZOOMA if you have data that has been described with any series of keywords. ZOOMA
+                    provides a mechanism to search for these keywords, using typing or context information or
+                    combinations
+                    of co-occuring keywords to improve accuracy, and automatically annotate your data to ontology terms.
+                </p>
 
-        <p>
-            YourKit is kindly supporting open source projects with its full-featured Java Profiler. YourKit, LLC is the
-            creator of innovative and intelligent tools for profiling Java and .NET applications. Take a look at YourKit's
-            leading software products: <a href="http://www.yourkit.com/java/profiler/index.jsp">YourKit Java Profiler</a>
-            and <a href="http://www.yourkit.com/.net/profiler/index.jsp">YourKit .NET Profiler</a>.
-        </p>
+                <p>
+                    Using ZOOMA, it is trivially easy to automatically annotate any data that has been richly described
+                    previously. This improves the interoperability of your data, but also frees up curators to work on
+                    more
+                    difficult and interesting tasks, rather than spending time making the same old fixes and corrections
+                    to
+                    align data with the current state of the art in ontologies.
+                </p>
+            </div>
+        </section>
 
-        <div id="bamboo" class="grid_6 alpha">
-            <a href="http://atlassian.com/software/bamboo/overview"
-               style="
+        <section>
+
+            <div id="contact" class="grid_24">
+                <h3>Contact</h3>
+
+                <p>For questions and to provide feedback, please contact
+                    <a href="mailto:spot-ontology-support@ebi.ac.uk">spot-ontology-support@ebi.ac.uk</a>.
+                </p>
+
+                <p>For bug reports and feature requests, please use our
+                    <a href="http://www.ebi.ac.uk/panda/jira/browse/FGPTO/component/10874"
+                       target="_blank"><span class="external">JIRA bug tracker</span></a>.
+                </p>
+            </div>
+
+            <div id="thanks" class="grid_24">
+                <h3>Thanks</h3>
+
+                <p>
+                    <a href="http://atlassian.com/software/bamboo/overview">Bamboo</a>: Continuous integration,
+                                                                                      continuous
+                                                                                      deployment and release management.
+                </p>
+
+                <p>
+                    <a href="http://atlassian.com/software/fisheye/overview">Fisheye</a>: Browse, search and track your
+                                                                                        source code repositories.
+                </p>
+
+                <p>
+                    <a href="http://www.jetbrains.com/idea/index.html">IntelliJ IDEA</a> is the full-featured commercial
+                                                                                         IDE
+                                                                                         — with a complete set of tools
+                                                                                         and
+                                                                                         integrations with the most
+                                                                                         important modern technologies
+                                                                                         and
+                                                                                         frameworks, such as Spring and
+                                                                                         Hibernate — a must-have for
+                                                                                         effective Web and Java EE
+                                                                                         development.
+                </p>
+
+                <p>
+                    YourKit is kindly supporting open source projects with its full-featured Java Profiler. YourKit, LLC
+                    is
+                    the creator of innovative and intelligent tools for profiling Java and .NET applications. Take a
+                    look at
+                    YourKit's leading software products: <a href="http://www.yourkit.com/java/profiler/index.jsp">YourKit
+                                                                                                                  Java
+                                                                                                                  Profiler</a>
+                    and <a href="http://www.yourkit.com/.net/profiler/index.jsp">YourKit .NET Profiler</a>.
+                </p>
+
+                <div id="bamboo" class="grid_6 alpha">
+                    <a href="http://atlassian.com/software/bamboo/overview"
+                       style="
                display:block;
                background:url(http://www.atlassian.com/dms/wac/images/press/Atlassian-logos/logoBambooPNG.png) no-repeat 7px 7px;
                background-size:55%;
                border:solid 1px #1B3664;
                height:58px;
                margin-left: 5px;"
-               alt="Bamboo: Continuous integration, continuous deployment and release management"
-               title="Bamboo: Continuous integration, continuous deployment and release management"></a>
-        </div>
+                       alt="Bamboo: Continuous integration, continuous deployment and release management"
+                       title="Bamboo: Continuous integration, continuous deployment and release management"></a>
+                </div>
 
-        <div id="fisheye" class="grid_6">
-            <a href="http://atlassian.com/software/fisheye/overview"
-               style="
+                <div id="fisheye" class="grid_6">
+                    <a href="http://atlassian.com/software/fisheye/overview"
+                       style="
                display:block;
                background:url(http://www.atlassian.com/dms/wac/images/press/Atlassian-logos/logoFishEyePNG.png) no-repeat 7px 7px;
                background-size:50%;
                border:solid 1px #1B3664;
                height:58px"
-               alt="Fisheye: Browse, search and track your source code repositories"
-               title="Fisheye: Browse, search and track your source code repositories"></a>
-        </div>
+                       alt="Fisheye: Browse, search and track your source code repositories"
+                       title="Fisheye: Browse, search and track your source code repositories"></a>
+                </div>
 
-        <div id="idea" class="grid_6">
-            <a href="http://www.jetbrains.com/idea/index.html"
-               style="
+                <div id="idea" class="grid_6">
+                    <a href="http://www.jetbrains.com/idea/index.html"
+                       style="
                display:block;
                background:url(http://www.jetbrains.com/img/logos/logo_intellij_idea.gif) no-repeat 0 7px;
                background-size:80%;
                border:solid 1px #26409f;
                height:58px"
-               alt="IntelliJ IDEA: Smart Java IDE. Web development ready. Neat HTML and CSS refactorings and more"
-               title="IntelliJ IDEA: Smart Java IDE. Web development ready. Neat HTML and CSS refactorings and more"></a>
-        </div>
+                       alt="IntelliJ IDEA: Smart Java IDE. Web development ready. Neat HTML and CSS refactorings and more"
+                       title="IntelliJ IDEA: Smart Java IDE. Web development ready. Neat HTML and CSS refactorings and more"></a>
+                </div>
 
-        <div id="yourkit" class="grid_6 omega">
-            <a href="http://www.yourkit.com/java/profiler/index.jsp"
-               style="
+                <div id="yourkit" class="grid_6 omega">
+                    <a href="http://www.yourkit.com/java/profiler/index.jsp"
+                       style="
                display:block;
                background: url('http://www.yourkit.com/images/index_logo.gif') no-repeat -125px -10px #457EE4;
                background-size:100%;
                border:solid 1px #457EE4;
                height:58px;
                margin-right: 5px;"
-               alt="YourKit: full-featured Java Profiler"
-               title="YourKit: full-featured Java Profiler"></a>
-        </div>
-
+                       alt="YourKit: full-featured Java Profiler"
+                       title="YourKit: full-featured Java Profiler"></a>
+                </div>
+            </div>
+        </section>
         <!-- end of ZOOMA contents -->
 
     </div>
