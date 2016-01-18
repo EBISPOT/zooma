@@ -165,14 +165,14 @@
                 You can use Zooma to predict an ontology annotation given a property value (and optionally a property
                 type).
             </p>
-            <h4>Example Request:</h4>
+            <h5>Example Request:</h5>
             <p>
                 Predict an ontology annotation for the text value "mus musculus"
             </p>
             <!--<pre style="border: 1px solid #E2E1D5; padding: 10px; border-radius: 2px">&lt;<span style="font-style: italic;">zooma.api</span>&gt;/summaries/search?query=cancer</pre>-->
             <pre>GET /services/annotate?propertyValue=mus+musculus</pre>
 
-            <h4>Response:</h4>
+            <h5>Response:</h5>
             <div class="eg-content">
 [
     {
@@ -254,7 +254,7 @@
                 This annotation was predicted based on curated mappings in the 'gxa' database.
             </p>
 
-            <h4>Additional Parameters:</h4>
+            <h5>Additional Parameters:</h5>
             <p>
                 Predict an ontology annotation for the text value "mus musculus" and type "organism"
             </p>
@@ -268,29 +268,78 @@
             <p>
                 Predict an ontology annotation for the text value "mus musculus" and type "organism" using annotations
                 that are present in a defined list of datasources, and specify a preference ranking for these
-                datasources. The 'preferred' parameter allows you to set on order of preferred datasources
-                (going from the datasource you trust the most, to the one you trust less) and this will affect the score.
+                datasources.
             </p>
             <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:[atlas,efo],preferred:[atlas]</pre>
+            <p>
+                Here, the 'preferred' parameter allows you to set on order of preferred datasources
+                (going from the datasource you trust the most, to the one you trust less) and this will affect the score.
+            </p>
 
-            To get a list of all the property types do :
-                <table>
-                    <thead>
-                    <tr>
-                        <th>method</th>
-                        <th>url</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>GET</td>
-                        <td>&lt;<span class="eg-var">zooma.api</span>&gt;/properties/types?limit=10000</td>
-                    </tr>
-                    </tbody>
-                </table>
-                </p>
-            </section>
+            <h3>Retrieving Resources</h3>
 
+            <p>
+                You can also use the Zooma API to fetch more information about each of the resource types in Zooma
+                (which you may see in the above example when predicting annotations).  The following section describes
+                how to retrieve more information about the key resource types.
+            </p>
+
+            <h4>Property Types</h4>
+
+            <p>Retrieve all property types</p>
+            <pre>GET /properties/types?limit=10</pre>
+
+            <h5>Response</h5>
+            <div class="eg-content">
+[
+    "rare genetic bone development disorder",
+    "caenorhabditis elegans embryo stage",
+    "genetic disorder",
+    "abnormality of the integument",
+    "hormone measurement",
+    "chemical entity",
+    "disease",
+    "disposition",
+    "cancer",
+    "genetic congenital limb malformation"
+]
+            </div>
+
+            <h4>Resolving Resource URIs</h4>
+
+            <p>
+                Each resource in Zooma is given a URI as it's unique identifier.  The Zooma REST API takes CURIEs as it's
+                parameters, so in order to lookup a resource you first need to convert a resource's URI to it's shortname.
+            </p>
+
+            <p>
+                Zooma provides a REST API to do just this.  If we take an example property from our annotation above,
+                with the URI <span class="uri">http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143</span>,
+                we can collapse this to it's shortform as follows
+            </p>
+
+            <h5>Request</h5>
+            <pre>
+POST /services/collapse
+    Content-Type: application/json
+    {"uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907"}
+            </pre>
+            <h5>Response</h5>
+            <div class="eg-content">
+{
+    "fragment":"90E386B39F0AD3DA5CCBD8AAA6F14907",
+    "namespace":"http://rdf.ebi.ac.uk/resource/zooma/gxa/",
+    "uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907",
+    "shortname":"gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907"
+}
+            </div>
+
+            <h4>Properties</h4>
+
+            <p>Retrieve a property given it's shortname</p>
+            <pre>
+                GET /properties/gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907
+            </pre>
 
             <section>
                 <h3>Getting more information</h3>
