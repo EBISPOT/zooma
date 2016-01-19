@@ -5,8 +5,10 @@ import static uk.ac.ebi.onto_discovery.api.CachedOntoTermDiscoverer.NULL_RESULT;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
@@ -80,7 +82,7 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 				? new SimpleUntypedProperty ( valueLabel ) 
 				: new SimpleTypedProperty ( typeLabel, valueLabel ); 
 
-				Map<AnnotationSummary, Float> zresult = zoomaSearcher.searchZOOMA ( zprop, zoomaThresholdScore, typeLabel == null );
+			Map<AnnotationSummary, Float> zresult = zoomaSearcher.searchZOOMA ( zprop, zoomaThresholdScore, typeLabel == null );
 			
 			// TODO: apply the logics suggested by ZOOMA people:
 			// - 80 is a good threshold
@@ -89,6 +91,11 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 				
 			if ( zresult == null || zresult.size () == 0 ) return NULL_RESULT;
 			List<DiscoveredTerm> result = new ArrayList<> ();
+			
+			// ZOOMA returns summaries, where the same URI can appear multiple times. Here we're interested in a result without
+			// repeatitions, so we take the highest scored result only
+			Set<String> alreadySeenUris = new HashSet<String> ();
+			
 			for ( AnnotationSummary zsum: zresult.keySet () )
 			{
 				double score = zsum.getQuality ();
@@ -97,21 +104,16 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 				if ( semTags == null ) continue;
 				
 				for ( URI uri: semTags )
-					result.add ( new DiscoveredTerm ( uri.toASCIIString (), score, null, "ZOOMA" ) );
+				{
+					String uriStr = uri.toASCIIString ();
+					if ( alreadySeenUris.contains ( uriStr ) ) continue;
+					
+					result.add ( new DiscoveredTerm ( uriStr, score, null, "ZOOMA" ) );
+					alreadySeenUris.add ( uriStr );
+				}
 			}
 
-			// ZOOMA uses a SortedMap internally and returns results in score descending order
-			// So, here we picks best-scored unique results automatically
-			//
-			List<DiscoveredTerm> resultUniqs = new ArrayList<> ();
-			DiscoveredTerm prevTerm = null;
-			for ( DiscoveredTerm t: result )
-				if ( prevTerm == null || !t.getIri ().equals ( prevTerm.getIri () ) ) {
-					resultUniqs.add ( prevTerm = t );
-				}
-			
-			// And eventually, here you are
-			return resultUniqs;
+			return result;
 		} 
 		catch ( Exception ex )
 		{

@@ -25,10 +25,7 @@ import uk.ac.ebi.fgpt.zooma.model.Property;
 public class ZOOMASearchFilter extends AbstractZOOMASearch
 {
 	protected ZOOMASearchInterface base;
-	
-	protected Logger log = LoggerFactory.getLogger ( this.getClass () );
-
-	
+		
 	public ZOOMASearchFilter ( ZOOMASearchInterface base )
 	{
 		super ();
