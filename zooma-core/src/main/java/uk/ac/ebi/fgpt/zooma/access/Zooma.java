@@ -466,6 +466,8 @@ public class Zooma extends SourceFilteredEndpoint {
 
     @PreDestroy public void destroy() throws Exception {
         List<Runnable> runnables = executorService.shutdownNow();
-        getLog().warn("Zooma shutdown attempted with " + runnables.size() + " search jobs still executing");
+        if (runnables.size() > 0) {
+            getLog().warn("Zooma shutdown attempted with " + runnables.size() + " search jobs still executing");
+        }
     }
 }
