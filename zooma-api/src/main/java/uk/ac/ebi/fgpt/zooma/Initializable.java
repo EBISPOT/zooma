@@ -42,7 +42,7 @@ public abstract class Initializable {
 
     protected synchronized void setInitializationFailureThrowable(Throwable t) {
         if (t != null) {
-            getLog().error("Failed to initialize " + Initializable.this.getClass().getSimpleName());
+            getLog().error("Failed to initialize " + Initializable.this.getClass().getSimpleName(), t);
         }
         this.initializationFailureThrowable = t;
         notifyAll();

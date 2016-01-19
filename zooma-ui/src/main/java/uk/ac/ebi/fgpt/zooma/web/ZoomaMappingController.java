@@ -338,7 +338,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                     }
                     return property;
                 }
-            });
+            }));
         }
 
         // monitor searches for completion
@@ -372,9 +372,9 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                         // wait for next task to complete - each search gets timeout seconds max to prevent stalling
                         Future<Property> f = completionService.poll(searchTimeout, TimeUnit.SECONDS);
                         if (f == null) {
-                            failedCount++;
-                            getLog().error("A search job failed to complete in " + searchTimeout + " seconds - " +
+                            getLog().error("A UI request failed to complete in " + searchTimeout + " seconds - " +
                                                    "there are " + failedCount + " fails now.");
+                            failedCount++;
                         }
                         else {
                             try {
@@ -382,8 +382,9 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                             }
                             catch (TimeoutException e) {
                                 failedCount++;
-                                getLog().error("Results of a search job were not available in " + searchTimeout +
-                                                       " seconds - there are " + failedCount + " fails now.");
+                                getLog().error("A UI request was scheduled but results were not available " +
+                                                       "in " + searchTimeout + " seconds - " +
+                                                       "there are " + failedCount + " fails now.");
                             }
                         }
                     }
@@ -410,6 +411,11 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                             getLog().trace(timer.getCompletedCount() + " searches have now completed");
                         }
                     }
+                }
+
+                // iterated over all searches and waited max allowed time, so now cancel the rest
+                for (Future<Property> search : searches) {
+                    search.cancel(true);
                 }
 
                 renderReport(properties, annotationPredictions, failedCount, timer, session);

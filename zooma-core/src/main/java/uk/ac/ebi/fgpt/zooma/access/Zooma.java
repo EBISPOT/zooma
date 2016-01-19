@@ -275,7 +275,10 @@ public class Zooma extends SourceFilteredEndpoint {
         try {
             return f.get();
         }
-        catch (InterruptedException | ExecutionException e) {
+        catch (InterruptedException e) {
+            throw new SearchException("Failed to complete a search (interrupted, probably by timeout)", e);
+        }
+        catch (ExecutionException e) {
             throw new SearchException("Failed to complete a search (" + e.getMessage() + ")", e);
         }
     }
