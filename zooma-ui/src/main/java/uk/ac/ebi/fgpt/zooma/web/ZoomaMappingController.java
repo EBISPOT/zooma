@@ -297,14 +297,14 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
         final CompletionService<Property> completionService = new ExecutorCompletionService<>(searchExecutorService);
 
         // build callable tasks to identify each property
-        Collection<Callable<Property>> searches = new ArrayList<>();
+        Collection<Future<Property>> searches = new ArrayList<>();
         for (final Property property : properties) {
             // simple unit of work to perform the zooma search and update annotations with results
             if (getLog().isTraceEnabled()) {
                 getLog().trace("Submitting next search, for " + property);
             }
 
-            searches.add(new Callable<Property>() {
+            searches.add(completionService.submit(new Callable<Property>() {
                 @Override
                 public Property call() throws Exception {
                     try {
@@ -341,20 +341,17 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
             });
         }
 
-        // submit all callable searches
-        for (Callable<Property> search : searches) {
-            completionService.submit(search);
-        }
-
         // monitor searches for completion
-        monitorSearchCompletion(completionService,
+        monitorSearchCompletion(searches,
+                                completionService,
                                 timer,
                                 properties,
                                 annotationPredictions,
                                 session);
     }
 
-    private void monitorSearchCompletion(final CompletionService<Property> completionService,
+    private void monitorSearchCompletion(final Collection<Future<Property>> searches,
+                                         final CompletionService<Property> completionService,
                                          final ZOOMASearchTimer timer,
                                          final List<Property> properties,
                                          final Map<Property, List<AnnotationPrediction>> annotationPredictions,
