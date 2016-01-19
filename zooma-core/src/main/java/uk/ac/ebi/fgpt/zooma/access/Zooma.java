@@ -1,6 +1,5 @@
 package uk.ac.ebi.fgpt.zooma.access;
 
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -18,20 +17,27 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationPredictionTemplate;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.util.AnnotationPredictionBuilder;
-import uk.ac.ebi.fgpt.zooma.util.ScoreBasedSorter;
-import uk.ac.ebi.fgpt.zooma.util.Sorter;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
+import javax.annotation.PreDestroy;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Entry point for the ZOOMA application with the most commonly used functionality incorporated.  You can use this class
@@ -43,7 +49,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Controller
 @RequestMapping("/services")
-public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
+public class Zooma extends SourceFilteredEndpoint {
     private ZoomaProperties zoomaProperties;
     private ZoomaAnnotations zoomaAnnotations;
     private ZoomaAnnotationSummaries zoomaAnnotationSummaries;
@@ -66,11 +72,19 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
 
         int concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
         int queueSize = Integer.parseInt(configuration.getProperty("zooma.search.max.queue"));
+        final AtomicInteger atomicInteger = new AtomicInteger(1);
         this.executorService = new ThreadPoolExecutor(concurrency,
                                                       concurrency,
                                                       0L,
                                                       TimeUnit.MILLISECONDS,
-                                                      new ArrayBlockingQueue<Runnable>(queueSize));
+                                                      new ArrayBlockingQueue<Runnable>(queueSize),
+                                                      new ThreadFactory() {
+                                                          @Override public Thread newThread(Runnable r) {
+                                                              return new Thread(r,
+                                                                                "request-processing-thread-" +
+                                                                                        atomicInteger.getAndIncrement());
+                                                          }
+                                                      });
     }
 
     @RequestMapping(value = "/suggest", method = RequestMethod.GET)
@@ -182,14 +196,6 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
                                                                                    requiredSources));
     }
 
-//    @RequestMapping(value = "/search", method = RequestMethod.GET)
-//    @ResponseBody List<AnnotationPrediction> searchEndpoint(@RequestParam String propertyValue,
-//                                                                @RequestParam(required = false) String propertyType,
-//                                                                @RequestParam(required = false,
-//                                                                        defaultValue = "") String filter) {
-//
-//    }
-
     @RequestMapping(value = "/annotate", method = RequestMethod.GET)
     @ResponseBody List<AnnotationPrediction> annotationEndpoint(@RequestParam String propertyValue,
                                                                 @RequestParam(required = false) String propertyType,
@@ -233,7 +239,6 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
             }
             return annotate(propertyValue, propertyType, preferredSources, requiredSources);
         }
-
     }
 
     public List<AnnotationPrediction> annotate(final String propertyValue) {
@@ -363,7 +368,7 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
         if (!summaries.isEmpty()) {
             // get well scored annotation summaries
             List<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(summaries,
-                    cutoffPercentage);
+                                                                                         cutoffPercentage);
 
             // for each good summary, extract an example annotation
             boolean achievedScore = false;
@@ -380,12 +385,14 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
                     Annotation goodAnnotation = zoomaAnnotations.getAnnotationService().getAnnotation(annotationURI);
                     if (goodAnnotation != null) {
                         goodAnnotations.add(goodAnnotation);
-                    } else {
+                    }
+                    else {
                         throw new SearchException(
                                 "An annotation summary referenced an annotation that " +
                                         "could not be found - ZOOMA's indexes may be out of date");
                     }
-                } else {
+                }
+                else {
                     String message = "An annotation summary with no associated annotations was found - " +
                             "this is probably an error in inferring a new summary from lexical matches";
                     getLog().warn(message);
@@ -442,10 +449,20 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
     @ExceptionHandler(RejectedExecutionException.class)
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     @ResponseBody String handleRejectedExecutionException(RejectedExecutionException e) {
+        getLog().error("Rejected - queue size too large", e);
         return "Too many requests - ZOOMA is experiencing abnormally high traffic, please try again later";
     }
 
-    @Override public void destroy() throws Exception {
-        executorService.shutdown();
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public @ResponseBody String handleException(Exception e) {
+        getLog().error("Unexpected exception", e);
+        return "The server encountered a problem it could not recover from " +
+                "(" + e.getMessage() + ")";
+    }
+
+    @PreDestroy public void destroy() throws Exception {
+        List<Runnable> runnables = executorService.shutdownNow();
+        getLog().warn("Zooma shutdown attempted with " + runnables.size() + " search jobs still executing");
     }
 }

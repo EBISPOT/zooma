@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.zooma.web;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,6 +25,7 @@ import uk.ac.ebi.fgpt.zooma.search.ZOOMASearchTimer;
 import uk.ac.ebi.fgpt.zooma.service.OntologyService;
 import uk.ac.ebi.fgpt.zooma.util.OntologyLabelMapper;
 
+import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -36,6 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -43,8 +46,10 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A controller stereotype that provides a REST-API endpoint to run a ZOOMA search over a series of properties.
@@ -61,6 +66,8 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
     private final Zooma zooma;
     private final OntologyService ontologyService;
 
+    private final ExecutorService searchExecutorService;
+
     private final int searchTimeout;
 
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -70,10 +77,20 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
     }
 
     @Autowired
-    public ZoomaMappingController(Zooma zooma, OntologyService ontologyService) {
+    public ZoomaMappingController(Zooma zooma,
+                                  OntologyService ontologyService,
+                                  @Qualifier("configurationProperties") Properties configuration) {
         this.zooma = zooma;
         this.ontologyService = ontologyService;
         this.searchTimeout = 5;
+
+        int concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
+        final AtomicInteger integer = new AtomicInteger(1);
+        this.searchExecutorService = Executors.newFixedThreadPool(concurrency, new ThreadFactory() {
+            @Override public Thread newThread(Runnable r) {
+                return new Thread(r, "ui-search-thread-" + integer.getAndIncrement());
+            }
+        });
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = "application/json")
@@ -193,6 +210,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
     @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
     @ExceptionHandler(IllegalStateException.class)
     public @ResponseBody String handleStateException(IllegalStateException e) {
+        getLog().error("Possible session time out?", e);
         return "Session in conflict - your session may have timed out whilst results were being generated " +
                 "(" + e.getMessage() + ")";
     }
@@ -203,6 +221,26 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
         getLog().error("Unexpected exception", e);
         return "The server encountered a problem it could not recover from " +
                 "(" + e.getMessage() + ")";
+    }
+
+    @PreDestroy
+    public void destroy() {
+        // and cleanup
+        getLog().debug("Shutting down executor service...");
+        searchExecutorService.shutdown();
+        try {
+            if (searchExecutorService.awaitTermination(2, TimeUnit.MINUTES)) {
+                getLog().debug("Executor service shutdown gracefully.");
+            }
+            else {
+                int abortedTasks = searchExecutorService.shutdownNow().size();
+                getLog().warn("Executor service forcibly shutdown. " + abortedTasks + " tasks were aborted");
+            }
+        }
+        catch (InterruptedException e) {
+            getLog().error("Executor service failed to shutdown cleanly", e);
+            throw new RuntimeException("Unable to cleanly shutdown ZOOMA.", e);
+        }
     }
 
     private List<Property> parseMappingRequest(ZoomaMappingRequest request) {
@@ -256,15 +294,17 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                 Collections.synchronizedMap(new HashMap<Property, List<AnnotationPrediction>>());
 
         // start searching using a single thread executor, a completion service, and our Zooma instance
-        final ExecutorService executorService = Executors.newSingleThreadExecutor();
-        final CompletionService<Property> completionService = new ExecutorCompletionService<>(executorService);
+        final CompletionService<Property> completionService = new ExecutorCompletionService<>(searchExecutorService);
+
+        // build callable tasks to identify each property
+        Collection<Callable<Property>> searches = new ArrayList<>();
         for (final Property property : properties) {
             // simple unit of work to perform the zooma search and update annotations with results
             if (getLog().isTraceEnabled()) {
                 getLog().trace("Submitting next search, for " + property);
             }
 
-            completionService.submit(new Callable<Property>() {
+            searches.add(new Callable<Property>() {
                 @Override
                 public Property call() throws Exception {
                     try {
@@ -301,21 +341,27 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
             });
         }
 
-        monitorSearchCompletion(executorService,
-                                completionService,
+        // submit all callable searches
+        for (Callable<Property> search : searches) {
+            completionService.submit(search);
+        }
+
+        // monitor searches for completion
+        monitorSearchCompletion(completionService,
                                 timer,
                                 properties,
                                 annotationPredictions,
                                 session);
     }
 
-    private void monitorSearchCompletion(final ExecutorService executorService,
-                                         final CompletionService<Property> completionService,
+    private void monitorSearchCompletion(final CompletionService<Property> completionService,
                                          final ZOOMASearchTimer timer,
                                          final List<Property> properties,
                                          final Map<Property, List<AnnotationPrediction>> annotationPredictions,
                                          final HttpSession session) {
         // create a thread to run until all ZOOMA searches have finished, then update session
+        String threadNumber = Long.toString(System.currentTimeMillis());
+        threadNumber = threadNumber.length() > 6 ? threadNumber.substring(threadNumber.length() - 6) : threadNumber;
         new Thread(new Runnable() {
             @Override public void run() {
                 // collate results
@@ -371,24 +417,9 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
 
                 renderReport(properties, annotationPredictions, failedCount, timer, session);
 
-                // and cleanup
-                getLog().debug("Shutting down executor service...");
-                executorService.shutdown();
-                try {
-                    if (executorService.awaitTermination(2, TimeUnit.MINUTES)) {
-                        getLog().debug("Executor service shutdown gracefully.");
-                    }
-                    else {
-                        int abortedTasks = executorService.shutdownNow().size();
-                        getLog().warn("Executor service forcibly shutdown. " + abortedTasks + " tasks were aborted");
-                    }
-                }
-                catch (InterruptedException e) {
-                    getLog().error("Executor service failed to shutdown cleanly", e);
-                    throw new RuntimeException("Unable to cleanly shutdown ZOOMA.", e);
-                }
+                getLog().info("All search tasks completed, monitoring thread exiting now");
             }
-        }).start();
+        }, "search-completion-monitor-" + threadNumber).start();
     }
 
     private void renderReport(List<Property> properties,
