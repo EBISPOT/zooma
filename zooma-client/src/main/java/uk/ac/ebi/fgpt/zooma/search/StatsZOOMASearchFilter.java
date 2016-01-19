@@ -56,7 +56,7 @@ public class StatsZOOMASearchFilter extends ZOOMASearchFilter
 			int totCalls = STATS_WRAPPER.getLastTotalCalls (); 
 			if ( totCalls == 0 ) return Double.MAX_VALUE;
 			
-			double failedCalls = STATS_WRAPPER.getLastFailedCalls () / totCalls;
+			double failedCalls = STATS_WRAPPER.getLastFailedCalls () / (double) totCalls;
 			
 			if ( failedCalls <= 0.1 ) 
 			{

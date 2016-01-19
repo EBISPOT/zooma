@@ -72,11 +72,6 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
 
     private Map<String, String> prefixMappings;
 
-    private Logger log = LoggerFactory.getLogger(getClass());
-
-    protected Logger getLog() {
-        return log;
-    }
 
     public ZOOMASearchClient() {
     	this ( (String) null );
@@ -99,7 +94,6 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
         this.zoomaAnnotationsBase = zoomaBase + "annotations/";
 
         this.zoomaServicesBase = zoomaBase + "services/";
-//TODO: remove        this.zoomaAnnotateServiceBase = zoomaServicesBase + "annotate?";
 
         this.zoomaPropertyValueArgument = "propertyValue=";
         this.zoomaPropertyTypeArgument = "propertyType=";
@@ -122,7 +116,7 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
                 prefixMappingsURL,
                 new TypeReference<Map<String, String>>() {
                 });
-        getLog().trace(results.toString());
+        log.trace(results.toString());
         return results;
     }
 
@@ -182,14 +176,14 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
                 searchUrl = searchUrl.concat(filters.toString());
             }
             URL queryURL = new URL(searchUrl);
-            getLog().trace("Sending query [" + queryURL + "]...");
+            log.trace("Sending query [" + queryURL + "]...");
 
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(queryURL, new TypeReference<List<SimpleAnnotationPrediction>>() {});
 
         }
         catch (IOException e) {
-            getLog().error("Failed to query ZOOMA for property '" + query + "' (" + e.getMessage() + ")");
+            log.error("Failed to query ZOOMA for property '" + query + "' (" + e.getMessage() + ")");
             throw new RuntimeException("Failed to query ZOOMA for property '" + query + "' " +
                                                "(" + e.getMessage() + ")", e);
         }
@@ -219,7 +213,7 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
                 catch (IOException e) {
                     // could be due to an intermittent HTTP 500 exception, allow a couple of retries
                     tries++;
-                    getLog().error(e.getMessage() + ": retrying.  Retries remaining = " + (3 - tries));
+                    log.error(e.getMessage() + ": retrying.  Retries remaining = " + (3 - tries));
                     lastException = e;
                 }
             }
@@ -227,7 +221,7 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
                 throw lastException;
             }
 
-            getLog().trace("Got the following result from <" + fetchURL + ">...\n" + annotationNode.toString());
+            log.trace("Got the following result from <" + fetchURL + ">...\n" + annotationNode.toString());
 
             JsonNode propertyNode = annotationNode.get("annotatedProperty");
             if (propertyNode != null) {
@@ -285,7 +279,7 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
                                         semanticTags.toArray(new URI[semanticTags.size()]));
         }
         catch (IOException e) {
-            getLog().error("Failed to query ZOOMA for annotation '" + annotationURI.toString() + "' " +
+            log.error("Failed to query ZOOMA for annotation '" + annotationURI.toString() + "' " +
                                    "(" + e.getMessage() + ")");
             throw new RuntimeException("Failed to query ZOOMA for annotation '" + annotationURI.toString() + "' " +
                                                "(" + e.getMessage() + ")", e);
@@ -305,7 +299,7 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
             throw new SearchException("Failed to lookup label for <" + uri.toString() + ">", e);
         }
         if (shortform != null) {
-            getLog().trace("Formulating search for label of '" + shortform + "' (derived from <" + uri + ">)");
+            log.trace("Formulating search for label of '" + shortform + "' (derived from <" + uri + ">)");
             URL labelsURL = new URL(zoomaServicesBase + "labels/" + shortform);
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Set<String>> labelMap =
@@ -315,14 +309,14 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
         }
         else {
             String msg = "URI <" + uri + "> resolved to 'null' shortform";
-            getLog().error(msg);
+            log.error(msg);
             throw new RuntimeException(msg);
         }
     }
 
     public Collection<String> getSynonyms(URI uri) throws IOException {
         String shortform = URIUtils.getShortform(prefixMappings, uri);
-        getLog().trace("Formulating search for synonyms of '" + shortform + "' (derived from <" + uri + ">)");
+        log.trace("Formulating search for synonyms of '" + shortform + "' (derived from <" + uri + ">)");
         URL labelsURL = new URL(zoomaServicesBase + "labels/" + shortform);
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Set<String>> labelMap = mapper.readValue(labelsURL, new TypeReference<Map<String, Set<String>>>() {
@@ -338,7 +332,7 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
         }
         catch (IllegalArgumentException e) {
             // if we get an illegal argument exception, refresh cache and retry
-            getLog().debug(e.getMessage() + ": reloading prefix mappings cache and retrying...");
+            log.debug(e.getMessage() + ": reloading prefix mappings cache and retrying...");
             loadPrefixMappings();
             shortname = URIUtils.getShortform(prefixMappings, uri);
         }
@@ -354,7 +348,7 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
 //        }
 //        catch (IllegalArgumentException e) {
 //            // if we get an illegal argument exception, refresh cache and retry
-//            getLog().debug(e.getMessage() + ": reloading prefix mappings cache and retrying...");
+//            log.debug(e.getMessage() + ": reloading prefix mappings cache and retrying...");
 //            loadPrefixMappings();
 //            uri = URIUtils.getURI(prefixMappings, shortname);
 //        }
@@ -367,7 +361,7 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
             mappings = getPrefixMappings();
         }
         catch (IOException e) {
-            getLog().error("Unable to retrieve prefix mappings, using defaults");
+            log.error("Unable to retrieve prefix mappings, using defaults");
             mappings = new HashMap<>();
         }
         this.prefixMappings = Collections.unmodifiableMap(mappings);
@@ -413,7 +407,7 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
 							+ URLEncoder.encode (
 									( (TypedProperty) property ).getPropertyType (), "UTF-8" ) )
 					: new URL ( search );
-			getLog ().trace ( "Sending query [" + queryURL + "]..." );
+			log.trace ( "Sending query [" + queryURL + "]..." );
 
 			ObjectMapper mapper = new ObjectMapper ();
 			JsonNode resultsNode = mapper.readValue ( queryURL, JsonNode.class );
@@ -429,7 +423,7 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
 					float resultScore = Float.parseFloat ( result.get ( "quality" )
 							.asText () );
 					AnnotationSummary as = mapAnnotationSummary ( result );
-					getLog ().trace (
+					log.trace (
 							"Annotation hit:\n\t\t" + "Searched: " + property + "\t"
 									+ "Found: " + as.getAnnotatedPropertyValue () + " " + "["
 									+ as.getAnnotatedPropertyType () + "] -> "
