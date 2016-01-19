@@ -313,9 +313,7 @@ public class Zooma extends SourceFilteredEndpoint implements DisposableBean {
                                                                                                          preferredSources,
                                                                                                          requiredSources);
 
-                        List<AnnotationPrediction> predictions = createPredictions(propertyValue, propertyType, summaries);
-
-                        return predictions;
+                        return createPredictions(propertyValue, propertyType, summaries);
                     }
                 }
         );

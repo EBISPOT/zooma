@@ -101,7 +101,7 @@ public class ZOOMAReportRenderer {
         getLog().debug("Writing report of property mappings...");
         for (Property property : properties) {
             try {
-                if (annotationPredictionMap.containsKey(property)) {
+                if (annotationPredictionMap.containsKey(property) && annotationPredictionMap.get(property).size() > 0) {
                     List<AnnotationPrediction> annotationPredictions = annotationPredictionMap.get(property);
                     getLog().debug(
                             "There are " + annotationPredictions.size() + " annotations for property '" + property +

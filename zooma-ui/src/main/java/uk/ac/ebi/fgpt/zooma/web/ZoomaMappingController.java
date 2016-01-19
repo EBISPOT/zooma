@@ -267,29 +267,34 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
             completionService.submit(new Callable<Property>() {
                 @Override
                 public Property call() throws Exception {
-                    if (property instanceof TypedProperty) {
-                        String propertyType = ((TypedProperty) property).getPropertyType();
-                        String propertyValue = property.getPropertyValue();
-                        if (preferredSources.isEmpty() && requiredSources.length == 0) {
-                            annotationPredictions.put(property, zooma.annotate(propertyValue, propertyType));
+                    try {
+                        if (property instanceof TypedProperty) {
+                            String propertyType = ((TypedProperty) property).getPropertyType();
+                            String propertyValue = property.getPropertyValue();
+                            if (preferredSources.isEmpty() && requiredSources.length == 0) {
+                                annotationPredictions.put(property, zooma.annotate(propertyValue, propertyType));
+                            }
+                            else {
+                                annotationPredictions.put(property, zooma.annotate(propertyValue,
+                                                                                   propertyType,
+                                                                                   preferredSources,
+                                                                                   requiredSources));
+                            }
                         }
                         else {
-                            annotationPredictions.put(property, zooma.annotate(propertyValue,
-                                                                               propertyType,
-                                                                               preferredSources,
-                                                                               requiredSources));
+                            String propertyValue = property.getPropertyValue();
+                            if (preferredSources.isEmpty() && requiredSources.length == 0) {
+                                annotationPredictions.put(property, zooma.annotate(propertyValue));
+                            }
+                            else {
+                                annotationPredictions.put(property, zooma.annotate(propertyValue,
+                                                                                   preferredSources,
+                                                                                   requiredSources));
+                            }
                         }
                     }
-                    else {
-                        String propertyValue = property.getPropertyValue();
-                        if (preferredSources.isEmpty() && requiredSources.length == 0) {
-                            annotationPredictions.put(property, zooma.annotate(propertyValue));
-                        }
-                        else {
-                            annotationPredictions.put(property, zooma.annotate(propertyValue,
-                                                                               preferredSources,
-                                                                               requiredSources));
-                        }
+                    catch (Exception e) {
+                        getLog().error("Caught exception whilst processing query for '" + property + "'", e);
                     }
                     return property;
                 }
