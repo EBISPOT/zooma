@@ -82,7 +82,7 @@ public class ZoomaOntoTermDiscoverer extends OntologyTermDiscoverer
 				? new SimpleUntypedProperty ( valueLabel ) 
 				: new SimpleTypedProperty ( typeLabel, valueLabel ); 
 
-				Map<AnnotationSummary, Float> zresult = zoomaSearcher.searchZOOMA ( zprop, zoomaThresholdScore, typeLabel == null );
+			Map<AnnotationSummary, Float> zresult = zoomaSearcher.searchZOOMA ( zprop, zoomaThresholdScore, typeLabel == null );
 			
 			// TODO: apply the logics suggested by ZOOMA people:
 			// - 80 is a good threshold

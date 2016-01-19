@@ -1,5 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.search;
 
+import static org.apache.commons.lang3.StringUtils.abbreviate;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -462,18 +464,14 @@ public class ZOOMASearchClient extends AbstractZOOMASearch {
 						break;
 				}
 
-				log.trace ( 
-					"We got {} results above the threshold score over {} total result", results.size (), summaries.size ()
-				);
+				log.trace ( "Keeping {} out of {} total result(s)", results.size (), summaries.size () );
 			}
 		}
 		catch ( IOException e )
 		{
-			getLog ().error (
-					"Failed to query ZOOMA for property '" + valueStr + "' ("
-							+ e.getMessage () + ")" );
-			throw new RuntimeException ( "Failed to query ZOOMA for property '"
-					+ valueStr + "' " + "(" + e.getMessage () + ")", e );
+			throw new RuntimeException ( 
+				"Failed to query ZOOMA for property '" + abbreviate ( valueStr, 30 ) + "' (" + e.getMessage () + ")", e 
+			);
 		}
 
 		return results;
