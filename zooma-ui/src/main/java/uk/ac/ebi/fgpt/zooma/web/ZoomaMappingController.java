@@ -368,7 +368,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                         }
                     }
                     catch (Exception e) {
-                        getLog().error("Caught exception whilst processing query for '" + property + "' " +
+                        getLog().error("Problems annotating '" + property + "' " +
                                                "(" + e.getClass().getSimpleName() + ": " + e.getMessage() + ")");
                         getLog().debug("Exception processing query '" + property + "'", e);
                     }
