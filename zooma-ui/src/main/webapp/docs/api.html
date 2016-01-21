@@ -143,7 +143,7 @@
     </header>
     <div id="content" role="main" class="grid_24 clearfix">
 
-        <b id="docs" class="grid_18 alpha">
+        <div id="docs" class="grid_18 alpha">
             <h2>REST API Documentation</h2>
             <section>
                 <h3>Introduction</h3>
@@ -276,6 +276,36 @@
                 (going from the datasource you trust the most, to the one you trust less) and this will affect the score.
             </p>
 
+            <h3>Resolving Resource URIs</h3>
+
+            <p>
+                Each resource in Zooma is given a URI as it's unique identifier.  The Zooma REST API takes compact URIs
+                ("CURIEs") as it's parameters, so in order to lookup a resource you first need to convert a resource's
+                URI to it's shortname.
+            </p>
+
+            <p>
+                Zooma provides an API endpoint to do just this.  If we take an example property from our annotation above,
+                with the URI <span class="uri">http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143</span>,
+                we can collapse this to it's shortform as follows
+            </p>
+
+            <h5>Request</h5>
+            <pre>
+POST /services/collapse
+    Content-Type: application/json
+    {"uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907"}
+            </pre>
+            <h5>Response</h5>
+            <div class="eg-content">
+{
+    "fragment":"90E386B39F0AD3DA5CCBD8AAA6F14907",
+    "namespace":"http://rdf.ebi.ac.uk/resource/zooma/gxa/",
+    "uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907",
+    "shortname":"gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907"
+}
+            </div>
+
             <h3>Retrieving Resources</h3>
 
             <p>
@@ -305,164 +335,96 @@
 ]
             </div>
 
-            <h4>Resolving Resource URIs</h4>
-
-            <p>
-                Each resource in Zooma is given a URI as it's unique identifier.  The Zooma REST API takes CURIEs as it's
-                parameters, so in order to lookup a resource you first need to convert a resource's URI to it's shortname.
-            </p>
-
-            <p>
-                Zooma provides a REST API to do just this.  If we take an example property from our annotation above,
-                with the URI <span class="uri">http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143</span>,
-                we can collapse this to it's shortform as follows
-            </p>
-
-            <h5>Request</h5>
-            <pre>
-POST /services/collapse
-    Content-Type: application/json
-    {"uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907"}
-            </pre>
-            <h5>Response</h5>
-            <div class="eg-content">
-{
-    "fragment":"90E386B39F0AD3DA5CCBD8AAA6F14907",
-    "namespace":"http://rdf.ebi.ac.uk/resource/zooma/gxa/",
-    "uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907",
-    "shortname":"gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907"
-}
-            </div>
-
             <h4>Properties</h4>
 
             <p>Retrieve a property given it's shortname</p>
-            <pre>
-                GET /properties/gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907
-            </pre>
+            <pre>GET /properties/zoomaresource:461CE7ADFDA7E46E0AAEA17AC66AF143</pre>
 
-            <section>
-                <h3>Getting more information</h3>
-                The first query shown on this page, allows you to annotate your given property with a semantic tag.
-                However,
-                you might be interested in getting more information about the annotation, the annotated
-                property or the biological entity.
-
-                <h4>More about the annotation </h4>
-                In the first json represented on this page, the annotation starts with the 'derivedFrom' tag. If you
-                want to
-                get more information about the annotation object use its uri and do the following :
-                <table>
-                    <thead>
-                    <tr>
-                        <th>url</th>
-                        <th>method</th>
-                        <th>Content-Type</th>
-                        <th>content</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>http://www.ebi.ac.uk/spot/zooma/v2/api/services/collapse</td>
-                        <td>post</td>
-                        <td>application/json</td>
-                        <td>{"uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907"}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <br>
-            This will return the following json :
+            <h5>Response</h5>
             <div class="eg-content">
 {
-    "fragment": "90E386B39F0AD3DA5CCBD8AAA6F14907"
-    "namespace": "http://rdf.ebi.ac.uk/resource/zooma/gxa/"
-    "uri": "http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907"
-    "shortname": "gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907"
+    uri: "http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143",
+    propertyType: "organism",
+    propertyValue: "Mus musculus"
 }
             </div>
-            <br>
-            Use the shortname to querry zooma, and because you're querying an annotationSummary add 'annotations' in the url : <br>
-            http://www.ebi.ac.uk/spot/zooma/v2/api/<b>annotations</b>/<b>gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907</b>
 
+            <h4>Annotations</h4>
 
-                <h4>More about the derivedFrom annotatedProperty</h4>
-                If you want to get more information about the derivedFrom annotatedProperty object use its uri and do
-                the following :
-                <table>
-                    <thead>
-                    <tr>
-                        <th>url</th>
-                        <th>method</th>
-                        <th>Content-Type</th>
-                        <th>content</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>http://www.ebi.ac.uk/spot/zooma/v2/api/services/collapse</td>
-                        <td>post</td>
-                        <td>application/json</td>
-                        <td>{"uri":"http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143"}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <br>
-            This will return the following json :
-            <div> class="eg-content">
+            <p>
+                The first query shown on this page, allows you to annotate your given property with a semantic tag.
+                However, once you've retrieved an annotation prediction, you might be interested in getting more
+                information about the annotation that prompted Zooma to predict your new mapping.  You can do this by
+                using the "derivedFrom" relation and retrieving the annotation with the given ID.
+            </p>
+
+            <p>
+                In the example above, we saw this:
+            </p>
+
+            <div class="eg-content">
+        ...
+        derivedFrom: {
+            uri: "http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907",
+        ...
+            </div>
+
+            <p>We can shorten this as described in the section above, and then retrieve this annotation</p>
+
+            <pre>GET /annotations/gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907</pre>
+
+            <h5>Response</h5>
+            <div class="eg-content">
 {
-    "fragment": "461CE7ADFDA7E46E0AAEA17AC66AF143"
-    "namespace": "http://rdf.ebi.ac.uk/resource/zooma/"
-    "uri": "http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143"
-    "shortname": "zoomaresource:461CE7ADFDA7E46E0AAEA17AC66AF143"
+    uri: "http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907",
+    annotatedProperty: {
+        uri: "http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143",
+        propertyType: "organism",
+        propertyValue: "Mus musculus"
+    },
+    semanticTags: [
+        "http://purl.obolibrary.org/obo/NCBITaxon_10090"
+    ],
+    replacedBy: [ ],
+    replaces: [ ],
+    annotatedBiologicalEntities: [
+        {
+            uri: "http://rdf.ebi.ac.uk/resource/zooma/gxa/636196CF38C074D81ED37DA4009E3133",
+            name: "ebi.ac.uk:Tab2MAGE:E-GEOD-1579.18.Extract",
+            types: [
+                "http://www.w3.org/2002/07/owl#NamedIndividual",
+                "http://rdf.ebi.ac.uk/terms/zooma/Target"
+            ],
+            studies: [
+                {
+                    uri: "http://rdf.ebi.ac.uk/resource/zooma/gxa/DA13D971C08AFD60E64ADFDEAE5CB7EA",
+                    accession: "E-GEOD-1579",
+                    types: [
+                        "http://www.w3.org/2002/07/owl#NamedIndividual",
+                        "http://rdf.ebi.ac.uk/terms/zooma/DatabaseEntrySource"
+                    ]
+                }
+            ]
+        }
+    ],
+    provenance: {
+        source: {
+            type: "DATABASE",
+            name: "gxa",
+            uri: "http://www.ebi.ac.uk/gxa"
+        },
+        evidence: "ZOOMA_INFERRED_FROM_CURATED",
+        accuracy: "NOT_SPECIFIED",
+        generator: "ZOOMA",
+        generatedDate: 1450439979000,
+        annotator: "UNKNOWN",
+        annotationDate: null
+    }
 }
             </div>
-            <br>
-            Use the shortname to querry zooma, and because you're querying a property add 'properties' in the url : <br>
-            http://www.ebi.ac.uk/spot/zooma/v2/api/<b>properties</b>/<b>zoomaresource:461CE7ADFDA7E46E0AAEA17AC66AF143</b>
-
-
-                <h4>More about the derivedFrom annotatedBiologicalEntities</h4>
-                If you want to get more information about the derivedFrom annotatedBiologicalEntities object use its uri
-                and do
-                the following :
-                <table>
-                    <thead>
-                    <tr>
-                        <th>url</th>
-                        <th>method</th>
-                        <th>Content-Type</th>
-                        <th>content</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>http://www.ebi.ac.uk/spot/zooma/v2/api/services/collapse</td>
-                        <td>post</td>
-                        <td>application/json</td>
-                        <td>{"uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/636196CF38C074D81ED37DA4009E3133"}</td>
-                    </tr>
-
-            <h4>More about the derivedFrom annotatedBiologicalEntities</h4>
-            If you want to get more information about the derivedFrom annotatedBiologicalEntities object use its uri and do
-            the following :
-            <table>
-                <thead>
-                <tr>
-                <th>url</th>
-                <th>method</th>
-                <th>Content-Type</th>
-                <th>content</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>http://www.ebi.ac.uk/spot/zooma/v2/api/services/collapse</td>
-                    <td>post</td>
-                    <td>application/json</td>
-                    <td>{"uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/636196CF38C074D81ED37DA4009E3133"}</td>
-                </tr>
-                </tbody>
-            </table>
+        </section>
+        </div>
+    </div>
 
 
 
@@ -475,8 +437,7 @@ POST /services/collapse
             <li class="last"><a href="./developers.html">Developer Documentation</a></li>
         </ul>
     </section>
-</b>
-</div>
+
 
 
 <footer>
