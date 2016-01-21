@@ -43,10 +43,7 @@ public class ZoomaScoreCollector extends LuceneAnnotationSummarySearchService {
         try {
             ZoomaScoreCollector collector = new ZoomaScoreCollector();
 
-            Analyzer analyzer = new EnglishAnalyzer();
             Similarity similarity = new ZoomaSimilarity();
-
-            collector.setAnalyzer(analyzer);
             collector.setSimilarity(similarity);
 
             Directory annotationSummaryIndex = new NIOFSDirectory(new File(

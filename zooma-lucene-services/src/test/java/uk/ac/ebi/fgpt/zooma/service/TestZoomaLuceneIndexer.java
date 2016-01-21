@@ -330,7 +330,6 @@ public class TestZoomaLuceneIndexer {
 
         // create annotation summary search service
         LuceneAnnotationSummarySearchService searchService = new LuceneAnnotationSummarySearchService();
-        searchService.setAnalyzer(analyzer);
         searchService.setIndex(summaryDir);
         searchService.setAnnotationDAO(verifiedAnnotationDAO);
         searchService.init();
