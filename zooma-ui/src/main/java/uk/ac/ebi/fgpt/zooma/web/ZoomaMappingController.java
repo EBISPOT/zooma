@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IllegalFormatCodePointException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -439,7 +440,12 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                     finally {
                         // update timing stats
                         timer.completedNext();
-                        session.setAttribute("progress", timer.getCompletedCount());
+                        try {
+                            session.setAttribute("progress", timer.getCompletedCount());
+                        }
+                        catch(IllegalStateException e) {
+                            getLog().debug("Failed to update session '" + session + "' - client may have gone away", e);
+                        }
                         if (getLog().isTraceEnabled()) {
                             getLog().trace(timer.getCompletedCount() + " searches have now completed");
                         }
