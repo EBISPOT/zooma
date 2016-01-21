@@ -30,6 +30,7 @@ import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchResourcesUnavailableException;
+import uk.ac.ebi.fgpt.zooma.exception.SearchTimeoutException;
 import uk.ac.ebi.fgpt.zooma.model.Identifiable;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
 
@@ -57,6 +58,8 @@ import java.util.Set;
  * @date 03/04/12
  */
 public abstract class ZoomaLuceneSearchService extends Initializable {
+    private static final int QUERY_TIMEOUT = 30;
+
     private Directory index;
     private Analyzer analyzer;
     private Similarity similarity;
@@ -466,7 +469,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         ? TopScoreDocCollector.create(100)
                         : TopScoreDocCollector.create(100, lastScoreDoc);
                 TimeLimitingCollector collector = new TimeLimitingCollector(
-                        topScoreCollector, TimeLimitingCollector.getGlobalCounter(), 30);
+                        topScoreCollector, TimeLimitingCollector.getGlobalCounter(), QUERY_TIMEOUT);
 
                 // perform query
                 getSearcher().search(q, collector);
@@ -500,6 +503,10 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         catch (InterruptedException e) {
             throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
                                                           e);
+        }
+        catch (TimeLimitingCollector.TimeExceededException e) {
+            throw new SearchTimeoutException("Failed to perform Lucene query [" + q + "] - " +
+                                                     "timeout after " + QUERY_TIMEOUT + " seconds", e);
         }
     }
 
@@ -558,7 +565,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         ? TopScoreDocCollector.create(100)
                         : TopScoreDocCollector.create(100, lastScoreDoc);
                 TimeLimitingCollector collector = new TimeLimitingCollector(
-                        topScoreCollector, TimeLimitingCollector.getGlobalCounter(), 30);
+                        topScoreCollector, TimeLimitingCollector.getGlobalCounter(), QUERY_TIMEOUT);
 
                 // perform query
                 getSearcher().search(q, collector);
@@ -595,6 +602,10 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
         catch (InterruptedException e) {
             throw new IOException("Failed to perform query - indexing process was interrupted", e);
+        }
+        catch (TimeLimitingCollector.TimeExceededException e) {
+            throw new SearchTimeoutException("Failed to perform Lucene query [" + q + "] - " +
+                                                     "timeout after " + QUERY_TIMEOUT + " seconds", e);
         }
     }
 }
