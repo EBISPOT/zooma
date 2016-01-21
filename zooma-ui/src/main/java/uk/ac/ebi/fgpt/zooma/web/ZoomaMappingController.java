@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -366,13 +367,14 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                                                                                    requiredSources));
                             }
                         }
+                        return property;
                     }
                     catch (Exception e) {
                         getLog().error("Problems annotating '" + property + "' " +
                                                "(" + e.getClass().getSimpleName() + ": " + e.getMessage() + ")");
                         getLog().debug("Exception processing query '" + property + "'", e);
+                        throw e;
                     }
-                    return property;
                 }
             }));
         }
