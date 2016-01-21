@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
+import uk.ac.ebi.fgpt.zooma.exception.SearchResourcesUnavailableException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchTimeoutException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationPrediction;
@@ -517,9 +518,31 @@ public class Zooma extends SourceFilteredEndpoint {
 
     @ExceptionHandler(SearchTimeoutException.class)
     @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
-    @ResponseBody String handleSearchException(SearchTimeoutException e) {
+    @ResponseBody String handleSearchTimeoutException(SearchTimeoutException e) {
         getLog().error("A search timeout exception occurred: (" + e.getMessage() + ")", e);
         return "This search could not be completed: " + e.getMessage();
+    }
+
+    @ExceptionHandler(SearchResourcesUnavailableException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    @ResponseBody String handleSearchResourcesUnavailableException(SearchResourcesUnavailableException e) {
+        getLog().error("Unavailable resources (index or database)", e);
+        return "Your search request could not be completed due to a problem accessing resources on the server: (" + e.getMessage() + ")";
+    }
+
+    @ExceptionHandler(RejectedExecutionException.class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    @ResponseBody String handleRejectedExecutionException(RejectedExecutionException e) {
+        getLog().error("Rejected - queue size too large", e);
+        return "Too many requests - ZOOMA is experiencing abnormally high traffic, please try again later";
+    }
+
+    @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
+    @ExceptionHandler(IllegalStateException.class)
+    public @ResponseBody String handleStateException(IllegalStateException e) {
+        getLog().error("Possible session time out?", e);
+        return "Session in conflict - your session may have timed out whilst results were being generated " +
+                "(" + e.getMessage() + ")";
     }
 
     @ExceptionHandler(SearchException.class)
@@ -527,13 +550,6 @@ public class Zooma extends SourceFilteredEndpoint {
     @ResponseBody String handleSearchException(SearchException e) {
         getLog().error("Unexpected search exception: (" + e.getMessage() + ")", e);
         return "ZOOMA encountered a problem that it could not recover from (" + e.getMessage() + ")";
-    }
-
-    @ExceptionHandler(RejectedExecutionException.class)
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    @ResponseBody String handleRejectedExecutionException(RejectedExecutionException e) {
-        getLog().error("Rejected - queue size too large", e);
-        return "Too many requests - ZOOMA is experiencing abnormally high traffic, please try again later";
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
