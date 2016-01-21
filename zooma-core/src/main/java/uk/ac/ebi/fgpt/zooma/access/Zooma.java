@@ -519,28 +519,32 @@ public class Zooma extends SourceFilteredEndpoint {
     @ExceptionHandler(SearchTimeoutException.class)
     @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
     @ResponseBody String handleSearchTimeoutException(SearchTimeoutException e) {
-        getLog().error("A search timeout exception occurred: (" + e.getMessage() + ")", e);
+        getLog().error("A search timeout exception occurred [" + e.getClass().getSimpleName() + ": " + e.getMessage() + "]");
+        getLog().debug("Search timeout exception from annotation endpoint", e);
         return "This search could not be completed: " + e.getMessage();
     }
 
     @ExceptionHandler(SearchResourcesUnavailableException.class)
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     @ResponseBody String handleSearchResourcesUnavailableException(SearchResourcesUnavailableException e) {
-        getLog().error("Unavailable resources (index or database)", e);
+        getLog().error("Unavailable resources (index or database) [" + e.getClass().getSimpleName() + ": " + e.getMessage() + "]");
+        getLog().debug("Search resources unavailable from annotation endpoint", e);
         return "Your search request could not be completed due to a problem accessing resources on the server: (" + e.getMessage() + ")";
     }
 
     @ExceptionHandler(RejectedExecutionException.class)
     @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
     @ResponseBody String handleRejectedExecutionException(RejectedExecutionException e) {
-        getLog().error("Rejected - queue size too large", e);
+        getLog().error("Rejected - queue size too large [" + e.getClass().getSimpleName() + ": " + e.getMessage() + "]");
+        getLog().debug("Rejected execution exception from annotation endpoint", e);
         return "Too many requests - ZOOMA is experiencing abnormally high traffic, please try again later";
     }
 
     @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
     @ExceptionHandler(IllegalStateException.class)
     public @ResponseBody String handleStateException(IllegalStateException e) {
-        getLog().error("Possible session time out?", e);
+        getLog().error("Possible session time out? [" + e.getClass().getSimpleName() + ": " + e.getMessage() + "]");
+        getLog().debug("Illegal state exception from annotation endpoint", e);
         return "Session in conflict - your session may have timed out whilst results were being generated " +
                 "(" + e.getMessage() + ")";
     }
@@ -548,14 +552,16 @@ public class Zooma extends SourceFilteredEndpoint {
     @ExceptionHandler(SearchException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody String handleSearchException(SearchException e) {
-        getLog().error("Unexpected search exception: (" + e.getMessage() + ")", e);
+        getLog().error("Unexpected search exception [" + e.getClass().getSimpleName() + ": " + e.getMessage() + "]");
+        getLog().debug("Search exception from annotation endpoint", e);
         return "ZOOMA encountered a problem that it could not recover from (" + e.getMessage() + ")";
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public @ResponseBody String handleException(Exception e) {
-        getLog().error("Unexpected exception", e);
+        getLog().error("Unexpected exception [" + e.getClass().getSimpleName() + ": " + e.getMessage() + "]");
+        getLog().debug("Exception from annotation endpoint", e);
         return "The server encountered a problem it could not recover from " +
                 "(" + e.getMessage() + ")";
     }
