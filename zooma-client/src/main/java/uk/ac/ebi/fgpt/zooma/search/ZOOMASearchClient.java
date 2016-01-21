@@ -176,7 +176,7 @@ public class ZOOMASearchClient {
         }
     }
 
-    public Annotation getAnnotation(URI annotationURI) throws SearchException {
+    public Annotation getAnnotation(URI annotationURI) {
         try {
             String shortname = lookupShortname(annotationURI);
             URL fetchURL = new URL(zoomaAnnotationsBase + shortname);
@@ -273,7 +273,7 @@ public class ZOOMASearchClient {
         }
     }
 
-    public String getLabel(URI uri) throws IOException, SearchException {
+    public String getLabel(URI uri) throws IOException {
         if (uri == null) {
             throw new IllegalArgumentException("Cannot lookup label for URI 'null'");
         }

@@ -2,7 +2,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import org.apache.lucene.search.Query;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
-import uk.ac.ebi.fgpt.zooma.exception.SearchException;
+import uk.ac.ebi.fgpt.zooma.exception.SearchResourcesUnavailableException;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessorProvider;
 
@@ -70,10 +70,12 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
         }
         catch (IOException e) {
-            throw new SearchException("Problems creating query for '" + propertyValuePattern + "'", e);
+            throw new SearchResourcesUnavailableException("Problems creating query for '" + propertyValuePattern + "'",
+                                                          e);
         }
         catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+            throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
+                                                          e);
         }
     }
 
@@ -116,11 +118,12 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
         }
         catch (IOException e) {
-            throw new SearchException(
+            throw new SearchResourcesUnavailableException(
                     "Problems creating query for '" + propertyValuePattern + "' ['" + propertyType + "']", e);
         }
         catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+            throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
+                                                          e);
         }
     }
 
@@ -153,10 +156,12 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
         }
         catch (IOException e) {
-            throw new SearchException("Problems creating query for '" + propertyValuePrefix + "'", e);
+            throw new SearchResourcesUnavailableException("Problems creating query for '" + propertyValuePrefix + "'",
+                                                          e);
         }
         catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+            throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
+                                                          e);
         }
     }
 
@@ -207,11 +212,13 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
                 return doQuery(q, new SingleFieldURIMapper("uri"), getPropertyDAO());
             }
             catch (IOException e) {
-                throw new SearchException(
+                throw new SearchResourcesUnavailableException(
                         "Problems creating query for '" + propertyValuePrefix + "' ['" + propertyType + "']", e);
             }
             catch (InterruptedException e) {
-                throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+                throw new SearchResourcesUnavailableException(
+                        "Failed to perform query - indexing process was interrupted",
+                        e);
             }
         }
     }
@@ -251,11 +258,9 @@ public class LucenePropertySearchService extends ZoomaLuceneSearchService implem
             }
             return results;
         }
-        catch (IOException e) {
-            throw new SearchException("Problems creating query for '" + propertyValuePrefix + "'", e);
-        }
         catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+            throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
+                                                          e);
         }
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
+import uk.ac.ebi.fgpt.zooma.exception.SearchTimeoutException;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationPrediction;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationPredictionTemplate;
@@ -263,8 +264,7 @@ public class Zooma extends SourceFilteredEndpoint {
             if(!isSuccessful){
                 getLog().warn("Failed cancelling thread for search with propertyValue = " + propertyValue);
             }
-            throw new SearchException("Exception occured when trying to cancer thread for search with propertyValue = "
-                    + propertyValue +", message is : (" + e.getMessage() + ")", e);
+            throw new SearchTimeoutException("Search for '" + propertyValue + "' took too long", e);
         }
     }
 
@@ -292,16 +292,16 @@ public class Zooma extends SourceFilteredEndpoint {
                 getLog().warn("Failed cancelling thread for search with propertyValue = " + propertyValue +
                         " and propertyType = " + propertyType);
             }
-            throw new SearchException("Failed to complete a search with propertyValue = " + propertyType + "propertyType = "
-                    + propertyType + "(" + e.getMessage() + ")", e);
-        }  catch (TimeoutException e) {
+            throw new SearchException("Failed to complete a search with propertyValue = " + propertyType + " and " +
+                                              "propertyType = " + propertyType, e);
+        }
+        catch (TimeoutException e) {
             boolean isSuccessful = f.cancel(true);
             if(!isSuccessful){
                 getLog().warn("Failed cancelling thread for search with propertyValue = " + propertyValue +
                         " and propertyType = " + propertyType);
             }
-            throw new SearchException("Exception occured when trying to cancer thread for search with propertyValue = "
-                    + propertyValue + " and propertyType = " + propertyType + ", message is : (" + e.getMessage() + ")", e);
+            throw new SearchTimeoutException("Search for '" + propertyValue + "' took too long", e);
         }
     }
 
@@ -325,41 +325,39 @@ public class Zooma extends SourceFilteredEndpoint {
             return f.get(searchTimeout, TimeUnit.SECONDS);
         }
         catch (InterruptedException | ExecutionException e) {
-            String preferredSourcesString = new String();
+            String preferredSourcesString = "";
             for(URI preferredSource : preferredSources){
                 preferredSourcesString = preferredSourcesString + "||" + preferredSource.toString();
             }
-            String requiredSourcesString = new String();
+            String requiredSourcesString = "";
             for(URI requiredSource : requiredSources){
                 requiredSourcesString = requiredSourcesString + requiredSource.toString();
 
             }
             boolean isSuccessful = f.cancel(true);
             if(!isSuccessful){
-
-                getLog().warn("Failed canceling thread for search [propertyValue=" + propertyValue + ",preferredSources=" +
-                preferredSourcesString + ",requiredSources=" + requiredSourcesString + "]");
+                getLog().warn("Failed cancelling thread for search [propertyValue=" + propertyValue + ", preferredSources=" +
+                preferredSourcesString + ", requiredSources=" + requiredSourcesString + "]");
             }
-            throw new SearchException("Failed to complete search [propertyValue=" + propertyValue + ",preferredSources=" +
-                    preferredSourcesString + ",requiredSources=" + requiredSourcesString + "] (" + e.getMessage() + ")", e);
-        } catch (TimeoutException e) {
-            String preferredSourcesString = new String();
+            throw new SearchException("Failed to complete search [propertyValue=" + propertyValue + ", preferredSources=" +
+                    preferredSourcesString + ", requiredSources=" + requiredSourcesString + "] (" + e.getMessage() + ")", e);
+        }
+        catch (TimeoutException e) {
+            String preferredSourcesString = "";
             for(URI preferredSource : preferredSources){
                 preferredSourcesString = preferredSourcesString + "||" + preferredSource.toString();
             }
-            String requiredSourcesString = new String();
+            String requiredSourcesString = "";
             for(URI requiredSource : requiredSources){
                 requiredSourcesString = requiredSourcesString + requiredSource.toString();
 
             }
             boolean isSuccessful = f.cancel(true);
             if(!isSuccessful){
-
-                getLog().warn("Failed canceling thread for search [propertyValue=" + propertyValue + ",preferredSources=" +
-                        preferredSourcesString + ",requiredSources=" + requiredSourcesString + "]");
+                getLog().warn("Failed cancelling thread for search [propertyValue=" + propertyValue + ", preferredSources=" +
+                        preferredSourcesString + ", requiredSources=" + requiredSourcesString + "]");
             }
-            throw new SearchException("Failed to complete search [propertyValue=" + propertyValue + ",preferredSources=" +
-                    preferredSourcesString + ",requiredSources=" + requiredSourcesString + "] (" + e.getMessage() + ")", e);
+            throw new SearchTimeoutException("Search for '" + propertyValue + "' took too long", e);
         }
     }
 
@@ -386,29 +384,28 @@ public class Zooma extends SourceFilteredEndpoint {
             return f.get(searchTimeout, TimeUnit.SECONDS);
         }
         catch (InterruptedException | ExecutionException e) {
-            String preferredSourcesString = new String();
-            String requiredSourcesString = new String();
+            String preferredSourcesString = "";
+            String requiredSourcesString = "";
 
             boolean isSuccessful = f.cancel(true);
             if(!isSuccessful){
                getLog().warn("Failed cancelling thread for search [propertyValue = " + propertyValue + ", propertyType = "
                + propertyType + ", preferredSources=" + preferredSourcesString + ", requiredSources=" + requiredSourcesString + "]");
             }
-            throw new SearchException("Failed to complete search [propertyValue = " + propertyValue + ",propertyType = "
+            throw new SearchException("Failed to complete search [propertyValue = " + propertyValue + ", propertyType = "
             + propertyType + ", preferredSources=" + preferredSourcesString + ", requiredSources=" + requiredSourcesString
                     + "] (" + e.getMessage() + ")", e);
         } catch (TimeoutException e) {
-            String preferredSourcesString = new String();
-            String requiredSourcesString = new String();
+            String preferredSourcesString = "";
+            String requiredSourcesString = "";
 
             boolean isSuccessful = f.cancel(true);
             if(!isSuccessful){
                 getLog().warn("Failed cancelling thread for search [propertyValue = " + propertyValue + ", propertyType = "
                         + propertyType + ", preferredSources=" + preferredSourcesString + ", requiredSources=" + requiredSourcesString + "]");
             }
-            throw new SearchException("Failed to complete search [propertyValue = " + propertyValue + ",propertyType = "
-                    + propertyType + ", preferredSources=" + preferredSourcesString + ", requiredSources=" + requiredSourcesString
-                    + "] (" + e.getMessage() + ")", e);        }
+            throw new SearchTimeoutException("Search for '" + propertyValue + "' took too long", e);
+        }
     }
 
     private List<String> extractPropertyValueStrings(Collection<Property> properties) {
@@ -440,8 +437,7 @@ public class Zooma extends SourceFilteredEndpoint {
 
     private List<AnnotationPrediction> createPredictions(String propertyValue,
                                                          String propertyType,
-                                                         Map<AnnotationSummary, Float> summaries)
-            throws SearchException {
+                                                         Map<AnnotationSummary, Float> summaries) {
         List<AnnotationPrediction> predictions = new ArrayList<>();
 
         // now use client to test and filter them
@@ -517,6 +513,13 @@ public class Zooma extends SourceFilteredEndpoint {
             }
         }
         return predictions;
+    }
+
+    @ExceptionHandler(SearchTimeoutException.class)
+    @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
+    @ResponseBody String handleSearchException(SearchTimeoutException e) {
+        getLog().error("A search timeout exception occurred: (" + e.getMessage() + ")", e);
+        return "This search could not be completed: " + e.getMessage();
     }
 
     @ExceptionHandler(SearchException.class)

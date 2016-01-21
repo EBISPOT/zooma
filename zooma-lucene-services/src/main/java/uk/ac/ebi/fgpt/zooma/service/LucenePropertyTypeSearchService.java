@@ -1,15 +1,11 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
 import org.apache.lucene.search.Query;
-import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
-import uk.ac.ebi.fgpt.zooma.exception.SearchException;
+import uk.ac.ebi.fgpt.zooma.exception.SearchResourcesUnavailableException;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A service that allows searching over the set of property types known to ZOOMA.  Prefix-based and pattern-based
@@ -27,17 +23,15 @@ public class LucenePropertyTypeSearchService extends ZoomaLuceneSearchService im
             Query q = formulateQuery("name", propertyTypePattern);
 
             if (sources.length > 0) {
-                q = formulateExactCombinedQuery(new Query[] {q}, "source", sources);
+                q = formulateExactCombinedQuery(new Query[]{q}, "source", sources);
             }
 
             // do the query
             return doQuery(q, new SingleFieldStringMapper("name"));
         }
-        catch (IOException e) {
-            throw new SearchException("Problems creating query for '" + propertyTypePattern + "'", e);
-        }
         catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+            throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
+                                                          e);
         }
     }
 
@@ -50,17 +44,15 @@ public class LucenePropertyTypeSearchService extends ZoomaLuceneSearchService im
             Query q = formulatePrefixQuery("name", propertyTypePrefix);
 
             if (sources.length > 0) {
-                q = formulateExactCombinedQuery(new Query[] {q}, "source", sources);
+                q = formulateExactCombinedQuery(new Query[]{q}, "source", sources);
             }
 
             // do the query
             return doQuery(q, new SingleFieldStringMapper("name"));
         }
-        catch (IOException e) {
-            throw new SearchException("Problems creating query for '" + propertyTypePrefix + "'", e);
-        }
         catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+            throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
+                                                          e);
         }
     }
 }

@@ -28,6 +28,7 @@ import org.apache.lucene.store.Directory;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
+import uk.ac.ebi.fgpt.zooma.exception.SearchResourcesUnavailableException;
 import uk.ac.ebi.fgpt.zooma.model.Identifiable;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
 
@@ -433,7 +434,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @return a collection of results
      * @throws IOException if reading from the index failed
      */
-    protected <T> List<T> doQuery(Query q, LuceneDocumentMapper<T> mapper) throws IOException {
+    protected <T> List<T> doQuery(Query q, LuceneDocumentMapper<T> mapper) {
         return doQuery(q, mapper, -1);
     }
 
@@ -444,9 +445,9 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      *
      * @param q the lucene query to perform
      * @return a collection of results
-     * @throws IOException if reading from the index failed
+     * @throws SearchResourcesUnavailableException if reading from the index failed
      */
-    protected <T> List<T> doQuery(Query q, LuceneDocumentMapper<T> mapper, int limit) throws IOException {
+    protected <T> List<T> doQuery(Query q, LuceneDocumentMapper<T> mapper, int limit) {
         try {
             // init, to make sure searcher is available
             initOrWait();
@@ -490,8 +491,12 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             getLog().debug("Query '" + q.toString() + "' returned " + results.size() + " results");
             return results;
         }
+        catch (IOException e) {
+            throw new SearchResourcesUnavailableException("Failed to read index", e);
+        }
         catch (InterruptedException e) {
-            throw new IOException("Failed to perform query - indexing process was interrupted", e);
+            throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
+                                                          e);
         }
     }
 

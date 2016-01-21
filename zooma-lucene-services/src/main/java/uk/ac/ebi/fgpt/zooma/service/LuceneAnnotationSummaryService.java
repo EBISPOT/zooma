@@ -4,10 +4,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.store.Directory;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
-import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
-import uk.ac.ebi.fgpt.zooma.exception.SearchException;
+import uk.ac.ebi.fgpt.zooma.exception.SearchResourcesUnavailableException;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
 import java.io.IOException;
@@ -78,10 +76,12 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
             return results;
         }
         catch (IOException e) {
-            throw new SearchException("Problems retrieving annotation summaries from lucene index", e);
+            throw new SearchResourcesUnavailableException("Problems retrieving annotation summaries from lucene index",
+                                                          e);
         }
         catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - reading process was interrupted", e);
+            throw new SearchResourcesUnavailableException("Failed to perform query - reading process was interrupted",
+                                                          e);
         }
     }
 
@@ -102,17 +102,15 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
                     return null;
                 }
                 else {
-                    throw new SearchException(
+                    throw new SearchResourcesUnavailableException(
                             "An unexpected number of results for Annotation Summary ID '" + annotationSummaryID + "' " +
                                     "indicates the indexes need rebuilding (got " + results.size() + " records)");
                 }
             }
         }
-        catch (IOException e) {
-            throw new SearchException("Problems creating query for '" + annotationSummaryID + "'", e);
-        }
         catch (InterruptedException e) {
-            throw new SearchException("Failed to perform query - indexing process was interrupted", e);
+            throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
+                                                          e);
         }
     }
 }
