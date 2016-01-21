@@ -224,7 +224,7 @@ public class TestZoomaLuceneSearchService {
             assertTrue(results.contains("foo bar baz"));
             assertTrue(results.contains("foo baz"));
         }
-        catch (IOException e) {
+        catch (Exception e) {
             e.printStackTrace();
             fail("Query failed");
         }
