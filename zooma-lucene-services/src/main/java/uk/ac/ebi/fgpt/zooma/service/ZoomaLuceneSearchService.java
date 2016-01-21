@@ -17,6 +17,7 @@ import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TimeLimitingCollector;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.search.similarities.Similarity;
 import org.apache.lucene.search.spans.SpanFirstQuery;
@@ -461,13 +462,15 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             int rank = 1;
             while (!complete) {
                 // create a collector to obtain query results
-                TopScoreDocCollector collector = lastScoreDoc == null
+                TopScoreDocCollector topScoreCollector = lastScoreDoc == null
                         ? TopScoreDocCollector.create(100)
                         : TopScoreDocCollector.create(100, lastScoreDoc);
+                TimeLimitingCollector collector = new TimeLimitingCollector(
+                        topScoreCollector, TimeLimitingCollector.getGlobalCounter(), 30);
 
                 // perform query
                 getSearcher().search(q, collector);
-                ScoreDoc[] hits = collector.topDocs().scoreDocs;
+                ScoreDoc[] hits = topScoreCollector.topDocs().scoreDocs;
 
                 if (hits.length == 0) {
                     complete = true;
@@ -551,13 +554,15 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             int rank = 1;
             while (!complete) {
                 // create a collector to obtain query results
-                TopScoreDocCollector collector = lastScoreDoc == null
+                TopScoreDocCollector topScoreCollector = lastScoreDoc == null
                         ? TopScoreDocCollector.create(100)
                         : TopScoreDocCollector.create(100, lastScoreDoc);
+                TimeLimitingCollector collector = new TimeLimitingCollector(
+                        topScoreCollector, TimeLimitingCollector.getGlobalCounter(), 30);
 
                 // perform query
                 getSearcher().search(q, collector);
-                ScoreDoc[] hits = collector.topDocs().scoreDocs;
+                ScoreDoc[] hits = topScoreCollector.topDocs().scoreDocs;
 
                 if (hits.length == 0) {
                     complete = true;
