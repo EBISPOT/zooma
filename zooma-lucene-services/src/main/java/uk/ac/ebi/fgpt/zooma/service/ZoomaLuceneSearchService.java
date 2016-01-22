@@ -65,8 +65,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     private Directory index;
     private Similarity similarity;
 
-    private IndexReader reader;
-    private IndexSearcher searcher;
+//    private IndexReader reader;
+//    private IndexSearcher searcher;
 
     protected enum QUERY_TYPE {
         EXACT,
@@ -84,27 +84,38 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     }
 
     public IndexReader getReader() {
-        return reader;
+//        return reader;
+        try {
+            return ExitableDirectoryReader.wrap(DirectoryReader.open(index), new QueryTimeoutImpl(QUERY_TIMEOUT));
+        }
+        catch (IOException e) {
+            throw new SearchResourcesUnavailableException("Unable to read lucene index", e);
+        }
     }
 
     public IndexSearcher getSearcher() {
+//        return searcher;
+        IndexSearcher searcher = new IndexSearcher(getReader());
+        if (similarity != null) {
+            searcher.setSimilarity(similarity);
+        }
         return searcher;
     }
 
     @Override
     protected void doInitialization() throws IOException {
         // initialize searcher and query parser from index
-        this.reader = ExitableDirectoryReader.wrap(DirectoryReader.open(index), new QueryTimeoutImpl(QUERY_TIMEOUT));
-        this.searcher = new IndexSearcher(reader);
-        if (similarity != null) {
-            this.searcher.setSimilarity(similarity);
-        }
+//        this.reader = ExitableDirectoryReader.wrap(DirectoryReader.open(index), new QueryTimeoutImpl(QUERY_TIMEOUT));
+//        this.searcher = new IndexSearcher(reader);
+//        if (similarity != null) {
+//            this.searcher.setSimilarity(similarity);
+//        }
     }
 
     @Override
     protected void doTermination() throws Exception {
         // close index reader
-        reader.close();
+//        reader.close();
     }
 
     /**
@@ -497,6 +508,10 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                                                           e);
         }
         catch (TimeLimitingCollector.TimeExceededException e) {
+            throw new SearchTimeoutException("Failed to collect result of Lucene query [" + q + "] - " +
+                                                     "timeout after " + QUERY_TIMEOUT + " seconds", e);
+        }
+        catch (ExitableDirectoryReader.ExitingReaderException e) {
             throw new SearchTimeoutException("Failed to perform Lucene query [" + q + "] - " +
                                                      "timeout after " + QUERY_TIMEOUT + " seconds", e);
         }
@@ -596,8 +611,12 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             throw new IOException("Failed to perform query - indexing process was interrupted", e);
         }
         catch (TimeLimitingCollector.TimeExceededException e) {
+            throw new SearchTimeoutException("Failed to collect result of Lucene query [" + q + "] - " +
+                                                     "timeout after " + QUERY_TIMEOUT + " seconds", e);
+        }
+        catch (ExitableDirectoryReader.ExitingReaderException e) {
             throw new SearchTimeoutException("Failed to perform Lucene query [" + q + "] - " +
-                                                     "timeout after " + QUERY_TIMEOUT + " ms", e);
+                                                     "timeout after " + QUERY_TIMEOUT + " seconds", e);
         }
     }
 }
