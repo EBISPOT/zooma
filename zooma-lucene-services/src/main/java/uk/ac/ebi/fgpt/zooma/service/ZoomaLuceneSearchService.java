@@ -75,10 +75,6 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         SUFFIX
     }
 
-    public Directory getIndex() {
-        return index;
-    }
-
     public void setIndex(Directory index) {
         this.index = index;
     }
@@ -98,7 +94,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     @Override
     protected void doInitialization() throws IOException {
         // initialize searcher and query parser from index
-        this.reader = ExitableDirectoryReader.wrap(DirectoryReader.open(getIndex()), new QueryTimeoutImpl(QUERY_TIMEOUT));
+        this.reader = ExitableDirectoryReader.wrap(DirectoryReader.open(index), new QueryTimeoutImpl(QUERY_TIMEOUT));
         this.searcher = new IndexSearcher(reader);
         if (similarity != null) {
             this.searcher.setSimilarity(similarity);
@@ -433,7 +429,6 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      *
      * @param q the lucene query to perform
      * @return a collection of results
-     * @throws IOException if reading from the index failed
      */
     protected <T> List<T> doQuery(Query q, LuceneDocumentMapper<T> mapper) {
         return doQuery(q, mapper, -1);

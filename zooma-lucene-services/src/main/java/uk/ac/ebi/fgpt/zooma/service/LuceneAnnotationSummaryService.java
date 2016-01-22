@@ -67,7 +67,7 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
             initOrWait();
 
             Collection<AnnotationSummary> results = new ArrayList<>();
-            IndexReader reader = DirectoryReader.open(getIndex());
+            IndexReader reader = getReader();
             for (int i = start; i < limit && i < reader.maxDoc(); i++) {
                 Document doc = reader.document(i);
                 AnnotationSummary as = getMapper().mapDocument(doc);
