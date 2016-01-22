@@ -510,11 +510,11 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
         catch (TimeLimitingCollector.TimeExceededException e) {
             throw new SearchTimeoutException("Failed to collect result of Lucene query [" + q + "] - " +
-                                                     "timeout after " + QUERY_TIMEOUT + " seconds", e);
+                                                     "timeout after " + QUERY_TIMEOUT + " ms", e);
         }
         catch (ExitableDirectoryReader.ExitingReaderException e) {
             throw new SearchTimeoutException("Failed to perform Lucene query [" + q + "] - " +
-                                                     "timeout after " + QUERY_TIMEOUT + " seconds", e);
+                                                     "timeout after " + QUERY_TIMEOUT + " ms", e);
         }
     }
 
@@ -615,11 +615,11 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
         catch (TimeLimitingCollector.TimeExceededException e) {
             throw new SearchTimeoutException("Failed to collect result of Lucene query [" + q + "] - " +
-                                                     "timeout after " + QUERY_TIMEOUT + " seconds", e);
+                                                     "timeout after " + QUERY_TIMEOUT + " ms", e);
         }
         catch (ExitableDirectoryReader.ExitingReaderException e) {
             throw new SearchTimeoutException("Failed to perform Lucene query [" + q + "] - " +
-                                                     "timeout after " + QUERY_TIMEOUT + " seconds", e);
+                                                     "timeout after " + QUERY_TIMEOUT + " ms", e);
         }
     }
 }
