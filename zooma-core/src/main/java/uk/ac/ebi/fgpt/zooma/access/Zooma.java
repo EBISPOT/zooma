@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -80,18 +81,26 @@ public class Zooma extends SourceFilteredEndpoint {
         int concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
         int queueSize = Integer.parseInt(configuration.getProperty("zooma.search.max.queue"));
         final AtomicInteger atomicInteger = new AtomicInteger(1);
-        this.executorService = new ThreadPoolExecutor(concurrency,
-                                                      concurrency,
-                                                      0L,
-                                                      TimeUnit.MILLISECONDS,
-                                                      new ArrayBlockingQueue<Runnable>(queueSize),
-                                                      new ThreadFactory() {
-                                                          @Override public Thread newThread(Runnable r) {
-                                                              return new Thread(r,
-                                                                                "request-processing-thread-" +
-                                                                                        atomicInteger.getAndIncrement());
-                                                          }
-                                                      });
+        this.executorService =
+                new ThreadPoolExecutor(
+                        concurrency,
+                        concurrency,
+                        0L,
+                        TimeUnit.MILLISECONDS,
+                        new ArrayBlockingQueue<Runnable>(queueSize),
+                        new ThreadFactory() {
+                            @Override public Thread newThread(Runnable r) {
+                                return new Thread(r, "request-processing-thread-" + atomicInteger.getAndIncrement());
+                            }
+                        },
+                        new RejectedExecutionHandler() {
+                            @Override
+                            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                                getLog().warn("Request rejected - " +
+                                                      "queued requests: " + executor.getQueue().size() + "; " +
+                                                      "completed requests: " + executor.getCompletedTaskCount());
+                            }
+                        });
     }
 
     @RequestMapping(value = "/suggest", method = RequestMethod.GET)
@@ -477,8 +486,6 @@ public class Zooma extends SourceFilteredEndpoint {
     @ExceptionHandler(RejectedExecutionException.class)
     @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
     @ResponseBody String handleRejectedExecutionException(RejectedExecutionException e) {
-        getLog().error(
-                "Rejected - queue size too large [" + e.getClass().getSimpleName() + ": " + e.getMessage() + "]");
         getLog().debug("Rejected execution exception from annotation endpoint", e);
         return "Too many requests - ZOOMA is experiencing abnormally high traffic, please try again later";
     }
