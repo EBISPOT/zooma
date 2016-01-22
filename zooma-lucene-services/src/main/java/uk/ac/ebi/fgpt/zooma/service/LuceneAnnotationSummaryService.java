@@ -41,21 +41,23 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
 
     @Override protected void doInitialization() throws IOException {
         super.doInitialization();
-        int numAnnotations = getAnnotationDAO().count();
-        int numSummaries = getReader().numDocs();
-        getLog().debug("Total number of annotations in zooma: " + numAnnotations);
-        getLog().debug("Total number of summaries in zooma: " + numSummaries);
-        AnnotationSummaryMapper preMapper = new AnnotationSummaryMapper(numAnnotations, numSummaries);
-        Set<Float> allScores = new HashSet<>();
-        for (int i = 0; i < numSummaries; i++) {
-            allScores.add(preMapper.mapDocument(getReader().document(i)).getQuality());
+        try (IndexReader reader = getReader()) {
+            int numAnnotations = getAnnotationDAO().count();
+            int numSummaries = reader.numDocs();
+            getLog().debug("Total number of annotations in zooma: " + numAnnotations);
+            getLog().debug("Total number of summaries in zooma: " + numSummaries);
+            AnnotationSummaryMapper preMapper = new AnnotationSummaryMapper(numAnnotations, numSummaries);
+            Set<Float> allScores = new HashSet<>();
+            for (int i = 0; i < numSummaries; i++) {
+                allScores.add(preMapper.mapDocument(reader.document(i)).getQuality());
+            }
+            float maxScore = Collections.max(allScores);
+            getLog().debug("Maximum summary quality score = " + maxScore);
+            this.mapper = new AnnotationSummaryMapper(numAnnotations,
+                                                      numSummaries,
+                                                      maxScore);
+            getLog().debug("Annotation Summary mapper calibration complete");
         }
-        float maxScore = Collections.max(allScores);
-        getLog().debug("Maximum summary quality score = " + maxScore);
-        this.mapper = new AnnotationSummaryMapper(numAnnotations,
-                                                  numSummaries,
-                                                  maxScore);
-        getLog().debug("Annotation Summary mapper calibration complete");
     }
 
     @Override public Collection<AnnotationSummary> getAnnotationSummaries() {
@@ -63,11 +65,10 @@ public class LuceneAnnotationSummaryService extends ZoomaLuceneSearchService
     }
 
     @Override public Collection<AnnotationSummary> getAnnotationSummaries(int limit, int start) {
-        try {
+        try (IndexReader reader = getReader()){
             initOrWait();
 
             Collection<AnnotationSummary> results = new ArrayList<>();
-            IndexReader reader = getReader();
             for (int i = start; i < limit && i < reader.maxDoc(); i++) {
                 Document doc = reader.document(i);
                 AnnotationSummary as = getMapper().mapDocument(doc);

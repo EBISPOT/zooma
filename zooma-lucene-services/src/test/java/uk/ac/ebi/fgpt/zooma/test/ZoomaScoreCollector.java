@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.test;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.similarities.Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
@@ -28,14 +29,16 @@ public class ZoomaScoreCollector extends LuceneAnnotationSummarySearchService {
     public List<Float> getAllScores() throws IOException, InterruptedException {
         initOrWait();
 
-        List<Float> allScores = new ArrayList<>();
-        for (int i = 0; i < getReader().numDocs(); i++) {
-            float nextScore = getMapper().mapDocument(getReader().document(i)).getQuality();
-            allScores.add(nextScore);
+        try (IndexReader reader = getReader()){
+            List<Float> allScores = new ArrayList<>();
+            for (int i = 0; i < reader.numDocs(); i++) {
+                float nextScore = getMapper().mapDocument(reader.document(i)).getQuality();
+                allScores.add(nextScore);
+            }
+            Collections.sort(allScores);
+            getLog().debug("Maximum score = " + Collections.max(allScores));
+            return allScores;
         }
-        Collections.sort(allScores);
-        getLog().debug("Maximum score = " + Collections.max(allScores));
-        return allScores;
     }
 
     public static void main(String[] args) {

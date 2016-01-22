@@ -83,7 +83,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         this.similarity = similarity;
     }
 
-    public IndexReader getReader() {
+    protected IndexReader getReader() {
 //        return reader;
         try {
             return ExitableDirectoryReader.wrap(DirectoryReader.open(index), new QueryTimeoutImpl(QUERY_TIMEOUT));
@@ -93,9 +93,9 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
     }
 
-    public IndexSearcher getSearcher() {
+    private IndexSearcher getSearcher(IndexReader reader) {
 //        return searcher;
-        IndexSearcher searcher = new IndexSearcher(getReader());
+        IndexSearcher searcher = new IndexSearcher(reader);
         if (similarity != null) {
             searcher.setSimilarity(similarity);
         }
@@ -455,7 +455,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
      * @throws SearchResourcesUnavailableException if reading from the index failed
      */
     protected <T> List<T> doQuery(Query q, LuceneDocumentMapper<T> mapper, int limit) {
-        try {
+        try (IndexReader reader = getReader()) {
             // init, to make sure searcher is available
             initOrWait();
 
@@ -475,7 +475,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         topScoreCollector, TimeLimitingCollector.getGlobalCounter(), QUERY_TIMEOUT);
 
                 // perform query
-                getSearcher().search(q, collector);
+                IndexSearcher searcher = getSearcher(reader);
+                searcher.search(q, collector);
                 ScoreDoc[] hits = topScoreCollector.topDocs().scoreDocs;
 
                 if (hits.length == 0) {
@@ -485,7 +486,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     // get URI and readByProperty property, add to results
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
-                        Document doc = getSearcher().doc(hit.doc);
+                        Document doc = searcher.doc(hit.doc);
                         if (limit == -1 || results.size() < limit) {
                             results.add(mapper.mapDocument(doc, rank));
                         }
@@ -555,7 +556,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                                                        LuceneDocumentMapper<URI> mapper,
                                                        ZoomaDAO<T> dao,
                                                        int limit) throws IOException {
-        try {
+        try (IndexReader reader = getReader()) {
             // init, to make sure searcher is available
             initOrWait();
 
@@ -575,7 +576,9 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         topScoreCollector, TimeLimitingCollector.getGlobalCounter(), QUERY_TIMEOUT);
 
                 // perform query
-                getSearcher().search(q, collector);
+                IndexSearcher searcher = getSearcher(reader);
+
+                searcher.search(q, collector);
                 ScoreDoc[] hits = topScoreCollector.topDocs().scoreDocs;
 
                 if (hits.length == 0) {
@@ -585,7 +588,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                     // get URI and readByProperty property, add to results
                     for (ScoreDoc hit : hits) {
                         lastScoreDoc = hit;
-                        Document doc = getSearcher().doc(hit.doc);
+                        Document doc = searcher.doc(hit.doc);
                         URI uri = mapper.mapDocument(doc, rank);
                         T t = dao.read(uri);
                         if (t != null) {
