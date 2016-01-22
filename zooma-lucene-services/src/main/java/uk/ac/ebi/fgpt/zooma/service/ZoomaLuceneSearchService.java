@@ -7,7 +7,9 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.ExitableDirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.QueryTimeoutImpl;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
@@ -96,7 +98,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     @Override
     protected void doInitialization() throws IOException {
         // initialize searcher and query parser from index
-        this.reader = DirectoryReader.open(getIndex());
+        this.reader = ExitableDirectoryReader.wrap(DirectoryReader.open(getIndex()), new QueryTimeoutImpl(QUERY_TIMEOUT));
         this.searcher = new IndexSearcher(reader);
         if (similarity != null) {
             this.searcher.setSimilarity(similarity);
