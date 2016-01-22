@@ -58,7 +58,7 @@ import java.util.Set;
  * @date 03/04/12
  */
 public abstract class ZoomaLuceneSearchService extends Initializable {
-    private static final int QUERY_TIMEOUT = 30_000;
+    private static final int QUERY_TIMEOUT = 5_000;
 
     private Directory index;
     private Similarity similarity;

@@ -119,6 +119,7 @@ public class LoaderDiscoveringPostProcessor implements BeanFactoryPostProcessor 
         getLog().debug("Registering loader module '" + f.getAbsolutePath() + "'...");
         Pattern p = Pattern.compile("^zooma-(.+)-loader-(.+)\\.jar$");
         Matcher m = p.matcher(f.getName());
+        f.getAbsoluteFile().toURI().toURL();
         ZoomaJarClassLoader loader;
         if (m.matches()) {
             loader = new ZoomaJarClassLoader(f.getAbsoluteFile().toURI().toURL(),
@@ -138,9 +139,9 @@ public class LoaderDiscoveringPostProcessor implements BeanFactoryPostProcessor 
             throw e;
         }
         catch (Exception e) {
-            getLog().error("Failed to register loader module at '" + f.getAbsolutePath() + "', " +
-                                   "loading resources from this loader will not be available");
-            getLog().debug("Failed to registter loader module at '" + f.getAbsolutePath() + "':", e);
+            getLog().error("Failed to register a loader module at '" + f.getAbsolutePath() + "', " +
+                                   "loading resources from this loader will not be available (" + e.getMessage() + ")");
+            getLog().debug("Failed to register loader module at '" + f.getAbsolutePath() + "':", e);
             return 0;
         }
     }
@@ -160,7 +161,7 @@ public class LoaderDiscoveringPostProcessor implements BeanFactoryPostProcessor 
             catch (Exception e) {
                 getLog().error("Failed to register loader module at '" + f.getAbsolutePath() + "', " +
                                        "loading resources from this loader will not be available");
-                getLog().debug("Failed to registter loader module at '" + f.getAbsolutePath() + "':", e);
+                getLog().debug("Failed to register loader module at '" + f.getAbsolutePath() + "':", e);
                 return 0;
             }
         }
