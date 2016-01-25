@@ -74,7 +74,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
 
     private final ExecutorService searchExecutorService;
 
-    private final int searchTimeout;
+    private final float searchTimeout;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -408,7 +408,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
 
                     try {
                         // wait for next task to complete - each search gets timeout seconds max to prevent stalling
-                        Future<Property> f = completionService.poll(searchTimeout, TimeUnit.SECONDS);
+                        Future<Property> f = completionService.poll((long) searchTimeout * 1000, TimeUnit.MILLISECONDS);
                         if (f == null) {
                             getLog().error("A UI request failed to complete in " + searchTimeout + " seconds - " +
                                                    "there are " + failedCount + " fails now.");
@@ -416,7 +416,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                         }
                         else {
                             try {
-                                f.get(searchTimeout, TimeUnit.SECONDS);
+                                f.get((long) searchTimeout * 1000, TimeUnit.MILLISECONDS);
                             }
                             catch (TimeoutException e) {
                                 failedCount++;

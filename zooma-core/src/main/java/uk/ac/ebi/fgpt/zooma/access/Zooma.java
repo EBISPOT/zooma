@@ -31,13 +31,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +66,7 @@ public class Zooma extends SourceFilteredEndpoint {
     private final float cutoffPercentage;
 
     // max time zooma will allow queries to run for - includes Lucene query, retrieval and queueing time
-    private final int searchTimeout;
+    private final float searchTimeout;
 
     private final ExecutorService executorService;
 
@@ -77,19 +80,31 @@ public class Zooma extends SourceFilteredEndpoint {
         this.zoomaAnnotationSummaries = zoomaAnnotationSummaries;
         this.cutoffScore = Float.parseFloat(configuration.getProperty("zooma.search.significance.score"));
         this.cutoffPercentage = Float.parseFloat(configuration.getProperty("zooma.search.cutoff.score"));
-        this.searchTimeout = Integer.parseInt(configuration.getProperty("zooma.search.threads.timeout"));
+        this.searchTimeout = Float.parseFloat(configuration.getProperty("zooma.search.threads.timeout"));
 
 
         int concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
         int queueSize = Integer.parseInt(configuration.getProperty("zooma.search.max.queue"));
         final AtomicInteger atomicInteger = new AtomicInteger(1);
+
+        BlockingQueue<Runnable> workQueue;
+        if (queueSize == -1) {
+            workQueue = new LinkedBlockingDeque<>();
+        }
+        else if (queueSize == 0) {
+            workQueue = new SynchronousQueue<>();
+        }
+        else {
+            workQueue = new ArrayBlockingQueue<>(queueSize);
+        }
+
         this.executorService =
                 new ThreadPoolExecutor(
                         concurrency,
                         concurrency,
                         0L,
                         TimeUnit.MILLISECONDS,
-                        new ArrayBlockingQueue<Runnable>(queueSize),
+                        workQueue,
                         new ThreadFactory() {
                             @Override public Thread newThread(Runnable r) {
                                 return new Thread(r, "request-processing-thread-" + atomicInteger.getAndIncrement());
@@ -329,7 +344,7 @@ public class Zooma extends SourceFilteredEndpoint {
 
     private List<AnnotationPrediction> waitForResults(Future<List<AnnotationPrediction>> f, String propertyValue) {
         try {
-            return f.get(searchTimeout, TimeUnit.SECONDS);
+            return f.get((long) searchTimeout * 1000, TimeUnit.MILLISECONDS);
         }
         catch (InterruptedException e) {
             throw new SearchTimeoutException("Failed to complete a search for '" + propertyValue + "' " +

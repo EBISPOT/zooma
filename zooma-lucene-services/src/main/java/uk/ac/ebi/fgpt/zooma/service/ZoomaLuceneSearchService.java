@@ -78,7 +78,9 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
     @Autowired
     public void setConfigurationProperties(@Qualifier("configurationProperties") Properties configuration) {
-        this.luceneQueryTimeout = Integer.parseInt(configuration.getProperty("zooma.search.threads.timeout")) * 200;
+        this.luceneQueryTimeout =
+                ((Float) (Float.parseFloat(configuration.getProperty("zooma.search.threads.timeout")) * 200))
+                        .longValue();
     }
 
     public void setIndex(Directory index) {
@@ -473,8 +475,17 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         topScoreCollector, TimeLimitingCollector.getGlobalCounter(), (luceneQueryTimeout));
 
                 // perform query
+                if (getLog().isTraceEnabled()) {
+                    getLog().trace("Acquiring searcher for query '" + q + "'");
+                }
                 IndexSearcher searcher = getSearcher(reader);
+                if (getLog().isTraceEnabled()) {
+                    getLog().trace("Dispatching search for query '" + q + "'");
+                }
                 searcher.search(q, collector);
+                if (getLog().isTraceEnabled()) {
+                    getLog().trace("Collating results for query '" + q + "'");
+                }
                 ScoreDoc[] hits = topScoreCollector.topDocs().scoreDocs;
 
                 if (hits.length == 0) {
@@ -574,9 +585,17 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         topScoreCollector, TimeLimitingCollector.getGlobalCounter(), luceneQueryTimeout);
 
                 // perform query
+                if (getLog().isTraceEnabled()) {
+                    getLog().trace("Acquiring searcher for query '" + q + "'");
+                }
                 IndexSearcher searcher = getSearcher(reader);
-
+                if (getLog().isTraceEnabled()) {
+                    getLog().trace("Dispatching search for query '" + q + "'");
+                }
                 searcher.search(q, collector);
+                if (getLog().isTraceEnabled()) {
+                    getLog().trace("Collating results for query '" + q + "'");
+                }
                 ScoreDoc[] hits = topScoreCollector.topDocs().scoreDocs;
 
                 if (hits.length == 0) {
