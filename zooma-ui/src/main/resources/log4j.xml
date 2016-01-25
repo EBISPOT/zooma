@@ -28,11 +28,11 @@
 
     <!-- Specify if specific zooma package debugging required -->
     <logger name="uk.ac.ebi.fgpt.zooma.access" additivity="false">
-        <level value="DEBUG" />
+        <level value="TRACE" />
         <appender-ref ref="console" />
     </logger>
 
-    <logger name="uk.ac.ebi.fgpt.zooma.service.ZoomaLuceneSearchService" additivity="false">
+    <logger name="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummarySearchService" additivity="false">
         <level value="TRACE" />
         <appender-ref ref="console" />
     </logger>

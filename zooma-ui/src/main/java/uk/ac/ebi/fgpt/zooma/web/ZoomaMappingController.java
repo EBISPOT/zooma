@@ -86,7 +86,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                                   @Qualifier("configurationProperties") Properties configuration) {
         this.zooma = zooma;
         this.ontologyService = ontologyService;
-        this.searchTimeout = Float.parseFloat(configuration.getProperty("zooma.search.timeout"));
+        this.searchTimeout = Float.parseFloat(configuration.getProperty("zooma.search.timeout")) * 1000;
 
         int concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
         final AtomicInteger integer = new AtomicInteger(1);
@@ -406,7 +406,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
 
                     try {
                         // wait for next task to complete - each search gets timeout seconds max to prevent stalling
-                        Future<Property> f = completionService.poll((long) searchTimeout * 1000, TimeUnit.MILLISECONDS);
+                        Future<Property> f = completionService.poll((long) searchTimeout, TimeUnit.MILLISECONDS);
                         if (f == null) {
                             getLog().error("A UI request failed to complete in " + searchTimeout + " seconds - " +
                                                    "there are " + failedCount + " fails now.");
@@ -414,12 +414,12 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                         }
                         else {
                             try {
-                                f.get((long) searchTimeout * 1000, TimeUnit.MILLISECONDS);
+                                f.get((long) searchTimeout, TimeUnit.MILLISECONDS);
                             }
                             catch (TimeoutException e) {
                                 failedCount++;
                                 getLog().error("A UI request was scheduled but results were not available " +
-                                                       "in " + searchTimeout + " seconds - " +
+                                                       "in " + searchTimeout + "ms. - " +
                                                        "there are " + failedCount + " fails now.");
                             }
                         }

@@ -66,6 +66,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     // Max lucene query time - if zooma.search.timeout in properties, this is set to 1/5 of that value
     private long luceneQueryTimeout = 1000; // Default 1 second lucene query timeout
 
+    private int luceneBatchSize = 10000; // Default lucene batch size
+
     private Directory index;
     private Similarity similarity;
 
@@ -77,9 +79,14 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     }
 
     public void setConfigurationProperties(Properties configuration) {
-        this.luceneQueryTimeout =
-                ((Float) (Float.parseFloat(configuration.getProperty("zooma.search.timeout")) * 200))
-                        .longValue();
+        if (configuration.containsKey("zooma.search.timeout")) {
+            this.luceneQueryTimeout =
+                    ((Float) (Float.parseFloat(configuration.getProperty("zooma.search.timeout")) * 200))
+                            .longValue();
+        }
+        if (configuration.containsKey("zooma.lucene.batch.size")) {
+            this.luceneBatchSize = Integer.parseInt(configuration.getProperty("zooma.lucene.batch.size"));
+        }
     }
 
     public void setIndex(Directory index) {
@@ -465,6 +472,16 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             ScoreDoc lastScoreDoc = null;
             boolean complete = false;
             int rank = 1;
+
+            if (getLog().isTraceEnabled()) {
+                getLog().trace("Starting query '" + q + "'");
+            }
+
+            if (getLog().isTraceEnabled()) {
+                getLog().trace("Acquiring searcher for query '" + q + "'");
+            }
+            IndexSearcher searcher = getSearcher(reader);
+
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector topScoreCollector = lastScoreDoc == null
@@ -475,11 +492,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
                 // perform query
                 if (getLog().isTraceEnabled()) {
-                    getLog().trace("Acquiring searcher for query '" + q + "'");
-                }
-                IndexSearcher searcher = getSearcher(reader);
-                if (getLog().isTraceEnabled()) {
-                    getLog().trace("Dispatching search for query '" + q + "'");
+                    getLog().trace("Dispatching search for query '" + q + "' (from " + results.size() + ")");
                 }
                 searcher.search(q, collector);
                 if (getLog().isTraceEnabled()) {
@@ -575,6 +588,15 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             ScoreDoc lastScoreDoc = null;
             boolean complete = false;
             int rank = 1;
+            if (getLog().isTraceEnabled()) {
+                getLog().trace("Starting query '" + q + "'");
+            }
+
+            if (getLog().isTraceEnabled()) {
+                getLog().trace("Acquiring searcher for query '" + q + "'");
+            }
+            IndexSearcher searcher = getSearcher(reader);
+
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector topScoreCollector = lastScoreDoc == null
@@ -585,11 +607,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
                 // perform query
                 if (getLog().isTraceEnabled()) {
-                    getLog().trace("Acquiring searcher for query '" + q + "'");
-                }
-                IndexSearcher searcher = getSearcher(reader);
-                if (getLog().isTraceEnabled()) {
-                    getLog().trace("Dispatching search for query '" + q + "'");
+                    getLog().trace("Dispatching search for query '" + q + "' (from " + results.size() +  ")");
                 }
                 searcher.search(q, collector);
                 if (getLog().isTraceEnabled()) {
@@ -624,6 +642,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                 }
                 rank++;
             }
+            getLog().debug("Query '" + q.toString() + "' returned " + results.size() + " results");
             return results;
         }
         catch (InterruptedException e) {
