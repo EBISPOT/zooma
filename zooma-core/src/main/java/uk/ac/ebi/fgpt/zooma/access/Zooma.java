@@ -61,6 +61,8 @@ public class Zooma extends SourceFilteredEndpoint {
 
     private final float cutoffScore;
     private final float cutoffPercentage;
+
+    // max time zooma will allow queries to run for - includes Lucene query, retrieval and queueing time
     private final int searchTimeout;
 
     private final ExecutorService executorService;

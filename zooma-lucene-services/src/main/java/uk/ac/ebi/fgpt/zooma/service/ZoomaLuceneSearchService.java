@@ -28,6 +28,8 @@ import org.apache.lucene.search.spans.SpanNearQuery;
 import org.apache.lucene.search.spans.SpanQuery;
 import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.lucene.store.Directory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
@@ -44,6 +46,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -60,19 +63,22 @@ import java.util.Set;
  * @date 03/04/12
  */
 public abstract class ZoomaLuceneSearchService extends Initializable {
-    private static final int QUERY_TIMEOUT = 5_000;
+    // Max lucene query time - if zooma.search.threads.timeout in properties, this is set to 1/5 of that value
+    private long luceneQueryTimeout = 1000; // Default 1 second lucene query timeout
 
     private Directory index;
     private Similarity similarity;
-
-//    private IndexReader reader;
-//    private IndexSearcher searcher;
 
     protected enum QUERY_TYPE {
         EXACT,
         FULL,
         PREFIX,
         SUFFIX
+    }
+
+    @Autowired
+    public void setConfigurationProperties(@Qualifier("configurationProperties") Properties configuration) {
+        this.luceneQueryTimeout = Integer.parseInt(configuration.getProperty("zooma.search.threads.timeout")) * 200;
     }
 
     public void setIndex(Directory index) {
@@ -84,9 +90,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     }
 
     protected IndexReader getReader() {
-//        return reader;
         try {
-            return ExitableDirectoryReader.wrap(DirectoryReader.open(index), new QueryTimeoutImpl(QUERY_TIMEOUT));
+            return ExitableDirectoryReader.wrap(DirectoryReader.open(index), new QueryTimeoutImpl(luceneQueryTimeout));
         }
         catch (IOException e) {
             throw new SearchResourcesUnavailableException("Unable to read lucene index", e);
@@ -94,7 +99,6 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     }
 
     private IndexSearcher getSearcher(IndexReader reader) {
-//        return searcher;
         IndexSearcher searcher = new IndexSearcher(reader);
         if (similarity != null) {
             searcher.setSimilarity(similarity);
@@ -104,18 +108,12 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
     @Override
     protected void doInitialization() throws IOException {
-        // initialize searcher and query parser from index
-//        this.reader = ExitableDirectoryReader.wrap(DirectoryReader.open(index), new QueryTimeoutImpl(QUERY_TIMEOUT));
-//        this.searcher = new IndexSearcher(reader);
-//        if (similarity != null) {
-//            this.searcher.setSimilarity(similarity);
-//        }
+        // required initialization goes here
     }
 
     @Override
     protected void doTermination() throws Exception {
-        // close index reader
-//        reader.close();
+        // required shutdown hooks go here
     }
 
     /**
@@ -304,9 +302,9 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         catch (QueryCreationException e) {
                             // this processed string was one lucene cannot query for (probably +,-, or something similar)
                             // so exclude from results but continue
-                            getLog().warn("Query string '" + fieldToProcess + "' was processed and resulted " +
-                                                  "in clause '" + processedString + "', which cannot be used to " +
-                                                  "create a lucene query");
+                            getLog().debug("Query string '" + fieldToProcess + "' was processed and resulted " +
+                                                   "in clause '" + processedString + "', which cannot be used to " +
+                                                   "create a lucene query");
                         }
                     }
                 }
@@ -472,7 +470,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         ? TopScoreDocCollector.create(100)
                         : TopScoreDocCollector.create(100, lastScoreDoc);
                 TimeLimitingCollector collector = new TimeLimitingCollector(
-                        topScoreCollector, TimeLimitingCollector.getGlobalCounter(), QUERY_TIMEOUT);
+                        topScoreCollector, TimeLimitingCollector.getGlobalCounter(), (luceneQueryTimeout));
 
                 // perform query
                 IndexSearcher searcher = getSearcher(reader);
@@ -510,11 +508,11 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
         catch (TimeLimitingCollector.TimeExceededException e) {
             throw new SearchTimeoutException("Failed to collect result of Lucene query [" + q + "] - " +
-                                                     "timeout after " + QUERY_TIMEOUT + " ms", e);
+                                                     "timeout after " + luceneQueryTimeout + "ms.", e);
         }
         catch (ExitableDirectoryReader.ExitingReaderException e) {
             throw new SearchTimeoutException("Failed to perform Lucene query [" + q + "] - " +
-                                                     "timeout after " + QUERY_TIMEOUT + " ms", e);
+                                                     "timeout after " + luceneQueryTimeout + "ms.", e);
         }
     }
 
@@ -573,7 +571,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
                         ? TopScoreDocCollector.create(100)
                         : TopScoreDocCollector.create(100, lastScoreDoc);
                 TimeLimitingCollector collector = new TimeLimitingCollector(
-                        topScoreCollector, TimeLimitingCollector.getGlobalCounter(), QUERY_TIMEOUT);
+                        topScoreCollector, TimeLimitingCollector.getGlobalCounter(), luceneQueryTimeout);
 
                 // perform query
                 IndexSearcher searcher = getSearcher(reader);
@@ -615,11 +613,11 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         }
         catch (TimeLimitingCollector.TimeExceededException e) {
             throw new SearchTimeoutException("Failed to collect result of Lucene query [" + q + "] - " +
-                                                     "timeout after " + QUERY_TIMEOUT + " ms", e);
+                                                     "timeout after " + luceneQueryTimeout + "s.", e);
         }
         catch (ExitableDirectoryReader.ExitingReaderException e) {
             throw new SearchTimeoutException("Failed to perform Lucene query [" + q + "] - " +
-                                                     "timeout after " + QUERY_TIMEOUT + " ms", e);
+                                                     "timeout after " + luceneQueryTimeout + "s.", e);
         }
     }
 }
