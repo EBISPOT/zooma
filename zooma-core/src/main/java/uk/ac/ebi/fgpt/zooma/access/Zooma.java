@@ -80,7 +80,7 @@ public class Zooma extends SourceFilteredEndpoint {
         this.zoomaAnnotationSummaries = zoomaAnnotationSummaries;
         this.cutoffScore = Float.parseFloat(configuration.getProperty("zooma.search.significance.score"));
         this.cutoffPercentage = Float.parseFloat(configuration.getProperty("zooma.search.cutoff.score"));
-        this.searchTimeout = Float.parseFloat(configuration.getProperty("zooma.search.timeout")) * 202;
+        this.searchTimeout = Float.parseFloat(configuration.getProperty("zooma.search.timeout")) * 1000;
 
 
         int concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
