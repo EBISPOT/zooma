@@ -89,7 +89,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
         this.zooma = zooma;
         this.ontologyService = ontologyService;
 //        this.searchTimeout = 5;
-        this.searchTimeout = Integer.parseInt(configuration.getProperty("zooma.search.threads.timeout"));
+        this.searchTimeout = Integer.parseInt(configuration.getProperty("zooma.search.timeout"));
 
         int concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
         final AtomicInteger integer = new AtomicInteger(1);

@@ -63,7 +63,7 @@ import java.util.Set;
  * @date 03/04/12
  */
 public abstract class ZoomaLuceneSearchService extends Initializable {
-    // Max lucene query time - if zooma.search.threads.timeout in properties, this is set to 1/5 of that value
+    // Max lucene query time - if zooma.search.timeout in properties, this is set to 1/5 of that value
     private long luceneQueryTimeout = 1000; // Default 1 second lucene query timeout
 
     private Directory index;
@@ -79,7 +79,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
     @Autowired
     public void setConfigurationProperties(@Qualifier("configurationProperties") Properties configuration) {
         this.luceneQueryTimeout =
-                ((Float) (Float.parseFloat(configuration.getProperty("zooma.search.threads.timeout")) * 200))
+                ((Float) (Float.parseFloat(configuration.getProperty("zooma.search.timeout")) * 200))
                         .longValue();
     }
 
