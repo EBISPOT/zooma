@@ -39,12 +39,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.IllegalFormatCodePointException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -88,8 +86,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                                   @Qualifier("configurationProperties") Properties configuration) {
         this.zooma = zooma;
         this.ontologyService = ontologyService;
-//        this.searchTimeout = 5;
-        this.searchTimeout = Integer.parseInt(configuration.getProperty("zooma.search.timeout"));
+        this.searchTimeout = Float.parseFloat(configuration.getProperty("zooma.search.timeout"));
 
         int concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
         final AtomicInteger integer = new AtomicInteger(1);
@@ -225,7 +222,8 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     @ResponseBody String handleSearchResourcesUnavailableException(SearchResourcesUnavailableException e) {
         getLog().error("Unavailable resources (index or database)", e);
-        return "Your search request could not be completed due to a problem accessing resources on the server: (" + e.getMessage() + ")";
+        return "Your search request could not be completed due to a problem accessing resources on the server: (" +
+                e.getMessage() + ")";
     }
 
     @ExceptionHandler(RejectedExecutionException.class)
@@ -447,7 +445,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                         try {
                             session.setAttribute("progress", timer.getCompletedCount());
                         }
-                        catch(IllegalStateException e) {
+                        catch (IllegalStateException e) {
                             getLog().debug("Failed to update session '" + session + "' - client may have gone away", e);
                         }
                         if (getLog().isTraceEnabled()) {
@@ -498,10 +496,6 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
         getLog().info(
                 "Successfully generated ZOOMA report for " + timer.getCompletedCount() + " searches," +
                         " HTTP session '" + session.getId() + "'");
-    }
-
-    private boolean hasTimedOut(long timeLastUpdated) {
-        return timeLastUpdated > (System.currentTimeMillis() - (searchTimeout * 1000 * 60));
     }
 
     private class LabelMapper implements OntologyLabelMapper {

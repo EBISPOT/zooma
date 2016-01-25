@@ -76,8 +76,7 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
         SUFFIX
     }
 
-    @Autowired
-    public void setConfigurationProperties(@Qualifier("configurationProperties") Properties configuration) {
+    public void setConfigurationProperties(Properties configuration) {
         this.luceneQueryTimeout =
                 ((Float) (Float.parseFloat(configuration.getProperty("zooma.search.timeout")) * 200))
                         .longValue();
