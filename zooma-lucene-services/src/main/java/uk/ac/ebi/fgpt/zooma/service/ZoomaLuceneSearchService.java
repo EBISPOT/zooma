@@ -28,8 +28,6 @@ import org.apache.lucene.search.spans.SpanNearQuery;
 import org.apache.lucene.search.spans.SpanQuery;
 import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.lucene.store.Directory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
@@ -441,8 +439,9 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
     /**
      * Performs a lucene query, and uses the supplied mapper to convert the resulting lucene document into the relevant
-     * object type.  All results that match the given query are iterated over, in batches of 100, and put into a
-     * collection of objects (of type matching the type of the mapper) that is returned.
+     * object type.  All results that match the given query are iterated over, in batches according to the
+     * luceneBatchSize parameter, and put into a collection of objects (of type matching the type of the mapper) that is
+     * returned.
      *
      * @param q the lucene query to perform
      * @return a collection of results
@@ -453,8 +452,9 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
     /**
      * Performs a lucene query, and uses the supplied mapper to convert the resulting lucene document into the relevant
-     * object type.  All results that match the given query are iterated over, in batches of 100, and put into a
-     * collection of objects (of type matching the type of the mapper) that is returned.
+     * object type.  All results that match the given query are iterated over, in batches according to the
+     * luceneBatchSize parameter, and put into a collection of objects (of type matching the type of the mapper) that is
+     * returned.
      *
      * @param q the lucene query to perform
      * @return a collection of results
@@ -485,8 +485,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector topScoreCollector = lastScoreDoc == null
-                        ? TopScoreDocCollector.create(100)
-                        : TopScoreDocCollector.create(100, lastScoreDoc);
+                        ? TopScoreDocCollector.create(luceneBatchSize)
+                        : TopScoreDocCollector.create(luceneBatchSize, lastScoreDoc);
                 TimeLimitingCollector collector = new TimeLimitingCollector(
                         topScoreCollector, TimeLimitingCollector.getGlobalCounter(), (luceneQueryTimeout));
 
@@ -600,14 +600,14 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
             while (!complete) {
                 // create a collector to obtain query results
                 TopScoreDocCollector topScoreCollector = lastScoreDoc == null
-                        ? TopScoreDocCollector.create(100)
+                        ? TopScoreDocCollector.create(luceneBatchSize)
                         : TopScoreDocCollector.create(100, lastScoreDoc);
                 TimeLimitingCollector collector = new TimeLimitingCollector(
                         topScoreCollector, TimeLimitingCollector.getGlobalCounter(), luceneQueryTimeout);
 
                 // perform query
                 if (getLog().isTraceEnabled()) {
-                    getLog().trace("Dispatching search for query '" + q + "' (from " + results.size() +  ")");
+                    getLog().trace("Dispatching search for query '" + q + "' (from " + results.size() + ")");
                 }
                 searcher.search(q, collector);
                 if (getLog().isTraceEnabled()) {
