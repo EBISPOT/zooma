@@ -64,7 +64,10 @@ public class ParenthesesProcessor implements SearchStringProcessor {
             int pos_fin = m.end(1);
             if (pos_ini < pos_fin) {
                 // extract the "content" - i.e. everything from opening to closing brackets
-                processedString =  processedString.substring(0,pos_ini) + processedString.substring(pos_fin, processedString.length());
+                String one = processedString.substring(0,pos_ini);
+                String two = processedString.substring(pos_fin, processedString.length());
+                processedString = one + two;// processedString.substring(0,pos_ini) + processedString.substring(pos_fin, processedString.length());
+                m = p.matcher(processedString);
             }
         }
         // remove extraneous whitespace
