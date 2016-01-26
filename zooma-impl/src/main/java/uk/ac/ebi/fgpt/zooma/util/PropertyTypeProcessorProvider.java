@@ -40,7 +40,8 @@ public class PropertyTypeProcessorProvider extends Initializable implements Sear
 
     public PropertyTypeProcessorProvider(Resource mappingResource, Collection<SearchStringProcessor> processors) {
         this.mappingResource = mappingResource;
-        this.processors = new HashSet<>();
+//        this.processors = new HashSet<>();
+        this.processors = processors;
         this.filteredProcessors = new HashMap<>();
         for (SearchStringProcessor processor : processors) {
             registerProcessor(processor);
