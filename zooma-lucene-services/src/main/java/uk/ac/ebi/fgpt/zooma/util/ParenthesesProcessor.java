@@ -44,11 +44,15 @@ public class ParenthesesProcessor implements SearchStringProcessor {
      * Takes a string and removes the brackets and its content
      */
     @Override
-    public List<String> processSearchString(String searchString) throws IllegalArgumentException {
+    public List<String> processSearchString(String searchString) throws IllegalArgumentException, InterruptedException {
         String processedString = searchString;
         Pattern p = Pattern.compile(".*(\\([^\\)]*\\)).*");
         Matcher m = p.matcher(processedString);
         while (m.matches()) {
+            if (Thread.interrupted()) {
+                throw new InterruptedException("Interrupted whilst processing search string '" + searchString + "'");
+            }
+
             int pos_ini = m.start(1);
             int pos_fin = m.end(1);
             if (pos_fin > pos_ini) {

@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
+import uk.ac.ebi.fgpt.zooma.exception.SearchTimeoutException;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.util.AnnotationSummarySearchCommand;
@@ -126,33 +127,39 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
                                        "using " + getSearchStringProcessor().getClass().getSimpleName() + " " +
                                        "to expand results");
 
-                Collection<String> parts = getSearchStringProcessor().processSearchString(propertyValuePattern);
-
-                // for now, we only work with cases where the string returns at most 2 processed forms
-                if (parts.size() < 3) {
-                    if (parts.size() == 0) {
-                        return rawResults;
-                    }
-                    else if (parts.size() == 1) {
-                        return command.executeSearch(propertyValuePattern);
+                try {
+                    Collection<String> parts = getSearchStringProcessor().processSearchString(propertyValuePattern);
+                    // for now, we only work with cases where the string returns at most 2 processed forms
+                    if (parts.size() < 3) {
+                        if (parts.size() == 0) {
+                            return rawResults;
+                        }
+                        else if (parts.size() == 1) {
+                            return command.executeSearch(propertyValuePattern);
+                        }
+                        else {
+                            Iterator<String> partsIterator = parts.iterator();
+                            String firstPart = partsIterator.next();
+                            String secondPart = partsIterator.next();
+                            Collection<AnnotationSummary> firstPartResults = command.executeSearch(firstPart);
+                            Collection<AnnotationSummary> secondPartResults = command.executeSearch(secondPart);
+                            return mergeResults(propertyValuePattern,
+                                    firstPart,
+                                    firstPartResults,
+                                    secondPart,
+                                    secondPartResults);
+                        }
                     }
                     else {
-                        Iterator<String> partsIterator = parts.iterator();
-                        String firstPart = partsIterator.next();
-                        String secondPart = partsIterator.next();
-                        Collection<AnnotationSummary> firstPartResults = command.executeSearch(firstPart);
-                        Collection<AnnotationSummary> secondPartResults = command.executeSearch(secondPart);
-                        return mergeResults(propertyValuePattern,
-                                            firstPart,
-                                            firstPartResults,
-                                            secondPart,
-                                            secondPartResults);
+                        getLog().warn("Cannot currently support merging more than 2 processed results, " +
+                                "due to limits in generating combined summaries.  " +
+                                "Query '" + propertyValuePattern + "' may have lost results");
                     }
                 }
-                else {
-                    getLog().warn("Cannot currently support merging more than 2 processed results, " +
-                                          "due to limits in generating combined summaries.  " +
-                                          "Query '" + propertyValuePattern + "' may have lost results");
+                catch (InterruptedException e) {
+                    getLog().warn("Expanding search results for '" + propertyValuePattern + "' using " +
+                            getSearchStringProcessor().getClass().getSimpleName() + " took too long, " +
+                            "expanded search results will not be available");
                 }
             }
         }
