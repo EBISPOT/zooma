@@ -52,7 +52,7 @@ public class ParenthesesProcessor implements SearchStringProcessor {
 //     \\( => starting with one (
 //     [^\\)]* => followed by any character but not a closing ) 0 or more times
 //     \\) => followed by a closing parenthesis )
-        Pattern p = Pattern.compile("(\\([^\\)]*\\))");
+        Pattern p = Pattern.compile("(\\([^\\)\\(]*\\))");
 
         Matcher m = p.matcher(processedString);
         while (m.find()) {
