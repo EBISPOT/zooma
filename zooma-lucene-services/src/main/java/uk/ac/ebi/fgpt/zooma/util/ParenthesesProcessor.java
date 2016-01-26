@@ -44,28 +44,29 @@ public class ParenthesesProcessor implements SearchStringProcessor {
      * Takes a string and removes the brackets and its content
      */
     @Override
+
     public List<String> processSearchString(String searchString) throws IllegalArgumentException, InterruptedException {
         String processedString = searchString;
-        Pattern p = Pattern.compile(".*(\\([^\\)]*\\)).*");
+
+//a group starting with
+//     \\( => starting with one (
+//     [^\\)]* => followed by any character but not a closing ) 0 or more times
+//     \\) => followed by a closing parenthesis )
+        Pattern p = Pattern.compile("(\\([^\\)]*\\))");
+
         Matcher m = p.matcher(processedString);
-        while (m.matches()) {
+        while (m.find()) {
             if (Thread.interrupted()) {
                 throw new InterruptedException("Interrupted whilst processing search string '" + searchString + "'");
             }
 
             int pos_ini = m.start(1);
             int pos_fin = m.end(1);
-            if (pos_fin > pos_ini) {
+            if (pos_ini < pos_fin) {
                 // extract the "content" - i.e. everything from opening to closing brackets
-                String content = processedString.substring(pos_ini, pos_fin);
-                content = RegexUtils.escapeString(content);
-
-                // and replace it with a single whitespace
-                processedString = processedString.replaceAll(content, "");
-                m = p.matcher(processedString);
+                processedString =  processedString.substring(0,pos_ini) + processedString.substring(pos_fin, processedString.length());
             }
         }
-
         // remove extraneous whitespace
         processedString = processedString.trim();
         // return processed string, only if it is different from the original
@@ -76,4 +77,5 @@ public class ParenthesesProcessor implements SearchStringProcessor {
             return Collections.emptyList();
         }
     }
+
 }
