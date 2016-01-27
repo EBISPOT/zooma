@@ -32,7 +32,7 @@ public class TimeProcessor implements SearchStringProcessor {
      * processed string.
      */
     @Override
-    public List<String> processSearchString(String searchString) throws IllegalArgumentException {
+    public List<String> processSearchString(String searchString) throws IllegalArgumentException, InterruptedException {
         String space = "\\s{0,2}";
 
         //pattern for number: int or float..
@@ -55,24 +55,28 @@ public class TimeProcessor implements SearchStringProcessor {
         // replace all matched numbers and intervals
         Matcher matcher_interval_float = pattern_interval_float.matcher(processedString);
         while (matcher_interval_float.find()) {
+            checkAlive(searchString);
             matchedNumber = RegexUtils.escapeString(matcher_interval_float.group());
             processedString = processedString.replaceFirst(matchedNumber, "");
         }
 
         Matcher matcher_interval_int = pattern_interval_int.matcher(processedString);
         while (matcher_interval_int.find()) {
+            checkAlive(searchString);
             matchedNumber = matcher_interval_int.group();
             processedString = processedString.replaceFirst(matchedNumber, "");
         }
 
         Matcher matcher_number_float = pattern_number_float.matcher(processedString);
         while (matcher_number_float.find()) {
+            checkAlive(searchString);
             matchedNumber = matcher_number_float.group();
             processedString = processedString.replaceFirst(matchedNumber, "");
         }
 
         Matcher matcher_number_int = pattern_number_int.matcher(processedString);
         while (matcher_number_int.find()) {
+            checkAlive(searchString);
             matchedNumber = matcher_number_int.group();
             processedString = processedString.replaceFirst(matchedNumber, "");
         }
@@ -85,6 +89,12 @@ public class TimeProcessor implements SearchStringProcessor {
         }
         else {
             return Collections.emptyList();
+        }
+    }
+
+    private void checkAlive(String searchString) throws InterruptedException {
+        if (Thread.interrupted()) {
+            throw new InterruptedException("Interrupted whilst looking for time values in '" + searchString + "'");
         }
     }
 }

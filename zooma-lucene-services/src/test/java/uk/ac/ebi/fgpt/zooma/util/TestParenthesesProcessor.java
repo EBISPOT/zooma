@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -22,9 +23,13 @@ public class TestParenthesesProcessor {
     private String multiBrackets = "something (something else) (and something else)";
     private String backwardsBrackets = "something) and (something else";
     private String combi = "something (something else) and some more content) and more ( with (more)";
+    //Before bug fixing this use to loop infinitely, just making sure that the bug doesn't come back.
+    private String infiniteLoop = "BATF (from Ken Murphy [rabbit], not commercial available)";
+    private String processedInfiniteLoop = "BATF";
 
     private String hyperploidyExample = "hyperdiploidy,-X,-1q,+2,-3,-4q,+5,+5(2),+5(3),+12,-14q,+16,-19";
 
+//    private  boolean throughInterruptedException = false;
     private ParenthesesProcessor processor;
 
     @Before
@@ -39,33 +44,57 @@ public class TestParenthesesProcessor {
 
     @Test
     public void testBrackets() {
-        assertTrue(processor.canProcess(brackets));
-        List<String> results = processor.processSearchString(brackets);
-        assertEquals(1, results.size());
-        assertEquals(noBrackets, results.get(0));
+        try {
+            assertTrue(processor.canProcess(brackets));
+            List<String> results = processor.processSearchString(brackets);
+            assertEquals(1, results.size());
+            assertEquals(noBrackets, results.get(0));
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
     @Test
     public void testProcessMultiBrackets() {
-        assertTrue(processor.canProcess(multiBrackets));
-        List<String> results = processor.processSearchString(multiBrackets);
-        assertEquals(1, results.size());
-        assertEquals(noBrackets, results.get(0));
+        try {
+            assertTrue(processor.canProcess(multiBrackets));
+            List<String> results = processor.processSearchString(multiBrackets);
+            assertEquals(1, results.size());
+            assertEquals(noBrackets, results.get(0));
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
     @Test
     public void testBackwardsBrackets() {
-        assertTrue(processor.canProcess(backwardsBrackets));
-        List<String> results = processor.processSearchString(backwardsBrackets);
-        assertEquals(0, results.size());
+        try {
+            assertTrue(processor.canProcess(backwardsBrackets));
+            List<String> results = processor.processSearchString(backwardsBrackets);
+            assertEquals(0, results.size());
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
     @Test
     public void testCombi() {
-        assertTrue(processor.canProcess(combi));
-        List<String> results = processor.processSearchString(combi);
-        assertEquals(1, results.size());
-        assertEquals("something  and some more content) and more ( with", results.get(0));
+        try {
+            assertTrue(processor.canProcess(combi));
+            List<String> results = processor.processSearchString(combi);
+            assertEquals(1, results.size());
+            assertEquals("something  and some more content) and more ( with", results.get(0));
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
     @Test
@@ -78,4 +107,43 @@ public class TestParenthesesProcessor {
             fail();
         }
     }
+    @Test
+    public void testInfiniteLoop(){
+        try{
+            boolean canProcess = processor.canProcess(infiniteLoop);
+            System.out.println("canProcess = "  + canProcess);
+            assertTrue(canProcess);
+            List<String> results = processor.processSearchString(infiniteLoop);
+            assertEquals(1, results.size());
+            assertEquals(processedInfiniteLoop,  results.get(0));
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+//    @Test
+//    public void testInterruptedException() throws InterruptedException {
+//        Thread thread = (new Thread(new ProcessorRunnable()));
+//        thread.start();
+//        thread.interrupt();
+//
+//    }
+//
+//
+//    public class ProcessorRunnable implements Runnable {
+//        @Override
+//        public void run() {
+//            boolean isTrue = true;
+//            while(isTrue) {
+//                try {
+//                    processor.processSearchString(infiniteLoop);
+//                } catch (InterruptedException e) {
+//                    throughInterruptedException = true;
+//                    e.printStackTrace();
+//                    return;
+//                }
+//            }
+//        }
+//    }
 }

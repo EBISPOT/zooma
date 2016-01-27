@@ -259,7 +259,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
 
     protected Collection<AnnotationSummary> doSearch(AnnotationSummaryMapper mapper,
                                                      String propertyValuePattern,
-                                                     URI... sources) {
+                                                     URI... sources) throws InterruptedException {
         // first, formulate query for original propertyValuePattern
         Query pq = formulateQuery("property", propertyValuePattern);
 
@@ -300,7 +300,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     protected Collection<AnnotationSummary> doSearch(AnnotationSummaryMapper mapper,
                                                      String propertyType,
                                                      String propertyValuePattern,
-                                                     URI... sources) {
+                                                     URI... sources) throws InterruptedException {
         // check for null type
         if (propertyType == null) {
             return search(propertyValuePattern, sources);

@@ -293,7 +293,8 @@ public abstract class ZoomaLuceneSearchService extends Initializable {
 
     protected Collection<Query> generateProcessedQueries(String fieldName,
                                                          String fieldToProcess,
-                                                         Collection<SearchStringProcessor> searchStringProcessors) {
+                                                         Collection<SearchStringProcessor> searchStringProcessors)
+            throws InterruptedException {
         // combine queries for any string processors that can process our string
         Collection<Query> queries = new HashSet<>();
         for (SearchStringProcessor processor : searchStringProcessors) {

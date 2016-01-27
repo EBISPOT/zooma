@@ -45,6 +45,7 @@ public interface SearchStringProcessor {
      * @param searchString the string to process
      * @return a collection of processed forms of the search string
      * @throws IllegalArgumentException if the given search string cannot be processed by this implementation
+     * @throws InterruptedException if the current thread is interrupted whilst the search string is being processed
      */
-    Collection<String> processSearchString(String searchString) throws IllegalArgumentException;
+    Collection<String> processSearchString(String searchString) throws IllegalArgumentException, InterruptedException;
 }

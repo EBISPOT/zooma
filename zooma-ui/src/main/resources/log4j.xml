@@ -27,10 +27,10 @@
     </logger>
 
     <!-- Specify if specific zooma package debugging required -->
-    <logger name="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummarySearchService" additivity="false">
-        <level value="TRACE" />
-        <appender-ref ref="zooma-log" />
-    </logger>
+    <!--<logger name="uk.ac.ebi.fgpt.zooma.service.LuceneAnnotationSummarySearchService" additivity="false">-->
+        <!--<level value="TRACE" />-->
+        <!--<appender-ref ref="zooma-log" />-->
+    <!--</logger>-->
 
     <root>
         <priority value="INFO" />

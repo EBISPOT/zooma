@@ -6,6 +6,7 @@ import org.simmetrics.metrics.JaccardSimilarity;
 import org.simmetrics.metrics.NeedlemanWunch;
 import org.simmetrics.tokenizers.Whitespace;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
+import uk.ac.ebi.fgpt.zooma.exception.SearchTimeoutException;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.util.AnnotationSummarySearchCommand;
@@ -119,7 +120,7 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
      * @param string the property value being used to expand
      * @return a set of similar property values mapped to a metric indicating their similarity
      */
-    private Map<String, Float> findSimilarStrings(String string) {
+    private Map<String, Float> findSimilarStrings(String string) throws InterruptedException {
         Collection<String> processedStrings = new HashSet<>();
         if (getSearchStringProcessor().canProcess(string)) {
             processedStrings = getSearchStringProcessor().processSearchString(string);
@@ -159,12 +160,19 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
                                    "using Needleman/Jaccard expansion to expand results");
 
             // use "Needleman-Wunsch"  and "Jaccard similarity" to find approximate matchings
-            Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
+            try {
+                Map<String, Float> similarStrings = findSimilarStrings(propertyValuePattern);
 
-            for (String s : similarStrings.keySet()) {
-                if (haveEqualPolarity(s, propertyValuePattern)) {
-                    results.addAll(command.executeSearch(s));
+                for (String s : similarStrings.keySet()) {
+                    if (haveEqualPolarity(s, propertyValuePattern)) {
+                        results.addAll(command.executeSearch(s));
+                    }
                 }
+            }
+            catch (InterruptedException e) {
+                getLog().warn("Expanding search results for '" + propertyValuePattern + "' using " +
+                        getSearchStringProcessor().getClass().getSimpleName() + " took too long, " +
+                        "expanded search results will not be available");
             }
         }
         return results;
@@ -356,7 +364,15 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
         for (Property p : properties) {
             String propertyValue = p.getPropertyValue();
             if (getSearchStringProcessor().canProcess(propertyValue)) {
-                propertyValueDictionary.addAll(getSearchStringProcessor().processSearchString(propertyValue));
+                try {
+                    propertyValueDictionary.addAll(getSearchStringProcessor().processSearchString(propertyValue));
+                }
+                catch (InterruptedException e) {
+                    //if something interrupts the initialization (probably shouldn't occur)
+                    // just skip this
+                    getLog().debug("Interruption whilst processing '" + propertyValue + "' during initialization, " +
+                            "processed strings for this property will be missing from the dictionary");
+                }
             }
             else {
                 propertyValueDictionary.add(propertyValue);
