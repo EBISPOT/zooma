@@ -139,22 +139,39 @@ public class ZoomaAnnotationSummaries {
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query, String type, boolean prefixed) {
-        Collection<AnnotationSummary> annotations = prefixed
-                ? getAnnotationSummarySearchService().searchByPrefix(type, query)
-                : getAnnotationSummarySearchService().search(type, query);
-        return getAnnotationSummaryScorer().score(annotations, query, type);
+        if (type.isEmpty()) {
+            Collection<AnnotationSummary> annotations = prefixed
+                    ? getAnnotationSummarySearchService().searchByPrefix(query)
+                    : getAnnotationSummarySearchService().search(query);
+            return getAnnotationSummaryScorer().score(annotations, query);
+        }
+        else {
+            Collection<AnnotationSummary> annotations = prefixed
+                    ? getAnnotationSummarySearchService().searchByPrefix(type, query)
+                    : getAnnotationSummarySearchService().search(type, query);
+            return getAnnotationSummaryScorer().score(annotations, query, type);
+        }
     }
 
     public Map<AnnotationSummary, Float> queryAndScore(String query,
                                                        String type,
                                                        List<URI> preferredSources,
                                                        URI[] requiredSources) {
-        Collection<AnnotationSummary> annotations =
-                getAnnotationSummarySearchService().searchByPreferredSources(type,
-                                                                             query,
-                                                                             preferredSources,
-                                                                             requiredSources);
-        return getAnnotationSummaryScorer().score(annotations, query, type);
+        if (type.isEmpty()) {
+            Collection<AnnotationSummary> annotations =
+                    getAnnotationSummarySearchService().searchByPreferredSources(query,
+                                                                                 preferredSources,
+                                                                                 requiredSources);
+            return getAnnotationSummaryScorer().score(annotations, query);
+        }
+        else {
+            Collection<AnnotationSummary> annotations =
+                    getAnnotationSummarySearchService().searchByPreferredSources(type,
+                                                                                 query,
+                                                                                 preferredSources,
+                                                                                 requiredSources);
+            return getAnnotationSummaryScorer().score(annotations, query, type);
+        }
     }
 
     public Map<AnnotationSummary, Float> queryAndScoreBySemanticTags(String... semanticTagShortnames) {
