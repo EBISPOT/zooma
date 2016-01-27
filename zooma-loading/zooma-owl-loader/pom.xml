@@ -15,25 +15,26 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <zooma.version>2.0.0-SNAPSHOT</zooma.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-impl</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${zooma.version}</version>
         </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-jdbc</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${zooma.version}</version>
         </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-owlapi</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${zooma.version}</version>
         </dependency>
 
         <dependency>
