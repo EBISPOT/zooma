@@ -6,18 +6,18 @@
     <parent>
         <groupId>uk.ac.ebi.fgpt</groupId>
         <artifactId>zooma2</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>2.0.0</version>
     </parent>
 
     <artifactId>zooma-builder-app</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.0</version>
 
     <name>ZOOMA 2: Command line build tools</name>
     <url>http://www.ebi.ac.uk/fgpt/zooma</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <zooma.version>2.0.0-SNAPSHOT</zooma.version>
+        <zooma.version>2.0.0</zooma.version>
     </properties>
 
 
@@ -77,7 +77,7 @@
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-lodestar</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>2.0.0</version>
         </dependency>
 
         <!-- ZOOMA basic loaders for namespace functionality -->
