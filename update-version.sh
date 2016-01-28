@@ -39,13 +39,14 @@ fi
 
 base=${0%/*}/;
 
-# invoke maven versions plugin to increment project structure versions
-mvn -f $base/pom.xml versions:set -DnewVersion=$VERSION || exit 1
+PROJECT_LIST='';
 
-# switch into goci-dependencies and increment all project module versions
-mvn -f $base/goci-dependencies/pom.xml versions:set -DnewVersion=$VERSION || exit 1
+find $base -name 'pom.xml' | while read line; do
+   if [[ $line != *'.//lodestar/'* ]]
+      then
+         sed -i '' "s/\(<zooma.version>\)\([^<]*\)\(<[^>]*\)/\1$VERSION\3/g" $line || exit 1
+   fi
+done
 
-# finally replace version number property in goci-dependencies pom with new version
-sed -i "s/\(<goci.version>\)\([^<]*\)\(<\/goci.version>\)/\1$VERSION\3/g" $base/goci-dependencies/pom.xml || exit 1
-
+mvn -f $base/pom.xml -N versions:set -DnewVersion=$VERSION || exit 1
 
