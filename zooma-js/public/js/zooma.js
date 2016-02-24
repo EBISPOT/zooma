@@ -6,10 +6,14 @@ var default_zooma_base_path = 'v2/api/services';
 var default_logging_div     = 'zooma-log';
 var default_ols_search_end  = 'http://www.ebi.ac.uk/ols/beta/api/terms?short_form=';
 var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"popup-header\">\n\t\t<h3>{{term}}</h3>\n\t\t{{#isUserTerm}}\n\t\t\t<h5>Term provided by <span class=\"confidence-label {{#lower}}{{confidence}}{{/lower}}-confidence-label\">{{confidence}}</span></h5>\n\t\t{{/isUserTerm}}\n\t\t{{^isUserTerm}}\n\t\t\t<h5>Term suggested by ZOOMA with <span class=\"confidence-label {{#lower}}{{confidence}}{{/lower}}-confidence-label\">{{confidence}}</span> confidence</h5>\n\t\t{{/isUserTerm}}\n\t</header>\n\t<section class=\"popup-body\">\n\t\t<h3>Description:</h3>\n\t\t{{#excerpt}}\n\t\t\t{{#description}}\n\t\t\t\t<p>{{.}}</p>\n\t\t\t{{/description}}\n\t\t{{/excerpt}}\n\t</section>\n\t<footer class=\"popup-footer\">\n\t\t<a href=\"{{{iri}}}\" target=\"_blank\">{{{iri}}}</a>\t\n\t</footer>\n</div>';
+//var data_source_required_format = 'required:[cmpo,efo,ebisc]'
+//var data_source_preferred_format = 'preferred:[ebisc]'
+
+
+
 
 // Declares a zooma jQuery plugin
 (function($,Mustache) {
-
     var logging; // should be one of 'console', 'div', or 'none'
     var loggingDiv; // defined if logging == 'div'
     var popupTemplate; // shared popup template
@@ -38,7 +42,10 @@ var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"p
         // create some defaults and allow options to extend
         var _options = $.extend({
             'zooma_url': default_zooma_url,
-            'zooma_base_path': default_zooma_base_path
+            'zooma_base_path': default_zooma_base_path,
+			'zooma_datasources': [],
+			'zooma_preferred_datasources': [],
+            'zooma_property_type': 'disease'
         }, options);
 
         return $.extend({
@@ -201,9 +208,18 @@ var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"p
         return truncValue;
     };
 
+    // var getTermCatalog = function(term) {
+    //     var matches = term.match(/([A-Z]+)_\d+/);
+    //     if (matches && matches.length > 1) {
+    //         return matches[1].toLowerCase();    
+    //     } 
+    //     return "efo";
+    // };
 
     var setupTooltip = function(target,zoomaInfo){
 
+        // var catalog = getTermCatalog(zoomaInfo.shortname);
+        // var olsEndPoint = default_ols_url + catalog + "/" + default_ols_search_end + zoomaInfo.shortname;
         var olsEndPoint = default_ols_search_end + zoomaInfo.shortname;
 
         target.tooltipster({
@@ -258,6 +274,8 @@ var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"p
 
             }
         });
+        // target.hintModal();
+        // target.append("<div class=\"hintModal_container\">" + target.attr('id') + "</div>");
     };
     
     var retrieveZoomaAnnotations = function(settings, target, property) {
@@ -266,10 +284,55 @@ var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"p
         target.tagsinput('removeAll');
         target.siblings().find('.zooma-spinner').show();
         target.find('.zooma-spinner').show();
-        jQuery.getJSON(settings.zooma_annotate_path + "?propertyValue=" + encodeURI(property), function(data) {
+        jQuery.getJSON(prepareZoomaAnnotationRequest(settings,property), function(data) {
             renderZoomaAnnotations(target, data);
         });
     };
+
+	var prepareZoomaAnnotationRequest = function(settings,property){
+		var requestURL = settings.zooma_annotate_path + "?propertyValue=" + encodeURI(property);
+        
+        // Add Property Type
+        if ( settings.zooma_property_type ) {
+            requestURL += "&propertyType=" + encodeURI(settings.zooma_property_type);
+        }
+
+		// Add datasources
+		if (settings.zooma_datasources && settings.zooma_datasources.length > 0) {
+
+			requestURL += "&filter=required:[";
+			settings.zooma_datasources.forEach(function(element) {
+				requestURL = requestURL + element + ',';
+			});
+            requestURL = requestURL.replace(/,\s*$/, "");
+			requestURL += "]";
+		
+
+            // Add preferred sources
+            if (settings.zooma_preferred_datasources) {
+                
+                // Check if preferred datasources ar also required
+                var valid_preferred = [];
+                settings.zooma_preferred_datasources.forEach(function(element,index) {
+                    if (settings.zooma_datasources.indexOf(element) > -1) {
+                        valid_preferred.push(element);
+                    }    
+                });
+
+                if (valid_preferred) {
+                    requestURL += ";preferred:[";
+                    valid_preferred.forEach(function(element) {
+                        requestURL += element + ',';	
+                    });
+                    
+
+                    requestURL = requestURL.replace(/,\s*$/, "");
+                    requestURL += "]";
+                }
+            }
+        }
+		return requestURL;
+	};
 
     var renderZoomaAnnotations = function(target, annotations) {
         target.siblings().find('.zooma-spinner').hide();
@@ -466,7 +529,10 @@ var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"p
     };
 
     var setupZoomaWidget = function(target, options) {
-
+        // var settings = extendOptions(options);
+        // initLogging(settings);
+        // initSpinner();
+        // commands['initOptions'].apply();
         var settings =  commands.initOptions(target,options);
         log("Attempting to set up unified zooma widget from " + target.attr('id') + "...");
 
