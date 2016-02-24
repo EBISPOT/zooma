@@ -8,7 +8,6 @@ access to ZOOMA autocomplete and annotation functionality.
 ZOOMA has a dependency on JQuery (at least version 1.7.1).
 
 ## Demo
-If you want to try the functionalities of the widget with a simple demo, you should:
 
 1. From the command line, go inside the zooma-js folder and type `npm install`
 
