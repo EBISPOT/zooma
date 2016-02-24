@@ -117,7 +117,7 @@ public abstract class AnnotationPredictionBuilder {
         }
 
         @Override public AnnotationPredictionTemplate searchWas(String propertyValue, String propertyType) {
-            this.searchedProperty = new SimpleTypedProperty(propertyValue, propertyType);
+            this.searchedProperty = new SimpleTypedProperty(propertyType, propertyValue);
             return this;
         }
 
