@@ -181,10 +181,17 @@
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
+<<<<<<< HEAD
     &lt;link rel=&quot;stylesheet&quot; href=&quot;http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.css&quot;&gt;
     &lt;link rel=&quot;stylesheet&quot; href=&quot;http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.css&quot;&gt;
     &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;&lt;/script&gt;
     &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;&lt;/script&gt;
+=======
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;
+    &lt;/script&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;
+    &lt;/script&gt;
+>>>>>>> zoomaWidgetPrototype
 &lt;/head&gt;
 &lt;body onload="$('#zooma-search').zooma();"&gt;
     &lt;div id="zooma-search" style="width: 500px;" /&gt;
@@ -210,10 +217,17 @@
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
+<<<<<<< HEAD
     &lt;link rel=&quot;stylesheet&quot; href=&quot;http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.css&quot;&gt;
     &lt;link rel=&quot;stylesheet&quot; href=&quot;http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.css&quot;&gt;
     &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;&lt;/script&gt;
     &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;&lt;/script&gt;
+=======
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;
+    &lt;/script&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;
+    &lt;/script&gt;
+>>>>>>> zoomaWidgetPrototype
 &lt;/head&gt;
 &lt;body onload="$('#zooma-search').zooma();"&gt;
     &lt;label for="zooma_search"&gt;Enter your term:&lt;/label&gt;
@@ -254,25 +268,88 @@
     &lt;label for="zooma_search"&gt;Enter your term:&lt;/label&gt;
     &lt;input type="text" id="zooma-separated-search" name="zooma-search" style="width: 400px" placeholder="Zooma-enabled term"/&gt;
 
-    &lt;label for="zooma-separated-suggestions"&gt;&lt;/label&gt;
-    &lt;select id="zooma-separated-suggestions" multiple&gt;&lt;/select&gt;
+    &lt;label for="zooma-suggestions"&gt;&lt;/label&gt;
+    &lt;select id="zooma-separated-suggestions" name="zooma-suggestions" multiple&gt;&lt;/select&gt;
 &lt;/body&gt;
 &lt;/html&gt;
                 </div>
             </div>
 
-            <div id="download_section">
-            <h5>Zooma files</h5>
-            <p>Here you can find the list of files (minimized) that you can use in order to obtain the same look and feel you found in this demo page</p>
-            <p>
-                <ul>
-                    <li><b>Vendor Stylesheet</b> - <a href="../webjars/zooma-js/2.0.0/vendor.min.css">vendor.min.css</a></li>
-                    <li><b>Vendor Javascript</b> - <a href="../webjars/zooma-js/2.0.0/vendor.min.js">vendor.min.js</a></li>
-                    <li><b>Zooma Stylesheet</b> - <a href="../webjars/zooma-js/2.0.0/zooma.min.css">zooma.min.js</a></li>
-                    <li><b>Zooma Javascript</b> - <a href="../webjars/zooma-js/2.0.0/zooma.min.js">zooma.min.js</a></li>
-                </ul>
-            </p>    
+            <div>
+                <h4>Filtering results:</h4>
+                <p>Zooma let the user also set a filter for the datasources he wants to use and he prefer. This way, users will be able to limit the results to just those sources they want</p>
+
+                <p>Here a list of the current available datasources in zooma:</p>
+                <table id="zooma-sources">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>URI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+                <p>
+                    Moreover, is also possible to request a specific type of annotation. Zooma will try to favor those annotations with the specific property type.
+                    In any case, if no ontology is available for the type or better mapping are available for the requested term, Zooma will always favor the requested term,
+                    over the requested type (i.e. a request for 'Fibroblast' with type 'disease' will return the ontology simply for 'Fibroblast');
+                </p>
+
+                <div>
+                    <label for="zooma-datasources-search">Enter your term:</label>
+                    <input type="text"
+                           id="zooma-datasources-search"
+                           name="zooma-datasources-search"
+                           style="width: 400px;"
+                           placeholder="Zooma-enabled term"/>
+
+                    <label for="zooma-datasources-suggestions"></label>
+                    <select id="zooma-datasources-suggestions" multiple style="display: none"></select>
+                </div>
+                
+                <div class="eg-content">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/vendor.min.js"&gt;
+    &lt;/script&gt;
+    &lt;script type="text/javascript" src="http://www.ebi.ac.uk/spot/zooma/webjars/zooma-js/2.0.0/zooma.min.js"&gt;
+    &lt;/script&gt;
+&lt;/head&gt;
+&lt;body onload="$('#zooma-datasources-search').zooma('autocomplete'); 
+                 $('#zooma-datasources-suggestions').zooma('annotate', 
+                    {
+                        'annotation_source': $('#zooma-separated-search'), 
+                        'zooma_datasources': ['efo','ebisc'], 
+                        'zooma_preferred_datasources': ['ebisc'],
+                        'zooma_property_type': 'disease'
+                    });"&gt;
+
+    &lt;label for="zooma_search"&gt;Enter your term:&lt;/label&gt;
+    &lt;input type="text" id="zooma-datasources-search" name="zooma-search" style="width: 400px" placeholder="Zooma-enabled term"/&gt;
+
+    &lt;label for="zooma-suggestions"&gt;&lt;/label&gt;
+    &lt;select id="zooma-datasources-suggestions" name="zooma-suggestions" multiple&gt;&lt;/select&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+                </div>
             </div>
+            
+            <div id="download_section">
+                <h5>Zooma files</h5>
+                <p>Here you can find the list of files (minimized) that you can use in order to obtain the same look and feel you found in this demo page</p>
+                <p>
+                    <ul>
+                        <li><b>Vendor Stylesheet</b> - <a href="../webjars/zooma-js/2.0.0/vendor.min.css">vendor.min.css</a></li>
+                        <li><b>Vendor Javascript</b> - <a href="../webjars/zooma-js/2.0.0/vendor.min.js">vendor.min.js</a></li>
+                        <li><b>Zooma Stylesheet</b> - <a href="../webjars/zooma-js/2.0.0/zooma.min.css">zooma.min.js</a></li>
+                        <li><b>Zooma Javascript</b> - <a href="../webjars/zooma-js/2.0.0/zooma.min.js">zooma.min.js</a></li>
+                    </ul>
+                </p>    
+            </div>
+
         </section>
 
         <section class="grid_6 omega">
@@ -345,7 +422,30 @@
 <script type="text/javascript" src="../webjars/zooma-js/2.0.0/vendor.min.js"></script>
 <script type="text/javascript" src="../webjars/zooma-js/2.0.0/zooma.js"></script>
 <script type="text/javascript">
+
+
     $(document).ready(function() {
+<<<<<<< HEAD
+=======
+
+            // get zooma datasources 
+            
+        var populateDatasourceTable  = function(table) {
+        
+            var $tbody = $(table).find('tbody');
+            var trow  = '';
+
+            $.get( "http://www.ebi.ac.uk/spot/zooma/v2/api/sources", function(data) {
+                data.forEach(function(element) {
+                    trow = "<tr><td>" + element.name + "</td><td>" + element.uri + "</td></tr>";
+                    $tbody.append(trow);
+                    trow = '';
+                });
+            });
+        }
+
+        populateDatasourceTable("#zooma-sources");
+>>>>>>> zoomaWidgetPrototype
         // first demo
         $('#zooma-search-div').zooma({'zooma_url' : '../', 'logging': 'console'});
 
@@ -360,6 +460,17 @@
                     'logging': 'console',
                     'annotation_source': $('#zooma-separated-search')
                 });
+        // fourth demo
+        $('#zooma-datasources-search').zooma('autocomplete', {'zooma_url': '../', 'logging': 'console'});
+        $('#zooma-datasources-suggestions').zooma('annotate', {
+                    'zooma_url': '../', 
+                    'logging': 'console',
+                    'annotation_source': $('#zooma-datasources-search'),
+                    'zooma_datasources': ['efo','ebisc'],
+                    'zooma_preferred_datasources': ['ebisc'],
+                    'zooma_property_type': 'disease'
+        })
+
     });
 </script>
 

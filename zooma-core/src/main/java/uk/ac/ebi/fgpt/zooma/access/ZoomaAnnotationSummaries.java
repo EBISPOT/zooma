@@ -115,6 +115,8 @@ public class ZoomaAnnotationSummaries {
         }
     }
 
+
+
     public Collection<AnnotationSummary> queryBySemanticTags(String... semanticTagShortnames) {
         return getAnnotationSummarySearchService().searchBySemanticTags(semanticTagShortnames);
     }
