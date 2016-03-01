@@ -282,6 +282,12 @@
                     </tbody>
                 </table>
 
+                <p>
+                    Moreover, is also possible to request a specific type of annotation. Zooma will try to favor those annotations with the specific property type.
+                    In any case, if no ontology is available for the type or better mapping are available for the requested term, Zooma will always favor the requested term,
+                    over the requested type (i.e. a request for 'Fibroblast' with type 'disease' will return the ontology simply for 'Fibroblast');
+                </p>
+
                 <div>
                     <label for="zooma-datasources-search">Enter your term:</label>
                     <input type="text"
@@ -308,7 +314,8 @@
                     {
                         'annotation_source': $('#zooma-separated-search'), 
                         'zooma_datasources': ['efo','ebisc'], 
-                        'zooma_preferred_datasources': ['ebisc']
+                        'zooma_preferred_datasources': ['ebisc'],
+                        'zooma_property_type': 'disease'
                     });"&gt;
 
     &lt;label for="zooma_search"&gt;Enter your term:&lt;/label&gt;
@@ -436,7 +443,8 @@
                     'logging': 'console',
                     'annotation_source': $('#zooma-datasources-search'),
                     'zooma_datasources': ['efo','ebisc'],
-                    'zooma_preferred_datasources': ['ebisc']
+                    'zooma_preferred_datasources': ['ebisc'],
+                    'zooma_property_type': 'disease'
         })
 
     });
