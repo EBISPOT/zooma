@@ -1,0 +1,25 @@
+package uk.ac.pride.ols.web.service.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ * @author Yasset Perez-Riverol (ypriverol@gmail.com)
+ * @date 01/03/2016
+ */
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Href {
+
+    @JsonProperty("href")
+    String href;
+
+    public String getHref() {
+        return href;
+    }
+
+    public void setHref(String href) {
+        this.href = href;
+    }
+
+}
