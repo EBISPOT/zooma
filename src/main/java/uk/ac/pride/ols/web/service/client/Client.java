@@ -19,7 +19,7 @@ public interface Client {
      * @param ontologyName The ontology name
      * @return return the name of the Ontology term
      */
-    String getTermById(String termId, String ontologyName);
+    String getTermByOBOId(String termId, String ontologyName);
 
     /**
      * This function retrieve the metadata for an specific term, specially the description

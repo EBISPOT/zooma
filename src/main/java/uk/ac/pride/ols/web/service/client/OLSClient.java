@@ -3,10 +3,12 @@ package uk.ac.pride.ols.web.service.client;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.pride.ols.web.service.config.AbstractOLSWsConfig;
 import uk.ac.pride.ols.web.service.model.Annotation;
+import uk.ac.pride.ols.web.service.model.Ontology;
+import uk.ac.pride.ols.web.service.model.OntologyQuery;
 import uk.ac.pride.ols.web.service.model.TermQuery;
+import uk.ac.pride.ols.web.service.utils.Constants;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -42,7 +44,7 @@ public class OLSClient implements Client{
         this.config = config;
     }
 
-    public String getTermById(String termId, String ontologyName) {
+    public String getTermByOBOId(String termId, String ontologyName) {
 
         String url = String.format("%s://%s/api/ontologies/%s/terms?obo_id=%s",
                 config.getProtocol(), config.getHostName(),ontologyName,termId);
@@ -64,8 +66,38 @@ public class OLSClient implements Client{
         return null;
     }
 
+    /**
+     * This function returns the Map where the key is the namespace of the ontogoly and
+     * the value is the name of the ontology
+     * @return Ontology Map
+     */
     public Map<String, String> getOntologyNames() {
-        return null;
+        Map<String, String> ontologyNames = new HashMap<String, String>();
+        OntologyQuery currentOntologyQuery = getOntologyQuery(0);
+        List<Ontology> ontologies = new ArrayList<Ontology>();
+        ontologies.addAll(Arrays.asList(currentOntologyQuery.getOntolgoies()));
+        if(currentOntologyQuery != null){
+            if(currentOntologyQuery.getOntolgoies().length < currentOntologyQuery.getPage().getTotalElements()){
+                for(int i = 1; i < currentOntologyQuery.getPage().getTotalElements()/currentOntologyQuery.getOntolgoies().length + 1; i++){
+                    OntologyQuery ontologyQuery = getOntologyQuery(i);
+                    if(ontologyQuery != null && ontologyQuery.getOntolgoies() != null)
+                        ontologies.addAll(Arrays.asList(ontologyQuery.getOntolgoies()));
+                }
+            }
+        }
+        for(Ontology ontology: ontologies)
+            ontologyNames.put(ontology.getId(), ontology.getName());
+
+        return ontologyNames;
+    }
+
+    private OntologyQuery getOntologyQuery(int page){
+        String query = String.format("%s://%s/api/ontologies?page=%s&size=%s",
+                config.getProtocol(), config.getHostName(), page, Constants.ontologyPageSize);
+
+        OntologyQuery ontologyQuery = this.restTemplate.getForObject(query, OntologyQuery.class);
+        return ontologyQuery;
+
     }
 
     public Map<String, String> getAllTermsFromOntology(String ontologyName) {
