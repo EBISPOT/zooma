@@ -169,4 +169,14 @@ public class Term {
     public void setLink(Link link) {
         this.link = link;
     }
+
+    public Annotation getAnnotation() {
+        return annotation;
+    }
+
+    public void setAnnotation(Annotation annotation) {
+        this.annotation = annotation;
+    }
+
+
 }

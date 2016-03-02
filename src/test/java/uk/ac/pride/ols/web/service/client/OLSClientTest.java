@@ -6,8 +6,10 @@ import uk.ac.pride.ols.web.service.config.OLSWsConfigDev;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.pride.ols.web.service.model.AnnotationHolder;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,37 +23,23 @@ public class OLSClientTest {
 
     @Test
     public void testGetTermById() throws Exception {
-
         String term = olsClient.getTermByOBOId("MS:1001767", "MS");
-
         Assert.assertTrue(term.equalsIgnoreCase("nanoACQUITY UPLC System with Technology"));
-
     }
 
 
     @Test
     public void testGetOntologyNames() throws Exception {
-
         Map<String, String> ontologies = olsClient.getOntologyNames();
         logger.info(ontologies.toString());
-
         Assert.assertTrue(ontologies.containsKey("ms"));
-
     }
 
     @Test
     public void testGetAllTermsFromOntology() throws Exception {
-
         Map<String, String> terms = olsClient.getAllTermsFromOntology("ms");
         logger.info(terms.toString());
-
         Assert.assertTrue(terms.containsKey("MS:1001767"));
-
-    }
-
-    @Test
-    public void testGetTermByOBOId() throws Exception {
-
     }
 
     @Test
@@ -67,35 +55,28 @@ public class OLSClientTest {
 
     @Test
     public void testGetRootTerms() throws Exception {
-
+        Map<String, String> rootTerms = olsClient.getRootTerms("ms");
+        logger.info(rootTerms.toString());
+        Assert.assertTrue(rootTerms.containsKey("MS:0000000"));
     }
 
     @Test
     public void testGetTermsByName() throws Exception {
 
         Map<String, String> terms = olsClient.getTermsByName("modification", "ms", false);
-
         logger.info(terms.toString());
-
         Assert.assertTrue(terms.containsKey("MS:1001720"));
-
         terms = olsClient.getTermsByName("modification", "ms", true);
-
         Iterator iterator = terms.keySet().iterator();
-
         Assert.assertTrue(((String) iterator.next()).equalsIgnoreCase("MS:1001876"));
 
     }
 
     @Test
     public void testGetTermChildren() throws Exception {
-
         Map<String, String> children = olsClient.getTermChildren("MS:1001143", "ms", 1);
-
         logger.info(children.toString());
-
         Assert.assertTrue(children.containsKey("MS:1001568"));
-
     }
 
     @Test
@@ -104,11 +85,12 @@ public class OLSClientTest {
         Boolean obsolete = olsClient.isObsolete("MS:1001057", "ms");
         Assert.assertTrue(obsolete);
 
-
     }
 
     @Test
     public void testGetTermsByAnnotationData() throws Exception {
+
+        List<AnnotationHolder> annotations = olsClient.getTermsByAnnotationData("mod","DiffAvg", 30, 140);
 
     }
 

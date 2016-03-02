@@ -1,5 +1,7 @@
 package uk.ac.pride.ols.web.service.client;
 
+
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.pride.ols.web.service.config.AbstractOLSWsConfig;
 import uk.ac.pride.ols.web.service.model.*;
@@ -107,6 +109,15 @@ public class OLSClient implements Client{
      */
     public Map<String, String> getAllTermsFromOntology(String ontologyID) {
         Map<String, String> termNames = new HashMap<String, String>();
+        List<Term> terms = getAllOBOTermsFromOntology(ontologyID);
+        for(Term term: terms)
+            termNames.put(term.getTermOBOId(), term.getLabel());
+
+        return termNames;
+
+    }
+
+    private List<Term> getAllOBOTermsFromOntology(String ontologyID){
         TermQuery currentTermQuery = getTermQuery(0, ontologyID);
         List<Term> terms = new ArrayList<Term>();
         terms.addAll(Arrays.asList(currentTermQuery.getTerms()));
@@ -119,12 +130,9 @@ public class OLSClient implements Client{
                 }
             }
         }
-        for(Term term: terms)
-            termNames.put(term.getTermOBOId(), term.getLabel());
-
-        return termNames;
-
+        return terms;
     }
+
 
     private TermQuery getTermQuery(int page, String ontologyID) {
 
@@ -135,8 +143,14 @@ public class OLSClient implements Client{
         return termQuery;
     }
 
-    public Map<String, String> getRootTerms(String ontologyName) {
-        return null;
+    public Map<String, String> getRootTerms(String ontologyID) {
+        List<Term> terms = getAllOBOTermsFromOntology(ontologyID);
+        Map<String, String> resultTerms = new HashMap<String, String>();
+        for(Term term: terms)
+            if(term != null && term.isRoot())
+                resultTerms.put(term.getTermOBOId(), term.getLabel());
+
+        return resultTerms;
     }
 
     /**
@@ -242,11 +256,21 @@ public class OLSClient implements Client{
         return null;
     }
 
-    public List<Annotation> getTermsByAnnotationData(String ontologyName, String annotationType, String strValue) {
-        return null;
+    public List<AnnotationHolder> getTermsByAnnotationData(String ontologyID, String annotationType, String strValue) {
+       return Collections.EMPTY_LIST;
     }
 
-    public List<Annotation> getTermsByAnnotationData(String ontologyName, String annotationType, double fromDblValue, double toDblValue) {
-        return null;
+    public List<AnnotationHolder> getTermsByAnnotationData(String ontologyID, String annotationType, double fromDblValue, double toDblValue) {
+        List<Term> terms = getAllOBOTermsFromOntology(ontologyID);
+        List<AnnotationHolder> annotationHolders = new ArrayList<AnnotationHolder>();
+        for(Term term: terms){
+            if(term != null && term.getAnnotation()!= null && term.getAnnotation().containsCrossReference(annotationType)){
+                String termValue = term.getAnnotation().getCrossReferenceValue(annotationType);
+                if(NumberUtils.isNumber(termValue) && Double.parseDouble(termValue) >= fromDblValue && Double.parseDouble(termValue) <= toDblValue)
+                    annotationHolders.add(new AnnotationHolder(Double.parseDouble(termValue),termValue,annotationType,term.getTermOBOId(),term.getLabel()));
+            }
+        }
+        return annotationHolders;
     }
+
 }

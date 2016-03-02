@@ -1,6 +1,7 @@
 package uk.ac.pride.ols.web.service.client;
 
 import uk.ac.pride.ols.web.service.model.Annotation;
+import uk.ac.pride.ols.web.service.model.AnnotationHolder;
 
 import java.util.List;
 import java.util.Map;
@@ -100,7 +101,7 @@ public interface Client {
      * @param strValue the current value to be search
      * @return A list of annotations that fit the value
      */
-    List<Annotation> getTermsByAnnotationData(String ontologyName, String annotationType, String strValue);
+    List<AnnotationHolder> getTermsByAnnotationData(String ontologyName, String annotationType, String strValue);
 
     /**
      * This function try yto fin the annotations in the ontology by an interval double value.
@@ -110,5 +111,5 @@ public interface Client {
      * @param toDblValue the max value of the interval
      * @return the annotation list
      */
-    List<Annotation> getTermsByAnnotationData(String ontologyName, String annotationType, double fromDblValue, double toDblValue);
+    List<AnnotationHolder> getTermsByAnnotationData(String ontologyName, String annotationType, double fromDblValue, double toDblValue);
 }
