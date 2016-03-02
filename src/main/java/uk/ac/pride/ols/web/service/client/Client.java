@@ -76,13 +76,12 @@ public interface Client {
      * This method retrieve a HashMap with the child terms for an specific term. In the Hash<String,String>
      * the key correspond to the Term Identifier and the value correspond to the name in the ontology.
      *
-     * @param termId Term Identifier
-     * @param ontologyName Ontology Name
-     * @param distance Distance to the child (1..n) where the dustance is the step to the chields.
-     * @param relationTypes relation Types
+     * @param termOBOId Term Identifier
+     * @param ontologyId Ontology Name
+     * @param distance Distance to the child (1..n) where the distance is the step to the chields.
      * @return Map<String, String> A Term Id and the corresponding name
      */
-    Map<String,String> getTermChildren(String termId, String ontologyName, int distance, int[] relationTypes);
+    Map<String,String> getTermChildren(String termOBOId, String ontologyId, int distance);
 
     /**
      * If the term is obsolete in the database
@@ -91,7 +90,7 @@ public interface Client {
      * @return true if the term is obsolete, false if not obsolete.
      */
 
-    boolean isObsolete(String termId, String ontologyName);
+    Boolean isObsolete(String termId, String ontologyName);
 
     /**
      * This function try to find the annotations in the file thant contains the a value for an specific annotation

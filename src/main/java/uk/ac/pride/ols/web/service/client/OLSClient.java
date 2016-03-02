@@ -5,6 +5,8 @@ import uk.ac.pride.ols.web.service.config.AbstractOLSWsConfig;
 import uk.ac.pride.ols.web.service.model.*;
 import uk.ac.pride.ols.web.service.utils.Constants;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 
 
@@ -160,12 +162,84 @@ public class OLSClient implements Client{
         return resultTerms;
     }
 
-    public Map<String, String> getTermChildren(String termId, String ontologyName, int distance, int[] relationTypes) {
-        return null;
+    public Map<String, String> getTermChildren(String termOBOId, String ontologyID, int distance) {
+        Map<String, String> terms = new HashMap<String, String>();
+        String query = String.format("%s://%s/api/ontologies/%s/terms?obo_id=%s",
+                config.getProtocol(), config.getHostName(),ontologyID, termOBOId);
+        TermQuery termQuery = this.restTemplate.getForObject(query, TermQuery.class);
+
+        if(termQuery != null && termQuery.getTerms() != null && termQuery.getTerms().length == 1 &&
+                termQuery.getTerms()[0] != null && termQuery.getTerms()[0].getLink() != null &&
+                termQuery.getTerms()[0].getLink().getChildrenRef() != null)
+             terms = getTermChildrenMap(termQuery.getTerms()[0].getLink().getChildrenRef(), distance);
+        return terms;
     }
 
-    public boolean isObsolete(String termId, String ontologyID) {
-        return false;
+    private Map<String, String> getTermChildrenMap(Href childrenHRef, int distance){
+        Map<String, String> children = new HashMap<String, String>();
+        if(distance == 0)
+            return Collections.EMPTY_MAP;
+        List<Term> childTerms = getTermChildren(childrenHRef, distance);
+        for(Term term: childTerms)
+            children.put(term.getTermOBOId(), term.getLabel());
+        return children;
+    }
+
+    List<Term> getTermChildren(Href hrefChildren, int distance){
+        if(distance == 0)
+            return new ArrayList<Term>();
+        List<Term> chieldTerms = new ArrayList<Term>();
+        chieldTerms.addAll(getTermQuery(hrefChildren));
+        distance--;
+        List<Term> currentChild = new ArrayList<Term>();
+        for(Term chield: chieldTerms)
+            currentChild.addAll(getTermChildren(chield.getLink().getChildrenRef(), distance));
+        chieldTerms.addAll(currentChild);
+        return chieldTerms;
+
+    }
+
+    private List<Term> getTermQuery(Href href){
+        if(href == null)
+            return new ArrayList<Term>();
+        List<Term> terms = new ArrayList<Term>();
+        try {
+            String query = href.getHref();
+            String url = URLDecoder.decode(query.toString(), "UTF-8");
+            TermQuery termQuery = this.restTemplate.getForObject(url, TermQuery.class);
+            if(termQuery != null && termQuery.getTerms() != null){
+                if(terms == null)
+                    terms = new ArrayList<Term>();
+                terms.addAll(Arrays.asList(termQuery.getTerms()));
+            }
+            if(termQuery != null && termQuery.getLink() != null && termQuery.getLink().next() != null)
+                terms.addAll(getTermQuery(termQuery.getLink().next()));
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+
+        return terms;
+    }
+
+
+    /**
+     * This function return true if the term is obsolete, if the term is not found in the ontology the function
+     * return null, also if the value is not found.
+     * @param termOBOId The OBOId of the Term in the ols ontology
+     * @param ontologyID the ontology ID
+     * @return
+     */
+    public Boolean isObsolete(String termOBOId, String ontologyID) {
+        String query = String.format("%s://%s/api/ontologies/%s/terms?obo_id=%s",
+                config.getProtocol(), config.getHostName(),ontologyID, termOBOId);
+        TermQuery termQuery = this.restTemplate.getForObject(query, TermQuery.class);
+        if(termQuery != null && termQuery.getTerms() != null && termQuery.getTerms().length == 1 &&
+           termQuery.getTerms()[0] != null)
+            return termQuery.getTerms()[0].isObsolete();
+
+        return null;
     }
 
     public List<Annotation> getTermsByAnnotationData(String ontologyName, String annotationType, String strValue) {

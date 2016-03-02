@@ -90,10 +90,20 @@ public class OLSClientTest {
     @Test
     public void testGetTermChildren() throws Exception {
 
+        Map<String, String> children = olsClient.getTermChildren("MS:1001143", "ms", 1);
+
+        logger.info(children.toString());
+
+        Assert.assertTrue(children.containsKey("MS:1001568"));
+
     }
 
     @Test
     public void testIsObsolete() throws Exception {
+
+        Boolean obsolete = olsClient.isObsolete("MS:1001057", "ms");
+        Assert.assertTrue(obsolete);
+
 
     }
 

@@ -55,6 +55,9 @@ public class Term {
     @JsonProperty("obo_id")
     String termId;
 
+    @JsonProperty("_links")
+    Link link;
+
     public String getIri() {
         return iri;
     }
@@ -159,5 +162,11 @@ public class Term {
         this.termId = termId;
     }
 
+    public Link getLink() {
+        return link;
+    }
 
+    public void setLink(Link link) {
+        this.link = link;
+    }
 }

@@ -1,7 +1,12 @@
 package uk.ac.pride.ols.web.service.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
@@ -11,58 +16,73 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Link {
 
-    @JsonProperty("first")
-    Href first;
+    public enum LinkOption{
 
-    @JsonProperty("self")
-    Href self;
+        SELF("self"),
+        PARENTS("parents"),
+        ANCESTORS("ancestors"),
+        CHILDREN("children"),
+        DESCENDANTS("descendants"),
+        GRAPH("graph"),
+        NEXT("next"),
+        LAST("last"),
+        FIRST("first"),
+        PREV("prev");
 
-    @JsonProperty("next")
-    Href next;
+        private String value;
 
-    @JsonProperty("last")
-    Href last;
+        LinkOption(String value) {
+            this.value = value;
+        }
 
-    @JsonProperty("prev")
-    Href prev;
+        public String getValue() {
+            return value;
+        }
 
-    public Href getFirst() {
-        return first;
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "LinkOption{" +
+                    "value='" + value + '\'' +
+                    '}';
+        }
     }
 
-    public void setFirst(Href first) {
-        this.first = first;
+    public Map<String, Href> links = new HashMap<String, Href>();
+
+    @JsonAnyGetter
+    public Map<String, Href> any() {
+        return links;
     }
 
-    public Href getSelf() {
-        return self;
+    @JsonAnySetter
+    public void set(String name, Href value) {
+        links.put(name, value);
     }
 
-    public void setSelf(Href self) {
-        this.self = self;
+    public boolean hasUnknowProperties() {
+        return !links.isEmpty();
     }
 
-    public Href getNext() {
-        return next;
+    public Href getChildrenRef(){
+        if(links.containsKey(LinkOption.CHILDREN.getValue()))
+            return links.get(LinkOption.CHILDREN.getValue());
+        return null;
     }
 
-    public void setNext(Href next) {
-        this.next = next;
+    public Href next(){
+        if(links.containsKey(LinkOption.NEXT.getValue()))
+            return links.get(LinkOption.NEXT.getValue());
+        return null;
     }
 
-    public Href getLast() {
-        return last;
+    public Href previous(){
+        if(links.containsKey(LinkOption.PREV.getValue()))
+            return links.get(LinkOption.PREV.getValue());
+        return null;
     }
 
-    public void setLast(Href last) {
-        this.last = last;
-    }
-
-    public Href getPrev() {
-        return prev;
-    }
-
-    public void setPrev(Href prev) {
-        this.prev = prev;
-    }
 }
