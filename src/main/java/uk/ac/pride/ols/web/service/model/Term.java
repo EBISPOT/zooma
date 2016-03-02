@@ -151,7 +151,7 @@ public class Term {
         this.shortForm = shortForm;
     }
 
-    public String getTermId() {
+    public String getTermOBOId() {
         return termId;
     }
 
@@ -159,11 +159,5 @@ public class Term {
         this.termId = termId;
     }
 
-    public Annotation getAnnotation() {
-        return annotation;
-    }
 
-    public void setAnnotation(Annotation annotation) {
-        this.annotation = annotation;
-    }
 }

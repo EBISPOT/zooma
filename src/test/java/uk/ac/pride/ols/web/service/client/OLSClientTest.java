@@ -7,6 +7,7 @@ import uk.ac.pride.ols.web.service.config.OLSWsConfigDev;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -37,4 +38,68 @@ public class OLSClientTest {
         Assert.assertTrue(ontologies.containsKey("ms"));
 
     }
+
+    @Test
+    public void testGetAllTermsFromOntology() throws Exception {
+
+        Map<String, String> terms = olsClient.getAllTermsFromOntology("ms");
+        logger.info(terms.toString());
+
+        Assert.assertTrue(terms.containsKey("MS:1001767"));
+
+    }
+
+    @Test
+    public void testGetTermByOBOId() throws Exception {
+
+    }
+
+    @Test
+    public void testGetTermMetadata() throws Exception {
+
+    }
+
+    @Test
+    public void testGetTermXrefs() throws Exception {
+
+    }
+
+
+    @Test
+    public void testGetRootTerms() throws Exception {
+
+    }
+
+    @Test
+    public void testGetTermsByName() throws Exception {
+
+        Map<String, String> terms = olsClient.getTermsByName("modification", "ms", false);
+
+        logger.info(terms.toString());
+
+        Assert.assertTrue(terms.containsKey("MS:1001720"));
+
+        terms = olsClient.getTermsByName("modification", "ms", true);
+
+        Iterator iterator = terms.keySet().iterator();
+
+        Assert.assertTrue(((String) iterator.next()).equalsIgnoreCase("MS:1001876"));
+
+    }
+
+    @Test
+    public void testGetTermChildren() throws Exception {
+
+    }
+
+    @Test
+    public void testIsObsolete() throws Exception {
+
+    }
+
+    @Test
+    public void testGetTermsByAnnotationData() throws Exception {
+
+    }
+
 }
