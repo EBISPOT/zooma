@@ -8,6 +8,8 @@ public class Constants {
 
     public static final int ONTOLOGY_PAGE_SIZE = 100;
 
+    public static final int SEARCH_PAGE_SIZE   = 20;
+
     public static final int TERM_PAGE_SIZE = 500;
 
     public static final String REFERENCE_SEPARATOR = ":";

@@ -6,7 +6,7 @@ import uk.ac.pride.ols.web.service.config.OLSWsConfigDev;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.pride.ols.web.service.model.AnnotationHolder;
+import uk.ac.pride.ols.web.service.model.DataHolder;
 
 import java.util.Iterator;
 import java.util.List;
@@ -62,7 +62,6 @@ public class OLSClientTest {
 
     @Test
     public void testGetTermsByName() throws Exception {
-
         Map<String, String> terms = olsClient.getTermsByName("modification", "ms", false);
         logger.info(terms.toString());
         Assert.assertTrue(terms.containsKey("MS:1001720"));
@@ -90,7 +89,7 @@ public class OLSClientTest {
     @Test
     public void testGetTermsByAnnotationData() throws Exception {
 
-        List<AnnotationHolder> annotations = olsClient.getTermsByAnnotationData("mod","DiffAvg", 30, 140);
+        List<DataHolder> annotations = olsClient.getTermsByAnnotationData("mod","DiffAvg", 30, 140);
 
     }
 

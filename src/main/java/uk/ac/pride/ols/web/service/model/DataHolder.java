@@ -6,7 +6,7 @@ import java.io.Serializable;
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
  * @date 01/03/2016
  */
-public class AnnotationHolder implements Serializable {
+public class DataHolder implements Serializable {
 
 
     private Double annotationNumberValue;
@@ -19,10 +19,10 @@ public class AnnotationHolder implements Serializable {
 
     private String termName;
 
-    public AnnotationHolder() {
+    public DataHolder() {
     }
 
-    public AnnotationHolder(Double annotationNumberValue, String annotationStringValue, String annotationType, String oboId, String termName) {
+    public DataHolder(Double annotationNumberValue, String annotationStringValue, String annotationType, String oboId, String termName) {
         this.annotationNumberValue = annotationNumberValue;
         this.annotationStringValue = annotationStringValue;
         this.annotationType = annotationType;

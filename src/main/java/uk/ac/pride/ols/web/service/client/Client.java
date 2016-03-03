@@ -1,7 +1,7 @@
 package uk.ac.pride.ols.web.service.client;
 
-import uk.ac.pride.ols.web.service.model.Annotation;
-import uk.ac.pride.ols.web.service.model.AnnotationHolder;
+import org.springframework.web.client.RestClientException;
+import uk.ac.pride.ols.web.service.model.DataHolder;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,7 @@ public interface Client {
      * @param ontologyName The ontology name
      * @return return the name of the Ontology term
      */
-    String getTermByOBOId(String termId, String ontologyName);
+    String getTermByOBOId(String termId, String ontologyName) throws RestClientException;
 
     /**
      * This function retrieve the metadata for an specific term, specially the description
@@ -31,7 +31,7 @@ public interface Client {
      * @param ontologyName The ontology name
      * @return return the metadata (description) of the Ontology term
      */
-    Map<String,String> getTermMetadata(String termId, String ontologyName);
+    Map<String,String> getTermMetadata(String termId, String ontologyName) throws RestClientException;
 
     /**
      * The geTXRefTerm in the ontology is used to retrieve this value
@@ -39,14 +39,14 @@ public interface Client {
      * @param ontologyName The ontology name
      * @return return a HashMap with all the references to the specific Term.
      */
-    Map<String, String> getTermXrefs(String termId, String ontologyName);
+    Map<String, String> getTermXrefs(String termId, String ontologyName) throws RestClientException;
 
     /**
      * This function retrieve the list of Ontologies in the OLS. The Key correspond to the Ontology Id
      * and the value correspond to the name of the ontology.
      * @return Map<String,String> contains all the ontologies in the resource.
      */
-    Map<String, String> getOntologyNames();
+    Map<String, String> getOntologyNames() throws RestClientException;
 
 
     /**
@@ -55,14 +55,14 @@ public interface Client {
      * @param ontologyName
      * @return
      */
-    Map<String, String> getAllTermsFromOntology(String ontologyName);
+    Map<String, String> getAllTermsFromOntology(String ontologyName) throws RestClientException;
 
     /**
      * This function use an ontology name to retrieve all the root terms for the ontology
      * @param ontologyName The ontology name
      * @return Map<String, String> where the key is the id of the term and the value is the name..
      */
-    Map<String,String> getRootTerms(String ontologyName);
+    Map<String,String> getRootTerms(String ontologyName) throws RestClientException;
 
     /**
      * This function retrieve all the terms that contains in the name the partialName.
@@ -71,7 +71,7 @@ public interface Client {
      * @param reverseKeyOrder sort the hash in a reverse order
      * @return Has<String, String> contains in the key the id of the term and in the value the name of the term.
      */
-    Map<String,String> getTermsByName(String partialName, String ontologyName, boolean reverseKeyOrder);
+    Map<String,String> getTermsByName(String partialName, String ontologyName, boolean reverseKeyOrder) throws RestClientException;
 
     /**
      * This method retrieve a HashMap with the child terms for an specific term. In the Hash<String,String>
@@ -82,7 +82,7 @@ public interface Client {
      * @param distance Distance to the child (1..n) where the distance is the step to the chields.
      * @return Map<String, String> A Term Id and the corresponding name
      */
-    Map<String,String> getTermChildren(String termOBOId, String ontologyId, int distance);
+    Map<String,String> getTermChildren(String termOBOId, String ontologyId, int distance) throws RestClientException;
 
     /**
      * If the term is obsolete in the database
@@ -91,7 +91,7 @@ public interface Client {
      * @return true if the term is obsolete, false if not obsolete.
      */
 
-    Boolean isObsolete(String termId, String ontologyName);
+    Boolean isObsolete(String termId, String ontologyName) throws RestClientException;
 
     /**
      * This function try to find the annotations in the file thant contains the a value for an specific annotation
@@ -101,7 +101,7 @@ public interface Client {
      * @param strValue the current value to be search
      * @return A list of annotations that fit the value
      */
-    List<AnnotationHolder> getTermsByAnnotationData(String ontologyName, String annotationType, String strValue);
+    List<DataHolder> getTermsByAnnotationData(String ontologyName, String annotationType, String strValue) throws RestClientException;
 
     /**
      * This function try yto fin the annotations in the ontology by an interval double value.
@@ -111,5 +111,5 @@ public interface Client {
      * @param toDblValue the max value of the interval
      * @return the annotation list
      */
-    List<AnnotationHolder> getTermsByAnnotationData(String ontologyName, String annotationType, double fromDblValue, double toDblValue);
+    List<DataHolder> getTermsByAnnotationData(String ontologyName, String annotationType, double fromDblValue, double toDblValue) throws RestClientException;
 }
