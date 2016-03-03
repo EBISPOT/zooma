@@ -2,7 +2,7 @@ package uk.ac.pride.ols.web.service.client;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
