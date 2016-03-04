@@ -1,5 +1,6 @@
 ols-client
 ======================
+[![Build Status](https://travis-ci.org/PRIDE-Utilities/ols-client.svg?branch=master)](https://travis-ci.org/PRIDE-Utilities/ols-client)
 
 A Java client for the OLS web service
 
