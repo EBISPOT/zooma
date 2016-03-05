@@ -2,7 +2,8 @@ package uk.ac.pride.ols.web.service.client;
 
 
 
-import org.apache.commons.lang.math.NumberUtils;
+
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.pride.ols.web.service.config.AbstractOLSWsConfig;

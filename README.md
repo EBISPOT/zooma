@@ -1,28 +1,29 @@
-archive-ws-client-java
+ols-client
 ======================
+[![Build Status](https://travis-ci.org/PRIDE-Utilities/ols-client.svg?branch=master)](https://travis-ci.org/PRIDE-Utilities/ols-client)
 
-A Java client for the PRIDE Archive web service
+A Java client for the OLS web service
 
 #### To use it as a maven dependency  
 
     <dependencies>
         <dependency>
-            <groupId>uk.ac.ebi.pride.archive</groupId>
-            <artifactId>archive-ws-client</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <groupId>>uk.ac.ebi.ols</groupId>
+            <artifactId>ols-client</artifactId>
+            <version>1.19</version>
         </dependency>
     </dependencies>
     
-    <repositories>
-        <repository>
-            <id>archive-ws-client-java-mvn-repo</id>
-            <url>https://raw.github.com/PRIDE-Utilities/archive-ws-client-java/mvn-repo/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
-
+    <!-- EBI repo -->
+    <repository>
+        <id>nexus-ebi-repo</id>
+        <name>The EBI internal repository</name>
+        <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</url>
+        <releases>
+        </releases>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+    </repository>
 
     
