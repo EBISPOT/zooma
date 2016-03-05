@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sun.javafx.collections.MappingChange;
 import uk.ac.pride.ols.web.service.utils.Constants;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,16 +36,16 @@ public class Annotation {
         }
     }
 
-    public Map<String, String[]> annotation = new HashMap<String, String[]>();
+    public Map<String, List<String>> annotation = new HashMap<String, List<String>>();
 
     @JsonAnyGetter
-    public Map<String, String[]> any() {
+    public Map<String, List<String>> any() {
         return annotation;
     }
 
     @JsonAnySetter
     public void set(String name, String[] value) {
-        annotation.put(name, value);
+        annotation.put(name, Arrays.asList(value));
     }
 
     public boolean hasUnknowProperties() {
@@ -56,7 +58,7 @@ public class Annotation {
         return annotation.containsKey(annotationType);
     }
 
-    public String[] getAnnotation(String annotationType) {
+    public List<String> getAnnotation(String annotationType) {
         if(annotationType == null || annotation.size() == 0 || !annotation.containsKey(annotationType) )
             return null;
         return annotation.get(annotationType);
@@ -79,11 +81,14 @@ public class Annotation {
         return null;
     }
 
-    private boolean containsCrossReference(String crossReferenceType, String[] annotations){
+    private boolean containsCrossReference(String crossReferenceType, List<String> annotations){
         for(String annotation: annotations)
             if(annotation.toUpperCase().contains(crossReferenceType.toUpperCase()))
                 return true;
         return false;
     }
 
+    public Map<String, List<String>> getAnnotation() {
+        return annotation;
+    }
 }

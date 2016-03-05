@@ -2,9 +2,6 @@ package uk.ac.pride.ols.web.service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.javafx.collections.MappingChange;
-
-import java.util.Map;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
@@ -14,7 +11,7 @@ import java.util.Map;
 public class Term {
 
     @JsonProperty("iri")
-    String iri;
+    Identifier iri;
 
     @JsonProperty("label")
     String label;
@@ -50,20 +47,31 @@ public class Term {
     boolean root;
 
     @JsonProperty("short_form")
-    String shortForm;
+    Identifier shortForm;
 
     @JsonProperty("obo_id")
-    String termId;
+    Identifier oboId;
 
     @JsonProperty("_links")
     Link link;
 
-    public String getIri() {
+    public Term() {
+    }
+
+    public Term(Identifier iri, String label, String[] description, Identifier shortForm, Identifier oboId) {
+        this.iri = iri;
+        this.label = label;
+        this.description = description;
+        this.shortForm = shortForm;
+        this.oboId = oboId;
+    }
+
+    public Identifier getIri() {
         return iri;
     }
 
     public void setIri(String iri) {
-        this.iri = iri;
+        this.iri = new Identifier(iri, Identifier.IdentifierType.IRI);
     }
 
     public String getLabel() {
@@ -146,20 +154,20 @@ public class Term {
         this.root = root;
     }
 
-    public String getShortForm() {
+    public Identifier getShortForm() {
         return shortForm;
     }
 
     public void setShortForm(String shortForm) {
-        this.shortForm = shortForm;
+        this.shortForm = new Identifier(shortForm, Identifier.IdentifierType.OWL);
     }
 
-    public String getTermOBOId() {
-        return termId;
+    public Identifier getTermOBOId() {
+        return oboId;
     }
 
-    public void setTermId(String termId) {
-        this.termId = termId;
+    public void setOboId(String oboId) {
+        this.oboId = new Identifier(oboId, Identifier.IdentifierType.OBO);
     }
 
     public Link getLink() {

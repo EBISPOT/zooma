@@ -6,7 +6,11 @@ import uk.ac.pride.ols.web.service.config.OLSWsConfigDev;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.pride.ols.web.service.config.OLSWsConfigProd;
 import uk.ac.pride.ols.web.service.model.DataHolder;
+import uk.ac.pride.ols.web.service.model.Identifier;
+import uk.ac.pride.ols.web.service.model.Ontology;
+import uk.ac.pride.ols.web.service.model.Term;
 
 import java.util.Iterator;
 import java.util.List;
@@ -18,28 +22,28 @@ import java.util.Map;
  */
 public class OLSClientTest {
 
-    private static OLSClient olsClient = new OLSClient(new OLSWsConfigDev());
+    private static OLSClient olsClient = new OLSClient(new OLSWsConfigProd());
     private static final Logger logger = LoggerFactory.getLogger(OLSClientTest.class);
 
     @Test
     public void testGetTermById() throws Exception {
-        String term = olsClient.getTermByOBOId("MS:1001767", "MS");
-        Assert.assertTrue(term.equalsIgnoreCase("nanoACQUITY UPLC System with Technology"));
+        Term term = olsClient.getTermById(new Identifier("MS:1001767", Identifier.IdentifierType.OBO), "MS");
+        Assert.assertTrue(term.getLabel().equalsIgnoreCase("nanoACQUITY UPLC System with Technology"));
     }
 
 
     @Test
     public void testGetOntologyNames() throws Exception {
-        Map<String, String> ontologies = olsClient.getOntologyNames();
+        List<Ontology> ontologies = olsClient.getOntologies();
         logger.info(ontologies.toString());
-        Assert.assertTrue(ontologies.containsKey("ms"));
+        Assert.assertTrue(ontologies.size() > 0);
     }
 
     @Test
     public void testGetAllTermsFromOntology() throws Exception {
-        Map<String, String> terms = olsClient.getAllTermsFromOntology("ms");
+        List<Term> terms = olsClient.getAllTermsFromOntology("ms");
         logger.info(terms.toString());
-        Assert.assertTrue(terms.containsKey("MS:1001767"));
+        Assert.assertTrue(terms.size() > 0);
     }
 
     @Test
@@ -55,27 +59,41 @@ public class OLSClientTest {
 
     @Test
     public void testGetRootTerms() throws Exception {
-        Map<String, String> rootTerms = olsClient.getRootTerms("ms");
+        List<Term> rootTerms = olsClient.getRootTerms("ms");
         logger.info(rootTerms.toString());
-        Assert.assertTrue(rootTerms.containsKey("MS:0000000"));
+        Assert.assertTrue(rootTerms.size() > 0);
     }
 
     @Test
     public void testGetTermsByName() throws Exception {
-        Map<String, String> terms = olsClient.getTermsByName("modification", "ms", false);
+        List<Term> terms = olsClient.getTermsByName("modification", "ms", false);
         logger.info(terms.toString());
-        Assert.assertTrue(terms.containsKey("MS:1001720"));
+        Assert.assertTrue(terms.size() > 0);
         terms = olsClient.getTermsByName("modification", "ms", true);
-        Iterator iterator = terms.keySet().iterator();
+        Iterator iterator = terms.iterator();
         Assert.assertTrue(((String) iterator.next()).equalsIgnoreCase("MS:1001876"));
 
     }
 
     @Test
     public void testGetTermChildren() throws Exception {
-        Map<String, String> children = olsClient.getTermChildren("MS:1001143", "ms", 1);
+        List<Term> children = olsClient.getTermChildren(new Identifier("MS:1001143", Identifier.IdentifierType.OBO), "ms", 1);
         logger.info(children.toString());
-        Assert.assertTrue(children.containsKey("MS:1001568"));
+        Assert.assertTrue(contains(children, new Identifier("MS:1001568", Identifier.IdentifierType.OBO)));
+    }
+
+    private boolean contains(List<Term> terms, Identifier identifier) {
+        for(Term term: terms)
+           if(identifier.getType() == Identifier.IdentifierType.OBO &&
+                   identifier.getIdentifier().equalsIgnoreCase(term.getTermOBOId().getIdentifier()))
+               return true;
+           else if(identifier.getType() == Identifier.IdentifierType.IRI &&
+                   identifier.getIdentifier().equalsIgnoreCase(term.getIri().getIdentifier()))
+               return true;
+           else if(identifier.getType() == Identifier.IdentifierType.OWL &&
+                   identifier.getIdentifier().equalsIgnoreCase(term.getShortForm().getIdentifier()))
+               return true;
+        return false;
     }
 
     @Test

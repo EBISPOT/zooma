@@ -6,6 +6,6 @@ package uk.ac.pride.ols.web.service.config;
 public class OLSWsConfigDev extends AbstractOLSWsConfig {
 
     public OLSWsConfigDev() {
-        super("http", "www.ebi.ac.uk/ols/beta/");
+        super("http", "snarf.ebi.ac.uk:8980/ols-beta/");
     }
 }

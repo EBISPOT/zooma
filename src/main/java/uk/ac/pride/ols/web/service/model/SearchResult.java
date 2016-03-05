@@ -14,13 +14,13 @@ public class SearchResult {
     String id;
 
     @JsonProperty("iri")
-    String iri;
+    Identifier iri;
 
     @JsonProperty("short_form")
-    String short_name;
+    Identifier short_name;
 
     @JsonProperty("obo_id")
-    String obo_id;
+    Identifier obo_id;
 
     @JsonProperty("label")
     String name;
@@ -39,28 +39,28 @@ public class SearchResult {
         this.id = id;
     }
 
-    public String getIri() {
+    public Identifier getIri() {
         return iri;
     }
 
     public void setIri(String iri) {
-        this.iri = iri;
+        this.iri = new Identifier(iri, Identifier.IdentifierType.IRI);
     }
 
-    public String getShort_name() {
+    public Identifier getShort_name() {
         return short_name;
     }
 
     public void setShort_name(String short_name) {
-        this.short_name = short_name;
+        this.short_name = new Identifier(short_name, Identifier.IdentifierType.OWL);
     }
 
-    public String getObo_id() {
+    public Identifier getObo_id() {
         return obo_id;
     }
 
     public void setObo_id(String obo_id) {
-        this.obo_id = obo_id;
+        this.obo_id = new Identifier(obo_id, Identifier.IdentifierType.OBO);
     }
 
     public String getName() {
