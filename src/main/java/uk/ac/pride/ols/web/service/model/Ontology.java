@@ -127,6 +127,11 @@ public class Ontology {
         return null;
     }
 
+    public void setName(String name){
+        if(config != null)
+            config.setName(name);
+    }
+
     public String getId(){
         if(config != null)
             return config.getNamespace();

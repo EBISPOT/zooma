@@ -55,15 +55,20 @@ public class Term {
     @JsonProperty("_links")
     Link link;
 
+    @JsonProperty("obo_xref")
+    OBOXRef[] oboXRefs;
+
     public Term() {
     }
 
-    public Term(Identifier iri, String label, String[] description, Identifier shortForm, Identifier oboId) {
+    public Term(Identifier iri, String label, String[] description,
+                Identifier shortForm, Identifier oboId, String ontologyName) {
         this.iri = iri;
         this.label = label;
         this.description = description;
         this.shortForm = shortForm;
         this.oboId = oboId;
+        this.ontologyName = ontologyName;
     }
 
     public Identifier getIri() {
@@ -186,5 +191,15 @@ public class Term {
         this.annotation = annotation;
     }
 
+    public Identifier getGlobalId(){
+        return (oboId != null)?oboId:shortForm;
+    }
 
+    public OBOXRef[] getOboXRefs() {
+        return oboXRefs;
+    }
+
+    public void setOboXRefs(OBOXRef[] oboXRefs) {
+        this.oboXRefs = oboXRefs;
+    }
 }

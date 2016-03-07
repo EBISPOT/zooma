@@ -204,9 +204,53 @@ public class OLSClient implements Client{
         return null;
     }
 
-    public String searchTermById(String identifier, Identifier.IdentifierType type, String ontologyID) throws RestClientException {
-        return null;
+    public List<Term> searchTermById(String identifier, Identifier.IdentifierType type, String ontologyID) throws RestClientException {
+        List<Term> termResults = new ArrayList<Term>();
+        SearchQuery currentTermQuery = searchIdQuery(identifier, type, ontologyID, 0);
+        List<SearchResult> terms = new ArrayList<SearchResult>();
+        if(currentTermQuery != null && currentTermQuery.getResponse() != null && currentTermQuery.getResponse().getSearchResults() != null){
+            terms.addAll(Arrays.asList(currentTermQuery.getResponse().getSearchResults()));
+            if(currentTermQuery.getResponse().getSearchResults().length < currentTermQuery.getResponse().getNumFound()){
+                for(int i = 1; i < currentTermQuery.getResponse().getNumFound()/currentTermQuery.getResponse().getSearchResults().length + 1; i++){
+                    SearchQuery termQuery = searchIdQuery(identifier, type, ontologyID, i);
+                    if(termQuery != null && termQuery.getResponse() != null && termQuery.getResponse().getSearchResults() != null)
+                        terms.addAll(Arrays.asList(termQuery.getResponse().getSearchResults()));
+                }
+            }
+        }
+        for(int i = 0; i < terms.size(); i++)
+            if(terms.get(i).getObo_id() != null && terms.get(i).getName() != null){
+                SearchResult termResult = terms.get(i);
+                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name()));
+            }
+
+        return termResults;
+
     }
+
+    private SearchQuery searchIdQuery(String identifier, Identifier.IdentifierType type, String ontologyID, int page) throws RestClientException{
+
+        String fieldType = null;
+        if(type == Identifier.IdentifierType.OBO)
+            fieldType = "obo_id";
+        else if(type == Identifier.IdentifierType.OWL)
+            fieldType = "short_name";
+        else if(type == Identifier.IdentifierType.IRI)
+            fieldType = "iri";
+
+        String query = String.format("%s://%s/api/search?q=*%s*&queryFields=%s&fieldList=iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type&rows=%s&start=%s",
+                config.getProtocol(), config.getHostName(),identifier, fieldType, Constants.SEARCH_PAGE_SIZE, page);
+
+        if(ontologyID != null && !ontologyID.isEmpty())
+            query = String.format("%s://%s/api/search?q=*%s*&queryFields=%s&fieldList=iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type&rows=%s&start=%s&ontology=%s",
+                    config.getProtocol(), config.getHostName(),identifier, fieldType,Constants.SEARCH_PAGE_SIZE, page, ontologyID);
+
+        SearchQuery termQuery = this.restTemplate.getForObject(query, SearchQuery.class);
+
+        return termQuery;
+    }
+
+
 
     public List<String> getTermDescription(String termId, String ontologyId) throws RestClientException{
         Term term = getTermQueryByOBOId(termId, ontologyId);
@@ -238,8 +282,16 @@ public class OLSClient implements Client{
         return null;
     }
 
-    public Map<String, String> getTermXrefs(String termId, String ontologyId) throws RestClientException{
-        return null;
+    public Map<String, String> getTermXrefs(Identifier termId, String ontologyId) throws RestClientException{
+        Term term = getTermById(termId, ontologyId);
+        Map<String, String> xrefs = new HashMap<String, String>();
+        if(term != null && term.getOboXRefs() != null){
+            for(OBOXRef xref: term.getOboXRefs()){
+                if(xref.getId() != null)
+                xrefs.put(xref.getId(), xref.getDatabase());
+            }
+        }
+        return xrefs;
     }
 
     private OntologyQuery getOntologyQuery(int page) throws RestClientException{
@@ -343,7 +395,7 @@ public class OLSClient implements Client{
         for(int i = 0; i < terms.size(); i++)
              if(terms.get(i).getObo_id() != null && terms.get(i).getName() != null){
                  SearchResult termResult = terms.get(i);
-                 termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id()));
+                 termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name()));
              }
 
         return termResults;

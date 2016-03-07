@@ -134,5 +134,5 @@ public interface Client {
      * @return A map with all the terms that contains the present pattern
      * @throws RestClientException
      */
-    String searchTermById(String identifier, Identifier.IdentifierType type, String ontologyId) throws RestClientException;
+    List<Term> searchTermById(String identifier, Identifier.IdentifierType type, String ontologyId) throws RestClientException;
 }
