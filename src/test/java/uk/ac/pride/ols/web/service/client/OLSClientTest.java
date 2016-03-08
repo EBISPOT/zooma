@@ -7,14 +7,12 @@ import uk.ac.pride.ols.web.service.config.OLSWsConfigDev;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.pride.ols.web.service.config.OLSWsConfigProd;
-import uk.ac.pride.ols.web.service.model.DataHolder;
 import uk.ac.pride.ols.web.service.model.Identifier;
 import uk.ac.pride.ols.web.service.model.Ontology;
 import uk.ac.pride.ols.web.service.model.Term;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
@@ -107,7 +105,7 @@ public class OLSClientTest {
     @Test
     public void testGetTermsByAnnotationData() throws Exception {
 
-        List<DataHolder> annotations = olsClient.getTermsByAnnotationData("mod","DiffAvg", 30, 140);
+        List<Term> annotations = olsClient.getTermsByAnnotationData("mod","DiffAvg", 30, 140);
 
     }
 

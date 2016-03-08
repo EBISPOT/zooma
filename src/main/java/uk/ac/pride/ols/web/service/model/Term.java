@@ -2,6 +2,10 @@ package uk.ac.pride.ols.web.service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sun.javafx.collections.MappingChange;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
@@ -57,6 +61,9 @@ public class Term {
 
     @JsonProperty("obo_xref")
     OBOXRef[] oboXRefs;
+
+    @JsonProperty("obo_synonym")
+    OBOSynonym[] oboSynonyms;
 
     public Term() {
     }
@@ -201,5 +208,35 @@ public class Term {
 
     public void setOboXRefs(OBOXRef[] oboXRefs) {
         this.oboXRefs = oboXRefs;
+    }
+
+    public boolean containsXref(String annotationType) {
+        if(oboXRefs != null && oboXRefs.length > 0){
+            for(OBOXRef oboRef: oboXRefs)
+                if(oboRef != null && oboRef.getId() != null)
+                    if(oboRef.getId().toUpperCase().contains(annotationType.toUpperCase()))
+                        return true;
+        }
+        return false;
+    }
+
+    public String getXRefValue(String annotationType) {
+        if(oboXRefs != null && oboXRefs.length > 0){
+            for(OBOXRef oboRef: oboXRefs)
+                if(oboRef != null && oboRef.getId() != null)
+                    if(oboRef.getId().toUpperCase().contains(annotationType.toUpperCase()))
+                        return oboRef.getDatabase();
+        }
+        return null;
+    }
+
+    public Map<String, String> getOboSynonyms(){
+        Map<String, String> synonyms = new HashMap<>();
+        if(oboSynonyms != null){
+            for(OBOSynonym synonym: oboSynonyms)
+                if(synonym.getName() != null)
+                    synonyms.put(synonym.getName(), synonym.getType());
+        }
+        return synonyms;
     }
 }

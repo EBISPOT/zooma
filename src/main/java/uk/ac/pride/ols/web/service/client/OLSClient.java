@@ -1,8 +1,5 @@
 package uk.ac.pride.ols.web.service.client;
 
-
-
-
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -294,6 +291,15 @@ public class OLSClient implements Client{
         return xrefs;
     }
 
+    public Map<String, String> getOBOSynonyms(Identifier identifier, String ontology) throws RestClientException{
+        Term term = getTermById(identifier, ontology);
+        Map<String, String> xrefs = new HashMap<String, String>();
+        if(term != null && term.getOboSynonyms() != null){
+            xrefs = term.getOboSynonyms();
+        }
+        return xrefs;
+    }
+
     private OntologyQuery getOntologyQuery(int page) throws RestClientException{
         String query = String.format("%s://%s/api/ontologies?page=%s&size=%s",
                 config.getProtocol(), config.getHostName(), page, Constants.ONTOLOGY_PAGE_SIZE);
@@ -480,54 +486,34 @@ public class OLSClient implements Client{
         return null;
     }
 
-    public List<DataHolder> getTermsByAnnotationData(String ontologyID, String annotationType, String strValue) {
+    public List<Term> getTermsByAnnotationData(String ontologyID, String annotationType, String strValue) {
        return Collections.EMPTY_LIST;
     }
 
-    public List<DataHolder> getTermsByAnnotationData(String ontologyID, String annotationType, double fromDblValue, double toDblValue) {
+    public List<Term> getTermsByAnnotationData(String ontologyID, String annotationType, double fromDblValue, double toDblValue) {
         List<Term> terms = getAllOBOTermsFromOntology(ontologyID);
-        List<DataHolder> annotationHolders = new ArrayList<DataHolder>();
+        List<Term> termResult = new ArrayList<Term>() ;
         for(Term term: terms){
-            if(term != null && term.getAnnotation()!= null && term.getAnnotation().containsCrossReference(annotationType)){
-                String termValue = term.getAnnotation().getCrossReferenceValue(annotationType);
+            if(term != null && term.getOboXRefs() != null && term.containsXref(annotationType)){
+                String termValue = term.getXRefValue(annotationType);
                 if(NumberUtils.isNumber(termValue) && Double.parseDouble(termValue) >= fromDblValue && Double.parseDouble(termValue) <= toDblValue)
-                    annotationHolders.add(new DataHolder(Double.parseDouble(termValue),termValue,annotationType,term.getTermOBOId().getIdentifier(),term.getLabel()));
+                    termResult.add(term);
             }
         }
-        return annotationHolders;
+        return termResult;
     }
 
-    public String searchTermByOBOId(String partialOBOId, String ontologyID) throws RestClientException {
-//        Map<String, String> termResults = new HashMap<String, String>();
-//        SearchQuery currentTermQuery = getSearchOBOIDQuery(0, partialOBOId, ontologyID);
-//            List<SearchResult> terms = new ArrayList<SearchResult>();
-//            if(currentTermQuery != null && currentTermQuery.getResponse() != null && currentTermQuery.getResponse().getSearchResults() != null){
-//                terms.addAll(Arrays.asList(currentTermQuery.getResponse().getSearchResults()));
-//                if(currentTermQuery.getResponse().getSearchResults().length < currentTermQuery.getResponse().getNumFound()){
-//                    for(int i = 1; i < currentTermQuery.getResponse().getNumFound()/currentTermQuery.getResponse().getSearchResults().length + 1; i++){
-//                        SearchQuery termQuery = getSearchOBOIDQuery(i, partialOBOId, ontologyID);
-//                        if(termQuery != null && termQuery.getResponse() != null && termQuery.getResponse().getSearchResults() != null)
-//                            terms.addAll(Arrays.asList(termQuery.getResponse().getSearchResults()));
-//                    }
-//                }
-//            }
-//            for(SearchResult result: terms)
-//                if(result.getObo_id() != null && result.getName() != null)
-//                    termResults.put(result.getObo_id(), result.getName());
-//            return termResults.;
-        return null;
+    public Ontology getOntology(String ontologyId) throws RestClientException{
+        String query = String.format("%s://%s/api/ontologies/%s",
+                config.getProtocol(), config.getHostName(),ontologyId);
+        Ontology ontology = this.restTemplate.getForObject(query, Ontology.class);
+        if(ontology != null){
+            return ontology;
         }
-
-    private SearchQuery getSearchOBOIDQuery(int page, String partialName, String ontology) throws RestClientException{
-        String query = String.format("%s://%s/api/search?q=*%s*&queryFields=label,synonyms&rows=%s&start=1",
-                config.getProtocol(), config.getHostName(),partialName, Constants.SEARCH_PAGE_SIZE, page);
-        if(ontology != null && !ontology.isEmpty())
-            query = String.format("%s://%s/api/search?q=*%s*&queryFields=label,synonyms&rows=%s&start=1&ontology=%s",
-                    config.getProtocol(), config.getHostName(),partialName, Constants.SEARCH_PAGE_SIZE, page, ontology);
-
-        SearchQuery termQuery = this.restTemplate.getForObject(query, SearchQuery.class);
-
-        return termQuery;
+        return null;
     }
+
+
+
 
 }

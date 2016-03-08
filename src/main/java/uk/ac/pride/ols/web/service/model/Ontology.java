@@ -2,6 +2,10 @@ package uk.ac.pride.ols.web.service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sun.javafx.collections.MappingChange;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
@@ -40,6 +44,7 @@ public class Ontology {
 
     @JsonProperty("_links")
     Link link;
+
 
     public String getLoadedDate() {
         return loadedDate;
@@ -136,5 +141,26 @@ public class Ontology {
         if(config != null)
             return config.getNamespace();
         return null;
+    }
+
+    public String getDescription(){
+        if(config != null){
+            return  config.getDescription();
+        }
+        return null;
+    }
+
+    public Map<String, String> getAnnotations() {
+        Map<String, String> annotations = new HashMap<String, String>();
+        if(config != null && config.getAnnotations() != null){
+            for(String annotation: config.getAnnotations().annotation.keySet()){
+                String globalAnnotation = "";
+                for(String subAnnotation: config.getAnnotations().getAnnotation().get(annotation)){
+                    globalAnnotation += subAnnotation + "\n";
+                }
+                annotations.put(annotation, globalAnnotation);
+            }
+        }
+        return annotations;
     }
 }

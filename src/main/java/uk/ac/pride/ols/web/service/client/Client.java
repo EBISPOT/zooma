@@ -1,7 +1,6 @@
 package uk.ac.pride.ols.web.service.client;
 
 import org.springframework.web.client.RestClientException;
-import uk.ac.pride.ols.web.service.model.DataHolder;
 import uk.ac.pride.ols.web.service.model.Identifier;
 import uk.ac.pride.ols.web.service.model.Ontology;
 import uk.ac.pride.ols.web.service.model.Term;
@@ -114,7 +113,7 @@ public interface Client {
      * @param strValue the current value to be search
      * @return A list of annotations that fit the value
      */
-    List<DataHolder> getTermsByAnnotationData(String ontologyId, String annotationType, String strValue) throws RestClientException;
+    List<Term> getTermsByAnnotationData(String ontologyId, String annotationType, String strValue) throws RestClientException;
 
     /**
      * This function try yto fin the annotations in the ontology by an interval double value.
@@ -124,7 +123,7 @@ public interface Client {
      * @param toDblValue the max value of the interval
      * @return the annotation list
      */
-    List<DataHolder> getTermsByAnnotationData(String ontologyId, String annotationType, double fromDblValue, double toDblValue) throws RestClientException;
+    List<Term> getTermsByAnnotationData(String ontologyId, String annotationType, double fromDblValue, double toDblValue) throws RestClientException;
 
     /**
      * This function search for a term in the ols with the current Id term and the ontologyID
@@ -135,4 +134,13 @@ public interface Client {
      * @throws RestClientException
      */
     List<Term> searchTermById(String identifier, Identifier.IdentifierType type, String ontologyId) throws RestClientException;
+
+    /**
+     * Retrieve an specific ontology information for an ID
+     * @param ontologyId ontology Identifier
+     * @return Ontology
+     * @throws RestClientException
+     */
+    Ontology getOntology(String ontologyId) throws RestClientException;
+
 }
