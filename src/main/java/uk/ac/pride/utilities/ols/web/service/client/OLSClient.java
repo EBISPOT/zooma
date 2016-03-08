@@ -180,9 +180,6 @@ public class OLSClient implements Client{
 
     public List<Term> getTermChildren(Identifier termOBOId, String ontologyId, int distance) throws RestClientException {
         List<Term> terms = new ArrayList<Term>();
-        List<Term> ontologyTerms = getRootTerms(ontologyId);
-        if( ontologyTerms == null || ontologyTerms.isEmpty() )
-            return terms;
         String query = String.format("%s://%s/api/ontologies/%s/terms?obo_id=%s",
                 config.getProtocol(), config.getHostName(),ontologyId, termOBOId.getIdentifier());
         TermQuery termQuery = this.restTemplate.getForObject(query, TermQuery.class);
