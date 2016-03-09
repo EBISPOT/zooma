@@ -179,29 +179,51 @@
 
     </build>
 
+    <repositories>
+        <repository>
+            <id>nexus-ebi-repo</id>
+            <name>The EBI internal repository</name>
+            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</url>
+            <releases>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>nexus-ebi-snapshot-repo</id>
+            <name>The EBI internal snapshot repository</name>
+            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>genesis-maven2-repository</id>
+            <name>Genesis maven2 repository</name>
+            <url>http://genesis.UGent.be/maven2</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
     <distributionManagement>
         <repository>
-            <id>internal.repo</id>
-            <name>Temporary Staging Repository</name>
-            <url>file://${project.build.directory}/mvn-repo</url>
+            <id>nexus-ebi-repo</id>
+            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo</url>
         </repository>
-        <!--        &lt;!&ndash; EBI repo &ndash;&gt;
-                <repository>
-                    <id>nexus-ebi-repo</id>
-                    <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo</url>
-                </repository>
-                &lt;!&ndash; EBI SNAPSHOT repo &ndash;&gt;
-                <snapshotRepository>
-                    <id>nexus-ebi-repo-snapshots</id>
-                    <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo-snapshots</url>
-                </snapshotRepository>-->
+        <snapshotRepository>
+            <id>nexus-ebi-repo-snapshots</id>
+            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo-snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
-    <!--    <scm>
-            <connection>scm:git:github.com/PRIDE-Utilities/ols-client.git</connection>
-            <developerConnection>scm:git:git@github.com:PRIDE-Utilities/ols-client.git</developerConnection>
-            <url>https://github.com/PRIDE-Utilities/ols-client.git</url>
-            <tag>HEAD</tag>
-        </scm>-->
+    <scm>
+        <connection>scm:git:github.com/PRIDE-Utilities/ols-client.git</connection>
+        <developerConnection>scm:git:git@github.com:PRIDE-Utilities/ols-client.git</developerConnection>
+        <url>https://github.com/PRIDE-Utilities/ols-client.git</url>
+        <tag>HEAD</tag>
+    </scm>
 
 </project>
