@@ -407,10 +407,10 @@ public class OLSClient implements Client{
     }
 
     private SearchQuery getSearchQuery(int page, String partialName, String ontology) throws RestClientException{
-        String query = String.format("%s://%s/api/search?q=*%s*&queryFields=label,synonyms&rows=%s&start=%s",
+        String query = String.format("%s://%s/api/search?q=*%s*&queryFields=label,synonym&rows=%s&start=%s",
                 config.getProtocol(), config.getHostName(),partialName, Constants.SEARCH_PAGE_SIZE, page);
         if(ontology != null && !ontology.isEmpty())
-            query = String.format("%s://%s/api/search?q=*%s*&queryFields=label,synonyms&rows=%s&start=%s&ontology=%s",
+            query = String.format("%s://%s/api/search?q=*%s*&queryFields=label,synonym&rows=%s&start=%s&ontology=%s",
                     config.getProtocol(), config.getHostName(),partialName, Constants.SEARCH_PAGE_SIZE, page, ontology);
 
         return this.restTemplate.getForObject(query, SearchQuery.class);
