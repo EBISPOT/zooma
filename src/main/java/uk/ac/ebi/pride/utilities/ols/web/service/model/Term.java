@@ -25,7 +25,7 @@ public class Term implements Comparable{
     @JsonProperty("annotation")
     Annotation annotation;
 
-    @JsonProperty("synonyms")
+    @JsonProperty("sysnonyms")
     String synonyms;
 
     @JsonProperty("ontology_name")
