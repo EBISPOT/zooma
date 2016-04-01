@@ -3,7 +3,8 @@ bower_components
 node_modules
 node
 etc
-
+*.iml
+.idea
 # Maven
 **/target/**
 
