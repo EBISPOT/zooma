@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigDev;
+import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Identifier;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Ontology;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public class OLSClientTest {
 
-    private static OLSClient olsClient = new OLSClient(new OLSWsConfigDev());
+    private static OLSClient olsClient = new OLSClient(new OLSWsConfigProd());
     private static final Logger logger = LoggerFactory.getLogger(OLSClientTest.class);
 
     @Test
@@ -94,7 +95,7 @@ public class OLSClientTest {
 
         List<Term> annotations = olsClient.getTermsByAnnotationData("mod","DiffAvg", 30, 140);
 
-        Assert.assertTrue(annotations.size() == 424);
+        Assert.assertTrue(annotations.size() == 303);
 
     }
 
