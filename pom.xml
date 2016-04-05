@@ -166,6 +166,8 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+            <releases>
+            </releases>
         </repository>
         <repository>
             <id>pst-snapshots</id>
