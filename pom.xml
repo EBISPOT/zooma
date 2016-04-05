@@ -158,6 +158,27 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>pst-release</id>
+            <name>EBI Nexus Repository</name>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>pst-snapshots</id>
+            <name>EBI Nexus Snapshots Repository</name>
+            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <scm>
         <connection>scm:git:https://github.com/PRIDE-Utilities/ols-client.git</connection>
         <developerConnection>scm:git:https://github.com/PRIDE-Utilities/ols-client.git</developerConnection>
