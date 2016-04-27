@@ -465,7 +465,7 @@ public class OLSClient implements Client {
         return parents;
     }
 
-    List<Term> getTermChildren(Href hrefChildren, int distance) {
+    private List<Term> getTermChildren(Href hrefChildren, int distance) {
         if (distance == 0)
             return new ArrayList<Term>();
         List<Term> childTerms = new ArrayList<Term>();
@@ -478,7 +478,7 @@ public class OLSClient implements Client {
         return childTerms;
     }
 
-    List<Term> getTermParents(Href hrefParents, int distance) {
+    private List<Term> getTermParents(Href hrefParents, int distance) {
         if (distance == 0)
             return new ArrayList<Term>();
         List<Term> parentTerms = new ArrayList<Term>();
@@ -510,7 +510,6 @@ public class OLSClient implements Client {
         }
         return terms;
     }
-
 
     /**
      * This function return true if the term is obsolete, if the term is not found in the ontology the function
