@@ -196,6 +196,28 @@ public class OLSClient implements Client{
     }
 
     /**
+     * Retrieve the List of parent Term for an specific Identifier.
+     *
+     * @param termOBOId  Term Identifier
+     * @param ontologyId Ontology Name
+     * @param distance   Distance to the child (1..n) where the distance is the step to the children.
+     * @return
+     * @throws RestClientException
+     */
+    public List<Term> getTermParents(Identifier termOBOId, String ontologyId, int distance) throws RestClientException {
+        List<Term> terms = new ArrayList<Term>();
+        String query = String.format("%s://%s/api/ontologies/%s/terms?obo_id=%s",
+                config.getProtocol(), config.getHostName(), ontologyId, termOBOId.getIdentifier());
+        TermQuery termQuery = this.restTemplate.getForObject(query, TermQuery.class);
+
+        if (termQuery != null && termQuery.getTerms() != null && termQuery.getTerms().length == 1 &&
+                termQuery.getTerms()[0] != null && termQuery.getTerms()[0].getLink() != null &&
+                termQuery.getTerms()[0].getLink().getParentsRef() != null)
+            terms = getTermParentsMap(termQuery.getTerms()[0].getLink().getAllParentsRef(), distance);
+        return terms;
+    }
+
+    /**
      * Check if an specific Term is obsolete in the OLS
      * @param termId Term id term identifier
      * @param ontologyId ontology Database
@@ -426,6 +448,16 @@ public class OLSClient implements Client{
         return children;
     }
 
+    private List<Term> getTermParentsMap(Href parentsHRef, int distance){
+        List<Term> parents = new ArrayList<Term>();
+        if(distance == 0)
+            return Collections.EMPTY_LIST;
+        List<Term> parentTerms = getTermParents(parentsHRef, distance);
+        for(Term term: parentTerms)
+            parents.add(term);
+        return parents;
+    }
+
     List<Term> getTermChildren(Href hrefChildren, int distance){
         if(distance == 0)
             return new ArrayList<Term>();
@@ -438,6 +470,19 @@ public class OLSClient implements Client{
         chieldTerms.addAll(currentChild);
         return chieldTerms;
 
+    }
+
+    List<Term> getTermParents(Href hrefParents, int distance){
+        if(distance == 0)
+            return new ArrayList<Term>();
+        List<Term> parentTerms = new ArrayList<Term>();
+        parentTerms.addAll(getTermQuery(hrefParents));
+        distance--;
+        List<Term> currentParent = new ArrayList<Term>();
+        for(Term parent: parentTerms)
+            currentParent.addAll(getTermParents(parent.getLink().getAllParentsRef(), distance));
+        parentTerms.addAll(currentParent);
+        return parentTerms;
     }
 
     private List<Term> getTermQuery(Href href) throws RestClientException{
