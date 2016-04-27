@@ -203,7 +203,7 @@ public class OLSClient implements Client {
     }
 
     /**
-     * Retrieve the List of parent Term for an specific Identifier.
+     * Retrieve the List of Term for an specific Identifier.
      *
      * @param termOBOId  Term Identifier
      * @param ontologyId Ontology Name
