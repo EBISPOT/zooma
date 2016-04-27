@@ -19,6 +19,7 @@ public class Link {
 
         SELF("self"),
         PARENTS("parents"),
+        ALL_PARENTS("hierarchicalParents"),
         ANCESTORS("ancestors"),
         CHILDREN("children"),
         ALL_CHILDREN("hierarchicalChildren"),
@@ -70,6 +71,18 @@ public class Link {
     public Href getChildrenRef(){
         if(links.containsKey(LinkOption.CHILDREN.getValue()))
             return links.get(LinkOption.CHILDREN.getValue());
+        return null;
+    }
+
+    public Href getParentsRef(){
+        if(links.containsKey(LinkOption.PARENTS.getValue()))
+            return links.get(LinkOption.PARENTS.getValue());
+        return null;
+    }
+
+    public Href getAllParentsRef(){
+        if(links.containsKey(LinkOption.ALL_PARENTS.getValue()))
+            return links.get(LinkOption.ALL_PARENTS.getValue());
         return null;
     }
 

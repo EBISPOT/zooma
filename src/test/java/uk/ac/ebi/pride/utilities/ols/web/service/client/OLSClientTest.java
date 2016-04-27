@@ -14,6 +14,9 @@ import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
  * @date 01/03/2016
@@ -99,4 +102,10 @@ public class OLSClientTest {
 
     }
 
+    @Test
+    public void testGetTermParents() throws Exception {
+        List<Term> parents = olsClient.getTermParents(new Identifier("GO:0000990", Identifier.IdentifierType.OBO), "GO", 1);
+        logger.info(parents.toString());
+        Assert.assertTrue(contains(parents, new Identifier("GO:0000988", Identifier.IdentifierType.OBO)));
+    }
 }
