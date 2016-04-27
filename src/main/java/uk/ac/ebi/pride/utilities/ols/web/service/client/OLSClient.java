@@ -461,15 +461,14 @@ public class OLSClient implements Client{
     List<Term> getTermChildren(Href hrefChildren, int distance){
         if(distance == 0)
             return new ArrayList<Term>();
-        List<Term> chieldTerms = new ArrayList<Term>();
-        chieldTerms.addAll(getTermQuery(hrefChildren));
+        List<Term> childTerms = new ArrayList<Term>();
+        childTerms.addAll(getTermQuery(hrefChildren));
         distance--;
         List<Term> currentChild = new ArrayList<Term>();
-        for(Term chield: chieldTerms)
-            currentChild.addAll(getTermChildren(chield.getLink().getAllChildrenRef(), distance));
-        chieldTerms.addAll(currentChild);
-        return chieldTerms;
-
+        for(Term child: childTerms)
+            currentChild.addAll(getTermChildren(child.getLink().getAllChildrenRef(), distance));
+        childTerms.addAll(currentChild);
+        return childTerms;
     }
 
     List<Term> getTermParents(Href hrefParents, int distance){
