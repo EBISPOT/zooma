@@ -443,8 +443,7 @@ public class OLSClient implements Client{
         if(distance == 0)
             return Collections.EMPTY_LIST;
         List<Term> childTerms = getTermChildren(childrenHRef, distance);
-        for(Term term: childTerms)
-            children.add(term);
+        children.addAll(childTerms);
         return children;
     }
 
@@ -453,8 +452,7 @@ public class OLSClient implements Client{
         if(distance == 0)
             return Collections.EMPTY_LIST;
         List<Term> parentTerms = getTermParents(parentsHRef, distance);
-        for(Term term: parentTerms)
-            parents.add(term);
+        parents.addAll(parentTerms);
         return parents;
     }
 
