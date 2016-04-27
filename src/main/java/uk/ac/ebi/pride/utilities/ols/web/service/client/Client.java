@@ -85,6 +85,18 @@ public interface Client {
      */
     List<Term> getTermChildren(Identifier termOBOId, String ontologyId, int distance) throws RestClientException;
 
+
+    /**
+     * This method retrieve a HashMap with the parent terms for an specific term. In the Hash<String,String>
+     * the key correspond to the Term Identifier and the value correspond to the name in the ontology.
+     *
+     * @param termOBOId Term Identifier
+     * @param ontologyId Ontology Name
+     * @param distance Distance to the parent (1..n) where the distance is the step to the children.
+     * @return Map<String, String> A Term Id and the corresponding name
+     */
+    List<Term> getTermParents(Identifier termOBOId, String ontologyId, int distance) throws RestClientException;
+
     /**
      * If the term is obsolete in the database
      * @param termId Term id
