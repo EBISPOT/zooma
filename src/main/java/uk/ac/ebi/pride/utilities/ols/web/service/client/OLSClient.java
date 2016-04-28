@@ -9,6 +9,7 @@ import uk.ac.ebi.pride.utilities.ols.web.service.utils.Constants;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.*;
 
 
@@ -414,15 +415,35 @@ public class OLSClient implements Client {
         return resultTerms;
     }
 
+    /**
+     * This function retrieve the term from an specific ontology and perform a search in the client side.
+     * In the future would be great to repleace the current functionality with the search capabilities in the ols.
+     *
+     * @param exactName     String to lookup in the name term
+     * @param ontologyId
+     * @return
+     */
+    public Term getExactTermByName(String exactName, String ontologyId) {
+        if (exactName == null || exactName.isEmpty()){
+            return null;
+        }
+        if (ontologyId == null || ontologyId.isEmpty()) {
+            return searchByExactTerm(exactName, null);
+        }
+        else {
+            return searchByExactTerm(exactName, ontologyId);
+        }
+    }
+
     private List<Term> searchByPartialTerm(String partialName, String ontology) throws RestClientException {
         List<Term> termResults = new ArrayList<Term>();
-        SearchQuery currentTermQuery = getSearchQuery(0, partialName, ontology);
+        SearchQuery currentTermQuery = getSearchQuery(0, partialName, ontology, false);
         List<SearchResult> terms = new ArrayList<SearchResult>();
         if (currentTermQuery != null && currentTermQuery.getResponse() != null && currentTermQuery.getResponse().getSearchResults() != null) {
             terms.addAll(Arrays.asList(currentTermQuery.getResponse().getSearchResults()));
             if (currentTermQuery.getResponse().getSearchResults().length < currentTermQuery.getResponse().getNumFound()) {
                 for (int i = 1; i < currentTermQuery.getResponse().getNumFound() / currentTermQuery.getResponse().getSearchResults().length + 1; i++) {
-                    SearchQuery termQuery = getSearchQuery(i, partialName, ontology);
+                    SearchQuery termQuery = getSearchQuery(i, partialName, ontology, false);
                     if (termQuery != null && termQuery.getResponse() != null && termQuery.getResponse().getSearchResults() != null)
                         terms.addAll(Arrays.asList(termQuery.getResponse().getSearchResults()));
                 }
@@ -437,12 +458,38 @@ public class OLSClient implements Client {
         return termResults;
     }
 
-    private SearchQuery getSearchQuery(int page, String partialName, String ontology) throws RestClientException {
-        String query = String.format("%s://%s/api/search?q=*%s*&queryFields=label,synonym&rows=%s&start=%s",
-                config.getProtocol(), config.getHostName(), partialName, Constants.SEARCH_PAGE_SIZE, page);
+    private Term searchByExactTerm(String exactName, String ontologyId) throws RestClientException {
+        SearchQuery currentTermQuery = getSearchQuery(0, exactName, ontologyId, true);
+        if (currentTermQuery.getResponse().getNumFound() != 0) {
+            SearchResult termResult = Arrays.asList(currentTermQuery.getResponse().getSearchResults()).get(0);
+            System.out.println(termResult.getId());
+            return new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(),
+                    termResult.getObo_id(), termResult.getOntology_name());
+        }
+        return null;
+    }
+
+
+    private SearchQuery getSearchQuery(int page, String name, String ontology, boolean exactMatch) throws RestClientException {
+        String query;
+        //We need to use " for and exact search. Using * we search for everything what looks similar.
+        try {
+            if (exactMatch) {
+                name = URLEncoder.encode("\"" + name + "\"", "UTF-8");
+            } else {
+                name = URLEncoder.encode("*" + name + "*", "UTF-8");
+
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        query = String.format("%s://%s/api/search?q=%s&queryFields=label,synonym&rows=%s&start=%s",
+                config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page);
+
         if (ontology != null && !ontology.isEmpty())
-            query = String.format("%s://%s/api/search?q=*%s*&queryFields=label,synonym&rows=%s&start=%s&ontology=%s",
-                    config.getProtocol(), config.getHostName(), partialName, Constants.SEARCH_PAGE_SIZE, page, ontology);
+            query = String.format("%s://%s/api/search?q=%s&queryFields=label,synonym&rows=%s&start=%s&ontology=%s",
+                    config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page, ontology);
+        System.out.println(query);
         return this.restTemplate.getForObject(query, SearchQuery.class);
     }
 
