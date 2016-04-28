@@ -443,7 +443,6 @@ public class OLSClient implements Client {
         if (ontology != null && !ontology.isEmpty())
             query = String.format("%s://%s/api/search?q=*%s*&queryFields=label,synonym&rows=%s&start=%s&ontology=%s",
                     config.getProtocol(), config.getHostName(), partialName, Constants.SEARCH_PAGE_SIZE, page, ontology);
-
         return this.restTemplate.getForObject(query, SearchQuery.class);
     }
 
