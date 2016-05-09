@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigDev;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Identifier;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Ontology;
@@ -13,6 +12,9 @@ import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 
 import java.util.Iterator;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
@@ -99,4 +101,23 @@ public class OLSClientTest {
 
     }
 
+    @Test
+    public void testGetTermParents() throws Exception {
+        List<Term> parents = olsClient.getTermParents(new Identifier("GO:0000990", Identifier.IdentifierType.OBO), "GO", 1);
+        logger.info(parents.toString());
+        Assert.assertTrue(contains(parents, new Identifier("GO:0000988", Identifier.IdentifierType.OBO)));
+    }
+
+    @Test
+    public void testGetExactTerm() throws Exception {
+        String termLabel = "allosteric change in dynamics";
+        String ontologyName = "mi";
+
+        Term term = olsClient.getExactTermByName(termLabel, ontologyName);
+
+        assertNotNull(term);
+        assertEquals(term.getLabel(), termLabel);
+        assertEquals(term.getOntologyName(), ontologyName);
+        assertEquals(term.getTermOBOId().getIdentifier(), "MI:1166");
+    }
 }
