@@ -517,15 +517,11 @@ public class OLSClient implements Client {
     private SearchQuery getSearchQuery(int page, String name, String ontology, boolean exactMatch) throws RestClientException {
         String query;
         //We need to use " for and exact search. Using * we search for everything what looks similar.
-        try {
-            if (exactMatch) {
-                name = URLEncoder.encode("\"" + name + "\"", "UTF-8");
-            } else {
-                name = URLEncoder.encode("*" + name + "*", "UTF-8");
+        if (exactMatch) {
+            name = "\"" + name + "\"";
+        } else {
+            name = "*" + name + "*";
 
-            }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
         query = String.format("%s://%s/api/search?q=%s&queryFields=label,synonym&rows=%s&start=%s",
                 config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page);
@@ -535,6 +531,7 @@ public class OLSClient implements Client {
                     config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page, ontology);
 
         logger.debug(query);
+        System.out.println(query);
         return this.restTemplate.getForObject(query, SearchQuery.class);
     }
 
