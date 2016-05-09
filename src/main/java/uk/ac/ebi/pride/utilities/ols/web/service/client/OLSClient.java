@@ -531,7 +531,6 @@ public class OLSClient implements Client {
                     config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page, ontology);
 
         logger.debug(query);
-        System.out.println(query);
         return this.restTemplate.getForObject(query, SearchQuery.class);
     }
 
