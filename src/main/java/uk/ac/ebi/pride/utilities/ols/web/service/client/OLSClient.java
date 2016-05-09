@@ -462,7 +462,6 @@ public class OLSClient implements Client {
         SearchQuery currentTermQuery = getSearchQuery(0, exactName, ontologyId, true);
         if (currentTermQuery.getResponse().getNumFound() != 0) {
             SearchResult termResult = Arrays.asList(currentTermQuery.getResponse().getSearchResults()).get(0);
-            System.out.println(termResult.getId());
             return new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(),
                     termResult.getObo_id(), termResult.getOntology_name());
         }
