@@ -386,6 +386,17 @@ public class OLSClient implements Client {
         return terms;
     }
 
+
+    private TermQuery getRootQuery(int page, String ontologyID) {
+
+        String query = String.format("%s://%s/api/ontologies/%s/terms/roots/?page=%s&size=%s",
+                config.getProtocol(), config.getHostName(), ontologyID, page, Constants.TERM_PAGE_SIZE);
+
+        logger.debug(query);
+
+        return this.restTemplate.getForObject(query, TermQuery.class);
+    }
+
     private TermQuery getTermQuery(int page, String ontologyID) {
 
         String query = String.format("%s://%s/api/ontologies/%s/terms/?page=%s&size=%s",
@@ -403,12 +414,23 @@ public class OLSClient implements Client {
      * @return List of Term
      */
     public List<Term> getRootTerms(String ontologyID) {
-        List<Term> terms = getAllOBOTermsFromOntology(ontologyID);
-        List<Term> resultTerms = new ArrayList<Term>();
-        for (Term term : terms)
-            if (term != null && term.isRoot())
-                resultTerms.add(term);
-        return resultTerms;
+        return getAllRootTerns(ontologyID);
+    }
+
+    private List<Term> getAllRootTerns(String ontologyID){
+        TermQuery currentTermQuery = getRootQuery(0, ontologyID);
+        List<Term> terms = new ArrayList<Term>();
+        if (currentTermQuery != null && currentTermQuery.getTerms() != null) {
+            terms.addAll(Arrays.asList(currentTermQuery.getTerms()));
+            if (currentTermQuery.getTerms().length < currentTermQuery.getPage().getTotalElements()) {
+                for (int i = 1; i < currentTermQuery.getPage().getTotalElements() / currentTermQuery.getTerms().length + 1; i++) {
+                    TermQuery termQuery = getRootQuery(i, ontologyID);
+                    if (termQuery != null && termQuery.getTerms() != null)
+                        terms.addAll(Arrays.asList(termQuery.getTerms()));
+                }
+            }
+        }
+        return terms;
     }
 
     /**
