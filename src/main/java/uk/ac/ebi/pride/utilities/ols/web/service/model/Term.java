@@ -25,8 +25,8 @@ public class Term implements Comparable{
     @JsonProperty("annotation")
     Annotation annotation;
 
-    @JsonProperty("sysnonyms")
-    String synonyms;
+    @JsonProperty("synonyms")
+    String[] synonyms;
 
     @JsonProperty("ontology_name")
     String ontologyName;
@@ -101,11 +101,11 @@ public class Term implements Comparable{
         this.description = description;
     }
 
-    public String getSynonyms() {
+    public String[] getSynonyms() {
         return synonyms;
     }
 
-    public void setSynonyms(String synonyms) {
+    public void setSynonyms(String[] synonyms) {
         this.synonyms = synonyms;
     }
 

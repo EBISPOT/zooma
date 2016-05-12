@@ -1,12 +1,13 @@
 package uk.ac.ebi.pride.utilities.ols.web.service.client;
 
 import org.springframework.web.client.RestClientException;
+import uk.ac.ebi.pride.utilities.ols.web.service.model.Identifier;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Ontology;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
-import uk.ac.ebi.pride.utilities.ols.web.service.model.Identifier;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
@@ -152,4 +153,12 @@ public interface Client {
      */
     Ontology getOntology(String ontologyId) throws RestClientException;
 
+
+    /**
+     * Retrieve all synonyms. (Not OBO Synonyms!)
+     * @param identifier Term Identifier
+     * @param ontology ontology Database
+     * @return A Set of all synonyms
+     */
+    Set<String> getSynonyms(Identifier identifier, String ontology);
 }

@@ -2,7 +2,6 @@ package uk.ac.ebi.pride.utilities.ols.web.service.client;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
@@ -12,6 +11,7 @@ import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -119,5 +119,21 @@ public class OLSClientTest {
         assertEquals(term.getLabel(), termLabel);
         assertEquals(term.getOntologyName(), ontologyName);
         assertEquals(term.getTermOBOId().getIdentifier(), "MI:1166");
+    }
+
+    @Test
+    public void testGetSynonyms() throws Exception {
+        Identifier identifier = new Identifier("MI:0018", Identifier.IdentifierType.OBO);
+        Set<String> synonyms = olsClient.getSynonyms(identifier, "mi");
+        Assert.assertEquals(synonyms.size(), 9);
+        Assert.assertTrue(synonyms.contains("classical two hybrid"));
+        Assert.assertTrue(synonyms.contains("Gal4 transcription regeneration"));
+        Assert.assertTrue(synonyms.contains("yeast two hybrid"));
+        Assert.assertTrue(synonyms.contains("Y2H"));
+        Assert.assertTrue(synonyms.contains("two-hybrid"));
+        Assert.assertTrue(synonyms.contains("2 hybrid"));
+        Assert.assertTrue(synonyms.contains("2-hybrid"));
+        Assert.assertTrue(synonyms.contains("2h"));
+        Assert.assertTrue(synonyms.contains("2H"));
     }
 }

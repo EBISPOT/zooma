@@ -507,7 +507,6 @@ public class OLSClient implements Client {
         SearchQuery currentTermQuery = getSearchQuery(0, exactName, ontologyId, true);
         if (currentTermQuery.getResponse().getNumFound() != 0) {
             SearchResult termResult = Arrays.asList(currentTermQuery.getResponse().getSearchResults()).get(0);
-            System.out.println(termResult.getId());
             return new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(),
                     termResult.getObo_id(), termResult.getOntology_name());
         }
@@ -518,15 +517,11 @@ public class OLSClient implements Client {
     private SearchQuery getSearchQuery(int page, String name, String ontology, boolean exactMatch) throws RestClientException {
         String query;
         //We need to use " for and exact search. Using * we search for everything what looks similar.
-        try {
-            if (exactMatch) {
-                name = URLEncoder.encode("\"" + name + "\"", "UTF-8");
-            } else {
-                name = URLEncoder.encode("*" + name + "*", "UTF-8");
+        if (exactMatch) {
+            name = "\"" + name + "\"";
+        } else {
+            name = "*" + name + "*";
 
-            }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
         query = String.format("%s://%s/api/search?q=%s&queryFields=label,synonym&rows=%s&start=%s",
                 config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page);
@@ -650,5 +645,12 @@ public class OLSClient implements Client {
             return ontology;
         }
         return null;
+    }
+
+    public Set<String> getSynonyms(Identifier identifier, String ontology) throws RestClientException {
+        Set<String> synonyms = new HashSet<>();
+        Term term = getTermById(identifier, ontology);
+        Collections.addAll(synonyms, term.getSynonyms());
+        return synonyms;
     }
 }
