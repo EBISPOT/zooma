@@ -646,4 +646,11 @@ public class OLSClient implements Client {
         }
         return null;
     }
+
+    public Set<String> getSynonyms(Identifier identifier, String ontology) throws RestClientException {
+        Set<String> synonyms = new HashSet<>();
+        Term term = getTermById(identifier, ontology);
+        Collections.addAll(synonyms, term.getSynonyms());
+        return synonyms;
+    }
 }
