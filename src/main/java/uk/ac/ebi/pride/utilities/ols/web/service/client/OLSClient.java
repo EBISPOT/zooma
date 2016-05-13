@@ -255,15 +255,15 @@ public class OLSClient implements Client {
         return null;
     }
 
-    public List<Term> searchTermById(String identifier, Identifier.IdentifierType type, String ontologyID) throws RestClientException {
+    public List<Term> searchTermById(String identifier, String ontologyID) throws RestClientException {
         List<Term> termResults = new ArrayList<Term>();
-        SearchQuery currentTermQuery = searchIdQuery(identifier, type, ontologyID, 0);
+        SearchQuery currentTermQuery = searchIdQuery(identifier, ontologyID, 0);
         List<SearchResult> terms = new ArrayList<SearchResult>();
         if (currentTermQuery != null && currentTermQuery.getResponse() != null && currentTermQuery.getResponse().getSearchResults() != null) {
             terms.addAll(Arrays.asList(currentTermQuery.getResponse().getSearchResults()));
             if (currentTermQuery.getResponse().getSearchResults().length < currentTermQuery.getResponse().getNumFound()) {
                 for (int i = 1; i < currentTermQuery.getResponse().getNumFound() / currentTermQuery.getResponse().getSearchResults().length + 1; i++) {
-                    SearchQuery termQuery = searchIdQuery(identifier, type, ontologyID, i);
+                    SearchQuery termQuery = searchIdQuery(identifier,  ontologyID, i);
                     if (termQuery != null && termQuery.getResponse() != null && termQuery.getResponse().getSearchResults() != null)
                         terms.addAll(Arrays.asList(termQuery.getResponse().getSearchResults()));
                 }
@@ -278,24 +278,17 @@ public class OLSClient implements Client {
         return termResults;
     }
 
-    private SearchQuery searchIdQuery(String identifier, Identifier.IdentifierType type, String ontologyID, int page) throws RestClientException {
+    private SearchQuery searchIdQuery(String identifier, String ontologyID, int page) throws RestClientException {
 
-        String fieldType = null;
-        if (type == Identifier.IdentifierType.OBO)
-            fieldType = "obo_id";
-        else if (type == Identifier.IdentifierType.OWL)
-            fieldType = "short_name";
-        else if (type == Identifier.IdentifierType.IRI)
-            fieldType = "iri";
 
-        String query = String.format("%s://%s/api/search?q=*%s*&queryFields=%s&fieldList=iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type&rows=%s&start=%s",
-                config.getProtocol(), config.getHostName(), identifier, fieldType, Constants.SEARCH_PAGE_SIZE, page);
+        String query = String.format("%s://%s/api/search?q=*%s*&fieldList=iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type&rows=%s&start=%s",
+                config.getProtocol(), config.getHostName(), identifier, Constants.SEARCH_PAGE_SIZE, page);
 
 
 
         if (ontologyID != null && !ontologyID.isEmpty())
-            query = String.format("%s://%s/api/search?q=*%s*&queryFields=%s&fieldList=iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type&rows=%s&start=%s&ontology=%s",
-                    config.getProtocol(), config.getHostName(), identifier, fieldType, Constants.SEARCH_PAGE_SIZE, page, ontologyID);
+            query = String.format("%s://%s/api/search?q=%s&exact=on&fieldList=iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type&rows=%s&start=%s&ontology=%s",
+                    config.getProtocol(), config.getHostName(), identifier, Constants.SEARCH_PAGE_SIZE, page, ontologyID);
 
         logger.debug(query);
         return this.restTemplate.getForObject(query, SearchQuery.class);

@@ -138,12 +138,11 @@ public interface Client {
     /**
      * This function search for a term in the ols with the current Id term and the ontologyID
      * @param identifier partial ontology ID
-     * @param type identifier to search.
      * @param ontologyId ontology to search
      * @return A map with all the terms that contains the present pattern
      * @throws RestClientException
      */
-    List<Term> searchTermById(String identifier, Identifier.IdentifierType type, String ontologyId) throws RestClientException;
+    List<Term> searchTermById(String identifier, String ontologyId) throws RestClientException;
 
     /**
      * Retrieve an specific ontology information for an ID
