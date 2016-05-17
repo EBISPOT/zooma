@@ -44,6 +44,16 @@
             </roles>
             <timezone>0</timezone>
         </developer>
+        <developer>
+            <id>mbernal</id>
+            <name>Manuel Bernal-Llinares</name>
+            <organization>Proteomics Team, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
     </developers>
 
     <properties>
