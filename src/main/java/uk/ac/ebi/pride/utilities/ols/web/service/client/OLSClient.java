@@ -509,13 +509,7 @@ public class OLSClient implements Client {
 
     private SearchQuery getSearchQuery(int page, String name, String ontology, boolean exactMatch) throws RestClientException {
         String query;
-        //We need to use " for and exact search. Using * we search for everything what looks similar.
-        if (exactMatch) {
-            name = "\"" + name + "\"";
-        } else {
-            name = "*" + name + "*";
 
-        }
         query = String.format("%s://%s/api/search?q=%s&queryFields=label,synonym&rows=%s&start=%s",
                 config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page);
 
@@ -523,6 +517,9 @@ public class OLSClient implements Client {
             query = String.format("%s://%s/api/search?q=%s&queryFields=label,synonym&rows=%s&start=%s&ontology=%s",
                     config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page, ontology);
 
+        if(exactMatch){
+            query += "&exact=true";
+        }
         logger.debug(query);
         return this.restTemplate.getForObject(query, SearchQuery.class);
     }
