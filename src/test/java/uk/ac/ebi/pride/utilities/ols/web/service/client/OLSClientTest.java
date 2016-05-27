@@ -1,6 +1,7 @@
 package uk.ac.ebi.pride.utilities.ols.web.service.client;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -135,5 +137,36 @@ public class OLSClientTest {
         Assert.assertTrue(synonyms.contains("2-hybrid"));
         Assert.assertTrue(synonyms.contains("2h"));
         Assert.assertTrue(synonyms.contains("2H"));
+    }
+
+    @Test
+    public void testGetMetaData() throws Exception {
+        Identifier identifier1 = new Identifier("MI:0446", Identifier.IdentifierType.OBO);
+        Map metadata1 = olsClient.getMetaData(identifier1, "mi");
+        Assert.assertEquals(1, metadata1.size());
+        Assert.assertNotNull(metadata1.get("definition"));
+        Assert.assertEquals("PubMed is designed to provide access to citations from biomedical literature. The data can be found at both NCBI PubMed and Europe PubMed Central. \n" +
+                "http://www.ncbi.nlm.nih.gov/pubmed\n" +
+                "http://europepmc.org", metadata1.get("definition"));
+
+        Identifier identifier2 = new Identifier("MOD:01161", Identifier.IdentifierType.OBO);
+        Map metadata2 = olsClient.getMetaData(identifier2, "mod");
+        Map synonyms = (Map) metadata2.get("synonym");
+        Assert.assertEquals(2, metadata2.size());
+        Assert.assertNotNull(metadata2.get("synonym"));
+        Assert.assertNotNull(metadata2.get("definition"));
+        Assert.assertNull(metadata2.get("comment"));
+        Assert.assertEquals(3, synonyms.size());
+        Assert.assertEquals("A protein modification that effectively removes oxygen atoms from a residue without the removal of hydrogen atoms.", metadata2.get("definition"));
+    }
+
+    @Test
+    public void testGetTermXrefs() throws Exception {
+        Identifier identifier1 = new Identifier("MI:0446", Identifier.IdentifierType.OBO);
+        Map xrefs = olsClient.getTermXrefs(identifier1, "mi");
+        Assert.assertEquals(3, xrefs.size());
+        Assert.assertEquals("[0-9]+", xrefs.get("id-validation-regexp"));
+        Assert.assertEquals("http://europepmc.org/abstract/MED/${ac}", xrefs.get("search-url"));
+        Assert.assertEquals("PMID:14755292", xrefs.get("xref_definition_14755292"));
     }
 }
