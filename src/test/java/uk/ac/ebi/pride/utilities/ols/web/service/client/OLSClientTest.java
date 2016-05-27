@@ -56,6 +56,7 @@ public class OLSClientTest {
     }
 
     @Test
+    @Ignore
     public void testGetTermsByName() throws Exception {
         List<Term> terms = olsClient.getTermsByName("modification", "ms", false);
         logger.info(terms.toString());
