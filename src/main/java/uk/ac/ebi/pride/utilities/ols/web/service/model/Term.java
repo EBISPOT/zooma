@@ -31,6 +31,9 @@ public class Term implements Comparable{
     @JsonProperty("ontology_name")
     String ontologyName;
 
+    @JsonProperty("score")
+    String score;
+
     @JsonProperty("ontology_prefix")
     String ontologyPrefix;
 
@@ -68,13 +71,15 @@ public class Term implements Comparable{
     }
 
     public Term(Identifier iri, String label, String[] description,
-                Identifier shortForm, Identifier oboId, String ontologyName) {
+                Identifier shortForm, Identifier oboId, String ontologyName, String score, String ontologyIri) {
         this.iri = iri;
         this.label = label;
         this.description = description;
         this.shortForm = shortForm;
         this.oboId = oboId;
         this.ontologyName = ontologyName;
+        this.score = score;
+        this.ontologyIri = ontologyIri;
     }
 
     public Identifier getIri() {
@@ -116,6 +121,10 @@ public class Term implements Comparable{
     public void setOntologyName(String ontologyName) {
         this.ontologyName = ontologyName;
     }
+
+    public String getScore() { return  score; }
+
+    public void setScore(String score) { this.score = score; }
 
     public String getOntologyPrefix() {
         return ontologyPrefix;

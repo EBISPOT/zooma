@@ -31,6 +31,12 @@ public class SearchResult {
     @JsonProperty("ontology_name")
     String ontology_name;
 
+    @JsonProperty("score")
+    String score;
+
+    @JsonProperty("ontology_iri")
+    String ontology_iri;
+
     public String getId() {
         return id;
     }
@@ -85,5 +91,21 @@ public class SearchResult {
 
     public void setOntology_name(String ontology_name) {
         this.ontology_name = ontology_name;
+    }
+
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
+    }
+
+    public String getOntology_iri() {
+        return ontology_iri;
+    }
+
+    public void setOntology_iri(String ontology_iri) {
+        this.ontology_iri = ontology_iri;
     }
 }

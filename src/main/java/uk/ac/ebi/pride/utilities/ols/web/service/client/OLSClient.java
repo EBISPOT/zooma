@@ -10,7 +10,6 @@ import uk.ac.ebi.pride.utilities.ols.web.service.utils.Constants;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.*;
 
 
@@ -272,7 +271,7 @@ public class OLSClient implements Client {
         for (int i = 0; i < terms.size(); i++)
             if (terms.get(i).getObo_id() != null && terms.get(i).getName() != null) {
                 SearchResult termResult = terms.get(i);
-                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name()));
+                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri()));
             }
 
         return termResults;
@@ -281,14 +280,36 @@ public class OLSClient implements Client {
     private SearchQuery searchIdQuery(String identifier, String ontologyID, int page) throws RestClientException {
 
 
-        String query = String.format("%s://%s/api/search?q=*%s*&fieldList=iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type&rows=%s&start=%s",
+        String query = String.format("%s://%s/api/search?q=*%s*&" + new FieldList.FieldListBuilder()
+                .setIri()
+                .setLabel()
+                .setShortForm()
+                .setOboId()
+                .setOntologyName()
+                .setOntologyPrefix()
+                .setDescription()
+                .setType()
+                .build()
+                .toString()
+                + "&rows=%s&start=%s",
                 config.getProtocol(), config.getHostName(), identifier, Constants.SEARCH_PAGE_SIZE, page);
 
 
 
         if (ontologyID != null && !ontologyID.isEmpty())
-            query = String.format("%s://%s/api/search?q=%s&exact=on&fieldList=iri,label,short_form,obo_id,ontology_name,ontology_prefix,description,type&rows=%s&start=%s&ontology=%s",
-                    config.getProtocol(), config.getHostName(), identifier, Constants.SEARCH_PAGE_SIZE, page, ontologyID);
+            query = String.format("%s://%s/api/search?q=%s&exact=on&" + new FieldList.FieldListBuilder()
+                .setIri()
+                .setLabel()
+                .setShortForm()
+                .setOboId()
+                .setOntologyName()
+                .setOntologyPrefix()
+                .setDescription()
+                .setType()
+                .build()
+                .toString()
+                + "&rows=%s&start=%s&ontology=%s",
+                config.getProtocol(), config.getHostName(), identifier, Constants.SEARCH_PAGE_SIZE, page, ontologyID);
 
         logger.debug(query);
         return this.restTemplate.getForObject(query, SearchQuery.class);
@@ -426,6 +447,15 @@ public class OLSClient implements Client {
         return terms;
     }
 
+
+    public List<Term> getTermsByName(String partialName, String ontologyID, boolean reverseKeyOrder) {
+        return getTermsByName(partialName, ontologyID, reverseKeyOrder, null);
+    }
+
+    public List<Term> getTermsByNameFromParent(String partialName, String ontologyID, boolean reverseKeyOrder, String childrenOf) {
+        return  getTermsByName(partialName, ontologyID, reverseKeyOrder, childrenOf);
+    }
+
     /**
      * This function retrieve all the terms from an specific ontology and perform a search in the client side.
      * In the future would be great to repleace the current functionality with the search capabilities in the ols.
@@ -435,15 +465,16 @@ public class OLSClient implements Client {
      * @param reverseKeyOrder sort the hash in a reverse order
      * @return
      */
-    public List<Term> getTermsByName(String partialName, String ontologyID, boolean reverseKeyOrder) {
+
+    private List<Term> getTermsByName(String partialName, String ontologyID, boolean reverseKeyOrder, String childrenOf) {
         List<Term> resultTerms;
         if (partialName == null || partialName.isEmpty())
             return Collections.emptyList();
 
         if (ontologyID == null || ontologyID.isEmpty())
-            resultTerms = searchByPartialTerm(partialName, null);
+            resultTerms = searchByPartialTerm(partialName, null, childrenOf);
         else
-            resultTerms = searchByPartialTerm(partialName, ontologyID);
+            resultTerms = searchByPartialTerm(partialName, ontologyID, childrenOf);
 
         if (reverseKeyOrder) {
             Set<Term> newMap = new TreeSet<Term>(Collections.reverseOrder());
@@ -452,6 +483,31 @@ public class OLSClient implements Client {
         }
         return resultTerms;
     }
+
+    public List<Term> getExactTermsByNameFromParent(String exactName, String ontologyId, String childrenOf) {
+        return  getExactTermsByName(exactName, ontologyId, childrenOf);
+    }
+
+    public List<Term> getExactTermsByName(String exactName, String ontologyId) {
+        return getExactTermsByName(exactName, ontologyId, null);
+    }
+
+    private List<Term> getExactTermsByName(String exactName, String ontologyId, String childrenOf) {
+
+        List<Term> termResults;
+
+        if (exactName == null || exactName.isEmpty()){
+            return null;
+        }
+        if (ontologyId == null || ontologyId.isEmpty()) {
+            return searchByExactTerm(exactName, null, childrenOf);
+        }
+        else {
+            return  searchByExactTerm(exactName, ontologyId, childrenOf);
+        }
+
+    }
+
 
     /**
      * This function retrieve the term from an specific ontology and perform a search in the client side.
@@ -462,26 +518,46 @@ public class OLSClient implements Client {
      * @return
      */
     public Term getExactTermByName(String exactName, String ontologyId) {
+
+        List<Term> termResults;
+
         if (exactName == null || exactName.isEmpty()){
             return null;
         }
         if (ontologyId == null || ontologyId.isEmpty()) {
-            return searchByExactTerm(exactName, null);
+            termResults = searchByExactTerm(exactName, null, null);
         }
         else {
-            return searchByExactTerm(exactName, ontologyId);
+            termResults = searchByExactTerm(exactName, ontologyId, null);
         }
+
+        if (termResults != null && !termResults.isEmpty()) {
+            return termResults.get(0);
+        }
+
+        return null;
     }
 
-    private List<Term> searchByPartialTerm(String partialName, String ontology) throws RestClientException {
+
+
+    private List<Term> searchByPartialTerm(String partialName, String ontology, String childrenOf) throws RestClientException {
+        return searchByTerm(partialName, ontology, false, childrenOf);
+    }
+
+    private List<Term> searchByExactTerm(String exactName, String ontologyId, String childrenOf) throws RestClientException {
+        return searchByTerm(exactName, ontologyId, true, childrenOf);
+    }
+
+
+    private List<Term> searchByTerm(String partialName, String ontology, boolean exact, String childrenOf) throws RestClientException {
         List<Term> termResults = new ArrayList<Term>();
-        SearchQuery currentTermQuery = getSearchQuery(0, partialName, ontology, false);
+        SearchQuery currentTermQuery = getSearchQuery(0, partialName, ontology, exact, childrenOf);
         List<SearchResult> terms = new ArrayList<SearchResult>();
         if (currentTermQuery != null && currentTermQuery.getResponse() != null && currentTermQuery.getResponse().getSearchResults() != null) {
             terms.addAll(Arrays.asList(currentTermQuery.getResponse().getSearchResults()));
             if (currentTermQuery.getResponse().getSearchResults().length < currentTermQuery.getResponse().getNumFound()) {
                 for (int i = 1; i < currentTermQuery.getResponse().getNumFound() / currentTermQuery.getResponse().getSearchResults().length + 1; i++) {
-                    SearchQuery termQuery = getSearchQuery(i, partialName, ontology, false);
+                    SearchQuery termQuery = getSearchQuery(i, partialName, ontology, exact, childrenOf);
                     if (termQuery != null && termQuery.getResponse() != null && termQuery.getResponse().getSearchResults() != null)
                         terms.addAll(Arrays.asList(termQuery.getResponse().getSearchResults()));
                 }
@@ -490,36 +566,43 @@ public class OLSClient implements Client {
         for (int i = 0; i < terms.size(); i++)
             if (terms.get(i).getObo_id() != null && terms.get(i).getName() != null) {
                 SearchResult termResult = terms.get(i);
-                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name()));
+                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri()));
             }
 
         return termResults;
     }
 
-    private Term searchByExactTerm(String exactName, String ontologyId) throws RestClientException {
-        SearchQuery currentTermQuery = getSearchQuery(0, exactName, ontologyId, true);
-        if (currentTermQuery.getResponse().getNumFound() != 0) {
-            SearchResult termResult = Arrays.asList(currentTermQuery.getResponse().getSearchResults()).get(0);
-            return new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(),
-                    termResult.getObo_id(), termResult.getOntology_name());
-        }
-        return null;
-    }
 
-
-    private SearchQuery getSearchQuery(int page, String name, String ontology, boolean exactMatch) throws RestClientException {
+    private SearchQuery getSearchQuery(int page, String name, String ontology, boolean exactMatch, String childrenOf) throws RestClientException {
         String query;
 
-        query = String.format("%s://%s/api/search?q=%s&queryFields=label,synonym&rows=%s&start=%s",
+        query = String.format("%s://%s/api/search?q=%s&" + new QueryFields.QueryFieldBuilder()
+                .setLabel()
+                .setSynonym()
+                .build()
+                .toString()
+                + "&rows=%s&start=%s&"
+                + new FieldList.FieldListBuilder()
+                .setLabel()
+                .setIri()
+                .setScore()
+                .setOntologyName()
+                .setOboId()
+                .setOntologyIri()
+                .build()
+                .toString() ,
                 config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page);
 
         if (ontology != null && !ontology.isEmpty())
-            query = String.format("%s://%s/api/search?q=%s&queryFields=label,synonym&rows=%s&start=%s&ontology=%s",
-                    config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page, ontology);
+            query += "&ontology=" + ontology;
 
         if(exactMatch){
             query += "&exact=true";
         }
+
+        if (childrenOf != null && !childrenOf.isEmpty())
+            query += "&childrenOf=" + childrenOf;
+
         logger.debug(query);
         return this.restTemplate.getForObject(query, SearchQuery.class);
     }
