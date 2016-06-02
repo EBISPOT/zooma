@@ -139,7 +139,7 @@ public class ZoomaUtils {
         Iterator<AnnotationSummary> summaryIterator = summaries.keySet().iterator();
 
         // we need to find summaries that agree and exclude duplicates - build a reference set
-        Set<AnnotationSummary> referenceSummaries = new HashSet<>();
+        List<AnnotationSummary> referenceSummaries = new ArrayList<>();
         referenceSummaries.add(summaryIterator.next()); // first summary can't duplicate anything
 
         // compare each summary with the reference set
@@ -164,8 +164,14 @@ public class ZoomaUtils {
             else {
                 // duplicate, is the new one better?
                 if (shouldReplace != null) {
-                    referenceSummaries.remove(shouldReplace);
-                    referenceSummaries.add(nextSummary);
+                    //try and replace, keeping the order that they where placed in
+                    for (int i = 0; i < referenceSummaries.size(); i++) {
+                        AnnotationSummary summary = referenceSummaries.get(i);
+                        if (summary.equals(shouldReplace)) {
+                            referenceSummaries.remove(i);
+                            referenceSummaries.add(i, nextSummary);
+                        }
+                    }
                 }
             }
         }
@@ -194,6 +200,20 @@ public class ZoomaUtils {
 
 
         return results;
+    }
+
+    public static Map<AnnotationSummary, Float> getNormalizedOLSScores(float olsTopScore, Map<AnnotationSummary, Float> summaries){
+
+        if (summaries != null && !summaries.isEmpty()) {
+            float topScore = Collections.max(summaries.values());
+            float topNormalizedScore = olsTopScore;
+            for (AnnotationSummary key : summaries.keySet()) {
+                float score = summaries.get(key);
+                float normalize = topNormalizedScore - (topScore - score);
+                summaries.put(key, normalize);
+            }
+        }
+        return summaries;
     }
 
     /**

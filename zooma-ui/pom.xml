@@ -40,10 +40,6 @@
                         <goals>
                             <goal>create</goal>
                         </goals>
-                        <configuration>
-                            <revisionOnScmFailure>[unknown]</revisionOnScmFailure>
-                            <buildNumberPropertyName>buildRevision</buildNumberPropertyName>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>generate-timestamp</id>
@@ -56,7 +52,6 @@
                             <items>
                                 <item>timestamp</item>
                             </items>
-                            <buildNumberPropertyName>releaseDate</buildNumberPropertyName>
                         </configuration>
                     </execution>
                 </executions>
@@ -100,6 +95,12 @@
         <dependency>
             <groupId>uk.ac.ebi.fgpt</groupId>
             <artifactId>zooma-lucene-services</artifactId>
+            <version>${zooma.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.ac.ebi.fgpt</groupId>
+            <artifactId>zooma-ols-service</artifactId>
             <version>${zooma.version}</version>
         </dependency>
 

@@ -70,10 +70,6 @@
                         <goals>
                             <goal>create</goal>
                         </goals>
-                        <configuration>
-                            <revisionOnScmFailure>[unknown]</revisionOnScmFailure>
-                            <buildNumberPropertyName>buildRevision</buildNumberPropertyName>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>generate-timestamp</id>
@@ -86,7 +82,6 @@
                             <items>
                                 <item>timestamp</item>
                             </items>
-                            <buildNumberPropertyName>releaseDate</buildNumberPropertyName>
                         </configuration>
                     </execution>
                 </executions>
@@ -220,7 +215,8 @@
         <module>zooma-searcher-app</module>
         <module>zooma-js</module>
         <module>zooma-ui</module>
-  </modules>
+        <module>zooma-ols-service</module>
+    </modules>
 
     <!-- dependencies required by all zooma modules -->
     <dependencies>

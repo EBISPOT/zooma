@@ -13,11 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchResourcesUnavailableException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchTimeoutException;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationPrediction;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationPredictionTemplate;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
-import uk.ac.ebi.fgpt.zooma.model.Property;
+import uk.ac.ebi.fgpt.zooma.model.*;
 import uk.ac.ebi.fgpt.zooma.util.AnnotationPredictionBuilder;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
@@ -64,6 +60,7 @@ public class Zooma extends SourceFilteredEndpoint {
 
     private final float cutoffScore;
     private final float cutoffPercentage;
+    private final float olsTopScore;
 
     // max time zooma will allow queries to run for - includes Lucene query, retrieval and queueing time
     private final float searchTimeout;
@@ -81,7 +78,7 @@ public class Zooma extends SourceFilteredEndpoint {
         this.cutoffScore = Float.parseFloat(configuration.getProperty("zooma.search.significance.score"));
         this.cutoffPercentage = Float.parseFloat(configuration.getProperty("zooma.search.cutoff.score"));
         this.searchTimeout = Float.parseFloat(configuration.getProperty("zooma.search.timeout")) * 1000;
-
+        this.olsTopScore = Float.parseFloat(configuration.getProperty("zooma.search.ols.cutoff.score"));
 
         int concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
         int queueSize = Integer.parseInt(configuration.getProperty("zooma.search.max.queue"));
@@ -279,8 +276,15 @@ public class Zooma extends SourceFilteredEndpoint {
                 new Callable<List<AnnotationPrediction>>() {
                     @Override
                     public List<AnnotationPrediction> call() throws Exception {
+
                         Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue);
-                        return createPredictions(propertyValue, null, summaries);
+                        if (!summaries.isEmpty()) {
+                            return createPredictions(propertyValue, null, summaries);
+                        } else {
+                            summaries = zoomaAnnotationSummaries.queryAndScoreOLS(propertyValue);
+
+                            return createPredictions(propertyValue, null, ZoomaUtils.getNormalizedOLSScores(olsTopScore, summaries));
+                        }
                     }
                 }
         );
@@ -295,7 +299,13 @@ public class Zooma extends SourceFilteredEndpoint {
                     public List<AnnotationPrediction> call() throws Exception {
                         Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue,
                                                                                                          propertyType);
-                        return createPredictions(propertyValue, propertyType, summaries);
+                        if (!summaries.isEmpty()){
+                            return createPredictions(propertyValue, propertyType, summaries);
+                        } else {
+                            summaries = zoomaAnnotationSummaries.queryAndScoreOLS(propertyValue, propertyType);
+
+                            return createPredictions(propertyValue, propertyType, ZoomaUtils.getNormalizedOLSScores(olsTopScore, summaries));
+                        }
                     }
                 }
         );
@@ -314,7 +324,16 @@ public class Zooma extends SourceFilteredEndpoint {
                                                                                                          "",
                                                                                                          preferredSources,
                                                                                                          requiredSources);
-                        return createPredictions(propertyValue, null, summaries);
+                        if (!summaries.isEmpty()){
+                            return createPredictions(propertyValue, null, summaries);
+                        } else {
+                        summaries = zoomaAnnotationSummaries.queryAndScoreOLS(propertyValue,
+                                    preferredSources,
+                                    requiredSources);
+
+                            return createPredictions(propertyValue, null, ZoomaUtils.getNormalizedOLSScores(olsTopScore, summaries));
+                        }
+
                     }
                 }
         );
@@ -335,7 +354,16 @@ public class Zooma extends SourceFilteredEndpoint {
                                                                                                          preferredSources,
                                                                                                          requiredSources);
 
-                        return createPredictions(propertyValue, propertyType, summaries);
+                        if (!summaries.isEmpty()){
+                            return createPredictions(propertyValue, propertyType, summaries);
+                        } else {
+                            summaries = zoomaAnnotationSummaries.queryAndScoreOLS(propertyValue,
+                                    propertyType,
+                                    preferredSources,
+                                    requiredSources);
+
+                            return createPredictions(propertyValue, propertyType, ZoomaUtils.getNormalizedOLSScores(olsTopScore, summaries));
+                        }
                     }
                 }
         );
@@ -413,71 +441,123 @@ public class Zooma extends SourceFilteredEndpoint {
 
             // for each good summary, extract an example annotation
             boolean achievedScore = false;
-            List<Annotation> goodAnnotations = new ArrayList<>();
 
             for (AnnotationSummary goodSummary : goodSummaries) {
-
                 if (!achievedScore && summaries.get(goodSummary) > cutoffScore) {
                     achievedScore = true;
-                }
-
-                if (!goodSummary.getAnnotationURIs().isEmpty()) {
-                    URI annotationURI = goodSummary.getAnnotationURIs().iterator().next();
-                    Annotation goodAnnotation = zoomaAnnotations.getAnnotationService().getAnnotation(annotationURI);
-                    if (goodAnnotation != null) {
-                        goodAnnotations.add(goodAnnotation);
-                    }
-                    else {
-                        throw new SearchException(
-                                "An annotation summary referenced an annotation that " +
-                                        "could not be found - ZOOMA's indexes may be out of date");
-                    }
-                }
-                else {
-                    String message = "An annotation summary with no associated annotations was found - " +
-                            "this is probably an error in inferring a new summary from lexical matches";
-                    getLog().warn(message);
-                    throw new SearchException(message);
+                    break; //won't come in here again
                 }
             }
+
+            List<Annotation> goodAnnotations = getGoodAnnotations(goodSummaries);
 
             // now we have a list of good annotations; use this list to create predicted annotations
-            AnnotationPrediction.Confidence confidence;
-            if (goodAnnotations.size() == 1 && achievedScore) {
-                // one good annotation, so create prediction with high confidence
-                confidence = AnnotationPrediction.Confidence.HIGH;
-            }
-            else {
-                if (achievedScore) {
-                    // multiple annotations each with a good score, create predictions with good confidence
-                    confidence = AnnotationPrediction.Confidence.GOOD;
-                }
-                else {
-                    if (goodAnnotations.size() == 1) {
-                        // single stand out annotation that didn't achieve score, create prediction with good confidence
-                        confidence = AnnotationPrediction.Confidence.GOOD;
-                    }
-                    else {
-                        // multiple annotations, none reached score, so create prediction with medium confidence
-                        confidence = AnnotationPrediction.Confidence.MEDIUM;
-                    }
-                }
-            }
+            AnnotationPrediction.Confidence confidence = getConfidence(goodAnnotations, achievedScore);
 
             // ... code to create new annotation predictions goes here
             for (Annotation annotation : goodAnnotations) {
                 AnnotationPredictionTemplate pt = AnnotationPredictionBuilder.predictFromAnnotation(annotation);
-                if (propertyType == null) {
-                    pt.searchWas(propertyValue);
-                }
-                else {
-                    pt.searchWas(propertyValue, propertyType);
+                if (annotation.getAnnotatedProperty() == null || annotation.getAnnotatedProperty().getPropertyValue() == null) {
+                    if (propertyType == null) {
+                        pt.searchWas(propertyValue);
+                    } else {
+                        pt.searchWas(propertyValue, propertyType);
+                    }
+                } else {
+                    pt.derivedFrom(annotation);
                 }
                 pt.confidenceIs(confidence);
                 predictions.add(pt.build());
             }
         }
         return predictions;
+    }
+
+    private AnnotationPrediction.Confidence getConfidence(List<Annotation> goodAnnotations, boolean achievedScore) {
+        if (goodAnnotations.size() == 1 && achievedScore) {
+            // one good annotation, so create prediction with high confidence
+            return AnnotationPrediction.Confidence.HIGH;
+        }
+        else {
+            if (achievedScore) {
+                // multiple annotations each with a good score, create predictions with good confidence
+                return AnnotationPrediction.Confidence.GOOD;
+            }
+            else {
+                if (goodAnnotations.size() == 1) {
+                    // single stand out annotation that didn't achieve score, create prediction with good confidence
+                    return AnnotationPrediction.Confidence.GOOD;
+                }
+                else {
+                    // multiple annotations, none reached score, so create prediction with medium confidence
+                    return AnnotationPrediction.Confidence.MEDIUM;
+                }
+            }
+        }
+    }
+
+    private List<Annotation> getGoodAnnotations(List<AnnotationSummary> goodSummaries) {
+        List<Annotation> annotations = new ArrayList<>();
+        Annotation goodAnnotation;
+
+        for (AnnotationSummary annotationSummary : goodSummaries) {
+            if (annotationSummary.getAnnotationURIs() != null) {
+
+                if (!annotationSummary.getAnnotationURIs().isEmpty()) {
+
+                    URI annotationURI = annotationSummary.getAnnotationURIs().iterator().next();
+                    goodAnnotation = zoomaAnnotations.getAnnotationService().getAnnotation(annotationURI);
+
+                    if (goodAnnotation != null) {
+                        annotations.add(goodAnnotation);
+                    } else {
+                        throw new SearchException(
+                                "An annotation summary referenced an annotation that " +
+                                        "could not be found - ZOOMA's indexes may be out of date");
+                    }
+                } else {
+                    String message = "An annotation summary with no associated annotations was found - " +
+                            "this is probably an error in inferring a new summary from lexical matches";
+                    getLog().warn(message);
+                    throw new SearchException(message);
+                }
+            } else {
+
+                goodAnnotation = convertToAnnotation(annotationSummary);
+
+                if (goodAnnotation != null) {
+                    annotations.add(goodAnnotation);
+                } else {
+                    String message = "An annotation summary from referenced an annotation that " +
+                            "could not be associated with OLS";
+                    getLog().warn(message);
+                    throw new SearchException(message);
+                }
+            }
+        }
+
+        return annotations;
+    }
+
+
+    private Annotation convertToAnnotation(AnnotationSummary annotationSummary) {
+
+        if (annotationSummary.getID() != null && !annotationSummary.getID().equals("OLS")){
+            //if the ID is not OLS then it wasn't annotated via OLS so it can return null
+            return null;
+        }
+
+        Collection<BiologicalEntity> biologicalEntities = null;
+
+        Property property = new SimpleTypedProperty(annotationSummary.getAnnotatedPropertyUri(), annotationSummary.getAnnotatedPropertyType(), annotationSummary.getAnnotatedPropertyValue());
+
+        URI source = annotationSummary.getAnnotationSourceURIs().iterator().next();
+        String name = annotationSummary.getAnnotationSourceURIs().toArray()[0].toString();
+
+        SimpleAnnotationSource annotationSource = new SimpleAnnotationSource(annotationSummary.getAnnotationSourceURIs().iterator().next(), name, AnnotationSource.Type.ONTOLOGY);
+        AnnotationProvenance annotationProvenance = new SimpleAnnotationProvenance(annotationSource, AnnotationProvenance.Evidence.COMPUTED_FROM_ONTOLOGY, source.toString(), null);
+
+        return new SimpleAnnotation(annotationSummary.getURI(), biologicalEntities, property, annotationProvenance, annotationSummary.getSemanticTags().iterator().next());
     }
 
     @ExceptionHandler(SearchTimeoutException.class)
