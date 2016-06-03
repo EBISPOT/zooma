@@ -71,7 +71,7 @@ public class Term implements Comparable{
     }
 
     public Term(Identifier iri, String label, String[] description,
-                Identifier shortForm, Identifier oboId, String ontologyName, String score, String ontologyIri) {
+                Identifier shortForm, Identifier oboId, String ontologyName, String score, String ontologyIri, boolean definedOntology) {
         this.iri = iri;
         this.label = label;
         this.description = description;
@@ -80,6 +80,7 @@ public class Term implements Comparable{
         this.ontologyName = ontologyName;
         this.score = score;
         this.ontologyIri = ontologyIri;
+        this.definedOntology = definedOntology;
     }
 
     public Identifier getIri() {

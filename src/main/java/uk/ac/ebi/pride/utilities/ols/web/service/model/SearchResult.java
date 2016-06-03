@@ -37,6 +37,9 @@ public class SearchResult {
     @JsonProperty("ontology_iri")
     String ontology_iri;
 
+    @JsonProperty("is_defining_ontology")
+    boolean definedOntology;
+
     public String getId() {
         return id;
     }
@@ -107,5 +110,13 @@ public class SearchResult {
 
     public void setOntology_iri(String ontology_iri) {
         this.ontology_iri = ontology_iri;
+    }
+
+    public boolean getIs_defining_ontology() {
+        return definedOntology;
+    }
+
+    public void setIs_defining_ontology(boolean definedOntology) {
+        this.definedOntology = definedOntology;
     }
 }

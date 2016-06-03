@@ -271,7 +271,7 @@ public class OLSClient implements Client {
         for (int i = 0; i < terms.size(); i++)
             if (terms.get(i).getObo_id() != null && terms.get(i).getName() != null) {
                 SearchResult termResult = terms.get(i);
-                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri()));
+                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri(), termResult.getIs_defining_ontology()));
             }
 
         return termResults;
@@ -289,6 +289,7 @@ public class OLSClient implements Client {
                 .setOntologyPrefix()
                 .setDescription()
                 .setType()
+                .setIsDefiningOntology()
                 .build()
                 .toString()
                 + "&rows=%s&start=%s",
@@ -306,6 +307,7 @@ public class OLSClient implements Client {
                 .setOntologyPrefix()
                 .setDescription()
                 .setType()
+                .setIsDefiningOntology()
                 .build()
                 .toString()
                 + "&rows=%s&start=%s&ontology=%s",
@@ -566,7 +568,7 @@ public class OLSClient implements Client {
         for (int i = 0; i < terms.size(); i++)
             if (terms.get(i).getObo_id() != null && terms.get(i).getName() != null) {
                 SearchResult termResult = terms.get(i);
-                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri()));
+                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri(), termResult.getIs_defining_ontology()));
             }
 
         return termResults;
@@ -589,6 +591,7 @@ public class OLSClient implements Client {
                 .setOntologyName()
                 .setOboId()
                 .setOntologyIri()
+                .setIsDefiningOntology()
                 .build()
                 .toString() ,
                 config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page);
