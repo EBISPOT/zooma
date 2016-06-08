@@ -8,7 +8,7 @@
     <groupId>uk.ac.ebi.pride.utilities</groupId>
     <artifactId>ols-client</artifactId>
     <packaging>jar</packaging>
-    <version>2.4</version>
+    <version>2.5-SNAPSHOT</version>
 
     <name>ols-client</name>
     <url>http://github.com/PRIDE-Utilities/ols-client</url>
@@ -209,7 +209,7 @@
         <connection>scm:git:https://github.com/PRIDE-Utilities/ols-client.git</connection>
         <developerConnection>scm:git:https://github.com/PRIDE-Utilities/ols-client.git</developerConnection>
         <url>https://github.com/PRIDE-Utilities/ols-client.git</url>
-        <tag>ols-client-2.4</tag>
+        <tag>HEAD</tag>
     </scm>
 
 </project>
