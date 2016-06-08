@@ -39,10 +39,7 @@ public class SimpleNoTypeAnnotationSummarySearchService extends AnnotationSummar
     @Override
     public Collection<AnnotationSummary> search(String propertyValuePattern, final URI... sources) {
         Collection<AnnotationSummary> annotationSummaries = SimpleNoTypeAnnotationSummarySearchService.super.search(propertyValuePattern, sources);
-        if (annotationSummaries == null || annotationSummaries.isEmpty()){
-            //search without the type
-            return annotationSummarySearchService.search(propertyValuePattern, sources);
-        }
+       //no propertyType given, nothing more to do
         return annotationSummaries;
     }
 
@@ -61,10 +58,7 @@ public class SimpleNoTypeAnnotationSummarySearchService extends AnnotationSummar
     @Override
     public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern, List<URI> preferredSources, URI... requiredSources) {
         Collection<AnnotationSummary> annotationSummaries = SimpleNoTypeAnnotationSummarySearchService.super.searchByPreferredSources(propertyValuePattern, preferredSources, requiredSources);
-        if (annotationSummaries == null || annotationSummaries.isEmpty()){
-            //search without the type
-            return annotationSummarySearchService.searchByPreferredSources(propertyValuePattern, preferredSources, requiredSources);
-        }
+        //no propertyType given, nothing more to do
         return annotationSummaries;
     }
 
