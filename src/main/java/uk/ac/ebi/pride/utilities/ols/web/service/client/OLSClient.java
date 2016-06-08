@@ -269,7 +269,7 @@ public class OLSClient implements Client {
             }
         }
         for (int i = 0; i < terms.size(); i++)
-            if (terms.get(i).getObo_id() != null && terms.get(i).getName() != null) {
+            if (terms.get(i).getName() != null) {
                 SearchResult termResult = terms.get(i);
                 termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri(), termResult.getIs_defining_ontology()));
             }
@@ -566,7 +566,7 @@ public class OLSClient implements Client {
             }
         }
         for (int i = 0; i < terms.size(); i++)
-            if (terms.get(i).getObo_id() != null && terms.get(i).getName() != null) {
+            if (terms.get(i).getName() != null) {
                 SearchResult termResult = terms.get(i);
                 termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri(), termResult.getIs_defining_ontology()));
             }
