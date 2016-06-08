@@ -8,7 +8,7 @@
     <groupId>uk.ac.ebi.pride.utilities</groupId>
     <artifactId>ols-client</artifactId>
     <packaging>jar</packaging>
-    <version>2.4-SNAPSHOT-IntAct</version>
+    <version>2.4-SNAPSHOT</version>
 
     <name>ols-client</name>
     <url>http://github.com/PRIDE-Utilities/ols-client</url>
