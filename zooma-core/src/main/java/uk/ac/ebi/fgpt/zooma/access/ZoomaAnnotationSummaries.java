@@ -46,8 +46,6 @@ public class ZoomaAnnotationSummaries {
 
     private AnnotationSummarySearchService annotationSummarySearchService;
 
-    private AnnotationSummarySearchService annotationSummarySearchServiceOLS;
-
     private Sorter<AnnotationSummary> annotationSummarySorter;
     private Limiter<AnnotationSummary> annotationSummaryLimiter;
     private Scorer<AnnotationSummary> annotationSummaryScorer;
@@ -58,13 +56,11 @@ public class ZoomaAnnotationSummaries {
     public ZoomaAnnotationSummaries(
             AnnotationSummaryService annotationSummaryService,
             @Qualifier("annotationSummarySearchService") AnnotationSummarySearchService annotationSummarySearchService,
-            @Qualifier("annotationSummarySearchServiceOLS") AnnotationSummarySearchService annotationSummarySearchServiceOLS,
             Sorter<AnnotationSummary> annotationSummarySorter,
             Limiter<AnnotationSummary> annotationSummaryLimiter,
             Scorer<AnnotationSummary> annotationSummaryScorer) {
         this.annotationSummaryService = annotationSummaryService;
         this.annotationSummarySearchService = annotationSummarySearchService;
-        this.annotationSummarySearchServiceOLS = annotationSummarySearchServiceOLS;
         this.annotationSummarySorter = annotationSummarySorter;
         this.annotationSummaryLimiter = annotationSummaryLimiter;
         this.annotationSummaryScorer = annotationSummaryScorer;
@@ -76,10 +72,6 @@ public class ZoomaAnnotationSummaries {
 
     public AnnotationSummarySearchService getAnnotationSummarySearchService() {
         return annotationSummarySearchService;
-    }
-
-    public AnnotationSummarySearchService getAnnotationSummarySearchServiceOLS() {
-        return annotationSummarySearchServiceOLS;
     }
 
     public Sorter<AnnotationSummary> getAnnotationSummarySorter() {
@@ -193,63 +185,4 @@ public class ZoomaAnnotationSummaries {
                 getAnnotationSummarySearchService().searchBySemanticTags(semanticTags);
         return getAnnotationSummaryScorer().score(annotations);
     }
-
-    public Map<AnnotationSummary,Float> queryAndScoreOLS(String query) {
-        return queryAndScoreOLS(query, false);
-    }
-
-    public Map<AnnotationSummary,Float> queryAndScoreOLS(String query, String type) {
-        return queryAndScoreOLS(query, type, false);
-    }
-
-    public Map<AnnotationSummary, Float> queryAndScoreOLS(String query, boolean prefixed) {
-        Collection<AnnotationSummary> annotations = prefixed
-                ? getAnnotationSummarySearchServiceOLS().searchByPrefix(query)
-                : getAnnotationSummarySearchServiceOLS().search(query);
-        return getAnnotationSummaryScorer().score(annotations, query);
-    }
-
-    public Map<AnnotationSummary, Float> queryAndScoreOLS(String query, String type, boolean prefixed) {
-        if (type.isEmpty()) {
-            return queryAndScoreOLS(query, prefixed);
-        }
-        else {
-            Collection<AnnotationSummary> annotations = prefixed
-                    ? getAnnotationSummarySearchServiceOLS().searchByPrefix(type, query)
-                    : getAnnotationSummarySearchServiceOLS().search(type, query);
-            return getAnnotationSummaryScorer().score(annotations, query, type);
-        }
-    }
-
-    public Map<AnnotationSummary, Float> queryAndScoreOLS(String query,
-                                                          List<URI> preferredSources,
-                                                          URI[] requiredSources) {
-        Collection<AnnotationSummary> annotations =
-                getAnnotationSummarySearchServiceOLS().searchByPreferredSources(query,
-                        preferredSources,
-                        requiredSources);
-        return getAnnotationSummaryScorer().score(annotations, query);
-
-    }
-
-
-    public Map<AnnotationSummary, Float> queryAndScoreOLS(String query,
-                                                          String type,
-                                                          List<URI> preferredSources,
-                                                          URI[] requiredSources) {
-
-        if (type.isEmpty()){
-            return queryAndScoreOLS(query, preferredSources, requiredSources);
-        }
-
-        Collection<AnnotationSummary> annotations =
-                getAnnotationSummarySearchServiceOLS().searchByPreferredSources(type,
-                        query,
-                        preferredSources,
-                        requiredSources);
-        return getAnnotationSummaryScorer().score(annotations, query, type);
-
-    }
-
-
 }

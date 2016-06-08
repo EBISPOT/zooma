@@ -276,15 +276,8 @@ public class Zooma extends SourceFilteredEndpoint {
                 new Callable<List<AnnotationPrediction>>() {
                     @Override
                     public List<AnnotationPrediction> call() throws Exception {
-
                         Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue);
-                        if (!summaries.isEmpty()) {
-                            return createPredictions(propertyValue, null, summaries);
-                        } else {
-                            summaries = zoomaAnnotationSummaries.queryAndScoreOLS(propertyValue);
-
-                            return createPredictions(propertyValue, null, ZoomaUtils.getNormalizedOLSScores(olsTopScore, summaries));
-                        }
+                        return createPredictions(propertyValue, null, summaries);
                     }
                 }
         );
@@ -299,13 +292,7 @@ public class Zooma extends SourceFilteredEndpoint {
                     public List<AnnotationPrediction> call() throws Exception {
                         Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue,
                                                                                                          propertyType);
-                        if (!summaries.isEmpty()){
-                            return createPredictions(propertyValue, propertyType, summaries);
-                        } else {
-                            summaries = zoomaAnnotationSummaries.queryAndScoreOLS(propertyValue, propertyType);
-
-                            return createPredictions(propertyValue, propertyType, ZoomaUtils.getNormalizedOLSScores(olsTopScore, summaries));
-                        }
+                        return createPredictions(propertyValue, propertyType, summaries);
                     }
                 }
         );
@@ -324,16 +311,7 @@ public class Zooma extends SourceFilteredEndpoint {
                                                                                                          "",
                                                                                                          preferredSources,
                                                                                                          requiredSources);
-                        if (!summaries.isEmpty()){
-                            return createPredictions(propertyValue, null, summaries);
-                        } else {
-                        summaries = zoomaAnnotationSummaries.queryAndScoreOLS(propertyValue,
-                                    preferredSources,
-                                    requiredSources);
-
-                            return createPredictions(propertyValue, null, ZoomaUtils.getNormalizedOLSScores(olsTopScore, summaries));
-                        }
-
+                        return createPredictions(propertyValue, null, summaries);
                     }
                 }
         );
@@ -354,16 +332,7 @@ public class Zooma extends SourceFilteredEndpoint {
                                                                                                          preferredSources,
                                                                                                          requiredSources);
 
-                        if (!summaries.isEmpty()){
-                            return createPredictions(propertyValue, propertyType, summaries);
-                        } else {
-                            summaries = zoomaAnnotationSummaries.queryAndScoreOLS(propertyValue,
-                                    propertyType,
-                                    preferredSources,
-                                    requiredSources);
-
-                            return createPredictions(propertyValue, propertyType, ZoomaUtils.getNormalizedOLSScores(olsTopScore, summaries));
-                        }
+                        return createPredictions(propertyValue, propertyType, summaries);
                     }
                 }
         );
@@ -436,7 +405,7 @@ public class Zooma extends SourceFilteredEndpoint {
         // now use client to test and filter them
         if (!summaries.isEmpty()) {
             // get well scored annotation summaries
-            List<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(summaries,
+            List<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(ZoomaUtils.normalizeOLSScores(olsTopScore, summaries),
                                                                                          cutoffPercentage);
 
             // for each good summary, extract an example annotation

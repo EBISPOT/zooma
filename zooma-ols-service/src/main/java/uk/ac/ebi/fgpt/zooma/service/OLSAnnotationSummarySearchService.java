@@ -12,6 +12,13 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ *
+ * Implements an {@link AnnotationSummarySearchService} using the Ontology Lookup Service.
+ * Each search calls the doSearch method that uses the {@link OLSSearchService} to
+ * lookup the query in OLS. It then uses the {@link OLSAnnotationSummaryMapper} to convert
+ * the {@link Term}s into  {@link AnnotationSummary}s.
+ *
+ *
  * Created by olgavrou on 19/05/2016.
  */
 public class OLSAnnotationSummarySearchService extends Initializable implements AnnotationSummarySearchService  {
@@ -124,6 +131,9 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
     protected void doTermination() throws Exception {
     }
 
+    /*
+     *  Uses the provided olsSearchService to do a simple OLS Search, and returns the Term-s as AnnotationSummary-s
+     */
     protected Collection<AnnotationSummary> doSearch(OLSAnnotationSummaryMapper mapper,
                                                      String propertyValuePattern) throws InterruptedException {
 
@@ -139,6 +149,11 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
         return annotationSummaries;
     }
 
+    /*
+     *  Uses the provided olsSearchService to first query OLS for the given propertyType, and then
+     *  use the found terms as parents when querying the propertyValuePattern in OLS.
+     *  Returns the final Term-s as AnnotationSummary-s
+     */
     protected Collection<AnnotationSummary> doSearch(OLSAnnotationSummaryMapper mapper, String propertyType, String propertyValuePattern) {
         Collection<AnnotationSummary> annotationSummaries = new ArrayList<>();
         List <Term> terms = new ArrayList<>();
@@ -166,6 +181,12 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
     /**********************************************************************************/
 
 
+     /*
+      *  Uses the provided olsSearchService to do a simple OLS Search. When given sources, pass them to OLS
+      *  in order to do a ontology-specific search.
+      *  Returns the Term-s as AnnotationSummary-s
+      *
+      */
     protected Collection<AnnotationSummary> doSearch(OLSAnnotationSummaryMapper mapper,
                                                      String propertyValuePattern,
                                                      URI... sources) throws InterruptedException {
@@ -184,6 +205,12 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
         return annotationSummaries;
     }
 
+    /*
+    *  Uses the provided olsSearchService to first query OLS for the given propertyType, and then
+    *  use the found terms as parents when querying the propertyValuePattern in OLS.
+    *  When given sources, pass them to OLS in order to do a ontology-specific search.
+    *  Returns the final Term-s as AnnotationSummary-s
+    */
     protected Collection<AnnotationSummary> doSearch(OLSAnnotationSummaryMapper mapper, String propertyType, String propertyValuePattern, URI[] sources) {
         Collection<AnnotationSummary> annotationSummaries = new ArrayList<>();
         List <Term> terms = new ArrayList<>();
@@ -203,16 +230,20 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
                 }
 
                 terms = olsSearchService.getTermsByNameFromParent(propertyValuePattern, cleanSources, childrenOf.toString());
-            }
 
-            for (Term term : terms) {
-                annotationSummaries.add((AnnotationSummary) mapper.mapOLSTermToAnnotation(term));
+                for (Term term : terms) {
+                    annotationSummaries.add((AnnotationSummary) mapper.mapOLSTermToAnnotation(term));
+                }
             }
         }
 
         return annotationSummaries;
     }
 
+    /*
+     * May need more work. Used to clean a source from e.g.: "http://www.berkeleybop.org/ontologies/po/po.owl"
+     * to "po", so to be added in the ols query as: ontology=po
+     */
     private ArrayList<String> cleanSources(URI[] sources){
 
         ArrayList<String> cleanSources = new ArrayList<>();

@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
+ * Maps a returned Term from the ols-client to a AnnotationSummary.
+ * Term is given the ID: OLS, and anything else that is specific to lucene indexes is left null or empty.
+ *
  * Created by olgavrou on 19/05/2016.
  */
 public class OLSAnnotationSummaryMapper {

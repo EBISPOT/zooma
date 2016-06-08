@@ -202,9 +202,13 @@ public class ZoomaUtils {
         return results;
     }
 
-    public static Map<AnnotationSummary, Float> getNormalizedOLSScores(float olsTopScore, Map<AnnotationSummary, Float> summaries){
+    public static Map<AnnotationSummary, Float> normalizeOLSScores(float olsTopScore, Map<AnnotationSummary, Float> summaries){
 
         if (summaries != null && !summaries.isEmpty()) {
+            Set<AnnotationSummary> keys = summaries.keySet();
+            if(!keys.iterator().next().getID().equals("OLS")){
+                return summaries;
+            }
             float topScore = Collections.max(summaries.values());
             float topNormalizedScore = olsTopScore;
             for (AnnotationSummary key : summaries.keySet()) {

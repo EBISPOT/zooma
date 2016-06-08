@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ *
+ * Uses the PRIDE ols-client, modified to the SPOT needs (https://github.com/EBISPOT/ols-client)
+ *
  * Created by olgavrou on 20/05/2016.
  */
 public class OLSSearchService extends Initializable {
@@ -60,6 +63,11 @@ public class OLSSearchService extends Initializable {
         return olsClient.getExactTermsByNameFromParent(value, source, childrenOf);
     }
 
+    /*
+     * If the Term returned is from a defining ontology the score is increased by one.
+     * This is done due to the reason that if duplicate iri's are returned from different ontologies
+     * in OLS, Zooma will keep only one of them, and we want to keep the one from the defining ontology.
+     */
     private List<Term> increaseScoreForDefiningOntologyTerm(List<Term> terms){
 
         for (Term term : terms){
