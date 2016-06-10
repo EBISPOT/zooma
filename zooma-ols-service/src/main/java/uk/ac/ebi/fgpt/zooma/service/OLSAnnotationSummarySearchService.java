@@ -101,7 +101,7 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
     public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern, List<URI> preferredSources, URI... requiredSources) {
         try {
             initOrWait();
-            return doSearch(getMapper(), propertyValuePattern);
+            return doSearch(getMapper(), propertyValuePattern, requiredSources);
         }
         catch (InterruptedException e) {
             throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
@@ -113,7 +113,7 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
     public Collection<AnnotationSummary> searchByPreferredSources(String propertyType, String propertyValuePattern, List<URI> preferredSources, URI... requiredSources) {
         try {
             initOrWait();
-            return doSearch(getMapper(), propertyType, propertyValuePattern);
+            return doSearch(getMapper(), propertyType, propertyValuePattern, requiredSources);
         }
         catch (InterruptedException e) {
             throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
@@ -241,32 +241,18 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
     }
 
     /*
-     * May need more work. Used to clean a source from e.g.: "http://www.berkeleybop.org/ontologies/po/po.owl"
+     * Used to clean a source from e.g.: "http://www.berkeleybop.org/ontologies/po/po.owl"
      * to "po", so to be added in the ols query as: ontology=po
      */
     private ArrayList<String> cleanSources(URI[] sources){
 
         ArrayList<String> cleanSources = new ArrayList<>();
 
-        //NOTE: sources for ontologies is going to be the whole uri or just the name?
-        //if whole uri then need to strip it
         for (URI source : sources){
-            //clean the source
-            if (source.toString().contains("/")){
-                String [] sourceConc = source.toString().split("/");
-                String s = sourceConc[sourceConc.length - 1 ].toLowerCase();
-                if (s.contains(".")){
-                    s = s.split("\\.")[0];
-                }
-                cleanSources.add(s);
-            } else {
-                String s = source.toString();
-                if (s.contains(".")){
-                    s = source.toString().split("\\.")[0];
-                }
-                cleanSources.add(s.toLowerCase()); //Need to look into this better maybe
+            String namespace = olsSearchService.getOntologyNamespaceFromId(source.toString());
+            if (namespace != null) {
+                cleanSources.add(namespace);
             }
-
         }
 
         return cleanSources;

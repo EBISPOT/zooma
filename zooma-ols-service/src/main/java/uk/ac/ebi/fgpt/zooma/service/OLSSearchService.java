@@ -1,12 +1,14 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
+import javafx.util.Pair;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.pride.utilities.ols.web.service.client.OLSClient;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
+import uk.ac.ebi.pride.utilities.ols.web.service.model.Ontology;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
+import java.util.*;
 
 /**
  *
@@ -18,10 +20,14 @@ public class OLSSearchService extends Initializable {
 
     private OLSClient olsClient;
 
+    //holds all the ontology <id, namespace> mappings
+    private Map<String, String> ontologyMappings;
+
     @Override
     protected void doInitialization() throws Exception {
 
         this.olsClient = new OLSClient(new OLSWsConfigProd());
+        this.ontologyMappings = new HashMap<>();
 
     }
 
@@ -77,6 +83,45 @@ public class OLSSearchService extends Initializable {
         }
 
         return terms;
+    }
+
+    public Map<String, String> getAllOntologies(){
+
+        List<Ontology> ontologyList = olsClient.getOntologies();
+        for (Ontology ontology : ontologyList){
+            ontologyMappings.put(ontology.getConfig().getId(), ontology.getConfig().getNamespace());
+        }
+
+        return ontologyMappings;
+    }
+
+    /*
+     * Returns a pair of the ontology id <-> ontology nampespace, for a given ontology name
+     */
+    public Pair<String, String> getOntology(String name){
+
+        if (ontologyMappings.containsValue(name)){
+            for (String key : ontologyMappings.keySet()){
+                if (ontologyMappings.get(key).equals(name)){
+                    return new Pair<String, String>(key, name);
+                }
+            }
+        }
+        Ontology ontology = olsClient.getOntology(name);
+        return new Pair(ontology.getConfig().getId(), ontology.getConfig().getNamespace());
+    }
+
+    public String getOntologyNamespaceFromId(String uri){
+
+        if (ontologyMappings.containsKey(uri)){
+            return ontologyMappings.get(uri);
+        }
+
+        Ontology ontology = olsClient.getOntologyFromId(URI.create(uri));
+        if (ontology != null){
+            return ontology.getConfig().getNamespace();
+        }
+        return null;
     }
 
 }
