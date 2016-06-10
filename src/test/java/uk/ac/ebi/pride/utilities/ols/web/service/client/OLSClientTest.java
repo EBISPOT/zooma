@@ -186,17 +186,6 @@ public class OLSClientTest {
     }
 
     @Test
-    public void testGetAllOntologiesInOLS(){
-            List<Ontology> ontologies = olsClient.getOntologies();
-            for (Ontology ontology : ontologies){
-                System.out.println(ontology.getConfig().getNamespace());
-                System.out.println(ontology.getConfig().getId());
-                System.out.println("==================");
-            }
-        System.out.println(ontologies.size());
-    }
-
-    @Test
     public void testGetOntologyFromId(){
 
         Ontology ontology = olsClient.getOntologyFromId(URI.create("http://www.ebi.ac.uk/efo"));
