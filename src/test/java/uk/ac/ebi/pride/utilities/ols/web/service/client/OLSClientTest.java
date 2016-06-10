@@ -11,6 +11,7 @@ import uk.ac.ebi.pride.utilities.ols.web.service.model.Identifier;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Ontology;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 
+import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -182,7 +183,41 @@ public class OLSClientTest {
         Assert.assertEquals(terms.get(0).getIri().getIdentifier(),"http://purl.obolibrary.org/obo/UBERON_0002107");
         Assert.assertEquals(terms.get(0).getOntologyName().toLowerCase(),"efo");
 
+    }
+
+    @Test
+    public void testGetAllOntologiesInOLS(){
+            List<Ontology> ontologies = olsClient.getOntologies();
+            for (Ontology ontology : ontologies){
+                System.out.println(ontology.getConfig().getNamespace());
+                System.out.println(ontology.getConfig().getId());
+                System.out.println("==================");
+            }
+        System.out.println(ontologies.size());
+    }
+
+    @Test
+    public void testGetOntologyFromId(){
+
+        Ontology ontology = olsClient.getOntologyFromId(URI.create("http://www.ebi.ac.uk/efo"));
+        assertEquals(ontology.getNamespace(),"efo");
+
+        ontology = olsClient.getOntologyFromId(URI.create("http://purl.obolibrary.org/obo/pride_cv.obo"));
+        assertEquals(ontology.getNamespace(),"pride");
+
+        ontology = olsClient.getOntologyFromId(URI.create("http://purl.enanomapper.org/onto/enanomapper.owl"));
+        assertEquals(ontology.getNamespace(),"enm");
+
+        ontology = olsClient.getOntologyFromId(URI.create("file:/C:/Lea/ontologies/environnement/leo.obo"));
+        assertEquals(ontology.getNamespace(),"eol");
+
+        ontology = olsClient.getOntologyFromId(URI.create("http://www.bio.ntnu.no/ontology/GeXO/gexo.owl"));
+        assertEquals(ontology.getNamespace(),"gexo");
+
+        ontology = olsClient.getOntologyFromId(URI.create("http://purl.obolibrary.org/obo/go"));
+        assertEquals(ontology.getNamespace(),"go");
 
     }
+
 
 }

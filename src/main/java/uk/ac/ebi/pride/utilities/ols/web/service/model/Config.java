@@ -10,6 +10,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Config {
 
+    @JsonProperty("id")
+    String id;
+
     @JsonProperty("versionIri")
     String versionIri;
 
@@ -239,5 +242,13 @@ public class Config {
 
     public void setInternalMetadataProperties(String[] internalMetadataProperties) {
         this.internalMetadataProperties = internalMetadataProperties;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

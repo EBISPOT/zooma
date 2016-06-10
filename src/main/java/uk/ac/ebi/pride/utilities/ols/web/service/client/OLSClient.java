@@ -9,6 +9,7 @@ import uk.ac.ebi.pride.utilities.ols.web.service.model.*;
 import uk.ac.ebi.pride.utilities.ols.web.service.utils.Constants;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.util.*;
 
@@ -188,6 +189,16 @@ public class OLSClient implements Client {
             }
         }
         return ontologies;
+    }
+
+    public Ontology getOntologyFromId(URI id){
+        List<Ontology> ontologyList = getOntologies();
+        for (Ontology ontology : ontologyList){
+            if (ontology.getConfig().getId().equals(id.toString())){
+                return ontology;
+            }
+        }
+        return null;
     }
 
     /**
