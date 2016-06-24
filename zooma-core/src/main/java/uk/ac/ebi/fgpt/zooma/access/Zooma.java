@@ -174,56 +174,58 @@ public class Zooma extends SourceFilteredEndpoint {
                                                                        defaultValue = "") String filter) {
         if (propertyType == null) {
             SearchType searchType = validateFilterArguments(filter);
-            URI[] requiredSources;
+            URI[] requiredSources = new URI[0];
+            URI[] ontologySources = parseOntologySourcesFromFilter(filter);
             switch (searchType) {
                 case REQUIRED_ONLY:
                 case REQUIRED_AND_PREFERRED:
                     requiredSources = parseRequiredSourcesFromFilter(filter);
-                    return selectFromSources(propertyValue, requiredSources);
+                    return selectFromSources(propertyValue, requiredSources, ontologySources);
                 case PREFERRED_ONLY:
                 case UNRESTRICTED:
                 default:
-                    return select(propertyValue);
+                    return select(propertyValue, requiredSources, ontologySources);
             }
         }
         else {
             SearchType searchType = validateFilterArguments(filter);
-            URI[] requiredSources;
+            URI[] requiredSources = new URI[0];
+            URI[] ontologySources = parseOntologySourcesFromFilter(filter);
             switch (searchType) {
                 case REQUIRED_ONLY:
                 case REQUIRED_AND_PREFERRED:
                     requiredSources = parseRequiredSourcesFromFilter(filter);
-                    return selectFromSources(propertyValue, propertyType, requiredSources);
+                    return selectFromSources(propertyValue, propertyType, requiredSources, ontologySources);
                 case PREFERRED_ONLY:
                 case UNRESTRICTED:
                 default:
-                    return select(propertyValue, propertyType);
+                    return select(propertyValue, propertyType, requiredSources, ontologySources);
             }
         }
     }
 
-    public List<AnnotationSummary> select(String propertyValue) {
-        return extractAnnotationSummaryList(zoomaAnnotationSummaries.queryAndScore(propertyValue));
+    public List<AnnotationSummary> select(String propertyValue, URI[] sources, URI[] ontologySources) {
+        return extractAnnotationSummaryList(zoomaAnnotationSummaries.queryAndScore(propertyValue, sources, ontologySources));
     }
 
-    public List<AnnotationSummary> select(String propertyValue, String propertyType) {
-        return extractAnnotationSummaryList(zoomaAnnotationSummaries.queryAndScore(propertyValue, propertyType));
+    public List<AnnotationSummary> select(String propertyValue, String propertyType, URI[] sources, URI[] ontologySources) {
+        return extractAnnotationSummaryList(zoomaAnnotationSummaries.queryAndScore(propertyValue, propertyType, sources, ontologySources));
     }
 
-    public List<AnnotationSummary> selectFromSources(String propertyValue, URI... requiredSources) {
+    public List<AnnotationSummary> selectFromSources(String propertyValue, URI[] requiredSources, URI[] ontologySources) {
         return extractAnnotationSummaryList(zoomaAnnotationSummaries.queryAndScore(propertyValue,
                                                                                    "",
                                                                                    Collections.<URI>emptyList(),
-                                                                                   requiredSources));
+                                                                                   requiredSources, ontologySources));
     }
 
     public List<AnnotationSummary> selectFromSources(String propertyValue,
                                                      String propertyType,
-                                                     URI... requiredSources) {
+                                                     URI[] requiredSources, URI[] ontologySources) {
         return extractAnnotationSummaryList(zoomaAnnotationSummaries.queryAndScore(propertyValue,
                                                                                    propertyType,
                                                                                    Collections.<URI>emptyList(),
-                                                                                   requiredSources));
+                                                                                   requiredSources, ontologySources));
     }
 
     @RequestMapping(value = "/annotate", method = RequestMethod.GET)
@@ -234,6 +236,7 @@ public class Zooma extends SourceFilteredEndpoint {
         if (propertyType == null) {
             SearchType searchType = validateFilterArguments(filter);
             URI[] requiredSources = new URI[0];
+            URI[] ontologySources = parseOntologySourcesFromFilter(filter);
             List<URI> preferredSources = Collections.emptyList();
             switch (searchType) {
                 case REQUIRED_ONLY:
@@ -246,13 +249,14 @@ public class Zooma extends SourceFilteredEndpoint {
                     break;
                 case UNRESTRICTED:
                 default:
-                    return annotate(propertyValue);
+                    return annotate(propertyValue, requiredSources, ontologySources);
             }
-            return annotate(propertyValue, preferredSources, requiredSources);
+            return annotate(propertyValue, preferredSources, requiredSources, ontologySources);
         }
         else {
             SearchType searchType = validateFilterArguments(filter);
             URI[] requiredSources = new URI[0];
+            URI[] ontologySources = parseOntologySourcesFromFilter(filter);
             List<URI> preferredSources = Collections.emptyList();
             switch (searchType) {
                 case REQUIRED_ONLY:
@@ -265,18 +269,18 @@ public class Zooma extends SourceFilteredEndpoint {
                     break;
                 case UNRESTRICTED:
                 default:
-                    return annotate(propertyValue, propertyType);
+                    return annotate(propertyValue, propertyType, requiredSources, ontologySources);
             }
-            return annotate(propertyValue, propertyType, preferredSources, requiredSources);
+            return annotate(propertyValue, propertyType, preferredSources, requiredSources, ontologySources);
         }
     }
 
-    public List<AnnotationPrediction> annotate(final String propertyValue) {
+    public List<AnnotationPrediction> annotate(final String propertyValue, final URI[] sources, final URI[] ontologySources) {
         Future<List<AnnotationPrediction>> f = executorService.submit(
                 new Callable<List<AnnotationPrediction>>() {
                     @Override
                     public List<AnnotationPrediction> call() throws Exception {
-                        Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue);
+                        Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue, sources, ontologySources);
                         return createPredictions(propertyValue, null, summaries);
                     }
                 }
@@ -285,13 +289,13 @@ public class Zooma extends SourceFilteredEndpoint {
         return waitForResults(f, propertyValue);
     }
 
-    public List<AnnotationPrediction> annotate(final String propertyValue, final String propertyType) {
+    public List<AnnotationPrediction> annotate(final String propertyValue, final String propertyType, final URI[] sources, final URI[] ontologySources) {
         Future<List<AnnotationPrediction>> f = executorService.submit(
                 new Callable<List<AnnotationPrediction>>() {
                     @Override
                     public List<AnnotationPrediction> call() throws Exception {
                         Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue,
-                                                                                                         propertyType);
+                                                                                                         propertyType, sources, ontologySources);
                         return createPredictions(propertyValue, propertyType, summaries);
                     }
                 }
@@ -302,7 +306,7 @@ public class Zooma extends SourceFilteredEndpoint {
 
     public List<AnnotationPrediction> annotate(final String propertyValue,
                                                final List<URI> preferredSources,
-                                               final URI... requiredSources) {
+                                               final URI[] requiredSources, final URI[] ontologySources) {
         Future<List<AnnotationPrediction>> f = executorService.submit(
                 new Callable<List<AnnotationPrediction>>() {
                     @Override
@@ -310,7 +314,7 @@ public class Zooma extends SourceFilteredEndpoint {
                         Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue,
                                                                                                          "",
                                                                                                          preferredSources,
-                                                                                                         requiredSources);
+                                                                                                         requiredSources, ontologySources);
                         return createPredictions(propertyValue, null, summaries);
                     }
                 }
@@ -321,7 +325,7 @@ public class Zooma extends SourceFilteredEndpoint {
     public List<AnnotationPrediction> annotate(final String propertyValue,
                                                final String propertyType,
                                                final List<URI> preferredSources,
-                                               final URI... requiredSources) {
+                                               final URI[] requiredSources, final URI[] ontologySources) {
 
         Future<List<AnnotationPrediction>> f = executorService.submit(
                 new Callable<List<AnnotationPrediction>>() {
@@ -330,7 +334,7 @@ public class Zooma extends SourceFilteredEndpoint {
                         Map<AnnotationSummary, Float> summaries = zoomaAnnotationSummaries.queryAndScore(propertyValue,
                                                                                                          propertyType,
                                                                                                          preferredSources,
-                                                                                                         requiredSources);
+                                                                                                         requiredSources, ontologySources);
 
                         return createPredictions(propertyValue, propertyType, summaries);
                     }

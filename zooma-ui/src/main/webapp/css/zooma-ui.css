@@ -160,3 +160,35 @@ table.version {
     border-radius: 2px;
     padding: 2px;
 }
+
+#ontology-searchfield { display: block; width: 100%; text-align: center; margin-bottom: 35px; }
+
+#ontology-searchfield form {
+    display: inline-block;
+    background: #eeefed;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 2px;
+}
+
+#ontology-searchfield form .input {
+    width: 600px;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 2px;
+    color: #aeaeae;
+    font-weight:normal;
+    font-size: 1.5em;
+    -webkit-transition: all 0.2s linear;
+    -moz-transition: all 0.2s linear;
+    transition: all 0.2s linear;
+}
+#ontology-searchfield form .input:focus {
+    color: #858585;
+}
+
+.autocomplete-suggestions { border: 1px solid #999; background: #fff; cursor: default; overflow: auto; }
+.autocomplete-suggestion { padding: 10px 5px; font-size: 1.2em; white-space: nowrap; overflow: hidden; }
+.autocomplete-selected { background: #f0f0f0; }
+.autocomplete-suggestions strong { font-weight: normal; color: #228B22; }

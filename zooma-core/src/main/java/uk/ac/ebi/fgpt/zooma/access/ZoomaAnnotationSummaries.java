@@ -96,7 +96,7 @@ public class ZoomaAnnotationSummaries {
             @RequestParam(value = "start", required = false) Integer start,
             @RequestParam(value = "query", required = false) String query) {
         if(query!=null){
-            return getAnnotationSummarySearchService().search(query);
+            return getAnnotationSummarySearchService().search(query, new URI[0], new URI[0]);
 
         }else {
             if (start == null) {
@@ -123,32 +123,32 @@ public class ZoomaAnnotationSummaries {
         return getAnnotationSummarySearchService().searchBySemanticTags(semanticTags);
     }
 
-    public Map<AnnotationSummary, Float> queryAndScore(String query) {
-        return queryAndScore(query, false);
+    public Map<AnnotationSummary, Float> queryAndScore(String query, URI[] sources, URI[] ontologySources) {
+        return queryAndScore(query, sources, ontologySources, false);
     }
 
-    public Map<AnnotationSummary, Float> queryAndScore(String query, boolean prefixed) {
+    public Map<AnnotationSummary, Float> queryAndScore(String query, URI[] sources, URI[] ontologySources, boolean prefixed) {
         Collection<AnnotationSummary> annotations = prefixed
-                ? getAnnotationSummarySearchService().searchByPrefix(query)
-                : getAnnotationSummarySearchService().search(query);
+                ? getAnnotationSummarySearchService().searchByPrefix(query, sources, ontologySources)
+                : getAnnotationSummarySearchService().search(query, sources, ontologySources);
         return getAnnotationSummaryScorer().score(annotations, query);
     }
 
-    public Map<AnnotationSummary, Float> queryAndScore(String query, String type) {
-        return queryAndScore(query, type, false);
+    public Map<AnnotationSummary, Float> queryAndScore(String query, String type, URI[] sources, URI[] ontologySources) {
+        return queryAndScore(query, type, sources, ontologySources, false);
     }
 
-    public Map<AnnotationSummary, Float> queryAndScore(String query, String type, boolean prefixed) {
+    public Map<AnnotationSummary, Float> queryAndScore(String query, String type, URI[] sources, URI[] ontologySources, boolean prefixed) {
         if (type.isEmpty()) {
             Collection<AnnotationSummary> annotations = prefixed
-                    ? getAnnotationSummarySearchService().searchByPrefix(query)
-                    : getAnnotationSummarySearchService().search(query);
+                    ? getAnnotationSummarySearchService().searchByPrefix(query, sources, ontologySources)
+                    : getAnnotationSummarySearchService().search(query, sources, ontologySources);
             return getAnnotationSummaryScorer().score(annotations, query);
         }
         else {
             Collection<AnnotationSummary> annotations = prefixed
-                    ? getAnnotationSummarySearchService().searchByPrefix(type, query)
-                    : getAnnotationSummarySearchService().search(type, query);
+                    ? getAnnotationSummarySearchService().searchByPrefix(type, query, sources, ontologySources)
+                    : getAnnotationSummarySearchService().search(type, query, sources, ontologySources);
             return getAnnotationSummaryScorer().score(annotations, query, type);
         }
     }
@@ -156,12 +156,12 @@ public class ZoomaAnnotationSummaries {
     public Map<AnnotationSummary, Float> queryAndScore(String query,
                                                        String type,
                                                        List<URI> preferredSources,
-                                                       URI[] requiredSources) {
+                                                       URI[] requiredSources, URI[] ontologySources) {
         if (type.isEmpty()) {
             Collection<AnnotationSummary> annotations =
                     getAnnotationSummarySearchService().searchByPreferredSources(query,
                                                                                  preferredSources,
-                                                                                 requiredSources);
+                                                                                 requiredSources, ontologySources);
             return getAnnotationSummaryScorer().score(annotations, query);
         }
         else {
@@ -169,7 +169,7 @@ public class ZoomaAnnotationSummaries {
                     getAnnotationSummarySearchService().searchByPreferredSources(type,
                                                                                  query,
                                                                                  preferredSources,
-                                                                                 requiredSources);
+                                                                                 requiredSources, ontologySources);
             return getAnnotationSummaryScorer().score(annotations, query, type);
         }
     }

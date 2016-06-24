@@ -7,6 +7,7 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -92,6 +93,21 @@ public class ZoomaUtils {
             hex.append(HEX_CHARACTERS.charAt((b & 0xF0) >> 4)).append(HEX_CHARACTERS.charAt((b & 0x0F)));
         }
         return hex.toString();
+    }
+
+    /*
+    Indicates whether a set of sources contains the None Selected checkbox. If so then these sources
+    should not be searched.
+     */
+    public static  boolean shouldSearch(URI[] sources){
+        if (sources != null && sources.length > 0){
+            for (URI source : sources){
+                if (source.equals(URIUtils.SEARCH_NONE)) { //source.toString().equals("None") || source.toString().equals("none") || source.toString().equals("Select None")
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**

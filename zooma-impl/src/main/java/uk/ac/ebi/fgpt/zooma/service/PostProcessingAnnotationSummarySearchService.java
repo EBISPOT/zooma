@@ -5,6 +5,7 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.util.AnnotationSummarySearchCommand;
 import uk.ac.ebi.fgpt.zooma.util.SearchStringProcessor;
+import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -50,10 +51,13 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     }
 
     @Override
-    public Collection<AnnotationSummary> search(String propertyValuePattern, final URI... sources) {
+    public Collection<AnnotationSummary> search(String propertyValuePattern, final URI[] sources, final URI[] ontologySources) {
+        if (!ZoomaUtils.shouldSearch(sources)){
+            return new ArrayList<>();
+        }
         return doProcessedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
-                return PostProcessingAnnotationSummarySearchService.super.search(propertyValue, sources);
+                return PostProcessingAnnotationSummarySearchService.super.search(propertyValue, sources, ontologySources);
             }
         });
     }
@@ -61,22 +65,28 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     @Override
     public Collection<AnnotationSummary> search(final String propertyType,
                                                 String propertyValuePattern,
-                                                final URI... sources) {
+                                                final URI[] sources, final URI[] ontologySources) {
+        if (!ZoomaUtils.shouldSearch(sources)){
+            return new ArrayList<>();
+        }
         return doProcessedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
-                return PostProcessingAnnotationSummarySearchService.super.search(propertyType, propertyValue, sources);
+                return PostProcessingAnnotationSummarySearchService.super.search(propertyType, propertyValue, sources, ontologySources);
             }
         });
     }
 
     @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
                                                                             final List<URI> preferredSources,
-                                                                            final URI... requiredSources) {
+                                                                            final URI[] requiredSources, final URI[] ontologySources) {
+        if (!ZoomaUtils.shouldSearch(requiredSources)){
+            return new ArrayList<>();
+        }
         return doProcessedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
                 return PostProcessingAnnotationSummarySearchService.super.searchByPreferredSources(propertyValue,
                                                                                                    preferredSources,
-                                                                                                   requiredSources);
+                                                                                                   requiredSources, ontologySources);
             }
         });
     }
@@ -84,13 +94,16 @@ public class PostProcessingAnnotationSummarySearchService extends AnnotationSumm
     @Override public Collection<AnnotationSummary> searchByPreferredSources(final String propertyType,
                                                                             String propertyValuePattern,
                                                                             final List<URI> preferredSources,
-                                                                            final URI... requiredSources) {
+                                                                            final URI[] requiredSources, final URI[] ontologySources) {
+        if (!ZoomaUtils.shouldSearch(requiredSources)){
+            return new ArrayList<>();
+        }
         return doProcessedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
                 return PostProcessingAnnotationSummarySearchService.super.searchByPreferredSources(propertyType,
                                                                                                    propertyValue,
                                                                                                    preferredSources,
-                                                                                                   requiredSources);
+                                                                                                   requiredSources, ontologySources);
             }
         });
     }

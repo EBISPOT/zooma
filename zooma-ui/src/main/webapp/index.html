@@ -232,44 +232,71 @@
                 </div>
 
                 <div id="zooma-prefs" class="grid_12 omega">
-                    <form>
-                        <fieldset style="padding-top: 10px; margin: 20px; height: 250px;">
-                            <div id="required-datasources"
-                                 class="container_24"
-                                 style="height: 85px; margin-bottom: 10px;">
-                                <div style="font-size: 0.7em;">
-                                    Searches MUST include the following datasources (all searched if none selected):
-                                </div>
-                                <div id="datasource-selector" class="grid_24 zooma-scrollpane" style="height: 70px;">
-                                </div>
-                            </div>
-                            <div id="preferred-datasources"
-                                 class="container_24"
-                                 style="margin-top: 10px;">
-                                <div style="font-size: 0.7em;">
-                                    Preferred datasource ranking:
-                                </div>
-                                <div id="datasource-sorter" class="grid_24">
-                                    <div class="grid_12 alpha sort-wrapper">
-                                        <span style="font-size: 0.7em">Unranked Datasources:</span>
 
-                                        <div class="sort-container zooma-scrollpane">
-                                            <ul id="zooma-datasource-unranked">
-                                            </ul>
+                    <div id="accordion">
+
+                        <p>Search Ontology Sources</p>
+                        <div name="#accordion-1">
+                            <div id="ontology-searchfield">
+                                <form onsubmit="return false;">
+                                    <input type="text" name="ontologies" class="input" id="autocomplete" placeholder="Search by ontology..."  onfocus="{this.value = '';}">
+                                    <div id="select-none-ontologies" class="selectable" style="margin-top: 10px;"> <input type="checkbox" name="Select None" value="Select None" onclick="deselectAllOntologies()">Select None</div>
+                                    <fieldset style="padding-top: 10px; margin: 20px; height: 70px;">
+                                        <div style="height: 30px; margin-bottom: 70px;">
+                                            <div class="zooma-scrollpane" style="height: 70px;">
+                                                <ul id="selected-ontologies">
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                        </div>
+
+                        <p>Search Datasources</p>
+                        <div name="#accordion-2">
+                            <form>
+                                <fieldset style="padding-top: 10px; margin: 20px; height: 250px;">
+                                    <div id="required-datasources"
+                                         class="container_24"
+                                         style="height: 85px; margin-bottom: 10px;">
+                                        <div style="font-size: 0.7em;">
+                                            Searches can include the following datasources (all searched if none selected):
+                                        </div>
+                                        <div id="select-none-datasources" class="grid_8 selectable"> <input type="checkbox" name="Select None" value="Select None" onclick="deselectAllDatasources()">Select None</div>
+                                        <div id="datasource-selector" class="grid_24 zooma-scrollpane" style="height: 70px;">
                                         </div>
                                     </div>
-                                    <div class="grid_12 omega sort-wrapper">
-                                        <span style="font-size: 0.7em">Ranked Datasources:</span>
+                                    <div id="preferred-datasources"
+                                         class="container_24"
+                                         style="margin-top: 10px;">
+                                        <div style="font-size: 0.7em;">
+                                            Preferred datasource ranking:
+                                        </div>
+                                        <div id="datasource-sorter" class="grid_24">
+                                            <div class="grid_12 alpha sort-wrapper">
+                                                <span style="font-size: 0.7em">Unranked Datasources:</span>
 
-                                        <div class="sort-container zooma-scrollpane">
-                                            <ul id="zooma-datasource-ranked">
-                                            </ul>
+                                                <div class="sort-container zooma-scrollpane">
+                                                    <ul id="zooma-datasource-unranked">
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="grid_12 omega sort-wrapper">
+                                                <span style="font-size: 0.7em">Ranked Datasources:</span>
+
+                                                <div class="sort-container zooma-scrollpane">
+                                                    <ul id="zooma-datasource-ranked">
+                                                    </ul>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </fieldset>
-                    </form>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -485,6 +512,11 @@
 <script type="text/javascript" src="scripts/jquery.jscrollpane.min.js"></script>
 
 <script type="text/javascript" src="scripts/zooma-ui.js"></script>
+<script type="text/javascript" src="scripts/jquery.autocomplete.min.js"></script>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
+
 
 <!-- Google analytics -->
 <script type="text/javascript">

@@ -23,24 +23,24 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
         this._annotatationSummarySearchService = annotationSummarySearchService;
     }
 
-    @Override public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
-        return _annotatationSummarySearchService.search(propertyValuePattern, sources);
+    @Override public Collection<AnnotationSummary> search(String propertyValuePattern, URI[] sources, URI[] ontologySources) {
+        return _annotatationSummarySearchService.search(propertyValuePattern, sources, ontologySources);
     }
 
     @Override public Collection<AnnotationSummary> search(String propertyType,
                                                           String propertyValuePattern,
-                                                          URI... sources) {
-        return _annotatationSummarySearchService.search(propertyType, propertyValuePattern, sources);
+                                                          URI[] sources, URI[] ontologySources) {
+        return _annotatationSummarySearchService.search(propertyType, propertyValuePattern, sources, ontologySources);
     }
 
     @Override
-    public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI... sources) {
-        return _annotatationSummarySearchService.searchByPrefix(propertyValuePrefix, sources);
+    public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI[] sources, URI[] ontologySources) {
+        return _annotatationSummarySearchService.searchByPrefix(propertyValuePrefix, sources, ontologySources);
     }
 
     @Override
-    public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources) {
-        return _annotatationSummarySearchService.searchByPrefix(propertyType, propertyValuePrefix, sources);
+    public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI[] sources, URI[] ontologySources) {
+        return _annotatationSummarySearchService.searchByPrefix(propertyType, propertyValuePrefix, sources, ontologySources);
     }
 
     @Override public Collection<AnnotationSummary> searchBySemanticTags(String... semanticTagShortnames) {
@@ -53,20 +53,20 @@ public abstract class AnnotationSummarySearchServiceDecorator extends Initializa
 
     @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
                                                                             List<URI> preferredSources,
-                                                                            URI... requiredSources) {
+                                                                            URI[] requiredSources, URI[] ontologySources) {
         return _annotatationSummarySearchService.searchByPreferredSources(propertyValuePattern,
                                                                           preferredSources,
-                                                                          requiredSources);
+                                                                          requiredSources, ontologySources);
     }
 
     @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
                                                                             String propertyValuePattern,
                                                                             List<URI> preferredSources,
-                                                                            URI... requiredSources) {
+                                                                            URI[] requiredSources, URI[] ontologySources) {
         return _annotatationSummarySearchService.searchByPreferredSources(propertyType,
                                                                           propertyValuePattern,
                                                                           preferredSources,
-                                                                          requiredSources);
+                                                                          requiredSources, ontologySources);
     }
 
     @Override protected void doInitialization() throws Exception {

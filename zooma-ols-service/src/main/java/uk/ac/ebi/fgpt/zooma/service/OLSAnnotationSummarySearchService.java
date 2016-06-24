@@ -39,9 +39,13 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
 
 
     @Override
-    public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
+    public Collection<AnnotationSummary> search(String propertyValuePattern, URI[] sources, URI... ontologySources) {
         try {
             initOrWait();
+
+            if (ontologySources != null && ontologySources.length > 0){
+                return doSearch(getMapper(), propertyValuePattern, ontologySources);
+            }
             return doSearch(getMapper(), propertyValuePattern);
         }
         catch (InterruptedException e) {
@@ -51,9 +55,13 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
     }
 
     @Override
-    public Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern, URI... sources) {
+    public Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern, URI[] sources, URI[] ontologySources) {
         try {
             initOrWait();
+            if (ontologySources != null && ontologySources.length > 0){
+                //search with provided sources
+                return  doSearch(getMapper(), propertyType, propertyValuePattern, ontologySources);
+            }
             return doSearch(getMapper(), propertyType, propertyValuePattern);
         }
         catch (InterruptedException e) {
@@ -64,10 +72,10 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
 
 
     @Override
-    public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI... sources) {
+    public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI[] sources, URI[] ontologySources) {
         try {
             initOrWait();
-            return doSearch(getMapper(), propertyValuePrefix);
+            return doSearch(getMapper(), propertyValuePrefix, ontologySources);
         }
         catch (InterruptedException e) {
             throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
@@ -76,10 +84,10 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
     }
 
     @Override
-    public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources) {
+    public Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI[] sources, URI[] ontologySources) {
         try {
             initOrWait();
-            return doSearch(getMapper(), propertyType, propertyValuePrefix);
+            return doSearch(getMapper(), propertyType, propertyValuePrefix, ontologySources);
         }
         catch (InterruptedException e) {
             throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
@@ -98,10 +106,11 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
     }
 
     @Override
-    public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern, List<URI> preferredSources, URI... requiredSources) {
+    public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern, List<URI> preferredSources, URI[] requiredSources, URI[] ontologySources) {
         try {
             initOrWait();
-            return doSearch(getMapper(), propertyValuePattern, requiredSources);
+
+            return this.search(propertyValuePattern, requiredSources, ontologySources);
         }
         catch (InterruptedException e) {
             throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
@@ -110,10 +119,11 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
     }
 
     @Override
-    public Collection<AnnotationSummary> searchByPreferredSources(String propertyType, String propertyValuePattern, List<URI> preferredSources, URI... requiredSources) {
+    public Collection<AnnotationSummary> searchByPreferredSources(String propertyType, String propertyValuePattern, List<URI> preferredSources, URI[] requiredSources, URI[] ontologySources) {
         try {
             initOrWait();
-            return doSearch(getMapper(), propertyType, propertyValuePattern, requiredSources);
+
+            return this.search( propertyType, propertyValuePattern, requiredSources, ontologySources);
         }
         catch (InterruptedException e) {
             throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",

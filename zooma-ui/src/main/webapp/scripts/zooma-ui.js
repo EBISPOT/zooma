@@ -2,6 +2,25 @@ var scrollApis;
 
 $(document).ready(init());
 
+$('form').on('keydown', 'input, select, textarea', function(e) {
+    var self = $(this)
+        , form = self.parents('form:eq(0)')
+        , focusable
+        , next
+        ;
+    if (e.keyCode == 13) {
+        focusable = form.find('input,a,select,button,textarea').filter(':visible');
+        next = focusable.eq(focusable.index(this)+1);
+        if (next.length) {
+            next.focus();
+        } else {
+            form.submit();
+        }
+        return false;
+    }
+});
+
+
 function init() {
     // markup any context help sections
     markupContextHelp();
@@ -84,6 +103,22 @@ function reinitializeScrollpanes() {
     }
 }
 
+$(function() {
+    $( "#accordion" ).accordion({
+        collapsible: true,
+        heightStyle: "content",
+        active: false,
+        activate:function(event, ui ){
+            // Grab current anchor value
+            var currentAttrValue = $(this).attr('name');
+            if (currentAttrValue == "#accordion-1"){
+                populateOntologies();
+            }
+            reinitializeScrollpanes();
+        }
+    });
+});
+
 function toggleSearchHelp() {
     // run the effect
     $("#zooma-searches-help").toggle();
@@ -138,6 +173,8 @@ function populateExamples() {
         "doxycycline 130 nanomolar\tcompound\nleft tibia\torganism part\nCD4-positive\ncerebellum\torganism part\n" +
         "hematology traits\tgwas trait\nnifedipine 0.025 micromolar\tcompound\nMicrotubule clumps\n");
 }
+var datasourceNames = [];
+var datasourceNamesOnto = [];
 
 function populateDatasources() {
     // clear sorter element if already exists
@@ -147,27 +184,152 @@ function populateDatasources() {
 
     // retrieve datasources
     $.get('v2/api/sources', function(sources) {
-        var datasourceNames = [];
+        datasourceNames = [];
+        datasourceNamesOnto = [];
         for (var i = 0; i < sources.length; i++) {
-            datasourceNames.push(sources[i].name);
+            if (sources[i].type == "DATABASE") {
+                datasourceNames.push(sources[i].name);
+            } else if (sources[i].type == "ONTOLOGY"){
+                datasourceNamesOnto.push(sources[i].name)
+            }
         }
 
-        populateSelector(datasourceNames);
+        populateDatasourceSelector();
+        populateOntologySelector();
         populateSorter();
 
         // initialize customized (jscrollpane) scroll bars
         initializeScrollpanes();
     });
 }
+function populateOntologySelector() {
+// setup autocomplete function pulling from datasourceNamesOnto[] array
+    $('#autocomplete').autocomplete({
+        lookup: datasourceNamesOnto,
+        onSelect: function (suggestion) {
+            populateOntologies(suggestion);
+        }
+    });
+}
 
-function populateSelector(datasourceNames) {
+function populateOntologies(instertNew){
+    //add the selected suggestion to the output value
+    var datasourceNames = [];
+    var datasourceNamesChecked = [];
+
+    var $selector = $("#selected-ontologies");
+    $selector.find("input").each(function() {
+        datasourceNames.push($(this).prop("value"));
+    });
+
+    $selector.find("input:checked").each(function() {
+        datasourceNamesChecked.push($(this).prop("value"));
+    });
+
+    //push the new ontology selected, if not in list
+    if (undefined != instertNew) {
+        if (datasourceNames.length == 0) {
+            datasourceNamesChecked.push(instertNew.value);
+            datasourceNames.push(instertNew.value);
+        } else if (datasourceNames.indexOf(instertNew.value) == -1) { //not found
+            datasourceNamesChecked.push(instertNew.value);
+            datasourceNames.push(instertNew.value);
+        }
+    }
+
+    var selectorContent = "";
+    for (var i = 0; i < datasourceNames.length; i++) {
+        var datasource = datasourceNames[i];
+        if (datasourceNamesChecked.indexOf(datasource) > -1){ //if found in checked then put it in as already checked
+            selectorContent = selectorContent +
+                "<li class=\"grid_8 selectable\">" +
+                "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\" checked>" +
+                datasource +
+                "</li>";
+        } else {
+            selectorContent = selectorContent +
+                "<li class=\"grid_8 selectable\">" +
+                "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\">" +
+                datasource +
+                "</li>";
+        }
+    }
+
+    $selector.html(selectorContent);
+
+    reinitializeScrollpanes();
+
+}
+
+function deselectAllOntologies(){
+
+    var checked = false;
+    var $selector = $("#select-none-ontologies");
+
+    $selector.find("input:checked").each(function() {
+        if($(this).prop("value") == "Select None"){
+            checked = true;
+        }
+    });
+
+    if (checked){
+        //disable the autocomplete widget if selected and remove all ontologies from checklist
+        $("#selected-ontologies").html("");
+        $('#autocomplete').prop( "disabled", true );
+    } else {
+        $('#autocomplete').prop( "disabled", false );
+    }
+}
+
+
+function deselectAllDatasources(){
+    var checked = false;
+    var $selector = $("#select-none-datasources");
+
+    $selector.find("input:checked").each(function() {
+        if($(this).prop("value") == "Select None"){
+            checked = true;
+        }
+    });
+
+    if (checked){
+        // re-populate uncheck all datasources and disable them
+        var datasourceNames = [];
+        var $selector = $("#datasource-selector");
+        $selector.find("input").each(function() {
+            datasourceNames.push($(this).prop("value"));
+        });
+
+        var selectorContent = "";
+        for (var i = 0; i < datasourceNames.length; i++) {
+            var datasource = datasourceNames[i];
+            selectorContent = selectorContent +
+                "<div class=\"grid_8 selectable\">" +
+                "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\" onclick=\"return false;\" >" +
+                datasource +
+                "</div>";
+        }
+        $selector.html(selectorContent);
+
+    } else {
+        //its being re-enabled so need to re populate all the datasources
+        populateDatasourceSelector();
+
+    }
+
+    populateSorter();
+    reinitializeScrollpanes();
+
+}
+
+function populateDatasourceSelector() {
     // populate checkboxes
     var selectorContent = "";
     for (var i = 0; i < datasourceNames.length; i++) {
         var datasource = datasourceNames[i];
         selectorContent = selectorContent +
                 "<div class=\"grid_8 selectable\">" +
-                "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\">" +
+                "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\" checked >" +
                 datasource +
                 "</div>";
     }
@@ -180,15 +342,25 @@ function populateSelector(datasourceNames) {
 }
 
 function populateSorter() {
-    // retrieve checked selector items
-    var datasourceNames = [];
-    var $selector = $("#datasource-selector");
-    $selector.find("input:checked").each(function() {
-        datasourceNames.push($(this).prop("value"));
+
+    var checked = false;
+    $("#select-none-datasources").find("input:checked").each(function() {
+        if($(this).prop("value") == "Select None"){
+            checked = true;
+        }
     });
 
-    // if nothing checked, use all elements
-    if (datasourceNames.length == 0) {
+    // retrieve checked selector items, if Select None not checked
+    var datasourceNames = [];
+    var $selector = $("#datasource-selector");
+    if (!checked) {
+        $selector.find("input:checked").each(function () {
+            datasourceNames.push($(this).prop("value"));
+        });
+    }
+
+    // if nothing checked, and Select None not checked use all elements
+    if (datasourceNames.length == 0 && !checked) {
         $selector.find("input").each(function() {
             datasourceNames.push($(this).prop("value"));
         });
@@ -305,6 +477,13 @@ function jsonifyTextArea(content) {
 
 function getRequiredSourcesParam() {
     var selected = [];
+
+    $("#select-none-datasources").find("input:checked").each(function() {
+        if($(this).prop("value") == "Select None"){
+            selected.push($(this).prop("value"));;
+        }
+    });
+
     // get child, selected input elements of 'datasource-selector'
     $("#datasource-selector").find("input:checked").each(function() {
         selected.push($(this).prop("value"));
@@ -340,18 +519,47 @@ function getPreferredSourcesParam() {
     return preferred;
 }
 
+function getOntologySourcesParam() {
+    var selected = [];
+
+    $("#select-none-ontologies").find("input:checked").each(function() {
+        if($(this).prop("value") == "Select None"){
+            selected.push($(this).prop("value"));;
+        }
+    });
+
+    // get child, selected input elements of 'selected-ontologies'
+    $("#selected-ontologies").find("input:checked").each(function () {
+        selected.push($(this).prop("value"));
+    });
+
+    var required = "";
+    if (selected.length > 0) {
+        required = "ontologies:[";
+        for (var i = 0; i < selected.length - 1; i++) {
+            required = required + selected[i] + ",";
+        }
+        required = required + selected[i] + "]";
+    }
+    return required;
+}
+
 function doSearch(json) {
     var payload = JSON.stringify(json);
     var requiredSources = getRequiredSourcesParam();
     var preferredSources = getPreferredSourcesParam();
+    var ontologySources = getOntologySourcesParam();
     var url = 'v2/api/services/map';
-    if (requiredSources || preferredSources) {
+    if (requiredSources || preferredSources || ontologySources) {
         url = url + '?filter=';
         if (requiredSources) {
             url = url + requiredSources;
         }
         if (preferredSources) {
             url = url + preferredSources;
+        }
+        if (ontologySources) {
+            url = url + ontologySources;
         }
     }
 

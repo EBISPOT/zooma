@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
 import uk.ac.ebi.fgpt.zooma.service.AnnotationSourceService;
+import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -69,6 +70,10 @@ public abstract class SourceFilteredEndpoint {
                 String sourceNames = requiredMatcher.group(1);
                 String[] tokens = sourceNames.split(",", -1);
                 for (String sourceName : tokens) {
+                    if (sourceName.equals("Select None") || sourceName.equals("None") || sourceName.equals("none")){
+                        requiredSources.add(URIUtils.SEARCH_NONE);
+                        return requiredSources.toArray(new URI[requiredSources.size()]);
+                    }
                     AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
                     if (nextSource != null) {
                         requiredSources.add(nextSource.getURI());
@@ -105,6 +110,34 @@ public abstract class SourceFilteredEndpoint {
             }
         }
         return preferredSources;
+    }
+
+    protected URI[] parseOntologySourcesFromFilter(String filter) {
+        List<URI> requiredSources = new ArrayList<>();
+        if (filter != null) {
+            Matcher requiredMatcher = Pattern.compile("ontologies:\\[([^\\]]+)\\]").matcher(filter);
+            int loc = filter.indexOf("ontologies:");
+            if (loc != -1 && requiredMatcher.find(loc)) {
+                String sourceNames = requiredMatcher.group(1);
+                String[] tokens = sourceNames.split(",", -1);
+                for (String sourceName : tokens) {
+                    if (sourceName.equals("Select None") || sourceName.equals("None") || sourceName.equals("none")){
+                        requiredSources.add(URIUtils.SEARCH_NONE);
+                        return requiredSources.toArray(new URI[requiredSources.size()]);
+                    }
+                    AnnotationSource nextSource = getAnnotationSourceService().getAnnotationSource(sourceName);
+                    if (nextSource != null) {
+                        requiredSources.add(nextSource.getURI());
+                    }
+                    else {
+                        getLog().warn("Ontology source '" + sourceName + "' was specified as a filter but " +
+                                "could not be found in ZOOMA; this source will be excluded from the query");
+                    }
+                }
+            }
+        }
+
+        return requiredSources.toArray(new URI[requiredSources.size()]);
     }
 
     protected enum SearchType {
