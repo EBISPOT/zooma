@@ -239,15 +239,18 @@
                         <div name="#accordion-1">
                             <div id="ontology-searchfield">
                                 <form onsubmit="return false;">
-                                    <input type="text" name="ontologies" class="input" id="autocomplete" placeholder="Search by ontology..."  onfocus="{this.value = '';}">
-                                    <div id="select-none-ontologies" class="selectable" style="margin-top: 10px;"> <input type="checkbox" name="Select None" value="Select None" onclick="deselectAllOntologies()">Select None</div>
-                                    <fieldset style="padding-top: 10px; margin: 20px; height: 70px;">
-                                        <div style="height: 30px; margin-bottom: 70px;">
-                                            <div class="zooma-scrollpane" style="height: 70px;">
-                                                <ul id="selected-ontologies">
-                                                </ul>
-                                            </div>
+                                    <fieldset style="padding-top: 10px; margin: 20px;">
+                                        <div style="font-size: 0.7em; margin-bottom: 10px;">
+                                            Searches can include the Ontology Lookup Service (all OLS ontologies searched if none specified):
                                         </div>
+                                        <input type="text" name="ontologies" class="input" id="autocomplete" placeholder="Search by ontology..."  onfocus="{this.value = '';}">
+                                        <div id="select-none-ontologies" class="selectable" style="margin-top: 10px;"> <input type="checkbox" name="Select None" value="Select None" onclick="deselectAllOntologies()"><a style="cursor:help;" title="If selected, no ontologies will be searched.">Select None</a></div>
+                                            <div style="height: 30px; margin-bottom: 70px;">
+                                                <div class="zooma-scrollpane" style="height: 70px;">
+                                                    <ul id="selected-ontologies">
+                                                    </ul>
+                                                </div>
+                                            </div>
                                     </fieldset>
                                 </form>
                             </div>
@@ -256,14 +259,14 @@
                         <p>Search Datasources</p>
                         <div name="#accordion-2">
                             <form>
-                                <fieldset style="padding-top: 10px; margin: 20px; height: 250px;">
+                                <fieldset style="padding-top: 10px; margin: 20px; ">
                                     <div id="required-datasources"
                                          class="container_24"
                                          style="height: 85px; margin-bottom: 10px;">
-                                        <div style="font-size: 0.7em;">
-                                            Searches can include the following datasources (all searched if none selected):
+                                        <div style="font-size: 0.7em; margin-bottom: 10px;">
+                                            Searches can include the following datasources (all searched if none specified):
                                         </div>
-                                        <div id="select-none-datasources" class="grid_8 selectable"> <input type="checkbox" name="Select None" value="Select None" onclick="deselectAllDatasources()">Select None</div>
+                                        <div id="select-none-datasources" class="grid_8 selectable"><input type="checkbox" name="Select None" value="Select None" onclick="deselectAllDatasources()"> <a style="cursor:help;" title="If selected, no datasources will be searched.">Select None</a></div>
                                         <div id="datasource-selector" class="grid_24 zooma-scrollpane" style="height: 70px;">
                                         </div>
                                     </div>

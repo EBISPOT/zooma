@@ -276,6 +276,7 @@ function deselectAllOntologies(){
         //disable the autocomplete widget if selected and remove all ontologies from checklist
         $("#selected-ontologies").html("");
         $('#autocomplete').prop( "disabled", true );
+        reinitializeScrollpanes();
     } else {
         $('#autocomplete').prop( "disabled", false );
     }
