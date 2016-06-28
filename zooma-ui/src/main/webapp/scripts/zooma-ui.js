@@ -2,7 +2,7 @@ var scrollApis;
 
 $(document).ready(init());
 
-$('form').on('keydown', 'input, select, textarea', function(e) {
+$('form').on('keydown', 'input, select', function(e) {
     var self = $(this)
         , form = self.parents('form:eq(0)')
         , focusable
@@ -735,8 +735,23 @@ function renderResults(data) {
                 row = row + "<td>" + result[5] + "</td>";
             }
             if (result[7] != "N/A") {
+                var ontoSourceArray = [];
+                var ontoName = "";
+                if (result[7].indexOf("/") > -1 ){ // if the source has a dash in it (e.g. www.ebi.ac.uk/efo) get the name at the end (e.g. efo)
+                    ontoSourceArray = result[7].split("/");
+                    ontoName = ontoSourceArray[(ontoSourceArray.length - 1)];
+                }
+                if (ontoName.indexOf(".") > 1){ // if the result has a dot in it (e.g. efo.owl) get the name (e.g. efo)
+                    var noDot = ontoName.split(".");
+                    ontoName = noDot[0];
+                }
                 var href;
-                if (result[7] == "http://www.ebi.ac.uk/gxa") {
+                if (datasourceNamesOnto.indexOf(ontoName) > -1){
+                    row = row + "<td><a href='" + result[7] + "' target='_blank'>" +
+                        "<img src='images/ols-logo.jpg' " +
+                        "alt='" + ontoName + "' style='height: 20px;'/> " + ontoName + "</a></td>";
+                }
+                else if (result[7] == "http://www.ebi.ac.uk/gxa") {
                     href =
                             "http://www.ebi.ac.uk/gxa/query?condition=" +
                                     encodeURIComponent(result[1]);
