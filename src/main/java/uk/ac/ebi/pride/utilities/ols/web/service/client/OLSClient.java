@@ -22,6 +22,51 @@ public class OLSClient implements Client {
     protected RestTemplate restTemplate;
     protected AbstractOLSWsConfig config;
 
+    private String queryField;
+    private String fieldList;
+
+    public static final String DEFAULT_QUERY_FIELD = new QueryFields.QueryFieldBuilder()
+            .setLabel()
+            .setSynonym()
+            .build()
+            .toString();
+    public static final String DEFAULT_FIELD_LIST = new FieldList.FieldListBuilder()
+            .setLabel()
+            .setIri()
+            .setScore()
+            .setOntologyName()
+            .setOboId()
+            .setOntologyIri()
+            .setIsDefiningOntology()
+            .setShortForm()
+            .setOntologyPrefix()
+            .setDescription()
+            .setType()
+            .build()
+            .toString();
+
+    public String getQueryField() {
+        if (queryField == null){
+            queryField = DEFAULT_QUERY_FIELD;
+        }
+        return queryField;
+    }
+
+    public void setQueryField(String queryField) {
+        this.queryField = queryField;
+    }
+
+    public String getFieldList() {
+        if (fieldList == null){
+            fieldList = DEFAULT_FIELD_LIST;
+        }
+        return fieldList;
+    }
+
+    public void setFieldList(String fieldList) {
+        this.fieldList = fieldList;
+    }
+
     org.slf4j.Logger logger = LoggerFactory.getLogger(OLSClient.class);
 
 
@@ -291,36 +336,14 @@ public class OLSClient implements Client {
     private SearchQuery searchIdQuery(String identifier, String ontologyID, int page) throws RestClientException {
 
 
-        String query = String.format("%s://%s/api/search?q=*%s*&" + new FieldList.FieldListBuilder()
-                .setIri()
-                .setLabel()
-                .setShortForm()
-                .setOboId()
-                .setOntologyName()
-                .setOntologyPrefix()
-                .setDescription()
-                .setType()
-                .setIsDefiningOntology()
-                .build()
-                .toString()
+        String query = String.format("%s://%s/api/search?q=*%s*&" + getFieldList()
                 + "&rows=%s&start=%s",
                 config.getProtocol(), config.getHostName(), identifier, Constants.SEARCH_PAGE_SIZE, page);
 
 
 
         if (ontologyID != null && !ontologyID.isEmpty())
-            query = String.format("%s://%s/api/search?q=%s&exact=on&" + new FieldList.FieldListBuilder()
-                .setIri()
-                .setLabel()
-                .setShortForm()
-                .setOboId()
-                .setOntologyName()
-                .setOntologyPrefix()
-                .setDescription()
-                .setType()
-                .setIsDefiningOntology()
-                .build()
-                .toString()
+            query = String.format("%s://%s/api/search?q=%s&exact=on&" + getFieldList()
                 + "&rows=%s&start=%s&ontology=%s",
                 config.getProtocol(), config.getHostName(), identifier, Constants.SEARCH_PAGE_SIZE, page, ontologyID);
 
@@ -589,22 +612,33 @@ public class OLSClient implements Client {
     private SearchQuery getSearchQuery(int page, String name, String ontology, boolean exactMatch, String childrenOf) throws RestClientException {
         String query;
 
-        query = String.format("%s://%s/api/search?q=%s&" + new QueryFields.QueryFieldBuilder()
-                .setLabel()
-                .setSynonym()
-                .build()
-                .toString()
+        query = String.format("%s://%s/api/search?q=%s&" +
+                this.getQueryField()
                 + "&rows=%s&start=%s&"
-                + new FieldList.FieldListBuilder()
-                .setLabel()
-                .setIri()
-                .setScore()
-                .setOntologyName()
-                .setOboId()
-                .setOntologyIri()
-                .setIsDefiningOntology()
-                .build()
-                .toString() ,
+                + this.getFieldList() ,
+                config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page);
+
+        if (ontology != null && !ontology.isEmpty())
+            query += "&ontology=" + ontology;
+
+        if(exactMatch){
+            query += "&exact=true";
+        }
+
+        if (childrenOf != null && !childrenOf.isEmpty())
+            query += "&childrenOf=" + childrenOf;
+
+        logger.debug(query);
+        return this.restTemplate.getForObject(query, SearchQuery.class);
+    }
+
+    private SearchQuery getSearchQuerySimple(int page, String name, String ontology, boolean exactMatch, String childrenOf, String queryField, String fieldList) throws RestClientException {
+        String query;
+
+        query = String.format("%s://%s/api/search?q=%s&" +
+                        queryField
+                        + "&rows=%s&start=%s&"
+                        + fieldList ,
                 config.getProtocol(), config.getHostName(), name, Constants.SEARCH_PAGE_SIZE, page);
 
         if (ontology != null && !ontology.isEmpty())
