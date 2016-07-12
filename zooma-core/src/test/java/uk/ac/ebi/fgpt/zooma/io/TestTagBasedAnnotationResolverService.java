@@ -75,7 +75,7 @@ public class TestTagBasedAnnotationResolverService {
         URI modifiedAnnotationURI = URI.create("http://www.ebi.ac.uk/zooma/test/modified_annotation");
         URI emptyAnnotationURI = URI.create("http://www.ebi.ac.uk/zooma/test/empty_annotation");
 
-        AnnotationSource source = new SimpleDatabaseAnnotationSource(sourceURI, "test");
+        AnnotationSource source = new SimpleDatabaseAnnotationSource(sourceURI, "test", null, null);
         AnnotationProvenance provenance = new SimpleAnnotationProvenance(
                 source,
                 AnnotationProvenance.Evidence.ZOOMA_INFERRED_FROM_CURATED,

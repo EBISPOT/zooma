@@ -255,11 +255,11 @@ public class SparqlAnnotationPatternDAO implements AnnotationPatternDAO {
                 AnnotationSource.Type sourceT = AnnotationSource.Type.lookup(sourceTypeName);
                 if (sourceT == AnnotationSource.Type.ONTOLOGY) {
                     source = new SimpleOntologyAnnotationSource(URI.create(database.toString()),
-                            sourceName.getLexicalForm());
+                            sourceName.getLexicalForm(), null, null);
                 }
                 else {
                     source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
-                            sourceName.getLexicalForm());
+                            sourceName.getLexicalForm(), null, null);
                 }
                 annotationsToSourceMap.put(annotationURI, source);
             }

@@ -37,7 +37,7 @@ public abstract class AnnotationPredictionBuilder {
 
     private static class SimpleAnnotationPredictionTemplate implements AnnotationPredictionTemplate {
         private static final AnnotationSource zoomaSource =
-                new SimpleDatabaseAnnotationSource(URI.create("http://www.ebi.ac.uk/spot/zooma"), "zooma");
+                new SimpleDatabaseAnnotationSource(URI.create("http://www.ebi.ac.uk/spot/zooma"), "zooma", "zooma", "Zooma source");
 
         private Collection<BiologicalEntity> biologicalEntities;
         private Property searchedProperty;

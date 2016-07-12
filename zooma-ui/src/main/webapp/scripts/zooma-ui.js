@@ -174,7 +174,10 @@ function populateExamples() {
         "hematology traits\tgwas trait\nnifedipine 0.025 micromolar\tcompound\nMicrotubule clumps\n");
 }
 var datasourceNames = [];
-var datasourceNamesOnto = [];
+var searchableOntoNames = [];
+var ontologyPrefixes = [];
+var nameDescriptionMap = new Map();
+var nameTitleMap = new Map();
 
 function populateDatasources() {
     // clear sorter element if already exists
@@ -185,13 +188,16 @@ function populateDatasources() {
     // retrieve datasources
     $.get('v2/api/sources', function(sources) {
         datasourceNames = [];
-        datasourceNamesOnto = [];
+        searchableOntoNames = [];
         for (var i = 0; i < sources.length; i++) {
             if (sources[i].type == "DATABASE") {
                 datasourceNames.push(sources[i].name);
             } else if (sources[i].type == "ONTOLOGY"){
-                datasourceNamesOnto.push(sources[i].name)
+                searchableOntoNames.push(sources[i].title + " (" + sources[i].name + ")");
+                ontologyPrefixes.push(sources[i].name);
             }
+            nameDescriptionMap.set(sources[i].name, sources[i].description);
+            nameTitleMap.set(sources[i].name, sources[i].title);
         }
 
         populateDatasourceSelector();
@@ -202,12 +208,25 @@ function populateDatasources() {
         initializeScrollpanes();
     });
 }
+
+function getSourceDescription(name){
+    return nameDescriptionMap.get(name.toString());
+}
+
+function getSourceTitle(name){
+    return nameTitleMap.get(name.toString());
+}
+
 function populateOntologySelector() {
-// setup autocomplete function pulling from datasourceNamesOnto[] array
+// setup autocomplete function pulling from searchableOntoNames[] array
     $('#autocomplete').autocomplete({
-        lookup: datasourceNamesOnto,
+        lookup: searchableOntoNames,
         onSelect: function (suggestion) {
-            populateOntologies(suggestion);
+            //clean ontology prefix from the title and the parenthesis
+            var firstSplitArray = suggestion.value.split("(");
+            var firstSplit = firstSplitArray[firstSplitArray.length - 1];
+            var ontology = firstSplit.split(")")[0];
+            populateOntologies(ontology);
         }
     });
 }
@@ -229,11 +248,11 @@ function populateOntologies(instertNew){
     //push the new ontology selected, if not in list
     if (undefined != instertNew) {
         if (datasourceNames.length == 0) {
-            datasourceNamesChecked.push(instertNew.value);
-            datasourceNames.push(instertNew.value);
-        } else if (datasourceNames.indexOf(instertNew.value) == -1) { //not found
-            datasourceNamesChecked.push(instertNew.value);
-            datasourceNames.push(instertNew.value);
+            datasourceNamesChecked.push(instertNew);
+            datasourceNames.push(instertNew);
+        } else if (datasourceNames.indexOf(instertNew) == -1) { //not found
+            datasourceNamesChecked.push(instertNew);
+            datasourceNames.push(instertNew);
         }
     }
 
@@ -244,14 +263,16 @@ function populateOntologies(instertNew){
             selectorContent = selectorContent +
                 "<li class=\"grid_8 selectable\">" +
                 "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\" checked>" +
+                "<a style=\"cursor:help;\" title=\"" + getSourceDescription(datasource) + "\">" +
                 datasource +
-                "</li>";
+                "</a></li>";
         } else {
             selectorContent = selectorContent +
                 "<li class=\"grid_8 selectable\">" +
                 "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\">" +
+                "<a style=\"cursor:help;\" title=\"" + getSourceDescription(datasource) + "\">" +
                 datasource +
-                "</li>";
+                "</a></li>";
         }
     }
 
@@ -304,11 +325,14 @@ function deselectAllDatasources(){
         var selectorContent = "";
         for (var i = 0; i < datasourceNames.length; i++) {
             var datasource = datasourceNames[i];
+
             selectorContent = selectorContent +
                 "<div class=\"grid_8 selectable\">" +
                 "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\" onclick=\"return false;\" >" +
+                "<a style=\"cursor:help;\" title=\"" + getSourceDescription(datasource) + "\">" +
                 datasource +
-                "</div>";
+                "</a></div>";
+
         }
         $selector.html(selectorContent);
 
@@ -328,11 +352,14 @@ function populateDatasourceSelector() {
     var selectorContent = "";
     for (var i = 0; i < datasourceNames.length; i++) {
         var datasource = datasourceNames[i];
+
         selectorContent = selectorContent +
-                "<div class=\"grid_8 selectable\">" +
-                "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\" checked >" +
-                datasource +
-                "</div>";
+            "<div class=\"grid_8 selectable\">" +
+            "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\" checked >" +
+            "<a style=\"cursor:help;\" title=\"" + getSourceDescription(datasource) + "\">" +
+            datasource +
+            "</a></div>";
+
     }
     var $selector = $("#datasource-selector");
     $selector.html(selectorContent);
@@ -746,7 +773,7 @@ function renderResults(data) {
                     ontoName = noDot[0];
                 }
                 var href;
-                if (datasourceNamesOnto.indexOf(ontoName) > -1){
+                if (ontologyPrefixes.indexOf(ontoName) > -1){
                     row = row + "<td><a href='" + result[7] + "' target='_blank'>" +
                         "<img src='images/ols-logo.jpg' " +
                         "alt='" + ontoName + "' style='height: 20px;'/> " + ontoName + "</a></td>";
