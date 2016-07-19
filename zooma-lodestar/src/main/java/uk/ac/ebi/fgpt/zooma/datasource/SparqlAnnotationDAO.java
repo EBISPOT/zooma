@@ -690,7 +690,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                     }
                     else if (sourceT == AnnotationSource.Type.DATABASE) {
                         source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
-                                sourceName.getLexicalForm(), null, null);
+                                sourceName.getLexicalForm());
                     }
                 }
 

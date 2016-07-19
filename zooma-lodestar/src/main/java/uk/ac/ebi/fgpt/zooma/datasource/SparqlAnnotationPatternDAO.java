@@ -259,7 +259,7 @@ public class SparqlAnnotationPatternDAO implements AnnotationPatternDAO {
                 }
                 else {
                     source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
-                            sourceName.getLexicalForm(), null, null);
+                            sourceName.getLexicalForm());
                 }
                 annotationsToSourceMap.put(annotationURI, source);
             }

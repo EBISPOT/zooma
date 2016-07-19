@@ -96,7 +96,7 @@ public class TestZoomaLuceneIndexer {
             unverifiableSemanticTag = semanticTag3;
 
             AnnotationProvenance prov1 = new SimpleAnnotationProvenance(
-                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source1"), "source1", null, null),
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source1"), "source1"),
                     AnnotationProvenance.Evidence.MANUAL_CURATED,
                     "TEST",
                     new Date());
@@ -106,7 +106,7 @@ public class TestZoomaLuceneIndexer {
                     prov1,
                     semanticTag1);
             AnnotationProvenance prov2 = new SimpleAnnotationProvenance(
-                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2"), "source2", null, null),
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2"), "source2"),
                     AnnotationProvenance.Evidence.MANUAL_CURATED,
                     "TEST",
                     new Date());
@@ -117,7 +117,7 @@ public class TestZoomaLuceneIndexer {
                     semanticTag2);
             // anno3 is alternate mapping for property1
             AnnotationProvenance prov3 = new SimpleAnnotationProvenance(
-                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3"), "source3", null, null),
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3"), "source3"),
                     AnnotationProvenance.Evidence.MANUAL_CURATED,
                     "TEST",
                     new Date());
@@ -128,7 +128,7 @@ public class TestZoomaLuceneIndexer {
                     semanticTag3);
             // anno4 verifies anno1 from different source
             AnnotationProvenance prov4 = new SimpleAnnotationProvenance(
-                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2"), "source2", null, null),
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source2"), "source2"),
                     AnnotationProvenance.Evidence.MANUAL_CURATED,
                     "TEST",
                     new Date());
@@ -139,7 +139,7 @@ public class TestZoomaLuceneIndexer {
                     semanticTag1);
             // anno5 verifies anno3 from same source
             AnnotationProvenance prov5 = new SimpleAnnotationProvenance(
-                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3"), "source3", null, null),
+                    new SimpleDatabaseAnnotationSource(new URI("http://www.test.com/source3"), "source3"),
                     AnnotationProvenance.Evidence.MANUAL_CURATED,
                     "TEST",
                     new Date());

@@ -355,7 +355,7 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
                 }
             }
 
-            AnnotationSource source = new SimpleDatabaseAnnotationSource(URI.create(database.getURI()), null, null, null);
+            AnnotationSource source = new SimpleDatabaseAnnotationSource(URI.create(database.getURI()), null);
             prov = new SimpleAnnotationProvenance(source,
                     ev,
                     "zooma",

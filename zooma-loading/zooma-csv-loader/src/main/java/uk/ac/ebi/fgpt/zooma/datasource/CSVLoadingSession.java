@@ -25,7 +25,7 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
         setAnnotationProvenanceTemplate(
                 AnnotationProvenanceBuilder
                         .createTemplate(uri.toString(), new Date())
-                        .sourceIs(new SimpleDatabaseAnnotationSource(uri, name, null, null))
+                        .sourceIs(new SimpleDatabaseAnnotationSource(uri, name))
                         .evidenceIs(AnnotationProvenance.Evidence.MANUAL_CURATED));
     }
 
@@ -42,7 +42,7 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
         setAnnotationProvenanceTemplate(
                 AnnotationProvenanceBuilder
                         .createTemplate(uri.toString(), new Date())
-                        .sourceIs(new SimpleDatabaseAnnotationSource(uri, name, null, null))
+                        .sourceIs(new SimpleDatabaseAnnotationSource(uri, name))
                         .evidenceIs(AnnotationProvenance.Evidence.MANUAL_CURATED)
                         .accuracyIs(AnnotationProvenance.Accuracy.NOT_SPECIFIED)
                         .annotatorIs(annotationCreator));

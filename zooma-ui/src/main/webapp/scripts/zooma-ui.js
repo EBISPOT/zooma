@@ -192,12 +192,32 @@ function populateDatasources() {
         for (var i = 0; i < sources.length; i++) {
             if (sources[i].type == "DATABASE") {
                 datasourceNames.push(sources[i].name);
+                var name = sources[i].name;
+                if (name == "sysmicro"){
+                    nameDescriptionMap.set(name, "Cellular Phenotype Database - The Cellular Phenotype database provides easy access to phenotypic data derived from high-throughput screening, facilitating data sharing and integration.");
+                } else if (name == "bmb-wp7"){
+                    nameDescriptionMap.set(name, "BioMedBridges - PhenoBridge, crossing the species bridge between mouse and human.");
+                } else if (name == "ebisc"){
+                    nameDescriptionMap.set(name, "Cell Line Catalogue - iPSC line catalogue");
+                } else if (name == "cttv"){
+                    nameDescriptionMap.set(name, "Open Targets - Open Targets is a public-private initiative to generate evidence on the validity of therapeutic targets based on genome-scale experiments and analysis.");
+                } else if (name == "uniprot"){
+                    nameDescriptionMap.set(name, "UniProt - A comprehensive, high quality and freely accessible resource of protein sequence and functional information.");
+                } else if (name == "eva-clinvar"){
+                    nameDescriptionMap.set(name, "European Variation Archive - The European Variation Archive is an open-access database of all types of genetic variation data from all species.");
+                } else if (name == "gwas"){
+                    nameDescriptionMap.set(name, "A Catalog of Published Genome-Wide Association Studies.");
+                } else if (name == "atlas"){
+                    nameDescriptionMap.set(name, "Expression Atlas - The Expression Atlas provides information on gene expression patterns under different biological conditions.");
+                } else {
+                    nameDescriptionMap.set(name, "No description.");
+                }
             } else if (sources[i].type == "ONTOLOGY"){
                 searchableOntoNames.push(sources[i].title + " (" + sources[i].name + ")");
                 ontologyPrefixes.push(sources[i].name);
+                nameDescriptionMap.set(sources[i].name, sources[i].title + " - " + sources[i].description);
             }
-            nameDescriptionMap.set(sources[i].name, sources[i].description);
-            nameTitleMap.set(sources[i].name, sources[i].title);
+
         }
 
         populateDatasourceSelector();
