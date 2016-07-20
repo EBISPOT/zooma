@@ -243,9 +243,11 @@
                                         <div style="font-size: 0.7em; margin-bottom: 10px;">
                                             Searches can include the Ontology Lookup Service (all OLS ontologies searched if none specified):
                                         </div>
-                                        <input type="text" name="ontologies" class="input" id="autocomplete" placeholder="Search by ontology..."  onfocus="{this.value = '';}" style="width:95%">
-                                        <div id="select-none-ontologies" class="selectable" style="margin-top: 10px;"> <input type="checkbox" name="Select None" value="Select None" onclick="deselectAllOntologies()" style="margin-bottom: 10px;"><a style="cursor:help;" title="If selected, no ontologies will be searched.">Select None</a></div>
-                                            <div style="height: 30px; margin-bottom: 70px;">
+                                        <div style="margin-bottom: 10px;">
+                                            <input type="text" name="ontologies" class="input" id="autocomplete" placeholder="Search by ontology..."  onfocus="{this.value = '';}" style="width:95%">
+                                        </div>
+                                        <div id="select-none-ontologies" class="selectable"> <input type="checkbox" name="Select None" value="Select None" onclick="deselectAllOntologies()"><a style="cursor:help;" title="If selected, no ontologies will be searched.">Select None</a></div>
+                                            <div style="height: 30px; margin-bottom: 70px; margin-top: 5px;">
                                                 <div class="zooma-scrollpane" style="height: 70px;">
                                                     <ul id="selected-ontologies">
                                                     </ul>
@@ -266,8 +268,8 @@
                                         <div style="font-size: 0.7em; margin-bottom: 10px;">
                                             Searches can include the following datasources (all searched if none specified):
                                         </div>
-                                        <div id="select-none-datasources" class="grid_8 selectable"><input type="checkbox" name="Select None" value="Select None" onclick="deselectAllDatasources()" style="margin-bottom: 10px;"> <a style="cursor:help;" title="If selected, no datasources will be searched.">Select None</a></div>
-                                        <div id="datasource-selector" class="grid_24 zooma-scrollpane" style="height: 70px;">
+                                        <div id="select-none-datasources" class="selectable"><input type="checkbox" name="Select None" value="Select None" onclick="deselectAllDatasources()"> <a style="cursor:help;" title="If selected, no datasources will be searched.">Select None</a></div>
+                                        <div id="datasource-selector" class="grid_24 zooma-scrollpane" style="height: 70px; margin-top: 5px;">
                                         </div>
                                     </div>
                                     <div id="preferred-datasources"
