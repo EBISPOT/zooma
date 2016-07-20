@@ -327,7 +327,7 @@ public class OLSClient implements Client {
         for (int i = 0; i < terms.size(); i++)
             if (terms.get(i).getName() != null) {
                 SearchResult termResult = terms.get(i);
-                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri(), termResult.getIs_defining_ontology()));
+                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri(), termResult.getIs_defining_ontology(), termResult.getOboDefinitionCitation()));
             }
 
         return termResults;
@@ -385,9 +385,12 @@ public class OLSClient implements Client {
         Map<String, String> xrefs = new HashMap<String, String>();
         if (term != null && term.getOboXRefs() != null) {
             for (OBOXRef xref : term.getOboXRefs()) {
-                if (xref.getId() != null)
-                    xrefs.put(xref.getId(), xref.getDatabase());
+                if (xref.getDatabase() != null)
+                    xrefs.put(xref.getDatabase(), xref.getDescription());
             }
+        }
+        if(term != null && term.getOboDefinitionCitation() != null){
+            xrefs.putAll(this.getOboDefinitionCitationXRef(term));
         }
         return xrefs;
     }
@@ -396,7 +399,7 @@ public class OLSClient implements Client {
         Term term = getTermById(identifier, ontology);
         Map<String, String> xrefs = new HashMap<String, String>();
         if (term != null && term.getOboSynonyms() != null) {
-            xrefs = term.getOboSynonyms();
+            xrefs.putAll(term.getOboSynonyms());
         }
         return xrefs;
     }
@@ -602,12 +605,20 @@ public class OLSClient implements Client {
         for (int i = 0; i < terms.size(); i++)
             if (terms.get(i).getName() != null) {
                 SearchResult termResult = terms.get(i);
-                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri(), termResult.getIs_defining_ontology()));
+                termResults.add(new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri(), termResult.getIs_defining_ontology(), termResult.getOboDefinitionCitation()));
             }
 
         return termResults;
     }
 
+    private Term searchByExactTerm(String exactName, String ontologyId) throws RestClientException {
+        SearchQuery currentTermQuery = getSearchQuery(0, exactName, ontologyId, true, null);
+        if (currentTermQuery.getResponse().getNumFound() != 0) {
+            SearchResult termResult = Arrays.asList(currentTermQuery.getResponse().getSearchResults()).get(0);
+            return new Term(termResult.getIri(), termResult.getName(), termResult.getDescription(), termResult.getShort_name(), termResult.getObo_id(), termResult.getOntology_name(), termResult.getScore(), termResult.getOntology_iri(), termResult.getIs_defining_ontology(), termResult.getOboDefinitionCitation());
+        }
+        return null;
+    }
 
     private SearchQuery getSearchQuery(int page, String name, String ontology, boolean exactMatch, String childrenOf) throws RestClientException {
         String query;
@@ -773,5 +784,61 @@ public class OLSClient implements Client {
         Term term = getTermById(identifier, ontology);
         Collections.addAll(synonyms, term.getSynonyms());
         return synonyms;
+    }
+
+    public Map getMetaData(Identifier identifier, String ontologyId){
+        HashMap<String, Object> metaData = new HashMap<>();
+        Map synonym = this.getOBOSynonyms(identifier, ontologyId) == null ? Collections.emptyMap() : this.getOBOSynonyms(identifier, ontologyId);
+        String definition = this.getFirstTermDescription(identifier, ontologyId);
+        String comment = this.getComment(identifier, ontologyId);
+
+        if(synonym != null && !synonym.isEmpty()){
+            metaData.put("synonym", synonym);
+        }
+        if(definition != null && !definition.isEmpty()){
+            metaData.put("definition", definition);
+        }
+        if (comment != null && !comment.isEmpty()) {
+            metaData.put("comment", comment);
+        }
+
+        if(metaData.isEmpty()){
+            return new HashMap<>();
+        }
+        return metaData;
+    }
+
+    public String getComment(Identifier identifier, String ontologyId){
+        Map<String, List<String>> annotations = this.getAnnotations(identifier, ontologyId);
+        if (!annotations.isEmpty() && annotations.keySet().contains("comment")) {
+            return annotations.get("comment").get(0);
+        }
+        return null;
+    }
+
+    public String getFirstTermDescription(Identifier termId, String ontologyId) throws RestClientException {
+        Term term = getTermById(termId, ontologyId);
+        String  description = null;
+        if (term != null && term.getDescription() != null){
+            description = term.getDescription()[0];
+        }
+        return description;
+    }
+
+    private Map<String, String> getOboDefinitionCitationXRef(Term term) {
+        Map<String, String> xrefs = new HashMap<String, String>();
+        for (OboDefinitionCitation citation : term.getOboDefinitionCitation()) {
+            OBOXRef[] oboxRef = citation.getOboXrefs();
+            for (OBOXRef xref : oboxRef) {
+                if (xref.getId() != null && !xref.getId().isEmpty()) {
+                    if(xref.getDatabase() != null ){
+                        xrefs.put("xref_definition_" + xref.getId(), xref.getDatabase() + ":" + xref.getId());
+                        continue;
+                    }
+                    xrefs.put("xref_definition_" + xref.getId(), xref.getId());
+                }
+            }
+        }
+        return xrefs;
     }
 }

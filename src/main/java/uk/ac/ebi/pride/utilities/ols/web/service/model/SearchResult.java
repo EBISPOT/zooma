@@ -40,6 +40,9 @@ public class SearchResult {
     @JsonProperty("is_defining_ontology")
     boolean definedOntology;
 
+    @JsonProperty("obo_definition_citation")
+    OboDefinitionCitation[] oboDefinitionCitation;
+
     public String getId() {
         return id;
     }
@@ -118,5 +121,13 @@ public class SearchResult {
 
     public void setIs_defining_ontology(boolean definedOntology) {
         this.definedOntology = definedOntology;
+    }
+
+    public OboDefinitionCitation[] getOboDefinitionCitation() {
+        return oboDefinitionCitation;
+    }
+
+    public void setOboDefinitionCitation(OboDefinitionCitation[] oboDefinitionCitation) {
+        this.oboDefinitionCitation = oboDefinitionCitation;
     }
 }
