@@ -255,6 +255,27 @@
             </p>
 
             <h5>Additional Parameters:</h5>
+            <p>Zooma supports the option to specify the data sources it will search from. By default (specifying nothing), Zooma will search its available databases containing curated mappings
+                (and that do not include ontology sources), and if nothing is found it will look in the Ontology Lookup Service (OLS) to predict ontology annotations.
+            </p>
+            <p>
+                A set of filters can be applied to modify the default behavior:
+                <ul>
+                        <li>required:[datasource1,datasource2,…]</li>
+                        <li>preferred:[datasource2,datasource1,…]</li>
+                        <li>ontologies:[efo,go,…]</li>
+                </ul>
+
+                <ul>
+                    <li><i>required</i> will limit the search to the given datasources</li>
+                    <li><i>preferred</i> will provide a ranking for those datasources</li>
+                    <li>and <i>ontologies</i> will limit the OLS search to the given ontologies</li>
+                </ul>
+
+            </p>
+            <p>If 'required:[none]' is specified, Zooma will search the OLS without looking into the datasources. If 'ontologies:[none]' is specified,
+                Zooma will not search the OLS if the datasource search fails to make any predictions.
+            </p>
             <p>
                 Predict an ontology annotation for the text value "mus musculus" and type "organism"
             </p>
@@ -263,18 +284,25 @@
             <p>
                 Predict an ontology annotation for the text value "mus musculus" and type "organism" using annotations that are present in a defined list of datasources
             </p>
-            <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:[atlas,efo]</pre>
+            <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:[atlas,gwas]</pre>
+
+            <p>Predict an ontology annotation for the text value "ear inflorescence" using annotations that are present in a defined list of datasources</p>
+            <pre>GET /services/annotate?propertyValue=ear+inflorescence&filter=required:[sysmicro],ontologies:[none]</pre>
+            <p>The 'ontologies:[none]' parameter will restrain Zooma from looking in the OLS if no annotation was found.</p>
 
             <p>
-                Predict an ontology annotation for the text value "mus musculus" and type "organism" using annotations
+                Predict an ontology annotation for the text value "lung adenocarcinoma" using annotations
                 that are present in a defined list of datasources, and specify a preference ranking for these
                 datasources.
             </p>
-            <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:[atlas,efo],preferred:[atlas]</pre>
+            <pre>GET /services/annotate?propertyValue=lung+adenocarcinoma&filter=required:[atlas,gwas],preferred:[gwas]</pre>
             <p>
                 Here, the 'preferred' parameter allows you to set on order of preferred datasources
                 (going from the datasource you trust the most, to the one you trust less) and this will affect the score.
             </p>
+
+            <p>Predict an ontology annotation for the text value "mus musculus" and type "organism" using annotations that are present in a defined list of ontologies only</p>
+            <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:[none],ontologies:[efo,mirnao]</pre>
 
             <h3>Resolving Resource URIs</h3>
 
