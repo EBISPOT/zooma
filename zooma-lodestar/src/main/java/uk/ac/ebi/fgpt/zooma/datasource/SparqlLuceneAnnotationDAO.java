@@ -23,16 +23,7 @@ import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
 import uk.ac.ebi.fgpt.zooma.exception.TooManyResultsException;
-import uk.ac.ebi.fgpt.zooma.model.AbstractIdentifiable;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.SimpleDatabaseAnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
-import uk.ac.ebi.fgpt.zooma.model.Study;
+import uk.ac.ebi.fgpt.zooma.model.*;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
 import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
@@ -373,6 +364,7 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
         private Collection<URI> semanticTags;
         private Property property;
         private AnnotationProvenance provenance;
+        private Links _links;
 
         private SimpleLuceneAnnotation(URI annotationUri, Property property) {
             super(annotationUri);
@@ -392,6 +384,16 @@ public class SparqlLuceneAnnotationDAO implements AnnotationDAO {
         @Override
         public Property getAnnotatedProperty() {
             return property;
+        }
+
+        @Override
+        public Links get_links() {
+            return this._links;
+        }
+
+        @Override
+        public void set_links(Links _links) {
+            this._links = _links;
         }
 
         @Override

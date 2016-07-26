@@ -1,19 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
 import uk.ac.ebi.fgpt.zooma.exception.TemplateBuildingException;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationPrediction;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationPredictionTemplate;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenanceTemplate;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationPrediction;
-import uk.ac.ebi.fgpt.zooma.model.SimpleDatabaseAnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
-import uk.ac.ebi.fgpt.zooma.model.SimpleUntypedProperty;
-import uk.ac.ebi.fgpt.zooma.model.ZoomaUser;
+import uk.ac.ebi.fgpt.zooma.model.*;
 
 import java.net.URI;
 import java.util.Collection;
@@ -41,6 +29,7 @@ public abstract class AnnotationPredictionBuilder {
 
         private Collection<BiologicalEntity> biologicalEntities;
         private Property searchedProperty;
+        private Links _links;
         private Collection<URI> semanticTags;
         private AnnotationProvenance annotationProvenance;
 
@@ -67,6 +56,16 @@ public abstract class AnnotationPredictionBuilder {
 
         @Override public Annotation getDerivedFrom() {
             return derivedFrom;
+        }
+
+        @Override
+        public Links get_links() {
+            return  this._links;
+        }
+
+        @Override
+        public void set_links(Links _links) {
+            this._links = _links;
         }
 
         @Override public Confidence getConfidence() {
@@ -170,6 +169,7 @@ public abstract class AnnotationPredictionBuilder {
                                                       this.biologicalEntities,
                                                       this.searchedProperty,
                                                       annotationProvenance,
+                                                      this._links,
                                                       this.semanticTags.toArray(
                                                               new URI[this.derivedFrom.getSemanticTags().size()]));
             }

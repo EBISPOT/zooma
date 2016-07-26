@@ -29,6 +29,7 @@ public class AnnotationRequest implements Annotation {
     private Collection<URI> replacedBy = Collections.emptySet();
     private AnnotationProvenance provenance;
     private URI uri;
+    private Links _links;
 
     // custom getters and setters for bona-fide "bean" credentials
 
@@ -69,6 +70,13 @@ public class AnnotationRequest implements Annotation {
     @Override public Property getAnnotatedProperty() {
         return annotatedProperty;
     }
+
+    @Override
+    public Links get_links() {
+        return _links;
+    }
+
+    public void set_links(Links _links){ this._links = _links;}
 
     public void setAnnotatedProperty(Property annotatedProperty) {
         this.annotatedProperty = annotatedProperty;

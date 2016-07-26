@@ -61,6 +61,7 @@ public class Zooma extends SourceFilteredEndpoint {
     private final float cutoffScore;
     private final float cutoffPercentage;
     private final float olsTopScore;
+    private final String olsTermLocation;
 
     // max time zooma will allow queries to run for - includes Lucene query, retrieval and queueing time
     private final float searchTimeout;
@@ -79,6 +80,7 @@ public class Zooma extends SourceFilteredEndpoint {
         this.cutoffPercentage = Float.parseFloat(configuration.getProperty("zooma.search.cutoff.score"));
         this.searchTimeout = Float.parseFloat(configuration.getProperty("zooma.search.timeout")) * 1000;
         this.olsTopScore = Float.parseFloat(configuration.getProperty("zooma.search.ols.cutoff.score"));
+        this.olsTermLocation = configuration.getProperty("ols.term.location");
 
         int concurrency = Integer.parseInt(configuration.getProperty("zooma.search.concurrent.threads"));
         int queueSize = Integer.parseInt(configuration.getProperty("zooma.search.max.queue"));
@@ -443,6 +445,9 @@ public class Zooma extends SourceFilteredEndpoint {
                 predictions.add(pt.build());
             }
         }
+
+        predictions = addOLSLocationPrefix(predictions);
+
         return predictions;
     }
 
@@ -512,6 +517,18 @@ public class Zooma extends SourceFilteredEndpoint {
         return annotations;
     }
 
+    /*
+     This method will take the final annotation predictions, get the olsLink href (the semantic tag),
+     and put the prefix of the term location of the OLS API (in olsTermLocation)
+     */
+    private List<AnnotationPrediction> addOLSLocationPrefix(List<AnnotationPrediction> predictions) {
+        for (AnnotationPrediction annotation : predictions){
+            ExternalLinks _links = (ExternalLinks) annotation.get_links();
+            _links.addPrefixToAllOLSLinks(this.olsTermLocation);
+            annotation.set_links(_links);
+        }
+        return predictions;
+    }
 
     private Annotation convertToAnnotation(AnnotationSummary annotationSummary) {
 
