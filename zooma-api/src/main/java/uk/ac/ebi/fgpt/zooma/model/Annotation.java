@@ -29,6 +29,11 @@ public interface Annotation extends Identifiable {
      */
     Property getAnnotatedProperty();
 
+    /**
+     * Returns the Links object that will contain all the external links belonging to the Annotation
+     *
+     * @return the Links containing all the external links
+     */
     Links get_links();
 
     void set_links(Links _links);

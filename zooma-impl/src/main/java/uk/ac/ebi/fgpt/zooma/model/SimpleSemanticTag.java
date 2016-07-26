@@ -3,6 +3,8 @@ package uk.ac.ebi.fgpt.zooma.model;
 import java.net.URI;
 
 /**
+ * Simple implementation of SemanticTag
+ *
  * Created by olgavrou on 25/07/2016.
  */
 public class SimpleSemanticTag implements SemanticTag {

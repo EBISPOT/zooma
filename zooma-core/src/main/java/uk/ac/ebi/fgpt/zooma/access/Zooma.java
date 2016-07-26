@@ -530,6 +530,10 @@ public class Zooma extends SourceFilteredEndpoint {
         return predictions;
     }
 
+    /*
+    This method will take an AnnotationSummary and convert it to an Annotation
+    Used for annotations predicted by the OLS
+    */
     private Annotation convertToAnnotation(AnnotationSummary annotationSummary) {
 
         if (annotationSummary.getID() != null && !annotationSummary.getID().equals("OLS")){
