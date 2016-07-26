@@ -27,7 +27,15 @@ public class OLSSearchService extends Initializable {
 
         this.olsClient = new OLSClient(new OLSWsConfigProd());
         this.ontologyMappings = new HashMap<>();
+        populateOntologyMappings();
 
+    }
+
+    private void populateOntologyMappings() {
+        List<Ontology> ontologies = this.getAllOntologies();
+        for (Ontology ontology : ontologies){
+            this.ontologyMappings.put(ontology.getConfig().getId(), ontology);
+        }
     }
 
     @Override
@@ -75,16 +83,23 @@ public class OLSSearchService extends Initializable {
      */
     private List<Term> increaseScoreForDefiningOntologyTerm(List<Term> terms){
 
+        List<Term> survivalTerms = new ArrayList<>();
         for (Term term : terms){
             if (term.isDefinedOntology()){
-                term.setScore(String.valueOf(Float.valueOf(term.getScore()) + 1));
+                if (term.getScore() != null) {
+                    term.setScore(String.valueOf(Float.valueOf(term.getScore()) + 1));
+                    survivalTerms.add(term);
+                }
             }
         }
 
-        return terms;
+        return survivalTerms;
     }
 
     public List<Ontology> getAllOntologies(){
+        if (this.ontologyMappings != null && !this.ontologyMappings.isEmpty()){
+            return (new ArrayList<>(ontologyMappings.values()));
+        }
         return  olsClient.getOntologies();
     }
 
@@ -100,7 +115,9 @@ public class OLSSearchService extends Initializable {
                 }
             }
         }
-        return olsClient.getOntology(name);
+        Ontology ontology = olsClient.getOntology(name);
+        ontologyMappings.put(ontology.getId(), ontology);
+        return ontology;
     }
 
     public String getOntologyNamespaceFromId(String uri){
@@ -111,6 +128,7 @@ public class OLSSearchService extends Initializable {
 
         Ontology ontology = olsClient.getOntologyFromId(URI.create(uri));
         if (ontology != null){
+            ontologyMappings.put(ontology.getId(), ontology);
             return ontology.getConfig().getNamespace();
         }
         return null;
