@@ -1,6 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.model;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Set;
 
 /**
@@ -46,7 +48,11 @@ public class ExternalLinks implements Links {
     public void addPrefixToAllOLSLinks(String prefix){
         for (SemanticTag olsLink : this.olsLinks){
             String semanticTag = olsLink.getSemanticTag().toString();
-            olsLink.setHref(URI.create(prefix + semanticTag));
+            try {
+                olsLink.setHref(URI.create(prefix + URLEncoder.encode(semanticTag, "UTF-8")));
+            } catch (UnsupportedEncodingException e) {
+                olsLink.setHref(URI.create(prefix + semanticTag));
+            }
         }
     }
 
