@@ -6,10 +6,7 @@ import uk.ac.ebi.fgpt.zooma.model.SimpleOntologyAnnotationSource;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Ontology;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Implements the {@link AnnotationSourceService} for adding ontology sources
@@ -47,11 +44,17 @@ public class OLSAnnotationSourceService extends Initializable implements Annotat
     public Collection<AnnotationSource> getAnnotationSources() {
         List<Ontology> ontologies = olsSearchService.getAllOntologies();
 
-        for (Ontology ontology : ontologies){
-            annotationSourceMap.put(ontology.getNamespace(), new SimpleOntologyAnnotationSource(URI.create(ontology.getId()), ontology.getNamespace(), ontology.getName(), ontology.getDescription()));
+        if (ontologies!= null && !ontologies.isEmpty()) {
+            for (Ontology ontology : ontologies) {
+                annotationSourceMap.put(ontology.getNamespace(), new SimpleOntologyAnnotationSource(URI.create(ontology.getId()), ontology.getNamespace(), ontology.getName(), ontology.getDescription()));
+            }
         }
 
-        return annotationSourceMap.values();
+        if (!annotationSourceMap.isEmpty()){
+            return annotationSourceMap.values();
+        } else {
+            return new ArrayList<>();
+        }
     }
     @Override
     public AnnotationSource getAnnotationSource(String sourceName) {
@@ -61,9 +64,14 @@ public class OLSAnnotationSourceService extends Initializable implements Annotat
         }
 
         Ontology ontology = olsSearchService.getOntology(sourceName);
-        AnnotationSource annotationSource = new SimpleOntologyAnnotationSource(URI.create(ontology.getId()), ontology.getNamespace(), ontology.getName(), ontology.getDescription());
-        annotationSourceMap.put(sourceName, annotationSource);
-        return annotationSource;
+        if (ontology != null) {
+            AnnotationSource annotationSource = new SimpleOntologyAnnotationSource(URI.create(ontology.getId()), ontology.getNamespace(), ontology.getName(), ontology.getDescription());
+            annotationSourceMap.put(sourceName, annotationSource);
+            return annotationSource;
+        }
+
+        return null;
+
     }
 
     @Override

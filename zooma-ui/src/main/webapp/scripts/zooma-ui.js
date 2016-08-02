@@ -239,16 +239,21 @@ function getSourceTitle(name){
 
 function populateOntologySelector() {
 // setup autocomplete function pulling from searchableOntoNames[] array
-    $('#autocomplete').autocomplete({
-        lookup: searchableOntoNames,
-        onSelect: function (suggestion) {
-            //clean ontology prefix from the title and the parenthesis
-            var firstSplitArray = suggestion.value.split("(");
-            var firstSplit = firstSplitArray[firstSplitArray.length - 1];
-            var ontology = firstSplit.split(")")[0];
-            populateOntologies(ontology);
-        }
-    });
+    if (searchableOntoNames.length == 0){
+        $('input.input').val("No ontologies available at the moment.");
+        $('#autocomplete').prop( "disabled", true );
+    } else {
+        $('#autocomplete').autocomplete({
+            lookup: searchableOntoNames,
+            onSelect: function (suggestion) {
+                //clean ontology prefix from the title and the parenthesis
+                var firstSplitArray = suggestion.value.split("(");
+                var firstSplit = firstSplitArray[firstSplitArray.length - 1];
+                var ontology = firstSplit.split(")")[0];
+                populateOntologies(ontology);
+            }
+        });
+    }
 }
 
 function populateOntologies(instertNew){
@@ -320,6 +325,7 @@ function deselectAllOntologies(){
         reinitializeScrollpanes();
     } else {
         $('#autocomplete').prop( "disabled", false );
+        populateOntologySelector();
     }
 }
 

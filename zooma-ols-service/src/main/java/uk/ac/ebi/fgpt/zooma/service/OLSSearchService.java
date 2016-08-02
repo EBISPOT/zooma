@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
+import org.springframework.web.client.RestClientException;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.pride.utilities.ols.web.service.client.OLSClient;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
@@ -33,8 +34,10 @@ public class OLSSearchService extends Initializable {
 
     private void populateOntologyMappings() {
         List<Ontology> ontologies = this.getAllOntologies();
-        for (Ontology ontology : ontologies){
-            this.ontologyMappings.put(ontology.getConfig().getId(), ontology);
+        if (ontologies != null && !ontologies.isEmpty()) {
+            for (Ontology ontology : ontologies) {
+                this.ontologyMappings.put(ontology.getConfig().getId(), ontology);
+            }
         }
     }
 
@@ -57,7 +60,11 @@ public class OLSSearchService extends Initializable {
     }
 
     private List<Term> getTermsByName(String value, String source){
-        return olsClient.getExactTermsByName(value, source);
+        try {
+            return olsClient.getExactTermsByName(value, source);
+        } catch (RestClientException e){
+            return new ArrayList<>();
+        }
     }
     //
     public List<Term> getTermsByNameFromParent(String value, String childrenOf){
@@ -73,7 +80,11 @@ public class OLSSearchService extends Initializable {
     }
 
     private List<Term> getTermsByNameFromParent(String value, String source, String childrenOf){
-        return olsClient.getExactTermsByNameFromParent(value, source, childrenOf);
+        try {
+            return olsClient.getExactTermsByNameFromParent(value, source, childrenOf);
+        } catch (RestClientException e){
+            return new ArrayList<>();
+        }
     }
 
     /*
@@ -83,11 +94,19 @@ public class OLSSearchService extends Initializable {
      */
     private List<Term> increaseScoreForDefiningOntologyTerm(List<Term> terms){
 
+        if (terms == null || terms.isEmpty()){
+            return new ArrayList<>();
+        }
+
         List<Term> survivalTerms = new ArrayList<>();
         for (Term term : terms){
             if (term.isDefinedOntology()){
                 if (term.getScore() != null) {
                     term.setScore(String.valueOf(Float.valueOf(term.getScore()) + 1));
+                    survivalTerms.add(term);
+                }
+            } else {
+                if (term.getScore() != null) {
                     survivalTerms.add(term);
                 }
             }
@@ -97,10 +116,14 @@ public class OLSSearchService extends Initializable {
     }
 
     public List<Ontology> getAllOntologies(){
-        if (this.ontologyMappings != null && !this.ontologyMappings.isEmpty()){
-            return (new ArrayList<>(ontologyMappings.values()));
+        try {
+            if (this.ontologyMappings != null && !this.ontologyMappings.isEmpty()) {
+                return (new ArrayList<>(ontologyMappings.values()));
+            }
+            return olsClient.getOntologies();
+        } catch (RestClientException e){
+            return new ArrayList<>();
         }
-        return  olsClient.getOntologies();
     }
 
     /*
@@ -115,9 +138,13 @@ public class OLSSearchService extends Initializable {
                 }
             }
         }
-        Ontology ontology = olsClient.getOntology(name);
-        ontologyMappings.put(ontology.getId(), ontology);
-        return ontology;
+        try {
+            Ontology ontology = olsClient.getOntology(name);
+            ontologyMappings.put(ontology.getId(), ontology);
+            return ontology;
+        } catch (RestClientException e ){
+            return null;
+        }
     }
 
     public String getOntologyNamespaceFromId(String uri){
@@ -126,10 +153,14 @@ public class OLSSearchService extends Initializable {
             return ontologyMappings.get(uri).getNamespace();
         }
 
-        Ontology ontology = olsClient.getOntologyFromId(URI.create(uri));
-        if (ontology != null){
-            ontologyMappings.put(ontology.getId(), ontology);
-            return ontology.getConfig().getNamespace();
+        try {
+            Ontology ontology = olsClient.getOntologyFromId(URI.create(uri));
+            if (ontology != null){
+                ontologyMappings.put(ontology.getId(), ontology);
+                return ontology.getConfig().getNamespace();
+            }
+        } catch (RestClientException e){
+            return null;
         }
         return null;
     }

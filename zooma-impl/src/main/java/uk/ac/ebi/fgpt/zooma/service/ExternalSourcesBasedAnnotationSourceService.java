@@ -36,7 +36,10 @@ public class ExternalSourcesBasedAnnotationSourceService extends AnnotationSourc
     public Collection<AnnotationSource> getAnnotationSources() {
         Collection<AnnotationSource> annotationSources = ExternalSourcesBasedAnnotationSourceService.super.getAnnotationSources();
         //add external sources
-        annotationSources.addAll(getAnnotationSourceService().getAnnotationSources());
+        Collection<AnnotationSource> annSources = getAnnotationSourceService().getAnnotationSources();
+        if (annSources != null && !annSources.isEmpty()) {
+            annotationSources.addAll(annSources);
+        }
         return annotationSources;
     }
 
