@@ -1,0 +1,12 @@
+# JS library local caches
+bower_components
+node_modules
+node
+etc
+*.iml
+.idea
+# Maven
+**/target/**
+
+# Mac specific files
+.DS_Store
