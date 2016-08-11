@@ -1,15 +1,11 @@
 package uk.ac.ebi.spot.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.net.URI;
 
 /**
  * Created by olgavrou on 04/08/2016.
  */
-@Document(collection = "annotationSources")
-public class SimpleAnnotationSource extends SimpleDocument implements AnnotationSource{
+public class SimpleAnnotationSource implements AnnotationSource {
 
     private URI source;
     private Type type;
@@ -23,10 +19,6 @@ public class SimpleAnnotationSource extends SimpleDocument implements Annotation
     }
 
 
-    @Override public URI getURI() {
-        return source;
-    }
-
     @Override public Type getType() {
         return type;
     }
@@ -35,6 +27,8 @@ public class SimpleAnnotationSource extends SimpleDocument implements Annotation
     public String getName() {
         return name;
     }
+
+    public URI getSource() { return source; }
 
     @Override
     public String toString() {

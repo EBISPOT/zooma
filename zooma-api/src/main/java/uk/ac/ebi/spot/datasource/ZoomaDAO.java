@@ -17,7 +17,7 @@ import java.util.List;
  * @author Tony Burdett
  * @date 30/03/12
  */
-public interface ZoomaDAO<I extends Identifiable> {
+public interface ZoomaDAO<I> {
     /**
      * Retrieves a name that represents the datasource that this DAO retrieves data from.  Although this is not treated
      * as a unique key, it is best to take care to ensure that implementations define a reasonably unique name so as to

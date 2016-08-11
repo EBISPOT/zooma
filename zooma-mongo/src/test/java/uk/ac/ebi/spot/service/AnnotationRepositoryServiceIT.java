@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.services;
+package uk.ac.ebi.spot.service;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.spot.model.*;
+import uk.ac.ebi.spot.services.*;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -28,10 +29,7 @@ public class AnnotationRepositoryServiceIT {
     AnnotationRepositoryService annotationRepositoryService;
 
     @Autowired
-    AnnotationSourceRepositoryService annotationSourceRepositoryService;
-
-    @Autowired
-    AnnotationProvenanceRepositoryService annotationProvenanceRepositoryService;
+    uk.ac.ebi.spot.services.PropertyService propertyService;
 
     @Autowired
     BiologicalEntityRepositoryService biologicalEntityRepositoryService;
@@ -43,61 +41,48 @@ public class AnnotationRepositoryServiceIT {
     public void setup(){
         //Create an Annotation and store it in mongodb
 
-        SimpleStudy simpleStudy = new SimpleStudy("Accession1", null);
-        simpleStudy.setId("SS1");
+        SimpleStudy simpleStudy = new SimpleStudy("SS1", "Accession1");
 
         Collection<Study> studies = new ArrayList<>();
         studies.add(simpleStudy);
 
-        simpleStudy = new SimpleStudy("Accession2", null);
-        simpleStudy.setId("SS2");
+        simpleStudy = new SimpleStudy("SS2", "Accession2");
         studies.add(simpleStudy);
 
         Collection<BiologicalEntity> biologicalEntities = new ArrayList<>();
-        SimpleBiologicalEntity biologicalEntity = new SimpleBiologicalEntity("GSM374548", null, studies);
-        biologicalEntity.setId("BE1");
+        SimpleBiologicalEntity biologicalEntity = new SimpleBiologicalEntity("BE1", "GSM374548", studies);
         biologicalEntities.add(biologicalEntity);
-        biologicalEntity = new SimpleBiologicalEntity("newEntity", null, studies);
-        biologicalEntity.setId("BE2");
+        biologicalEntity = new SimpleBiologicalEntity("BE2", "newEntity", studies);
         biologicalEntities.add(biologicalEntity);
 
-        Property property = new SimpleTypedProperty("disease", "lung cancer");
+        Property property = new SimpleTypedProperty("TestProperty", "disease", "lung cancer");
         URI semanticTag = java.net.URI.create("http://www.ebi.ac.uk/efo/EFO_0001071");
         Collection<URI> semanticTags = new ArrayList<>();
         semanticTags.add(semanticTag);
 
         //create provenance
         SimpleOntologyAnnotationSource annotationSource = new SimpleOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/gxa"), "atlas","","");
-        annotationSource.setId("TestSource");
 
         SimpleAnnotationProvenance annotationProvenance = new SimpleAnnotationProvenance(annotationSource,
                 AnnotationProvenance.Evidence.MANUAL_CURATED,
                 AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                 "http://www.ebi.ac.uk/gxa", new Date(), "Laura Huerta", new Date());
-        annotationProvenance.setId("TestProvenance");
 
-        SimpleAnnotation annotationDocument = new SimpleAnnotation(biologicalEntities,
+        SimpleAnnotation annotationDocument = new SimpleAnnotation("TestStringId", biologicalEntities,
                 property,
                 semanticTags,
                 annotationProvenance,
                 null,
-                null,
-                URI.create("URI"));
+                null);
 
-        annotationDocument.setId("TestStringId");
         annotationRepositoryService.save(annotationDocument);
     }
 
     @After
     public void teardown(){
 
-        //remove source from the database
-        SimpleAnnotationSource annotationSource = annotationSourceRepositoryService.get("TestSource");
-        annotationSourceRepositoryService.delete(annotationSource);
-
-        //remove provenance from the database
-        SimpleAnnotationProvenance annotationProvenance = annotationProvenanceRepositoryService.get("TestProvenance");
-        annotationProvenanceRepositoryService.delete(annotationProvenance);
+        //remove property
+        propertyService.delete(propertyService.get("TestProperty"));
 
         //remove studies
         studyRepositoryService.delete(studyRepositoryService.get("SS1"));
@@ -125,7 +110,7 @@ public class AnnotationRepositoryServiceIT {
     @Test
     public void testUpdate() throws Exception {
         SimpleAnnotation annotationDocument = annotationRepositoryService.get("TestStringId");
-        annotationDocument.setAnnotatedProperty(new SimpleTypedProperty("New Parameter", "New Value"));
+        annotationDocument.setAnnotatedProperty(new SimpleTypedProperty("TestProperty", "New Parameter", "New Value"));
         annotationRepositoryService.update(annotationDocument);
 
         annotationDocument = annotationRepositoryService.get("TestStringId");
@@ -135,19 +120,10 @@ public class AnnotationRepositoryServiceIT {
 
     @Test
     public void testGetByAnnotatedProperty() throws Exception {
-        Property property = new SimpleTypedProperty("disease", "lung cancer");
+        Property property = new SimpleTypedProperty("TestProperty", "disease", "lung cancer");
         SimpleAnnotation annotationDocument = annotationRepositoryService.getByAnnotatedProperty(property);
 
         assertThat("The Id is TestStringId", annotationDocument.getId(), is("TestStringId"));
-    }
-
-    @Test
-    public void testGetByURI() throws Exception {
-        URI uri = URI.create("URI");
-        SimpleAnnotation annotationDocument = annotationRepositoryService.getByUri(uri);
-
-        assertThat("The Id is TestStringId", annotationDocument.getId(), is("TestStringId"));
-
     }
 
 }

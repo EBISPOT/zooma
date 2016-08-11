@@ -1,18 +1,15 @@
 package uk.ac.ebi.spot.model;
 
-import java.net.URI;
-
 /**
  * Created by olgavrou on 03/08/2016.
  */
-public class SimpleTypedProperty implements TypedProperty {
+public class SimpleTypedProperty extends SimpleProperty implements TypedProperty {
 
     private String propertyType;
-    private String propertyValue;
 
-    public SimpleTypedProperty(String propertyType, String propertyValue) {
+    public SimpleTypedProperty(String id, String propertyType, String propertyValue) {
+        super(id, propertyValue);
         this.propertyType = propertyType;
-        this.propertyValue = propertyValue;
     }
 
     @Override
@@ -24,27 +21,4 @@ public class SimpleTypedProperty implements TypedProperty {
         this.propertyType = propertyType;
     }
 
-    @Override
-    public String getPropertyValue() {
-        return propertyValue;
-    }
-
-    public void setPropertyValue(String propertyValue) {
-        this.propertyValue = propertyValue;
-    }
-
-    @Override
-    public boolean matches(Property property) {
-        return false;
-    }
-
-    @Override
-    public int compareTo(Property o) {
-        return 0;
-    }
-
-    @Override
-    public URI getURI() {
-        return null;
-    }
 }

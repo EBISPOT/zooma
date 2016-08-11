@@ -6,7 +6,7 @@ import java.util.Collection;
  * Encapsulates rules that allow ZOOMA search strings to be processed. How this processing is performed is up to
  * individual implementations.
  * <p/>
- * Some of the ZOOMA search services declare methods that take property value search strings and use the supplied search
+ * Some of the ZOOMA search service declare methods that take property value search strings and use the supplied search
  * string to query for matching annotations.  This class will return processed versions of the search string, allowing,
  * for example, partial matches to be evaluated
  *

@@ -67,8 +67,9 @@ public class ZoomaUtils {
             idContent.append(s);
         }
         try {
+            String s = idContent.toString();
             // encode the content using the supplied message digest
-            byte[] digest = messageDigest.digest(idContent.toString().getBytes("UTF-8"));
+            byte[] digest = messageDigest.digest(s.getBytes("UTF-8"));
 
             // now translate the resulting byte array to hex
             String idKey = getHexRepresentation(digest);

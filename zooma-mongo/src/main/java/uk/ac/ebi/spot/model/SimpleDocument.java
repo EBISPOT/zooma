@@ -10,6 +10,10 @@ public abstract class SimpleDocument {
     @Id
     private String id;
 
+    public SimpleDocument(String id) {
+        this.id = id;
+    }
+
     public String getId() {
         return id;
     }

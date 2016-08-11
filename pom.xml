@@ -49,6 +49,7 @@
 	<modules>
 		<module>zooma-api</module>
 		<module>zooma-mongo</module>
+		<module>zooma-csv-loader</module>
 	</modules>
 
 

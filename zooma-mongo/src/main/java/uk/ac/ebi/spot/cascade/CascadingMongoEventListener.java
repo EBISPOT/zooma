@@ -14,6 +14,9 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 
 /**
+ * Enables auto saving of fields that have a collection in the database, withought having to explicitly save them
+ * Uses the CascadeSave annotation
+ *
  * Created by olgavrou on 05/08/2016.
  */
 @Component

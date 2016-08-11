@@ -6,7 +6,6 @@ import uk.ac.ebi.spot.model.Study;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * A ZOOMA service that allows searching over the set of {@link Study}s known to ZOOMA.  The search facililty on this

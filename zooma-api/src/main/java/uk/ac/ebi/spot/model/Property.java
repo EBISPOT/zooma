@@ -18,7 +18,7 @@ package uk.ac.ebi.spot.model;
  * @author Tony Burdett
  * @date 08/03/12
  */
-public interface Property extends Identifiable, Comparable<Property> {
+public interface Property extends Comparable<Property> {
     /**
      * Returns the property value for this property.
      *

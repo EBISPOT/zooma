@@ -1,19 +1,12 @@
 package uk.ac.ebi.spot.model;
 
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
-import uk.ac.ebi.spot.cascade.CascadeSave;
-
 import java.util.Date;
 
 /**
  * Created by olgavrou on 04/08/2016.
  */
-@Document(collection = "annotationProvenances")
-public class SimpleAnnotationProvenance extends SimpleDocument implements AnnotationProvenance {
+public class SimpleAnnotationProvenance implements AnnotationProvenance {
 
-    @DBRef
-    @CascadeSave
     private final AnnotationSource source;
 
     private final Evidence evidence;

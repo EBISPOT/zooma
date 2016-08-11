@@ -14,8 +14,6 @@ public interface AnnotationRepository extends MongoRepository<SimpleAnnotation, 
 
     SimpleAnnotation findByAnnotatedProperty(@Param("annotatedProperty") Property annotatedProperty);
 
-    SimpleAnnotation findByUri(@Param("uri") URI uri);
-
     SimpleAnnotation findById(@Param("Id") String id);
 
 }

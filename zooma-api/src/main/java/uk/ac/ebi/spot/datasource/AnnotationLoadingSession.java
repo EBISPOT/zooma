@@ -18,57 +18,46 @@ import java.util.Date;
 public interface AnnotationLoadingSession {
     String getDatasourceName();
 
-    Study getOrCreateStudy(String studyAccession, Collection<URI> studyTypes);
+    Study getOrCreateStudy(String studyAccession);
 
-    Study getOrCreateStudy(String studyAccession, String studyID, Collection<URI> studyTypes);
+    Study getOrCreateStudy(String studyAccession, String studyID);
 
-    Study getOrCreateStudy(String studyAccession, URI studyURI, Collection<URI> studyTypes);
+    Study getOrCreateStudy(String studyAccession, URI studyURI);
+
 
     /**
      * A method to create a biological entity object based on the bioentity name, types and set of studies
      *
      * @param bioentityName       A name to identity the biological entity
-     * @param bioentityTypesNames An optional collection of names to represent the type of biological entity
-     * @param bioentityTypesURIs  An optional collection of URIs to represent the type of biological entity
      * @param studies             A collection of studies linked to the biological entity
      * @return BiologicalEntity
      */
     BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
-                                                 Collection<String> bioentityTypesNames,
-                                                 Collection<URI> bioentityTypesURIs,
-                                                 Study... studies);
+                                                 Collection<Study> studies);
 
     /**
      * A method to create a biological entity object based on the bioentity name, types and set of studies
      *
      * @param bioentityName       A name to identity the biological entity
      * @param bioentityID         An id that can be used to form the URI of the biological entity
-     * @param bioentityTypesNames An optional collection of names to represent the type of biological entity
-     * @param bioentityTypesURIs  An optional collection of URIs to represent the type of biological entity
      * @param studies             A collection of studies linked to the biological entity
      * @return BiologicalEntity
      */
     BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
                                                  String bioentityID,
-                                                 Collection<String> bioentityTypesNames,
-                                                 Collection<URI> bioentityTypesURIs,
-                                                 Study... studies);
+                                                 Collection<Study> studies);
 
     /**
      * A method to create a biological entity object based on the bioentity name, types and set of studies
      *
      * @param bioentityName       A name to identity the biological entity
      * @param bioentityURI        A URI that will be used to identify the biological entity
-     * @param bioentityTypesNames An optional collection of names to represent the type of biological entity
-     * @param bioentityTypesURIs  An optional collection of URIs to represent the type of biological entity
      * @param studies             A collection of studies linked to the biological entity
      * @return BiologicalEntity
      */
     BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
                                                  URI bioentityURI,
-                                                 Collection<String> bioentityTypesNames,
-                                                 Collection<URI> bioentityTypesURIs,
-                                                 Study... studies);
+                                                 Collection<Study> studies);
 
     Property getOrCreateProperty(String propertyType, String propertyValue);
 

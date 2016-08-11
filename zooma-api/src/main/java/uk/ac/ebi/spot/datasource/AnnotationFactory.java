@@ -48,11 +48,9 @@ public interface AnnotationFactory {
      * @param studyAccession   the accession of the study.  Unique across this datasource
      * @param studyURI         the URI of the study that will be created, if present
      * @param studyID          the ID of the study in the datasource.  If present, will be used to generate the URI
-     * @param studyType        the URI that specifies the type of Study e.g. an experiment or pubmed article
      * @param bioentityName    the name of the bioentity.  Should be unique per study in the datasource
      * @param bioentityURI     the URI of the bioentity that will be created, if present
      * @param bioentityID      the ID of the bioentity in the datasource.  If present, will be used to generate the URI
-     * @param bioentityTypeURI the URI of the bioentity type in the datasource.
      * @param propertyType     the property type
      * @param propertyValue    the property value
      * @param propertyURI      the URI of the property that will be created, if present
@@ -67,12 +65,9 @@ public interface AnnotationFactory {
                                 String studyAccession,
                                 URI studyURI,
                                 String studyID,
-                                URI studyType,
                                 String bioentityName,
                                 URI bioentityURI,
                                 String bioentityID,
-                                String bioentityTypeName,
-                                URI bioentityTypeURI,
                                 String propertyType,
                                 String propertyValue,
                                 URI propertyURI,

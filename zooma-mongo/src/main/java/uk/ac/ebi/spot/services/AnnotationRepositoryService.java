@@ -9,7 +9,6 @@ import uk.ac.ebi.spot.model.SimpleAnnotation;
 import uk.ac.ebi.spot.model.Property;
 import uk.ac.ebi.spot.repositories.AnnotationRepository;
 
-import java.net.URI;
 import java.util.List;
 
 /**
@@ -64,10 +63,6 @@ public class AnnotationRepositoryService implements RepositoryService<SimpleAnno
 
     public SimpleAnnotation getByAnnotatedProperty(Property property) {
         return annotationRepository.findByAnnotatedProperty(property);
-    }
-
-    public SimpleAnnotation getByUri(URI uri){
-        return annotationRepository.findByUri(uri);
     }
 
 }

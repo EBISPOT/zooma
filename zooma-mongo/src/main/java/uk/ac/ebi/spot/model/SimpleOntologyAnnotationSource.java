@@ -23,7 +23,7 @@ public class SimpleOntologyAnnotationSource extends SimpleAnnotationSource {
     @Override
     public String toString() {
         return "SimpleAnnotationSource{" +
-                "source=" + getURI() +
+                "source=" + getSource() +
                 ", type=" + getType() +
                 ", name='" + getName() + '\'' +
                 ", title='" + getTitle() + '\'' +

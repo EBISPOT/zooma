@@ -2,7 +2,7 @@ package service;
 
 
 /**
- * A ZOOMA service that indicates the status of backend services.  This is used to indicate whether ZOOMA is ready to
+ * A ZOOMA service that indicates the status of backend service.  This is used to indicate whether ZOOMA is ready to
  * serve requests, or force a reinitialization of backend infrastructure to ZOOMA.
  * <p/>
  * Any service implementations that require initialization, startup or indexing should implement this service to only

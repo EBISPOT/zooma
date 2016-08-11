@@ -11,7 +11,7 @@ package uk.ac.ebi.spot.model;
  * @author Tony Burdett
  * @date 04/10/13
  */
-public interface AnnotationSource extends Identifiable {
+public interface AnnotationSource {
     /**
      * Returns the type of this annotation source
      *

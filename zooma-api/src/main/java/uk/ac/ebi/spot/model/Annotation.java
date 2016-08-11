@@ -14,7 +14,7 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 08/03/12
  */
-public interface Annotation extends Identifiable {
+public interface Annotation {
     /**
      * Returns a collection of biological entities to which this annotation applies
      *
