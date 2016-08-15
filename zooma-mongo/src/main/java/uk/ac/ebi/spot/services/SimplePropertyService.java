@@ -14,7 +14,7 @@ import java.util.List;
  * Created by olgavrou on 09/08/2016.
  */
 @Service
-public class PropertyService implements RepositoryService<SimpleProperty>{
+public class SimplePropertyService implements RepositoryService<SimpleProperty>{
 
     @Autowired
     PropertyRepository propertyRepository;

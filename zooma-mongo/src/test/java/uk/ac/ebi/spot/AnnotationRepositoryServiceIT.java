@@ -1,11 +1,13 @@
-package uk.ac.ebi.spot.service;
+package uk.ac.ebi.spot;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.spot.model.*;
+import uk.ac.ebi.spot.config.MongoConfig;
 import uk.ac.ebi.spot.services.*;
 
 import java.net.URI;
@@ -23,13 +25,14 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@ContextConfiguration(classes = MongoConfig.class)
 public class AnnotationRepositoryServiceIT {
 
     @Autowired
     AnnotationRepositoryService annotationRepositoryService;
 
     @Autowired
-    uk.ac.ebi.spot.services.PropertyService propertyService;
+    SimplePropertyService propertyService;
 
     @Autowired
     BiologicalEntityRepositoryService biologicalEntityRepositoryService;
