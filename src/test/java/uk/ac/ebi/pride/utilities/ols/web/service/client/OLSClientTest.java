@@ -1,7 +1,6 @@
 package uk.ac.ebi.pride.utilities.ols.web.service.client;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,14 +55,13 @@ public class OLSClientTest {
     }
 
     @Test
-    @Ignore
     public void testGetTermsByName() throws Exception {
         List<Term> terms = olsClient.getTermsByName("modification", "ms", false);
         logger.info(terms.toString());
         Assert.assertTrue(terms.size() > 0);
         terms = olsClient.getTermsByName("modification", "ms", true);
         Iterator iterator = terms.iterator();
-        Assert.assertTrue(((Term) iterator.next()).getTermOBOId().getIdentifier().equalsIgnoreCase("MS:1001876"));
+        Assert.assertTrue(((Term) iterator.next()).getTermOBOId().getIdentifier().equalsIgnoreCase("MS:1002672"));
     }
 
     @Test
