@@ -79,16 +79,16 @@ public class AnnotationRepositoryServiceIT {
         annotationRepositoryService.save(annotationDocument);
     }
 
-//    @After
-//    public void teardown(){
-//
-//        //remove the annotation from the database
-//        SimpleAnnotation annotationDocument = annotationRepositoryService.get("TestStringId");
-//
-//        annotationRepositoryService.delete(annotationDocument);
-//
-//        assertNull(annotationRepositoryService.get(annotationDocument.getId()));
-//    }
+    @After
+    public void teardown(){
+
+        //remove the annotation from the database
+        SimpleAnnotation annotationDocument = annotationRepositoryService.get("TestStringId");
+
+        annotationRepositoryService.delete(annotationDocument);
+
+        assertNull(annotationRepositoryService.get(annotationDocument.getId()));
+    }
 
     @Test
     public void testGetBySemanticTags(){
