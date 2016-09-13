@@ -1,8 +1,6 @@
 package uk.ac.ebi.spot.model;
 
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import uk.ac.ebi.spot.cascade.CascadeSave;
 
 import java.net.URI;
 import java.util.Collection;
@@ -14,11 +12,7 @@ import java.util.HashSet;
 @Document(collection = "annotations")
 public class SimpleAnnotation extends SimpleDocument implements Annotation {
 
-    @DBRef
-    @CascadeSave
     private Collection<BiologicalEntity> annotatedBiologicalEntities;
-    @DBRef
-    @CascadeSave
     private Property annotatedProperty;
     private Collection<URI> semanticTags;
     private AnnotationProvenance provenance;

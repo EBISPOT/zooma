@@ -10,8 +10,8 @@ public class SimpleOntologyAnnotationSource extends SimpleAnnotationSource {
     private String title;
     private String description;
 
-    public SimpleOntologyAnnotationSource(URI source, String name, String title, String description) {
-        super(source, name, Type.ONTOLOGY);
+    public SimpleOntologyAnnotationSource(URI uri, String name, String title, String description) {
+        super(uri, name, Type.ONTOLOGY);
         this.title = title;
         this.description = description;
     }
@@ -23,7 +23,7 @@ public class SimpleOntologyAnnotationSource extends SimpleAnnotationSource {
     @Override
     public String toString() {
         return "SimpleAnnotationSource{" +
-                "source=" + getSource() +
+                "uri=" + getUri() +
                 ", type=" + getType() +
                 ", name='" + getName() + '\'' +
                 ", title='" + getTitle() + '\'' +

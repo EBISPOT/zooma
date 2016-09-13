@@ -7,13 +7,13 @@ import java.net.URI;
  */
 public class SimpleAnnotationSource implements AnnotationSource {
 
-    private URI source;
+    private URI uri;
     private Type type;
     private String name;
 
 
-    public SimpleAnnotationSource(URI source, String name, Type type) {
-        this.source = source;
+    public SimpleAnnotationSource(URI uri, String name, Type type) {
+        this.uri = uri;
         this.name = name;
         this.type = type;
     }
@@ -28,12 +28,12 @@ public class SimpleAnnotationSource implements AnnotationSource {
         return name;
     }
 
-    public URI getSource() { return source; }
+    public URI getUri() { return uri; }
 
     @Override
     public String toString() {
         return "SimpleAnnotationSource{" +
-                "source=" + source +
+                "uri=" + uri +
                 ", type=" + type +
                 ", name='" + name + '\'' +
                 '}';

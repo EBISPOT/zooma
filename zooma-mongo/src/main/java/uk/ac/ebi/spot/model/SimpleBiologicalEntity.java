@@ -1,9 +1,6 @@
 package uk.ac.ebi.spot.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import uk.ac.ebi.spot.cascade.CascadeSave;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -15,8 +12,6 @@ import java.util.HashSet;
 public class SimpleBiologicalEntity extends SimpleDocument implements BiologicalEntity {
 
     private String name;
-    @DBRef
-    @CascadeSave
     private Collection<Study> studies;
 
     public SimpleBiologicalEntity(String id, String name, Collection<Study> studies) {

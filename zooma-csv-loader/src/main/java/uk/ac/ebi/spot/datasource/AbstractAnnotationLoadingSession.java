@@ -91,8 +91,15 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
     public synchronized BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
                                                                      Collection<Study> studies) {
         List<String> ids = new ArrayList<>();
-        for (Study s : studies) {
-            ids.add(s.getAccession());
+        if (studies != null) {
+            for (Study s : studies) {
+                if (s != null) {
+                    ids.add(s.getAccession());
+                }
+            }
+        } else {
+            //no studies provided
+            studies = new ArrayList<>();
         }
         ids.add(bioentityName);
         String hashID = generateIDFromContent(ids.toArray(new String[ids.size()]));

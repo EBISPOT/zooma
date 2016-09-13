@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot;
+package uk.ac.ebi.spot.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
