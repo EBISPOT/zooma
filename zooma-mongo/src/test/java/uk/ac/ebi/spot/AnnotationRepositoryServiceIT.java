@@ -29,14 +29,6 @@ public class AnnotationRepositoryServiceIT {
     @Autowired
     AnnotationRepositoryService annotationRepositoryService;
 
-    @Autowired
-    SimplePropertyService propertyService;
-
-    @Autowired
-    BiologicalEntityRepositoryService biologicalEntityRepositoryService;
-
-    @Autowired
-    StudyRepositoryService studyRepositoryService;
 
     @Before
     public void setup(){
@@ -77,16 +69,25 @@ public class AnnotationRepositoryServiceIT {
                 null);
 
         annotationRepositoryService.save(annotationDocument);
+
+        SimpleAnnotation annotation = new SimpleAnnotation("TestStringId2", biologicalEntities,
+                property,
+                semanticTags,
+                annotationProvenance,
+                null,
+                null);
+        annotationRepositoryService.save(annotation);
     }
 
     @After
     public void teardown(){
-
         //remove the annotation from the database
         SimpleAnnotation annotationDocument = annotationRepositoryService.get("TestStringId");
-
         annotationRepositoryService.delete(annotationDocument);
+        assertNull(annotationRepositoryService.get(annotationDocument.getId()));
 
+        annotationDocument = annotationRepositoryService.get("TestStringId2");
+        annotationRepositoryService.delete(annotationDocument);
         assertNull(annotationRepositoryService.get(annotationDocument.getId()));
     }
 
@@ -94,13 +95,13 @@ public class AnnotationRepositoryServiceIT {
     public void testGetBySemanticTags(){
         Collection<URI> semanticTags = new HashSet<>();
         semanticTags.add(URI.create("http://www.ebi.ac.uk/efo/EFO_test"));
-        List<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getBySemanticTags(semanticTags);
+        Collection<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getBySemanticTags(semanticTags);
         assertTrue(simpleAnnotations.size() > 0);
     }
 
     @Test
     public void testGetByAnnotatedBiologicalEntitiesStudiesAccession(){
-        List<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getByAnnotatedBiologicalEntitiesStudiesAccession("Accession1");
+        Collection<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getByAnnotatedBiologicalEntitiesStudiesAccession("Accession1");
         for (Annotation annotation : simpleAnnotations){
             Collection<BiologicalEntity> biologicalEntity = annotation.getAnnotatedBiologicalEntities();
             for(BiologicalEntity entity : biologicalEntity){
@@ -114,7 +115,7 @@ public class AnnotationRepositoryServiceIT {
 
     @Test
     public void testGetByAnnotatedBiologicalEntitiesName(){
-        List<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getByAnnotatedBiologicalEntitiesName("GSMTest1");
+        Collection<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getByAnnotatedBiologicalEntitiesName("GSMTest1");
         for(SimpleAnnotation simpleAnnotation : simpleAnnotations){
             SimpleTypedProperty simpleTypedProperty = (SimpleTypedProperty) simpleAnnotation.getAnnotatedProperty();
             assertTrue((simpleTypedProperty.getPropertyType().equals("test type")));
@@ -124,9 +125,10 @@ public class AnnotationRepositoryServiceIT {
 
     @Test
     public void testGetByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession(){
-        List<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession("GSMTest2", "Accession2");
+        Collection<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession("GSMTest2", "Accession2");
 
-        Collection<BiologicalEntity> biologicalEntities = simpleAnnotations.get(0).getAnnotatedBiologicalEntities();
+        SimpleAnnotation annotation = (SimpleAnnotation) simpleAnnotations.toArray()[0];
+        Collection<BiologicalEntity> biologicalEntities = annotation.getAnnotatedBiologicalEntities();
         for (BiologicalEntity biologicalEntity : biologicalEntities){
             assertTrue(biologicalEntity.getName().equals("GSMTest2") || biologicalEntity.getName().equals("GSMTest1"));
             Collection<Study> studies = biologicalEntity.getStudies();
@@ -139,7 +141,7 @@ public class AnnotationRepositoryServiceIT {
     @Test
     public void testGetByProvenanceSource(){
         AnnotationSource source = new SimpleOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/test"), "test", "", "");
-        List<SimpleAnnotation> annotations = annotationRepositoryService.getByProvenanceSource(source, new PageRequest(0, 20));
+        Collection<SimpleAnnotation> annotations = annotationRepositoryService.getByProvenanceSource(source, new PageRequest(0, 20));
 
         assertTrue(annotations.size() > 0);
     }
@@ -147,16 +149,17 @@ public class AnnotationRepositoryServiceIT {
     @Test
     public void testGetProvenanceByProvenanceSource(){
         AnnotationSource source = new SimpleOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/test"), "test", "", "");
-        List<AnnotationProvenance> annotationProvenances = annotationRepositoryService.getProvenanceByProvenanceSource(source, new PageRequest(0, 20));
+        Collection<AnnotationProvenance> annotationProvenances = annotationRepositoryService.getProvenanceByProvenanceSource(source, new PageRequest(0, 20));
 
         assertTrue(annotationProvenances.size() > 0);
     }
 
     @Test
     public void testGetByProvenanceSourceName(){
-        List<SimpleAnnotation> annotations = annotationRepositoryService.getByProvenanceSourceName("test", new PageRequest(0, 20));
+        Collection<SimpleAnnotation> annotations = annotationRepositoryService.getByProvenanceSourceName("test", new PageRequest(0, 20));
         assertTrue(annotations.size() > 0);
-        assertTrue(annotations.get(0).getProvenance().getSource().getName().equals("test"));
+        SimpleAnnotation annotation = (SimpleAnnotation) annotations.toArray()[0];
+        assertTrue(annotation.getProvenance().getSource().getName().equals("test"));
     }
 
     @Test
@@ -173,32 +176,23 @@ public class AnnotationRepositoryServiceIT {
 
     @Test
     public void testGetAllDocuments() throws Exception {
-        List<SimpleAnnotation> annotationDocumentList = annotationRepositoryService.getAllDocuments();
+        Collection<SimpleAnnotation> annotationDocumentList = annotationRepositoryService.getAllDocuments();
         assertThat("Not empty list", annotationDocumentList.size(), is(not(0)));
     }
-//
-//    @Test
-//    public void testUpdate() throws Exception {
-//        SimpleAnnotation annotationDocument = annotationRepositoryService.get("TestStringId");
-//        annotationDocument.setAnnotatedProperty(new SimpleTypedProperty("TestProperty", "New Parameter", "New Value"));
-//        annotationRepositoryService.update(annotationDocument);
-//
-//        annotationDocument = annotationRepositoryService.get("TestStringId");
-//
-//        assertThat("Value is New Value", annotationDocument.getAnnotatedProperty().getPropertyValue(), is("New Value"));
-//    }
 
     @Test
     public void testGetByAnnotatedProperty() throws Exception {
         Property property = new SimpleTypedProperty("TestProperty", "test type", "test value");
-        List<SimpleAnnotation> annotationDocument = annotationRepositoryService.getByAnnotatedPropertyValue("test value");
+        Collection<SimpleAnnotation> annotationDocument = annotationRepositoryService.getByAnnotatedPropertyValue("test value");
 
-        assertThat("The Id should be TestStringId", annotationDocument.get(0).getId(), is("TestStringId"));
+        SimpleAnnotation annotation = (SimpleAnnotation) annotationDocument.toArray()[0];
+        assertThat("The Id should be TestStringId", annotation.getId(), is("TestStringId"));
 
         Property aProperty = new SimpleTypedProperty("TestProperty","test type", "test value");
         annotationDocument = annotationRepositoryService.getByAnnotatedProperty(aProperty);
 
-        assertThat("The Id should be TestStringId", annotationDocument.get(0).getId(), is("TestStringId"));
+        SimpleAnnotation simpleAnnotation = (SimpleAnnotation) annotationDocument.toArray()[0];
+        assertThat("The Id should be TestStringId", simpleAnnotation.getId(), is("TestStringId"));
     }
 
 }

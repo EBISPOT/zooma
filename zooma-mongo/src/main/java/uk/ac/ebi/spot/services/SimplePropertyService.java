@@ -1,61 +1,40 @@
 package uk.ac.ebi.spot.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.spot.model.SimpleProperty;
+import uk.ac.ebi.spot.model.Property;
 import uk.ac.ebi.spot.repositories.PropertyRepository;
 
 import java.util.List;
+
 
 /**
  * Created by olgavrou on 09/08/2016.
  */
 @Service
-public class SimplePropertyService implements RepositoryService<SimpleProperty>{
+public class SimplePropertyService {
 
     @Autowired
     PropertyRepository propertyRepository;
 
-    @Override
-    public List<SimpleProperty> getAllDocuments() {
-        return propertyRepository.findAll();
+    public List<Property> getDistinctAnnotatedProperties(){
+        return propertyRepository.findDistinctAnnotatedProperties();
     }
 
-    @Override
-    public List<SimpleProperty> getAllDocuments(Sort sort) {
-        return propertyRepository.findAll(sort);
+    public List<String> getAllPropertyTypes(){
+        return propertyRepository.findAllPropertyTypes();
     }
 
-    @Override
-    public Page<SimpleProperty> getAllDocuments(Pageable pageable) {
-        return propertyRepository.findAll(pageable);
+    public List<Property> getPropertyFromPropertyType(String type){
+        return propertyRepository.findPropertyFromPropertyType(type);
     }
 
-    @Override
-    public void delete(SimpleProperty document) throws RuntimeException {
-        propertyRepository.delete(document);
+    public List<Property> getPropertyFromPropertyValue(String value){
+        return propertyRepository.findPropertyFromPropertyValue(value);
     }
 
-    @Override
-    public SimpleProperty create(SimpleProperty document) throws RuntimeException {
-        return propertyRepository.insert(document);
+    public List<Property> getPropertyFromPropertyTypeAndPropertyValue(String type, String value){
+        return propertyRepository.findPropertyFromPropertyTypeAndPropertyValue(type, value);
     }
 
-    @Override
-    public SimpleProperty save(SimpleProperty document) throws RuntimeException {
-        return propertyRepository.save(document);
-    }
-
-    @Override
-    public SimpleProperty update(SimpleProperty document) throws RuntimeException {
-        return propertyRepository.save(document);
-    }
-
-    @Override
-    public SimpleProperty get(String documentId) {
-        return propertyRepository.findOne(documentId);
-    }
 }

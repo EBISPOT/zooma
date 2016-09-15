@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uk.ac.ebi.spot.model.*;
+import uk.ac.ebi.spot.repositories.custom.CustomAnnotationRepository;
 
 import java.net.URI;
 import java.util.Collection;
@@ -14,7 +15,7 @@ import java.util.List;
  * Created by olgavrou on 03/08/2016.
  */
 @Repository
-public interface AnnotationRepository extends MongoRepository<SimpleAnnotation, String> {
+public interface AnnotationRepository extends MongoRepository<SimpleAnnotation, String>, CustomAnnotationRepository {
 
     List<SimpleAnnotation> findByAnnotatedPropertyPropertyValue(@Param("propertyValue") String propertyValue);
 
