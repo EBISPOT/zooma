@@ -18,16 +18,16 @@ public class SimpleAnnotation extends SimpleDocument implements Annotation {
     private AnnotationProvenance provenance;
     private Collection<URI> replacedBy;
     private Collection<URI> replaces;
+    private boolean batchLoad;
 
 
-    public SimpleAnnotation(String id, Collection<BiologicalEntity> annotatedBiologicalEntities,
+    public SimpleAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
                             Property annotatedProperty,
                             Collection<URI> semanticTags,
                             AnnotationProvenance provenance,
                             Collection<URI> replacedBy,
-                            Collection<URI> replaces) {
+                            Collection<URI> replaces, boolean batchLoad) {
 
-        super(id);
         this.annotatedBiologicalEntities = new HashSet<>();
         if (annotatedBiologicalEntities != null) {
             this.annotatedBiologicalEntities.addAll(annotatedBiologicalEntities);
@@ -45,6 +45,7 @@ public class SimpleAnnotation extends SimpleDocument implements Annotation {
         if (replaces != null) {
             this.replaces.addAll(replaces);
         }
+        this.batchLoad = batchLoad;
     }
 
     @Override
@@ -102,5 +103,11 @@ public class SimpleAnnotation extends SimpleDocument implements Annotation {
         this.replaces = replaces;
     }
 
+    public boolean isBatchLoad() {
+        return batchLoad;
+    }
 
+    public void setBatchLoad(boolean batchLoad) {
+        this.batchLoad = batchLoad;
+    }
 }

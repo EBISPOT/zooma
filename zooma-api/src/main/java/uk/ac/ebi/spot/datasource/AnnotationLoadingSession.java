@@ -20,8 +20,6 @@ public interface AnnotationLoadingSession {
 
     Study getOrCreateStudy(String studyAccession);
 
-    Study getOrCreateStudy(String studyAccession, String studyID);
-
     Study getOrCreateStudy(String studyAccession, URI studyURI);
 
 
@@ -35,17 +33,6 @@ public interface AnnotationLoadingSession {
     BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
                                                  Collection<Study> studies);
 
-    /**
-     * A method to create a biological entity object based on the bioentity name, types and set of studies
-     *
-     * @param bioentityName       A name to identity the biological entity
-     * @param bioentityID         An id that can be used to form the URI of the biological entity
-     * @param studies             A collection of studies linked to the biological entity
-     * @return BiologicalEntity
-     */
-    BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
-                                                 String bioentityID,
-                                                 Collection<Study> studies);
 
     /**
      * A method to create a biological entity object based on the bioentity name, types and set of studies
@@ -61,23 +48,7 @@ public interface AnnotationLoadingSession {
 
     Property getOrCreateProperty(String propertyType, String propertyValue);
 
-    Property getOrCreateProperty(String propertyType, String propertyValue, String propertyID);
-
-    Property getOrCreateProperty(String propertyType, String propertyValue, URI propertyURI);
-
     Annotation getOrCreateAnnotation(Collection<BiologicalEntity> biologicalEntity,
-                                     Property property,
-                                     AnnotationProvenance annotationProvenance,
-                                     Collection<URI> semanticTag);
-
-    Annotation getOrCreateAnnotation(String annotationID,
-                                     Collection<BiologicalEntity> biologicalEntity,
-                                     Property property,
-                                     AnnotationProvenance annotationProvenance,
-                                     Collection<URI> semanticTag);
-
-    Annotation getOrCreateAnnotation(URI annotationURI,
-                                     Collection<BiologicalEntity> biologicalEntity,
                                      Property property,
                                      AnnotationProvenance annotationProvenance,
                                      Collection<URI> semanticTag);

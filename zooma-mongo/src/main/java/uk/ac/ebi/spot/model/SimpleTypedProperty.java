@@ -7,8 +7,8 @@ public class SimpleTypedProperty extends SimpleProperty implements TypedProperty
 
     private String propertyType;
 
-    public SimpleTypedProperty(String id, String propertyType, String propertyValue) {
-        super(id, propertyValue);
+    public SimpleTypedProperty(String propertyType, String propertyValue) {
+        super(propertyValue);
         this.propertyType = propertyType;
     }
 

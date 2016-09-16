@@ -1,26 +1,34 @@
 package uk.ac.ebi.spot.model;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+import java.net.URI;
 
 /**
  * Created by olgavrou on 05/08/2016.
  */
-@Document(collection = "studies")
-public class SimpleStudy extends SimpleDocument implements Study {
+public class SimpleStudy implements Study {
 
     private String accession;
-    public SimpleStudy(String id, String accession) {
-        super(id);
+    private URI uri;
+
+    public SimpleStudy(String accession, URI uri) {
+
         this.accession = accession;
+        this.uri = uri;
     }
 
     @Override public String getAccession() {
         return accession;
     }
 
-    @Override public String toString() {
-        return "SimpleStudy {\n" +
-                "  accession='" + accession + "'\n}";
+    public void setAccession(String accession) {
+        this.accession = accession;
     }
 
+    public URI getUri() {
+        return uri;
+    }
+
+    public void setUri(URI uri) {
+        this.uri = uri;
+    }
 }

@@ -14,7 +14,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.spot.config.MongoConfig;
 import uk.ac.ebi.spot.model.*;
 import uk.ac.ebi.spot.services.AnnotationRepositoryService;
-import uk.ac.ebi.spot.services.StudyRepositoryService;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -37,30 +35,27 @@ public class StudyRepositoryServiceIT {
     AnnotationRepositoryService annotationRepositoryService;
 
     @Autowired
-    StudyRepositoryService studyRepositoryService;
-
-    @Autowired
     MongoTemplate mongoTemplate;
 
     @Before
     public void setup(){
         //Create an Annotation and store it in mongodb
 
-        SimpleStudy simpleStudy = new SimpleStudy("SS1", "Accession1");
+        SimpleStudy simpleStudy = new SimpleStudy("Accession1", null);
 
         Collection<Study> studies = new ArrayList<>();
         studies.add(simpleStudy);
 
-        simpleStudy = new SimpleStudy("SS2", "Accession2");
+        simpleStudy = new SimpleStudy("Accession2", null);
         studies.add(simpleStudy);
 
         Collection<BiologicalEntity> biologicalEntities = new ArrayList<>();
-        SimpleBiologicalEntity biologicalEntity = new SimpleBiologicalEntity("BE1", "GSMTest1", studies);
+        SimpleBiologicalEntity biologicalEntity = new SimpleBiologicalEntity("GSMTest1", studies, null);
         biologicalEntities.add(biologicalEntity);
-        biologicalEntity = new SimpleBiologicalEntity("BE2", "GSMTest2", studies);
+        biologicalEntity = new SimpleBiologicalEntity("GSMTest2", studies, null);
         biologicalEntities.add(biologicalEntity);
 
-        Property property = new SimpleTypedProperty("TestProperty", "test type", "test value");
+        Property property = new SimpleTypedProperty("test type", "test value");
         URI semanticTag = java.net.URI.create("http://www.ebi.ac.uk/efo/EFO_test");
         Collection<URI> semanticTags = new ArrayList<>();
         semanticTags.add(semanticTag);
@@ -73,22 +68,22 @@ public class StudyRepositoryServiceIT {
                 AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                 "http://www.ebi.ac.uk/test", new Date(), "Test annotator", new Date());
 
-        SimpleAnnotation annotationDocument = new SimpleAnnotation("TestStringId", biologicalEntities,
+        SimpleAnnotation annotationDocument = new SimpleAnnotation(biologicalEntities,
                 property,
                 semanticTags,
                 annotationProvenance,
                 null,
-                null);
+                null, false);
 
         annotationRepositoryService.save(annotationDocument);
 
 
-        SimpleAnnotation annotationDocument2 = new SimpleAnnotation("TestStringId2", biologicalEntities,
+        SimpleAnnotation annotationDocument2 = new SimpleAnnotation(biologicalEntities,
                 property,
                 semanticTags,
                 annotationProvenance,
                 null,
-                null);
+                null, false);
 
         annotationRepositoryService.save(annotationDocument2);
 
@@ -97,44 +92,34 @@ public class StudyRepositoryServiceIT {
         semanticTags.add(semanticTag2);
 
 
-        SimpleStudy simpleStudy1 = new SimpleStudy("SS3", "Accession3");
+        SimpleStudy simpleStudy1 = new SimpleStudy("Accession3", null);
         Collection<Study> studies1 = new ArrayList<>();
         studies1.add(simpleStudy1);
-        SimpleStudy simpleStudy2 = new SimpleStudy("SS4", "Accession4");
+        SimpleStudy simpleStudy2 = new SimpleStudy("Accession4", null);
         studies1.add(simpleStudy2);
 
         Collection<BiologicalEntity> biologicalEntities1 = new ArrayList<>();
-        SimpleBiologicalEntity biologicalEntity1 = new SimpleBiologicalEntity("BE1", "GSMTest1", studies1);
+        SimpleBiologicalEntity biologicalEntity1 = new SimpleBiologicalEntity("GSMTest1", studies1, null);
         biologicalEntities1.add(biologicalEntity1);
 
-        SimpleAnnotation annotationDocument3 = new SimpleAnnotation("TestStringId3", biologicalEntities1,
+        SimpleAnnotation annotationDocument3 = new SimpleAnnotation(biologicalEntities1,
                 property,
                 semanticTags,
                 annotationProvenance,
                 null,
-                null);
+                null, false);
         annotationRepositoryService.save(annotationDocument3);
     }
 
     @After
     public void teardown(){
         //remove the annotation from the database
-        SimpleAnnotation annotationDocument = annotationRepositoryService.get("TestStringId");
-        annotationRepositoryService.delete(annotationDocument);
-        assertNull(annotationRepositoryService.get(annotationDocument.getId()));
-
-        annotationDocument = annotationRepositoryService.get("TestStringId2");
-        annotationRepositoryService.delete(annotationDocument);
-        assertNull(annotationRepositoryService.get(annotationDocument.getId()));
-
-        annotationDocument = annotationRepositoryService.get("TestStringId3");
-        annotationRepositoryService.delete(annotationDocument);
-        assertNull(annotationRepositoryService.get(annotationDocument.getId()));
+        mongoTemplate.getDb().dropDatabase();
     }
 
     @Test
     public void testGetDistinctStudies(){
-        Collection<Study> studyList = studyRepositoryService.getDistinctStudies();
+        Collection<Study> studyList = annotationRepositoryService.getAllStudies();
 
         DBCollection collection = mongoTemplate.getCollection("annotations");
         List<DBObject> studies = collection.distinct("annotatedBiologicalEntities.studies");
@@ -145,16 +130,16 @@ public class StudyRepositoryServiceIT {
     @Test
     public void testGetBySemanticTags(){
 
-        Collection<Study> studies = studyRepositoryService.getBySemanticTags(URI.create("http://www.ebi.ac.uk/efo/EFO_test"), URI.create("http://www.ebi.ac.uk/efo/EFO_test2"));
+        Collection<Study> studies = annotationRepositoryService.getStudiesBySemanticTags(URI.create("http://www.ebi.ac.uk/efo/EFO_test"), URI.create("http://www.ebi.ac.uk/efo/EFO_test2"));
         assertTrue(studies.size() == 2);
 
-        studies = studyRepositoryService.getBySemanticTags(URI.create("http://www.ebi.ac.uk/efo/EFO_test"));
+        studies = annotationRepositoryService.getStudiesBySemanticTags(URI.create("http://www.ebi.ac.uk/efo/EFO_test"));
         assertTrue(studies.size() == 4);
     }
 
     @Test
     public void testGetByAccession(){
-        Collection<Study> studies = studyRepositoryService.getByAccession("Accession1");
+        Collection<Study> studies = annotationRepositoryService.getStudiesByAccession("Accession1");
         assertTrue(studies.size() == 1);
         Study study = (Study) studies.toArray()[0];
         assertTrue(study.getAccession().equals("Accession1"));

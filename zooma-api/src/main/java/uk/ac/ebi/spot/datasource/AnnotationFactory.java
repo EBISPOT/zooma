@@ -42,36 +42,23 @@ public interface AnnotationFactory {
      * but bioentity accessions should only be unique within a study for each dataset.  Semantic tags are required, and
      * unlike URIs and IDs (which are generated if not supplied) will be set to null if missing.
      *
-     * @param annotationURI    the URI of the annotation that will be created, if present
-     * @param annotationID     the ID of the annotation in the datasource.  If present, will be used to generate the
-     *                         URI
      * @param studyAccession   the accession of the study.  Unique across this datasource
      * @param studyURI         the URI of the study that will be created, if present
-     * @param studyID          the ID of the study in the datasource.  If present, will be used to generate the URI
      * @param bioentityName    the name of the bioentity.  Should be unique per study in the datasource
      * @param bioentityURI     the URI of the bioentity that will be created, if present
-     * @param bioentityID      the ID of the bioentity in the datasource.  If present, will be used to generate the URI
      * @param propertyType     the property type
      * @param propertyValue    the property value
-     * @param propertyURI      the URI of the property that will be created, if present
-     * @param propertyID       the ID of the property in the datasource.  If present, will be used to generate the URI
      * @param semanticTag      the semantic tag. Required - if null, this represents an annotation with no tag
      * @param annotator        the person or algorithm that generated this annotation. Can be null
      * @param annotationDate   the data this annotation was generated. Can be null.
      * @return the fully created annotation
      */
-    Annotation createAnnotation(URI annotationURI,
-                                String annotationID,
-                                String studyAccession,
+    Annotation createAnnotation(String studyAccession,
                                 URI studyURI,
-                                String studyID,
                                 String bioentityName,
                                 URI bioentityURI,
-                                String bioentityID,
                                 String propertyType,
                                 String propertyValue,
-                                URI propertyURI,
-                                String propertyID,
                                 URI semanticTag,
                                 String annotator,
                                 Date annotationDate);

@@ -1,17 +1,13 @@
 package uk.ac.ebi.spot.model;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-
 /**
  * Created by olgavrou on 09/08/2016.
  */
-@Document(collection = "properties")
-public class SimpleProperty extends SimpleDocument implements Property{
+public class SimpleProperty implements Property{
 
     private String propertyValue;
 
-    public SimpleProperty(String id, String propertyValue) {
-        super(id);
+    public SimpleProperty(String propertyValue) {
         this.propertyValue = propertyValue;
     }
 
@@ -25,8 +21,5 @@ public class SimpleProperty extends SimpleDocument implements Property{
         return false;
     }
 
-    @Override
-    public int compareTo(Property o) {
-        return 0;
-    }
+
 }

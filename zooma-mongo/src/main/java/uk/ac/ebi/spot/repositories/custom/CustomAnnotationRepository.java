@@ -18,14 +18,21 @@ import java.util.List;
  * Created by olgavrou on 14/09/2016.
  */
 public interface CustomAnnotationRepository {
+
+    //for BiologicalEntityRepository
     List<BiologicalEntity> findDistinctAnnotatedBiologicalEntities();
     List<BiologicalEntity> findDistinctAnnotatedBiologicalEntitiesByAnnotatedBiologicalEntitiesStudiesAccession(String accession);
+
+    //for StudyRepository
     List<Study> findDistinctAnnotatedBiologicalEntitiesStudies();
     List<Study> findDistinctAnnotatedBiologicalEntitiesStudiesBySemanticTags(URI... semanticTags);
     List<Study> findDistinctAnnotatedBiologicalEntitiesStudiesByAccession(String accession);
+    List<Study> findDistinctAnnotatedBiologicalEntitiesStudiesByAnnotatedProperty(Property property);
+
+    //for PropertyRepository
     List<Property> findDistinctAnnotatedProperties();
     List<String> findAllPropertyTypes();
-    List<Property> findAnnotatedPropertyByAnnotatedPropertyPropertyType(String type);
-    List<Property> findAnnotatedPropertyByAnnotatedPropertyPropertyValue(String value);
-    List<Property> findAnnotatedPropertyByAnnotatedPropertyPropertyTypeAndByAnnotatedPropertyPropertyValue(String type, String value);
+    List<Property> findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyType(String type);
+    List<Property> findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyValue(String value);
+    List<Property> findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyTypeAndByAnnotatedPropertyPropertyValue(String type, String value);
 }

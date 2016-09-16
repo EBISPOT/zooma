@@ -1,22 +1,22 @@
 package uk.ac.ebi.spot.model;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 
 /**
  * Created by olgavrou on 04/08/2016.
  */
-@Document(collection = "biologicalEntities")
-public class SimpleBiologicalEntity extends SimpleDocument implements BiologicalEntity {
+public class SimpleBiologicalEntity implements BiologicalEntity {
 
     private String name;
     private Collection<Study> studies;
+    private URI uri;
 
-    public SimpleBiologicalEntity(String id, String name, Collection<Study> studies) {
-        super(id);
+
+    public SimpleBiologicalEntity(String name, Collection<Study> studies, URI uri) {
         this.name = name;
+        this.uri = uri;
         this.studies = new HashSet<>();
         if (studies != null) {
             this.studies.addAll(studies);
@@ -27,8 +27,23 @@ public class SimpleBiologicalEntity extends SimpleDocument implements Biological
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override public Collection<Study> getStudies() {
         return studies;
     }
 
+    public void setStudies(Collection<Study> studies) {
+        this.studies = studies;
+    }
+
+    public URI getUri() {
+        return uri;
+    }
+
+    public void setUri(URI uri) {
+        this.uri = uri;
+    }
 }

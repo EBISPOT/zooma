@@ -14,12 +14,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.spot.config.MongoConfig;
 import uk.ac.ebi.spot.model.*;
 import uk.ac.ebi.spot.services.AnnotationRepositoryService;
-import uk.ac.ebi.spot.services.BiologicalEntityRepositoryService;
 
 import java.net.URI;
 import java.util.*;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -33,8 +31,6 @@ public class BiologicalEntityRepositoryServiceIT {
     @Autowired
     AnnotationRepositoryService annotationRepositoryService;
 
-    @Autowired
-    BiologicalEntityRepositoryService biologicalEntityRepositoryService;
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -43,21 +39,21 @@ public class BiologicalEntityRepositoryServiceIT {
     public void setup(){
         //Create an Annotation and store it in mongodb
 
-        SimpleStudy simpleStudy = new SimpleStudy("SS1", "Accession1");
+        SimpleStudy simpleStudy = new SimpleStudy("Accession1", null);
 
         Collection<Study> studies = new ArrayList<>();
         studies.add(simpleStudy);
 
-        simpleStudy = new SimpleStudy("SS2", "Accession2");
+        simpleStudy = new SimpleStudy("Accession2", null);
         studies.add(simpleStudy);
 
         Collection<BiologicalEntity> biologicalEntities = new ArrayList<>();
-        SimpleBiologicalEntity biologicalEntity = new SimpleBiologicalEntity("BE1", "GSMTest1", studies);
+        SimpleBiologicalEntity biologicalEntity = new SimpleBiologicalEntity("GSMTest1", studies, null);
         biologicalEntities.add(biologicalEntity);
-        biologicalEntity = new SimpleBiologicalEntity("BE2", "GSMTest2", studies);
+        biologicalEntity = new SimpleBiologicalEntity("GSMTest2", studies, null);
         biologicalEntities.add(biologicalEntity);
 
-        Property property = new SimpleTypedProperty("TestProperty", "test type", "test value");
+        Property property = new SimpleTypedProperty("test type", "test value");
         URI semanticTag = java.net.URI.create("http://www.ebi.ac.uk/efo/EFO_test");
         Collection<URI> semanticTags = new ArrayList<>();
         semanticTags.add(semanticTag);
@@ -70,39 +66,33 @@ public class BiologicalEntityRepositoryServiceIT {
                 AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                 "http://www.ebi.ac.uk/test", new Date(), "Test annotator", new Date());
 
-        SimpleAnnotation annotationDocument = new SimpleAnnotation("TestStringId", biologicalEntities,
+        SimpleAnnotation annotationDocument = new SimpleAnnotation(biologicalEntities,
                 property,
                 semanticTags,
                 annotationProvenance,
                 null,
-                null);
+                null, false);
 
         annotationRepositoryService.save(annotationDocument);
 
-        SimpleAnnotation annotation = new SimpleAnnotation("TestStringId2", biologicalEntities,
+        SimpleAnnotation annotation = new SimpleAnnotation(biologicalEntities,
                 property,
                 semanticTags,
                 annotationProvenance,
                 null,
-                null);
+                null, false);
         annotationRepositoryService.save(annotation);
     }
 
     @After
     public void teardown(){
-        //remove the annotation from the database
-        SimpleAnnotation annotationDocument = annotationRepositoryService.get("TestStringId");
-        annotationRepositoryService.delete(annotationDocument);
-        assertNull(annotationRepositoryService.get(annotationDocument.getId()));
-
-        annotationDocument = annotationRepositoryService.get("TestStringId2");
-        annotationRepositoryService.delete(annotationDocument);
-        assertNull(annotationRepositoryService.get(annotationDocument.getId()));
+        //remove the annotations from the database
+       mongoTemplate.getDb().dropDatabase();
     }
 
     @Test
     public void testGetDistinctBiologicalEntities(){
-        Collection<BiologicalEntity> biologicalEntityList = biologicalEntityRepositoryService.getDistinctBiologicalEntities();
+        Collection<BiologicalEntity> biologicalEntityList = annotationRepositoryService.getAllBiologicalEntities();
 
         DBCollection collection = mongoTemplate.getCollection("annotations");
         List<DBObject> biologicalEntities = collection.distinct("annotatedBiologicalEntities");
@@ -113,7 +103,7 @@ public class BiologicalEntityRepositoryServiceIT {
 
     @Test
     public void testGetDistinctByStudyAccession(){
-        Collection<BiologicalEntity> entities = biologicalEntityRepositoryService.getDistinctByStudyAccession("Accession1");
+        Collection<BiologicalEntity> entities = annotationRepositoryService.getAllBiologicalEntitiesByStudyAccession("Accession1");
 
         assertTrue(entities.size() == 2);
     }

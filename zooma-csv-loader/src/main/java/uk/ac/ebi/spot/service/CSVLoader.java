@@ -85,17 +85,10 @@ public class CSVLoader {
                 String studyAcc, bioentityName, propertyType, propertyValue;
                 List<URI> semanticTags;
 
-                // optional URI attributes with null initializers
-                URI annotationURI = null;
                 URI studyURI = null;
                 URI bioentityURI = null;
-                URI propertyURI = null;
 
-                // optional ID attributes with null initializers
-                String annotationID = null;
-                String studyID = null;
-                String bioentityID = null;
-                String propertyID = null;
+                // optional attributes with null initializers
                 String annotator = null;
                 Date annotationDate = null;
 
@@ -177,11 +170,6 @@ public class CSVLoader {
                 }
 
                 // optional URI attributes
-                if ((column = lookupColumn("ANNOTATION_URI")) != -1) {
-                    annotationURI = annotationElements.length <= column || annotationElements[column].isEmpty()
-                            ? null
-                            : URI.create(annotationElements[column]);
-                }
                 if ((column = lookupColumn("STUDY_URI")) != -1) {
                     studyURI = annotationElements.length <= column || annotationElements[column].isEmpty()
                             ? null
@@ -192,33 +180,8 @@ public class CSVLoader {
                             ? null
                             : URI.create(annotationElements[column]);
                 }
-                if ((column = lookupColumn("PROPERTY_URI")) != -1) {
-                    propertyURI = annotationElements.length <= column || annotationElements[column].isEmpty()
-                            ? null
-                            : URI.create(annotationElements[column]);
-                }
 
-                // optional ID attributes
-                if ((column = lookupColumn("ANNOTATION_ID")) != -1) {
-                    annotationID = annotationElements.length <= column || annotationElements[column].isEmpty()
-                            ? null
-                            : annotationElements[column];
-                }
-                if ((column = lookupColumn("STUDY_ID")) != -1) {
-                    studyID = annotationElements.length <= column || annotationElements[column].isEmpty()
-                            ? null
-                            : annotationElements[column];
-                }
-                if ((column = lookupColumn("BIOENTITY_ID")) != -1) {
-                    bioentityID = annotationElements.length <= column || annotationElements[column].isEmpty()
-                            ? null
-                            : annotationElements[column];
-                }
-                if ((column = lookupColumn("PROPERTY_ID")) != -1) {
-                    propertyID = annotationElements.length <= column || annotationElements[column].isEmpty()
-                            ? null
-                            : annotationElements[column];
-                }
+                // optional attributes
                 if ((column = lookupColumn("ANNOTATOR")) != -1) {
                     annotator = annotationElements.length <= column || annotationElements[column].isEmpty()
                             ? null
@@ -244,18 +207,12 @@ public class CSVLoader {
 
                 // now we've collected fields, generate annotation using annotation factory
                 for (URI semanticTag : semanticTags) {
-                    annotations.add(annotationFactory.createAnnotation(annotationURI,
-                            annotationID,
-                            studyAcc,
+                    annotations.add(annotationFactory.createAnnotation(studyAcc,
                             studyURI,
-                            studyID,
                             bioentityName,
                             bioentityURI,
-                            bioentityID,
                             propertyType,
                             propertyValue,
-                            propertyURI,
-                            propertyID,
                             semanticTag,
                             annotator,
                             annotationDate));
@@ -289,17 +246,11 @@ public class CSVLoader {
                 "PROPERTY_TYPE",
                 "PROPERTY_VALUE",
                 "SEMANTIC_TAG",
-                "ANNOTATION_URI",
                 "STUDY_URI",
                 "STUDY_TYPE",
                 "BIOENTITY_URI",
                 "BIOENTITY_TYPE_NAME",
-                "BIOENTITY_TYPE_URI",
-                "PROPERTY_URI",
-                "ANNOTATION_ID",
-                "STUDY_ID",
-                "BIOENTITY_ID",
-                "PROPERTY_ID"};
+                "BIOENTITY_TYPE_URI"};
         for (String allowedColumn : allowedColumns) {
             if (header[0].equalsIgnoreCase(allowedColumn)) {
                 isHeader = true;

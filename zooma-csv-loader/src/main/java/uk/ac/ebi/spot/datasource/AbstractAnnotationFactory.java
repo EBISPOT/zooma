@@ -48,16 +48,7 @@ public abstract class AbstractAnnotationFactory<S extends AnnotationLoadingSessi
                                        Collection<URI> semanticTags,
                                        Collection<URI> replaces) {
 
-        for (BiologicalEntity be : annotatedBiologicalEntities) {
-            SimpleBiologicalEntity sbe = (SimpleBiologicalEntity) be;
-            if (sbe.getId() == null) {
-                throw new IllegalArgumentException(
-                        "A biological entity without a URI was submitted, can't create annotation");
-                // todo handle this case better
-            }
-        }
-
-        // create new property using regular URI minting strategy
+        // create new property
         Property newProperty = annotatedProperty instanceof TypedProperty ?
                 getAnnotationLoadingSession().getOrCreateProperty(((TypedProperty) annotatedProperty).getPropertyType(),
                                                                   annotatedProperty.getPropertyValue())
@@ -72,18 +63,12 @@ public abstract class AbstractAnnotationFactory<S extends AnnotationLoadingSessi
     }
 
     @Override
-    public Annotation createAnnotation(URI annotationURI,
-                                       String annotationID,
-                                       String studyAccession,
+    public Annotation createAnnotation(String studyAccession,
                                        URI studyURI,
-                                       String studyID,
                                        String bioentityName,
                                        URI bioentityURI,
-                                       String bioentityID,
                                        String propertyType,
                                        String propertyValue,
-                                       URI propertyURI,
-                                       String propertyID,
                                        URI semanticTag,
                                        String annotator,
                                        Date annotationDate) {
@@ -93,16 +78,11 @@ public abstract class AbstractAnnotationFactory<S extends AnnotationLoadingSessi
             s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession);
         }
         else {
-            if (studyID != null) {
-                s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession, studyID);
+            if (studyAccession != null) {
+                s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession);
             }
             else {
-                if (studyAccession != null) {
-                    s = getAnnotationLoadingSession().getOrCreateStudy(studyAccession);
-                }
-                else {
-                    s = null;
-                }
+                s = null;
             }
         }
 
@@ -113,99 +93,47 @@ public abstract class AbstractAnnotationFactory<S extends AnnotationLoadingSessi
             if (bioentityURI != null) {
                 ArrayList<Study> studies = new ArrayList<>();
                 studies.add(s);
-                be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName,
-                                                                               bioentityURI.toString(),
-                                                                               studies);
+                be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, bioentityURI, studies);
             }
             else {
-                if (bioentityID != null) {
+                if (bioentityName != null) {
                     ArrayList<Study> studies = new ArrayList<>();
                     studies.add(s);
-                    be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName,
-                                                                                   bioentityID,
-                                                                                   studies);
+                    be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, studies);
                 }
                 else {
-                    if (bioentityName != null) {
-                        ArrayList<Study> studies = new ArrayList<>();
-                        studies.add(s);
-                        be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName,
-                                                                                       studies);
-                    }
-                    else {
-                        be = null;
-                    }
+                    be = null;
                 }
             }
         }
         else {
             if (bioentityURI != null) {
 
-                be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName,
-                                                                               bioentityURI.toString(),
-                                                                               null);
+                be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, bioentityURI, null);
             }
             else {
-                if (bioentityID != null) {
-                    be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName,
-                                                                                   bioentityID,
-                                                                                   null);
+                if (bioentityName != null) {
+                    be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, null);
                 }
                 else {
-                    if (bioentityName != null) {
-                        be = getAnnotationLoadingSession().getOrCreateBiologicalEntity(bioentityName, null);
-                    }
-                    else {
-                        be = null;
-                    }
+                    be = null;
                 }
             }
         }
 
-        Property p;
-        if (propertyURI != null) {
-            p = getAnnotationLoadingSession().getOrCreateProperty(propertyType, propertyValue, propertyURI);
-        }
-        else {
-            if (propertyID != null) {
-                p = getAnnotationLoadingSession().getOrCreateProperty(propertyType, propertyValue, propertyID);
-            }
-            else {
-                p = getAnnotationLoadingSession().getOrCreateProperty(propertyType, propertyValue);
-            }
-        }
+        Property p = getAnnotationLoadingSession().getOrCreateProperty(propertyType, propertyValue);
 
         // get or create provenance
         AnnotationProvenance prov = getAnnotationLoadingSession().getOrCreateAnnotationProvenance(annotator,
                                                                                                   annotationDate);
 
         // and return the complete annotation
-        Annotation a;
-        if (annotationURI != null) {
-            a = getAnnotationLoadingSession().getOrCreateAnnotation(
-                    annotationURI,
-                    be != null ? Collections.singleton(be) : Collections.<BiologicalEntity>emptySet(),
-                    p,
-                    prov,
-                    semanticTag != null ? Collections.singleton(semanticTag) : Collections.<URI>emptySet());
-        }
-        else {
-            if (annotationID != null) {
-                a = getAnnotationLoadingSession().getOrCreateAnnotation(
-                        annotationID,
+        Annotation a = getAnnotationLoadingSession().getOrCreateAnnotation(
                         be != null ? Collections.singleton(be) : Collections.<BiologicalEntity>emptySet(),
                         p,
                         prov,
                         semanticTag != null ? Collections.singleton(semanticTag) : Collections.<URI>emptySet());
-            }
-            else {
-                a = getAnnotationLoadingSession().getOrCreateAnnotation(
-                        be != null ? Collections.singleton(be) : Collections.<BiologicalEntity>emptySet(),
-                        p,
-                        prov,
-                        semanticTag != null ? Collections.singleton(semanticTag) : Collections.<URI>emptySet());
-            }
-        }
+
         return a;
     }
 }

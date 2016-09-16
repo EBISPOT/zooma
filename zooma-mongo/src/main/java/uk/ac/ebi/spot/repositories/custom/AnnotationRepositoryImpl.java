@@ -25,6 +25,10 @@ public class AnnotationRepositoryImpl implements CustomAnnotationRepository {
     @Autowired
     MongoTemplate mongoTemplate;
 
+    /*
+     ************   For BiologicalEntityRepository to query ************
+     */
+
     @Override
     public List<BiologicalEntity> findDistinctAnnotatedBiologicalEntities() {
         List<DBObject> distinctValues = mongoTemplate.getCollection("annotations").distinct("annotatedBiologicalEntities");
@@ -40,6 +44,10 @@ public class AnnotationRepositoryImpl implements CustomAnnotationRepository {
 
         return convertListOfDBObjectToListOfBiologicalEntity(distinctEntities);
     }
+
+    /*
+     ************   For StudyRepository to query ************
+     */
 
     @Override
     public List<Study> findDistinctAnnotatedBiologicalEntitiesStudies() {
@@ -92,6 +100,18 @@ public class AnnotationRepositoryImpl implements CustomAnnotationRepository {
     }
 
     @Override
+    public List<Study> findDistinctAnnotatedBiologicalEntitiesStudiesByAnnotatedProperty(Property property) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("annotatedProperty").is(property));
+        List<DBObject> studies = mongoTemplate.getCollection("annotations").distinct("annotatedBiologicalEntities.studies", query.getQueryObject());
+        return convertListOfDBObjectToListOfStudy(studies);
+    }
+
+    /*
+     ************   For PropertyRepository to query ************
+     */
+
+    @Override
     public List<Property> findDistinctAnnotatedProperties() {
         List<DBObject> distinctValues = mongoTemplate.getCollection("annotations").distinct("annotatedProperty");
 
@@ -104,7 +124,7 @@ public class AnnotationRepositoryImpl implements CustomAnnotationRepository {
     }
 
     @Override
-    public List<Property> findAnnotatedPropertyByAnnotatedPropertyPropertyType(String type) {
+    public List<Property> findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyType(String type) {
         Query query = new Query();
         query.addCriteria(Criteria.where("annotatedProperty.propertyType").is(type));
         List<DBObject> retrievedProperties = mongoTemplate.getCollection("annotations").distinct("annotatedProperty", query.getQueryObject());
@@ -113,7 +133,7 @@ public class AnnotationRepositoryImpl implements CustomAnnotationRepository {
     }
 
     @Override
-    public List<Property> findAnnotatedPropertyByAnnotatedPropertyPropertyValue(String value) {
+    public List<Property> findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyValue(String value) {
         //no type
         Query query = new Query();
         query.addCriteria(Criteria.where("annotatedProperty.propertyValue").is(value).andOperator(Criteria.where("annotatedProperty.propertyType").exists(false)));
@@ -123,7 +143,7 @@ public class AnnotationRepositoryImpl implements CustomAnnotationRepository {
     }
 
     @Override
-    public List<Property> findAnnotatedPropertyByAnnotatedPropertyPropertyTypeAndByAnnotatedPropertyPropertyValue(String type, String value) {
+    public List<Property> findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyTypeAndByAnnotatedPropertyPropertyValue(String type, String value) {
         //if type is null but value is not null, search by value
         //if value is null but type is not null, search by type
         Query query = new Query();
@@ -148,6 +168,9 @@ public class AnnotationRepositoryImpl implements CustomAnnotationRepository {
         return convertListOfDBObjectToListOfProperty(retrievedProperties);
     }
 
+    /*
+     ************   converters ************
+     */
 
     private List<Study> convertListOfDBObjectToListOfStudy(List<DBObject> retrievedStudies){
         List<Study> studies = new ArrayList<>();

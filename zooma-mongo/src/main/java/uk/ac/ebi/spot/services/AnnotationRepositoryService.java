@@ -20,6 +20,10 @@ public class AnnotationRepositoryService implements RepositoryService<SimpleAnno
     @Autowired
     AnnotationRepository annotationRepository;
 
+    /*
+        For SimpleAnnotations
+     */
+
     public List<SimpleAnnotation> getByAnnotatedPropertyValue(String propertyValue) {
         return annotationRepository.findByAnnotatedPropertyPropertyValue(propertyValue);
     }
@@ -44,72 +48,74 @@ public class AnnotationRepositoryService implements RepositoryService<SimpleAnno
         return annotationRepository.findByAnnotatedProperty(property);
     }
 
-    public Collection<BiologicalEntity> getAllBiologicalEntities(){
-
-        HashMap<String, BiologicalEntity> biologicalEntities = new HashMap<>();
-
-        List<SimpleAnnotation> annotations = this.getAllDocuments();
-
-        if (annotations != null && !annotations.isEmpty()){
-            for (SimpleAnnotation annotation : annotations){
-                Collection<BiologicalEntity> retrievedEntities = annotation.getAnnotatedBiologicalEntities();
-                for (BiologicalEntity entity : retrievedEntities){
-                    SimpleBiologicalEntity simpleBiologicalEntity = (SimpleBiologicalEntity) entity;
-                    if(biologicalEntities.get(simpleBiologicalEntity.getId()) == null){
-                        //if it hasn't already been added
-                        biologicalEntities.put(simpleBiologicalEntity.getId(), simpleBiologicalEntity);
-                    }
-                }
-            }
-        }
-
-        return biologicalEntities.values();
-    }
-
-    public Collection<Study> getAllStudies(){
-        HashMap<String, Study> studies = new HashMap<>();
-        Collection<BiologicalEntity> biologicalEntities = this.getAllBiologicalEntities();
-
-        for (BiologicalEntity biologicalEntity : biologicalEntities){
-            Collection<Study> retrievedStudies = biologicalEntity.getStudies();
-            for (Study retrievedStudy : retrievedStudies){
-                SimpleStudy simpleStudy = (SimpleStudy) retrievedStudy;
-                if (studies.get(simpleStudy.getId()) == null){
-                    //if it hasn't already been added
-                    studies.put(simpleStudy.getId(), simpleStudy);
-                }
-            }
-        }
-
-        return studies.values();
-    }
-
 
     public List<SimpleAnnotation> getByProvenanceSource(AnnotationSource source, Pageable pageable) {
         return annotationRepository.findByProvenanceSource(source, pageable);
     }
 
-    public List<AnnotationProvenance> getProvenanceByProvenanceSource(AnnotationSource source, Pageable pageable){
-
-        List<SimpleAnnotation> simpleAnnotations = annotationRepository.findByProvenanceSource(source, pageable);
-        List<AnnotationProvenance> annotationProvenances = new ArrayList<>();
-
-        if (simpleAnnotations != null && !simpleAnnotations.isEmpty()){
-            for(SimpleAnnotation simpleAnnotation : simpleAnnotations){
-                AnnotationProvenance provenance = simpleAnnotation.getProvenance();
-
-                annotationProvenances.add(provenance);
-
-
-            }
-        }
-
-        return annotationProvenances;
-    }
-
     public List<SimpleAnnotation> getByProvenanceSourceName(String name, Pageable pageable){
         return annotationRepository.findByProvenanceSourceName(name, pageable);
     }
+
+    /*
+        For BiologicalEntities
+     */
+
+    public List<BiologicalEntity> getAllBiologicalEntities(){
+        return annotationRepository.findDistinctAnnotatedBiologicalEntities();
+    }
+
+    public List<BiologicalEntity> getAllBiologicalEntitiesByStudyAccession(String accession){
+        return annotationRepository.findDistinctAnnotatedBiologicalEntitiesByAnnotatedBiologicalEntitiesStudiesAccession(accession);
+    }
+
+    /*
+        For Studies
+     */
+
+    public List<Study> getAllStudies(){
+        return annotationRepository.findDistinctAnnotatedBiologicalEntitiesStudies();
+    }
+
+    public List<Study> getStudiesBySemanticTags(URI... semanticTags){
+        return annotationRepository.findDistinctAnnotatedBiologicalEntitiesStudiesBySemanticTags(semanticTags);
+    }
+
+    public List<Study> getStudiesByAccession(String accession){
+        return annotationRepository.findDistinctAnnotatedBiologicalEntitiesStudiesByAccession(accession);
+    }
+
+    public List<Study> getStudiesByProperty(Property property){
+        return annotationRepository.findDistinctAnnotatedBiologicalEntitiesStudiesByAnnotatedProperty(property);
+    }
+
+    /*
+        For Properties
+     */
+
+    public List<Property> getAllProperties(){
+        return annotationRepository.findDistinctAnnotatedProperties();
+    }
+
+    public List<String> getAllPropertyTypes(){
+        return annotationRepository.findAllPropertyTypes();
+    }
+
+    public List<Property> getPropertiesByPropertyType(String type){
+        return annotationRepository.findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyType(type);
+    }
+
+    public List<Property> getPropertiesByPropertyValue(String value){
+        return annotationRepository.findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyValue(value);
+    }
+
+    public List<Property> getPropertiesByPropertyTypeAndPropertyValue(String type, String value){
+        return annotationRepository.findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyTypeAndByAnnotatedPropertyPropertyValue(type, value);
+    }
+
+    /*
+        General repository services
+     */
 
     @Override
     public List<SimpleAnnotation> getAllDocuments() {

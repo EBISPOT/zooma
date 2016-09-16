@@ -46,7 +46,7 @@ public class String2MongoPropertyConverter implements Converter<String, Property
 
         } catch (UnsupportedEncodingException e) {
             //empty property will not match with anything
-            return new SimpleProperty("","");
+            return new SimpleProperty("");
         }
 
         if (id == null){
@@ -68,13 +68,13 @@ public class String2MongoPropertyConverter implements Converter<String, Property
                 }
             }
             //no property found
-            return new SimpleProperty("","");
+            return new SimpleProperty("");
         } else {
             //id not null, either a typed or untyped property
             if (propertyType == null){
-                return new SimpleUntypedProperty(id, propertyValue);
+                return new SimpleUntypedProperty(propertyValue);
             }
-            return new SimpleTypedProperty(id, propertyType, propertyValue);
+            return new SimpleTypedProperty(propertyType, propertyValue);
         }
     }
 }
