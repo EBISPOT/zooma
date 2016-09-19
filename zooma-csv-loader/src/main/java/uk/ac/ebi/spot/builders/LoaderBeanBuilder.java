@@ -12,7 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import uk.ac.ebi.spot.datasource.CSVLoadingSession;
 import uk.ac.ebi.spot.datasource.DefaultAnnotationFactory;
-import uk.ac.ebi.spot.service.CSVLoader;
+import uk.ac.ebi.spot.datasource.CSVLoader;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ import java.util.Properties;
 
 /**
  * An implementation of the BeanDefinitionRegistryPostProcessor allowing registration of further bean definitions
- * Creates a {@link uk.ac.ebi.spot.service.CSVLoader} bean and its corresponding {@link uk.ac.ebi.spot.datasource.AnnotationLoadingSession} and
+ * Creates a {@link CSVLoader} bean and its corresponding {@link uk.ac.ebi.spot.datasource.AnnotationLoadingSession} and
  * {@link uk.ac.ebi.spot.datasource.AnnotationFactory} beans, for each loader defined in the application.properties file
  *
  * Beans will be added to the classpath so they can be accessed through an autowired Collection of {CSVLoader}s

@@ -144,13 +144,6 @@ public class AnnotationRepositoryServiceIT {
         assertTrue(annotations.size() > 0);
     }
 
-//    @Test
-//    public void testGetProvenanceByProvenanceSource(){
-//        AnnotationSource source = new SimpleOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/test"), "test", "", "");
-//        Collection<AnnotationProvenance> annotationProvenances = annotationRepositoryService.getProvenanceByProvenanceSource(source, new PageRequest(0, 20));
-//
-//        assertTrue(annotationProvenances.size() > 0);
-//    }
 
     @Test
     public void testGetByProvenanceSourceName(){
@@ -189,7 +182,27 @@ public class AnnotationRepositoryServiceIT {
         annotationDocument = annotationRepositoryService.getByAnnotatedProperty(aProperty);
 
         SimpleAnnotation simpleAnnotation = (SimpleAnnotation) annotationDocument.toArray()[0];
-        assertThat("The property type should be \"test type\"", ((SimpleTypedProperty) annotation.getAnnotatedProperty()).getPropertyType(), is("test type"));
+        assertThat("The property type should be \"test type\"", ((SimpleTypedProperty) simpleAnnotation.getAnnotatedProperty()).getPropertyType(), is("test type"));
+    }
+
+    @Test
+    public void testUpdate() throws Exception{
+        Collection<SimpleAnnotation> annotationDocument = annotationRepositoryService.getByAnnotatedPropertyValue("test value");
+        SimpleAnnotation annotation = (SimpleAnnotation) annotationDocument.toArray()[0];
+
+        Property oldProperty = annotation.getAnnotatedProperty();
+        String oldId = annotation.getId();
+
+        annotation.setAnnotatedProperty(new SimpleTypedProperty("new type", "new value"));
+
+        SimpleAnnotation updatedAnnotation = annotationRepositoryService.update(annotation);
+
+        assertTrue(updatedAnnotation.getId().equals(oldId));
+        assertTrue(updatedAnnotation.getAnnotatedProperty().getPropertyValue().equals("new value"));
+
+        updatedAnnotation.setAnnotatedProperty(oldProperty);
+        annotationRepositoryService.update(updatedAnnotation);
+
     }
 
 }

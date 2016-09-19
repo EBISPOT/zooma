@@ -1,5 +1,7 @@
-package uk.ac.ebi.spot.service;
+package uk.ac.ebi.spot.datasource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,7 +11,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import uk.ac.ebi.spot.datasource.AnnotationFactory;
 import uk.ac.ebi.spot.exception.InvalidDataFormatException;
 import uk.ac.ebi.spot.model.Annotation;
 
@@ -21,7 +22,9 @@ import uk.ac.ebi.spot.model.Annotation;
  *
  * Created by olgavrou on 08/08/2016.
  */
-public class CSVLoader {
+public class CSVLoader implements LoaderDAO<Annotation> {
+
+    private Logger log = LoggerFactory.getLogger(getClass());
 
     private AnnotationFactory annotationFactory;
 
@@ -60,11 +63,16 @@ public class CSVLoader {
         this.annotationFactory = annotationFactory;
     }
 
-    /*
-        Reads the csv file and creates the annotations
-     */
-    public List<Annotation> load() throws IOException {
+    public Logger getLog() {
+        return log;
+    }
 
+    /*
+            Reads the csv file and creates the annotations
+         */
+    public void load() throws IOException {
+
+        getLog().info("***** Started loading from " + this.loadFrom.getFilename() + " *****");
 
         // parse annotations file
         BufferedReader reader = new BufferedReader(new InputStreamReader(loadFrom.getInputStream(), "UTF-8"));
@@ -222,7 +230,11 @@ public class CSVLoader {
 
         // now close the reader
         reader.close();
+        getLog().info("***** Finished loading from " + this.loadFrom.getFilename() + " *****");
+    }
 
+    @Override
+    public List<Annotation> returnLoaded() {
         return annotations;
     }
 

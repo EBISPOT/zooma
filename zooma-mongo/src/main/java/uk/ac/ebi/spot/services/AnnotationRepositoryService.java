@@ -24,10 +24,6 @@ public class AnnotationRepositoryService implements RepositoryService<SimpleAnno
         For SimpleAnnotations
      */
 
-    public List<SimpleAnnotation> getByAnnotatedPropertyValue(String propertyValue) {
-        return annotationRepository.findByAnnotatedPropertyPropertyValue(propertyValue);
-    }
-
     public List<SimpleAnnotation> getBySemanticTags(Collection<URI> semanticTags) {
         return annotationRepository.findBySemanticTagsIn(semanticTags);
     }
@@ -48,6 +44,9 @@ public class AnnotationRepositoryService implements RepositoryService<SimpleAnno
         return annotationRepository.findByAnnotatedProperty(property);
     }
 
+    public List<SimpleAnnotation> getByAnnotatedPropertyValue(String propertyValue) {
+        return annotationRepository.findByAnnotatedPropertyPropertyValue(propertyValue);
+    }
 
     public List<SimpleAnnotation> getByProvenanceSource(AnnotationSource source, Pageable pageable) {
         return annotationRepository.findByProvenanceSource(source, pageable);
