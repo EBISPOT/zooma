@@ -3,8 +3,8 @@ package uk.ac.ebi.spot.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import uk.ac.ebi.spot.model.Annotation;
-import uk.ac.ebi.spot.model.SimpleAnnotation;
-import uk.ac.ebi.spot.services.AnnotationRepositoryService;
+import uk.ac.ebi.spot.model.MongoAnnotation;
+import uk.ac.ebi.spot.services.MongoAnnotationRepositoryService;
 
 /**
  * Created by olgavrou on 19/09/2016.
@@ -13,12 +13,12 @@ import uk.ac.ebi.spot.services.AnnotationRepositoryService;
 public class SaveToMongoController {
 
     @Autowired
-    private AnnotationRepositoryService annotationRepositoryService;
+    private MongoAnnotationRepositoryService mongoAnnotationRepositoryService;
 
     public void save(Annotation annotation){
 
-        SimpleAnnotation simpleAnnotation = (SimpleAnnotation) annotation;
-        annotationRepositoryService.save(simpleAnnotation);
+        MongoAnnotation mongoAnnotation = (MongoAnnotation) annotation;
+        mongoAnnotationRepositoryService.save(mongoAnnotation);
     }
 
 }

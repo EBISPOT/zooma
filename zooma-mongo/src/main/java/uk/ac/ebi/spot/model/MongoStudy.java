@@ -5,12 +5,12 @@ import java.net.URI;
 /**
  * Created by olgavrou on 05/08/2016.
  */
-public class SimpleStudy implements Study {
+public class MongoStudy implements Study {
 
     private String accession;
     private URI uri;
 
-    public SimpleStudy(String accession, URI uri) {
+    public MongoStudy(String accession, URI uri) {
 
         this.accession = accession;
         this.uri = uri;

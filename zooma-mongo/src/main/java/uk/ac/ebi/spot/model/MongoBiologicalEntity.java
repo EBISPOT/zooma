@@ -7,14 +7,14 @@ import java.util.HashSet;
 /**
  * Created by olgavrou on 04/08/2016.
  */
-public class SimpleBiologicalEntity implements BiologicalEntity {
+public class MongoBiologicalEntity implements BiologicalEntity {
 
     private String name;
     private Collection<Study> studies;
     private URI uri;
 
 
-    public SimpleBiologicalEntity(String name, Collection<Study> studies, URI uri) {
+    public MongoBiologicalEntity(String name, Collection<Study> studies, URI uri) {
         this.name = name;
         this.uri = uri;
         this.studies = new HashSet<>();

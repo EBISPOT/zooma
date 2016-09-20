@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 public class AnnotationRepositoryServiceIT {
 
     @Autowired
-    AnnotationRepositoryService annotationRepositoryService;
+    MongoAnnotationRepositoryService mongoAnnotationRepositoryService;
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -38,49 +38,49 @@ public class AnnotationRepositoryServiceIT {
     public void setup(){
         //Create an Annotation and store it in mongodb
 
-        SimpleStudy simpleStudy = new SimpleStudy("Accession1", null);
+        MongoStudy mongoStudy = new MongoStudy("Accession1", null);
 
         Collection<Study> studies = new ArrayList<>();
-        studies.add(simpleStudy);
+        studies.add(mongoStudy);
 
-        simpleStudy = new SimpleStudy("Accession2", null);
-        studies.add(simpleStudy);
+        mongoStudy = new MongoStudy("Accession2", null);
+        studies.add(mongoStudy);
 
         Collection<BiologicalEntity> biologicalEntities = new ArrayList<>();
-        SimpleBiologicalEntity biologicalEntity = new SimpleBiologicalEntity("GSMTest1", studies, null);
+        MongoBiologicalEntity biologicalEntity = new MongoBiologicalEntity("GSMTest1", studies, null);
         biologicalEntities.add(biologicalEntity);
-        biologicalEntity = new SimpleBiologicalEntity("GSMTest2", studies, null);
+        biologicalEntity = new MongoBiologicalEntity("GSMTest2", studies, null);
         biologicalEntities.add(biologicalEntity);
 
-        Property property = new SimpleTypedProperty("test type", "test value");
+        Property property = new MongoTypedProperty("test type", "test value");
         URI semanticTag = java.net.URI.create("http://www.ebi.ac.uk/efo/EFO_test");
         Collection<URI> semanticTags = new ArrayList<>();
         semanticTags.add(semanticTag);
 
         //create provenance
-        SimpleOntologyAnnotationSource annotationSource = new SimpleOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/test"), "test","","");
+        MongoOntologyAnnotationSource annotationSource = new MongoOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/test"), "test","","");
 
-        SimpleAnnotationProvenance annotationProvenance = new SimpleAnnotationProvenance(annotationSource,
+        MongoAnnotationProvenance annotationProvenance = new MongoAnnotationProvenance(annotationSource,
                 AnnotationProvenance.Evidence.MANUAL_CURATED,
                 AnnotationProvenance.Accuracy.NOT_SPECIFIED,
                 "http://www.ebi.ac.uk/test", new Date(), "Test annotator", new Date());
 
-        SimpleAnnotation annotationDocument = new SimpleAnnotation(biologicalEntities,
+        MongoAnnotation annotationDocument = new MongoAnnotation(biologicalEntities,
                 property,
                 semanticTags,
                 annotationProvenance,
                 null,
                 null, false);
 
-        annotationRepositoryService.save(annotationDocument);
+        mongoAnnotationRepositoryService.save(annotationDocument);
 
-        SimpleAnnotation annotation = new SimpleAnnotation(biologicalEntities,
+        MongoAnnotation annotation = new MongoAnnotation(biologicalEntities,
                 property,
                 semanticTags,
                 annotationProvenance,
                 null,
                 null, false);
-        annotationRepositoryService.save(annotation);
+        mongoAnnotationRepositoryService.save(annotation);
     }
 
     @After
@@ -93,14 +93,14 @@ public class AnnotationRepositoryServiceIT {
     public void testGetBySemanticTags(){
         Collection<URI> semanticTags = new HashSet<>();
         semanticTags.add(URI.create("http://www.ebi.ac.uk/efo/EFO_test"));
-        Collection<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getBySemanticTags(semanticTags);
-        assertTrue(simpleAnnotations.size() > 0);
+        Collection<MongoAnnotation> mongoAnnotations = mongoAnnotationRepositoryService.getBySemanticTags(semanticTags);
+        assertTrue(mongoAnnotations.size() > 0);
     }
 
     @Test
     public void testGetByAnnotatedBiologicalEntitiesStudiesAccession(){
-        Collection<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getByAnnotatedBiologicalEntitiesStudiesAccession("Accession1");
-        for (Annotation annotation : simpleAnnotations){
+        Collection<MongoAnnotation> mongoAnnotations = mongoAnnotationRepositoryService.getByAnnotatedBiologicalEntitiesStudiesAccession("Accession1");
+        for (Annotation annotation : mongoAnnotations){
             Collection<BiologicalEntity> biologicalEntity = annotation.getAnnotatedBiologicalEntities();
             for(BiologicalEntity entity : biologicalEntity){
                 Collection<Study> studies = entity.getStudies();
@@ -113,9 +113,9 @@ public class AnnotationRepositoryServiceIT {
 
     @Test
     public void testGetByAnnotatedBiologicalEntitiesName(){
-        Collection<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getByAnnotatedBiologicalEntitiesName("GSMTest1");
-        for(SimpleAnnotation simpleAnnotation : simpleAnnotations){
-            SimpleTypedProperty simpleTypedProperty = (SimpleTypedProperty) simpleAnnotation.getAnnotatedProperty();
+        Collection<MongoAnnotation> mongoAnnotations = mongoAnnotationRepositoryService.getByAnnotatedBiologicalEntitiesName("GSMTest1");
+        for(MongoAnnotation mongoAnnotation : mongoAnnotations){
+            MongoTypedProperty simpleTypedProperty = (MongoTypedProperty) mongoAnnotation.getAnnotatedProperty();
             assertTrue((simpleTypedProperty.getPropertyType().equals("test type")));
             assertTrue(simpleTypedProperty.getPropertyValue().equals("test value"));
         }
@@ -123,9 +123,9 @@ public class AnnotationRepositoryServiceIT {
 
     @Test
     public void testGetByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession(){
-        Collection<SimpleAnnotation> simpleAnnotations = annotationRepositoryService.getByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession("GSMTest2", "Accession2");
+        Collection<MongoAnnotation> mongoAnnotations = mongoAnnotationRepositoryService.getByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession("GSMTest2", "Accession2");
 
-        SimpleAnnotation annotation = (SimpleAnnotation) simpleAnnotations.toArray()[0];
+        MongoAnnotation annotation = (MongoAnnotation) mongoAnnotations.toArray()[0];
         Collection<BiologicalEntity> biologicalEntities = annotation.getAnnotatedBiologicalEntities();
         for (BiologicalEntity biologicalEntity : biologicalEntities){
             assertTrue(biologicalEntity.getName().equals("GSMTest2") || biologicalEntity.getName().equals("GSMTest1"));
@@ -138,8 +138,8 @@ public class AnnotationRepositoryServiceIT {
 
     @Test
     public void testGetByProvenanceSource(){
-        AnnotationSource source = new SimpleOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/test"), "test", "", "");
-        Collection<SimpleAnnotation> annotations = annotationRepositoryService.getByProvenanceSource(source, new PageRequest(0, 20));
+        AnnotationSource source = new MongoOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/test"), "test", "", "");
+        Collection<MongoAnnotation> annotations = mongoAnnotationRepositoryService.getByProvenanceSource(source, new PageRequest(0, 20));
 
         assertTrue(annotations.size() > 0);
     }
@@ -147,61 +147,61 @@ public class AnnotationRepositoryServiceIT {
 
     @Test
     public void testGetByProvenanceSourceName(){
-        Collection<SimpleAnnotation> annotations = annotationRepositoryService.getByProvenanceSourceName("test", new PageRequest(0, 20));
+        Collection<MongoAnnotation> annotations = mongoAnnotationRepositoryService.getByProvenanceSourceName("test", new PageRequest(0, 20));
         assertTrue(annotations.size() > 0);
-        SimpleAnnotation annotation = (SimpleAnnotation) annotations.toArray()[0];
+        MongoAnnotation annotation = (MongoAnnotation) annotations.toArray()[0];
         assertTrue(annotation.getProvenance().getSource().getName().equals("test"));
     }
 
     @Test
     public void testGetAllBiologicalEntities(){
-        Collection<BiologicalEntity> biologicalEntities = annotationRepositoryService.getAllBiologicalEntities();
+        Collection<BiologicalEntity> biologicalEntities = mongoAnnotationRepositoryService.getAllBiologicalEntities();
         assertTrue(biologicalEntities.size() > 0);
     }
 
     @Test
     public void testGetAllStudies(){
-        Collection<Study> studies = annotationRepositoryService.getAllStudies();
+        Collection<Study> studies = mongoAnnotationRepositoryService.getAllStudies();
         assertTrue(studies.size() > 0);
     }
 
     @Test
     public void testGetAllDocuments() throws Exception {
-        Collection<SimpleAnnotation> annotationDocumentList = annotationRepositoryService.getAllDocuments();
+        Collection<MongoAnnotation> annotationDocumentList = mongoAnnotationRepositoryService.getAllDocuments();
         assertThat("Not empty list", annotationDocumentList.size(), is(not(0)));
     }
 
     @Test
     public void testGetByAnnotatedProperty() throws Exception {
-        Collection<SimpleAnnotation> annotationDocument = annotationRepositoryService.getByAnnotatedPropertyValue("test value");
+        Collection<MongoAnnotation> annotationDocument = mongoAnnotationRepositoryService.getByAnnotatedPropertyValue("test value");
 
-        SimpleAnnotation annotation = (SimpleAnnotation) annotationDocument.toArray()[0];
+        MongoAnnotation annotation = (MongoAnnotation) annotationDocument.toArray()[0];
         assertThat("The property value should be \"test value\"", annotation.getAnnotatedProperty().getPropertyValue(), is("test value"));
 
-        Property aProperty = new SimpleTypedProperty("test type", "test value");
-        annotationDocument = annotationRepositoryService.getByAnnotatedProperty(aProperty);
+        Property aProperty = new MongoTypedProperty("test type", "test value");
+        annotationDocument = mongoAnnotationRepositoryService.getByAnnotatedProperty(aProperty);
 
-        SimpleAnnotation simpleAnnotation = (SimpleAnnotation) annotationDocument.toArray()[0];
-        assertThat("The property type should be \"test type\"", ((SimpleTypedProperty) simpleAnnotation.getAnnotatedProperty()).getPropertyType(), is("test type"));
+        MongoAnnotation mongoAnnotation = (MongoAnnotation) annotationDocument.toArray()[0];
+        assertThat("The property type should be \"test type\"", ((MongoTypedProperty) mongoAnnotation.getAnnotatedProperty()).getPropertyType(), is("test type"));
     }
 
     @Test
     public void testUpdate() throws Exception{
-        Collection<SimpleAnnotation> annotationDocument = annotationRepositoryService.getByAnnotatedPropertyValue("test value");
-        SimpleAnnotation annotation = (SimpleAnnotation) annotationDocument.toArray()[0];
+        Collection<MongoAnnotation> annotationDocument = mongoAnnotationRepositoryService.getByAnnotatedPropertyValue("test value");
+        MongoAnnotation annotation = (MongoAnnotation) annotationDocument.toArray()[0];
 
         Property oldProperty = annotation.getAnnotatedProperty();
         String oldId = annotation.getId();
 
-        annotation.setAnnotatedProperty(new SimpleTypedProperty("new type", "new value"));
+        annotation.setAnnotatedProperty(new MongoTypedProperty("new type", "new value"));
 
-        SimpleAnnotation updatedAnnotation = annotationRepositoryService.update(annotation);
+        MongoAnnotation updatedAnnotation = mongoAnnotationRepositoryService.update(annotation);
 
         assertTrue(updatedAnnotation.getId().equals(oldId));
         assertTrue(updatedAnnotation.getAnnotatedProperty().getPropertyValue().equals("new value"));
 
         updatedAnnotation.setAnnotatedProperty(oldProperty);
-        annotationRepositoryService.update(updatedAnnotation);
+        mongoAnnotationRepositoryService.update(updatedAnnotation);
 
     }
 

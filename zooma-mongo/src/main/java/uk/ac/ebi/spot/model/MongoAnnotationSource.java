@@ -5,14 +5,14 @@ import java.net.URI;
 /**
  * Created by olgavrou on 04/08/2016.
  */
-public class SimpleAnnotationSource implements AnnotationSource {
+public class MongoAnnotationSource implements AnnotationSource {
 
     private URI uri;
     private Type type;
     private String name;
 
 
-    public SimpleAnnotationSource(URI uri, String name, Type type) {
+    public MongoAnnotationSource(URI uri, String name, Type type) {
         this.uri = uri;
         this.name = name;
         this.type = type;
@@ -32,7 +32,7 @@ public class SimpleAnnotationSource implements AnnotationSource {
 
     @Override
     public String toString() {
-        return "SimpleAnnotationSource{" +
+        return "MongoAnnotationSource{" +
                 "uri=" + uri +
                 ", type=" + type +
                 ", name='" + name + '\'' +

@@ -5,12 +5,12 @@ import java.net.URI;
 /**
  * Created by olgavrou on 05/08/2016.
  */
-public class SimpleOntologyAnnotationSource extends SimpleAnnotationSource {
+public class MongoOntologyAnnotationSource extends MongoAnnotationSource {
 
     private String title;
     private String description;
 
-    public SimpleOntologyAnnotationSource(URI uri, String name, String title, String description) {
+    public MongoOntologyAnnotationSource(URI uri, String name, String title, String description) {
         super(uri, name, Type.ONTOLOGY);
         this.title = title;
         this.description = description;
@@ -22,7 +22,7 @@ public class SimpleOntologyAnnotationSource extends SimpleAnnotationSource {
 
     @Override
     public String toString() {
-        return "SimpleAnnotationSource{" +
+        return "MongoAnnotationSource{" +
                 "uri=" + getUri() +
                 ", type=" + getType() +
                 ", name='" + getName() + '\'' +

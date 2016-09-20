@@ -2,7 +2,7 @@ package uk.ac.ebi.spot.datasource;
 
 import uk.ac.ebi.spot.builders.AnnotationProvenanceBuilder;
 import uk.ac.ebi.spot.model.AnnotationProvenance;
-import uk.ac.ebi.spot.model.SimpleDatabaseAnnotationSource;
+import uk.ac.ebi.spot.model.MongoDatabaseAnnotationSource;
 
 import java.net.URI;
 import java.util.Date;
@@ -44,7 +44,7 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
         setAnnotationProvenanceTemplate(
                 AnnotationProvenanceBuilder
                         .createTemplate(uri.toString(), new Date())
-                        .sourceIs(new SimpleDatabaseAnnotationSource(uri, name))
+                        .sourceIs(new MongoDatabaseAnnotationSource(uri, name))
                         .evidenceIs(AnnotationProvenance.Evidence.MANUAL_CURATED)
                         .accuracyIs(AnnotationProvenance.Accuracy.NOT_SPECIFIED));
     }

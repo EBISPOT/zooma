@@ -5,7 +5,7 @@ import org.springframework.data.annotation.Id;
 /**
  * Created by olgavrou on 04/08/2016.
  */
-public abstract class SimpleDocument {
+public abstract class MongoDocument {
 
     @Id
     private String id;

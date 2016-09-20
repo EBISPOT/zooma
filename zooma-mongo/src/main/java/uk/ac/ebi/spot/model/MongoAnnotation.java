@@ -10,7 +10,7 @@ import java.util.HashSet;
  * Created by olgavrou on 02/08/2016.
  */
 @Document(collection = "annotations")
-public class SimpleAnnotation extends SimpleDocument implements Annotation {
+public class MongoAnnotation extends MongoDocument implements Annotation {
 
     private Collection<BiologicalEntity> annotatedBiologicalEntities;
     private Property annotatedProperty;
@@ -21,12 +21,12 @@ public class SimpleAnnotation extends SimpleDocument implements Annotation {
     private boolean batchLoad;
 
 
-    public SimpleAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
-                            Property annotatedProperty,
-                            Collection<URI> semanticTags,
-                            AnnotationProvenance provenance,
-                            Collection<URI> replacedBy,
-                            Collection<URI> replaces, boolean batchLoad) {
+    public MongoAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
+                           Property annotatedProperty,
+                           Collection<URI> semanticTags,
+                           AnnotationProvenance provenance,
+                           Collection<URI> replacedBy,
+                           Collection<URI> replaces, boolean batchLoad) {
 
         this.annotatedBiologicalEntities = new HashSet<>();
         if (annotatedBiologicalEntities != null) {

@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.model.*;
-import uk.ac.ebi.spot.repositories.AnnotationRepository;
+import uk.ac.ebi.spot.repositories.MongoAnnotationRepository;
 
 import java.net.URI;
 import java.util.*;
@@ -15,44 +15,44 @@ import java.util.*;
  * Created by olgavrou on 03/08/2016.
  */
 @Service
-public class AnnotationRepositoryService implements RepositoryService<SimpleAnnotation> {
+public class MongoAnnotationRepositoryService implements RepositoryService<MongoAnnotation> {
 
     @Autowired
-    AnnotationRepository annotationRepository;
+    MongoAnnotationRepository annotationRepository;
 
     /*
         For SimpleAnnotations
      */
 
-    public List<SimpleAnnotation> getBySemanticTags(Collection<URI> semanticTags) {
+    public List<MongoAnnotation> getBySemanticTags(Collection<URI> semanticTags) {
         return annotationRepository.findBySemanticTagsIn(semanticTags);
     }
 
-    public List<SimpleAnnotation> getByAnnotatedBiologicalEntitiesStudiesAccession(String accession){
+    public List<MongoAnnotation> getByAnnotatedBiologicalEntitiesStudiesAccession(String accession){
         return annotationRepository.findByAnnotatedBiologicalEntitiesStudiesAccession(accession);
     }
 
-    public List<SimpleAnnotation> getByAnnotatedBiologicalEntitiesName(String name){
+    public List<MongoAnnotation> getByAnnotatedBiologicalEntitiesName(String name){
         return annotationRepository.findByAnnotatedBiologicalEntitiesName(name);
     }
 
-    public List<SimpleAnnotation> getByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession(String name, String accession){
+    public List<MongoAnnotation> getByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession(String name, String accession){
         return annotationRepository.findByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession(name, accession);
     }
 
-    public List<SimpleAnnotation> getByAnnotatedProperty(Property property){
+    public List<MongoAnnotation> getByAnnotatedProperty(Property property){
         return annotationRepository.findByAnnotatedProperty(property);
     }
 
-    public List<SimpleAnnotation> getByAnnotatedPropertyValue(String propertyValue) {
+    public List<MongoAnnotation> getByAnnotatedPropertyValue(String propertyValue) {
         return annotationRepository.findByAnnotatedPropertyPropertyValue(propertyValue);
     }
 
-    public List<SimpleAnnotation> getByProvenanceSource(AnnotationSource source, Pageable pageable) {
+    public List<MongoAnnotation> getByProvenanceSource(AnnotationSource source, Pageable pageable) {
         return annotationRepository.findByProvenanceSource(source, pageable);
     }
 
-    public List<SimpleAnnotation> getByProvenanceSourceName(String name, Pageable pageable){
+    public List<MongoAnnotation> getByProvenanceSourceName(String name, Pageable pageable){
         return annotationRepository.findByProvenanceSourceName(name, pageable);
     }
 
@@ -117,42 +117,42 @@ public class AnnotationRepositoryService implements RepositoryService<SimpleAnno
      */
 
     @Override
-    public List<SimpleAnnotation> getAllDocuments() {
+    public List<MongoAnnotation> getAllDocuments() {
         return annotationRepository.findAll();
     }
 
     @Override
-    public List<SimpleAnnotation> getAllDocuments(Sort sort) {
+    public List<MongoAnnotation> getAllDocuments(Sort sort) {
         return annotationRepository.findAll(sort);
     }
 
     @Override
-    public Page<SimpleAnnotation> getAllDocuments(Pageable pageable) {
+    public Page<MongoAnnotation> getAllDocuments(Pageable pageable) {
         return annotationRepository.findAll(pageable);
     }
 
     @Override
-    public void delete(SimpleAnnotation document) throws RuntimeException {
+    public void delete(MongoAnnotation document) throws RuntimeException {
         annotationRepository.delete(document);
     }
 
     @Override
-    public SimpleAnnotation create(SimpleAnnotation document) throws RuntimeException {
+    public MongoAnnotation create(MongoAnnotation document) throws RuntimeException {
         return annotationRepository.insert(document);
     }
 
     @Override
-    public SimpleAnnotation save(SimpleAnnotation document) throws RuntimeException {
+    public MongoAnnotation save(MongoAnnotation document) throws RuntimeException {
         return annotationRepository.save(document);
     }
 
     @Override
-    public SimpleAnnotation update(SimpleAnnotation document) throws RuntimeException {
+    public MongoAnnotation update(MongoAnnotation document) throws RuntimeException {
         return annotationRepository.save(document);
     }
 
     @Override
-    public SimpleAnnotation get(String documentId) {
+    public MongoAnnotation get(String documentId) {
         return annotationRepository.findOne(documentId);
     }
 

@@ -4,7 +4,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import uk.ac.ebi.spot.model.*;
-import uk.ac.ebi.spot.services.AnnotationRepositoryService;
+import uk.ac.ebi.spot.services.MongoAnnotationRepositoryService;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 public class String2MongoPropertyConverter implements Converter<String, Property> {
 
     @Autowired
-    AnnotationRepositoryService annotationRepositoryService;
+    MongoAnnotationRepositoryService mongoAnnotationRepositoryService;
 
     @Override
     public Property convert(String source) {
@@ -46,18 +46,18 @@ public class String2MongoPropertyConverter implements Converter<String, Property
 
         } catch (UnsupportedEncodingException e) {
             //empty property will not match with anything
-            return new SimpleProperty("");
+            return new MongoProperty("");
         }
 
         if (id == null){
             //don't really expect user to provide an _id
             if (propertyValue != null) {
-                List<SimpleAnnotation> retrivedAnnotationsByProperty = annotationRepositoryService.getByAnnotatedPropertyValue(propertyValue);
+                List<MongoAnnotation> retrivedAnnotationsByProperty = mongoAnnotationRepositoryService.getByAnnotatedPropertyValue(propertyValue);
                 if (retrivedAnnotationsByProperty != null && !retrivedAnnotationsByProperty.isEmpty()) {
                     //if there is a property type, find the property with the value-type match
                     if (propertyType != null) {
-                        for (SimpleAnnotation simpleAnnotation : retrivedAnnotationsByProperty) {
-                            SimpleTypedProperty property = (SimpleTypedProperty) simpleAnnotation.getAnnotatedProperty();
+                        for (MongoAnnotation mongoAnnotation : retrivedAnnotationsByProperty) {
+                            MongoTypedProperty property = (MongoTypedProperty) mongoAnnotation.getAnnotatedProperty();
                             if (property.toString().equals(propertyType)) {
                                 return property;
                             }
@@ -68,13 +68,13 @@ public class String2MongoPropertyConverter implements Converter<String, Property
                 }
             }
             //no property found
-            return new SimpleProperty("");
+            return new MongoProperty("");
         } else {
             //id not null, either a typed or untyped property
             if (propertyType == null){
-                return new SimpleUntypedProperty(propertyValue);
+                return new MongoUntypedProperty(propertyValue);
             }
-            return new SimpleTypedProperty(propertyType, propertyValue);
+            return new MongoTypedProperty(propertyType, propertyValue);
         }
     }
 }

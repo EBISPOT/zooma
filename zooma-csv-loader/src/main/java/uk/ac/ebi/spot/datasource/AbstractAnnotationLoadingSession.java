@@ -2,16 +2,11 @@ package uk.ac.ebi.spot.datasource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.spot.Namespaces;
-import uk.ac.ebi.spot.datasource.AnnotationLoadingSession;
 import uk.ac.ebi.spot.model.*;
 import uk.ac.ebi.spot.util.ZoomaUtils;
 import uk.ac.ebi.spot.utils.TransientCacheable;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.security.MessageDigest;
 import java.util.*;
 
 /**
@@ -30,7 +25,7 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
 //    private Map<URI, Study> studyCache;
 //    private Map<URI, BiologicalEntity> biologicalEntityCache;
 //    private Map<URI, Property> propertyCache;
-//    private Map<URI, SimpleAnnotation> annotationCache;
+//    private Map<URI, MongoAnnotation> annotationCache;
     private AnnotationProvenance annotationProvenanceCache;
 
     private AnnotationProvenanceTemplate annotationProvenanceTemplate;
@@ -46,7 +41,7 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
 //        this.studyCache = Collections.synchronizedMap(new HashMap<String, Study>());
 //        this.biologicalEntityCache = Collections.synchronizedMap(new HashMap<String, BiologicalEntity>());
 //        this.propertyCache = Collections.synchronizedMap(new HashMap<String, Property>());
-//        this.annotationCache = Collections.synchronizedMap(new HashMap<String, SimpleAnnotation>());
+//        this.annotationCache = Collections.synchronizedMap(new HashMap<String, MongoAnnotation>());
 
     }
 
@@ -65,7 +60,7 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
 
     @Override
     public synchronized Study getOrCreateStudy(String studyAccession) {
-        return new SimpleStudy(studyAccession, null);
+        return new MongoStudy(studyAccession, null);
     }
 
 
@@ -75,16 +70,16 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
 //        ping();
 //
 //        if (!studyCache.containsKey(studyURI)) {
-//                studyCache.put(studyURI, new SimpleStudy(studyAccession, studyURI));
+//                studyCache.put(studyURI, new MongoStudy(studyAccession, studyURI));
 //        }
 //        return studyCache.get(studyURI);
-        return new SimpleStudy(studyAccession, studyURI);
+        return new MongoStudy(studyAccession, studyURI);
     }
 
     @Override
     public synchronized BiologicalEntity getOrCreateBiologicalEntity(String bioentityName,
                                                                      Collection<Study> studies) {
-        return new SimpleBiologicalEntity(bioentityName, studies, null);
+        return new MongoBiologicalEntity(bioentityName, studies, null);
     }
 
 
@@ -98,20 +93,20 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
 //        if (!biologicalEntityCache.containsKey(bioentityURI)) {
 //
 //            biologicalEntityCache.put(bioentityURI,
-//                                      new SimpleBiologicalEntity(bioentityName, studies, bioentityURI));
+//                                      new MongoBiologicalEntity(bioentityName, studies, bioentityURI));
 //        }
 //        return biologicalEntityCache.get(bioentityURI);
-        return new SimpleBiologicalEntity(bioentityName, studies, bioentityURI);
+        return new MongoBiologicalEntity(bioentityName, studies, bioentityURI);
     }
 
     @Override
     public synchronized Property getOrCreateProperty(String propertyType, String propertyValue) {
         if (propertyType != null && !propertyType.equals("")) {
             String normalizedType = ZoomaUtils.normalizePropertyTypeString(propertyType);
-            return new SimpleTypedProperty(normalizedType, propertyValue);
+            return new MongoTypedProperty(normalizedType, propertyValue);
         }
         else {
-            return new SimpleUntypedProperty(propertyValue);
+            return new MongoUntypedProperty(propertyValue);
         }
     }
 
@@ -123,7 +118,7 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
                                                          Collection<URI> semanticTags) {
 
         //TODO: this is where we will calculate replacedBy etc?
-        return new SimpleAnnotation(biologicalEntities, property, semanticTags, annotationProvenance, null, null, true);
+        return new MongoAnnotation(biologicalEntities, property, semanticTags, annotationProvenance, null, null, true);
     }
 
 

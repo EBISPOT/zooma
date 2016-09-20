@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Created by olgavrou on 04/08/2016.
  */
-public class SimpleAnnotationProvenance implements AnnotationProvenance {
+public class MongoAnnotationProvenance implements AnnotationProvenance {
 
     private final AnnotationSource source;
 
@@ -16,13 +16,13 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
     private final String annotator;
     private final Date annotationDate;
 
-    public SimpleAnnotationProvenance(AnnotationSource source,
-                                      Evidence evidence,
-                                      Accuracy accuracy,
-                                      String generator,
-                                      Date generatedDate,
-                                      String annotator,
-                                      Date annotationDate) {
+    public MongoAnnotationProvenance(AnnotationSource source,
+                                     Evidence evidence,
+                                     Accuracy accuracy,
+                                     String generator,
+                                     Date generatedDate,
+                                     String annotator,
+                                     Date annotationDate) {
         this.source = source;
         this.evidence = evidence;
         this.accuracy = accuracy;
@@ -70,7 +70,7 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
             return false;
         }
 
-        SimpleAnnotationProvenance that = (SimpleAnnotationProvenance) o;
+        MongoAnnotationProvenance that = (MongoAnnotationProvenance) o;
 
         if (generatedDate != null ? !generatedDate.equals(that.generatedDate) : that.generatedDate != null) {
             return false;
@@ -107,7 +107,7 @@ public class SimpleAnnotationProvenance implements AnnotationProvenance {
 
     @Override
     public String toString() {
-        return "SimpleAnnotationProvenance{" +
+        return "MongoAnnotationProvenance{" +
                 "source=" + source +
                 ", evidence=" + evidence +
                 ", accuracy=" + accuracy +

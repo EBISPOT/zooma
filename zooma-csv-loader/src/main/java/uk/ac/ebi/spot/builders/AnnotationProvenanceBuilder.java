@@ -4,7 +4,7 @@ import uk.ac.ebi.spot.exception.TemplateBuildingException;
 import uk.ac.ebi.spot.model.AnnotationProvenance;
 import uk.ac.ebi.spot.model.AnnotationProvenanceTemplate;
 import uk.ac.ebi.spot.model.AnnotationSource;
-import uk.ac.ebi.spot.model.SimpleAnnotationProvenance;
+import uk.ac.ebi.spot.model.MongoAnnotationProvenance;
 
 import java.util.Date;
 
@@ -130,7 +130,7 @@ public abstract class AnnotationProvenanceBuilder {
 
         @Override
         public String toString() {
-            return "SimpleAnnotationProvenance{" +
+            return "MongoAnnotationProvenance{" +
                     "source=" + source +
                     ", evidence=" + evidence +
                     ", accuracy=" + accuracy +
@@ -180,7 +180,7 @@ public abstract class AnnotationProvenanceBuilder {
             if (evidence == null) {
                 throw new TemplateBuildingException("Evidence is required to create an annotation provenance");
             }
-            return new SimpleAnnotationProvenance(source,
+            return new MongoAnnotationProvenance(source,
                                                   evidence,
                                                   accuracy,
                                                   generator,

@@ -3,11 +3,11 @@ package uk.ac.ebi.spot.model;
 /**
  * Created by olgavrou on 03/08/2016.
  */
-public class SimpleTypedProperty extends SimpleProperty implements TypedProperty {
+public class MongoTypedProperty extends MongoProperty implements TypedProperty {
 
     private String propertyType;
 
-    public SimpleTypedProperty(String propertyType, String propertyValue) {
+    public MongoTypedProperty(String propertyType, String propertyValue) {
         super(propertyValue);
         this.propertyType = propertyType;
     }

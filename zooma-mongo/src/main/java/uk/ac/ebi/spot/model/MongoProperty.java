@@ -3,11 +3,11 @@ package uk.ac.ebi.spot.model;
 /**
  * Created by olgavrou on 09/08/2016.
  */
-public class SimpleProperty implements Property{
+public class MongoProperty implements Property{
 
     private String propertyValue;
 
-    public SimpleProperty(String propertyValue) {
+    public MongoProperty(String propertyValue) {
         this.propertyValue = propertyValue;
     }
 

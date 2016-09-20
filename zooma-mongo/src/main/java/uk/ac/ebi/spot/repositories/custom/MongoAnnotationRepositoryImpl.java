@@ -20,7 +20,7 @@ import java.util.List;
  *
  * Created by olgavrou on 14/09/2016.
  */
-public class AnnotationRepositoryImpl implements CustomAnnotationRepository {
+public class MongoAnnotationRepositoryImpl implements CustomMongoAnnotationRepository {
 
     @Autowired
     MongoTemplate mongoTemplate;

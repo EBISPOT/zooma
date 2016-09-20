@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import uk.ac.ebi.spot.services.AnnotationRepositoryService;
+import uk.ac.ebi.spot.services.MongoAnnotationRepositoryService;
 import uk.ac.ebi.spot.builders.LoaderThreadBuilder;
 
 
@@ -13,7 +13,7 @@ import uk.ac.ebi.spot.builders.LoaderThreadBuilder;
 public class ZoomaCsvLoaderApplication {
 
 	@Autowired
-	AnnotationRepositoryService annotationRepositoryService;
+	MongoAnnotationRepositoryService mongoAnnotationRepositoryService;
 
 	public static void main(String[] args) {
 		ConfigurableApplicationContext ctx = SpringApplication.run(ZoomaCsvLoaderApplication.class, args);
