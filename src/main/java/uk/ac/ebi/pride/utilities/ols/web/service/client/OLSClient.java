@@ -27,7 +27,7 @@ public class OLSClient implements Client {
     /**
      * Default constructor for Archive clients
      *
-     * @param config
+     * @param config configuration to use.
      */
     public OLSClient(AbstractOLSWsConfig config) {
         this.config = config;
@@ -77,7 +77,7 @@ public class OLSClient implements Client {
      * @param termOBOId  OBO Identifier in OLS
      * @param ontologyId ontology Identifier
      * @return Term
-     * @throws RestClientException
+     * @throws RestClientException if there are problems connecting to the REST service.
      */
     public Term getTermByOBOId(String termOBOId, String ontologyId) throws RestClientException {
 
@@ -101,7 +101,7 @@ public class OLSClient implements Client {
      * @param shortTerm  short term Identifier in OLS
      * @param ontologyId ontology Identifier
      * @return Term
-     * @throws RestClientException
+     * @throws RestClientException if there are problems connecting to the REST service.
      */
     public Term getTermByShortName(String shortTerm, String ontologyId) throws RestClientException {
 
@@ -125,7 +125,7 @@ public class OLSClient implements Client {
      * @param iriId      short term Identifier in OLS
      * @param ontologyId ontology Identifier
      * @return Term
-     * @throws RestClientException
+     * @throws RestClientException if there are problems connecting to the REST service.
      */
     public Term getTermByIRIId(String iriId, String ontologyId) throws RestClientException {
 
@@ -158,8 +158,8 @@ public class OLSClient implements Client {
      *
      * @param termId     Term ID in the ontology
      * @param ontologyId The ontology name
-     * @return
-     * @throws RestClientException
+     * @return map of annotation IDs and their corresponding values.
+     * @throws RestClientException if there are problems connecting to the REST service.
      */
     public Map<String, List<String>> getAnnotations(Identifier termId, String ontologyId) throws RestClientException {
         Term term = getTermById(termId, ontologyId);
@@ -172,7 +172,7 @@ public class OLSClient implements Client {
      * This function returns the current ontologies in OLS.
      *
      * @return List
-     * @throws RestClientException
+     * @throws RestClientException if there are problems connecting to the REST service.
      */
     public List<Ontology> getOntologies() throws RestClientException {
         OntologyQuery currentOntologyQuery = getOntologyQuery(0);
@@ -196,8 +196,8 @@ public class OLSClient implements Client {
      * @param termOBOId  Term Identifier
      * @param ontologyId Ontology Name
      * @param distance   Distance to the child (1..n) where the distance is the step to the children.
-     * @return
-     * @throws RestClientException
+     * @return list of Terms.
+     * @throws RestClientException if there are problems connecting to the REST service.
      */
     public List<Term> getTermChildren(Identifier termOBOId, String ontologyId, int distance) throws RestClientException {
         List<Term> terms = new ArrayList<Term>();
@@ -221,8 +221,8 @@ public class OLSClient implements Client {
      * @param termOBOId  Term Identifier
      * @param ontologyId Ontology Name
      * @param distance   Distance to the child (1..n) where the distance is the step to the children.
-     * @return
-     * @throws RestClientException
+     * @return list of Terms.
+     * @throws RestClientException if there are problems connecting to the REST service.
      */
     public List<Term> getTermParents(Identifier termOBOId, String ontologyId, int distance) throws RestClientException {
         List<Term> terms = new ArrayList<Term>();
@@ -245,7 +245,7 @@ public class OLSClient implements Client {
      * @param termId     Term id term identifier
      * @param ontologyId ontology Database
      * @return true if the term is annotated as obsolete
-     * @throws RestClientException
+     * @throws RestClientException if there are problems connecting to the REST service.
      */
     public Boolean isObsolete(Identifier termId, String ontologyId) throws RestClientException {
         Term term = getTermById(termId, ontologyId);
@@ -360,6 +360,7 @@ public class OLSClient implements Client {
      *
      * @param ontologyID Ontology reference
      * @return A map with the Terms
+     * @throws RestClientException if there are problems connecting to the REST service.
      */
     public List<Term> getAllTermsFromOntology(String ontologyID) throws RestClientException {
         return getAllOBOTermsFromOntology(ontologyID);
@@ -433,9 +434,9 @@ public class OLSClient implements Client {
      * In the future would be great to repleace the current functionality with the search capabilities in the ols.
      *
      * @param partialName     Substring to lookup in the name term
-     * @param ontologyID
+     * @param ontologyID the ontology ID.
      * @param reverseKeyOrder sort the hash in a reverse order
-     * @return
+     * @return list of Terms.
      */
     public List<Term> getTermsByName(String partialName, String ontologyID, boolean reverseKeyOrder) {
         List<Term> resultTerms;
@@ -460,8 +461,8 @@ public class OLSClient implements Client {
      * In the future would be great to repleace the current functionality with the search capabilities in the ols.
      *
      * @param exactName     String to lookup in the name term
-     * @param ontologyId
-     * @return
+     * @param ontologyId the ontology ID.
+     * @return the identified term
      */
     public Term getExactTermByName(String exactName, String ontologyId) {
         if (exactName == null || exactName.isEmpty()){
@@ -591,12 +592,11 @@ public class OLSClient implements Client {
     }
 
     /**
-     * This function return true if the term is obsolete, if the term is not found in the ontology the function
-     * return null, also if the value is not found.
-     *
+     * This method checks if a term is obsolete or not.
      * @param termOBOId  The OBOId of the Term in the ols ontology
      * @param ontologyID the ontology ID
-     * @return
+     * @return true if the term is obsolete, if the term is not found in the ontology the function
+     * return null, also if the value is not found.
      */
     public Boolean isObsolete(String termOBOId, String ontologyID) throws RestClientException {
         String query = String.format("%s://%s/api/ontologies/%s/terms?obo_id=%s",
@@ -676,6 +676,13 @@ public class OLSClient implements Client {
         return null;
     }
 
+    /**
+     * This method gets the description of the first term identified by term ID and ontology ID.
+     * @param termId the term ID.
+     * @param ontologyId the ontology ID.
+     * @return the first term's description.
+     * @throws RestClientException if there are problems connecting to the REST service.
+     */
     public String getFirstTermDescription(Identifier termId, String ontologyId) throws RestClientException {
         Term term = getTermById(termId, ontologyId);
         String  description = null;

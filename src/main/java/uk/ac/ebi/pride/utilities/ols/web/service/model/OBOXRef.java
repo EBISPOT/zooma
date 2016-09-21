@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
- * @date 07/03/2016
+ * Creation date 07/03/2016
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OBOXRef {
