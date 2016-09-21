@@ -94,27 +94,24 @@ For questions or additional help, please contact the authors or, if appropriate,
 ---
 ## Maven Dependency 
 **OLS Dialog** is available for use in Maven projects:
-
+~~~~
     <dependencies>
-        <dependency>
-            <groupId>>uk.ac.ebi.pride.utilities</groupId>
-            <artifactId>ols-client</artifactId>
-            <version>XXX</version>
-        </dependency>
+      <dependency>
+        <groupId>uk.ac.ebi.pride.utilities</groupId>
+        <artifactId>ols-client</artifactId>
+        <version>XXX</version>
+      </dependency>
     </dependencies>
-    
-    <!-- EBI repo -->
-    <repository>
-        <id>nexus-ebi-repo</id>
-        <name>The EBI internal repository</name>
-        <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</url>
-        <releases>
-        </releases>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-    </repository>
-
-Update the version number to latest released version.
+~~~~
+~~~~
+    <repositories>
+      <!-- EBI repo -->
+      <repository>
+        <id>nexus-ebi-release-repo</id>
+        <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+      </repository>
+    </repositories>
+~~~~
+Update the version number (XXX) to latest released version.
 
 [Go to top of page](#ols-client)
