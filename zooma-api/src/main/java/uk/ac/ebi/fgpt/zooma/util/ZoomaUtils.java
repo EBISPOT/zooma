@@ -222,15 +222,22 @@ public class ZoomaUtils {
 
         if (summaries != null && !summaries.isEmpty()) {
             Set<AnnotationSummary> keys = summaries.keySet();
-            if(!keys.iterator().next().getID().equals("OLS")){
-                return summaries;
-            }
-            float topScore = Collections.max(summaries.values());
-            float topNormalizedScore = olsTopScore;
-            for (AnnotationSummary key : summaries.keySet()) {
-                float score = summaries.get(key);
-                float normalize = topNormalizedScore - (topScore - score);
-                summaries.put(key, normalize);
+
+            if(keys.iterator() != null && keys.iterator().hasNext()) {
+                AnnotationSummary summary = keys.iterator().next();
+                if (summary != null){
+                    if (summary.getID() != null) {
+                        if (summary.getID().equals("OLS")) {
+                            float topScore = Collections.max(summaries.values());
+                            float topNormalizedScore = olsTopScore;
+                            for (AnnotationSummary key : summaries.keySet()) {
+                                float score = summaries.get(key);
+                                float normalize = topNormalizedScore - (topScore - score);
+                                summaries.put(key, normalize);
+                            }
+                        }
+                    }
+                }
             }
         }
         return summaries;
