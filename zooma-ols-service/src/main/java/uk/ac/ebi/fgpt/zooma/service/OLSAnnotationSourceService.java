@@ -46,7 +46,7 @@ public class OLSAnnotationSourceService extends Initializable implements Annotat
 
         if (ontologies!= null && !ontologies.isEmpty()) {
             for (Ontology ontology : ontologies) {
-                annotationSourceMap.put(ontology.getNamespace(), new SimpleOntologyAnnotationSource(URI.create(ontology.getId()), ontology.getNamespace(), ontology.getName(), ontology.getDescription()));
+                annotationSourceMap.put(ontology.getConfig().getPreferredPrefix(), new SimpleOntologyAnnotationSource(URI.create(ontology.getId()), ontology.getConfig().getPreferredPrefix(), ontology.getName(), ontology.getDescription()));
             }
         }
 
@@ -65,7 +65,7 @@ public class OLSAnnotationSourceService extends Initializable implements Annotat
 
         Ontology ontology = olsSearchService.getOntology(sourceName);
         if (ontology != null) {
-            AnnotationSource annotationSource = new SimpleOntologyAnnotationSource(URI.create(ontology.getId()), ontology.getNamespace(), ontology.getName(), ontology.getDescription());
+            AnnotationSource annotationSource = new SimpleOntologyAnnotationSource(URI.create(ontology.getId()), ontology.getConfig().getPreferredPrefix(), ontology.getName(), ontology.getDescription());
             annotationSourceMap.put(sourceName, annotationSource);
             return annotationSource;
         }
