@@ -46,7 +46,7 @@
 }
 
 .sort-container ul,ol {
-    margin: 0;
+    margin-left: 5%;
     padding: 0;
     min-height: 118px;
 }

@@ -197,7 +197,7 @@
             provenance: {
                 source: {
                     type: "DATABASE",
-                    name: "gxa",
+                    name: "ExpressionAtlas",
                     uri: "http://www.ebi.ac.uk/gxa"
                 },
                 evidence: "ZOOMA_INFERRED_FROM_CURATED",
@@ -251,7 +251,7 @@
                 This example predicts that 'mus musculus' should be annotated with the ontology term
                 <span class="uri">http://purl.obolibrary.org/obo/NCBITaxon_10090</span>. The confidence for this prediction is 'HIGH', and
                 derives from an existing annotation the URI <span class="uri">http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907</span>.
-                This annotation was predicted based on curated mappings in the 'gxa' database.
+                This annotation was predicted based on curated mappings in the 'ExpressionAtlas' database.
             </p>
 
             <h5>Additional Parameters:</h5>
@@ -284,10 +284,10 @@
             <p>
                 Predict an ontology annotation for the text value "mus musculus" and type "organism" using annotations that are present in a defined list of datasources
             </p>
-            <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:[atlas,gwas]</pre>
+            <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:[ExpressionAtlas,GWAS]</pre>
 
             <p>Predict an ontology annotation for the text value "ear inflorescence" using annotations that are present in a defined list of datasources</p>
-            <pre>GET /services/annotate?propertyValue=ear+inflorescence&filter=required:[sysmicro],ontologies:[none]</pre>
+            <pre>GET /services/annotate?propertyValue=ear+inflorescence&filter=required:[CellularPhenoTypes],ontologies:[none]</pre>
             <p>The 'ontologies:[none]' parameter will restrain Zooma from looking in the OLS if no annotation was found.</p>
 
             <p>
@@ -295,7 +295,7 @@
                 that are present in a defined list of datasources, and specify a preference ranking for these
                 datasources.
             </p>
-            <pre>GET /services/annotate?propertyValue=lung+adenocarcinoma&filter=required:[atlas,gwas],preferred:[gwas]</pre>
+            <pre>GET /services/annotate?propertyValue=lung+adenocarcinoma&filter=required:[ExpressionAtlas,GWAS],preferred:[GWAS]</pre>
             <p>
                 Here, the 'preferred' parameter allows you to set on order of preferred datasources
                 (going from the datasource you trust the most, to the one you trust less) and this will affect the score.
@@ -438,7 +438,7 @@ POST /services/collapse
     provenance: {
         source: {
             type: "DATABASE",
-            name: "gxa",
+            name: "ExpressionAtlas",
             uri: "http://www.ebi.ac.uk/gxa"
         },
         evidence: "ZOOMA_INFERRED_FROM_CURATED",
