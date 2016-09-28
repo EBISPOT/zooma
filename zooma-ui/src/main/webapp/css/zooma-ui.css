@@ -4,7 +4,7 @@
 
 .context-help-wrapper {
     position: relative;
-    top: 10px;
+    top: 20px;
     left: 20px;
     z-index: 1;
     display: none;
@@ -112,8 +112,8 @@ table.col-6 th,td {
     font-size: 0.9em;
 }
 
-.scroll-pane {
-
+.zooma-scrollpane {
+    outline: none !important;
 }
 
 table.version {
@@ -176,6 +176,32 @@ table.version {
     outline: none;
 }
 
+.sidebar.right {
+    position: absolute;
+    /*z-index:1;*/
+    width: 45%;
+}
+
+
 li:not(:last-child) {
     margin-bottom: 5px;
 }
+
+
+.ui-accordion .ui-accordion-content {
+    padding:0 !important;
+    top:0 !important;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+

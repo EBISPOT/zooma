@@ -35,7 +35,7 @@ public enum Namespaces {
     GXA("http://www.ebi.ac.uk/gxa"),
 
     GENOME("http://www.genome.gov"),
-    GWAS("http://www.genome.gov/gwastudies"),
+    GWAS("http://www.ebi.ac.uk/gwas"),
 
     CHEMBL("http://www.ebi.ac.uk/chembl"),
 
