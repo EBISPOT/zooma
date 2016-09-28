@@ -1,12 +1,10 @@
 package uk.ac.ebi.pride.utilities.ols.web.service.client;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
-import uk.ac.ebi.pride.utilities.ols.web.service.model.FieldList;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Identifier;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Ontology;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
@@ -64,6 +62,7 @@ public class OLSClientTest {
         Assert.assertTrue(terms.size() > 0);
         terms = olsClient.getTermsByName("modification", "ms", true);
         Iterator iterator = terms.iterator();
+        Assert.assertTrue(((Term) iterator.next()).getTermOBOId().getIdentifier().equalsIgnoreCase("MS:1002672"));
         Assert.assertTrue(((Term) iterator.next()).getLabel().toLowerCase().contains("modification"));
     }
 

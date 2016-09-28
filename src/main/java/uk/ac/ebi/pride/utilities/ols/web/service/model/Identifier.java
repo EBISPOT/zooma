@@ -2,7 +2,7 @@ package uk.ac.ebi.pride.utilities.ols.web.service.model;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
- * @date 05/03/2016
+ * Creation date 05/03/2016
  */
 public class Identifier {
 

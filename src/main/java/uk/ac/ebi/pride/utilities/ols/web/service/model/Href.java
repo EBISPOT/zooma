@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
- * @date 01/03/2016
+ * Creation date 01/03/2016
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
