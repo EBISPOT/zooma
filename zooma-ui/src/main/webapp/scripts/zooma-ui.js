@@ -810,7 +810,11 @@ function renderResults(data) {
                 }
             }
             row = row + "<td>" + result[2] + "</td>";
-            row = row + "<td>" + result[4] + "</td>";
+            if (result[4] == "Good" || result[4] == "Medium" || result[4] == "Low"){
+                row = row + "<td>" + result[4] + " [requires curation] </td>";
+            } else {
+                row = row + "<td>" + result[4] + "</td>";
+            }
             if (result[5] != "N/A") {
                 if (loadedOntologyURIs.indexOf(result[7]) > -1) {
                     //found in OLS
