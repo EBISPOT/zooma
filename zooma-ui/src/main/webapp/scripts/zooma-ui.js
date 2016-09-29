@@ -215,22 +215,40 @@ function populateDatasources() {
         searchableOntoNames = [];
         for (var i = 0; i < sources.length; i++) {
             if (sources[i].type == "DATABASE") {
-                datasourceNames.push(sources[i].name);
                 var name = sources[i].name;
-                if (name == "CellularPhenoTypes"){
-                    nameDescriptionMap.set(name, "Cellular Phenotype Database - The Cellular Phenotype database provides easy access to phenotypic data derived from high-throughput screening, facilitating data sharing and integration.");
-                } else if (name == "EBiSC"){
-                    nameDescriptionMap.set(name, "Cell Line Catalogue - iPSC line catalogue");
-                } else if (name == "OpenTargets"){
-                    nameDescriptionMap.set(name, "Open Targets - Open Targets is a public-private initiative to generate evidence on the validity of therapeutic targets based on genome-scale experiments and analysis.");
-                } else if (name == "UniProt"){
-                    nameDescriptionMap.set(name, "UniProt - A comprehensive, high quality and freely accessible resource of protein sequence and functional information.");
-                } else if (name == "ClinVar"){
-                    nameDescriptionMap.set(name, "European Variation Archive - The European Variation Archive is an open-access database of all types of genetic variation data from all species.");
-                } else if (name == "GWAS"){
-                    nameDescriptionMap.set(name, "A Catalog of Published Genome-Wide Association Studies.");
-                } else if (name == "ExpressionAtlas"){
-                    nameDescriptionMap.set(name, "Expression Atlas - The Expression Atlas provides information on gene expression patterns under different biological conditions.");
+
+                if(name == "sysmicro"){
+                    datasourceNames.push("CellularPhenoTypes");
+                    nameDescriptionMap.set("CellularPhenoTypes", "<p><b>Cellular Phenotype Database</b><br>The Cellular Phenotype database provides easy access " +
+                        "to phenotypic data derived from high-throughput screening, facilitating data sharing and integration.</p>" +
+                        "<p><b>database name: 'sysmicro'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                }
+                else if (name == "ebisc"){
+                    datasourceNames.push("EBiSC");
+                    nameDescriptionMap.set("EBiSC", "<p><b>Cell Line Catalogue</b><br>iPSC line catalogue</p>" +
+                        "<p><b>database name: 'ebisc'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                } else if (name == "cttv"){
+                    datasourceNames.push("OpenTargets");
+                    nameDescriptionMap.set("OpenTargets", "<p><b>Open Targets</b><br>Open Targets is a public-private initiative to " +
+                        "generate evidence on the validity of therapeutic targets based on genome-scale experiments and analysis.</p>" +
+                        "<p><b>database name: 'cttv'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                } else if (name == "uniprot"){
+                    datasourceNames.push("UniProt");
+                    nameDescriptionMap.set("UniProt", "<p><b>UniProt</b><br>A comprehensive, high quality and freely accessible resource of protein sequence and functional information.</p>" +
+                        "<p><b>database name: 'uniprot'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                } else if (name == "eva-clinvar"){
+                    datasourceNames.push("ClinVar");
+                    nameDescriptionMap.set("ClinVar", "<p><b>European Variation Archive</b><br>The European Variation Archive is an open-access database " +
+                        "of all types of genetic variation data from all species.</p>" +
+                        "<p><b>database name: 'eva-clinvar'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                } else if (name == "gwas"){
+                    datasourceNames.push("GWAS");
+                    nameDescriptionMap.set("GWAS", "<p><b>>GWAS</b><br> A Catalog of Published Genome-Wide Association Studies.</p>" +
+                        "<p><b>database name: 'gwas'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                } else if (name == "atlas"){
+                    datasourceNames.push("ExpressionAtlas");
+                    nameDescriptionMap.set("ExpressionAtlas", "<p><b>Expression Atlas</b><br>The Expression Atlas provides information on gene expression patterns under different biological conditions.</p>" +
+                        "<p><b>DB name: 'atlas'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
                 } else {
                     nameDescriptionMap.set(name, "No description.");
                 }
@@ -238,7 +256,8 @@ function populateDatasources() {
                 searchableOntoNames.push(sources[i].title + " (" + sources[i].name + ")");
                 ontologyPrefixes.push(sources[i].name);
                 loadedOntologyURIs.push(sources[i].uri);
-                nameDescriptionMap.set(sources[i].name, sources[i].title + " - " + sources[i].description);
+                nameDescriptionMap.set(sources[i].name, "<p><b>" + sources[i].title + "</b><br>" + sources[i].description + "</p>" +
+                    "<p><a href='http://www.ebi.ac.uk/ols/ontologies/" + sources[i].name + "' target='_blank'>view ontology in OLS</a></p>");
                 uriNameMap.set(sources[i].uri, sources[i].name);
             }
 
@@ -429,11 +448,21 @@ function showDesc(source){
         sourceName = source.textContent.toString();
     }
 
-    $("#description-" + sourceName).tooltip({ items: "#description-" + sourceName, content: getSourceDescription(sourceName)});
+    $("#description-" + sourceName).tooltip({ items: "#description-" + sourceName, content: getSourceDescription(sourceName), show:null,  hide: {effect: ""}, //fadeout
+        close: function(event, ui){
+            ui.tooltip.hover(
+                function(){
+                    $(this).stop(true).fadeTo(400, 1);
+                },
+                function(){
+                    $(this).fadeOut("400", function(){
+                        $(this).remove();
+                    })
+                }
+            );
+        }});
     $("#description-" + sourceName).tooltip("enable"); // this line added
     $("#description-" + sourceName).tooltip("open");
-
-
 }
 
 
@@ -444,9 +473,6 @@ function hideDesc(source){
     } else {
         sourceName = source.textContent.toString();
     }
-    //enable before disable to avoid "not enabled yet" error
-    $("#description-" + sourceName).tooltip({ items: "#description-" + sourceName, content: getSourceDescription(sourceName)});
-    $("#description-" + sourceName).tooltip("enable");
     $("#description-" + sourceName).tooltip("disable");
 }
 
@@ -585,6 +611,30 @@ function jsonifyTextArea(content) {
     return json;
 }
 
+function getRealName(name){
+    var realName;
+
+    if (name == "ExpressionAtlas"){
+        realName = "atlas";
+    } else if (name == "GWAS"){
+        realName = "gwas";
+    } else if (name == "OpenTargets"){
+        realName = "cttv";
+    } else if (name == "UniProt"){
+        realName = "uniprot";
+    } else if (name == "EBiSC"){
+        realName = "ebisc";
+    } else if (name == "ClinVar"){
+        realName = "eva-clinvar";
+    } else if (name == "CellularPhenoTypes"){
+        realName = "sysmicro";
+    } else {
+        realName = name;
+    }
+
+    return realName;
+}
+
 function getRequiredSourcesParam() {
     var selected = [];
 
@@ -603,9 +653,9 @@ function getRequiredSourcesParam() {
     if (selected.length > 0) {
         required = "required:[";
         for (var i = 0; i < selected.length - 1; i++) {
-            required = required + selected[i] + ",";
+            required = required + getRealName(selected[i]) + ",";
         }
-        required = required + selected[i] + "]";
+        required = required + getRealName(selected[i]) + "]";
     }
     return required;
 }
@@ -622,9 +672,9 @@ function getPreferredSourcesParam() {
     if (sorted.length > 0) {
         preferred = "preferred:[";
         for (var i = 0; i < sorted.length - 1; i++) {
-            preferred = preferred + sorted[i] + ",";
+            preferred = preferred + getRealName(sorted[i]) + ",";
         }
-        preferred = preferred + sorted[i] + "]";
+        preferred = preferred + getRealName(sorted[i]) + "]";
     }
     return preferred;
 }

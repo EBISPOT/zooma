@@ -197,7 +197,7 @@
             provenance: {
                 source: {
                     type: "DATABASE",
-                    name: "ExpressionAtlas",
+                    name: "atlas",
                     uri: "http://www.ebi.ac.uk/gxa"
                 },
                 evidence: "ZOOMA_INFERRED_FROM_CURATED",
@@ -251,7 +251,7 @@
                 This example predicts that 'mus musculus' should be annotated with the ontology term
                 <span class="uri">http://purl.obolibrary.org/obo/NCBITaxon_10090</span>. The confidence for this prediction is 'HIGH', and
                 derives from an existing annotation the URI <span class="uri">http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907</span>.
-                This annotation was predicted based on curated mappings in the 'ExpressionAtlas' database.
+                This annotation was predicted based on curated mappings in the 'ExpressionAtlas (atlas)' database.
             </p>
 
             <h5>Additional Parameters:</h5>
@@ -266,16 +266,68 @@
                         <li>ontologies:[efo,go,…]</li>
                 </ul>
 
+            <p>
+                where datasource1,datasource2,etc, are the database names of the datasources (see table below).
+            </p>
+
                 <ul>
                     <li><i>required</i> will limit the search to the given datasources</li>
                     <li><i>preferred</i> will provide a ranking for those datasources</li>
                     <li>and <i>ontologies</i> will limit the OLS search to the given ontologies</li>
                 </ul>
-
             </p>
             <p>If 'required:[none]' is specified, Zooma will search the OLS without looking into the datasources. If 'ontologies:[none]' is specified,
                 Zooma will not search the OLS if the datasource search fails to make any predictions.
             </p>
+            <p>
+                In the table below you can see the available databases containing curated mappings in Zooma.<br>
+                To define the source(s) you want Zooma to search in, use the <i>Database name</i> in the 'required:[]' field.<br>
+                e.g. use 'required:[cttv]' to look into OpenTargets.
+            </p>
+            <pre>GET /services/annotate?propertyValue=disease&filter=required:[cttv]</pre>
+            <table>
+                <tr>
+                    <th>Display name</th>
+                    <th>Database name</th>
+                    <th>Learn more about the database's origin</th>
+                </tr>
+                <tr>
+                    <td>OpenTargets</td>
+                    <td>cttv</td>
+                    <td><a href="https://www.targetvalidation.org" target="_blank">https://www.targetvalidation.org</a></td>
+                </tr>
+                <tr>
+                    <td>ClinVar</td>
+                    <td>eva-clinvar</td>
+                    <td><a href="http://www.ebi.ac.uk/eva" target="_blank">http://www.ebi.ac.uk/eva</a></td>
+                </tr>
+                <tr>
+                    <td>CellularPhenoTypes</td>
+                    <td>sysmicro</td>
+                    <td><a href="http://www.ebi.ac.uk/fg/sym" target="_blank">http://www.ebi.ac.uk/fg/sym</a></td>
+                </tr>
+                <tr>
+                    <td>ExpressionAtlas</td>
+                    <td>atlas</td>
+                    <td><a href="http://www.ebi.ac.uk/gxa" target="_blank">http://www.ebi.ac.uk/gxa</a></td>
+                </tr>
+                <tr>
+                    <td>EBiSC</td>
+                    <td>ebisc</td>
+                    <td><a href="https://cells.ebisc.org/" target="_blank">https://cells.ebisc.org</a></td>
+                </tr>
+                <tr>
+                    <td>UniProt</td>
+                    <td>uniprot</td>
+                    <td><a href="http://www.ebi.ac.uk/uniprot" target="_blank">http://www.ebi.ac.uk/uniprot</a></td>
+                </tr>
+                <tr>
+                    <td>GWAS</td>
+                    <td>gwas</td>
+                    <td><a href="http://www.ebi.ac.uk/gwas/" target="_blank">http://www.ebi.ac.uk/gwas</a></td>
+                </tr>
+            </table>
+
             <p>
                 Predict an ontology annotation for the text value "mus musculus" and type "organism"
             </p>
@@ -284,10 +336,10 @@
             <p>
                 Predict an ontology annotation for the text value "mus musculus" and type "organism" using annotations that are present in a defined list of datasources
             </p>
-            <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:[ExpressionAtlas,GWAS]</pre>
+            <pre>GET /services/annotate?propertyValue=mus+musculus&propertyType=organism&filter=required:[atlas,gwas]</pre>
 
             <p>Predict an ontology annotation for the text value "ear inflorescence" using annotations that are present in a defined list of datasources</p>
-            <pre>GET /services/annotate?propertyValue=ear+inflorescence&filter=required:[CellularPhenoTypes],ontologies:[none]</pre>
+            <pre>GET /services/annotate?propertyValue=ear+inflorescence&filter=required:[sysmicro],ontologies:[none]</pre>
             <p>The 'ontologies:[none]' parameter will restrain Zooma from looking in the OLS if no annotation was found.</p>
 
             <p>
@@ -295,7 +347,7 @@
                 that are present in a defined list of datasources, and specify a preference ranking for these
                 datasources.
             </p>
-            <pre>GET /services/annotate?propertyValue=lung+adenocarcinoma&filter=required:[ExpressionAtlas,GWAS],preferred:[GWAS]</pre>
+            <pre>GET /services/annotate?propertyValue=lung+adenocarcinoma&filter=required:[atlas,gwas],preferred:[gwas]</pre>
             <p>
                 Here, the 'preferred' parameter allows you to set on order of preferred datasources
                 (going from the datasource you trust the most, to the one you trust less) and this will affect the score.
@@ -438,7 +490,7 @@ POST /services/collapse
     provenance: {
         source: {
             type: "DATABASE",
-            name: "ExpressionAtlas",
+            name: "atlas",
             uri: "http://www.ebi.ac.uk/gxa"
         },
         evidence: "ZOOMA_INFERRED_FROM_CURATED",
