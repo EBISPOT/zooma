@@ -5,9 +5,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
-import uk.ac.ebi.pride.utilities.ols.web.service.model.Identifier;
-import uk.ac.ebi.pride.utilities.ols.web.service.model.Ontology;
-import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
+import uk.ac.ebi.pride.utilities.ols.web.service.model.*;
 
 import java.net.URI;
 import java.util.Iterator;
@@ -17,6 +15,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
@@ -237,5 +236,39 @@ public class OLSClientTest {
         Assert.assertEquals("[0-9]+", xrefs.get("id-validation-regexp"));
         Assert.assertEquals("http://europepmc.org/abstract/MED/${ac}", xrefs.get("search-url"));
         Assert.assertEquals("PMID:14755292", xrefs.get("xref_definition_14755292"));
+    }
+
+    @Test
+    public void testGetLabelByIri(){
+
+        String customQueryField = new QueryFields.QueryFieldBuilder()
+                .setIri()
+                .build()
+                .toString();
+        olsClient.setQueryField(customQueryField);
+
+        String fieldList = new FieldList.FieldListBuilder()
+                .setLabel()
+                .setIri()
+                .setIsDefiningOntology()
+                .build()
+                .toString();
+        olsClient.setFieldList(fieldList);
+
+        String iri = "http://www.orpha.net/ORDO/Orphanet_101150";
+        String foundLabel = "";
+        List<Term> terms = olsClient.getExactTermsByName(iri, null);
+        for (Term term : terms){
+            if (term.isDefinedOntology()){
+                foundLabel = term.getLabel();
+            }
+        }
+
+        assertTrue(foundLabel.equals("Autosomal recessive dopa-responsive dystonia"));
+
+        //restore olsClient search to it's default query field and field list
+        olsClient.setQueryField(olsClient.DEFAULT_QUERY_FIELD);
+        olsClient.setFieldList(olsClient.DEFAULT_FIELD_LIST);
+
     }
 }
