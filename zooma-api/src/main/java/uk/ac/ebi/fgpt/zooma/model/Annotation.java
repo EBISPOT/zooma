@@ -30,6 +30,15 @@ public interface Annotation extends Identifiable {
     Property getAnnotatedProperty();
 
     /**
+     * Returns the Links object that will contain all the external links belonging to the Annotation
+     *
+     * @return the Links containing all the external links
+     */
+    Links get_links();
+
+    void set_links(Links _links);
+
+    /**
      * Returns the URI of the entity that formally describes the metadata captured by this annotation.  Usually, this
      * will be the URI of an OWL class that represents a concept alluded to by the property being annotated, but can in
      * fact by the URI to any identifiable concept (GO ids, resource from identifiers.org, CHEMBL ids, or more).

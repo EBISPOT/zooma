@@ -100,7 +100,7 @@ public class TestZoomaLuceneIndexer {
                     AnnotationProvenance.Evidence.MANUAL_CURATED,
                     "TEST",
                     new Date());
-            Annotation anno1 = new SimpleAnnotation(new URI("http://www.test.com/annotation1"),
+            Annotation anno1 = new SimpleAnnotation(new URI("http://www.test.com/annotation1", null, null),
                     Collections.<BiologicalEntity>emptySet(),
                     property1,
                     prov1,
@@ -334,8 +334,10 @@ public class TestZoomaLuceneIndexer {
         searchService.setAnnotationDAO(verifiedAnnotationDAO);
         searchService.init();
 
+        URI[] emptySources = new URI[0];
+
         // do test query to verify results are valid
-        Collection<AnnotationSummary> results = searchService.search("value1");
+        Collection<AnnotationSummary> results = searchService.search("value1", emptySources, emptySources);
 
         // assert result is as expected
         assertEquals("Wrong number of results", 2, results.size());

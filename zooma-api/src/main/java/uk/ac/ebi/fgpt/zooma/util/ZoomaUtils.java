@@ -7,6 +7,7 @@ import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -94,6 +95,21 @@ public class ZoomaUtils {
         return hex.toString();
     }
 
+    /*
+    Indicates whether a set of sources contains the None Selected checkbox. If so then these sources
+    should not be searched.
+     */
+    public static  boolean shouldSearch(URI[] sources){
+        if (sources != null && sources.length > 0){
+            for (URI source : sources){
+                if (source.equals(URIUtils.SEARCH_NONE)) { //source.toString().equals("None") || source.toString().equals("none") || source.toString().equals("Select None")
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     /**
      * Filter the supplied map of annotation summaries to their score, reducing them down to a set of summaries that
      * exclude any unreasonable matches.  Summaries are excluded from the results with the following criteria: <ol>
@@ -139,7 +155,7 @@ public class ZoomaUtils {
         Iterator<AnnotationSummary> summaryIterator = summaries.keySet().iterator();
 
         // we need to find summaries that agree and exclude duplicates - build a reference set
-        Set<AnnotationSummary> referenceSummaries = new HashSet<>();
+        List<AnnotationSummary> referenceSummaries = new ArrayList<>();
         referenceSummaries.add(summaryIterator.next()); // first summary can't duplicate anything
 
         // compare each summary with the reference set
@@ -164,8 +180,14 @@ public class ZoomaUtils {
             else {
                 // duplicate, is the new one better?
                 if (shouldReplace != null) {
-                    referenceSummaries.remove(shouldReplace);
-                    referenceSummaries.add(nextSummary);
+                    //try and replace, keeping the order that they where placed in
+                    for (int i = 0; i < referenceSummaries.size(); i++) {
+                        AnnotationSummary summary = referenceSummaries.get(i);
+                        if (summary.equals(shouldReplace)) {
+                            referenceSummaries.remove(i);
+                            referenceSummaries.add(i, nextSummary);
+                        }
+                    }
                 }
             }
         }
@@ -194,6 +216,31 @@ public class ZoomaUtils {
 
 
         return results;
+    }
+
+    public static Map<AnnotationSummary, Float> normalizeOLSScores(float olsTopScore, Map<AnnotationSummary, Float> summaries){
+
+        if (summaries != null && !summaries.isEmpty()) {
+            Set<AnnotationSummary> keys = summaries.keySet();
+
+            if(keys.iterator() != null && keys.iterator().hasNext()) {
+                AnnotationSummary summary = keys.iterator().next();
+                if (summary != null){
+                    if (summary.getID() != null) {
+                        if (summary.getID().equals("OLS")) {
+                            float topScore = Collections.max(summaries.values());
+                            float topNormalizedScore = olsTopScore;
+                            for (AnnotationSummary key : summaries.keySet()) {
+                                float score = summaries.get(key);
+                                float normalize = topNormalizedScore - (topScore - score);
+                                summaries.put(key, normalize);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return summaries;
     }
 
     /**

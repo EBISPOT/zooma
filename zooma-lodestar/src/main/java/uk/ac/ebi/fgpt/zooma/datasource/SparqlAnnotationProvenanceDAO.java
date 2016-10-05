@@ -217,7 +217,7 @@ public class SparqlAnnotationProvenanceDAO implements AnnotationProvenanceDAO {
 
                 if (sourceT == AnnotationSource.Type.ONTOLOGY) {
                     source = new SimpleOntologyAnnotationSource(URI.create(database.toString()),
-                                                                sourceName.getLexicalForm());
+                                                                sourceName.getLexicalForm(), null, null);
                 }
                 else if (sourceT == AnnotationSource.Type.DATABASE) {
                     source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),

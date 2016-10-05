@@ -23,7 +23,7 @@ public interface AnnotationSummarySearchService {
      * @param sources              the URI of the datasources that AnnotationSummaries should be present in
      * @return a collection of annotation summaries about the property with a value matching the given one
      */
-    Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources);
+    Collection<AnnotationSummary> search(String propertyValuePattern, URI[] sources, URI[] ontologySources);
 
     /**
      * Retrieves a collection of annotation summaries that describe annotations about the given property value and type,
@@ -35,7 +35,7 @@ public interface AnnotationSummarySearchService {
      * @return a collection of annotation summaries about the property with a value matching the given one and matching
      * type
      */
-    Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern, URI... sources);
+    Collection<AnnotationSummary> search(String propertyType, String propertyValuePattern, URI[] sources, URI[] ontologySources);
 
     /**
      * Retrieves a collection of annotation summaries that describe annotations about the given property value, as long
@@ -45,7 +45,7 @@ public interface AnnotationSummarySearchService {
      * @param sources             the URI of the datasources that AnnotationSummaries should be present in
      * @return a collection of annotation summaries about the property with a value matching the given prefix
      */
-    Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI... sources);
+    Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI[] sources, URI[] ontologySources);
 
     /**
      * Retrieves a collection of annotation summaries that describe annotations about the given property value and type,
@@ -57,7 +57,7 @@ public interface AnnotationSummarySearchService {
      * @return a collection of annotation summaries about the property with a value matching the given prefix and
      * matching type
      */
-    Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI... sources);
+    Collection<AnnotationSummary> searchByPrefix(String propertyType, String propertyValuePrefix, URI[] sources, URI[] ontologySources);
 
     /**
      * Search the set of annotation summaries in ZOOMA for those with annotations that closely match the set of supplied
@@ -89,7 +89,7 @@ public interface AnnotationSummarySearchService {
      */
     Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
                                                            List<URI> preferredSources,
-                                                           URI... requiredSources);
+                                                           URI[] requiredSources, URI[] ontologySources);
 
     /**
      * Retrieves a collection of annotation summaries that describe annotations about the given property value and type,
@@ -104,5 +104,5 @@ public interface AnnotationSummarySearchService {
     Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
                                                            String propertyValuePattern,
                                                            List<URI> preferredSources,
-                                                           URI... requiredSources);
+                                                           URI[] requiredSources, URI[] ontologySources);
 }

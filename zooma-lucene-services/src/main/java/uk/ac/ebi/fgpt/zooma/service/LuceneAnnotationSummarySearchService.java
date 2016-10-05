@@ -71,7 +71,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         }
     }
 
-    @Override public Collection<AnnotationSummary> search(String propertyValuePattern, URI... sources) {
+    @Override public Collection<AnnotationSummary> search(String propertyValuePattern, URI[] sources, URI[] ontologySources) {
         try {
             initOrWait();
             return doSearch(getMapper(), propertyValuePattern, sources);
@@ -84,10 +84,10 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
 
     @Override public Collection<AnnotationSummary> search(String propertyType,
                                                           String propertyValuePattern,
-                                                          URI... sources) {
+                                                          URI[] sources, URI[] ontologySources) {
         try {
             initOrWait();
-            return doSearch(getMapper(), propertyType, propertyValuePattern, sources);
+            return doSearch(getMapper(), propertyType, propertyValuePattern, sources, ontologySources);
         }
         catch (InterruptedException e) {
             throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
@@ -96,7 +96,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     }
 
     @Override
-    public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI... sources) {
+    public Collection<AnnotationSummary> searchByPrefix(String propertyValuePrefix, URI[] sources, URI[] ontologySources) {
         try {
             initOrWait();
 
@@ -131,13 +131,13 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     @Override
     public Collection<AnnotationSummary> searchByPrefix(String propertyType,
                                                         String propertyValuePrefix,
-                                                        URI... sources) {
+                                                        URI[] sources, URI[] ontologySources) {
         try {
             initOrWait();
 
             // check for null type
             if (propertyType == null) {
-                return searchByPrefix(propertyValuePrefix, sources);
+                return searchByPrefix(propertyValuePrefix, sources, ontologySources);
             }
 
             Query pq = formulatePrefixQuery("property", propertyValuePrefix);
@@ -215,11 +215,11 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
 
     @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
                                                                             List<URI> preferredSources,
-                                                                            URI... requiredSources) {
+                                                                            URI[] requiredSources, URI[] ontologySources) {
         try {
             initOrWait();
             if (preferredSources.isEmpty()) {
-                return search(propertyValuePattern, requiredSources);
+                return search(propertyValuePattern, requiredSources, ontologySources);
             }
             return doSearch(getMapper().withRankings(preferredSources.toArray(new URI[preferredSources.size()])),
                             propertyValuePattern,
@@ -234,22 +234,22 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyType,
                                                                             String propertyValuePattern,
                                                                             List<URI> preferredSources,
-                                                                            URI... requiredSources) {
+                                                                            URI[] requiredSources, URI[] ontologySources) {
         try {
             initOrWait();
             // check for null type
             if (propertyType == null) {
-                return searchByPreferredSources(propertyValuePattern, preferredSources, requiredSources);
+                return searchByPreferredSources(propertyValuePattern, preferredSources, requiredSources, ontologySources);
             }
 
             if (preferredSources.isEmpty()) {
-                return search(propertyType, propertyValuePattern, requiredSources);
+                return search(propertyType, propertyValuePattern, requiredSources, ontologySources);
             }
 
             return doSearch(getMapper().withRankings(preferredSources.toArray(new URI[preferredSources.size()])),
                             propertyType,
                             propertyValuePattern,
-                            requiredSources);
+                            requiredSources, ontologySources);
         }
         catch (InterruptedException e) {
             throw new SearchResourcesUnavailableException("Failed to perform query - indexing process was interrupted",
@@ -300,10 +300,10 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
     protected Collection<AnnotationSummary> doSearch(AnnotationSummaryMapper mapper,
                                                      String propertyType,
                                                      String propertyValuePattern,
-                                                     URI... sources) throws InterruptedException {
+                                                     URI[] sources, URI[] ontologySources) throws InterruptedException {
         // check for null type
         if (propertyType == null) {
-            return search(propertyValuePattern, sources);
+            return search(propertyValuePattern, sources, ontologySources);
         }
 
         // first, formulate query for original propertyValuePattern

@@ -2,9 +2,10 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.*;
-import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
+import com.hp.hpl.jena.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,11 +14,10 @@ import uk.ac.ebi.fgpt.lode.service.JenaQueryExecutionService;
 import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
-import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -89,6 +89,44 @@ public class SparqlOntologyDAO implements OntologyDAO {
                 }
             }
         }
+    }
+
+    @Override
+    public Set<String> getSemanticTags(){
+
+        String query = getQueryManager().getSparqlQuery("ANNOTATIONS.semantictags");
+        Graph g = getQueryService().getDefaultGraph();
+        Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
+
+        getLog().trace("Formulating query to get all distinct semantic tags in the annotations");
+
+        QueryExecution execute = null;
+        try{
+            execute = getQueryService().getQueryExecution(g, q1.toString(), null, false);
+            ResultSet results = execute.execSelect();
+            return getSemanticTagsFromBindingSet(results);
+        } catch (LodeException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
+    public void insertLabels(Map<String, String> map){
+
+        getLog().trace("Loading all the semantic tag labels into the graph");
+
+        Graph graph = getQueryService().getNamedGraph("http://rdf.ebi.ac.uk/dataset/zooma");
+        Model model = ModelFactory.createModelForGraph(graph);
+
+        for (String tag : map.keySet()){
+            Resource semanticTag = model.createResource(tag);
+            semanticTag.addProperty(RDFS.label, map.get(tag));
+        }
+        model.close();
+        graph.close();
+
     }
 
     @Override public Set<String> getSemanticTagSynonyms(URI synonymTypeURI, URI semanticTagURI) {
@@ -231,6 +269,18 @@ public class SparqlOntologyDAO implements OntologyDAO {
             getLog().debug("Empty value for label from binding set");
             return null;
         }
+    }
+
+    private Set<String> getSemanticTagsFromBindingSet(ResultSet resultSet){
+        Set<String> semanticTags = new HashSet<>();
+
+        while (resultSet.hasNext()) {
+            QuerySolution solution = (QuerySolution) resultSet.next();
+            if (solution != null){
+                semanticTags.add(solution.get(QueryVariables.SEMANTIC_TAG.toString()).toString());
+            }
+        }
+        return semanticTags;
     }
 
 }

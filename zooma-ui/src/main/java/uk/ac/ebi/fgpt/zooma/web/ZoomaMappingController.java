@@ -108,8 +108,8 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
 
         URI[] requiredSources = parseRequiredSourcesFromFilter(filter);
         List<URI> preferredSources = parsePreferredSourcesFromFilter(filter);
-
-        searchZOOMA(properties, requiredSources, preferredSources, session);
+        URI[] ontologySources = parseOntologySourcesFromFilter(filter);
+        searchZOOMA(properties, requiredSources, preferredSources, ontologySources, session);
         return "Mapping request of " + properties.size() + " properties was successfully received";
     }
 
@@ -126,11 +126,12 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
     public @ResponseBody String test(HttpSession session) throws IOException {
         List<Property> properties = getSampleData();
         URI[] requiredSources = new URI[]{};
+        URI[] ontologySources = new URI[]{};
         List<URI> preferredSources = new ArrayList<>();
         session.setAttribute("properties", properties);
         session.setAttribute("progress", 0f);
 
-        searchZOOMA(properties, requiredSources, preferredSources, session);
+        searchZOOMA(properties, requiredSources, preferredSources, ontologySources, session);
         return "Doing ZOOMA search";
     }
 
@@ -316,6 +317,7 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
     private void searchZOOMA(final List<Property> properties,
                              final URI[] requiredSources,
                              final List<URI> preferredSources,
+                             final URI[] ontologySources,
                              final HttpSession session) {
         getLog().info("Searching ZOOMA for mappings...");
 
@@ -345,24 +347,24 @@ public class ZoomaMappingController extends SourceFilteredEndpoint {
                             String propertyType = ((TypedProperty) property).getPropertyType();
                             String propertyValue = property.getPropertyValue();
                             if (preferredSources.isEmpty() && requiredSources.length == 0) {
-                                annotationPredictions.put(property, zooma.annotate(propertyValue, propertyType));
+                                annotationPredictions.put(property, zooma.annotate(propertyValue, propertyType, requiredSources, ontologySources));
                             }
                             else {
                                 annotationPredictions.put(property, zooma.annotate(propertyValue,
                                                                                    propertyType,
                                                                                    preferredSources,
-                                                                                   requiredSources));
+                                                                                   requiredSources, ontologySources));
                             }
                         }
                         else {
                             String propertyValue = property.getPropertyValue();
                             if (preferredSources.isEmpty() && requiredSources.length == 0) {
-                                annotationPredictions.put(property, zooma.annotate(propertyValue));
+                                annotationPredictions.put(property, zooma.annotate(propertyValue, requiredSources, ontologySources));
                             }
                             else {
                                 annotationPredictions.put(property, zooma.annotate(propertyValue,
                                                                                    preferredSources,
-                                                                                   requiredSources));
+                                                                                   requiredSources, ontologySources));
                             }
                         }
                         return property;

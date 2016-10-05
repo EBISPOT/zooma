@@ -63,10 +63,10 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
     }
 
     @Override
-    public Collection<AnnotationSummary> search(String propertyValuePattern, final URI... sources) {
+    public Collection<AnnotationSummary> search(String propertyValuePattern, final URI[] sources, final URI[] ontologySources) {
         return doExpandedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
-                return NeedlemanJaccardAnnotationSummarySearchService.super.search(propertyValue, sources);
+                return NeedlemanJaccardAnnotationSummarySearchService.super.search(propertyValue, sources, ontologySources);
             }
         });
     }
@@ -74,25 +74,26 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
     @Override
     public Collection<AnnotationSummary> search(final String propertyType,
                                                 String propertyValuePattern,
-                                                final URI... sources) {
+                                                final URI[] sources, final URI[] ontologySources) {
         return doExpandedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
                 return NeedlemanJaccardAnnotationSummarySearchService.super.search(propertyType,
                                                                                    propertyValue,
-                                                                                   sources);
+                                                                                   sources, ontologySources);
             }
         });
     }
 
     @Override public Collection<AnnotationSummary> searchByPreferredSources(String propertyValuePattern,
                                                                             final List<URI> preferredSources,
-                                                                            final URI... requiredSources) {
+                                                                            final URI[] requiredSources, final URI[] ontologySources) {
         return doExpandedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
                 return NeedlemanJaccardAnnotationSummarySearchService.super.searchByPreferredSources(
                         propertyValue,
                         preferredSources,
-                        requiredSources);
+                        requiredSources,
+                        ontologySources);
             }
         });
     }
@@ -100,14 +101,15 @@ public class NeedlemanJaccardAnnotationSummarySearchService extends AnnotationSu
     @Override public Collection<AnnotationSummary> searchByPreferredSources(final String propertyType,
                                                                             String propertyValuePattern,
                                                                             final List<URI> preferredSources,
-                                                                            final URI... requiredSources) {
+                                                                            final URI[] requiredSources, final URI[] ontologySources) {
         return doExpandedSearch(propertyValuePattern, new AnnotationSummarySearchCommand() {
             @Override public Collection<AnnotationSummary> executeSearch(String propertyValue) {
                 return NeedlemanJaccardAnnotationSummarySearchService.super.searchByPreferredSources(
                         propertyType,
                         propertyValue,
                         preferredSources,
-                        requiredSources);
+                        requiredSources,
+                        ontologySources);
             }
         });
     }

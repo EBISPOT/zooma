@@ -2,6 +2,25 @@ var scrollApis;
 
 $(document).ready(init());
 
+$('form').on('keydown', 'input, select', function(e) {
+    var self = $(this)
+        , form = self.parents('form:eq(0)')
+        , focusable
+        , next
+        ;
+    if (e.keyCode == 13) {
+        focusable = form.find('input,a,select,button,textarea').filter(':visible');
+        next = focusable.eq(focusable.index(this)+1);
+        if (next.length) {
+            next.focus();
+        } else {
+            form.submit();
+        }
+        return false;
+    }
+});
+
+
 function init() {
     // markup any context help sections
     markupContextHelp();
@@ -58,6 +77,7 @@ function init() {
                                 },
                                 complete: function() {
                                     progressLabel.text("Complete!");
+                                    document.getElementById("zooma-results").scrollIntoView();
                                 }
                             });
 
@@ -67,6 +87,27 @@ function init() {
     // render table contents if there are results in session
     getResults();
 }
+
+// Initialize sidebar
+$(".sidebar.right").sidebar({side: "right"});
+var sideBarOpen = false;
+//sidebar is closed, accordion should be hidden
+$("#accordion").hide();
+
+function toggleSidebar(){
+
+    $(".sidebar.right").trigger("sidebar:toggle");
+
+    if(sideBarOpen == false){
+        sideBarOpen = true;
+        $("#accordion").show();
+    } else if (sideBarOpen == true){
+        sideBarOpen = false;
+        $("#accordion").hide();
+    }
+
+}
+
 
 function initializeScrollpanes() {
     // add customized scroll bars
@@ -83,6 +124,22 @@ function reinitializeScrollpanes() {
         });
     }
 }
+
+$(function() {
+    $( "#accordion" ).accordion({
+        collapsible: true,
+        heightStyle: "content",
+        active: false,
+        activate:function(event, ui ){
+            // Grab current anchor value
+            var currentAttrValue = $(this).attr('name');
+            if (currentAttrValue == "#accordion-1"){
+                populateOntologies();
+            }
+            reinitializeScrollpanes();
+        }
+    });
+});
 
 function toggleSearchHelp() {
     // run the effect
@@ -138,6 +195,13 @@ function populateExamples() {
         "doxycycline 130 nanomolar\tcompound\nleft tibia\torganism part\nCD4-positive\ncerebellum\torganism part\n" +
         "hematology traits\tgwas trait\nnifedipine 0.025 micromolar\tcompound\nMicrotubule clumps\n");
 }
+var datasourceNames = [];
+var searchableOntoNames = [];
+var ontologyPrefixes = [];
+var loadedOntologyURIs = [];
+var nameDescriptionMap = new Map();
+var nameTitleMap = new Map();
+var uriNameMap = new Map();
 
 function populateDatasources() {
     // clear sorter element if already exists
@@ -147,12 +211,60 @@ function populateDatasources() {
 
     // retrieve datasources
     $.get('v2/api/sources', function(sources) {
-        var datasourceNames = [];
+        datasourceNames = [];
+        searchableOntoNames = [];
         for (var i = 0; i < sources.length; i++) {
-            datasourceNames.push(sources[i].name);
+            if (sources[i].type == "DATABASE") {
+                var name = sources[i].name;
+
+                if(name == "sysmicro"){
+                    datasourceNames.push("CellularPhenoTypes");
+                    nameDescriptionMap.set("CellularPhenoTypes", "<p><b>Cellular Phenotype Database</b><br>The Cellular Phenotype database provides easy access " +
+                        "to phenotypic data derived from high-throughput screening, facilitating data sharing and integration.</p>" +
+                        "<p><b>database name: 'sysmicro'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                }
+                else if (name == "ebisc"){
+                    datasourceNames.push("EBiSC");
+                    nameDescriptionMap.set("EBiSC", "<p><b>Cell Line Catalogue</b><br>iPSC line catalogue</p>" +
+                        "<p><b>database name: 'ebisc'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                } else if (name == "cttv"){
+                    datasourceNames.push("OpenTargets");
+                    nameDescriptionMap.set("OpenTargets", "<p><b>Open Targets</b><br>Open Targets is a public-private initiative to " +
+                        "generate evidence on the validity of therapeutic targets based on genome-scale experiments and analysis.</p>" +
+                        "<p><b>database name: 'cttv'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                } else if (name == "uniprot"){
+                    datasourceNames.push("UniProt");
+                    nameDescriptionMap.set("UniProt", "<p><b>UniProt</b><br>A comprehensive, high quality and freely accessible resource of protein sequence and functional information.</p>" +
+                        "<p><b>database name: 'uniprot'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                } else if (name == "eva-clinvar"){
+                    datasourceNames.push("ClinVar");
+                    nameDescriptionMap.set("ClinVar", "<p><b>European Variation Archive</b><br>The European Variation Archive is an open-access database " +
+                        "of all types of genetic variation data from all species.</p>" +
+                        "<p><b>database name: 'eva-clinvar'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                } else if (name == "gwas"){
+                    datasourceNames.push("GWAS");
+                    nameDescriptionMap.set("GWAS", "<p><b>>GWAS</b><br> A Catalog of Published Genome-Wide Association Studies.</p>" +
+                        "<p><b>database name: 'gwas'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                } else if (name == "atlas"){
+                    datasourceNames.push("ExpressionAtlas");
+                    nameDescriptionMap.set("ExpressionAtlas", "<p><b>Expression Atlas</b><br>The Expression Atlas provides information on gene expression patterns under different biological conditions.</p>" +
+                        "<p><b>DB name: 'atlas'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                } else {
+                    nameDescriptionMap.set(name, "No description.");
+                }
+            } else if (sources[i].type == "ONTOLOGY"){
+                searchableOntoNames.push(sources[i].title + " (" + sources[i].name + ")");
+                ontologyPrefixes.push(sources[i].name);
+                loadedOntologyURIs.push(sources[i].uri);
+                nameDescriptionMap.set(sources[i].name, "<p><b>" + sources[i].title + "</b><br>" + sources[i].description + "</p>" +
+                    "<p><a href='http://www.ebi.ac.uk/ols/ontologies/" + sources[i].name + "' target='_blank'>view ontology in OLS</a></p>");
+                uriNameMap.set(sources[i].uri, sources[i].name);
+            }
+
         }
 
-        populateSelector(datasourceNames);
+        populateDatasourceSelector();
+        populateOntologySelector();
         populateSorter();
 
         // initialize customized (jscrollpane) scroll bars
@@ -160,16 +272,165 @@ function populateDatasources() {
     });
 }
 
-function populateSelector(datasourceNames) {
+function getSourceDescription(name){
+    return nameDescriptionMap.get(name.toString());
+}
+
+function getSourceTitle(name){
+    return nameTitleMap.get(name.toString());
+}
+
+function populateOntologySelector() {
+// setup autocomplete function pulling from searchableOntoNames[] array
+    if (searchableOntoNames.length == 0){
+        $('input.input').val("No ontologies available at the moment.");
+        $('#autocomplete').prop( "disabled", true );
+    } else {
+        $('#autocomplete').autocomplete({
+            lookup: searchableOntoNames,
+            onSelect: function (suggestion) {
+                //clean ontology prefix from the title and the parenthesis
+                var firstSplitArray = suggestion.value.split("(");
+                var firstSplit = firstSplitArray[firstSplitArray.length - 1];
+                var ontology = firstSplit.split(")")[0];
+                populateOntologies(ontology);
+            }
+        });
+    }
+}
+
+function populateOntologies(instertNew){
+    //add the selected suggestion to the output value
+    var datasourceNames = [];
+    var datasourceNamesChecked = [];
+
+    var $selector = $("#selected-ontologies");
+    $selector.find("input").each(function() {
+        datasourceNames.push($(this).prop("value"));
+    });
+
+    $selector.find("input:checked").each(function() {
+        datasourceNamesChecked.push($(this).prop("value"));
+    });
+
+    //push the new ontology selected, if not in list
+    if (undefined != instertNew) {
+        if (datasourceNames.length == 0) {
+            datasourceNamesChecked.push(instertNew);
+            datasourceNames.push(instertNew);
+        } else if (datasourceNames.indexOf(instertNew) == -1) { //not found
+            datasourceNamesChecked.push(instertNew);
+            datasourceNames.push(instertNew);
+        }
+    }
+
+    var selectorContent = "";
+    for (var i = 0; i < datasourceNames.length; i++) {
+        var datasource = datasourceNames[i];
+        if (datasourceNamesChecked.indexOf(datasource) > -1){ //if found in checked then put it in as already checked
+            selectorContent = selectorContent +
+                "<li style=\"margin-bottom: 1px;\">" +
+                "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\" checked>" +
+                "<a id=\"description-" + datasource + "\" onclick=\"showDesc(this)\" onmouseout=\"hideDesc(this)\" style=\"cursor:help;\">" +
+                datasource +
+                "</a></li>";
+        } else {
+            selectorContent = selectorContent +
+                "<li style=\"margin-bottom: 1px;\">" +
+                "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\" >" +
+                "<a id=\"description-" + datasource + "\" onclick=\"showDesc(this)\" onmouseout=\"hideDesc(this)\" style=\"cursor:help;\">" +
+                datasource +
+                "</a></li>";
+        }
+    }
+
+    var $selector = $("#selected-ontologies");
+    $selector.html(selectorContent);
+
+    reinitializeScrollpanes();
+
+}
+
+function deselectAllOntologies(){
+
+    var checked = false;
+    var $selector = $("#select-none-ontologies");
+
+    $selector.find("input:checked").each(function() {
+        if($(this).prop("value") == "Select None"){
+            checked = true;
+        }
+    });
+
+    if (checked){
+        //disable the autocomplete widget if selected and remove all ontologies from checklist
+        $("#selected-ontologies").html("");
+        $('#autocomplete').prop( "disabled", true );
+        reinitializeScrollpanes();
+    } else {
+        $('#autocomplete').prop( "disabled", false );
+        populateOntologySelector();
+    }
+}
+
+
+function deselectAllDatasources(){
+    var checked = false;
+    var $selector = $("#select-none-datasources");
+
+    $selector.find("input:checked").each(function() {
+        if($(this).prop("value") == "Select None"){
+            checked = true;
+        }
+    });
+
+    if (checked){
+        // re-populate uncheck all datasources and disable them
+        var datasourceNames = [];
+        var $selector = $("#datasource-selector");
+        $selector.find("input").each(function() {
+            datasourceNames.push($(this).prop("value"));
+        });
+
+        var selectorContent = "";
+        for (var i = 0; i < datasourceNames.length; i++) {
+            var datasource = datasourceNames[i];
+
+            selectorContent = selectorContent +
+                "<li style=\"margin-bottom: 1px;\">" +
+                "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\" onclick=\"return false;\" >" +
+                "<a id=\"description-" + datasource + "\" onclick=\"showDesc(this)\"  onmouseout=\"hideDesc(this)\" style=\"cursor:help;\">" +
+                datasource +
+                "</a></li>";
+
+        }
+        var $selector = $("#datasource-selector");
+        $selector.html(selectorContent);
+
+    } else {
+        //its being re-enabled so need to re populate all the datasources
+        populateDatasourceSelector();
+
+    }
+
+    populateSorter();
+    reinitializeScrollpanes();
+
+}
+
+function populateDatasourceSelector() {
     // populate checkboxes
     var selectorContent = "";
     for (var i = 0; i < datasourceNames.length; i++) {
         var datasource = datasourceNames[i];
+
         selectorContent = selectorContent +
-                "<div class=\"grid_8 selectable\">" +
-                "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\">" +
-                datasource +
-                "</div>";
+            "<li style=\"margin-bottom: 1px;\">" +
+            "<input type=\"checkbox\" name=\"" + datasource + "\" value=\"" + datasource + "\" >" +
+            "<a id=\"description-" + datasource + "\" onclick=\"showDesc(this)\" onmouseout=\"hideDesc(this)\" style=\"cursor:help;\">" +
+            datasource +
+            "</a></li>";
+
     }
     var $selector = $("#datasource-selector");
     $selector.html(selectorContent);
@@ -179,16 +440,63 @@ function populateSelector(datasourceNames) {
     });
 }
 
+function showDesc(source){
+    var sourceName;
+    if (source.value != undefined && source.value != 0){
+        sourceName = source.value.toString();
+    } else {
+        sourceName = source.textContent.toString();
+    }
+
+    $("#description-" + sourceName).tooltip({ items: "#description-" + sourceName, content: getSourceDescription(sourceName), show:null,  hide: {effect: ""}, //fadeout
+        close: function(event, ui){
+            ui.tooltip.hover(
+                function(){
+                    $(this).stop(true).fadeTo(400, 1);
+                },
+                function(){
+                    $(this).fadeOut("400", function(){
+                        $(this).remove();
+                    })
+                }
+            );
+        }});
+    $("#description-" + sourceName).tooltip("enable"); // this line added
+    $("#description-" + sourceName).tooltip("open");
+}
+
+
+function hideDesc(source){
+    var sourceName;
+    if (source.value != undefined && source.value != 0){
+        sourceName = source.value.toString();
+    } else {
+        sourceName = source.textContent.toString();
+    }
+    $("#description-" + sourceName).tooltip("disable");
+}
+
+
 function populateSorter() {
-    // retrieve checked selector items
-    var datasourceNames = [];
-    var $selector = $("#datasource-selector");
-    $selector.find("input:checked").each(function() {
-        datasourceNames.push($(this).prop("value"));
+
+    var checked = false;
+    $("#select-none-datasources").find("input:checked").each(function() {
+        if($(this).prop("value") == "Select None"){
+            checked = true;
+        }
     });
 
-    // if nothing checked, use all elements
-    if (datasourceNames.length == 0) {
+    // retrieve checked selector items, if Select None not checked
+    var datasourceNames = [];
+    var $selector = $("#datasource-selector");
+    if (!checked) {
+        $selector.find("input:checked").each(function () {
+            datasourceNames.push($(this).prop("value"));
+        });
+    }
+
+    // if nothing checked, and Select None not checked use all elements
+    if (datasourceNames.length == 0 && !checked) {
         $selector.find("input").each(function() {
             datasourceNames.push($(this).prop("value"));
         });
@@ -303,8 +611,39 @@ function jsonifyTextArea(content) {
     return json;
 }
 
+function getRealName(name){
+    var realName;
+
+    if (name == "ExpressionAtlas"){
+        realName = "atlas";
+    } else if (name == "GWAS"){
+        realName = "gwas";
+    } else if (name == "OpenTargets"){
+        realName = "cttv";
+    } else if (name == "UniProt"){
+        realName = "uniprot";
+    } else if (name == "EBiSC"){
+        realName = "ebisc";
+    } else if (name == "ClinVar"){
+        realName = "eva-clinvar";
+    } else if (name == "CellularPhenoTypes"){
+        realName = "sysmicro";
+    } else {
+        realName = name;
+    }
+
+    return realName;
+}
+
 function getRequiredSourcesParam() {
     var selected = [];
+
+    $("#select-none-datasources").find("input:checked").each(function() {
+        if($(this).prop("value") == "Select None"){
+            selected.push($(this).prop("value"));;
+        }
+    });
+
     // get child, selected input elements of 'datasource-selector'
     $("#datasource-selector").find("input:checked").each(function() {
         selected.push($(this).prop("value"));
@@ -314,9 +653,9 @@ function getRequiredSourcesParam() {
     if (selected.length > 0) {
         required = "required:[";
         for (var i = 0; i < selected.length - 1; i++) {
-            required = required + selected[i] + ",";
+            required = required + getRealName(selected[i]) + ",";
         }
-        required = required + selected[i] + "]";
+        required = required + getRealName(selected[i]) + "]";
     }
     return required;
 }
@@ -333,25 +672,54 @@ function getPreferredSourcesParam() {
     if (sorted.length > 0) {
         preferred = "preferred:[";
         for (var i = 0; i < sorted.length - 1; i++) {
-            preferred = preferred + sorted[i] + ",";
+            preferred = preferred + getRealName(sorted[i]) + ",";
         }
-        preferred = preferred + sorted[i] + "]";
+        preferred = preferred + getRealName(sorted[i]) + "]";
     }
     return preferred;
+}
+
+function getOntologySourcesParam() {
+    var selected = [];
+
+    $("#select-none-ontologies").find("input:checked").each(function() {
+        if($(this).prop("value") == "Select None"){
+            selected.push($(this).prop("value"));;
+        }
+    });
+
+    // get child, selected input elements of 'selected-ontologies'
+    $("#selected-ontologies").find("input:checked").each(function () {
+        selected.push($(this).prop("value"));
+    });
+
+    var required = "";
+    if (selected.length > 0) {
+        required = "ontologies:[";
+        for (var i = 0; i < selected.length - 1; i++) {
+            required = required + selected[i] + ",";
+        }
+        required = required + selected[i] + "]";
+    }
+    return required;
 }
 
 function doSearch(json) {
     var payload = JSON.stringify(json);
     var requiredSources = getRequiredSourcesParam();
     var preferredSources = getPreferredSourcesParam();
+    var ontologySources = getOntologySourcesParam();
     var url = 'v2/api/services/map';
-    if (requiredSources || preferredSources) {
+    if (requiredSources || preferredSources || ontologySources) {
         url = url + '?filter=';
         if (requiredSources) {
             url = url + requiredSources;
         }
         if (preferredSources) {
             url = url + preferredSources;
+        }
+        if (ontologySources) {
+            url = url + ontologySources;
         }
     }
 
@@ -492,33 +860,43 @@ function renderResults(data) {
                 }
             }
             row = row + "<td>" + result[2] + "</td>";
-            row = row + "<td>" + result[4] + "</td>";
+            if (result[4] == "Good" || result[4] == "Medium" || result[4] == "Low"){
+                row = row + "<td>" + result[4] + " [requires curation] </td>";
+            } else {
+                row = row + "<td>" + result[4] + "</td>";
+            }
             if (result[5] != "N/A") {
-                // multiple mappings will be comma separated
-                if (result[5].indexOf(", ") == -1) {
-                    // no comma separation, linkify entire field
-                    row = row + "<td>" + linkify(result[6] + result[5], result[5]) + "</td>";
-                }
-                else {
-                    // comma separation, linkify each token
-                    var termIDs = result[5].split(", ");
-                    var ontologyURIs = result[6].split(", ");
+                if (loadedOntologyURIs.indexOf(result[7]) > -1) {
+                    //found in OLS
+                    // no comma separation in results from OLS, linkify entire field
+                    row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[5] + "&ontology=" + uriNameMap.get(result[7]).toLowerCase(), result[5]) + "</td>";
 
-                    // should be same number of IDs and URIs
-                    if (termIDs.length != ontologyURIs.length) {
-                        alert("Failed to read mapping result row " + i + ": there is a different number " +
-                                      "of mapping results and ontologies.  Data was:\n" + result + ".");
+                } else {
+                    // multiple mappings will be comma separated
+                    if (result[5].indexOf(", ") == -1) {
+                        // no comma separation, linkify entire field
+                        row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[5], result[5]) + "</td>";
                     }
                     else {
-                        var links = "";
-                        var l = termIDs.length - 1;
-                        for (var k = 0; k < l; k++) {
-                            var termID = termIDs[k].trim();
-                            var ontologyURI = ontologyURIs[k];
-                            links += linkify(ontologyURI + termID, termID) + ",<br />";
+                        // comma separation, linkify each token
+                        var termIDs = result[5].split(", ");
+                        var ontologyURIs = result[6].split(", ");
+
+                        // should be same number of IDs and URIs
+                        if (termIDs.length != ontologyURIs.length) {
+                            alert("Failed to read mapping result row " + i + ": there is a different number " +
+                                "of mapping results and ontologies.  Data was:\n" + result + ".");
                         }
-                        links += linkify(ontologyURIs[l] + termIDs[l], termIDs[l]);
-                        row = row + "<td>" + links + "</td>";
+                        else {
+                            var links = "";
+                            var l = termIDs.length - 1;
+                            for (var k = 0; k < l; k++) {
+                                var termID = termIDs[k].trim();
+                                links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + termID, termID) + ",<br />";
+                            }
+                            links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + termIDs[l] , termIDs[l]);
+                            row = row + "<td>" + links + "</td>";
+                        }
                     }
                 }
             }
@@ -526,102 +904,63 @@ function renderResults(data) {
                 row = row + "<td>" + result[5] + "</td>";
             }
             if (result[7] != "N/A") {
+                //var ontoSourceArray = [];
+                //var ontoName = "";
+                //if (result[7].indexOf("/") > -1 ){ // if the source has a dash in it (e.g. www.ebi.ac.uk/efo) get the name at the end (e.g. efo)
+                //    ontoSourceArray = result[7].split("/");
+                //    ontoName = ontoSourceArray[(ontoSourceArray.length - 1)];
+                //}
+                //if (ontoName.indexOf(".") > 1){ // if the result has a dot in it (e.g. efo.owl) get the name (e.g. efo)
+                //    var noDot = ontoName.split(".");
+                //    ontoName = noDot[0];
+                //}
                 var href;
-                if (result[7] == "http://www.ebi.ac.uk/gxa") {
-                    href =
-                            "http://www.ebi.ac.uk/gxa/query?condition=" +
-                                    encodeURIComponent(result[1]);
+                if (loadedOntologyURIs.indexOf(result[7]) > -1){
+                    row = row + "<td><a href='" + "http://www.ebi.ac.uk/ols/ontologies/" + uriNameMap.get(result[7]) + "' target='_blank'>" +
+                        "<img src='images/ols-logo.jpg' " +
+                        "alt='" + uriNameMap.get(result[7]) + "' style='height: 20px;'/> " + uriNameMap.get(result[7]) + "</a></td>";
+                }
+                else if (result[7] == "http://www.ebi.ac.uk/gxa") {
+                    href = result[7];
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='//www.ebi.ac.uk/gxa/resources/images/ExpressionAtlas_logo_web.png' " +
                             "alt='Expression Atlas' style='height: 22px;'/> Expression Atlas</a></td>";
                 }
-                else if (result[7] == "http://www-test.ebi.ac.uk/gxa") {
-                    href =
-                            "http://www-test.ebi.ac.uk/gxa/qrs?gprop_0=&gnot_0=&gval_0=%28all+genes%29&fact_1=&fexp_1=UP_DOWN&fmex_1=&fval_1=" +
-                                    encodeURIComponent(result[1]) +
-                                    "&view=hm&searchMode=simple";
-                    row = row + "<td><a href='" + href + "' target='_blank'>" +
-                            "<img src='//www.ebi.ac.uk/gxa/resources/images/ExpressionAtlas_logo_web.png' " +
-                            "alt='Expression Atlas' style='height: 22px;'/> GXA</a></td>";
-                }
-                else if (result[7] == "http://www.ebi.ac.uk/arrayexpress") {
-                    href = "http://www.ebi.ac.uk/arrayexpress/experiments/search.html?query=" +
-                            encodeURIComponent(result[1]);
-                    row = row + "<td><a href='" + href + "' target='_blank'>" +
-                            "<img src='//www.ebi.ac.uk/sites/ebi.ac.uk/files/styles/icon/public/resource/logo/aelogo.jpg' " +
-                            "alt='ArrayExpress' style='height: 22px;'/> ArrayExpress</a></td>";
-                }
-                else if (result[7] == "http://www.ebi.ac.uk/efo/efo.owl") {
-                    href = "http://www.ebi.ac.uk/efo/search?query=" +
-                            encodeURIComponent(result[2]) +
-                            "&submitSearch=Search";
-                    row = row + "<td><a href='" + href + "' target='_blank'>" +
-                            "<img src='//www.ebi.ac.uk/sites/ebi.ac.uk/files/styles/thumbnail/public/resource/logo/EFO_logo_0.png' " +
-                            "alt='EFO' style='height: 22px;'/> EFO</a></td>";
-                }
-                else if (result[7] == "http://www.genome.gov/gwastudies") {
-                    href = "http://www.genome.gov/gwastudies/#searchForm";
+                //TODO: change the loader to get the ebi gwas website
+                else if (result[7] == "http://www.ebi.ac.uk/gwas") {
+                    href = result[7];
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/nhgri.png' " +
                             "alt='GWAS' style='height: 22px;'/> GWAS</a></td>";
-                }
-                else if (result[7] == "http://omia.angis.org.au") {
-                    href = result[5] + result[4];
-                    row = row + "<td><a href='" + href + "' target='_blank'>" +
-                            "<img src='images/omia.png' " +
-                            "alt='OMIA' style='height: 22px;'/> OMIA</a></td>";
-                }
-                else if (result[7] == "http://omim.org") {
-                    href = result[5] + result[4];
-                    row = row + "<td><a href='" + href + "' target='_blank'>" +
-                            "<img src='images/omim.gif' " +
-                            "alt='OMIM' style='height: 22px;'/> OMIM</a></td>";
                 }
                 else if (result[7] == "http://www.ebi.ac.uk/fg/sym") {
                     href = result[7];
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/CelPh_logo.gif' " +
-                            "alt='SysMicro' style='height: 22px;'/> SysMicro</a></td>";
+                            "alt='CellularPhenoTypes' style='height: 22px;'/> CellularPhenoTypes</a></td>";
                 }
-                else if (result[7] == "http://www.ebi.ac.uk/cmpo/cmpo.owl") {
-                    row = row + "<td><a href='http://www.ebi.ac.uk/cmpo' target='_blank'>" +
-                            "<img src='images/cmpo.png' " +
-                            "alt='CMPO' style='height: 22px;'/> CMPO</a></td>";
-                }
-                else if (result[7] == "http://www.orpha.net/ontology/orphanet.owl") {
-                    row = row + "<td><a href='http://www.orphadata.org/cgi-bin/index.php' target='_blank'>" +
-                            "<img src='images/orphanet.png' " +
-                            "alt='ORDO' style='height: 20px;'/> ORDO</a></td>";
-                }
-                else if (result[7] == "http://www.biomedbridges.eu/workpackages/wp7-0") {
-                    row = row + "<td><a href='http://www.biomedbridges.eu/workpackages/wp7-0' target='_blank'>" +
-                            "<img src='images/bmb.png' " +
-                            "alt='BMB-WP7' style='height: 20px;'/> BMB-WP7</a></td>";
-                }
-                else if (result[7] == "http://purl.obolibrary.org/obo/clo.owl") {
-                    row = row + "<td><a href='http://www.clo-ontology.org/' target='_blank'>" +
-                            "<img src='images/clo.jpg' " +
-                            "alt='CLO' style='height: 20px;'/> CLO</a></td>";
-                }
-                else if (result[7] == "http://purl.obolibrary.org/obo/eo.owl") {
-                    row = row + "<td><a href='http://archive.gramene.org/plant_ontology/index.html#eo' target='_blank'>" +
-                            "<img src='images/gramene_logo.png' " +
-                            "alt='PECO' style='height: 20px;'/> PECO</a></td>";
-                }
-                else if (result[7] == "http://www.ebi.ac.uk/chembl") {
-                    row = row + "<td><a href='http://www.ebi.ac.uk/chembl' target='_blank'>" +
-                            "<img src='images/new_chembl_logo_v2.png' " +
-                            "alt='ChEMBL' style='background-color: #70BDBD; height: 20px;'/> ChEMBL</a></td>";
-                }
-                else if (result[7] == "http://www.uniprot.org") {
-                    row = row + "<td><a href='http://www.uniprot.org' target='_blank'>" +
+                else if (result[7] == "http://www.ebi.ac.uk/uniprot") {
+                    row = row + "<td><a href='http://www.ebi.ac.uk/uniprot' target='_blank'>" +
                             "<img src='images/uniprot_logo.gif' " +
                             "alt='UniProt' style='height: 20px;'/> UniProt</a></td>";
                 }
-                else if (result[7] == "http://purl.obolibrary.org/obo/mp.owl") {
-                    row = row + "<td><a href='http://www.informatics.jax.org/searches/MP_form.shtml' target='_blank'>" +
-                            "<img src='images/mgi_logo.gif' " +
-                            "alt='MP' style='height: 20px;'/> MP</a></td>";
+                else if (result[7] == "https://www.targetvalidation.org"){
+                    href = result[7];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                        "<img src='images/ot_logo_webheader.svg' " +
+                        "alt='OpenTargets' style='height: 20px;'/> Open Targets</a></td>";
+                }
+                else if (result[7] == "http://www.ebi.ac.uk/eva"){
+                    href = result[7];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                        "<img src='images/eva_logo.png' " +
+                        "alt='ClinVar' style='height: 20px;'/> EVA ClinVar</a></td>";
+                }
+                else if (result[7] == "https://cells.ebisc.org/"){
+                    href = result[7];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                        "<img src='images/EBiSC-logo.png' " +
+                        "alt='EBiSC' style='height: 20px;'/> EBiSC</a></td>";
                 }
                 else {
                     row = row + "<td>" + result[7] + "</td>";

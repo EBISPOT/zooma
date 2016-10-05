@@ -2,5 +2,5 @@
 
 base=${0%/*};
 
-bsub -q research-rh6 -M 18000 -R "rusage[mem=18000]" $base/build-rdf.sh $@;
+bsub -q production-rh7 -M 18000 -R "rusage[mem=18000]" $base/build-rdf.sh $@;
 exit $?;

@@ -23,7 +23,7 @@ public class OWLLoadingSession extends AbstractAnnotationLoadingSession {
                 AnnotationProvenanceBuilder
                         .createTemplate(owlLoader.getOntologyIRI().toURI().toString())
                         .sourceIs(new SimpleOntologyAnnotationSource(owlLoader.getOntologyIRI().toURI(),
-                                                                     owlLoader.getOntologyName()))
+                                                                     owlLoader.getOntologyName(), null, null))
                         .evidenceIs(AnnotationProvenance.Evidence.COMPUTED_FROM_ONTOLOGY));
         this.datasourceName = owlLoader.getOntologyName();
 

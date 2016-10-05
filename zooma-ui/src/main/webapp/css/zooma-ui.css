@@ -4,7 +4,7 @@
 
 .context-help-wrapper {
     position: relative;
-    top: 10px;
+    top: 20px;
     left: 20px;
     z-index: 1;
     display: none;
@@ -112,8 +112,8 @@ table.col-6 th,td {
     font-size: 0.9em;
 }
 
-.scroll-pane {
-
+.zooma-scrollpane {
+    outline: none !important;
 }
 
 table.version {
@@ -160,3 +160,54 @@ table.version {
     border-radius: 2px;
     padding: 2px;
 }
+
+#ontology-searchfield { display: block; width: 100%; text-align: center; margin-bottom: 35px; }
+
+#ontology-searchfield form .input:focus {
+    color: #858585;
+}
+
+.autocomplete-suggestions { border: 1px solid #999; background: #fff; cursor: default; overflow: auto; }
+.autocomplete-suggestion { padding: 10px 5px; font-size: 1.2em; overflow: hidden; }
+.autocomplete-selected { background: #f0f0f0; }
+.autocomplete-suggestions strong { font-weight: normal; color: #228B22; }
+
+#accordion .ui-state-focus{
+    outline: none;
+}
+
+.sidebar.right {
+    position: absolute;
+    /*z-index:1;*/
+    width: 45%;
+}
+
+
+li:not(:last-child) {
+    margin-bottom: 5px;
+}
+
+
+.ui-accordion .ui-accordion-content {
+    padding:0 !important;
+    top:0 !important;
+
+}
+
+
+/*.centerdiv {*/
+    /*position:relative;*/
+    /*margin: auto;*/
+    /*width: 60%;*/
+    /*padding: 10px;*/
+    /*!*z-index: 1;*!*/
+/*}*/
+
+
+
+
+
+
+
+
+

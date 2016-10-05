@@ -1,6 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -47,4 +48,8 @@ public interface OntologyDAO {
      * @return a set of child term URIs
      */
     Set<String> getChildren(URI semanticTagURI, boolean infer);
+
+    Set<String> getSemanticTags();
+
+    void insertLabels(Map<String, String> map);
 }

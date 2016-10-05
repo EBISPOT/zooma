@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * A basic implementation of an Annotation
@@ -18,6 +15,7 @@ import java.util.HashSet;
 public class SimpleAnnotation extends AbstractIdentifiable implements Annotation {
     private Collection<BiologicalEntity> biologicalEntities;
     private Property annotatedProperty;
+    private Links _links;
     private Collection<URI> semanticTags;
     private Collection<URI> replacedBy;
     private Collection<URI> replaces;
@@ -34,13 +32,24 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
                             Property annotatedProperty,
                             AnnotationProvenance annotationProvenance,
                             URI... semanticTags) {
-        this(uri, biologicalEntities, annotatedProperty, annotationProvenance, semanticTags, new URI[0], new URI[0]);
+        this(uri, biologicalEntities, annotatedProperty, annotationProvenance, null, semanticTags, new URI[0], new URI[0]);
     }
 
     public SimpleAnnotation(URI uri,
                             Collection<BiologicalEntity> biologicalEntities,
                             Property annotatedProperty,
                             AnnotationProvenance annotationProvenance,
+                            URI[] semanticTags,
+                            URI[] replacedBy,
+                            URI[] replaces) {
+        this(uri, biologicalEntities, annotatedProperty, annotationProvenance, null, semanticTags, replacedBy, replaces);
+    }
+
+    public SimpleAnnotation(URI uri,
+                            Collection<BiologicalEntity> biologicalEntities,
+                            Property annotatedProperty,
+                            AnnotationProvenance annotationProvenance,
+                            Links _links,
                             URI[] semanticTags,
                             URI[] replacedBy,
                             URI[] replaces) {
@@ -63,6 +72,28 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
         if (replaces != null) {
             Collections.addAll(this.replaces, replaces);
         }
+        // Create the link of the term to OLS
+        Set<SemanticTag> olsLinks;
+        if (_links == null){
+            olsLinks = new LinkedHashSet<>();
+        } else {
+            olsLinks = _links.getOLSLinks();
+        }
+        for (URI semanticTag : this.semanticTags){
+            boolean newHref = true;
+            for (SemanticTag olsLink : olsLinks){
+                if(olsLink.getSemanticTag().equals(semanticTag)){
+                    newHref = false;
+                }
+            }
+            if (newHref){
+                SemanticTag link = new SimpleSemanticTag(semanticTag, semanticTag); //semanticTag and href will get the same URI. Href will be prefixed with the ols term location later
+                olsLinks.add(link);
+            }
+
+        }
+        Links links = new ExternalLinks(olsLinks);
+        this._links = links;
     }
 
     @Override public Collection<BiologicalEntity> getAnnotatedBiologicalEntities() {
@@ -79,6 +110,13 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
 
     @Override public AnnotationProvenance getProvenance() {
         return annotationProvenance;
+    }
+
+    public Links get_links(){return _links;}
+
+    @Override
+    public void set_links(Links _links) {
+        this._links =  _links;
     }
 
     public void addAnnotatedBiologicalEntity(BiologicalEntity biologicalEntity) {
@@ -190,6 +228,7 @@ public class SimpleAnnotation extends AbstractIdentifiable implements Annotation
                "  biologicalEntities=" + biologicalEntities + "'\n" +
                "  annotatedProperty=" + annotatedProperty + "'\n" +
                "  semanticTags=" + semanticTags + "'\n" +
+                "  _links=" + _links + "'\n" +
                "  isReplacedBy=" + replacedBy + "'\n" +
                "  replaces=" + replaces + "'\n" +
                "  annotationProvenance=" + annotationProvenance + "'\n" +

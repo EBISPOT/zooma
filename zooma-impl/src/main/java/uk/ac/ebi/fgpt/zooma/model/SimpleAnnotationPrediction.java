@@ -18,12 +18,14 @@ public class SimpleAnnotationPrediction extends SimpleAnnotation implements Anno
                                       Collection<BiologicalEntity> biologicalEntities,
                                       Property annotatedProperty,
                                       AnnotationProvenance annotationProvenance,
+                                      Links _links,
                                       URI... semanticTags) {
         this(derivedFrom,
              confidence,
              biologicalEntities,
              annotatedProperty,
              annotationProvenance,
+             _links,
              semanticTags,
              new URI[0],
              new URI[0]);
@@ -34,10 +36,11 @@ public class SimpleAnnotationPrediction extends SimpleAnnotation implements Anno
                                       Collection<BiologicalEntity> biologicalEntities,
                                       Property annotatedProperty,
                                       AnnotationProvenance annotationProvenance,
+                                      Links _links,
                                       URI[] semanticTags,
                                       URI[] replacedBy,
                                       URI[] replaces) {
-        super(null, biologicalEntities, annotatedProperty, annotationProvenance, semanticTags, replacedBy, replaces);
+        super(null, biologicalEntities, annotatedProperty, annotationProvenance, _links, semanticTags, replacedBy, replaces);
         this.derivedFrom = derivedFrom;
         this.confidence = confidence;
     }

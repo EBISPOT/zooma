@@ -36,6 +36,11 @@ public class URIUtils {
     private static final Map<String, String> prefixMappings;
     private static final String uninitializedKey = "UNINITIALIZED";
 
+    /*
+     * URI that indicates that we don't want the source type associated with this URI to be searched for the query term
+     */
+    public static final URI SEARCH_NONE = URI.create("None");
+
     static {
         // initialize final map prefixMappings...
         prefixMappings = Collections.synchronizedMap(new HashMap<String, String>());
