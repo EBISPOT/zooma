@@ -1,7 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
 import java.net.URI;
-import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -44,4 +44,8 @@ public interface OntologyService {
      */
 
     Set<String> getChildren(URI semanticTag, boolean infer);
+
+    Set<String> getSemanticTags();
+
+    void insertLabels(Map<String, String> map);
 }

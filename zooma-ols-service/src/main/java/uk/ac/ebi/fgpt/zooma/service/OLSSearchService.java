@@ -4,8 +4,7 @@ import org.springframework.web.client.RestClientException;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.pride.utilities.ols.web.service.client.OLSClient;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
-import uk.ac.ebi.pride.utilities.ols.web.service.model.Ontology;
-import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
+import uk.ac.ebi.pride.utilities.ols.web.service.model.*;
 
 import java.net.URI;
 import java.util.*;
@@ -85,6 +84,38 @@ public class OLSSearchService extends Initializable {
         } catch (RestClientException e){
             return new ArrayList<>();
         }
+    }
+
+    public String getLabelByIri(String iri){
+        try {
+            String customQueryField = new QueryFields.QueryFieldBuilder()
+                    .setIri()
+                    .build()
+                    .toString();
+            olsClient.setQueryField(customQueryField);
+
+            String fieldList = new FieldList.FieldListBuilder()
+                    .setLabel()
+                    .setIri()
+                    .setIsDefiningOntology()
+                    .build()
+                    .toString();
+            olsClient.setFieldList(fieldList);
+
+            List<Term> terms = olsClient.getExactTermsByName(iri, null);
+            for (Term term : terms){
+                if (term.isDefinedOntology()){
+                    return term.getLabel();
+                }
+            }
+        } catch (RestClientException e){
+            return "";
+        } finally {
+            //restore olsClient search to it's default query field and field list
+            olsClient.setQueryField(olsClient.DEFAULT_QUERY_FIELD);
+            olsClient.setFieldList(olsClient.DEFAULT_FIELD_LIST);
+        }
+        return "";
     }
 
     /*

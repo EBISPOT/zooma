@@ -148,6 +148,11 @@ SELECT ?synonym WHERE {
     ?semantictag ?synonymproperty ?synonym
 }
 
+^[ANNOTATIONS.semantictags]
+SELECT DISTINCT ?semantictag WHERE{
+    ?semantictag rdf:type oac:SemanticTag
+}
+
 ^[ONTOLOGY.children]
 SELECT ?child WHERE {
     ?child rdfs:subClassOf ?semantictag
