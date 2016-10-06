@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/server/metadata")
 public class MetadataController implements InitializingBean {
     private @Value("${version}") String version;
-    private @Value("${build.number}") String buildNumber;
+//    private @Value("${build.number}") String buildNumber;
     private @Value("${release.date}") String releaseDate;
 
     private MetadataBean metadataBean;
@@ -30,7 +30,7 @@ public class MetadataController implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.metadataBean = new MetadataBean(version, buildNumber, releaseDate, System.currentTimeMillis());
+        this.metadataBean = new MetadataBean(version, releaseDate, System.currentTimeMillis());
     }
 
     /**
@@ -41,13 +41,13 @@ public class MetadataController implements InitializingBean {
      */
     class MetadataBean {
         private final String version;
-        private final String buildNumber;
+//        private final String buildNumber;
         private final String releaseDate;
         private final long startupTime;
 
-        public MetadataBean(String version, String buildNumber, String releaseDate, long startupTime) {
+        public MetadataBean(String version, String releaseDate, long startupTime) {
             this.version = version;
-            this.buildNumber = buildNumber;
+//            this.buildNumber = buildNumber;
             this.releaseDate = releaseDate;
             this.startupTime = startupTime;
         }
@@ -56,9 +56,9 @@ public class MetadataController implements InitializingBean {
             return version;
         }
 
-        public String getBuildNumber() {
-            return buildNumber;
-        }
+//        public String getBuildNumber() {
+//            return buildNumber;
+//        }
 
         public String getReleaseDate() {
             return releaseDate;

@@ -927,8 +927,8 @@ function renderResults(data) {
                             "alt='Expression Atlas' style='height: 22px;'/> Expression Atlas</a></td>";
                 }
                 //TODO: change the loader to get the ebi gwas website
-                else if (result[7] == "http://www.ebi.ac.uk/gwas") {
-                    href = result[7];
+                else if (result[7] == "http://www.genome.gov/gwastudies/") {
+                    href = "http://www.ebi.ac.uk/gwas";
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/nhgri.png' " +
                             "alt='GWAS' style='height: 22px;'/> GWAS</a></td>";
