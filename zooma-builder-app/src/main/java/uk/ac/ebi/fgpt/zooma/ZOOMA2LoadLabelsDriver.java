@@ -48,10 +48,10 @@ public class ZOOMA2LoadLabelsDriver {
                 "file:${zooma.home}/config/spring/zooma-dao.xml",
                 "file:${zooma.home}/config/spring/zooma-load.xml",
                 "classpath*:zooma-annotation-dao.xml");
+        LoadOLSLabelsService loader = ctx.getBean("loadOLSLabelsService", LoadOLSLabelsService.class);
 
         try {
             getLog().info("Loading labels to RDF graph for all annotations semantic tags");
-            LoadOLSLabelsService loader = ctx.getBean("loadOLSLabelsService", LoadOLSLabelsService.class);
             loader.findAndLoad();
         } catch (RuntimeException e) {
             if (e.getCause() instanceof ZoomaLoadingException) {

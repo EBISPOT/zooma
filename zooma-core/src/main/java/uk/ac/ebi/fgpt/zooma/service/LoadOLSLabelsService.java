@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.fgpt.zooma.datasource.OntologyDAO;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,42 +17,42 @@ import java.util.Set;
  */
 public class LoadOLSLabelsService {
 
-    private OntologyService ontologyServiceDAO;
-    private OLSSearchService olsSearch;
+    private OntologyDAO ontologyDAO;
+    private OLSSearchService olsSearchService;
     private Logger log = LoggerFactory.getLogger(getClass());
 
     private Logger getLog() {
         return log;
     }
 
-    public OntologyService getOntologyServiceDAO() {
-        return ontologyServiceDAO;
+    public OntologyDAO getOntologyDAO() {
+        return ontologyDAO;
     }
 
-    public void setOntologyServiceDAO(OntologyService ontologyServiceDAO) {
-        this.ontologyServiceDAO = ontologyServiceDAO;
+    public void setOntologyDAO(OntologyDAO ontologyDAO) {
+        this.ontologyDAO = ontologyDAO;
     }
 
-    public OLSSearchService getOlsSearch() {
-        return olsSearch;
+    public OLSSearchService getOlsSearchService() {
+        return olsSearchService;
     }
 
-    public void setOlsSearch(OLSSearchService olsSearch) {
-        this.olsSearch = olsSearch;
+    public void setOlsSearchService(OLSSearchService olsSearchService) {
+        this.olsSearchService = olsSearchService;
     }
 
     public void findAndLoad(){
         Map<String, String> tagToLabelMap = new HashMap<>();
 
         getLog().info("Getting all the annotations's semantic tags");
-        Set<String> semanticTags = getOntologyServiceDAO().getSemanticTags();
+        Set<String> semanticTags = getOntologyDAO().getSemanticTags();
         getLog().info("Finding labels for each semantic tag using OLS starting...");
         for (String semanticTag : semanticTags) {
-            tagToLabelMap.put(semanticTag, getOlsSearch().getLabelByIri(semanticTag));
+            tagToLabelMap.put(semanticTag, getOlsSearchService().getLabelByIri(semanticTag));
         }
         getLog().info("Finding labels for each semantic tag using OLS finished...");
         getLog().info("Inserting the labels into the graph starting...");
-        getOntologyServiceDAO().insertLabels(tagToLabelMap);
+        getOntologyDAO().insertLabels(tagToLabelMap);
         getLog().info("Inserting the labels into the graph finished...");
         getLog().info("Loaded: " + semanticTags.size() + " labels");
     }

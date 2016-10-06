@@ -45,7 +45,4 @@ public interface OntologyService {
 
     Set<String> getChildren(URI semanticTag, boolean infer);
 
-    Set<String> getSemanticTags();
-
-    void insertLabels(Map<String, String> map);
 }

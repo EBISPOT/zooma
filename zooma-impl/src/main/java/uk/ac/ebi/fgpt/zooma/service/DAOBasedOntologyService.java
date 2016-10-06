@@ -41,12 +41,4 @@ public class DAOBasedOntologyService extends AbstractShortnameResolver implement
         return getOntologyDAO().getChildren(semanticTag, infer);
     }
 
-    public Set<String> getSemanticTags(){
-        return getOntologyDAO().getSemanticTags();
-    }
-
-    @Override
-    public void insertLabels(Map<String, String> map) {
-        getOntologyDAO().insertLabels(map);
-    }
 }
