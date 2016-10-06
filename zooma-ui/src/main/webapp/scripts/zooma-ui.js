@@ -243,8 +243,8 @@ function populateDatasources() {
                         "<p><b>database name: 'eva-clinvar'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
                 } else if (name == "gwas"){
                     datasourceNames.push("GWAS");
-                    nameDescriptionMap.set("GWAS", "<p><b>>GWAS</b><br> A Catalog of Published Genome-Wide Association Studies.</p>" +
-                        "<p><b>database name: 'gwas'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                    nameDescriptionMap.set("GWAS", "<p><b>GWAS</b><br> A Catalog of Published Genome-Wide Association Studies.</p>" +
+                        "<p><b>database name: 'gwas'</b><br><a href='http://www.ebi.ac.uk/gwas' target='_blank'>http://www.ebi.ac.uk/gwas</a></p>");
                 } else if (name == "atlas"){
                     datasourceNames.push("ExpressionAtlas");
                     nameDescriptionMap.set("ExpressionAtlas", "<p><b>Expression Atlas</b><br>The Expression Atlas provides information on gene expression patterns under different biological conditions.</p>" +
