@@ -162,13 +162,13 @@
 
                 <p>
                     Once complete, you should see a table of results. Green shows that ZOOMA could map this term
-                    "automatically", or with a high degree of confidence. Yellow shows that ZOOMA was less sure, and
-                    results might need further curator intervention to determine if ZOOMA is correct.
+                    "automatically", or with a HIGH degree of confidence. Yellow shows that ZOOMA was less sure with a GOOD, MEDIUM or LOW degree of confidence, and
+                    results might need further curator intervention to determine if ZOOMA is correct. In the case of spastic paraplegia 10, it could not find a match in the Expression Atlas datasource.
                 </p>
                 <img style="text-align: center" src="images/results.png" alt="A ZOOMA table of results"/>
 
                 <p>
-                    Let's look at these examples in a little more detail. The third row of your results should be listed
+                    Let's look at these examples in a little more detail. The last row of your results should be listed
                     in green - property type "compound" and value "cooked broccoli". ZOOMA mapped this term with a high
                     degree of confidence, in part because we could supply some additional context by adding a type to
                     our search. If you look at the text box, you'll see when you clicked "Show me some examples..." it
@@ -177,8 +177,8 @@
 
                 <p>
                     If we add a type to one of the other examples, we can improve our confidence. Modify the input box -
-                    after the term CD4-positive, put a tab and add "cell type". Now hit "Annotate" again. You should see
-                    that the second result in our table has gone green.
+                    after the term Spastic paraplegia 10, put a tab and add "phenotype". Now hit "Annotate" again. You should see
+                    that the second result in our table has gone yellow with a good confidence, from unmapped.
                 </p>
                 <img style="text-align: center"
                      src="images/results-extra-type.png"
@@ -248,16 +248,36 @@
                         <td>Organism</td>
                         <td>Arabidopsis thaliana</td>
                         <td>Arabidopsis thaliana</td>
-                        <td>Automatic</td>
+                        <td>High</td>
                         <td><a href="http://purl.obolibrary.org/obo/NCBITaxon_3702" target="_blank">NCBITaxon_3702</a>
                         </td>
-                        <td>http://www.ebi.ac.uk/arrayexpress/</td>
+                        <td>http://www.ebi.ac.uk/gxa</td>
                     </tr>
                     </tbody>
                 </table>
                 <p>
                     Does this look like a reasonable result?
                 </p>
+            </div>
+
+            <div>
+                <h4>Configuring Datasources</h4>
+                <p>
+                    Zooma gives you the option to limit the sources that it will use to find annotation predictions. These sources are either curated datasources, i.e.
+                    manually curated annotations derived from public databases,
+                    or annotations found from ontologies in the <a href="http://www.ebi.ac.uk/ols" target="_blank">Ontology Lookup Service</a>.
+                </p>
+                <p>
+                    By selecting the "Configure Datasources" gear under the Zooma text box, you can either
+                    select from the available curated datasources, or look for an ontology in the <a href="http://www.ebi.ac.uk/ols" target="_blank">Ontology Lookup Service</a>.
+                </p>
+                <img style="text-align: center"
+                     src="images/configure-datasources.png"
+                     alt="Configure Datasources"/>
+
+                <img style="text-align: center"
+                     src="images/ontology-sources.png"
+                     alt="Configure Ontology Sources"/>
             </div>
 
             <div id="gs-feedback">
@@ -301,6 +321,7 @@
                     </tr>
                     </tbody>
                     </table>
+                <p>
                     The study, bioentity and type are not mandatory but help enriching the annotation for searches with
                     more context.<br>
                     The date should be in the following format : 2015-08-21 12:00:00<br>
@@ -310,7 +331,7 @@
                     <br>
                     Below is an example of an annotation submited by the <a href="https://www.ebi.ac.uk/gxa/home">Expression
                     Atlas</a> group at the EBI :
-
+                </p>
                 <table>
                     <thead>
                     <tr>
@@ -337,6 +358,7 @@
                 </table>
                 <br>
                 <br>
+                <p>
                 Now imagine that, to save curator time and energy, you've got this pipeline which uses the zooma rest api to
                 automatically annotate your data. Because you want to be on the safe side, the pipeline only accept annotations
                 which come back with a 'HIGH' mapping confidence.<br>
@@ -347,7 +369,6 @@
                 To avoid that, you can also submit a spreadsheet, as described above, associating term 'GM08928' to semantic
                 tag 'CLO_0011237' and submit it to us. Because now zooma has the same association from 2 different datasources
                 then it is likely to come back next time with a 'HIGH' score and your annotation will be done automatically.
-
                 </p>
             </div>
 

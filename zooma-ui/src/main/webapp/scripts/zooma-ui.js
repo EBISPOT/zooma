@@ -792,8 +792,10 @@ function renderResults(data) {
     // render new payload
     var payload = data.data;
     if ($.isEmptyObject(payload) == false) {
-        var prop_automatic = 0;
-        var prop_curation = 0;
+        var prop_high = 0;
+        var prop_good = 0;
+        var prop_medium = 0;
+        var prop_low = 0;
         var prop_unmapped = 0;
 
         var aux_type = "";
@@ -808,19 +810,24 @@ function renderResults(data) {
             if (result[4] == "High") {
                 row = "<tr class='automatic'>";
 
-                prop_automatic++;
+                prop_high++;
                 aux_type = result[0];
                 aux_value = result[1];
             }
             else if (result[4] == "Good" || result[4] == "Medium" || result[4] == "Low") {
-                row = "<tr class='curation'>";
 
+                row = "<tr class='curation'>";
                 if (result[0] != aux_type || result[1] != aux_value) {
-                    prop_curation++;
+                    if (result[4] == "Good") {
+                        prop_good++;
+                    } else if (result[4] == "Medium"){
+                        prop_medium++;
+                    } else if (result[4] == "Low"){
+                        prop_low++;
+                    }
                     aux_type = result[0];
                     aux_value = result[1];
                 }
-
 
                 // has a previous row spanned multiple rows, or are we ok to check?
                 if (spanTo <= i) {
@@ -860,11 +867,8 @@ function renderResults(data) {
                 }
             }
             row = row + "<td>" + result[2] + "</td>";
-            if (result[4] == "Good" || result[4] == "Medium" || result[4] == "Low"){
-                row = row + "<td>" + result[4] + " [requires curation] </td>";
-            } else {
-                row = row + "<td>" + result[4] + "</td>";
-            }
+            row = row + "<td>" + result[4] + "</td>";
+
             if (result[5] != "N/A") {
                 if (loadedOntologyURIs.indexOf(result[7]) > -1) {
                     //found in OLS
@@ -975,23 +979,20 @@ function renderResults(data) {
         $ar.append(tableContent);
         $("#download").show();
 
-        prop_total = prop_automatic + prop_curation + prop_unmapped;
+        prop_total = prop_high + prop_good + + prop_medium + prop_low + prop_unmapped;
         if (prop_total > 0) {
             var $zoomaStats = $("#zooma-stats");
-            var text_curation = "";
-            if (prop_curation == 1) {
-                text_curation = "requires curation";
-            }
-            else {
-                text_curation = "require curation";
-            }
 
             var statsContent = "Stats: &nbsp;&nbsp;&nbsp;&nbsp; " + prop_total + " properties " +
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                    prop_automatic + " automatic" +
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; " +
-                    prop_curation + " " + text_curation + " " +
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; " +
+                    "&nbsp;&nbsp;&nbsp;&nbsp;" +
+                    prop_high + " high" +
+                    "&nbsp;&nbsp;&nbsp;&nbsp; " +
+                    prop_good + " good" +
+                    "&nbsp;&nbsp;&nbsp;&nbsp; " +
+                    prop_medium + " medium" +
+                    "&nbsp;&nbsp;&nbsp;&nbsp; " +
+                    prop_low + " low" +
+                    "&nbsp;&nbsp;&nbsp;&nbsp; " +
                     prop_unmapped + " unmapped";
             $zoomaStats.find("#stats").html(statsContent);
             $zoomaStats.show();
