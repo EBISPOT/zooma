@@ -4,14 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.zip.ZipInputStream;
 
 /**
  * Some general ZOOMA utility functions
@@ -119,16 +116,18 @@ public class ZoomaUtils {
      * included.</li> </ol>
      * <p/>
      * This form does not take a minimum score - this is equivalent to calling {@link
-     * #filterAnnotationSummaries(java.util.Map, float, float)} with a cutoff score of 0.
+     * #filterAnnotationSummaries(java.util.Map, float, float, String)} with a cutoff score of 0.
      *
      * @param summaries        the set of summaries to filter
      * @param cutoffPercentage the maximum distance away from the top score an annotation is allowed to be whilst not
      *                         being filtered
+     * @param searchString     the property value that we seek to find an annotation for. If from the final annotation summaries
+     *                         some match the searchString exactly, they will be preferred
      * @return a filtered set of annotations, only including those that scored inside the confidence interval
      */
     public static List<AnnotationSummary> filterAnnotationSummaries(Map<AnnotationSummary, Float> summaries,
-                                                                   float cutoffPercentage) {
-        return filterAnnotationSummaries(summaries, 0, cutoffPercentage);
+                                                                    float cutoffPercentage, String searchString) {
+        return filterAnnotationSummaries(summaries, 0, cutoffPercentage, searchString);
 
     }
 
@@ -150,8 +149,8 @@ public class ZoomaUtils {
      * @return a filtered set of annotations, only including those that scored inside the confidence interval
      */
     public static List<AnnotationSummary> filterAnnotationSummaries(final Map<AnnotationSummary, Float> summaries,
-                                                                   float cutoffScore,
-                                                                   float cutoffPercentage) {
+                                                                    float cutoffScore,
+                                                                    float cutoffPercentage, String searchString) {
         Iterator<AnnotationSummary> summaryIterator = summaries.keySet().iterator();
 
         // we need to find summaries that agree and exclude duplicates - build a reference set
@@ -194,6 +193,7 @@ public class ZoomaUtils {
 
         // return top scored summary
         List<AnnotationSummary> results = new ArrayList<>();
+        List<AnnotationSummary> intermediateResults = new ArrayList<>();
         float topScore = Collections.max(summaries.values());
         for (AnnotationSummary as : referenceSummaries) {
             float score = summaries.get(as);
@@ -201,8 +201,30 @@ public class ZoomaUtils {
             // AND if it is greater than the cutoff score
             // include
             if (score > (topScore * cutoffPercentage) && score >= cutoffScore) {
+                intermediateResults.add(as);
+            }
+        }
+
+        //if from the results we have one whose value is the exact search string, then it should be favoured
+        for (AnnotationSummary as : intermediateResults){
+            String value = as.getAnnotatedPropertyValue();
+            if (value.equals(searchString)){
                 results.add(as);
             }
+        }
+
+        if (results.isEmpty()){
+            //try to see if equals, ignoring case
+            for (AnnotationSummary as : intermediateResults){
+                String value = as.getAnnotatedPropertyValue();
+                if (value.toLowerCase().equals(searchString.toLowerCase())){
+                    results.add(as);
+                }
+            }
+        }
+
+        if (results.isEmpty()){
+            results = intermediateResults;
         }
 
         //Make sure the results are sorted (highest score first).

@@ -424,7 +424,7 @@ public class Zooma extends SourceFilteredEndpoint {
         if (!summaries.isEmpty()) {
             // get well scored annotation summaries
             List<AnnotationSummary> goodSummaries = ZoomaUtils.filterAnnotationSummaries(ZoomaUtils.normalizeOLSScores(olsTopScore, summaries),
-                                                                                         cutoffPercentage);
+                                                                                         cutoffPercentage, propertyValue);
 
             // for each good summary, extract an example annotation
             boolean achievedScore = false;
