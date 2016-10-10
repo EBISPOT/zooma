@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import uk.ac.ebi.fgpt.zooma.exception.QueryCreationException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchResourcesUnavailableException;
 import uk.ac.ebi.fgpt.zooma.exception.SearchTimeoutException;
@@ -365,6 +366,9 @@ public class Zooma extends SourceFilteredEndpoint {
             if (e.getCause() instanceof SearchException) {
                 throw (SearchException) e.getCause();
             }
+            else if (e.getCause() instanceof QueryCreationException){
+                throw (QueryCreationException) e.getCause();
+            }
             else {
                 throw new SearchException("Failed to complete a search for '" + propertyValue + "' " +
                                                   "(" + e.getMessage() + ")", e);
@@ -580,6 +584,13 @@ public class Zooma extends SourceFilteredEndpoint {
         getLog().debug("Search resources unavailable from annotation endpoint", e);
         return "Your search request could not be completed due to a problem accessing resources on the server: (" +
                 e.getMessage() + ")";
+    }
+
+    @ExceptionHandler(QueryCreationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody String handleQueryCreationException(QueryCreationException e) {
+        getLog().error(e.getMessage(), e);
+        return "Your search could not be completed due to query creation exception: (" + e.getMessage() + ")";
     }
 
     @ExceptionHandler(RejectedExecutionException.class)
