@@ -29,7 +29,7 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
     private float min;
 
     @Override
-    public List<SolrAnnotation> findByAnnotatedPropertyValueGroupBySemanticTags(String annotatedPropertyValue) {
+    public List<AnnotationSummary> findByAnnotatedPropertyValueGroupBySemanticTags(String annotatedPropertyValue) {
 
         Date date = new Date();
         Timestamp timestamp1 = new Timestamp(date.getTime());
@@ -49,6 +49,9 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
             query.setRows(0);
             page = solrTemplate.queryForPage(query, SolrAnnotation.class);
             totalElements = page.getTotalElements();
+            if (totalElements == 0){
+                return  new ArrayList<>();
+            }
         }
 
         query.setRows((int) totalElements);
@@ -58,7 +61,7 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
         PivotField pivotField = new SimplePivotField("semanticTags", "annotatedPropertyValueStr", "source", "id");
         facetOptions.addFacetOnPivot("semanticTags", "annotatedPropertyValueStr", "source", "id");
         facetOptions.setFacetSort(FacetOptions.FacetSort.INDEX);
-        facetOptions.setFacetLimit(1000);
+        facetOptions.setFacetLimit((int) totalElements);
 
         query.setFacetOptions(facetOptions);
 
@@ -197,8 +200,8 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
         Timestamp timestamp2 = new Timestamp(date1.getTime());
         System.out.println("----" + timestamp1);
         System.out.println("----" + timestamp2);
-        System.exit(0);
-        return null;
+
+        return results;
     }
 
     private float normaliseScore(float score){

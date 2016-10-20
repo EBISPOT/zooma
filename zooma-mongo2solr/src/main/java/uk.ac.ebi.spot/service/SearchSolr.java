@@ -1,10 +1,9 @@
 package uk.ac.ebi.spot.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.spot.model.AnnotationSummary;
 import uk.ac.ebi.spot.model.MongoAnnotation;
-import uk.ac.ebi.spot.model.SolrAnnotation;
 import uk.ac.ebi.spot.services.MongoAnnotationRepositoryService;
 import uk.ac.ebi.spot.services.SolrAnnotationRepositoryService;
 
@@ -22,7 +21,7 @@ public class SearchSolr {
     @Autowired
     MongoAnnotationRepositoryService mongoAnnotationRepositoryService;
 
-    public List<SolrAnnotation> findByAnnotatedPropertyValue(String annotatedPropertyValue){
+    public List<AnnotationSummary> findByAnnotatedPropertyValue(String annotatedPropertyValue){
         return annotationRepositoryService.getByAnnotatedPropertyValueGroupBySemanticTags(annotatedPropertyValue);
     }
 

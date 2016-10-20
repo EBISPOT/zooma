@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import uk.ac.ebi.spot.model.AnnotationSummary;
 import uk.ac.ebi.spot.model.MongoAnnotation;
-import uk.ac.ebi.spot.model.SolrAnnotation;
 import uk.ac.ebi.spot.service.SearchSolr;
 
 import java.util.List;
@@ -18,10 +18,12 @@ public class Mongo2solrApplication {
 		ConfigurableApplicationContext ctx = SpringApplication.run(Mongo2solrApplication.class, args);
 
 		SearchSolr searchSolr = (SearchSolr) ctx.getBean("searchSolr");
-		List<SolrAnnotation> solrAnnotations = searchSolr.findByAnnotatedPropertyValue("nifedipine 0.025 micromolar");
+		List<AnnotationSummary> solrAnnotations = searchSolr.findByAnnotatedPropertyValue("CD4-positive");
 		System.out.println(solrAnnotations.size());
-		MongoAnnotation mongoAnnotation = searchSolr.getMongoAnnotationById(solrAnnotations.get(0).getMongoid());
-		System.out.println(mongoAnnotation.getSemanticTags());
+		if (solrAnnotations!= null && !solrAnnotations.isEmpty()) {
+			MongoAnnotation mongoAnnotation = searchSolr.getMongoAnnotationById(solrAnnotations.get(0).getId());
+			System.out.println(mongoAnnotation.getSemanticTags());
+		}
 
 //		Mongo2SolrLoader mongo2SolrLoader = (Mongo2SolrLoader) ctx.getBean("mongo2SolrLoader");
 //		try {

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.spot.model.AnnotationSummary;
 import uk.ac.ebi.spot.model.SolrAnnotation;
 import uk.ac.ebi.spot.repositories.SolrAnnotationRepository;
 
@@ -25,7 +26,7 @@ public class SolrAnnotationRepositoryService implements RepositoryService<SolrAn
        return annotationSummaryRepository.findByAnnotatedPropertyValue(annotatedPropertyValue);
     }
 
-    public List<SolrAnnotation> getByAnnotatedPropertyValueGroupBySemanticTags(String annotatedPropertyValue){
+    public List<AnnotationSummary> getByAnnotatedPropertyValueGroupBySemanticTags(String annotatedPropertyValue){
         return annotationSummaryRepository.findByAnnotatedPropertyValueGroupBySemanticTags(annotatedPropertyValue);
     }
 
