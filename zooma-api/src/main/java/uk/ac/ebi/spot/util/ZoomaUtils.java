@@ -220,7 +220,7 @@ public class ZoomaUtils {
 
         if (summaries != null && !summaries.isEmpty()) {
             Set<AnnotationSummary> keys = summaries.keySet();
-            if(!keys.iterator().next().getID().equals("OLS")){
+            if(!keys.iterator().next().getId().equals("OLS")){
                 return summaries;
             }
             float topScore = Collections.max(summaries.values());

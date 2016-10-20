@@ -19,14 +19,14 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 24/05/12
  */
-public interface AnnotationSummary extends Identifiable, Qualitative {
+public interface AnnotationSummary extends Qualitative {
     /**
      * Returns the type name of this annotation summary. This is normally a subtype of the general top level annotation
      * summary type name that considers the semantic tags of the annotation and represent that as part of the type.
      *
      * @return the annotation summary type name
      */
-    String getAnnotationSummaryTypeName();
+//    String getAnnotationSummaryTypeName();
 
     /**
      * Returns the ID assigned to this annotation summary.  This will be a hex string that identifies this annotation
@@ -34,7 +34,7 @@ public interface AnnotationSummary extends Identifiable, Qualitative {
      *
      * @return an ID assigned to this summary
      */
-    String getID();
+    String getId();
 
     /**
      * Returns the property value that was used to describe the biological entities in the series of annotations this
@@ -42,7 +42,7 @@ public interface AnnotationSummary extends Identifiable, Qualitative {
      *
      * @return the property value text
      */
-    URI getAnnotatedPropertyUri();
+//    URI getAnnotatedPropertyUri();
 
     /**
      * Returns the property value that was used to describe the biological entities in the series of annotations this
@@ -78,7 +78,7 @@ public interface AnnotationSummary extends Identifiable, Qualitative {
      * @return the provenance associated with this annotation
      * @see Annotation
      */
-    Collection<URI> getAnnotationURIs();
+    Collection<String> getAnnotationIds();
 
     /**
      * Returns a metric measuring the quality score of this annotation summary.  This considers the score of the highest
@@ -93,5 +93,5 @@ public interface AnnotationSummary extends Identifiable, Qualitative {
      * Returns the collection of sources where this annotation summary holds
      */
 
-    Collection<URI> getAnnotationSourceURIs();
+//    Collection<URI> getAnnotationSourceURIs();
 }

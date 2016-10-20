@@ -19,6 +19,7 @@ public class MongoAnnotation extends MongoDocument implements Annotation {
     private Collection<URI> replacedBy;
     private Collection<URI> replaces;
     private boolean batchLoad;
+    private float quality;
 
 
     public MongoAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
@@ -46,6 +47,7 @@ public class MongoAnnotation extends MongoDocument implements Annotation {
             this.replaces.addAll(replaces);
         }
         this.batchLoad = batchLoad;
+        this.quality = calculateAnnotationQuality();
     }
 
     @Override
@@ -109,5 +111,30 @@ public class MongoAnnotation extends MongoDocument implements Annotation {
 
     public void setBatchLoad(boolean batchLoad) {
         this.batchLoad = batchLoad;
+    }
+
+    public float getQuality() {
+        return quality;
+    }
+
+    /**
+     * Returns a float value that is the quality score for the given annotation.
+     * <p/>
+     * This score is evaluated by an algorithm that considers: <ul> <li>Source (e.g. Atlas, AE2, ZOOMA)</li>
+     * <li>Evidence (Manually created, Inferred, etc.)</li> <li>Creator - Who made this annotation?</li> <li>Time of
+     * creation - How recent is this annotation?</li> </ul>
+     */
+    private float calculateAnnotationQuality() throws IllegalArgumentException {
+
+        if (this.provenance == null){
+            throw new IllegalArgumentException("Provenance isn't set yet, can not calculated annotation provenance");
+        }
+        // evidence is most important factor, invert so ordinal 0 gets highest score
+        int evidenceScore = AnnotationProvenance.Evidence.values().length - this.provenance.getEvidence().ordinal();
+        // creation time should then work backwards from most recent to oldest
+        long age = this.provenance.getAnnotationDate().getTime();
+
+        return (float) (evidenceScore + Math.log10(age));
+
     }
 }

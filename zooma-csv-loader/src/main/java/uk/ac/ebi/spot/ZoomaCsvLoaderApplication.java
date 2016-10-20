@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import uk.ac.ebi.spot.services.MongoAnnotationRepositoryService;
-import uk.ac.ebi.spot.builders.LoaderThreadBuilder;
+import uk.ac.ebi.spot.services.LoadAndSaveService;
 
 
 @SpringBootApplication
@@ -18,7 +18,7 @@ public class ZoomaCsvLoaderApplication {
 	public static void main(String[] args) {
 		ConfigurableApplicationContext ctx = SpringApplication.run(ZoomaCsvLoaderApplication.class, args);
 
-		LoaderThreadBuilder threadBuilder = (LoaderThreadBuilder) ctx.getBean("loaderThreadBuilder");
+		LoadAndSaveService threadBuilder = (LoadAndSaveService) ctx.getBean("loadAndSaveService");
 		threadBuilder.init();
 
 		ThreadPoolTaskExecutor threadPoolTaskExecutor = (ThreadPoolTaskExecutor) ctx.getBean("taskExecutor");

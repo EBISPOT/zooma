@@ -90,6 +90,12 @@ public class AnnotationRepositoryServiceIT {
     }
 
     @Test
+    public void testFindAllDocuments(){
+        List<MongoAnnotation> mongoAnnotations = mongoAnnotationRepositoryService.getAllDocuments();
+        assertTrue("More than 0", mongoAnnotations.size() > 0);
+    }
+
+    @Test
     public void testGetBySemanticTags(){
         Collection<URI> semanticTags = new HashSet<>();
         semanticTags.add(URI.create("http://www.ebi.ac.uk/efo/EFO_test"));

@@ -18,42 +18,42 @@ import java.util.*;
 public class MongoAnnotationRepositoryService implements RepositoryService<MongoAnnotation> {
 
     @Autowired
-    MongoAnnotationRepository annotationRepository;
+    MongoAnnotationRepository mongoAnnotationRepository;
 
     /*
         For SimpleAnnotations
      */
 
     public List<MongoAnnotation> getBySemanticTags(Collection<URI> semanticTags) {
-        return annotationRepository.findBySemanticTagsIn(semanticTags);
+        return mongoAnnotationRepository.findBySemanticTagsIn(semanticTags);
     }
 
     public List<MongoAnnotation> getByAnnotatedBiologicalEntitiesStudiesAccession(String accession){
-        return annotationRepository.findByAnnotatedBiologicalEntitiesStudiesAccession(accession);
+        return mongoAnnotationRepository.findByAnnotatedBiologicalEntitiesStudiesAccession(accession);
     }
 
     public List<MongoAnnotation> getByAnnotatedBiologicalEntitiesName(String name){
-        return annotationRepository.findByAnnotatedBiologicalEntitiesName(name);
+        return mongoAnnotationRepository.findByAnnotatedBiologicalEntitiesName(name);
     }
 
     public List<MongoAnnotation> getByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession(String name, String accession){
-        return annotationRepository.findByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession(name, accession);
+        return mongoAnnotationRepository.findByAnnotatedBiologicalEntitiesNameAndAnnotatedBiologicalEntitiesStudiesAccession(name, accession);
     }
 
     public List<MongoAnnotation> getByAnnotatedProperty(Property property){
-        return annotationRepository.findByAnnotatedProperty(property);
+        return mongoAnnotationRepository.findByAnnotatedProperty(property);
     }
 
     public List<MongoAnnotation> getByAnnotatedPropertyValue(String propertyValue) {
-        return annotationRepository.findByAnnotatedPropertyPropertyValue(propertyValue);
+        return mongoAnnotationRepository.findByAnnotatedPropertyPropertyValue(propertyValue);
     }
 
     public List<MongoAnnotation> getByProvenanceSource(AnnotationSource source, Pageable pageable) {
-        return annotationRepository.findByProvenanceSource(source, pageable);
+        return mongoAnnotationRepository.findByProvenanceSource(source, pageable);
     }
 
     public List<MongoAnnotation> getByProvenanceSourceName(String name, Pageable pageable){
-        return annotationRepository.findByProvenanceSourceName(name, pageable);
+        return mongoAnnotationRepository.findByProvenanceSourceName(name, pageable);
     }
 
     /*
@@ -61,11 +61,11 @@ public class MongoAnnotationRepositoryService implements RepositoryService<Mongo
      */
 
     public List<BiologicalEntity> getAllBiologicalEntities(){
-        return annotationRepository.findDistinctAnnotatedBiologicalEntities();
+        return mongoAnnotationRepository.findDistinctAnnotatedBiologicalEntities();
     }
 
     public List<BiologicalEntity> getAllBiologicalEntitiesByStudyAccession(String accession){
-        return annotationRepository.findDistinctAnnotatedBiologicalEntitiesByAnnotatedBiologicalEntitiesStudiesAccession(accession);
+        return mongoAnnotationRepository.findDistinctAnnotatedBiologicalEntitiesByAnnotatedBiologicalEntitiesStudiesAccession(accession);
     }
 
     /*
@@ -73,19 +73,19 @@ public class MongoAnnotationRepositoryService implements RepositoryService<Mongo
      */
 
     public List<Study> getAllStudies(){
-        return annotationRepository.findDistinctAnnotatedBiologicalEntitiesStudies();
+        return mongoAnnotationRepository.findDistinctAnnotatedBiologicalEntitiesStudies();
     }
 
     public List<Study> getStudiesBySemanticTags(URI... semanticTags){
-        return annotationRepository.findDistinctAnnotatedBiologicalEntitiesStudiesBySemanticTags(semanticTags);
+        return mongoAnnotationRepository.findDistinctAnnotatedBiologicalEntitiesStudiesBySemanticTags(semanticTags);
     }
 
     public List<Study> getStudiesByAccession(String accession){
-        return annotationRepository.findDistinctAnnotatedBiologicalEntitiesStudiesByAccession(accession);
+        return mongoAnnotationRepository.findDistinctAnnotatedBiologicalEntitiesStudiesByAccession(accession);
     }
 
     public List<Study> getStudiesByProperty(Property property){
-        return annotationRepository.findDistinctAnnotatedBiologicalEntitiesStudiesByAnnotatedProperty(property);
+        return mongoAnnotationRepository.findDistinctAnnotatedBiologicalEntitiesStudiesByAnnotatedProperty(property);
     }
 
     /*
@@ -93,23 +93,23 @@ public class MongoAnnotationRepositoryService implements RepositoryService<Mongo
      */
 
     public List<Property> getAllProperties(){
-        return annotationRepository.findDistinctAnnotatedProperties();
+        return mongoAnnotationRepository.findDistinctAnnotatedProperties();
     }
 
     public List<String> getAllPropertyTypes(){
-        return annotationRepository.findAllPropertyTypes();
+        return mongoAnnotationRepository.findAllPropertyTypes();
     }
 
     public List<Property> getPropertiesByPropertyType(String type){
-        return annotationRepository.findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyType(type);
+        return mongoAnnotationRepository.findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyType(type);
     }
 
     public List<Property> getPropertiesByPropertyValue(String value){
-        return annotationRepository.findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyValue(value);
+        return mongoAnnotationRepository.findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyValue(value);
     }
 
     public List<Property> getPropertiesByPropertyTypeAndPropertyValue(String type, String value){
-        return annotationRepository.findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyTypeAndByAnnotatedPropertyPropertyValue(type, value);
+        return mongoAnnotationRepository.findDistinctAnnotatedPropertyByAnnotatedPropertyPropertyTypeAndByAnnotatedPropertyPropertyValue(type, value);
     }
 
     /*
@@ -118,42 +118,42 @@ public class MongoAnnotationRepositoryService implements RepositoryService<Mongo
 
     @Override
     public List<MongoAnnotation> getAllDocuments() {
-        return annotationRepository.findAll();
+        return mongoAnnotationRepository.findAll();
     }
 
     @Override
     public List<MongoAnnotation> getAllDocuments(Sort sort) {
-        return annotationRepository.findAll(sort);
+        return mongoAnnotationRepository.findAll(sort);
     }
 
     @Override
     public Page<MongoAnnotation> getAllDocuments(Pageable pageable) {
-        return annotationRepository.findAll(pageable);
+        return mongoAnnotationRepository.findAll(pageable);
     }
 
     @Override
     public void delete(MongoAnnotation document) throws RuntimeException {
-        annotationRepository.delete(document);
+        mongoAnnotationRepository.delete(document);
     }
 
     @Override
     public MongoAnnotation create(MongoAnnotation document) throws RuntimeException {
-        return annotationRepository.insert(document);
+        return mongoAnnotationRepository.insert(document);
     }
 
     @Override
     public MongoAnnotation save(MongoAnnotation document) throws RuntimeException {
-        return annotationRepository.save(document);
+        return mongoAnnotationRepository.save(document);
     }
 
     @Override
     public MongoAnnotation update(MongoAnnotation document) throws RuntimeException {
-        return annotationRepository.save(document);
+        return mongoAnnotationRepository.save(document);
     }
 
     @Override
     public MongoAnnotation get(String documentId) {
-        return annotationRepository.findOne(documentId);
+        return mongoAnnotationRepository.findOne(documentId);
     }
 
 
