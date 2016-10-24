@@ -154,7 +154,7 @@
                         The ZOOMA <a href="../index.html">homepage</a> contains a text box that allows you to discover
                         possible ontology mappings for your terms. Try clicking the "Show me some examples..." link
                         above
-                        this box - it should populate the box with three example terms. Hit "Annotate". A progress bar
+                        this box - it should populate the box with example terms. Hit 'Annotate'. A progress bar
                         appears, showing you when ZOOMA has mapped your terms.
                     </p>
                     <img src="images/show-me-examples.png" class="grid_6 omega" alt="Show me some examples..."/>
@@ -162,27 +162,48 @@
 
                 <p>
                     Once complete, you should see a table of results. Green shows that ZOOMA could map this term
-                    "automatically", or with a HIGH degree of confidence. Yellow shows that ZOOMA was less sure with a GOOD, MEDIUM or LOW degree of confidence, and
-                    results might need further curator intervention to determine if ZOOMA is correct. In the case of spastic paraplegia 10, it could not find a match in the Expression Atlas datasource.
+                    "automatically", i.e. with a HIGH degree of confidence. Yellow shows that ZOOMA was less sure with a GOOD, MEDIUM or LOW degree of confidence, and
+                    results might need further curator intervention to determine if ZOOMA is correct.<br/>
+                    We can help Zooma return a mapping with higher confidence if we supply additional context for a term by adding a type to
+                    our search. If you look at the text box, you'll see when you clicked "Show me some examples..." it
+                    populated a type after some values, with a tab between them, e.g.: <i>cooked broccoli	compound</i>.
+                </p>
+                <img style="text-align: center" src="images/full-example.png" alt="A ZOOMA table of results"/>
+
+                <p>
+                    Let's look at some of the examples in a little more detail, and try to make it harder for Zooma to find a result.
+                    First let us limit it's sources by annotating the terms to the Expression Atlas datasource.<br/> Zooma gives you the option
+                    to limit the sources that it will use to find annotation predictions. These sources are either curated datasources,
+                    or ontologies from the <a href="http://www.ebi.ac.uk/ols" target="_blank">Ontology Lookup Service</a>. <br/>
+                    From the 'Configure Datasources' gear, select 'Configure Curated Datasources' and select only Expression Atlas as the source to be searched in.
+                </p>
+                <img style="text-align: center"
+                     src="images/configure-datasources.png"
+                     alt="Configure Zooma Datasources"/>
+                <p>
+                    Next limit the terms to the four ones shown below, and remove the type 'phenotype' from spastic paraplegia 10. <br/>
+                    Now hit 'Annotate'. <br/>
+                    Again we can see that some terms where mapped with high confidence, and others with good. If we look at the terms that weren't mapped,
+                    in the case of spastic paraplegia 10, we can see that Zooma will not find a mapping in the Expression Atlas datasource.
                 </p>
                 <img style="text-align: center" src="images/results.png" alt="A ZOOMA table of results"/>
 
                 <p>
-                    Let's look at these examples in a little more detail. The last row of your results should be listed
-                    in green - property type "compound" and value "cooked broccoli". ZOOMA mapped this term with a high
-                    degree of confidence, in part because we could supply some additional context by adding a type to
-                    our search. If you look at the text box, you'll see when you clicked "Show me some examples..." it
-                    populated a type after the value, with a tab between them.
-                </p>
-
-                <p>
-                    If we add a type to one of the other examples, we can improve our confidence. Modify the input box -
-                    after the term Spastic paraplegia 10, put a tab and add "phenotype". Now hit "Annotate" again. You should see
-                    that the second result in our table has gone yellow with a good confidence, from unmapped.
+                    Lets try to help Zooma out again, by adding some context.
+                    If we add a type to spastic paraplegia 10, we can improve our confidence. Modify the input box -
+                    after the term Spastic paraplegia 10, put a tab and add 'phenotype'. Now hit 'Annotate' again. You should see
+                    that the third result in our table has gone yellow with a good confidence.
                 </p>
                 <img style="text-align: center"
                      src="images/results-extra-type.png"
                      alt="More results, with additional typing"/>
+                <p>
+                    If you open the 'Configure Datasources' gear, and de-select the Expression Atlas datasource, Zooma will look into all the available curated datasources.
+                    If you Annotate the terms once again, you will see that Zooma has found a mapping with high confidence in the EVA ClinVar database for spastic paraplegia.
+                </p>
+                <img style="text-align: center"
+                     src="images/results-all-datasources.png"
+                     alt="More results, with additional datasources"/>
             </div>
 
             <div id="gs-examples">
@@ -268,11 +289,11 @@
                     or annotations found from ontologies in the <a href="http://www.ebi.ac.uk/ols" target="_blank">Ontology Lookup Service</a>.
                 </p>
                 <p>
-                    By selecting the "Configure Datasources" gear under the Zooma text box, you can either
+                    By selecting the 'Configure Datasources' gear under the Zooma text box, you can either
                     select from the available curated datasources, or look for an ontology in the <a href="http://www.ebi.ac.uk/ols" target="_blank">Ontology Lookup Service</a>.
                 </p>
                 <img style="text-align: center"
-                     src="images/configure-datasources.png"
+                     src="images/configure-datasources-complete.png"
                      alt="Configure Datasources"/>
 
                 <img style="text-align: center"

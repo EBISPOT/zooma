@@ -2,24 +2,6 @@ var scrollApis;
 
 $(document).ready(init());
 
-$('form').on('keydown', 'input, select', function(e) {
-    var self = $(this)
-        , form = self.parents('form:eq(0)')
-        , focusable
-        , next
-        ;
-    if (e.keyCode == 13) {
-        focusable = form.find('input,a,select,button,textarea').filter(':visible');
-        next = focusable.eq(focusable.index(this)+1);
-        if (next.length) {
-            next.focus();
-        } else {
-            form.submit();
-        }
-        return false;
-    }
-});
-
 
 function init() {
     // markup any context help sections
@@ -88,25 +70,17 @@ function init() {
     getResults();
 }
 
-// Initialize sidebar
-$(".sidebar.right").sidebar({side: "right"});
-var sideBarOpen = false;
-//sidebar is closed, accordion should be hidden
-$("#accordion").hide();
+$(document).ready(function() {
+    $('.nav-toggle').click(function(){
+        //get collapse content selector
+        var collapse_content_selector = $("#collapse1");
 
-function toggleSidebar(){
+        //make the collapse content to be shown or hide
+        $(collapse_content_selector).toggle(function(){
+        });
+    });
 
-    $(".sidebar.right").trigger("sidebar:toggle");
-
-    if(sideBarOpen == false){
-        sideBarOpen = true;
-        $("#accordion").show();
-    } else if (sideBarOpen == true){
-        sideBarOpen = false;
-        $("#accordion").hide();
-    }
-
-}
+});
 
 
 function initializeScrollpanes() {
@@ -133,7 +107,7 @@ $(function() {
         activate:function(event, ui ){
             // Grab current anchor value
             var currentAttrValue = $(this).attr('name');
-            if (currentAttrValue == "#accordion-1"){
+            if (currentAttrValue == "accordion-1"){
                 populateOntologies();
             }
             reinitializeScrollpanes();
@@ -199,9 +173,9 @@ var datasourceNames = [];
 var searchableOntoNames = [];
 var ontologyPrefixes = [];
 var loadedOntologyURIs = [];
-var nameDescriptionMap = new Map();
-var nameTitleMap = new Map();
-var uriNameMap = new Map();
+var nameDescriptionMap = {}; //Map
+var nameTitleMap = {};
+var uriNameMap = {};
 
 function populateDatasources() {
     // clear sorter element if already exists
@@ -219,46 +193,54 @@ function populateDatasources() {
 
                 if(name == "sysmicro"){
                     datasourceNames.push("CellularPhenoTypes");
-                    nameDescriptionMap.set("CellularPhenoTypes", "<p><b>Cellular Phenotype Database</b><br>The Cellular Phenotype database provides easy access " +
+                    var desc = "<p><b>Cellular Phenotype Database</b><br>The Cellular Phenotype database provides easy access " +
                         "to phenotypic data derived from high-throughput screening, facilitating data sharing and integration.</p>" +
-                        "<p><b>database name: 'sysmicro'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                        "<p><b>database name: 'sysmicro'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                    nameDescriptionMap["CellularPhenoTypes"] = desc;
                 }
                 else if (name == "ebisc"){
                     datasourceNames.push("EBiSC");
-                    nameDescriptionMap.set("EBiSC", "<p><b>Cell Line Catalogue</b><br>iPSC line catalogue</p>" +
-                        "<p><b>database name: 'ebisc'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                    var desc = "<p><b>Cell Line Catalogue</b><br>iPSC line catalogue</p>" +
+                        "<p><b>database name: 'ebisc'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                    nameDescriptionMap["EBiSC"] = desc;
                 } else if (name == "cttv"){
                     datasourceNames.push("OpenTargets");
-                    nameDescriptionMap.set("OpenTargets", "<p><b>Open Targets</b><br>Open Targets is a public-private initiative to " +
+                    var desc = "<p><b>Open Targets</b><br>Open Targets is a public-private initiative to " +
                         "generate evidence on the validity of therapeutic targets based on genome-scale experiments and analysis.</p>" +
-                        "<p><b>database name: 'cttv'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                        "<p><b>database name: 'cttv'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                    nameDescriptionMap["OpenTargets"] = desc;
                 } else if (name == "uniprot"){
                     datasourceNames.push("UniProt");
-                    nameDescriptionMap.set("UniProt", "<p><b>UniProt</b><br>A comprehensive, high quality and freely accessible resource of protein sequence and functional information.</p>" +
-                        "<p><b>database name: 'uniprot'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                    var desc = "<p><b>UniProt</b><br>A comprehensive, high quality and freely accessible resource of protein sequence and functional information.</p>" +
+                        "<p><b>database name: 'uniprot'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                    nameDescriptionMap["UniProt"] = desc;
                 } else if (name == "eva-clinvar"){
                     datasourceNames.push("ClinVar");
-                    nameDescriptionMap.set("ClinVar", "<p><b>European Variation Archive</b><br>The European Variation Archive is an open-access database " +
+                    var desc = "<p><b>European Variation Archive</b><br>The European Variation Archive is an open-access database " +
                         "of all types of genetic variation data from all species.</p>" +
-                        "<p><b>database name: 'eva-clinvar'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                        "<p><b>database name: 'eva-clinvar'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                    nameDescriptionMap["ClinVar"] = desc;
                 } else if (name == "gwas"){
                     datasourceNames.push("GWAS");
-                    nameDescriptionMap.set("GWAS", "<p><b>GWAS</b><br> A Catalog of Published Genome-Wide Association Studies.</p>" +
-                        "<p><b>database name: 'gwas'</b><br><a href='http://www.ebi.ac.uk/gwas' target='_blank'>http://www.ebi.ac.uk/gwas</a></p>");
+                    var desc = "<p><b>GWAS</b><br> A Catalog of Published Genome-Wide Association Studies.</p>" +
+                        "<p><b>database name: 'gwas'</b><br><a href='http://www.ebi.ac.uk/gwas' target='_blank'>http://www.ebi.ac.uk/gwas</a></p>";
+                    nameDescriptionMap["GWAS"] = desc;
                 } else if (name == "atlas"){
                     datasourceNames.push("ExpressionAtlas");
-                    nameDescriptionMap.set("ExpressionAtlas", "<p><b>Expression Atlas</b><br>The Expression Atlas provides information on gene expression patterns under different biological conditions.</p>" +
-                        "<p><b>DB name: 'atlas'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>");
+                    var desc = "<p><b>Expression Atlas</b><br>The Expression Atlas provides information on gene expression patterns under different biological conditions.</p>" +
+                        "<p><b>DB name: 'atlas'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                    nameDescriptionMap["ExpressionAtlas"] = desc;
                 } else {
-                    nameDescriptionMap.set(name, "No description.");
+                    nameDescriptionMap[name] =  "No description.";
                 }
             } else if (sources[i].type == "ONTOLOGY"){
                 searchableOntoNames.push(sources[i].title + " (" + sources[i].name + ")");
                 ontologyPrefixes.push(sources[i].name);
                 loadedOntologyURIs.push(sources[i].uri);
-                nameDescriptionMap.set(sources[i].name, "<p><b>" + sources[i].title + "</b><br>" + sources[i].description + "</p>" +
-                    "<p><a href='http://www.ebi.ac.uk/ols/ontologies/" + sources[i].name + "' target='_blank'>view ontology in OLS</a></p>");
-                uriNameMap.set(sources[i].uri, sources[i].name);
+                var desc = "<p><b>" + sources[i].title + "</b><br>" + sources[i].description + "</p>" +
+                    "<p><a href='http://www.ebi.ac.uk/ols/ontologies/" + sources[i].name + "' target='_blank'>view ontology in OLS</a></p>";
+                nameDescriptionMap[sources[i].name] = desc;
+                uriNameMap[sources[i].uri] =  sources[i].name;
             }
 
         }
@@ -273,11 +255,11 @@ function populateDatasources() {
 }
 
 function getSourceDescription(name){
-    return nameDescriptionMap.get(name.toString());
+    return nameDescriptionMap[name.toString()];
 }
 
 function getSourceTitle(name){
-    return nameTitleMap.get(name.toString());
+    return nameTitleMap[name.toString()];
 }
 
 function populateOntologySelector() {
@@ -473,7 +455,11 @@ function hideDesc(source){
     } else {
         sourceName = source.textContent.toString();
     }
-    $("#description-" + sourceName).tooltip("disable");
+
+    if ($("#description-" + sourceName).data('ui-tooltip')){
+        $("#description-" + sourceName).tooltip("disable");
+    }
+
 }
 
 
@@ -873,7 +859,7 @@ function renderResults(data) {
                 if (loadedOntologyURIs.indexOf(result[7]) > -1) {
                     //found in OLS
                     // no comma separation in results from OLS, linkify entire field
-                    row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[5] + "&ontology=" + uriNameMap.get(result[7]).toLowerCase(), result[5]) + "</td>";
+                    row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[5] + "&ontology=" + uriNameMap[result[7]].toLowerCase(), result[5]) + "</td>";
 
                 } else {
                     // multiple mappings will be comma separated
@@ -920,9 +906,9 @@ function renderResults(data) {
                 //}
                 var href;
                 if (loadedOntologyURIs.indexOf(result[7]) > -1){
-                    row = row + "<td><a href='" + "http://www.ebi.ac.uk/ols/ontologies/" + uriNameMap.get(result[7]) + "' target='_blank'>" +
+                    row = row + "<td><a href='" + "http://www.ebi.ac.uk/ols/ontologies/" + uriNameMap[result[7]] + "' target='_blank'>" +
                         "<img src='images/ols-logo.jpg' " +
-                        "alt='" + uriNameMap.get(result[7]) + "' style='height: 20px;'/> " + uriNameMap.get(result[7]) + "</a></td>";
+                        "alt='" + uriNameMap[result[7]] + "' style='height: 20px;'/> " + uriNameMap[result[7]] + "</a></td>";
                 }
                 else if (result[7] == "http://www.ebi.ac.uk/gxa") {
                     href = result[7];

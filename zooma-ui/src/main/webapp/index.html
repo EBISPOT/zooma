@@ -1,4 +1,5 @@
-<!doctype html>
+<!Doctype html>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
 <!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
 <!--[if lt IE 7]>
 <html class="no-js ie6 oldie" lang="en"> <![endif]-->
@@ -86,6 +87,7 @@
 
     <!-- custom build (lacks most of the "advanced" HTML5 support -->
     <script src="//www.ebi.ac.uk/web_guidelines/js/libs/modernizr.custom.49274.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.js"></script>
 
 </head>
 
@@ -160,29 +162,16 @@
         <div id="zooma-content">
 
             <div id="zooma-inputs" style="min-height: 380px;">
-                <div id="zooma-description">
-                    <p>
-                        Zooma is a tool for mapping free text annotations to ontology term based on a curated repository of annotation knowledge.
-                    </p>
-                    <p>
-                        Where mappings are not found in the curated respository one or more ontologies can be selected from the <a href="http://www.ebi.ac.uk/ols" target="_blank">Ontology Lookup Service</a> to increase coverage.
-                        For example if you want to map GWAS annotations select the GWAS datasource and a common disease ontology such as EFO or DOID to maximise coverage when terms have no curated mappings.
-                    </p>
+                <!--<div id="zooma-description">-->
+                    <!--<p style="margin-bottom: 2em;">-->
+                        <!--z-->
+                    <!--</p>-->
 
-                    <p style="margin-bottom: 0;">
-                        Use the box below to find possible ontology mappings for free text terms in the ZOOMA repository
-                        of curated annotation knowledge. You can add one term (e.g. <span style="font-style: italic">'Homo sapiens'</span>)
-                        per line. If you also have a type for your term (e.g. <span style="font-style: italic">'organism'</span>),
-                        put this after the term, separated by a tab. <br>
-                        If you are new to ZOOMA, take a look at our <a href="./docs/getting-started.html">getting started
-                        guide</a>.
-                    </p>
+                <!--</div>-->
 
-                </div>
-
-                <div id="zooma-searches" class="grid_14 alpha">
+                <div id="zooma-searches" class="grid_12 alpha sort-wrapper">
                     <form>
-                        <fieldset style="margin-top:5%; margin-right: 5%; height:380px;">
+                        <fieldset style="height:300px;">
                             <div class="context-help">
                     <span class="context-help-label" style=" float: left; color: #666;">
                         What's this?
@@ -210,7 +199,7 @@
                             </div>
                             <label>
                     <textarea id="zooma-textarea"
-                              style="resize: none; width: 98%; overflow: auto; height: 328px;"></textarea>
+                              style="resize: none; width: 98%; overflow: auto; height: 248px;"></textarea>
                             </label>
 
                             <div style="float: left; padding: 8px 0; width: 50%">
@@ -234,114 +223,135 @@
                                        onclick="annotate($('#zooma-textarea').val());">
                             </div>
                         </fieldset>
-                        <div style="float: right; margin-right: 4%;">
-                            <p><a href="#" class="icon icon-functional" data-icon="s" onclick="toggleSidebar()"><span>Configure Datasources</span></a></p>
+                        <div style="float: left;">
+                            <a href="#" class="nav-toggle icon icon-functional" data-icon="s"><span>Configure Datasources</span></a>
                         </div>
                     </form>
                 </div>
 
+                <div class="grid_12 omega" id="zooma-info">
+                    <div class="jumbotron">
+                        <p>
+                            Zooma is a tool for mapping free text annotations to ontology term based on a curated repository of annotation knowledge.
+                        </p>
+                            <p>
+                                Where mappings are not found in the curated respository one or more ontologies can be selected from the <a href="http://www.ebi.ac.uk/ols" target="_blank">Ontology Lookup Service</a> to increase coverage.
+                                For example if you want to map GWAS annotations select the GWAS datasource and a common disease ontology such as EFO or DOID to maximise coverage when terms have no curated mappings.
+                            </p>
+                            <p>
+                                Use the text box to find possible ontology mappings for free text terms in the ZOOMA repository
+                                of curated annotation knowledge. You can add one term (e.g. <span style="font-style: italic">'Homo sapiens'</span>)
+                                per line. If you also have a type for your term (e.g. <span style="font-style: italic">'organism'</span>),
+                                put this after the term, separated by a tab.
+                                <br>
+                                If you are new to ZOOMA, take a look at our <a href="./docs/getting-started.html">getting started
+                                guide</a>.
+                            </p>
+                    </div>
+                </div>
 
-                <div class="sidebar right">
-                    <fieldset  style="margin: 6%;">
 
-                        <div id="accordion" style="resize: none;  overflow: auto; height:400px;">
+            </div>
 
-                        <p>Configure Curated Datasources</p>
-                        <div name="#accordion-1">
-                            <div style="margin-left:6%;">
-                                <div class="context-help">
+            <div id="zooma-results" class="grid_24 alpha">
+                <div id="collapse1" style="display:none">
+                    <fieldset  style="margin: 10px;">
+
+                        <div id="accordion" style="resize: none;  overflow: auto;">
+
+                            <p>Configure Curated Datasources</p>
+                            <div name="accordion-1">
+                                <div style="margin-left:6%;">
+                                    <div class="context-help">
                                     <span class="context-help-label" style="font-size: 0.8em; float:left; color: #666;">
                                         What's this?
                                     </span>
-                                    <div class="context-help-content">
-                                        <ul style="font-size: 0.9em">
-                                            <li>These are manually curated ontology annotations from public databases.</li>
-                                            <li>These annotations will be favoured over the ones found from ontology sources.</li>
-                                            <li>If none are selected, all curated databases will be searched.</li>
-                                            <li>If you want to make zooma omit looking into these databases, <br> select the "Don't search in any datasources" box.</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <form style="margin-top: 0px;">
-                                <fieldset style="margin-top: 30px;">
-                                    <div id="required-datasources"
-                                         style="height: 150px; margin-bottom: 5%;">
-                                        <div id="select-none-datasources"><input type="checkbox" name="Select None" value="Select None" onclick="deselectAllDatasources()">Don't search in any datasources</div>
-                                        <div class="zooma-scrollpane" style="height: 140px; margin-top: 10px; margin-bottom: 5px;">
-                                            <ul id="datasource-selector" style="list-style: none;">
+                                        <div class="context-help-content">
+                                            <ul style="font-size: 0.9em">
+                                                <li>These are manually curated ontology annotations from public databases.</li>
+                                                <li>These annotations will be favoured over the ones found from ontology sources.</li>
+                                                <li>If none are selected, all curated databases will be searched.</li>
+                                                <li>If you want to make zooma omit looking into these databases, <br> select the "Don't search in any datasources" box.</li>
                                             </ul>
                                         </div>
                                     </div>
-                                    <div id="preferred-datasources"
-                                         class="container_24"
-                                         style="margin-top: 10px;">
-                                        <div style="font-size: 0.7em;"> <!-- margin-top: 15px; -->
-                                            Preferred datasource ranking:
-                                        </div>
-                                        <div id="datasource-sorter" class="grid_24">
-                                            <div class="grid_12 alpha sort-wrapper">
-                                                <span style="font-size: 0.7em">Unranked Datasources:</span>
-
-                                                <div class="sort-container zooma-scrollpane">
-                                                    <ul id="zooma-datasource-unranked">
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="grid_12 omega sort-wrapper">
-                                                <span style="font-size: 0.7em">Ranked Datasources:</span>
-
-                                                <div class="sort-container zooma-scrollpane">
-                                                    <ul id="zooma-datasource-ranked">
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </fieldset>
-                            </form>
-                        </div>
-
-                        <p>Configure Ontology Sources</p>
-                        <div name="#accordion-2">
-                            <div style="margin-left:20px; ">
-                                <div class="context-help">
-                                    <span class="context-help-label" style="font-size: 0.8em; float:left; color: #666;">
-                                        What's this?
-                                    </span>
-                                    <div class="context-help-content">
-                                        <ul style="font-size: 0.9em">
-                                            <li>Select any available ontologies from the Ontology Lookup Service.</li>
-                                            <li>If none are selected, all of OLS will be searched.</li>
-                                            <li>If you want to make zooma omit looking into OLS, <br> select the "Don't search in any ontologies" box.</li>
-                                        </ul>
-                                    </div>
                                 </div>
-                            </div>
-                            <div id="ontology-searchfield">
-                                <form >
+                                <form style="margin-top: 0px;">
                                     <fieldset style="margin-top: 30px;">
-                                        <div>
-                                            <input type="text" name="ontologies" class="input" id="autocomplete" placeholder="Search ontologies by name, e.g. EFO or Experimental Factor Ontology"  onfocus="{this.value = '';}" style="width:95%; font-size: 0.9em;">
-                                        </div>
-                                        <div id="select-none-ontologies"> <input type="checkbox" name="Select None" value="Select None" onclick="deselectAllOntologies()">Don't search in any ontologies</div>
-                                        <div style="height: 150px;  margin-top: 5px;">
-                                            <div class="zooma-scrollpane" style="height: 140px;">
-                                                <ul id="selected-ontologies" style="list-style: none;">
+                                        <div id="required-datasources"
+                                             style="height: 150px; margin-bottom: 5%;">
+                                            <div id="select-none-datasources"><input type="checkbox" name="Select None" value="Select None" onclick="deselectAllDatasources()">Don't search in any datasources</div>
+                                            <div class="zooma-scrollpane" style="height: 140px; margin-top: 10px; margin-bottom: 5px;">
+                                                <ul id="datasource-selector" style="list-style: none;">
                                                 </ul>
+                                            </div>
+                                        </div>
+                                        <div id="preferred-datasources"
+                                             class="container_24"
+                                             style="margin-top: 10px;">
+                                            <div style="font-size: 0.7em;"> <!-- margin-top: 15px; -->
+                                                Preferred datasource ranking:
+                                            </div>
+                                            <div id="datasource-sorter" class="grid_24">
+                                                <div class="grid_12 alpha sort-wrapper">
+                                                    <span style="font-size: 0.7em">Unranked Datasources:</span>
+
+                                                    <div class="sort-container zooma-scrollpane">
+                                                        <ul id="zooma-datasource-unranked">
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="grid_12 omega sort-wrapper">
+                                                    <span style="font-size: 0.7em">Ranked Datasources:</span>
+
+                                                    <div class="sort-container zooma-scrollpane">
+                                                        <ul id="zooma-datasource-ranked">
+                                                        </ul>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </fieldset>
                                 </form>
                             </div>
-                        </div>
-                    </div>
-                        </fieldset>
-              </div>
-            </div>
 
-            <div id="zooma-results" class="grid_24 alpha">
-                <h3>Results</h3>
+                            <p>Configure Ontology Sources</p>
+                            <div name="accordion-2">
+                                <div style="margin-left:20px; ">
+                                    <div class="context-help">
+                                    <span class="context-help-label" style="font-size: 0.8em; float:left; color: #666;">
+                                        What's this?
+                                    </span>
+                                        <div class="context-help-content">
+                                            <ul style="font-size: 0.9em">
+                                                <li>Select any available ontologies from the Ontology Lookup Service.</li>
+                                                <li>If none are selected, all of OLS will be searched.</li>
+                                                <li>If you want to make zooma omit looking into OLS, <br> select the "Don't search in any ontologies" box.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="ontology-searchfield">
+                                    <form >
+                                        <fieldset style="margin-top: 30px;">
+                                            <div>
+                                                <input type="text" name="ontologies" class="input" id="autocomplete" placeholder="Search ontologies by name, e.g. EFO or Experimental Factor Ontology"  onfocus="{this.value = '';}" style="width:95%; font-size: 0.9em;">
+                                            </div>
+                                            <div id="select-none-ontologies"> <input type="checkbox" name="Select None" value="Select None" onclick="deselectAllOntologies()">Don't search in any ontologies</div>
+                                            <div style="height: 150px;  margin-top: 5px;">
+                                                <div class="zooma-scrollpane" style="height: 140px;">
+                                                    <ul id="selected-ontologies" style="list-style: none;">
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <h3 style="margin-top:15px;">Results</h3>
 
                 <div class="grid_18 alpha">
                     <p style="padding: 0.5em 0 0 1em; margin: 0">
@@ -370,7 +380,7 @@
 
                 </div>
 
-                <table class="col-6">
+                <table id="results-table" class="col-6">
                     <thead>
                     <tr>
                         <th class="context-help">

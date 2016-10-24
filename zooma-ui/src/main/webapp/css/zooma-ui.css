@@ -112,6 +112,10 @@ table.col-6 th,td {
     font-size: 0.9em;
 }
 
+.scroll-pane {
+
+}
+
 .zooma-scrollpane {
     outline: none !important;
 }
@@ -161,9 +165,9 @@ table.version {
     padding: 2px;
 }
 
-#ontology-searchfield { display: block; width: 100%; text-align: center; margin-bottom: 35px; }
+.ontology-searchfield { display: block; width: 100%; text-align: center; margin-bottom: 35px; }
 
-#ontology-searchfield form .input:focus {
+.ontology-searchfield form .input:focus {
     color: #858585;
 }
 
@@ -172,14 +176,8 @@ table.version {
 .autocomplete-selected { background: #f0f0f0; }
 .autocomplete-suggestions strong { font-weight: normal; color: #228B22; }
 
-#accordion .ui-state-focus{
+.accordion .ui-state-focus{
     outline: none;
-}
-
-.sidebar.right {
-    position: absolute;
-    /*z-index:1;*/
-    width: 45%;
 }
 
 
@@ -191,23 +189,39 @@ li:not(:last-child) {
 .ui-accordion .ui-accordion-content {
     padding:0 !important;
     top:0 !important;
+}
+
+.ui-accordion {
+    width: 50% !important;
+}
+
+.collapse {
+    display: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.show{
+    display: block;
+}
+
+#zooma-info{
+    position: absolute;
+    margin-top: 1em;
+    margin-left: 5px;
+    height: 350px;
+    overflow:auto;
 
 }
 
+.jumbotron{
+    padding: 18px;
+    color:inherit;
+    background-color:#eee
+}
 
-/*.centerdiv {*/
-    /*position:relative;*/
-    /*margin: auto;*/
-    /*width: 60%;*/
-    /*padding: 10px;*/
-    /*!*z-index: 1;*!*/
-/*}*/
-
-
-
-
-
-
-
-
-
+.jumbotron p{
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 200;
+}
