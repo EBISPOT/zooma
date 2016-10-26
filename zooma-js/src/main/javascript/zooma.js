@@ -4,7 +4,7 @@
 var default_zooma_url       = 'http://www.ebi.ac.uk/spot/zooma/';
 var default_zooma_base_path = 'v2/api/services';
 var default_logging_div     = 'zooma-log';
-var default_ols_search_end  = 'http://www.ebi.ac.uk/ols/beta/api/terms?short_form=';
+var default_ols_search_end  = 'http://www.ebi.ac.uk/ols/api/terms?short_form=';
 var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"popup-header\">\n\t\t<h3>{{term}}</h3>\n\t\t{{#isUserTerm}}\n\t\t\t<h5>Term provided by <span class=\"confidence-label {{#lower}}{{confidence}}{{/lower}}-confidence-label\">{{confidence}}</span></h5>\n\t\t{{/isUserTerm}}\n\t\t{{^isUserTerm}}\n\t\t\t<h5>Term suggested by ZOOMA with <span class=\"confidence-label {{#lower}}{{confidence}}{{/lower}}-confidence-label\">{{confidence}}</span> confidence</h5>\n\t\t{{/isUserTerm}}\n\t</header>\n\t<section class=\"popup-body\">\n\t\t<h3>Description:</h3>\n\t\t{{#excerpt}}\n\t\t\t{{#description}}\n\t\t\t\t<p>{{.}}</p>\n\t\t\t{{/description}}\n\t\t{{/excerpt}}\n\t</section>\n\t<footer class=\"popup-footer\">\n\t\t<a href=\"{{{iri}}}\" target=\"_blank\">{{{iri}}}</a>\t\n\t</footer>\n</div>';
 //var data_source_required_format = 'required:[cmpo,efo,ebisc]'
 //var data_source_preferred_format = 'preferred:[ebisc]'

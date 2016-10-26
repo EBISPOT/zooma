@@ -46,7 +46,7 @@ public class OLSSearchService extends Initializable {
     }
 
     public List<Term> getTermsByName(String value){
-        return increaseScoreForDefiningOntologyTerm(getTermsByName(value, ""));
+        return removeWhatIsNotDefiningOntology(getTermsByName(value, ""));
     }
 
     public List<Term> getTermsByName(String value, ArrayList<String> sources){
@@ -55,7 +55,7 @@ public class OLSSearchService extends Initializable {
         for (String source : sources) {
             terms.addAll(getTermsByName(value, source));
         }
-        return increaseScoreForDefiningOntologyTerm(terms);
+        return removeWhatIsNotDefiningOntology(terms);
     }
 
     private List<Term> getTermsByName(String value, String source){
@@ -67,7 +67,7 @@ public class OLSSearchService extends Initializable {
     }
     //
     public List<Term> getTermsByNameFromParent(String value, String childrenOf){
-        return increaseScoreForDefiningOntologyTerm(getTermsByNameFromParent(value, "", childrenOf));
+        return removeWhatIsNotDefiningOntology(getTermsByNameFromParent(value, "", childrenOf));
     }
 
     public List<Term> getTermsByNameFromParent(String value, ArrayList<String> sources, String childrenOf){
@@ -75,7 +75,7 @@ public class OLSSearchService extends Initializable {
         for (String source : sources) {
             terms.addAll(getTermsByNameFromParent(value, source, childrenOf));
         }
-        return increaseScoreForDefiningOntologyTerm(terms);
+        return removeWhatIsNotDefiningOntology(terms);
     }
 
     private List<Term> getTermsByNameFromParent(String value, String source, String childrenOf){
@@ -123,7 +123,7 @@ public class OLSSearchService extends Initializable {
      * This is done due to the reason that if duplicate iri's are returned from different ontologies
      * in OLS, Zooma will keep only one of them, and we want to keep the one from the defining ontology.
      */
-    private List<Term> increaseScoreForDefiningOntologyTerm(List<Term> terms){
+    private List<Term> removeWhatIsNotDefiningOntology(List<Term> terms){
 
         if (terms == null || terms.isEmpty()){
             return new ArrayList<>();
@@ -134,10 +134,6 @@ public class OLSSearchService extends Initializable {
             if (term.isDefinedOntology()){
                 if (term.getScore() != null) {
                     term.setScore(String.valueOf(Float.valueOf(term.getScore()) + 1));
-                    survivalTerms.add(term);
-                }
-            } else {
-                if (term.getScore() != null) {
                     survivalTerms.add(term);
                 }
             }
