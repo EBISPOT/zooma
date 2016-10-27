@@ -46,7 +46,7 @@ public class OLSSearchService extends Initializable {
     }
 
     public List<Term> getTermsByName(String value){
-        return removeWhatIsNotDefiningOntology(getTermsByName(value, ""));
+        return filterDefiningOntology(getTermsByName(value, ""));
     }
 
     public List<Term> getTermsByName(String value, ArrayList<String> sources){
@@ -55,7 +55,7 @@ public class OLSSearchService extends Initializable {
         for (String source : sources) {
             terms.addAll(getTermsByName(value, source));
         }
-        return removeWhatIsNotDefiningOntology(terms);
+        return filterDefiningOntology(terms);
     }
 
     private List<Term> getTermsByName(String value, String source){
@@ -67,7 +67,7 @@ public class OLSSearchService extends Initializable {
     }
     //
     public List<Term> getTermsByNameFromParent(String value, String childrenOf){
-        return removeWhatIsNotDefiningOntology(getTermsByNameFromParent(value, "", childrenOf));
+        return filterDefiningOntology(getTermsByNameFromParent(value, "", childrenOf));
     }
 
     public List<Term> getTermsByNameFromParent(String value, ArrayList<String> sources, String childrenOf){
@@ -75,7 +75,7 @@ public class OLSSearchService extends Initializable {
         for (String source : sources) {
             terms.addAll(getTermsByNameFromParent(value, source, childrenOf));
         }
-        return removeWhatIsNotDefiningOntology(terms);
+        return filterDefiningOntology(terms);
     }
 
     private List<Term> getTermsByNameFromParent(String value, String source, String childrenOf){
@@ -119,27 +119,37 @@ public class OLSSearchService extends Initializable {
     }
 
     /*
-     * If the Term returned is from a defining ontology the score is increased by one.
-     * This is done due to the reason that if duplicate iri's are returned from different ontologies
-     * in OLS, Zooma will keep only one of them, and we want to keep the one from the defining ontology.
+     * If at least one result has "is_defining_ontology = true" then return only those ones.
+     * If no terms have "is_defining_ontology = true", then return them all.
      */
-    private List<Term> removeWhatIsNotDefiningOntology(List<Term> terms){
+    private List<Term> filterDefiningOntology(List<Term> terms){
 
         if (terms == null || terms.isEmpty()){
             return new ArrayList<>();
         }
 
-        List<Term> survivalTerms = new ArrayList<>();
+        List<Term> termsWithDefiningOntologyTrue = new ArrayList<>();
+        List<Term> termsWithDefiningOntologyFalse = new ArrayList<>();
+
         for (Term term : terms){
             if (term.isDefinedOntology()){
                 if (term.getScore() != null) {
                     term.setScore(String.valueOf(Float.valueOf(term.getScore()) + 1));
-                    survivalTerms.add(term);
+                    termsWithDefiningOntologyTrue.add(term);
+                }
+            } else {
+                if (term.getScore() != null) {
+                    termsWithDefiningOntologyFalse.add(term);
                 }
             }
         }
 
-        return survivalTerms;
+        if (termsWithDefiningOntologyTrue.isEmpty()){
+            return termsWithDefiningOntologyFalse;
+        } else {
+            return termsWithDefiningOntologyTrue;
+        }
+
     }
 
     public List<Ontology> getAllOntologies(){
