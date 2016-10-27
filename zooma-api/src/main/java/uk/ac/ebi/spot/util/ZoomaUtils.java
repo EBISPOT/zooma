@@ -2,6 +2,7 @@ package uk.ac.ebi.spot.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.spot.model.AnnotationPrediction;
 import uk.ac.ebi.spot.model.AnnotationSummary;
 
 import java.io.UnsupportedEncodingException;
@@ -130,8 +131,37 @@ public class ZoomaUtils {
 
     }
 
+    public static AnnotationPrediction.Confidence getConfidence(List<AnnotationSummary> results, float cutoffScore) {
 
+        boolean achievedScore = false;
+        for (AnnotationSummary summary : results) {
+            if (!achievedScore && summary.getQuality() > cutoffScore) {
+                achievedScore = true;
+                break; //won't come in here again
+            }
+        }
 
+        if (results.size() == 1 && achievedScore) {
+            // one good annotation, so create prediction with high confidence
+            return AnnotationPrediction.Confidence.HIGH;
+        }
+        else {
+            if (achievedScore) {
+                // multiple annotations each with a good score, create predictions with good confidence
+                return AnnotationPrediction.Confidence.GOOD;
+            }
+            else {
+                if (results.size() == 1) {
+                    // single stand out annotation that didn't achieve score, create prediction with good confidence
+                    return AnnotationPrediction.Confidence.GOOD;
+                }
+                else {
+                    // multiple annotations, none reached score, so create prediction with medium confidence
+                    return AnnotationPrediction.Confidence.MEDIUM;
+                }
+            }
+        }
+    }
 
 
     /**

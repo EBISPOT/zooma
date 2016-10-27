@@ -5,10 +5,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import uk.ac.ebi.spot.model.AnnotationPrediction;
 import uk.ac.ebi.spot.model.AnnotationProperty;
 import uk.ac.ebi.spot.model.AnnotationSummary;
-import uk.ac.ebi.spot.model.AnnotationSummaryRequest;
+import uk.ac.ebi.spot.model.AnnotationSummaryPrediction;
 import uk.ac.ebi.spot.services.SolrAnnotationRepositoryService;
+import uk.ac.ebi.spot.util.ZoomaUtils;
 
 import java.util.*;
 
@@ -32,19 +34,22 @@ public class AnnotationSummaryController {
     public String annotate(AnnotationProperty property, Model model){
         ArrayList<String> values = new ArrayList<>(Arrays.asList(property.getPropertyValue().split("\r\n")));
 
-        Map<String, List<AnnotationSummaryRequest>> summaryMap = new HashMap<>();
+        Map<String, List<AnnotationSummaryPrediction>> summaryMap = new HashMap<>();
         for (String value : values){
-            List<AnnotationSummaryRequest> summaries = new ArrayList<>();
+            List<AnnotationSummaryPrediction> summaries = new ArrayList<>();
 
             List<AnnotationSummary> results = solrAnnotationRepositoryService.getByAnnotatedPropertyValueGroupBySemanticTags(value);
 
+            // now we have a list of annotation summaries; use this list to create predicted annotations
+            AnnotationPrediction.Confidence confidence = ZoomaUtils.getConfidence(results, 80f);
+
             for (AnnotationSummary summary : results){
-                summaries.add(new AnnotationSummaryRequest("CONFIDENCE",
-                        summary.getAnnotatedPropertyType(),
+                summaries.add(new AnnotationSummaryPrediction(summary.getAnnotatedPropertyType(),
                         summary.getAnnotatedPropertyValue(),
                         summary.getSemanticTags(),
                         summary.getSource(),
-                        summary.getQuality()));
+                        summary.getQuality(),
+                        confidence));
             }
             summaryMap.put(value, summaries);
         }

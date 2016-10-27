@@ -1,17 +1,16 @@
 package uk.ac.ebi.spot.model;
 
-import java.net.URI;
 import java.util.Collection;
 
 /**
  * Created by olgavrou on 27/10/2016.
  */
-public class AnnotationSummaryRequest implements AnnotationSummary{
+public class AnnotationSummaryPrediction implements AnnotationSummary{
 
     private String id;
 
 
-    private String confidence;
+    private AnnotationPrediction.Confidence confidence;
 
     private String annotatedPropertyType;
 
@@ -23,27 +22,28 @@ public class AnnotationSummaryRequest implements AnnotationSummary{
 
     private float quality;
 
-    public AnnotationSummaryRequest() {
+    public AnnotationSummaryPrediction() {
     }
 
-    public AnnotationSummaryRequest(String confidence, String annotatedPropertyType, String annotatedPropertyValue, Collection<String> semanticTags, String source, float quality) {
-        this.confidence = confidence;
+    public AnnotationSummaryPrediction(String annotatedPropertyType, String annotatedPropertyValue, Collection<String> semanticTags, String source, float quality, AnnotationPrediction.Confidence confidence) {
         this.annotatedPropertyType = annotatedPropertyType;
         this.annotatedPropertyValue = annotatedPropertyValue;
         this.semanticTags = semanticTags;
         this.source = source;
         this.quality = quality;
+        this.confidence = confidence;
+
     }
 
     public String getId() {
         return id;
     }
 
-    public String getConfidence() {
+    public AnnotationPrediction.Confidence getConfidence() {
         return confidence;
     }
 
-    public void setConfidence(String confidence) {
+    public void setConfidence(AnnotationPrediction.Confidence confidence) {
         this.confidence = confidence;
     }
 
@@ -87,4 +87,5 @@ public class AnnotationSummaryRequest implements AnnotationSummary{
     public void setQuality(float quality) {
         this.quality = quality;
     }
+
 }
