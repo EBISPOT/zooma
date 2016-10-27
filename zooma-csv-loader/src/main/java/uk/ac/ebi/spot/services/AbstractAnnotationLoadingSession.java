@@ -116,7 +116,7 @@ public abstract class AbstractAnnotationLoadingSession extends TransientCacheabl
     public synchronized Annotation getOrCreateAnnotation(Collection<BiologicalEntity> biologicalEntities,
                                                          Property property,
                                                          AnnotationProvenance annotationProvenance,
-                                                         Collection<URI> semanticTags) {
+                                                         Collection<String> semanticTags) {
 
         //TODO: this is where we will calculate replacedBy etc?
         return new MongoAnnotation(biologicalEntities, property, semanticTags, annotationProvenance, null, null, true);

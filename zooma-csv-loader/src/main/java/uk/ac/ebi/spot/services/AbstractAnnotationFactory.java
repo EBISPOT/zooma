@@ -45,7 +45,7 @@ public abstract class AbstractAnnotationFactory<S extends AnnotationLoadingSessi
     public Annotation createAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
                                        Property annotatedProperty,
                                        AnnotationProvenance annotationProvenance,
-                                       Collection<URI> semanticTags,
+                                       Collection<String> semanticTags,
                                        Collection<URI> replaces) {
 
         // create new property
@@ -69,7 +69,7 @@ public abstract class AbstractAnnotationFactory<S extends AnnotationLoadingSessi
                                        URI bioentityURI,
                                        String propertyType,
                                        String propertyValue,
-                                       URI semanticTag,
+                                       String semanticTag,
                                        String annotator,
                                        Date annotationDate) {
 
@@ -132,7 +132,7 @@ public abstract class AbstractAnnotationFactory<S extends AnnotationLoadingSessi
                         be != null ? Collections.singleton(be) : Collections.<BiologicalEntity>emptySet(),
                         p,
                         prov,
-                        semanticTag != null ? Collections.singleton(semanticTag) : Collections.<URI>emptySet());
+                        semanticTag != null ? Collections.singleton(semanticTag) : Collections.<String>emptySet());
 
         return a;
     }

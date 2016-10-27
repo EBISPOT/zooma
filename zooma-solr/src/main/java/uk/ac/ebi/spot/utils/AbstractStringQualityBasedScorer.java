@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A refinement of the {@link uk.ac.ebi.fgpt.zooma.util.AbstractQualityBasedScorer} abstract class that defines methods
+ * A refinement of the {@link AbstractQualityBasedScorer} abstract class that defines methods
  * to extract a string from matched objects and evaluate it's similarity to the supplied search string
  *
  * @author Tony Burdett

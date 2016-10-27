@@ -59,7 +59,7 @@ public interface AnnotationFactory {
                                 URI bioentityURI,
                                 String propertyType,
                                 String propertyValue,
-                                URI semanticTag,
+                                String semanticTag,
                                 String annotator,
                                 Date annotationDate);
 
@@ -80,6 +80,6 @@ public interface AnnotationFactory {
     Annotation createAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
                                 Property annotatedProperty,
                                 AnnotationProvenance annotationProvenance,
-                                Collection<URI> semanticTags,
+                                Collection<String> semanticTags,
                                 Collection<URI> replaces);
 }

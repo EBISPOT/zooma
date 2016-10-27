@@ -14,7 +14,7 @@ public class MongoAnnotation extends MongoDocument implements Annotation {
 
     private Collection<BiologicalEntity> annotatedBiologicalEntities;
     private Property annotatedProperty;
-    private Collection<URI> semanticTags;
+    private Collection<String> semanticTags;
     private AnnotationProvenance provenance;
     private Collection<URI> replacedBy;
     private Collection<URI> replaces;
@@ -24,7 +24,7 @@ public class MongoAnnotation extends MongoDocument implements Annotation {
 
     public MongoAnnotation(Collection<BiologicalEntity> annotatedBiologicalEntities,
                            Property annotatedProperty,
-                           Collection<URI> semanticTags,
+                           Collection<String> semanticTags,
                            AnnotationProvenance provenance,
                            Collection<URI> replacedBy,
                            Collection<URI> replaces, boolean batchLoad) {
@@ -69,11 +69,11 @@ public class MongoAnnotation extends MongoDocument implements Annotation {
     }
 
     @Override
-    public Collection<URI> getSemanticTags() {
+    public Collection<String> getSemanticTags() {
         return semanticTags;
     }
 
-    public void setSemanticTags(Collection<URI> semanticTags) {
+    public void setSemanticTags(Collection<String> semanticTags) {
         this.semanticTags = semanticTags;
     }
 

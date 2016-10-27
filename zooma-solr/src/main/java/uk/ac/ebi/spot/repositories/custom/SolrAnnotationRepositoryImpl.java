@@ -12,6 +12,8 @@ import uk.ac.ebi.spot.util.ZoomaUtils;
 import uk.ac.ebi.spot.utils.AbstractStringQualityBasedScorer;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -75,6 +77,7 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
         Map<String, SolrAnnotation> propValueWinnerDoc = new HashMap<>();
         Map<String, Float> propValueQualityScore = new HashMap<>();
         float maxScore = 0.0f;
+        long totalDocumentsFound = facetPage.getTotalElements();
         Map<String, Float> idToScore = new HashMap<>();
 
 
@@ -142,29 +145,43 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
         }
 
 
+        max = 0.0f;
         //score calculation
         List<SolrAnnotation> annotations = new ArrayList<>();
         for (String value : propValueSemTags.keySet()){
             float sourceNumber = propValueSourceNum.get(value);
             float numOfDocs = propValueIds.get(value).size();
             float topQuality = propValueQualityScore.get(value);
-            int annotationCount = 46246;
-            float normalizedFreq = 1.0f + (annotationCount > 0 ? (numOfDocs / annotationCount) : 0);
-            float score = (topQuality + sourceNumber) * normalizedFreq + idToScore.get(propValueWinnerDoc.get(value).getId())/maxScore;
+            float normalizedFreq = 1.0f + (totalDocumentsFound > 0 ? (numOfDocs / totalDocumentsFound) : 0);
+            float normalizedSolrScore = 1.0f + idToScore.get(propValueWinnerDoc.get(value).getId())/maxScore;
+            float score = (topQuality + sourceNumber) * normalizedFreq * normalizedSolrScore;
             SolrAnnotation annotation = propValueWinnerDoc.get(value);
             annotation.setQuality(score);
             annotations.add(annotation);
+
+            if (score > max){
+                max = score;
+            }
         }
 
-
-        float maxScoreForNormalization = 0.0f;
-        SolrAnnotation maxAnnotation = null;
 
         Map<AnnotationSummary, Float> annotationsToScore = abstractStringQualityBasedScorer.score(annotations, annotatedPropertyValue);
 
         //cutoff scores based on the difference between the first score
-        max = Collections.max(annotationsToScore.values());
-        min = Collections.min(annotationsToScore.values());
+//        max = Collections.max(annotationsToScore.values());
+        // expected minimum score
+        Date y2k;
+        try {
+            y2k = new SimpleDateFormat("YYYY").parse("2000");
+        }
+        catch (ParseException e) {
+            throw new InstantiationError("Could not parse date '2000' (YYYY)");
+        }
+        float bottomQuality = (float) (1.0 + Math.log10(y2k.getTime()));
+        int sourceNumber = 1;
+        int numOfDocs = 1;
+        float normalizedFreq = 1.0f + (totalDocumentsFound > 0 ? (numOfDocs / totalDocumentsFound) : 0);
+        min = (bottomQuality + sourceNumber) * normalizedFreq;
         if (max == min){
             min = 0.0f;
         }
@@ -188,18 +205,18 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
         });
 
 
-        for (AnnotationSummary annotation : results){
-            System.out.println("============================");
-            System.out.println("Value: " + annotation.getAnnotatedPropertyValue());
-            System.out.println("Type: " + annotation.getAnnotatedPropertyType());
-            System.out.println("SemanticTag: " + annotation.getSemanticTags());
-            System.out.println("Score: " + annotation.getQuality());
-            System.out.println("============================");
-        }
-        Date date1 = new Date();
-        Timestamp timestamp2 = new Timestamp(date1.getTime());
-        System.out.println("----" + timestamp1);
-        System.out.println("----" + timestamp2);
+//        for (AnnotationSummary annotation : results){
+//            System.out.println("============================");
+//            System.out.println("Value: " + annotation.getAnnotatedPropertyValue());
+//            System.out.println("Type: " + annotation.getAnnotatedPropertyType());
+//            System.out.println("SemanticTag: " + annotation.getSemanticTags());
+//            System.out.println("Score: " + annotation.getQuality());
+//            System.out.println("============================");
+//        }
+//        Date date1 = new Date();
+//        Timestamp timestamp2 = new Timestamp(date1.getTime());
+//        System.out.println("----" + timestamp1);
+//        System.out.println("----" + timestamp2);
 
         return results;
     }
@@ -209,8 +226,8 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
             return 50;
         }
         else {
-            return 50 + (50 * (score - min) /
-                    (max - min));
+            float n = 50 + (50 * (score - min)/(max - min));
+            return n;
         }
     }
 

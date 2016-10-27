@@ -51,7 +51,7 @@ public interface AnnotationLoadingSession {
     Annotation getOrCreateAnnotation(Collection<BiologicalEntity> biologicalEntity,
                                      Property property,
                                      AnnotationProvenance annotationProvenance,
-                                     Collection<URI> semanticTag);
+                                     Collection<String> semanticTag);
 
     AnnotationProvenance getOrCreateAnnotationProvenance(String annotator, Date annotationDate);
 }

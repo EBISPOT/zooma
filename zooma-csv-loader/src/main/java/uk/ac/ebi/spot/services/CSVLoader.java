@@ -93,7 +93,7 @@ public class CSVLoader implements LoadService<Annotation> {
             else {
                 // required attributes
                 String studyAcc, bioentityName, propertyType, propertyValue;
-                List<URI> semanticTags;
+                List<String> semanticTags;
 
                 URI studyURI = null;
                 URI bioentityURI = null;
@@ -154,11 +154,11 @@ public class CSVLoader implements LoadService<Annotation> {
                     if (semanticTagsStr.contains("|")) {
                         semanticTags = new ArrayList<>();
                         for (String semanticTagStr : semanticTagsStr.split(Pattern.quote("|"))) {
-                            semanticTags.add(convertSemanticTagToURI(semanticTagStr.trim()));
+                            semanticTags.add(semanticTagStr.trim());
                         }
                     }
                     else {
-                        semanticTags = Collections.singletonList(convertSemanticTagToURI(annotationElements[column]));
+                        semanticTags = Collections.singletonList(cleanSemanticTag(annotationElements[column]));
                     }
                 }
                 else {
@@ -216,7 +216,7 @@ public class CSVLoader implements LoadService<Annotation> {
                 }
 
                 // now we've collected fields, generate annotation using annotation factory
-                for (URI semanticTag : semanticTags) {
+                for (String semanticTag : semanticTags) {
                     annotations.add(annotationFactory.createAnnotation(studyAcc,
                             studyURI,
                             bioentityName,
@@ -240,7 +240,7 @@ public class CSVLoader implements LoadService<Annotation> {
         return annotations;
     }
 
-    protected URI convertSemanticTagToURI(String semanticTag) {
+    protected String cleanSemanticTag(String semanticTag) {
         if (semanticTag == null) {
             return null;
         }
@@ -248,7 +248,7 @@ public class CSVLoader implements LoadService<Annotation> {
             return null;
         }
         else {
-            return URI.create(semanticTag.trim());
+            return semanticTag.trim();
         }
     }
 

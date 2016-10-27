@@ -1,6 +1,5 @@
 package uk.ac.ebi.spot.model;
 
-import java.net.URI;
 import java.util.Collection;
 
 /**
@@ -67,18 +66,18 @@ public interface AnnotationSummary extends Qualitative {
      * @return the semantic tag that describes this annotation
      * @see uk.ac.ebi.spot.model.Annotation#getSemanticTags()
      */
-    Collection<URI> getSemanticTags();
+    Collection<String> getSemanticTags();
 
-    /**
-     * Returns a list of the URIs for the collection of annotations this summary represents.  Each annotation within the
-     * resulting collection is guaranteed to contain the pattern represented by this summary (in other words, {@link
-     * #getAnnotatedPropertyType()}, {@link #getAnnotatedPropertyValue()} and {@link #getSemanticTags} all refer to the
-     * same entities as for each annotation in this list.
-     *
-     * @return the provenance associated with this annotation
-     * @see Annotation
-     */
-    Collection<String> getAnnotationIds();
+//    /**
+//     * Returns a list of the URIs for the collection of annotations this summary represents.  Each annotation within the
+//     * resulting collection is guaranteed to contain the pattern represented by this summary (in other words, {@link
+//     * #getAnnotatedPropertyType()}, {@link #getAnnotatedPropertyValue()} and {@link #getSemanticTags} all refer to the
+//     * same entities as for each annotation in this list.
+//     *
+//     * @return the provenance associated with this annotation
+//     * @see Annotation
+//     */
+//    Collection<String> getAnnotationIds();
 
     /**
      * Returns a metric measuring the quality score of this annotation summary.  This considers the score of the highest
@@ -92,6 +91,8 @@ public interface AnnotationSummary extends Qualitative {
     /**
      * Returns the collection of sources where this annotation summary holds
      */
+
+    String getSource();
 
 //    Collection<URI> getAnnotationSourceURIs();
 }

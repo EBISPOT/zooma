@@ -36,7 +36,7 @@ public interface Annotation {
      *
      * @return the OWLClass that describes this annotation
      */
-    Collection<URI> getSemanticTags();
+    Collection<String> getSemanticTags();
 
     /**
      * Returns the provenance associated with this annotation.  This will normally capture simple information such as

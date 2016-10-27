@@ -6,14 +6,13 @@ import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.data.solr.repository.Score;
 
-import java.net.URI;
 import java.util.Collection;
 
 /**
  * Created by olgavrou on 13/10/2016.
  */
 @SolrDocument(solrCoreName = "annotations")
-public class SolrAnnotation implements AnnotationSummary{
+public class SolrAnnotation implements AnnotationSummary {
 
     @Id
     @Field
@@ -30,7 +29,7 @@ public class SolrAnnotation implements AnnotationSummary{
     private String annotatedPropertyValue;
 
     @Field
-    private Collection<URI> semanticTags;
+    private Collection<String> semanticTags;
 
     @Field
     private String mongoid;
@@ -80,13 +79,8 @@ public class SolrAnnotation implements AnnotationSummary{
         this.annotatedPropertyValue = annotatedPropertyValue;
     }
 
-    public Collection<URI> getSemanticTags() {
+    public Collection<String> getSemanticTags() {
         return semanticTags;
-    }
-
-    @Override
-    public Collection<String> getAnnotationIds() {
-        return null;
     }
 
     @Override
@@ -98,7 +92,7 @@ public class SolrAnnotation implements AnnotationSummary{
         this.quality = quality;
     }
 
-    public void setSemanticTags(Collection<URI> semanticTags) {
+    public void setSemanticTags(Collection<String> semanticTags) {
         this.semanticTags = semanticTags;
     }
 

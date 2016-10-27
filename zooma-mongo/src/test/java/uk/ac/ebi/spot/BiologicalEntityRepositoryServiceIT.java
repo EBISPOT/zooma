@@ -54,8 +54,8 @@ public class BiologicalEntityRepositoryServiceIT {
         biologicalEntities.add(biologicalEntity);
 
         Property property = new MongoTypedProperty("test type", "test value");
-        URI semanticTag = java.net.URI.create("http://www.ebi.ac.uk/efo/EFO_test");
-        Collection<URI> semanticTags = new ArrayList<>();
+        String semanticTag = "http://www.ebi.ac.uk/efo/EFO_test";
+        Collection<String> semanticTags = new ArrayList<>();
         semanticTags.add(semanticTag);
 
         //create provenance
