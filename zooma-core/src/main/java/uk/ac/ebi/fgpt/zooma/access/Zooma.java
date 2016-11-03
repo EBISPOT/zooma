@@ -20,13 +20,7 @@ import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
 
 import javax.annotation.PreDestroy;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -489,21 +483,29 @@ public class Zooma extends SourceFilteredEndpoint {
     private List<Annotation> getGoodAnnotations(List<AnnotationSummary> goodSummaries) {
         List<Annotation> annotations = new ArrayList<>();
         Annotation goodAnnotation;
+        Map<URI, Annotation> tagsToAnnotations = new HashMap<>();
 
         for (AnnotationSummary annotationSummary : goodSummaries) {
             if (annotationSummary.getAnnotationURIs() != null) {
 
                 if (!annotationSummary.getAnnotationURIs().isEmpty()) {
 
-                    URI annotationURI = annotationSummary.getAnnotationURIs().iterator().next();
-                    goodAnnotation = zoomaAnnotations.getAnnotationService().getAnnotation(annotationURI);
+                  //  if this annotation summary was made from zooma merging two searches separated with an "and"
+                    if (annotationSummary.getAnnotatedPropertyValue().contains(" and ") && annotationSummary.getSemanticTags().size() > 1){
+                        addAnnotationsFromSummariesToMap(annotationSummary, tagsToAnnotations);
 
-                    if (goodAnnotation != null) {
-                        annotations.add(goodAnnotation);
                     } else {
-                        throw new SearchException(
-                                "An annotation summary referenced an annotation that " +
-                                        "could not be found - ZOOMA's indexes may be out of date");
+
+                        URI annotationURI = annotationSummary.getAnnotationURIs().iterator().next();
+                        goodAnnotation = zoomaAnnotations.getAnnotationService().getAnnotation(annotationURI);
+
+                        if (goodAnnotation != null) {
+                            annotations.add(goodAnnotation);
+                        } else {
+                            throw new SearchException(
+                                    "An annotation summary referenced an annotation that " +
+                                            "could not be found - ZOOMA's indexes may be out of date");
+                        }
                     }
                 } else {
                     String message = "An annotation summary with no associated annotations was found - " +
@@ -526,8 +528,71 @@ public class Zooma extends SourceFilteredEndpoint {
             }
         }
 
+        if (!tagsToAnnotations.isEmpty() && tagsToAnnotations.values() != null && !tagsToAnnotations.values().isEmpty()){
+            if (tagsToAnnotations.values().contains(null)){
+                for (Annotation annotation : tagsToAnnotations.values()){
+                    if (annotation != null){
+                        annotations.add(annotation);
+                    }
+                }
+            } else {
+                annotations.addAll(tagsToAnnotations.values());
+            }
+        }
+
         return annotations;
     }
+
+
+    /**
+     This method will be called if the annotation summary is constructed from annotations that belong to different term values
+     that where searched because they where separated by an "and" e.g. heart and liver
+     It will make sure that each annotation summary has an annotation for each semantic tag of that summary, so both term values
+     in the annotation summary.
+
+     @param annotationSummary the summary from which annotations will be extracted
+     @param tagsToAnnotations maps semantic tags to annotations so each semantic tag from the summary will have one annotation
+     also makes sure that the results aren't duplicated
+     */
+    private void addAnnotationsFromSummariesToMap(AnnotationSummary annotationSummary, Map<URI, Annotation> tagsToAnnotations) {
+        int annSummarySemTagSize = annotationSummary.getSemanticTags().size();
+
+        URI annotationURI = null;
+        Annotation selectedAnnotation;
+        Iterator<URI> iterator = annotationSummary.getAnnotationURIs().iterator();
+        int found = 0;
+        while (iterator.hasNext()){
+            annotationURI = iterator.next();
+            selectedAnnotation = zoomaAnnotations.getAnnotationService().getAnnotation(annotationURI);
+            Collection<URI> annSemTags = selectedAnnotation.getSemanticTags();
+            for (URI st : annSemTags){
+                for (URI semanticTag : annotationSummary.getSemanticTags()) {
+                    if (st.equals(semanticTag)){
+                        if (tagsToAnnotations.get(semanticTag) == null) {
+                            tagsToAnnotations.put(semanticTag, selectedAnnotation);
+                        }
+                        found++;
+                        break;
+                    }
+                }
+            }
+            //if an annotation has more than one semantic tag, we need to avoid having it added for each semantic tag to the tagsToAnnotations map
+            if (annSemTags.size() > 1){
+                Iterator<URI> i = annSemTags.iterator();
+                i.next(); //keep the first one in the map
+                if (i.hasNext()){
+                    tagsToAnnotations.remove(i.next());
+                }
+                annSummarySemTagSize = annSummarySemTagSize - annSummarySemTagSize + 1; // reduce the size of the annotation summaries tags by the sem tags in the annotation, but one
+            }
+
+            if (found == annSummarySemTagSize){
+                //all semantic tags from this annotation summary are covered by an annotation, so go to the next annotation summary
+                break;
+            }
+        }
+    }
+
 
     /*
      This method will take the final annotation predictions, get the olsLink href (the semantic tag),
