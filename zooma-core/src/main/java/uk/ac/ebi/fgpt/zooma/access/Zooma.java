@@ -555,40 +555,27 @@ public class Zooma extends SourceFilteredEndpoint {
      also makes sure that the results aren't duplicated
      */
     private void addAnnotationsFromSummariesToMap(AnnotationSummary annotationSummary, Map<URI, Annotation> tagsToAnnotations) {
-        int annSummarySemTagSize = annotationSummary.getSemanticTags().size();
 
-        URI annotationURI = null;
-        Annotation selectedAnnotation;
-        Iterator<URI> iterator = annotationSummary.getAnnotationURIs().iterator();
-        int found = 0;
-        while (iterator.hasNext()){
-            annotationURI = iterator.next();
-            selectedAnnotation = zoomaAnnotations.getAnnotationService().getAnnotation(annotationURI);
-            Collection<URI> annSemTags = selectedAnnotation.getSemanticTags();
-            for (URI st : annSemTags){
-                for (URI semanticTag : annotationSummary.getSemanticTags()) {
-                    if (st.equals(semanticTag)){
-                        if (tagsToAnnotations.get(semanticTag) == null) {
-                            tagsToAnnotations.put(semanticTag, selectedAnnotation);
-                        }
-                        found++;
-                        break;
+        Annotation selectedAnnotation = zoomaAnnotations.getAnnotationService().getAnnotation(annotationSummary.getAnnotationURIs().iterator().next());
+
+        Collection<URI> annSemTags = selectedAnnotation.getSemanticTags();
+        for (URI st : annSemTags) {
+            for (URI semanticTag : annotationSummary.getSemanticTags()) {
+                if (st.equals(semanticTag)) {
+                    if (tagsToAnnotations.get(semanticTag) == null) {
+                        tagsToAnnotations.put(semanticTag, selectedAnnotation);
                     }
+                    break;
                 }
             }
-            //if an annotation has more than one semantic tag, we need to avoid having it added for each semantic tag to the tagsToAnnotations map
-            if (annSemTags.size() > 1){
-                Iterator<URI> i = annSemTags.iterator();
-                i.next(); //keep the first one in the map
-                if (i.hasNext()){
-                    tagsToAnnotations.remove(i.next());
-                }
-                annSummarySemTagSize = annSummarySemTagSize - annSummarySemTagSize + 1; // reduce the size of the annotation summaries tags by the sem tags in the annotation, but one
-            }
+        }
 
-            if (found == annSummarySemTagSize){
-                //all semantic tags from this annotation summary are covered by an annotation, so go to the next annotation summary
-                break;
+        //if an annotation has more than one semantic tag, we need to avoid having it added for each semantic tag to the tagsToAnnotations map
+        if (annSemTags.size() > 1){
+            Iterator<URI> i = annSemTags.iterator();
+            i.next(); //keep the first one in the map
+            if (i.hasNext()){
+                tagsToAnnotations.remove(i.next());
             }
         }
     }
