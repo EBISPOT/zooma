@@ -529,15 +529,16 @@ public class Zooma extends SourceFilteredEndpoint {
         }
 
         if (!tagsToAnnotations.isEmpty() && tagsToAnnotations.values() != null && !tagsToAnnotations.values().isEmpty()){
-            if (tagsToAnnotations.values().contains(null)){
-                for (Annotation annotation : tagsToAnnotations.values()){
-                    if (annotation != null){
-                        annotations.add(annotation);
+            HashMap<String, Annotation> annUriToAnnotation = new HashMap<>();
+            for (Annotation annotation : tagsToAnnotations.values()){
+                if (annotation != null && annotation.getURI() != null){
+                    //in order to remove duplicates that can be caused from annotations that hold multiple semantic tags
+                    if (annUriToAnnotation.get(annotation.getURI().toString()) == null){
+                        annUriToAnnotation.put(annotation.getURI().toString(), annotation);
                     }
                 }
-            } else {
-                annotations.addAll(tagsToAnnotations.values());
             }
+            annotations.addAll(annUriToAnnotation.values());
         }
 
         return annotations;
@@ -567,15 +568,6 @@ public class Zooma extends SourceFilteredEndpoint {
                     }
                     break;
                 }
-            }
-        }
-
-        //if an annotation has more than one semantic tag, we need to avoid having it added for each semantic tag to the tagsToAnnotations map
-        if (annSemTags.size() > 1){
-            Iterator<URI> i = annSemTags.iterator();
-            i.next(); //keep the first one in the map
-            if (i.hasNext()){
-                tagsToAnnotations.remove(i.next());
             }
         }
     }
