@@ -6,6 +6,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import uk.ac.ebi.spot.model.AnnotationSummary;
 import uk.ac.ebi.spot.model.MongoAnnotation;
+import uk.ac.ebi.spot.model.SolrAnnotation;
+import uk.ac.ebi.spot.model.SolrAnnotationSummary;
 import uk.ac.ebi.spot.service.SearchSolr;
 
 import java.util.List;
@@ -21,18 +23,11 @@ public class Mongo2solrApplication {
 		List<AnnotationSummary> solrAnnotations = searchSolr.findByAnnotatedPropertyValue("CD4-positive");
 		System.out.println(solrAnnotations.size());
 		if (solrAnnotations!= null && !solrAnnotations.isEmpty()) {
-			MongoAnnotation mongoAnnotation = searchSolr.getMongoAnnotationById(solrAnnotations.get(0).getId());
+			SolrAnnotationSummary solrAnnotationSummary = (SolrAnnotationSummary) solrAnnotations.get(0);
+			MongoAnnotation mongoAnnotation = searchSolr.getMongoAnnotationById(solrAnnotationSummary.getMongoid());
 			System.out.println(mongoAnnotation.getSemanticTags());
 		}
 
-//		Mongo2SolrLoader mongo2SolrLoader = (Mongo2SolrLoader) ctx.getBean("mongo2SolrLoader");
-//		try {
-//			mongo2SolrLoader.load();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-
 	}
-
 
 }

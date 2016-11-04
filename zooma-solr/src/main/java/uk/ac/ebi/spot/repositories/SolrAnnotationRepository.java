@@ -15,5 +15,5 @@ import java.util.List;
 @Repository
 public interface SolrAnnotationRepository extends SolrCrudRepository<SolrAnnotation, String>, CustomSolrAnnotationRepository {
 
-    List<SolrAnnotation> findByAnnotatedPropertyValue(String annotatedPropertyValue);
+    List<SolrAnnotation> findByPropertyValue(String propertyValue);
 }

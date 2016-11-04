@@ -22,7 +22,7 @@ public class SearchSolr {
     MongoAnnotationRepositoryService mongoAnnotationRepositoryService;
 
     public List<AnnotationSummary> findByAnnotatedPropertyValue(String annotatedPropertyValue){
-        return annotationRepositoryService.getByAnnotatedPropertyValueGroupBySemanticTags(annotatedPropertyValue);
+        return annotationRepositoryService.getAnnotationSummariesByPropertyValue(annotatedPropertyValue);
     }
 
     public MongoAnnotation getMongoAnnotationById(String mongoid){

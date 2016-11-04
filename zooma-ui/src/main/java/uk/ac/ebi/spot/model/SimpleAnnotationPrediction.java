@@ -5,7 +5,7 @@ import java.util.Collection;
 /**
  * Created by olgavrou on 27/10/2016.
  */
-public class AnnotationSummaryPrediction implements AnnotationSummary{
+public class SimpleAnnotationPrediction implements AnnotationSummary {
 
     private String id;
 
@@ -22,10 +22,10 @@ public class AnnotationSummaryPrediction implements AnnotationSummary{
 
     private float quality;
 
-    public AnnotationSummaryPrediction() {
+    public SimpleAnnotationPrediction() {
     }
 
-    public AnnotationSummaryPrediction(String annotatedPropertyType, String annotatedPropertyValue, Collection<String> semanticTags, String source, float quality, AnnotationPrediction.Confidence confidence) {
+    public SimpleAnnotationPrediction(String annotatedPropertyType, String annotatedPropertyValue, Collection<String> semanticTags, String source, float quality, AnnotationPrediction.Confidence confidence) {
         this.annotatedPropertyType = annotatedPropertyType;
         this.annotatedPropertyValue = annotatedPropertyValue;
         this.semanticTags = semanticTags;

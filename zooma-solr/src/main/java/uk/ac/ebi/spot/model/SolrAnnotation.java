@@ -12,7 +12,7 @@ import java.util.Collection;
  * Created by olgavrou on 13/10/2016.
  */
 @SolrDocument(solrCoreName = "annotations")
-public class SolrAnnotation implements AnnotationSummary {
+public class SolrAnnotation implements SimpleAnnotation, Qualitative {
 
     @Id
     @Field
@@ -22,11 +22,11 @@ public class SolrAnnotation implements AnnotationSummary {
     private Float score;
 
     @Field
-    private String annotatedPropertyType;
+    private String propertyType;
 
     @Field
     @Indexed
-    private String annotatedPropertyValue;
+    private String propertyValue;
 
     @Field
     private Collection<String> semanticTags;
@@ -51,32 +51,26 @@ public class SolrAnnotation implements AnnotationSummary {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public Float getScore() {
         return score;
     }
 
-    public void setScore(Float score) {
-        this.score = score;
+    public void setPropertyType(String propertyType) {
+        this.propertyType = propertyType;
     }
 
-    public String getAnnotatedPropertyType() {
-        return annotatedPropertyType;
+    public void setPropertyValue(String propertyValue) {
+        this.propertyValue = propertyValue;
     }
 
-    public void setAnnotatedPropertyType(String annotatedPropertyType) {
-        this.annotatedPropertyType = annotatedPropertyType;
+    @Override
+    public String getPropertyType() {
+        return propertyType;
     }
 
-    public String getAnnotatedPropertyValue() {
-        return annotatedPropertyValue;
-    }
-
-    public void setAnnotatedPropertyValue(String annotatedPropertyValue) {
-        this.annotatedPropertyValue = annotatedPropertyValue;
+    @Override
+    public String getPropertyValue() {
+        return propertyValue;
     }
 
     public Collection<String> getSemanticTags() {

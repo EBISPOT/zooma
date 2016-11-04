@@ -18,7 +18,7 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 24/05/12
  */
-public interface AnnotationSummary extends Qualitative {
+public interface AnnotationSummary extends Qualitative, Identifiable{
     /**
      * Returns the type name of this annotation summary. This is normally a subtype of the general top level annotation
      * summary type name that considers the semantic tags of the annotation and represent that as part of the type.
@@ -94,5 +94,4 @@ public interface AnnotationSummary extends Qualitative {
 
     String getSource();
 
-//    Collection<URI> getAnnotationSourceURIs();
 }

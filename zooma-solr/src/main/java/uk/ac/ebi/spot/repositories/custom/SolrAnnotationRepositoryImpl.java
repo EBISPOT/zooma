@@ -1,19 +1,12 @@
 package uk.ac.ebi.spot.repositories.custom;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.result.*;
 import uk.ac.ebi.spot.model.AnnotationSummary;
 import uk.ac.ebi.spot.model.SolrAnnotation;
-import uk.ac.ebi.spot.util.ZoomaUtils;
-import uk.ac.ebi.spot.utils.AbstractStringQualityBasedScorer;
 
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -25,19 +18,13 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
     SolrTemplate solrTemplate;
 
     @Autowired
-    AbstractStringQualityBasedScorer abstractStringQualityBasedScorer;
-
-    private float max;
-    private float min;
+    CreateAnnotationSummaries createAnnotationSummaries;
 
     @Override
-    public List<AnnotationSummary> findByAnnotatedPropertyValueGroupBySemanticTags(String annotatedPropertyValue) {
-
-        Date date = new Date();
-        Timestamp timestamp1 = new Timestamp(date.getTime());
+    public List<AnnotationSummary> findAnnotationSummariesByPropertyValue(String propertyValue) {
 
         FacetQuery query = new SimpleFacetQuery();
-        Criteria criteria = new Criteria("annotatedPropertyValue").is(annotatedPropertyValue);
+        Criteria criteria = new Criteria("propertyValue").is(propertyValue);
 
         query.addCriteria(criteria);
         //getnumber of elements in query to query again
@@ -46,7 +33,7 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
         long totalElements = page.getTotalElements();
         if (totalElements == 0){
             query = new SimpleFacetQuery();
-            criteria = Criteria.where("annotatedPropertyValue").expression(annotatedPropertyValue);
+            criteria = Criteria.where("propertyValue").expression(propertyValue);
             query.addCriteria(criteria);
             query.setRows(0);
             page = solrTemplate.queryForPage(query, SolrAnnotation.class);
@@ -60,8 +47,8 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
 
         //facet.pivot=semanticTags,annotatedPropertyValue,source,id&facet=true
         FacetOptions facetOptions = new FacetOptions();
-        PivotField pivotField = new SimplePivotField("semanticTags", "annotatedPropertyValueStr", "source", "id");
-        facetOptions.addFacetOnPivot("semanticTags", "annotatedPropertyValueStr", "source", "id");
+        PivotField pivotField = new SimplePivotField("semanticTags", "propertyValueStr", "source", "id");
+        facetOptions.addFacetOnPivot("semanticTags", "propertyValueStr", "source", "id");
         facetOptions.setFacetSort(FacetOptions.FacetSort.INDEX);
         facetOptions.setFacetLimit((int) totalElements);
 
@@ -71,164 +58,11 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
 
         List<FacetPivotFieldEntry> pivots = facetPage.getPivot(pivotField);
 
-        Map<String, Integer> propValueSourceNum = new HashMap<>();
-        Map<String, List<String>> propValueIds = new HashMap<>();
-        Map<String, String> propValueSemTags = new HashMap<>();
-        Map<String, SolrAnnotation> propValueWinnerDoc = new HashMap<>();
-        Map<String, Float> propValueQualityScore = new HashMap<>();
-        float maxScore = 0.0f;
-        long totalDocumentsFound = facetPage.getTotalElements();
-        Map<String, Float> idToScore = new HashMap<>();
-
-
         List<SolrAnnotation> content = facetPage.getContent();
 
+        long totalDocumentsFound = facetPage.getTotalElements();
 
-        for (SolrAnnotation annotation : content){
-            idToScore.put(annotation.getId(), annotation.getScore());
-            if (annotation.getScore() > maxScore){
-                maxScore = annotation.getScore();
-            }
-        }
-
-        for (FacetPivotFieldEntry semanticTags : pivots){
-            String semTag = semanticTags.getValue();
-            List<FacetPivotFieldEntry> propertyValues = semanticTags.getPivot();
-            for (FacetPivotFieldEntry propertyValue : propertyValues){
-                String propValue = propertyValue.getValue(); //e.g. liver
-                List<FacetPivotFieldEntry> sources = propertyValue.getPivot();
-
-                propValueSourceNum.put(propValue, sources.size());
-                propValueSemTags.put(propValue, semTag);
-
-                List<String> ids = new ArrayList<>(); //ids are collected from both sources
-                for (FacetPivotFieldEntry source : sources){
-                    List<FacetPivotFieldEntry> sourceIds = source.getPivot();
-                    for (FacetPivotFieldEntry sourceId : sourceIds){
-                        ids.add(sourceId.getValue());
-                    }
-                }
-
-                propValueIds.put(propValue, ids);
-            }
-
-        }
-
-        for (String value : propValueIds.keySet()){
-            List<String> ids = propValueIds.get(value);
-            //create the query to get the biggest quality document and its quality score
-            Query idQuery = new SimpleQuery();
-
-            Criteria criteria1 = null;
-            int idCount = 0;
-            for (String id : ids){
-                idCount++;
-                if (criteria1 == null){
-                    criteria1 = new Criteria("id").is(id);
-                } else {
-                    criteria1 = criteria1.or(new Criteria("id").is(id));
-                }
-                if (idCount > 100){
-                    break;
-                }
-            }
-
-            idQuery.addCriteria(criteria1);
-            idQuery.setRows(1);
-            idQuery.addSort(new Sort(Sort.Direction.DESC, "quality"));
-            ScoredPage<SolrAnnotation> docs = solrTemplate.queryForPage(idQuery, SolrAnnotation.class);
-            List<SolrAnnotation> annotations = docs.getContent();
-            if (annotations != null && !annotations.isEmpty()){
-                propValueWinnerDoc.put(value, annotations.get(0));
-                propValueQualityScore.put(value, annotations.get(0).getQuality());
-            }
-        }
-
-
-        max = 0.0f;
-        //score calculation
-        List<SolrAnnotation> annotations = new ArrayList<>();
-        for (String value : propValueSemTags.keySet()){
-            float sourceNumber = propValueSourceNum.get(value);
-            float numOfDocs = propValueIds.get(value).size();
-            float topQuality = propValueQualityScore.get(value);
-            float normalizedFreq = 1.0f + (totalDocumentsFound > 0 ? (numOfDocs / totalDocumentsFound) : 0);
-            float normalizedSolrScore = 1.0f + idToScore.get(propValueWinnerDoc.get(value).getId())/maxScore;
-            float score = (topQuality + sourceNumber) * normalizedFreq * normalizedSolrScore;
-            SolrAnnotation annotation = propValueWinnerDoc.get(value);
-            annotation.setQuality(score);
-            annotations.add(annotation);
-
-            if (score > max){
-                max = score;
-            }
-        }
-
-
-        Map<AnnotationSummary, Float> annotationsToScore = abstractStringQualityBasedScorer.score(annotations, annotatedPropertyValue);
-
-        //cutoff scores based on the difference between the first score
-//        max = Collections.max(annotationsToScore.values());
-        // expected minimum score
-        Date y2k;
-        try {
-            y2k = new SimpleDateFormat("YYYY").parse("2000");
-        }
-        catch (ParseException e) {
-            throw new InstantiationError("Could not parse date '2000' (YYYY)");
-        }
-        float bottomQuality = (float) (1.0 + Math.log10(y2k.getTime()));
-        int sourceNumber = 1;
-        int numOfDocs = 1;
-        float normalizedFreq = 1.0f + (totalDocumentsFound > 0 ? (numOfDocs / totalDocumentsFound) : 0);
-        min = (bottomQuality + sourceNumber) * normalizedFreq;
-        if (max == min){
-            min = 0.0f;
-        }
-
-        //replace the quality with the newly calculated score
-        for (AnnotationSummary annotationS : annotationsToScore.keySet()){
-            SolrAnnotation annotation = (SolrAnnotation) annotationS;
-            float normScore = normaliseScore(annotationsToScore.get(annotation));
-            annotation.setQuality(normScore);
-            annotationsToScore.put(annotation, normScore);
-        }
-
-
-        List<AnnotationSummary> results = ZoomaUtils.filterAnnotationSummaries(annotationsToScore, 80f, 0.9f);
-
-        //Make sure the results are sorted (highest score first).
-        Collections.sort(results, new Comparator<AnnotationSummary>() {
-            @Override public int compare(AnnotationSummary o1, AnnotationSummary o2) {
-                return annotationsToScore.get(o2).compareTo(annotationsToScore.get(o1));
-            }
-        });
-
-
-//        for (AnnotationSummary annotation : results){
-//            System.out.println("============================");
-//            System.out.println("Value: " + annotation.getAnnotatedPropertyValue());
-//            System.out.println("Type: " + annotation.getAnnotatedPropertyType());
-//            System.out.println("SemanticTag: " + annotation.getSemanticTags());
-//            System.out.println("Score: " + annotation.getQuality());
-//            System.out.println("============================");
-//        }
-//        Date date1 = new Date();
-//        Timestamp timestamp2 = new Timestamp(date1.getTime());
-//        System.out.println("----" + timestamp1);
-//        System.out.println("----" + timestamp2);
-
-        return results;
-    }
-
-    private float normaliseScore(float score){
-        if ((score - min) < 0) {
-            return 50;
-        }
-        else {
-            float n = 50 + (50 * (score - min)/(max - min));
-            return n;
-        }
+        return createAnnotationSummaries.convertToAnnotationSumaries(content, pivots, totalDocumentsFound, propertyValue);
     }
 
 }

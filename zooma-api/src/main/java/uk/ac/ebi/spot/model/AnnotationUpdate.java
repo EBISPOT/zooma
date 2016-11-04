@@ -7,7 +7,7 @@ import java.util.Collection;
 /**
  * An annotation update represents a set of allowed fields that can be updated on an annotation object in Zooma.
  * Zooma has a built in provenence model so that annotation never get updated, but rather replaced by a new annotation.
- * An annotation can be updated in two ways, either the {@link uk.ac.ebi.fgpt.zooma.model.Property} is updated or
+ * An annotation can be updated in two ways, either the {@link Property} is updated or
  * the set of semantic tag URIs change.
  * @author Simon Jupp
  * @date 22/01/2014

@@ -14,8 +14,4 @@ public abstract class MongoDocument {
         return id;
     }
 
-//    public void setId(String id) {
-//        this.id = id;
-//    }
-
 }

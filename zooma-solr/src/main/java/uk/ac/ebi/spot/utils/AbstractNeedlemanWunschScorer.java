@@ -4,7 +4,7 @@ import org.simmetrics.metrics.NeedlemanWunch;
 import uk.ac.ebi.spot.model.Qualitative;
 
 /**
- * An {@link uk.ac.ebi.fgpt.zooma.util.AbstractStringQualityBasedScorer} that uses a the Needleman-Wunsch algorithm to
+ * An {@link AbstractStringQualityBasedScorer} that uses a the Needleman-Wunsch algorithm to
  * evaluate a similarity score.
  *
  * @author Tony Burdett

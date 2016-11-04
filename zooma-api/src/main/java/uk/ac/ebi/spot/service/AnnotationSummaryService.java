@@ -6,7 +6,7 @@ import uk.ac.ebi.spot.model.AnnotationSummary;
 import java.util.Collection;
 
 /**
- * A ZOOMA service that allows direct retrieval of an {@link uk.ac.ebi.spot.model.AnnotationSummary} or sets of
+ * A ZOOMA service that allows direct retrieval of an {@link AnnotationSummary} or sets of
  * Annotation Summaries known to ZOOMA.
  * <p/>
  * This is a high level interface that provides some degree of abstraction over the underlying datasource

@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A ZOOMA service that allows direct retrieval of {@link uk.ac.ebi.spot.model.AnnotationSummary} objects (that
+ * A ZOOMA service that allows direct retrieval of {@link AnnotationSummary} objects (that
  * summarize similar groupings of {@link uk.ac.ebi.spot.model.Annotation}s) known to ZOOMA.
  * <p/>
  *

@@ -1,86 +1,88 @@
-//package uk.ac.ebi.spot.model;
-//
-//import org.apache.solr.client.solrj.beans.Field;
-//import org.springframework.data.annotation.Id;
-//import org.springframework.data.solr.core.mapping.SolrDocument;
-//
-//import java.net.URI;
-//import java.util.Collection;
-//
-///**
-// * Created by olgavrou on 13/10/2016.
-// */
-//@SolrDocument(solrCoreName = "annotationsummaries")
-//public class SolrAnnotationSummary implements AnnotationSummary{
-//
-//    @Id
-//    @Field
-//    String id;
-//
-//    @Field
-//    private String annotatedPropertyType;
-//    @Field
-//    private String annotatedPropertyValue;
-//    @Field
-//    private Collection<URI> semanticTags;
-//    @Field
-//    private Collection<String> annotationIds;
-//    @Field
-//    private float quality;
-//
-//
-//    @Override
-//    public String getId() {
-//        return id;
-//    }
-//
-//    public void setId(String id) {
-//        this.id = id;
-//    }
-//
-//    @Override
-//    public String getAnnotatedPropertyValue() {
-//        return this.annotatedPropertyValue;
-//    }
-//
-//    @Override
-//    public String getAnnotatedPropertyType() {
-//        return this.annotatedPropertyType;
-//    }
-//
-//    @Override
-//    public Collection<URI> getSemanticTags() {
-//        return this.semanticTags;
-//    }
-//
-//    @Override
-//    public Collection<String> getAnnotationIds() {
-//        return this.annotationIds;
-//    }
-//
-//    @Override
-//    public float getQuality() {
-//        return this.quality;
-//    }
-//
-//    public void setAnnotatedPropertyType(String annotatedPropertyType) {
-//        this.annotatedPropertyType = annotatedPropertyType;
-//    }
-//
-//    public void setAnnotatedPropertyValue(String annotatedPropertyValue) {
-//        this.annotatedPropertyValue = annotatedPropertyValue;
-//    }
-//
-//    public void setSemanticTags(Collection<URI> semanticTags) {
-//        this.semanticTags = semanticTags;
-//    }
-//
-//    public void setAnnotationIds(Collection<String> annotationIds) {
-//        this.annotationIds = annotationIds;
-//    }
-//
-//
-//    public void setQuality(float quality) {
-//        this.quality = quality;
-//    }
-//}
+package uk.ac.ebi.spot.model;
+
+import java.util.Collection;
+
+/**
+ * Created by olgavrou on 31/10/2016.
+ */
+public class SolrAnnotationSummary implements AnnotationSummary {
+
+    private String annotatedPropertyType;
+
+    private String annotatedPropertyValue;
+
+    private Collection<String> semanticTags;
+
+    private String mongoid;
+
+    private String source;
+
+    private float quality;
+
+    public SolrAnnotationSummary(String annotatedPropertyType, String annotatedPropertyValue, Collection<String> semanticTags, String mongoid, String source, float quality) {
+        this.annotatedPropertyType = annotatedPropertyType;
+        this.annotatedPropertyValue = annotatedPropertyValue;
+        this.semanticTags = semanticTags;
+        this.mongoid = mongoid;
+        this.source = source;
+        this.quality = quality;
+    }
+
+    @Override
+    public String getAnnotatedPropertyType() {
+        return annotatedPropertyType;
+    }
+
+    public void setAnnotatedPropertyType(String annotatedPropertyType) {
+        this.annotatedPropertyType = annotatedPropertyType;
+    }
+
+    @Override
+    public String getId() {
+        return null;
+    }
+
+    @Override
+    public String getAnnotatedPropertyValue() {
+        return annotatedPropertyValue;
+    }
+
+    public void setAnnotatedPropertyValue(String annotatedPropertyValue) {
+        this.annotatedPropertyValue = annotatedPropertyValue;
+    }
+
+    @Override
+    public Collection<String> getSemanticTags() {
+        return semanticTags;
+    }
+
+    public void setSemanticTags(Collection<String> semanticTags) {
+        this.semanticTags = semanticTags;
+    }
+
+    public String getMongoid() {
+        return mongoid;
+    }
+
+    public void setMongoid(String mongoid) {
+        this.mongoid = mongoid;
+    }
+
+    @Override
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    @Override
+    public float getQuality() {
+        return quality;
+    }
+
+    public void setQuality(float quality) {
+        this.quality = quality;
+    }
+}

@@ -23,11 +23,11 @@ public class SolrAnnotationRepositoryService implements RepositoryService<SolrAn
 
 
     public List<SolrAnnotation> getByAnnotatedPropertyValue(String annotatedPropertyValue){
-       return annotationSummaryRepository.findByAnnotatedPropertyValue(annotatedPropertyValue);
+       return annotationSummaryRepository.findByPropertyValue(annotatedPropertyValue);
     }
 
-    public List<AnnotationSummary> getByAnnotatedPropertyValueGroupBySemanticTags(String annotatedPropertyValue){
-        return annotationSummaryRepository.findByAnnotatedPropertyValueGroupBySemanticTags(annotatedPropertyValue);
+    public List<AnnotationSummary> getAnnotationSummariesByPropertyValue(String annotatedPropertyValue){
+        return annotationSummaryRepository.findAnnotationSummariesByPropertyValue(annotatedPropertyValue);
     }
 
 

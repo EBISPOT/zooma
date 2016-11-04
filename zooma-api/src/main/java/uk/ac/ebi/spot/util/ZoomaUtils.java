@@ -2,8 +2,8 @@ package uk.ac.ebi.spot.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.spot.model.AnnotationPrediction;
 import uk.ac.ebi.spot.model.AnnotationSummary;
+import uk.ac.ebi.spot.model.AnnotationPrediction;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -94,21 +94,6 @@ public class ZoomaUtils {
         return hex.toString();
     }
 
-    /*
-    Indicates whether a set of sources contains the None Selected checkbox. If so then these sources
-    should not be searched.
-     */
-    public static  boolean shouldSearch(URI[] sources){
-        if (sources != null && sources.length > 0){
-            for (URI source : sources){
-                if (source.equals(URIUtils.SEARCH_NONE)) { //source.toString().equals("None") || source.toString().equals("none") || source.toString().equals("Select None")
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     /**
      * Filter the supplied map of annotation summaries to their score, reducing them down to a set of summaries that
      * exclude any unreasonable matches.  Summaries are excluded from the results with the following criteria: <ol>
@@ -126,7 +111,7 @@ public class ZoomaUtils {
      * @return a filtered set of annotations, only including those that scored inside the confidence interval
      */
     public static List<AnnotationSummary> filterAnnotationSummaries(Map<AnnotationSummary, Float> summaries,
-                                                                   float cutoffPercentage) {
+                                                                    float cutoffPercentage) {
         return filterAnnotationSummaries(summaries, 0, cutoffPercentage);
 
     }
@@ -178,8 +163,11 @@ public class ZoomaUtils {
      * @return a filtered set of annotations, only including those that scored inside the confidence interval
      */
     public static List<AnnotationSummary> filterAnnotationSummaries(final Map<AnnotationSummary, Float> summaries,
-                                                                   float cutoffScore,
-                                                                   float cutoffPercentage) {
+                                                                    float cutoffScore,
+                                                                    float cutoffPercentage) {
+        if(summaries.isEmpty()){
+            return new ArrayList<>();
+        }
         Iterator<AnnotationSummary> summaryIterator = summaries.keySet().iterator();
 
         // we need to find summaries that agree and exclude duplicates - build a reference set
@@ -244,24 +232,6 @@ public class ZoomaUtils {
 
 
         return results;
-    }
-
-    public static Map<AnnotationSummary, Float> normalizeOLSScores(float olsTopScore, Map<AnnotationSummary, Float> summaries){
-
-        if (summaries != null && !summaries.isEmpty()) {
-            Set<AnnotationSummary> keys = summaries.keySet();
-            if(!keys.iterator().next().getId().equals("OLS")){
-                return summaries;
-            }
-            float topScore = Collections.max(summaries.values());
-            float topNormalizedScore = olsTopScore;
-            for (AnnotationSummary key : summaries.keySet()) {
-                float score = summaries.get(key);
-                float normalize = topNormalizedScore - (topScore - score);
-                summaries.put(key, normalize);
-            }
-        }
-        return summaries;
     }
 
     /**

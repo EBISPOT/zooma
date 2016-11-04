@@ -9,6 +9,6 @@ import java.util.List;
  */
 public interface CustomSolrAnnotationRepository {
 
-    List<AnnotationSummary> findByAnnotatedPropertyValueGroupBySemanticTags(String annotatedPropertyValue);
+    List<AnnotationSummary> findAnnotationSummariesByPropertyValue(String propertyValue);
 
 }

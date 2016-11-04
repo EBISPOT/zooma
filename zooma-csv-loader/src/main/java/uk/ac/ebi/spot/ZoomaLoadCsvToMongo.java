@@ -4,19 +4,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import uk.ac.ebi.spot.services.MongoAnnotationRepositoryService;
 import uk.ac.ebi.spot.services.LoadAndSaveService;
 
 
 @SpringBootApplication
-public class ZoomaCsvLoaderApplication {
+@ComponentScan("uk.ac.ebi.spot")
+public class ZoomaLoadCsvToMongo {
 
 	@Autowired
 	MongoAnnotationRepositoryService mongoAnnotationRepositoryService;
 
 	public static void main(String[] args) {
-		ConfigurableApplicationContext ctx = SpringApplication.run(ZoomaCsvLoaderApplication.class, args);
+		ConfigurableApplicationContext ctx = SpringApplication.run(ZoomaLoadCsvToMongo.class, args);
 
 		LoadAndSaveService threadBuilder = (LoadAndSaveService) ctx.getBean("loadAndSaveService");
 		threadBuilder.init();

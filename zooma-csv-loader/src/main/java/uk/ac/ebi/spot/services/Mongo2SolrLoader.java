@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.service;
+package uk.ac.ebi.spot.services;
 
 
 import org.apache.log4j.Logger;
@@ -8,8 +8,7 @@ import uk.ac.ebi.spot.model.MongoAnnotation;
 import uk.ac.ebi.spot.model.MongoTypedProperty;
 import uk.ac.ebi.spot.model.Property;
 import uk.ac.ebi.spot.model.SolrAnnotation;
-import uk.ac.ebi.spot.services.MongoAnnotationRepositoryService;
-import uk.ac.ebi.spot.services.SolrAnnotationRepositoryService;
+import uk.ac.ebi.spot.service.LoadService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,11 +47,10 @@ public class Mongo2SolrLoader implements LoadService {
             String propertyVale = property.getPropertyValue();
 
             SolrAnnotation solrAnnotation = new SolrAnnotation();
-            solrAnnotation.setAnnotatedPropertyType(propertyType);
-            solrAnnotation.setAnnotatedPropertyValue(propertyVale);
+            solrAnnotation.setPropertyType(propertyType);
+            solrAnnotation.setPropertyValue(propertyVale);
             solrAnnotation.setSemanticTags(mongoAnnotation.getSemanticTags());
             solrAnnotation.setMongoid(mongoAnnotation.getId());
-            solrAnnotation.setId(mongoAnnotation.getId());
             solrAnnotation.setSource(mongoAnnotation.getProvenance().getSource().getName());
             solrAnnotation.setQuality(mongoAnnotation.getQuality());
 
