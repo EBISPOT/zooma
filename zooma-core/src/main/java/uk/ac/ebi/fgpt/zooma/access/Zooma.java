@@ -492,7 +492,14 @@ public class Zooma extends SourceFilteredEndpoint {
 
                   //  if this annotation summary was made from zooma merging two searches separated with an "and"
                     if (annotationSummary.getAnnotatedPropertyValue().contains(" and ") && annotationSummary.getSemanticTags().size() > 1){
-                        addAnnotationsFromSummariesToMap(annotationSummary, tagsToAnnotations);
+                        //check that the semantic tags are not covered yet
+                        Collection<URI> st = annotationSummary.getSemanticTags();
+                        for (URI semTag : st){
+                            if (tagsToAnnotations.get(semTag) == null){ //not found yet
+                                addAnnotationsFromSummariesToMap(annotationSummary, tagsToAnnotations);
+                                break;
+                            }
+                        }
 
                     } else {
 
@@ -565,8 +572,8 @@ public class Zooma extends SourceFilteredEndpoint {
                 if (st.equals(semanticTag)) {
                     if (tagsToAnnotations.get(semanticTag) == null) {
                         tagsToAnnotations.put(semanticTag, selectedAnnotation);
+                        break;
                     }
-                    break;
                 }
             }
         }
