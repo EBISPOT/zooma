@@ -59,6 +59,9 @@ public class OLSAnnotationSourceService extends Initializable implements Annotat
     @Override
     public AnnotationSource getAnnotationSource(String sourceName) {
 
+        //saving preferred prefix, which is upper case
+        sourceName = sourceName.toUpperCase();
+
         if (annotationSourceMap.containsKey(sourceName)){
             return annotationSourceMap.get(sourceName);
         }
