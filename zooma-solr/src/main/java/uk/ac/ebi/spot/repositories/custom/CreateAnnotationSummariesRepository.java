@@ -16,15 +16,27 @@ import uk.ac.ebi.spot.model.SolrAnnotationSummary;
 import java.util.*;
 
 /**
+ * This repository takes information about the {@link SolrAnnotation}s that where queried and pivoted
+ * and calculates {@link AnnotationSummary}s
+ *
  * Created by olgavrou on 31/10/2016.
  */
 @Repository
-public class CreateAnnotationSummaries {
+public class CreateAnnotationSummariesRepository {
 
     @Autowired
     SolrTemplate solrTemplate;
 
-    public List<AnnotationSummary> convertToAnnotationSumaries(List<SolrAnnotation> content, List<FacetPivotFieldEntry> pivots, long totalDocumentsFound, String annotatedPropertyValue){
+    /**
+     * Converts {@link SolrAnnotation}s into {@link AnnotationSummary}s and calculated the summary scores using the pivot information.
+     * Each {@link AnnotationSummary} will be represented by the strongest {@link uk.ac.ebi.spot.model.Annotation} Document.
+     *
+     * @param content the list of Annotations that where found when searching for the propertyValue
+     * @param pivots the pivot that gives information about the "groupings" of the annotations and will be used to create scores for the summaries
+     * @param totalDocumentsFound the total documents returned when the propertyValue was queried
+     * @return a list of the calculated {@link AnnotationSummary}s
+     */
+    public List<AnnotationSummary> convertToAnnotationSumaries(List<SolrAnnotation> content, List<FacetPivotFieldEntry> pivots, long totalDocumentsFound){
 
         Map<String, Integer> propValueSourceNum = new HashMap<>();
         Map<String, List<String>> propValueIds = new HashMap<>();

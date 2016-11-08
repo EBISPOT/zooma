@@ -30,6 +30,10 @@ public class SolrAnnotationRepositoryService implements RepositoryService<SolrAn
         return annotationSummaryRepository.findAnnotationSummariesByPropertyValue(annotatedPropertyValue);
     }
 
+    public List<AnnotationSummary> getAnnotationSummariesByPropertyValueAndPropertyType(String annotatedPropertyType, String annotatedPropertyValue){
+        return annotationSummaryRepository.findAnnotationSummariesByPropertyValueAndPropertyType(annotatedPropertyType, annotatedPropertyValue);
+    }
+
 
     @Override
     public List<SolrAnnotation> getAllDocuments() {

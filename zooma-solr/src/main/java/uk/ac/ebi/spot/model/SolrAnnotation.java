@@ -22,6 +22,7 @@ public class SolrAnnotation implements SimpleAnnotation, Qualitative {
     private Float score;
 
     @Field
+    @Indexed
     private String propertyType;
 
     @Field

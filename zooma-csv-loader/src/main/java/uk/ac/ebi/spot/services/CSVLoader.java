@@ -207,7 +207,20 @@ public class CSVLoader implements LoadService<Annotation> {
                             annotationDate = dashedDateFormatter.parseDateTime(annotationElements[column]).toDate();
                         }
                         else if (dateStr.contains("/")) {
-                            annotationDate = slashDateFormatter.parseDateTime(annotationElements[column]).toDate();
+                            //TODO: remove this, this is only a temporary solution for eva-clinvar data
+                            String date = annotationElements[column];
+                            String[] splitD = date.split("/");
+                            String time = splitD[2].split(" ")[1];
+                            splitD[2] = splitD[2].split(" ")[0];
+
+
+                            StringBuilder fixedDate = new StringBuilder();
+                            if (splitD[splitD.length - 1].length() == 2){
+                                fixedDate.append(splitD[0] + "/").append(splitD[1] +"/").append("20").append(splitD[2] + " ").append(time);
+                            } else {
+                                fixedDate.append(date);
+                            }
+                            annotationDate = slashDateFormatter.parseDateTime(fixedDate.toString()).toDate();
                         }
                         else {
                             System.out.println("Can't recognise format for date '" + dateStr + "' at line " + lineNumber);

@@ -1,13 +1,14 @@
 package uk.ac.ebi.spot.services;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.spot.model.AnnotationPrediction;
-import uk.ac.ebi.spot.model.AnnotationSummary;
-import uk.ac.ebi.spot.model.SimpleAnnotationPrediction;
+import uk.ac.ebi.spot.model.*;
 import uk.ac.ebi.spot.util.ZoomaUtils;
 
 import java.util.*;
@@ -22,10 +23,24 @@ public class AnnotationPredictionService {
     private SolrAnnotationRepositoryService solrAnnotationRepositoryService;
 
     @Autowired
-    AnnotationSummarySelector annotationSummarySelector;
+    private AnnotationSummarySelector annotationSummarySelector;
 
     @Autowired
-    TaskExecutor taskExecutor;
+    private TaskExecutor taskExecutor;
+
+    @Value("${cutoff.percentage}")
+    private float cutoffPercentage;
+
+    @Value("${cutoff.score}")
+    private float cutoffScore;
+
+    public float getCutoffPercentage() {
+        return cutoffPercentage;
+    }
+
+    public float getCutoffScore() {
+        return cutoffScore;
+    }
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -33,18 +48,26 @@ public class AnnotationPredictionService {
         return log;
     }
 
-    public Map<String, List<SimpleAnnotationPrediction>> predict(ArrayList<String> annotatedPropertyValues){
-        Map<String, List<SimpleAnnotationPrediction>> summaryMap = new HashMap<>();
-        Map<String, Predictor> predictors = new HashMap<>();
+    public Map<Pair<String, String>, List<SimpleAnnotationPrediction>> predict(List<Property> properties){
+        Map<Pair<String, String>, List<SimpleAnnotationPrediction>> summaryMap = new HashMap<>();
+        Map<Pair<String, String>, Predictor> predictors = new HashMap<>();
 
-        //set threads searching
-        for (String value : annotatedPropertyValues){
-            Predictor predictor = new Predictor(value);
+        for (Property property : properties){
+            String annotatedPropertyValue = property.getPropertyValue();
+            String annotatedPropertyType = null;
+            if (property instanceof TypedProperty){
+                annotatedPropertyType = ((TypedProperty) property).getPropertyType();
+            }
+            //set threads searching
+            Predictor predictor = new Predictor(annotatedPropertyType, annotatedPropertyValue);
             taskExecutor.execute(predictor);
-            predictors.put(value, predictor);
+            Pair<String, String> typeValuePair = new ImmutablePair<>(annotatedPropertyType, annotatedPropertyValue);
+            predictors.put(typeValuePair, predictor);
+
         }
 
-        for (String value : annotatedPropertyValues){
+
+        for (Pair<String, String> value : predictors.keySet()){
             List<SimpleAnnotationPrediction> summaries = new ArrayList<>();
             for (;;) {
                 if(predictors.get(value).getSimpleAnnotationPredictions() != null){
@@ -62,10 +85,13 @@ public class AnnotationPredictionService {
     }
 
     private class Predictor implements Runnable {
+        private String annotatedPropertyType;
         private String annotatedPropertyValue;
+
         private List<SimpleAnnotationPrediction> simpleAnnotationPredictions;
 
-        public Predictor(String annotatedPropertyValue) {
+        public Predictor(String annotatedPropertyType, String annotatedPropertyValue) {
+            this.annotatedPropertyType = annotatedPropertyType;
             this.annotatedPropertyValue = annotatedPropertyValue;
         }
 
@@ -82,13 +108,21 @@ public class AnnotationPredictionService {
             getLog().info("**** Starting search for: " + annotatedPropertyValue + " ****");
             List<SimpleAnnotationPrediction> summaries = new ArrayList<>();
 
+            List<AnnotationSummary> annotationSummaries;
             //Query
-            List<AnnotationSummary> annotationSummaries = solrAnnotationRepositoryService.getAnnotationSummariesByPropertyValue(annotatedPropertyValue);
+            if (annotatedPropertyType == null) {
+                annotationSummaries = solrAnnotationRepositoryService.getAnnotationSummariesByPropertyValue(annotatedPropertyValue);
+            } else {
+                annotationSummaries = solrAnnotationRepositoryService.getAnnotationSummariesByPropertyValueAndPropertyType(annotatedPropertyType, annotatedPropertyValue);
+                if (annotationSummaries == null || annotationSummaries.isEmpty()){
+                    annotationSummaries = solrAnnotationRepositoryService.getAnnotationSummariesByPropertyValue(annotatedPropertyValue);
+                }
+            }
             //Score
-            List<AnnotationSummary> goodAnnotationSummaries = annotationSummarySelector.getGoodAnnotationSummaries(annotationSummaries, annotatedPropertyValue);
+            List<AnnotationSummary> goodAnnotationSummaries = annotationSummarySelector.getGoodAnnotationSummaries(annotationSummaries, annotatedPropertyValue, getCutoffPercentage());
 
             // now we have a list of annotation summaries; use this list to create predicted annotations
-            AnnotationPrediction.Confidence confidence = ZoomaUtils.getConfidence(goodAnnotationSummaries, 80f);
+            AnnotationPrediction.Confidence confidence = ZoomaUtils.getConfidence(goodAnnotationSummaries, getCutoffScore());
 
             for (AnnotationSummary summary : goodAnnotationSummaries){
                 summaries.add(new SimpleAnnotationPrediction(summary.getAnnotatedPropertyType(),

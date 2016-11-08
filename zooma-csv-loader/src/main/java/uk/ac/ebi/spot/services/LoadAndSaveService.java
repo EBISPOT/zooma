@@ -22,7 +22,7 @@ import java.util.List;
 public class LoadAndSaveService {
 
     @Autowired
-    private Collection<LoadService> loaders;
+    private Collection<LoadService<Annotation>> loaders;
 
     @Autowired
     SaveService saveToDb;

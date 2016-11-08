@@ -22,7 +22,7 @@ public class AnnotationSummarySelector {
 
     private final float MIN = minScore();
 
-    List<AnnotationSummary> getGoodAnnotationSummaries(List<AnnotationSummary> annotationSummaries, String annotatedPropertyValue){
+    List<AnnotationSummary> getGoodAnnotationSummaries(List<AnnotationSummary> annotationSummaries, String annotatedPropertyValue, float cutoffPercentage){
 
         float max = 1.0f;
 
@@ -45,7 +45,7 @@ public class AnnotationSummarySelector {
         }
 
         //cutoff scores based on the difference between the first score
-        List<AnnotationSummary> results = ZoomaUtils.filterAnnotationSummaries(annotationsToScore, 0.9f);
+        List<AnnotationSummary> results = ZoomaUtils.filterAnnotationSummaries(annotationsToScore, cutoffPercentage);
 
         //Make sure the results are sorted (highest score first).
         Collections.sort(results, new Comparator<AnnotationSummary>() {

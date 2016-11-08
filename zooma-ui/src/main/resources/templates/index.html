@@ -172,7 +172,7 @@
                         <form class="form-horizontal" th:object="${annotationProperty}" th:action="@{/spot/zooma}" method="post">
 
                             <div class="form-group">
-                                <textarea id="zooma-textarea" rows="15" cols="40" class="form-control"  th:field="*{propertyValue}" onkeydown="if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}"/>
+                                <textarea id="zooma-textarea" rows="15" cols="40" class="form-control"  th:field="*{text}" onkeydown="if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}"/>
                             </div>
                             <div class="row">
                                 <button type="submit" class="btn btn-default">Annotate</button>
@@ -186,7 +186,7 @@
                     <div th:if="${not #maps.isEmpty(map)}">
                         <table class="table table-striped">
                             <tr>
-                                <th>Term Value</th>
+                                <th>Term Type, Term Value</th>
                                 <th>Ontology Class Label</th>
                                 <th>Mapping Confidence</th>
                                 <th>Mapping Score</th>
@@ -197,7 +197,8 @@
                             <tr th:each="summaryMap : ${map}" th:rowspan="${#maps.size(map)}">
                                 <tr th:each="summary : ${summaryMap.value}" th:rowspan="${#lists.size(summary.semanticTags)}">
                                     <tr th:each="tag : ${summary.semanticTags}">
-                                        <td th:text="${summaryMap.key}"></td>
+                                    <td th:text="${summaryMap.key}"></td> <!--this is the term pair <type, value> -->
+                                    <!--<td th:text="${summaryMap.key[1]}"></td> &lt;!&ndash;this is the term pair <type, value> &ndash;&gt;-->
                                         <td th:text="${summary.annotatedPropertyValue}"></td>
                                         <td th:text="${summary.confidence}"></td>
                                         <td th:text="${summary.quality}"></td>

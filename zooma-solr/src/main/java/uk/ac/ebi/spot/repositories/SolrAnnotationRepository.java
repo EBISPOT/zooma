@@ -1,6 +1,5 @@
 package uk.ac.ebi.spot.repositories;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.repository.SolrCrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.ac.ebi.spot.model.SolrAnnotation;

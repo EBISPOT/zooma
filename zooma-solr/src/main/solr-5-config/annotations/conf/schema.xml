@@ -406,17 +406,17 @@
     <field name="_root_" type="string" indexed="true" stored="false"/>
     <field name="_text_" type="text_general" multiValued="true" indexed="true" stored="false"/>
     <field name="_version_" type="long" indexed="true" stored="true"/>
-    <field name="annotatedPropertyType" type="text_general" multiValued="false"  />
-    <field name="annotatedPropertyValue" indexed="true" type="text_general" multiValued="false" omitNorms="false"/>
+    <field name="propertyType" indexed="true" type="text_general" multiValued="false" omitNorms="false" />
+    <field name="propertyValue" indexed="true" type="text_general" multiValued="false" omitNorms="false"/>
     <field name="id" type="strings" multiValued="false" indexed="true" required="true" stored="true"/>
     <field name="mongoid" type="strings" multiValued="false"/>
     <field name="semanticTags" type="strings" multiValued="false"/>
     <field name="source" type="strings" multiValued="false"/>
     <field name="quality" type="float" multiValued="false"/>
-    <field name="annotatedPropertyValueStr" indexed="true" stored="false" type="string" multiValued="false" omitNorms="false"/>
-    <field name="exactAnnotatedProperty" type="exact_match" indexed="true" stored="false"/>
-    <copyField source="annotatedPropertyValue" dest="exactAnnotatedProperty" />
-    <copyField source="annotatedPropertyValue" dest="annotatedPropertyValueStr"/>
+    <field name="propertyValueStr" indexed="true" stored="false" type="string" multiValued="false" omitNorms="false"/>
+    <!--<field name="exactAnnotatedProperty" type="exact_match" indexed="true" stored="false"/>-->
+    <!--<copyField source="propertyValue" dest="exactAnnotatedProperty" />-->
+    <copyField source="propertyValue" dest="propertyValueStr"/>
     <dynamicField name="*_txt_en_split_tight" type="text_en_splitting_tight" indexed="true" stored="true"/>
     <dynamicField name="*_descendent_path" type="descendent_path" indexed="true" stored="true"/>
     <dynamicField name="*_ancestor_path" type="ancestor_path" indexed="true" stored="true"/>

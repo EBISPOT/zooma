@@ -1,11 +1,13 @@
 package uk.ac.ebi.spot.controllers;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import uk.ac.ebi.spot.model.AnnotationProperty;
+import uk.ac.ebi.spot.model.Property;
 import uk.ac.ebi.spot.model.SimpleAnnotationPrediction;
 import uk.ac.ebi.spot.services.AnnotationPredictionService;
 
@@ -31,9 +33,9 @@ public class AnnotationPredictionController {
     @RequestMapping(method = RequestMethod.POST)
     public String annotate(AnnotationProperty property, Model model){
 
-        ArrayList<String> values = new ArrayList<>(Arrays.asList(property.getPropertyValue().split("\r\n")));
+        List<Property> properties = property.getProperties();
 
-        Map<String, List<SimpleAnnotationPrediction>> summaryMap = annotationPredictionService.predict(values);
+        Map<Pair<String, String>, List<SimpleAnnotationPrediction>> summaryMap = annotationPredictionService.predict(properties);
 
         model.addAttribute("map", summaryMap);
         return "index";
