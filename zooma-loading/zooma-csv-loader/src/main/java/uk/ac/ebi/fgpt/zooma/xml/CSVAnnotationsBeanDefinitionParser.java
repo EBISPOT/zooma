@@ -3,7 +3,6 @@ package uk.ac.ebi.fgpt.zooma.xml;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionValidationException;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -14,7 +13,6 @@ import uk.ac.ebi.fgpt.zooma.datasource.CSVAnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.CSVLoadingSession;
 import uk.ac.ebi.fgpt.zooma.datasource.DefaultAnnotationFactory;
 
-import java.io.IOException;
 import java.net.URI;
 
 /**
@@ -92,6 +90,7 @@ public class CSVAnnotationsBeanDefinitionParser extends AbstractBeanDefinitionPa
         csvAnnotationDao.setInitMethodName("init");
         csvAnnotationDao.addConstructorArgReference(name + "-csvFactory");
         csvAnnotationDao.addConstructorArgValue(csvResource);
+        csvAnnotationDao.addPropertyReference("olsSearchService", "olsSearchService");
         if (delimiter != null) {
             csvAnnotationDao.addConstructorArgValue(delimiter);
         }

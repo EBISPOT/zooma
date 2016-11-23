@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma.service;
 
 import org.springframework.web.client.RestClientException;
 import uk.ac.ebi.fgpt.zooma.Initializable;
+import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 import uk.ac.ebi.pride.utilities.ols.web.service.client.OLSClient;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.*;
@@ -21,6 +22,10 @@ public class OLSSearchService extends Initializable {
 
     //holds all the ontology <namespace, Ontology> mappings
     private Map<String, Ontology> ontologyMappings;
+
+    private Map<URI, URI> originalToReplacementCache = new HashMap<>();
+    private Map<URI, Boolean> replaceableCache = new HashMap<>();
+
 
     @Override
     protected void doInitialization() throws Exception {
@@ -88,34 +93,78 @@ public class OLSSearchService extends Initializable {
 
     public String getLabelByIri(String iri){
         try {
-            String customQueryField = new QueryFields.QueryFieldBuilder()
-                    .setIri()
-                    .build()
-                    .toString();
-            olsClient.setQueryField(customQueryField);
+            List<Term> terms = olsClient.getExactTermsByIriString(iri);
 
-            String fieldList = new FieldList.FieldListBuilder()
-                    .setLabel()
-                    .setIri()
-                    .setIsDefiningOntology()
-                    .build()
-                    .toString();
-            olsClient.setFieldList(fieldList);
-
-            List<Term> terms = olsClient.getExactTermsByName(iri, null);
             for (Term term : terms){
                 if (term.isDefinedOntology()){
                     return term.getLabel();
                 }
             }
         } catch (RestClientException e){
-            return "";
-        } finally {
-            //restore olsClient search to it's default query field and field list
-            olsClient.setQueryField(olsClient.DEFAULT_QUERY_FIELD);
-            olsClient.setFieldList(olsClient.DEFAULT_FIELD_LIST);
+            return  URIUtils.extractFragment(URI.create(iri));
         }
-        return "";
+
+        return  URIUtils.extractFragment(URI.create(iri));
+    }
+
+
+    public boolean isReplaceable(URI semanticTag){
+        Boolean replaceable = replaceableCache.get(semanticTag);
+
+        if (replaceable == null) {
+            URI replacement = this.tryToReplaceSemanticTag(semanticTag);
+            if (replacement != null){
+                replaceableCache.put(semanticTag, true);
+                originalToReplacementCache.put(semanticTag, replacement);
+            } else {
+                replaceableCache.put(semanticTag, false);
+            }
+        }
+
+        return replaceableCache.get(semanticTag);
+    }
+
+    public URI replaceSemanticTag(URI semanticTag){
+        if (isReplaceable(semanticTag)){
+            return originalToReplacementCache.get(semanticTag);
+        } else {
+            throw new IllegalArgumentException("Term is either not obsolete, or doesn't have a replacement.");
+        }
+    }
+
+    private URI tryToReplaceSemanticTag(URI semanticTag){
+
+        List<Term> terms = olsClient.getExactTermsByIriStringWithObsolete(semanticTag.toString());
+        Term foundTerm = null;
+        if (terms != null && !terms.isEmpty()) {
+            for (Term term : terms) {
+                if (term.isDefinedOntology()) {
+                    foundTerm = term;
+                }
+            }
+            if (foundTerm == null){
+                foundTerm = terms.get(0);
+            }
+
+            Term retrievedTerm = olsClient.retrieveTerm(foundTerm.getIri().getIdentifier(), foundTerm.getOntologyName());
+            if (retrievedTerm instanceof ObsoleteTerm){
+                Annotation annotation = retrievedTerm.getAnnotation();
+                Map<String, List<String >> annotationMap = annotation.getAnnotation();
+
+                List<String> replacedBy = annotationMap.get("term_replaced_by");
+                if (replacedBy == null){
+                    replacedBy = annotationMap.get("replacedBy");
+                }
+                if (replacedBy == null){
+                    replacedBy = annotationMap.get("termReplacedBy");
+                }
+                if (replacedBy != null && !replacedBy.isEmpty()){
+                    return URI.create(replacedBy.get(0));
+                }
+            }
+        }
+
+        return null;
     }
 
     /*

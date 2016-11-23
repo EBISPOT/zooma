@@ -123,6 +123,52 @@ public abstract class RowBasedDataAnnotationMapper extends Initializable {
         }
     }
 
+    protected Annotation createReplacementAnnotation(URI annotationURI,
+                                          String annotationID,
+                                          String studyAccession,
+                                          URI studyURI,
+                                          String studyID,
+                                          URI studyType,
+                                          String bioentityName,
+                                          URI bioentityURI,
+                                          String bioentityID,
+                                          String bioentityTypeName,
+                                          URI bioentityTypeURI,
+                                          String propertyType,
+                                          String propertyValue,
+                                          URI propertyURI,
+                                          String propertyID,
+                                          URI semanticTag,
+                                          String annotator,
+                                          Date annotationDate) {
+
+
+        Annotation a =  getAnnotationFactory().createAnnotation(annotationURI,
+                annotationID,
+                studyAccession,
+                studyURI,
+                studyID,
+                studyType,
+                bioentityName,
+                bioentityURI,
+                bioentityID,
+                bioentityTypeName,
+                bioentityTypeURI,
+                propertyType,
+                propertyValue,
+                propertyURI,
+                propertyID,
+                semanticTag,
+                annotator,
+                annotationDate);
+
+        return a;
+    }
+
+
+
+
+
     @Override protected void doInitialization() throws Exception {
         // do nothing
     }

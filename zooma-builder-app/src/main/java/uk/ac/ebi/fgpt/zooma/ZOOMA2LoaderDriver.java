@@ -3,6 +3,7 @@ package uk.ac.ebi.fgpt.zooma;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import uk.ac.ebi.fgpt.zooma.datasource.CSVAnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.env.ZoomaEnv;
 import uk.ac.ebi.fgpt.zooma.env.ZoomaHome;
 import uk.ac.ebi.fgpt.zooma.exception.ZoomaLoadingException;
@@ -11,9 +12,7 @@ import uk.ac.ebi.fgpt.zooma.util.ProgressLogger;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 /**
  * A command line driver class for loading annotations into ZOOMA from configured datasources.
@@ -74,6 +73,17 @@ public class ZOOMA2LoaderDriver extends ZOOMA2BackingUpDriver {
                 "file:${zooma.home}/config/spring/zooma-load.xml",
                 "classpath*:zooma-annotation-dao.xml");
         DataLoadingService loader = ctx.getBean("dataLoadingService", DataLoadingService.class);
+
+        //get the CSVAnnotationDAOs and load the data for each one
+        Map<String, CSVAnnotationDAO> annotationDAOs = ctx.getBeansOfType(CSVAnnotationDAO.class);
+        for (String datasource : annotationDAOs.keySet()){
+            try {
+                CSVAnnotationDAO csvAnnotationDAO = annotationDAOs.get(datasource);
+                csvAnnotationDAO.loadDataFromCSV();
+            } catch (Exception e) {
+                throw new ZoomaLoadingException("Could not load datasource: " + datasource);
+            }
+        }
         getLog().debug("Found and loaded " + loader.getAvailableDatasources().size() + " AnnotationDAOs");
         ProgressLogger progress = new ProgressLogger(System.out, "Loading annotations...", 15) {
             @Override public boolean test() {

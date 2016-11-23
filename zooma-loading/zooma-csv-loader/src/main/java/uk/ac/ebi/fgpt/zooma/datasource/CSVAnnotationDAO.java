@@ -10,6 +10,7 @@ import uk.ac.ebi.fgpt.zooma.model.Annotation;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.Study;
+import uk.ac.ebi.fgpt.zooma.service.OLSSearchService;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -65,6 +66,16 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         this.annotations = Collections.synchronizedList(new ArrayList<Annotation>());
     }
 
+    private OLSSearchService olsSearchService;
+
+    public OLSSearchService getOlsSearchService() {
+        return olsSearchService;
+    }
+
+    public void setOlsSearchService(OLSSearchService olsSearchService) {
+        this.olsSearchService = olsSearchService;
+    }
+
     @Override
     public synchronized boolean isReady() throws IllegalStateException {
         try {
@@ -79,10 +90,14 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
 
     @Override
     protected void doInitialization() throws Exception {
+
+    }
+
+    public void loadDataFromCSV() throws Exception {
         getLog().debug("Parsing CSV file from input stream");
 
         // parse annotations file
-        BufferedReader reader = new BufferedReader(new InputStreamReader(csvResource.getInputStream(), "UTF-8"));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(this.csvResource.getInputStream(), "UTF-8"));
         boolean readHeader = false;
         String line;
         int lineNumber = 0;
@@ -277,24 +292,58 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
 
                 // now we've collected fields, generate annotation using annotation factory
                 for (URI semanticTag : semanticTags) {
-                    annotations.add(createAnnotation(annotationURI,
-                                                     annotationID,
-                                                     studyAcc,
-                                                     studyURI,
-                                                     studyID,
-                                                     studyType,
-                                                     bioentityName,
-                                                     bioentityURI,
-                                                     bioentityID,
-                                                     bioentityTypeName,
-                                                     bioentityTypeURI,
-                                                     propertyType,
-                                                     propertyValue,
-                                                     propertyURI,
-                                                     propertyID,
-                                                     semanticTag,
-                                                     annotator,
-                                                     annotationDate));
+
+                    Annotation annotation = createAnnotation(annotationURI,
+                            annotationID,
+                            studyAcc,
+                            studyURI,
+                            studyID,
+                            studyType,
+                            bioentityName,
+                            bioentityURI,
+                            bioentityID,
+                            bioentityTypeName,
+                            bioentityTypeURI,
+                            propertyType,
+                            propertyValue,
+                            propertyURI,
+                            propertyID,
+                            semanticTag,
+                            annotator,
+                            annotationDate);
+
+                    //get the replacedBy annotation that should have been created in the Loading Session,
+                    //if the annotation has a replacedBy entry
+                    Collection<URI> semanticTagReplacements = obsoleteSemanticTags(semanticTags);
+                    if (!semanticTagReplacements.isEmpty()) {
+                        //for each semantic tag, create a new annotation
+                        Collection<URI> replacedBy = new ArrayList<>();
+                        for(URI replacementSemTag : semanticTagReplacements) {
+                            Annotation replacementAnnotation = createReplacementAnnotation(null,
+                                    null,
+                                    studyAcc,
+                                    studyURI,
+                                    studyID,
+                                    studyType,
+                                    bioentityName,
+                                    bioentityURI,
+                                    bioentityID,
+                                    bioentityTypeName,
+                                    bioentityTypeURI,
+                                    propertyType,
+                                    propertyValue,
+                                    propertyURI,
+                                    propertyID,
+                                    replacementSemTag,
+                                    annotator,
+                                    annotationDate);
+                            replacedBy.add(replacementAnnotation.getURI());
+                            replacementAnnotation.setReplaces(annotation.getURI());
+                            annotations.add(replacementAnnotation);
+                        }
+                        annotation.setReplacedBy(replacedBy.toArray(new URI[replacedBy.size()]));
+                    }
+                    annotations.add(annotation);
                 }
             }
         }
@@ -451,6 +500,20 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         else {
             return URI.create(semanticTag.trim());
         }
+    }
+
+    private Collection<URI> obsoleteSemanticTags(Collection<URI> semanticTags) throws InterruptedException {
+        if(!this.getOlsSearchService().isReady()){
+            this.getOlsSearchService().waitUntilReady();
+        }
+
+        Collection<URI> replacements = new ArrayList<>();
+        for (URI semanticTag : semanticTags){
+            if (getOlsSearchService().isReplaceable(semanticTag)){
+                replacements.add(getOlsSearchService().replaceSemanticTag(semanticTag));
+            }
+        }
+        return replacements;
     }
 
     private boolean examineHeader(String[] header) {
