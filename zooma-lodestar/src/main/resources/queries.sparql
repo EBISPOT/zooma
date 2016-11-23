@@ -340,7 +340,13 @@ SELECT DISTINCT ?annotationid ?propertyvalueid ?propertyname ?propertyvalue ?sem
      ?databaseid zoomaterms:shortName ?sourcename .
 
    	 OPTIONAL {
-        ?annotationid zoomaterms:replaces ?oldAnnotationid option (transitive).
+        ?annotationid zoomaterms:replaces ?oldAnnotationid OPTION ( transitive,
+                                                                                t_distinct,
+                                                                                t_in(?annotationid),
+                                                                                t_out(?oldAnnotationid),
+                                                                                t_min (1),
+                                                                                t_max (10),
+                                                                                t_step ('step_no') as ?dist ) .
 		?oldAnnotationid oac:hasBody ?oldPropertyvalueid .
 
      	OPTIONAL {?oldPropertyvalueid zoomaterms:propertyName ?oldPropertyname }
