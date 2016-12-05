@@ -4,7 +4,7 @@ import org.springframework.web.client.RestClientException;
 import uk.ac.ebi.fgpt.zooma.Initializable;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 import uk.ac.ebi.pride.utilities.ols.web.service.client.OLSClient;
-import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfigProd;
+import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfig;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.*;
 
 import java.net.URI;
@@ -20,6 +20,16 @@ public class OLSSearchService extends Initializable {
 
     private OLSClient olsClient;
 
+    private Properties configuration;
+
+    public Properties getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+    }
+
     //holds all the ontology <namespace, Ontology> mappings
     private Map<String, Ontology> ontologyMappings;
 
@@ -30,7 +40,12 @@ public class OLSSearchService extends Initializable {
     @Override
     protected void doInitialization() throws Exception {
 
-        this.olsClient = new OLSClient(new OLSWsConfigProd());
+        String olsServer = this.configuration.getProperty("ols.server");
+        if (olsServer != null) {
+            this.olsClient = new OLSClient(new OLSWsConfig(olsServer));
+        } else {
+            this.olsClient = new OLSClient(new OLSWsConfig());
+        }
         this.ontologyMappings = new HashMap<>();
         populateOntologyMappings();
 
