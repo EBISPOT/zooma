@@ -53,6 +53,13 @@ lucene indexes using:
 If your Virtuoso index will run on a different server, at this point you can copy your Virtuoso indexes to the remote
 server and start up that server using the scripts provided by Virtuoso.
 
+To populate the ontology terms with their current ontology labels you need to run:
+
+>: build-labels.sh
+
+If you skip this step, Zooma with work perfectly fine, the only thing that will differ is the Ontology Class Label column
+in the results. It will have the term labels as they are in the CSV files instead of the label that they have in the ontology.
+
 Now, build your lucene indexes:
 
 >: build-lucene-index.sh
