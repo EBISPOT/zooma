@@ -4,21 +4,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>zooma-mongo2solr</artifactId>
-	<name>zooma-mongo2solr</name>
-	<description>Demo project for Spring Boot</description>
+	<name>Zooma Mongo2Solr adaptor</name>
+	<description>Zooma Spring Boot Application for indexing data from Mongo into Solr</description>
 
 	<parent>
 		<groupId>uk.ac.ebi.spot</groupId>
-		<artifactId>zooma</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
+		<artifactId>zooma-parent</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+		<relativePath>../zooma-parent/pom.xml</relativePath>
 	</parent>
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
-	</properties>
 
 	<dependencies>
 		<dependency>
@@ -35,7 +29,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-autoconfigure</artifactId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -47,6 +46,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
 
 </project>
