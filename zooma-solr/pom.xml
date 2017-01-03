@@ -4,40 +4,34 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>zooma-solr</artifactId>
-	<name>zooma-solr</name>
-	<description>Solr module for zooma</description>
+	<name>Zooma Solr bindings</name>
+	<description>The Zooma persistence infrastructure for storing data in Solr</description>
 
 	<parent>
 		<groupId>uk.ac.ebi.spot</groupId>
-		<artifactId>zooma</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
+		<artifactId>zooma-parent</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+		<relativePath>../zooma-parent/pom.xml</relativePath>
 	</parent>
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
-	</properties>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-solr</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.solr</groupId>
-			<artifactId>solr-core</artifactId>
-			<version>5.5.3</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-solr</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>uk.ac.ebi.spot</groupId>
 			<artifactId>zooma-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.solr</groupId>
-			<artifactId>solr-solrj</artifactId>
-			<version>5.5.3</version>
+			<groupId>com.github.mpkorstanje</groupId>
+			<artifactId>simmetrics-core</artifactId>
+			<version>4.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
