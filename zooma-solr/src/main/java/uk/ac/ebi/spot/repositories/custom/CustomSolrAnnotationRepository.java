@@ -25,6 +25,16 @@ public interface CustomSolrAnnotationRepository {
     List<AnnotationSummary> findAnnotationSummariesByPropertyValue(String propertyValue);
 
     /**
+     * Takes a value and queries solr for it's {@link uk.ac.ebi.spot.model.Annotation}s, and returns the {@link AnnotationSummary}s calculated from the
+     * found Annotations. Takes a list of source names and limit's the search to those sources.
+     *
+     * @param propertyValue the term that will be searched for
+     * @param sourceNames a list of the source names we want to limit the search to
+     * @return  a list of the {@link AnnotationSummary}s that are produced from the {@link uk.ac.ebi.spot.model.Annotation}s found
+     */
+    List<AnnotationSummary> findAnnotationSummariesByPropertyValue(String propertyValue, List<String> sourceNames);
+
+    /**
      * Takes a value and a type and queries solr for it's {@link uk.ac.ebi.spot.model.Annotation}s, and returns the {@link AnnotationSummary}s calculated from the
      * found Annotations
      *
@@ -34,5 +44,17 @@ public interface CustomSolrAnnotationRepository {
      * @return a list of the {@link AnnotationSummary}s that are produced from the {@link uk.ac.ebi.spot.model.Annotation}s found
      */
     List<AnnotationSummary> findAnnotationSummariesByPropertyValueAndPropertyType(String propertyType, String propertyValue);
+
+    /**
+     * Takes a value and a type and queries solr for it's {@link uk.ac.ebi.spot.model.Annotation}s, and returns the {@link AnnotationSummary}s calculated from the
+     * found Annotations. Takes a list of source names and limit's the search to those sources.
+     *
+     * @param propertyType the type of a term
+     * @param sourceNames a list of the source names we want to limit the search to
+     * @param propertyValue the term that will be searched for
+
+     * @return a list of the {@link AnnotationSummary}s that are produced from the {@link uk.ac.ebi.spot.model.Annotation}s found
+     */
+    List<AnnotationSummary> findAnnotationSummariesByPropertyValueAndPropertyType(String propertyType, String propertyValue, List<String> sourceNames);
 
 }

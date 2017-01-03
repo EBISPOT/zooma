@@ -58,7 +58,7 @@ public class AnnotationRepositoryServiceIT {
         semanticTags.add(semanticTag);
 
         //create provenance
-        MongoOntologyAnnotationSource annotationSource = new MongoOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/test"), "test","","");
+        MongoOntologyAnnotationSource annotationSource = new MongoOntologyAnnotationSource("http://www.ebi.ac.uk/test", "test","","", "");
 
         MongoAnnotationProvenance annotationProvenance = new MongoAnnotationProvenance(annotationSource,
                 AnnotationProvenance.Evidence.MANUAL_CURATED,
@@ -97,8 +97,8 @@ public class AnnotationRepositoryServiceIT {
 
     @Test
     public void testGetBySemanticTags(){
-        Collection<URI> semanticTags = new HashSet<>();
-        semanticTags.add(URI.create("http://www.ebi.ac.uk/efo/EFO_test"));
+        Collection<String> semanticTags = new HashSet<>();
+        semanticTags.add("http://www.ebi.ac.uk/efo/EFO_test");
         Collection<MongoAnnotation> mongoAnnotations = mongoAnnotationRepositoryService.getBySemanticTags(semanticTags);
         assertTrue(mongoAnnotations.size() > 0);
     }
@@ -144,7 +144,7 @@ public class AnnotationRepositoryServiceIT {
 
     @Test
     public void testGetByProvenanceSource(){
-        AnnotationSource source = new MongoOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/test"), "test", "", "");
+        AnnotationSource source = new MongoOntologyAnnotationSource("http://www.ebi.ac.uk/test", "test", "", "", "");
         Collection<MongoAnnotation> annotations = mongoAnnotationRepositoryService.getByProvenanceSource(source, new PageRequest(0, 20));
 
         assertTrue(annotations.size() > 0);

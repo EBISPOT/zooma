@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by olgavrou on 19/09/2016.
  */
-public interface LoadService<T> {
+public interface AnnotationLoadingService<T> {
     void load() throws IOException;
     List<T> returnLoaded();
 }

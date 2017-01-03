@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.builders;
+package uk.ac.ebi.spot.config;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
@@ -51,11 +51,13 @@ public class LoaderBeanBuilder implements BeanDefinitionRegistryPostProcessor {
             String name = (String) properties.get("name." + i);
             String delimeter = (String) properties.get("delimeter." + i);
             String loadFrom = (String) properties.get("loadFrom." + i);
+            String topic = (String) properties.get("topic." + i);
 
             RootBeanDefinition loadingSessionBean = new RootBeanDefinition(CSVLoadingSession.class);
             Map<String, String> loadingSessionValues = new HashMap<>();
             loadingSessionValues.put("name", name);
             loadingSessionValues.put("uri", uri);
+            loadingSessionValues.put("topic", topic);
             loadingSessionBean.setPropertyValues(new MutablePropertyValues(loadingSessionValues));
             loadingSessionBean.setInitMethodName("init");
             beanDefinitionRegistry.registerBeanDefinition(name + "LoadingSession", loadingSessionBean);
@@ -73,6 +75,15 @@ public class LoaderBeanBuilder implements BeanDefinitionRegistryPostProcessor {
             loaderValues.put("annotationFactory", annotationFactoryBean);
             csvLoaderBean.setPropertyValues(new MutablePropertyValues(loaderValues));
             beanDefinitionRegistry.registerBeanDefinition(name + "CSVLoader", csvLoaderBean);
+
+//            RootBeanDefinition datasourceBean = new RootBeanDefinition(MongoDatabaseAnnotationSource.class);
+//            ConstructorArgumentValues constructorArgumentValues = new ConstructorArgumentValues();
+//            constructorArgumentValues.addGenericArgumentValue(uri, "String");
+//            constructorArgumentValues.addGenericArgumentValue(name, "String");
+//            constructorArgumentValues.addGenericArgumentValue(topic, "String");
+//            datasourceBean.setConstructorArgumentValues(constructorArgumentValues);
+//            beanDefinitionRegistry.registerBeanDefinition(name + "MongoDatabaseAnnotationSource", datasourceBean);
+
         }
     }
 

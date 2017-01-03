@@ -21,7 +21,7 @@ public interface MongoAnnotationRepository extends MongoRepository<MongoAnnotati
 
     List<MongoAnnotation> findByAnnotatedPropertyPropertyValue(@Param("propertyValue") String propertyValue);
 
-    List<MongoAnnotation> findBySemanticTagsIn(@Param("semanticTags") Collection<URI> semanticTags);
+    List<MongoAnnotation> findBySemanticTagsIn(@Param("semanticTags") Collection<String> semanticTags);
 
     List<MongoAnnotation> findByAnnotatedBiologicalEntitiesName(@Param("name") String name);
 

@@ -18,7 +18,7 @@ public class String2MongoSourceConverter implements Converter<String, Annotation
 
     @Override
     public AnnotationSource convert(String source) {
-        URI uri;
+        String uri;
         AnnotationSource.Type type = null;
         String name;
 
@@ -26,7 +26,7 @@ public class String2MongoSourceConverter implements Converter<String, Annotation
             String sourceDecoded = java.net.URLDecoder.decode(source, "UTF-8");
             JSONObject jsonObject = new JSONObject(sourceDecoded);
 
-            uri = URI.create(jsonObject.getString("uri"));
+            uri = jsonObject.getString("uri");
             String typeS = jsonObject.getString("type");
             if (typeS.equals("DATABASE")){
                 type = AnnotationSource.Type.DATABASE;
@@ -38,14 +38,14 @@ public class String2MongoSourceConverter implements Converter<String, Annotation
 
         } catch (UnsupportedEncodingException e){
             //return empty source
-            return new MongoAnnotationSource(URI.create(""), "", null);
+            return new MongoAnnotationSource("", "", null, "");
         }
 
         if (type == AnnotationSource.Type.ONTOLOGY){
-            return new MongoOntologyAnnotationSource(uri, name, "", "");
+            return new MongoOntologyAnnotationSource(uri, name, "", "", "");
         } else if (type == AnnotationSource.Type.DATABASE){
-            return new MongoDatabaseAnnotationSource(uri, name);
+            return new MongoDatabaseAnnotationSource(uri, name, "");
         }
-        return new MongoAnnotationSource(URI.create(""), "", null);
+        return new MongoAnnotationSource("", "", null, "");
     }
 }

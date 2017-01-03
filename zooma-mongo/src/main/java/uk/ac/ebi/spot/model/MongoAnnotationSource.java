@@ -1,21 +1,26 @@
 package uk.ac.ebi.spot.model;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.net.URI;
 
 /**
  * Created by olgavrou on 04/08/2016.
  */
-public class MongoAnnotationSource implements AnnotationSource {
+@Document(collection = "datasources")
+public class MongoAnnotationSource extends MongoDocument implements AnnotationSource {
 
-    private URI uri;
+    private String uri;
     private Type type;
     private String name;
+    private String topic;
 
 
-    public MongoAnnotationSource(URI uri, String name, Type type) {
+    public MongoAnnotationSource(String uri, String name, Type type, String topic) {
         this.uri = uri;
         this.name = name;
         this.type = type;
+        this.topic = topic;
     }
 
 
@@ -28,7 +33,28 @@ public class MongoAnnotationSource implements AnnotationSource {
         return name;
     }
 
-    public URI getUri() { return uri; }
+    public String getUri() { return uri; }
+
+    @Override
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Override
     public String toString() {
@@ -36,6 +62,7 @@ public class MongoAnnotationSource implements AnnotationSource {
                 "uri=" + uri +
                 ", type=" + type +
                 ", name='" + name + '\'' +
+                ", topic='" + topic + '\'' +
                 '}';
     }
 }

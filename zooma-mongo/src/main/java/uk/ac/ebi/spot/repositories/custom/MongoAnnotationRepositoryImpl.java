@@ -9,7 +9,6 @@ import uk.ac.ebi.spot.model.BiologicalEntity;
 import uk.ac.ebi.spot.model.Property;
 import uk.ac.ebi.spot.model.Study;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,18 +56,18 @@ public class MongoAnnotationRepositoryImpl implements CustomMongoAnnotationRepos
     }
 
     @Override
-    public List<Study> findDistinctAnnotatedBiologicalEntitiesStudiesBySemanticTags(URI... semanticTags) {
+    public List<Study> findDistinctAnnotatedBiologicalEntitiesStudiesBySemanticTags(String... semanticTags) {
         //uris are saved as strings in mongodb, so need to search as <fieldname>.string
         List<String> semanticTagsToStrings = new ArrayList<>();
-        for (URI semanticTag : semanticTags){
-            semanticTagsToStrings.add(semanticTag.toString());
+        for (String semanticTag : semanticTags){
+            semanticTagsToStrings.add(semanticTag);
         }
 
         Query query = new Query();
 
         List<Criteria> criterias = new ArrayList<>();
         for(String semanticTag : semanticTagsToStrings){
-            criterias.add(Criteria.where("semanticTags.string").is(semanticTag));
+            criterias.add(Criteria.where("semanticTags").is(semanticTag));
         }
         Criteria criteria = Criteria.where("");
         criteria = criteria.andOperator(criterias.toArray(new Criteria[criterias.size()]));

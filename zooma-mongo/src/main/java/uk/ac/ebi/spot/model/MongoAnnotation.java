@@ -127,7 +127,7 @@ public class MongoAnnotation extends MongoDocument implements Annotation {
     private float calculateAnnotationQuality() throws IllegalArgumentException {
 
         if (this.provenance == null){
-            throw new IllegalArgumentException("Provenance isn't set yet, can not calculated annotation provenance");
+            throw new IllegalArgumentException("Provenance isn't set yet, can not calculate annotation provenance");
         }
         // evidence is most important factor, invert so ordinal 0 gets highest score
         int evidenceScore = AnnotationProvenance.Evidence.values().length - this.provenance.getEvidence().ordinal();

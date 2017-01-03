@@ -38,96 +38,75 @@ public class CreateAnnotationSummariesRepository {
      */
     public List<AnnotationSummary> convertToAnnotationSumaries(List<SolrAnnotation> content, List<FacetPivotFieldEntry> pivots, long totalDocumentsFound){
 
-        Map<String, Integer> propValueSourceNum = new HashMap<>();
-        Map<String, List<String>> propValueIds = new HashMap<>();
-        Map<String, String> propValueSemTags = new HashMap<>();
-        Map<String, SolrAnnotation> propValueWinnerDoc = new HashMap<>();
-        Map<String, Float> propValueQualityScore = new HashMap<>();
+        Map<String, Float> idToSolrScore = new HashMap<>();
+
         float maxScore = 0.0f;
-        Map<String, Float> idToScore = new HashMap<>();
+
+        List<AnnotationSummary> annotations = new ArrayList<>();
 
 
         for (SolrAnnotation annotation : content){
-            idToScore.put(annotation.getId(), annotation.getScore());
+            idToSolrScore.put(annotation.getId(), annotation.getScore());
             if (annotation.getScore() > maxScore){
                 maxScore = annotation.getScore();
             }
         }
 
-        for (FacetPivotFieldEntry semanticTags : pivots){
-            String semTag = semanticTags.getValue();
-            List<FacetPivotFieldEntry> propertyValues = semanticTags.getPivot();
-            for (FacetPivotFieldEntry propertyValue : propertyValues){
-                String propValue = propertyValue.getValue(); //e.g. liver
-                List<FacetPivotFieldEntry> sources = propertyValue.getPivot();
+        for (FacetPivotFieldEntry propertyValues : pivots){
+            List<FacetPivotFieldEntry> semanticTags = propertyValues.getPivot();
+            for (FacetPivotFieldEntry semanticTag : semanticTags){
+                List<FacetPivotFieldEntry> sources = semanticTag.getPivot();
 
-                propValueSourceNum.put(propValue, sources.size());
-                propValueSemTags.put(propValue, semTag);
-
+                Criteria criteria1 = null;
                 List<String> ids = new ArrayList<>(); //ids are collected from both sources
                 for (FacetPivotFieldEntry source : sources){
                     List<FacetPivotFieldEntry> sourceIds = source.getPivot();
+                    int idCount = 0;
                     for (FacetPivotFieldEntry sourceId : sourceIds){
                         ids.add(sourceId.getValue());
+
+                        idCount++;
+                        if (criteria1 == null){
+                            criteria1 = new Criteria("id").is(sourceId.getValue());
+                        } else {
+                            //search can't handle queries that are too long TODO: fix this
+                            if (idCount < 100) {
+                                criteria1 = criteria1.or(new Criteria("id").is(sourceId.getValue()));
+                            }
+                        }
                     }
                 }
 
-                propValueIds.put(propValue, ids);
-            }
-
-        }
-
-        for (String value : propValueIds.keySet()){
-            List<String> ids = propValueIds.get(value);
-            //create the query to get the biggest quality document and its quality score
-            Query idQuery = new SimpleQuery();
-
-            Criteria criteria1 = null;
-            int idCount = 0;
-            for (String id : ids){
-                idCount++;
-                if (criteria1 == null){
-                    criteria1 = new Criteria("id").is(id);
-                } else {
-                    criteria1 = criteria1.or(new Criteria("id").is(id));
+                //create the query to get the biggest quality document and its quality score
+                Query idQuery = new SimpleQuery();
+                idQuery.addCriteria(criteria1);
+                idQuery.setRows(1);
+                idQuery.addSort(new Sort(Sort.Direction.DESC, "quality"));
+                ScoredPage<SolrAnnotation> docs = solrTemplate.queryForPage(idQuery, SolrAnnotation.class);
+                List<SolrAnnotation> annotationsFromIds = docs.getContent();
+                if (annotationsFromIds == null || annotationsFromIds.isEmpty()){
+                    continue;
                 }
-                //search can't handle queries that are too long
-                if (idCount > 100){
-                    break;
-                }
+                SolrAnnotation winnerAnnotation = annotationsFromIds.get(0); // highest quality
+
+                //score calculation
+                float sourceNumber = sources.size();
+                float numOfDocs = ids.size();
+                float topQuality = winnerAnnotation.getQuality();
+                float normalizedFreq = 1.0f + (totalDocumentsFound > 0 ? (numOfDocs / totalDocumentsFound) : 0);
+                float normalizedSolrScore = 1.0f + idToSolrScore.get(winnerAnnotation.getId())/maxScore;
+                float score = (topQuality + sourceNumber) * normalizedFreq * normalizedSolrScore;
+
+                SolrAnnotationSummary annotationSummary = new SolrAnnotationSummary(winnerAnnotation.getPropertyType(),
+                        winnerAnnotation.getPropertyValue(),
+                        winnerAnnotation.getSemanticTags(),
+                        winnerAnnotation.getMongoid(),
+                        winnerAnnotation.getSource(),
+                        score);
+
+                annotations.add(annotationSummary);
+
             }
-
-            idQuery.addCriteria(criteria1);
-            idQuery.setRows(1);
-            idQuery.addSort(new Sort(Sort.Direction.DESC, "quality"));
-            ScoredPage<SolrAnnotation> docs = solrTemplate.queryForPage(idQuery, SolrAnnotation.class);
-            List<SolrAnnotation> annotations = docs.getContent();
-            if (annotations != null && !annotations.isEmpty()){
-                propValueWinnerDoc.put(value, annotations.get(0));
-                propValueQualityScore.put(value, annotations.get(0).getQuality());
-            }
-        }
-
-
-        //score calculation
-        List<AnnotationSummary> annotations = new ArrayList<>();
-        for (String value : propValueSemTags.keySet()){
-            float sourceNumber = propValueSourceNum.get(value);
-            float numOfDocs = propValueIds.get(value).size();
-            float topQuality = propValueQualityScore.get(value);
-            float normalizedFreq = 1.0f + (totalDocumentsFound > 0 ? (numOfDocs / totalDocumentsFound) : 0);
-            float normalizedSolrScore = 1.0f + idToScore.get(propValueWinnerDoc.get(value).getId())/maxScore;
-            float score = (topQuality + sourceNumber) * normalizedFreq * normalizedSolrScore;
-            SolrAnnotation annotation = propValueWinnerDoc.get(value);
-
-            SolrAnnotationSummary annotationSummary = new SolrAnnotationSummary(annotation.getPropertyType(),
-                    annotation.getPropertyValue(),
-                    annotation.getSemanticTags(),
-                    annotation.getMongoid(),
-                    annotation.getSource(),
-                    score);
-
-            annotations.add(annotationSummary);
         }
 
         return annotations;

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.model.*;
 import uk.ac.ebi.spot.repositories.MongoAnnotationRepository;
 
-import java.net.URI;
 import java.util.*;
 
 /**
@@ -24,7 +23,7 @@ public class MongoAnnotationRepositoryService implements RepositoryService<Mongo
         For SimpleAnnotations
      */
 
-    public List<MongoAnnotation> getBySemanticTags(Collection<URI> semanticTags) {
+    public List<MongoAnnotation> getBySemanticTags(Collection<String> semanticTags) {
         return mongoAnnotationRepository.findBySemanticTagsIn(semanticTags);
     }
 
@@ -76,7 +75,7 @@ public class MongoAnnotationRepositoryService implements RepositoryService<Mongo
         return mongoAnnotationRepository.findDistinctAnnotatedBiologicalEntitiesStudies();
     }
 
-    public List<Study> getStudiesBySemanticTags(URI... semanticTags){
+    public List<Study> getStudiesBySemanticTags(String... semanticTags){
         return mongoAnnotationRepository.findDistinctAnnotatedBiologicalEntitiesStudiesBySemanticTags(semanticTags);
     }
 

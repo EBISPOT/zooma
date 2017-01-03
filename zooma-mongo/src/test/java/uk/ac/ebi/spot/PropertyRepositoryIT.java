@@ -59,7 +59,7 @@ public class PropertyRepositoryIT {
         semanticTags.add(semanticTag);
 
         //create provenance
-        MongoOntologyAnnotationSource annotationSource = new MongoOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/test"), "test","","");
+        MongoOntologyAnnotationSource annotationSource = new MongoOntologyAnnotationSource("http://www.ebi.ac.uk/test", "test","","", "");
 
         MongoAnnotationProvenance annotationProvenance = new MongoAnnotationProvenance(annotationSource,
                 AnnotationProvenance.Evidence.MANUAL_CURATED,

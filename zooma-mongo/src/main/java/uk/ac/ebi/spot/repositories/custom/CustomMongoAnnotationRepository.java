@@ -25,7 +25,7 @@ public interface CustomMongoAnnotationRepository {
 
     //for StudyRepository
     List<Study> findDistinctAnnotatedBiologicalEntitiesStudies();
-    List<Study> findDistinctAnnotatedBiologicalEntitiesStudiesBySemanticTags(URI... semanticTags);
+    List<Study> findDistinctAnnotatedBiologicalEntitiesStudiesBySemanticTags(String... semanticTags);
     List<Study> findDistinctAnnotatedBiologicalEntitiesStudiesByAccession(String accession);
     List<Study> findDistinctAnnotatedBiologicalEntitiesStudiesByAnnotatedProperty(Property property);
 

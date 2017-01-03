@@ -30,8 +30,16 @@ public class SolrAnnotationRepositoryService implements RepositoryService<SolrAn
         return annotationSummaryRepository.findAnnotationSummariesByPropertyValue(annotatedPropertyValue);
     }
 
+    public List<AnnotationSummary> getAnnotationSummariesByPropertyValue(String annotatedPropertyValue, List<String> sourceNames){
+        return annotationSummaryRepository.findAnnotationSummariesByPropertyValue(annotatedPropertyValue, sourceNames);
+    }
+
     public List<AnnotationSummary> getAnnotationSummariesByPropertyValueAndPropertyType(String annotatedPropertyType, String annotatedPropertyValue){
         return annotationSummaryRepository.findAnnotationSummariesByPropertyValueAndPropertyType(annotatedPropertyType, annotatedPropertyValue);
+    }
+
+    public List<AnnotationSummary> getAnnotationSummariesByPropertyValueAndPropertyType(String annotatedPropertyType, String annotatedPropertyValue, List<String> sourceNames){
+        return annotationSummaryRepository.findAnnotationSummariesByPropertyValueAndPropertyType(annotatedPropertyType, annotatedPropertyValue, sourceNames);
     }
 
 

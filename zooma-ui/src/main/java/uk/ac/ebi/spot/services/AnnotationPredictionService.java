@@ -48,7 +48,7 @@ public class AnnotationPredictionService {
         return log;
     }
 
-    public Map<Pair<String, String>, List<SimpleAnnotationPrediction>> predict(List<Property> properties){
+    public Map<Pair<String, String>, List<SimpleAnnotationPrediction>> predict(List<Property> properties, List<String> sources){
         Map<Pair<String, String>, List<SimpleAnnotationPrediction>> summaryMap = new HashMap<>();
         Map<Pair<String, String>, Predictor> predictors = new HashMap<>();
 
@@ -59,7 +59,7 @@ public class AnnotationPredictionService {
                 annotatedPropertyType = ((TypedProperty) property).getPropertyType();
             }
             //set threads searching
-            Predictor predictor = new Predictor(annotatedPropertyType, annotatedPropertyValue);
+            Predictor predictor = new Predictor(annotatedPropertyType, annotatedPropertyValue, sources);
             taskExecutor.execute(predictor);
             Pair<String, String> typeValuePair = new ImmutablePair<>(annotatedPropertyType, annotatedPropertyValue);
             predictors.put(typeValuePair, predictor);
@@ -87,12 +87,14 @@ public class AnnotationPredictionService {
     private class Predictor implements Runnable {
         private String annotatedPropertyType;
         private String annotatedPropertyValue;
+        private List<String> sourceNames;
 
         private List<SimpleAnnotationPrediction> simpleAnnotationPredictions;
 
-        public Predictor(String annotatedPropertyType, String annotatedPropertyValue) {
+        public Predictor(String annotatedPropertyType, String annotatedPropertyValue, List<String> sourceNames) {
             this.annotatedPropertyType = annotatedPropertyType;
             this.annotatedPropertyValue = annotatedPropertyValue;
+            this.sourceNames = sourceNames;
         }
 
         public List<SimpleAnnotationPrediction> getSimpleAnnotationPredictions() {
@@ -111,11 +113,16 @@ public class AnnotationPredictionService {
             List<AnnotationSummary> annotationSummaries;
             //Query
             if (annotatedPropertyType == null) {
-                annotationSummaries = solrAnnotationRepositoryService.getAnnotationSummariesByPropertyValue(annotatedPropertyValue);
+                annotationSummaries = queryByValue(annotatedPropertyValue, sourceNames);
             } else {
-                annotationSummaries = solrAnnotationRepositoryService.getAnnotationSummariesByPropertyValueAndPropertyType(annotatedPropertyType, annotatedPropertyValue);
+                if (sourceNames == null || sourceNames.isEmpty()) {
+                    annotationSummaries = solrAnnotationRepositoryService.getAnnotationSummariesByPropertyValueAndPropertyType(annotatedPropertyType, annotatedPropertyValue);
+                } else {
+                    annotationSummaries = solrAnnotationRepositoryService.getAnnotationSummariesByPropertyValueAndPropertyType(annotatedPropertyType, annotatedPropertyValue, sourceNames);
+                }
+                //if not populated, search just by annotatedPropertyValue
                 if (annotationSummaries == null || annotationSummaries.isEmpty()){
-                    annotationSummaries = solrAnnotationRepositoryService.getAnnotationSummariesByPropertyValue(annotatedPropertyValue);
+                    annotationSummaries = queryByValue(annotatedPropertyValue, sourceNames);
                 }
             }
             //Score
@@ -136,6 +143,16 @@ public class AnnotationPredictionService {
             setSimpleAnnotationPredictions(summaries);
             getLog().info("**** Search for: " + annotatedPropertyValue + " done! ****");
 
+        }
+
+        private List<AnnotationSummary> queryByValue(String value, List<String> sourceNames){
+            List<AnnotationSummary> annotationSummaries;
+            if (sourceNames == null || sourceNames.isEmpty()) {
+                annotationSummaries = solrAnnotationRepositoryService.getAnnotationSummariesByPropertyValue(value);
+            } else {
+                annotationSummaries = solrAnnotationRepositoryService.getAnnotationSummariesByPropertyValue(value, sourceNames);
+            }
+            return annotationSummaries;
         }
 
     }

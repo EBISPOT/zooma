@@ -61,7 +61,7 @@ public class StudyRepositoryServiceIT {
         semanticTags.add(semanticTag);
 
         //create provenance
-        MongoOntologyAnnotationSource annotationSource = new MongoOntologyAnnotationSource(URI.create("http://www.ebi.ac.uk/test"), "test","","");
+        MongoOntologyAnnotationSource annotationSource = new MongoOntologyAnnotationSource("http://www.ebi.ac.uk/test", "test","","", "");
 
         MongoAnnotationProvenance annotationProvenance = new MongoAnnotationProvenance(annotationSource,
                 AnnotationProvenance.Evidence.MANUAL_CURATED,
@@ -130,10 +130,10 @@ public class StudyRepositoryServiceIT {
     @Test
     public void testGetBySemanticTags(){
 
-        Collection<Study> studies = mongoAnnotationRepositoryService.getStudiesBySemanticTags(URI.create("http://www.ebi.ac.uk/efo/EFO_test"), URI.create("http://www.ebi.ac.uk/efo/EFO_test2"));
+        Collection<Study> studies = mongoAnnotationRepositoryService.getStudiesBySemanticTags("http://www.ebi.ac.uk/efo/EFO_test", "http://www.ebi.ac.uk/efo/EFO_test2");
         assertTrue(studies.size() == 2);
 
-        studies = mongoAnnotationRepositoryService.getStudiesBySemanticTags(URI.create("http://www.ebi.ac.uk/efo/EFO_test"));
+        studies = mongoAnnotationRepositoryService.getStudiesBySemanticTags("http://www.ebi.ac.uk/efo/EFO_test");
         assertTrue(studies.size() == 4);
     }
 

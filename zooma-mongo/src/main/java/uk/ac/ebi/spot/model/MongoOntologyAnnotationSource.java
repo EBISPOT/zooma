@@ -10,8 +10,8 @@ public class MongoOntologyAnnotationSource extends MongoAnnotationSource {
     private String title;
     private String description;
 
-    public MongoOntologyAnnotationSource(URI uri, String name, String title, String description) {
-        super(uri, name, Type.ONTOLOGY);
+    public MongoOntologyAnnotationSource(String uri, String name, String topic, String title, String description) {
+        super(uri, name, Type.ONTOLOGY, topic);
         this.title = title;
         this.description = description;
     }
@@ -22,10 +22,11 @@ public class MongoOntologyAnnotationSource extends MongoAnnotationSource {
 
     @Override
     public String toString() {
-        return "MongoAnnotationSource{" +
+        return "MongoAnnotationSourceRepository{" +
                 "uri=" + getUri() +
                 ", type=" + getType() +
                 ", name='" + getName() + '\'' +
+                ", topic='" + getTopic() + '\'' +
                 ", title='" + getTitle() + '\'' +
                 ", description='" + getDescription() + '\'' +
                 '}';

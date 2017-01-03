@@ -29,6 +29,9 @@ public interface AnnotationSource {
     /**
      * The type that an annotation sources can take.
      */
+
+    String getTopic();
+
     public enum Type {
         DATABASE,
         ONTOLOGY;

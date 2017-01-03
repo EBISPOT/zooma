@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.builders;
+package uk.ac.ebi.spot.config;
 
 import uk.ac.ebi.spot.exception.TemplateBuildingException;
 import uk.ac.ebi.spot.model.AnnotationProvenance;

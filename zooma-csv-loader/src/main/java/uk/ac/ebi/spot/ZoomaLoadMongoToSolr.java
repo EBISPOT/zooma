@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
-import uk.ac.ebi.spot.services.Mongo2SolrLoader;
+import uk.ac.ebi.spot.services.MongoToSolrAnnotationLoader;
 
 import java.io.IOException;
 
@@ -18,9 +18,9 @@ public class ZoomaLoadMongoToSolr {
     public static void main(String[] args) {
         ConfigurableApplicationContext ctx = SpringApplication.run(ZoomaLoadMongoToSolr.class, args);
 
-		Mongo2SolrLoader mongo2SolrLoader = (Mongo2SolrLoader) ctx.getBean("mongo2SolrLoader");
+		MongoToSolrAnnotationLoader mongoToSolrAnnotationLoader = (MongoToSolrAnnotationLoader) ctx.getBean("mongoToSolrAnnotationLoader");
 		try {
-			mongo2SolrLoader.load();
+			mongoToSolrAnnotationLoader.load();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

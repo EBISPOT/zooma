@@ -21,12 +21,6 @@
 			<version>2.3</version>
 		</dependency>
 		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<version>6.9.10</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>uk.ac.ebi.spot</groupId>
 			<artifactId>zooma-api</artifactId>
 		</dependency>

@@ -1,6 +1,6 @@
 package uk.ac.ebi.spot.services;
 
-import uk.ac.ebi.spot.builders.AnnotationProvenanceBuilder;
+import uk.ac.ebi.spot.config.AnnotationProvenanceBuilder;
 import uk.ac.ebi.spot.model.AnnotationProvenance;
 import uk.ac.ebi.spot.model.MongoDatabaseAnnotationSource;
 
@@ -16,7 +16,8 @@ import java.util.Date;
 public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
 
     private String name;
-    private URI uri;
+    private String uri;
+    private String topic;
 
     public String getName() {
         return name;
@@ -26,12 +27,20 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
         this.name = name;
     }
 
-    public URI getUri() {
+    public String getUri() {
         return uri;
     }
 
-    public void setUri(URI uri) {
+    public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     /**
@@ -44,7 +53,7 @@ public class CSVLoadingSession extends AbstractAnnotationLoadingSession {
         setAnnotationProvenanceTemplate(
                 AnnotationProvenanceBuilder
                         .createTemplate(uri.toString(), new Date())
-                        .sourceIs(new MongoDatabaseAnnotationSource(uri, name))
+                        .sourceIs(new MongoDatabaseAnnotationSource(uri, name, topic))
                         .evidenceIs(AnnotationProvenance.Evidence.MANUAL_CURATED)
                         .accuracyIs(AnnotationProvenance.Accuracy.NOT_SPECIFIED));
     }

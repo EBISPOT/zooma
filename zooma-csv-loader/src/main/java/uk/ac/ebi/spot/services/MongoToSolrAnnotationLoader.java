@@ -8,7 +8,7 @@ import uk.ac.ebi.spot.model.MongoAnnotation;
 import uk.ac.ebi.spot.model.MongoTypedProperty;
 import uk.ac.ebi.spot.model.Property;
 import uk.ac.ebi.spot.model.SolrAnnotation;
-import uk.ac.ebi.spot.service.LoadService;
+import uk.ac.ebi.spot.service.AnnotationLoadingService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.List;
  * Created by olgavrou on 13/10/2016.
  */
 @Service
-public class Mongo2SolrLoader implements LoadService {
+public class MongoToSolrAnnotationLoader implements AnnotationLoadingService {
 
     @Autowired
     MongoAnnotationRepositoryService mongoAnnotationRepositoryService;

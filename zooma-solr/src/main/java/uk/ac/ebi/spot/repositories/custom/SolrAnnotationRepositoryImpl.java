@@ -6,6 +6,7 @@ import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.result.*;
 import uk.ac.ebi.spot.model.AnnotationSummary;
 import uk.ac.ebi.spot.model.SolrAnnotation;
+import uk.ac.ebi.spot.utils.CriteriaGenerator;
 
 import java.util.*;
 
@@ -35,7 +36,17 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
         Map<String, String> criteriaMap = new HashMap<>();
         criteriaMap.put("propertyValue", propertyValue);
 
-        return  findAnnotationSummariesByCriteria(criteriaMap);
+        return  findAnnotationSummariesByCriteria(criteriaMap, null);
+    }
+
+    @Override
+    public List<AnnotationSummary> findAnnotationSummariesByPropertyValue(String propertyValue, List<String> sourceNames) {
+
+        Map<String, String> criteriaMap = new HashMap<>();
+        criteriaMap.put("propertyValue", propertyValue);
+
+
+        return  findAnnotationSummariesByCriteria(criteriaMap, sourceNames);
     }
 
     /**
@@ -52,7 +63,15 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
         Map<String, String> criteriaMap = new HashMap<>();
         criteriaMap.put("propertyType", propertyType);
         criteriaMap.put("propertyValue", propertyValue);
-        return findAnnotationSummariesByCriteria(criteriaMap);
+        return findAnnotationSummariesByCriteria(criteriaMap, null);
+    }
+
+    @Override
+    public List<AnnotationSummary> findAnnotationSummariesByPropertyValueAndPropertyType(String propertyType, String propertyValue, List<String> sourceNames) {
+        Map<String, String> criteriaMap = new HashMap<>();
+        criteriaMap.put("propertyType", propertyType);
+        criteriaMap.put("propertyValue", propertyValue);
+        return findAnnotationSummariesByCriteria(criteriaMap, sourceNames);
     }
 
     /**
@@ -68,14 +87,21 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
      *
      * @param criteriaMap the map from which the criteria will be made for solr will query, e.g.: <"propertyValue", "<a property value>">
      *                    can result to criteria: where("propertyValue").is("a property value")
+     * @param sourceNames list of the sources we want to restrict the search to, NULL when none specified
      * @return the list of {@link AnnotationSummary}s that where calculated
      */
-    private List<AnnotationSummary> findAnnotationSummariesByCriteria(Map<String, String> criteriaMap){
+    private List<AnnotationSummary> findAnnotationSummariesByCriteria(Map<String, String> criteriaMap, List<String> sourceNames){
 
         FacetQuery query = new SimpleFacetQuery();
-        Criteria criteria = makeStrictCriteria(criteriaMap);
+        Criteria criteria = CriteriaGenerator.makeStrictCriteria(criteriaMap);
 
         query.addCriteria(criteria);
+
+        if (sourceNames != null && !sourceNames.isEmpty()) {
+            Criteria sourceCriteria = CriteriaGenerator.makeDatasourceCriteria(sourceNames);
+            query.addCriteria(sourceCriteria);
+        }
+
         //getnumber of elements in query to query again
         query.setRows(0);
         ScoredPage<SolrAnnotation> page = solrTemplate.queryForPage(query, SolrAnnotation.class);
@@ -84,7 +110,7 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
         //if can't find with strict criteria
         if (totalElements == 0){
             query = new SimpleFacetQuery();
-            criteria = makeFlexibleCriteria(criteriaMap);
+            criteria = CriteriaGenerator.makeFlexibleCriteria(criteriaMap);
             query.addCriteria(criteria);
             query.setRows(0);
             page = solrTemplate.queryForPage(query, SolrAnnotation.class);
@@ -98,8 +124,8 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
 
         //facet.pivot=semanticTags,annotatedPropertyValue,source,id&facet=true
         FacetOptions facetOptions = new FacetOptions();
-        PivotField pivotField = new SimplePivotField("semanticTags", "propertyValueStr", "source", "id");
-        facetOptions.addFacetOnPivot("semanticTags", "propertyValueStr", "source", "id");
+        PivotField pivotField = new SimplePivotField("propertyValueStr", "semanticTags", "source", "id");
+        facetOptions.addFacetOnPivot("propertyValueStr", "semanticTags", "source", "id");
         facetOptions.setFacetSort(FacetOptions.FacetSort.INDEX);
         facetOptions.setFacetLimit((int) totalElements);
 
@@ -113,29 +139,4 @@ public class SolrAnnotationRepositoryImpl implements CustomSolrAnnotationReposit
         return createAnnotationSummariesRepository.convertToAnnotationSumaries(content, pivots, totalDocumentsFound);
     }
 
-    private Criteria makeStrictCriteria(Map<String, String> criteriaMap){
-        Criteria criteria = null;
-        for (String key : criteriaMap.keySet()){
-            if (criteria == null){
-                criteria = new Criteria(key).is(criteriaMap.get(key));
-            } else {
-                criteria = criteria.and(new Criteria(key).is(criteriaMap.get(key)));
-            }
-        }
-
-        return criteria;
-    }
-
-    private Criteria makeFlexibleCriteria(Map<String, String> criteriaMap){
-        Criteria criteria = null;
-        for (String key : criteriaMap.keySet()){
-            if (criteria == null){
-                criteria = Criteria.where(key).expression(criteriaMap.get(key));
-            } else {
-                criteria = criteria.and(Criteria.where(key).expression(criteriaMap.get(key)));
-            }
-        }
-
-        return criteria;
-    }
 }

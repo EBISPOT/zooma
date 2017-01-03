@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import uk.ac.ebi.spot.datasource.AnnotationFactory;
-import uk.ac.ebi.spot.service.LoadService;
+import uk.ac.ebi.spot.service.AnnotationLoadingService;
 import uk.ac.ebi.spot.exception.InvalidDataFormatException;
 import uk.ac.ebi.spot.model.Annotation;
 
@@ -24,7 +24,7 @@ import uk.ac.ebi.spot.model.Annotation;
  *
  * Created by olgavrou on 08/08/2016.
  */
-public class CSVLoader implements LoadService<Annotation> {
+public class CSVLoader implements AnnotationLoadingService<Annotation> {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 

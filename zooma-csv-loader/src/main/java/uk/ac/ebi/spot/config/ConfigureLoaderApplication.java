@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.builders;
+package uk.ac.ebi.spot.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
