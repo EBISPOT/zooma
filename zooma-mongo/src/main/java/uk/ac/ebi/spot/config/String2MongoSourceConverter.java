@@ -9,7 +9,6 @@ import org.json.JSONObject;
 
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 
 /**
  * Created by olgavrou on 12/09/2016.

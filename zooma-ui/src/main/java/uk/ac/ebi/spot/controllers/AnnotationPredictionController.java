@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import uk.ac.ebi.spot.model.*;
 import uk.ac.ebi.spot.services.AnnotationPredictionService;
-import uk.ac.ebi.spot.services.MongoAnnotationSourceRepositoryService;
 
 import java.util.*;
 

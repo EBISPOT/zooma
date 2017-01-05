@@ -4,7 +4,6 @@ import uk.ac.ebi.spot.config.AnnotationProvenanceBuilder;
 import uk.ac.ebi.spot.model.AnnotationProvenance;
 import uk.ac.ebi.spot.model.MongoDatabaseAnnotationSource;
 
-import java.net.URI;
 import java.util.Date;
 
 /**

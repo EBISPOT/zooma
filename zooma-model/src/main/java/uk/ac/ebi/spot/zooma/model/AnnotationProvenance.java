@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.model;
+package uk.ac.ebi.spot.zooma.model;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -16,11 +16,11 @@ import java.util.Date;
  */
 public interface AnnotationProvenance extends Serializable {
     /**
-     * Returns the annotation source that contains the annotation with this provenance.
+     * Returns the datasource of this provenance.
      *
      * @return the datasource containing an annotation with this provenance
      */
-    AnnotationSource getSource();
+    Datasource getDatasource();
 
     /**
      * Returns a brief description of the evidence attached to the annotation with this provenance.
@@ -37,21 +37,6 @@ public interface AnnotationProvenance extends Serializable {
     Accuracy getAccuracy();
 
     /**
-     * Returns a string describing the agent that generated the annotation object. For all annotations created as part
-     * of this distribution the agent is ZOOMA
-     *
-     * @return the generator name
-     */
-    String getGenerator();
-
-    /**
-     * Returns the date on which the annotation was generated in the ZOOMA knowledgebase
-     *
-     * @return the generation date
-     */
-    Date getGeneratedDate();
-
-    /**
      * Returns a string describing the agent who generated the annotation. This is usually a person name
      *
      * @return the annotator name
@@ -59,11 +44,21 @@ public interface AnnotationProvenance extends Serializable {
     String getAnnotator();
 
     /**
-     * Returns the date on which the annotation was generated in the source database
+     * Returns the date on which the annotation was generated in the source database. This is only available when the
+     * date of annotation is explicitly stored in the underlying datasource; in most cases where this is not true, this
+     * will be null and the generation date will be set when Zooma imports this annotation
      *
      * @return the annotation creation date, may return null for unknown dates.
      */
     Date getAnnotationDate();
+
+    /**
+     * Returns the date on which the annotation was created in Zooma. This will be different to the annotation date, and
+     * is stored in case the annotation date is not know.
+     *
+     * @return the annotation "generation" date, or when the annotation was created in Zooma
+     */
+    Date getGenerationDate();
 
     /**
      * The evidence for the existance of a particular annotation.  This described a little about how this annotation was

@@ -1,8 +1,6 @@
 package uk.ac.ebi.spot.datasource;
 
 
-import uk.ac.ebi.spot.model.*;
-
 import java.net.URI;
 import java.util.Collection;
 import java.util.Date;

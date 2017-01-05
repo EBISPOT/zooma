@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.model;
+package uk.ac.ebi.spot.zooma.model;
 
 /**
  * Represents a general biological study.  In ZOOMA, a study is defined as anything that is uniquely identifiable and

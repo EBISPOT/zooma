@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.model;
+package uk.ac.ebi.spot.zooma.model;
 
 import java.util.Collection;
 

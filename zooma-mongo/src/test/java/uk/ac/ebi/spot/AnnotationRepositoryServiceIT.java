@@ -12,7 +12,6 @@ import uk.ac.ebi.spot.model.*;
 import uk.ac.ebi.spot.config.MongoConfig;
 import uk.ac.ebi.spot.services.*;
 
-import java.net.URI;
 import java.util.*;
 
 import static org.hamcrest.core.Is.is;

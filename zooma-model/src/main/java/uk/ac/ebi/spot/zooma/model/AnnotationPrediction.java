@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.model;
+package uk.ac.ebi.spot.zooma.model;
 
 /**
  * A ZOOMA prediction for a new annotation, based on a search and the best available matched existing annotation ZOOMA
@@ -15,7 +15,7 @@ public interface AnnotationPrediction extends Annotation {
      *
      * @return an annotation that exists in ZOOMA that was used in making this prediction
      */
-    Annotation getDerivedFrom();
+    Annotation getDerivedFromAnnotation();
 
     /**
      * A measure of the confidence ZOOMA has in the quality of this prediction.  May be high, good, medium or low.  You

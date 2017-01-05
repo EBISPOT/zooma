@@ -14,6 +14,7 @@
 	<modules>
         <module>zooma-dependencies</module>
         <module>zooma-parent</module>
+        <module>zooma-model</module>
 		<module>zooma-api</module>
 		<module>zooma-mongo</module>
 		<module>zooma-csv-loader</module>

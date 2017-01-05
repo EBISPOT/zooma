@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.model;
+package uk.ac.ebi.spot.zooma.model;
 
 /**
  * Any {@link Property} that also includes a string describing the property type.

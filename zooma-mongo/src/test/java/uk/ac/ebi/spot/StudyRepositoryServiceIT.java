@@ -15,7 +15,6 @@ import uk.ac.ebi.spot.config.MongoConfig;
 import uk.ac.ebi.spot.model.*;
 import uk.ac.ebi.spot.services.MongoAnnotationRepositoryService;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;

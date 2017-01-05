@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.spot.datasource.AnnotationFactory;
 import uk.ac.ebi.spot.datasource.AnnotationLoadingSession;
-import uk.ac.ebi.spot.model.*;
 
 import java.net.URI;
 import java.util.*;

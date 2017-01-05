@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.model;
+package uk.ac.ebi.spot.zooma.model;
 
 /**
  * A property represents a basic text expression that adorns any {@link BiologicalEntity}.

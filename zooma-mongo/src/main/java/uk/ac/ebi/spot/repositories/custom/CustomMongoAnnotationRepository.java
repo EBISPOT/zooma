@@ -4,7 +4,6 @@ import uk.ac.ebi.spot.model.BiologicalEntity;
 import uk.ac.ebi.spot.model.Property;
 import uk.ac.ebi.spot.model.Study;
 
-import java.net.URI;
 import java.util.List;
 
 /**

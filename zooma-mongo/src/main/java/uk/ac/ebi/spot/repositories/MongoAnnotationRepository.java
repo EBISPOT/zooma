@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import uk.ac.ebi.spot.model.*;
 import uk.ac.ebi.spot.repositories.custom.CustomMongoAnnotationRepository;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 

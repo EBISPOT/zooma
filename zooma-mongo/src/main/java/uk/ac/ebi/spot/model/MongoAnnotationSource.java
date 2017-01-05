@@ -2,8 +2,6 @@ package uk.ac.ebi.spot.model;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.net.URI;
-
 /**
  * Created by olgavrou on 04/08/2016.
  */
