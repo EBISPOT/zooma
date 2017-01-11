@@ -12,6 +12,6 @@ public class Constants {
     }
 
     public class Exchanges {
-        public static final String ANNOTATION_FANOUT_EXCHANGE = "annotation.fanout.exchange";
+        public static final String ANNOTATION_FANOUT = "annotation.fanout.exchange";
     }
 }

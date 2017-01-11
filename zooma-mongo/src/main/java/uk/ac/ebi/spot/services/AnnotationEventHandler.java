@@ -33,7 +33,7 @@ public class AnnotationEventHandler {
 
     @HandleAfterSave
     public void handleAnnotationSave(MongoAnnotation annotation) {
-        getLog().trace("New annotation saved: " + annotation.getId());
+        getLog().info("New annotation saved: " + annotation.getId());
         rabbitTemplate.convertAndSend(annotation);
     }
 }

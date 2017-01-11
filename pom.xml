@@ -16,6 +16,7 @@
         <module>zooma-parent</module>
 		<module>zooma-api</module>
 		<module>zooma-mongo</module>
+        <module>zooma-annotation-consumer</module>
 		<module>zooma-csv-loader</module>
 		<module>zooma-solr</module>
 		<module>zooma-ui</module>

@@ -17,5 +17,5 @@ import org.springframework.context.annotation.Configuration;
 public class QueueConfig {
     @Bean Queue queue() { return new Queue(Constants.Queues.ANNOTATION_SAVE, false); }
     @Bean Binding binding(Queue queue, FanoutExchange exchange) { return BindingBuilder.bind(queue).to(exchange); }
-    @Bean FanoutExchange exchange() { return new FanoutExchange(Constants.Exchanges.ANNOTATION_FANOUT_EXCHANGE);}
+    @Bean FanoutExchange exchange() { return new FanoutExchange(Constants.Exchanges.ANNOTATION_FANOUT); }
 }
