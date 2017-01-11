@@ -410,7 +410,7 @@
     <field name="propertyValue" indexed="true" type="text_general" multiValued="false" omitNorms="false"/>
     <field name="id" type="strings" multiValued="false" indexed="true" required="true" stored="true"/>
     <field name="mongoid" type="strings" multiValued="false"/>
-    <field name="semanticTags" type="strings" multiValued="false"/>
+    <field name="semanticTag" type="strings" multiValued="false"/>
     <field name="source" type="strings" multiValued="false"/>
     <field name="quality" type="float" multiValued="false"/>
     <field name="propertyValueStr" indexed="true" stored="false" type="string" multiValued="false" omitNorms="false"/>
