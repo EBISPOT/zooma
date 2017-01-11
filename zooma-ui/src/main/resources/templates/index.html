@@ -195,8 +195,8 @@
                             </tr>
 
                             <tr th:each="summaryMap : ${map}" th:rowspan="${#maps.size(map)}">
-                                <tr th:each="summary : ${summaryMap.value}" th:rowspan="${#lists.size(summary.semanticTags)}">
-                                    <tr th:each="tag : ${summary.semanticTags}">
+                                <tr th:each="summary : ${summaryMap.value}" th:rowspan="${#lists.size(summary.semanticTag)}">
+                                    <tr th:each="tag : ${summary.semanticTag}">
                                     <td th:text="${summaryMap.key}"></td> <!--this is the term pair <type, value> -->
                                     <!--<td th:text="${summaryMap.key[1]}"></td> &lt;!&ndash;this is the term pair <type, value> &ndash;&gt;-->
                                         <td th:text="${summary.annotatedPropertyValue}"></td>
@@ -209,8 +209,8 @@
                             </tr>
 
 
-                            <!--<tr th:each="summary : ${summaries}" th:rowspan="${#lists.size(summary.semanticTags)}">-->
-                                <!--<tr th:each="tag : ${summary.semanticTags}">-->
+                            <!--<tr th:each="summary : ${summaries}" th:rowspan="${#lists.size(summary.semanticTag)}">-->
+                                <!--<tr th:each="tag : ${summary.semanticTag}">-->
                                     <!--<td th:text="${summary.requestedTerm}"></td>-->
                                     <!--<td th:text="${summary.annotatedPropertyValue}"></td>-->
                                     <!--<td th:text="${summary.confidence}"></td>-->

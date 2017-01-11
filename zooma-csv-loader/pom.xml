@@ -17,10 +17,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>uk.ac.ebi.spot</groupId>
-			<artifactId>zooma-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>uk.ac.ebi.spot</groupId>
 			<artifactId>zooma-mongo</artifactId>
 		</dependency>
 		<dependency>

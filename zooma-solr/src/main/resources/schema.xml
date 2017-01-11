@@ -120,7 +120,7 @@
 
     <field name="annotatedPropertyType"      type="string"    indexed="false"  stored="true"  multiValued="false" />
     <field name="annotatedPropertyValue"      type="string"    indexed="true"  stored="true"  multiValued="false" />
-    <field name="semanticTags"      type="string"    indexed="false"  stored="true"  multiValued="false" />
+    <field name="semanticTag"      type="string"    indexed="false"  stored="true"  multiValued="false" />
     <field name="mongoid"      type="string"    indexed="false"  stored="true"  multiValued="false" />
 
 
