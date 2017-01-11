@@ -16,13 +16,13 @@ import java.util.List;
 @SpringBootTest
 @ContextConfiguration(classes = SolrConfig.class)
 public class ZoomaSolrApplicationTests {
-
-	@Autowired
-	SolrAnnotationRepositoryService annotationRepositoryService;
+//
+//	@Autowired
+//	SolrAnnotationRepositoryService annotationRepositoryService;
 
 	@Test
 	public void contextLoads() {
-		List<AnnotationSummary> annotationList = annotationRepositoryService.getAnnotationSummariesByPropertyValueAndPropertyType("organism part", "liver");
+//		List<AnnotationSummary> annotationList = annotationRepositoryService.getAnnotationSummariesByPropertyValueAndPropertyType("organism part", "liver");
 	}
 
 }
