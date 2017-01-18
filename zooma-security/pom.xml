@@ -6,18 +6,18 @@
     <parent>
         <groupId>uk.ac.ebi.fgpt</groupId>
         <artifactId>zooma2</artifactId>
-        <version>2.1.0</version>
+        <version>2.1.1</version>
     </parent>
 
     <artifactId>zooma-security</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 
     <name>ZOOMA 2: Secure access extensions</name>
     <url>http://www.ebi.ac.uk/fgpt/zooma</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <zooma.version>2.1.0</zooma.version>
+        <zooma.version>2.1.1</zooma.version>
     </properties>
 
     <dependencies>
