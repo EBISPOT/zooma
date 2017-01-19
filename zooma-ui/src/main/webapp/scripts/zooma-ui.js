@@ -230,9 +230,20 @@ function populateDatasources() {
                     var desc = "<p><b>Expression Atlas</b><br>The Expression Atlas provides information on gene expression patterns under different biological conditions.</p>" +
                         "<p><b>DB name: 'atlas'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
                     nameDescriptionMap["ExpressionAtlas"] = desc;
+                } else if (name == "cbi"){
+                    datasourceNames.push("CBI");
+                    var desc = "<p><b>Crop Bioinformatics Initiative</b><br>The CBI datasource contains a series of mappings designed to enable high-throughput " +
+                        "ontology annotation of plant-specific sample data. " +
+                        "These mappings are derived from the most commonly observed attributes used to describe plant samples in the " +
+                        "BioSamples database that could not previously be mapped to ontology terms. " +
+                        "This work was part of the <a href='http://gtr.rcuk.ac.uk/projects?ref=BB%2FM018458%2F1' target='_blank'>\"Big Data Infrastructure for Crop Genomics\"</a> project</p>" +
+                        "<p><b>DB name: 'cbi'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                    nameDescriptionMap["CBI"] = desc;
                 } else {
+                    datasourceNames.push(name);
                     nameDescriptionMap[name] =  "No description.";
                 }
+                uriNameMap[sources[i].uri] =  sources[i].name;
             } else if (sources[i].type == "ONTOLOGY"){
                 searchableOntoNames.push(sources[i].title + " (" + sources[i].name + ")");
                 ontologyPrefixes.push(sources[i].name);
@@ -614,6 +625,8 @@ function getRealName(name){
         realName = "eva-clinvar";
     } else if (name == "CellularPhenoTypes"){
         realName = "sysmicro";
+    } else if (name == "CBI"){
+        realName = "cbi";
     } else {
         realName = name;
     }
@@ -951,9 +964,15 @@ function renderResults(data) {
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                         "<img src='images/EBiSC-logo.png' " +
                         "alt='EBiSC' style='height: 20px;'/> EBiSC</a></td>";
-                }
-                else {
-                    row = row + "<td>" + result[7] + "</td>";
+                } else if (result[7] == "http://www.ebi.ac.uk/biosamples"){
+                    href = result[7];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                        "<img src='images/cbi_icon.png' " +
+                        "alt='CBI' style='height: 20px;'/> CBI </a></td>";
+                } else {
+                    var sourceName = uriNameMap[result[7]];
+                    row = row + "<td><a href='" + result[7] + "' target='_blank'>" +
+                        sourceName + " </a></td>";
                 }
             }
             else {
