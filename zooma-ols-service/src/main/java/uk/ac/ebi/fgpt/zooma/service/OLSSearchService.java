@@ -148,38 +148,14 @@ public class OLSSearchService extends Initializable {
     }
 
     private URI tryToReplaceSemanticTag(URI semanticTag){
-
-        List<Term> terms = olsClient.getExactTermsByIriStringWithObsolete(semanticTag.toString());
-        Term foundTerm = null;
-        if (terms != null && !terms.isEmpty()) {
-            for (Term term : terms) {
-                if (term.isDefinedOntology()) {
-                    foundTerm = term;
-                }
-            }
-            if (foundTerm == null){
-                foundTerm = terms.get(0);
-            }
-
-            Term retrievedTerm = olsClient.retrieveTerm(foundTerm.getIri().getIdentifier(), foundTerm.getOntologyName());
-            if (retrievedTerm instanceof ObsoleteTerm){
-                Annotation annotation = retrievedTerm.getAnnotation();
-                Map<String, List<String >> annotationMap = annotation.getAnnotation();
-
-                List<String> replacedBy = annotationMap.get("term_replaced_by");
-                if (replacedBy == null){
-                    replacedBy = annotationMap.get("replacedBy");
-                }
-                if (replacedBy == null){
-                    replacedBy = annotationMap.get("termReplacedBy");
-                }
-                if (replacedBy != null && !replacedBy.isEmpty()){
-                    return URI.create(replacedBy.get(0));
-                }
-            }
+        Term retrievedTerm = olsClient.retrieveTerm(semanticTag.toString(), null);
+        Term replaceBy = olsClient.getReplacedBy(retrievedTerm);
+        if(replaceBy == null){
+            return null;
+        } else {
+            return URI.create(replaceBy.getIri().getIdentifier());
         }
 
-        return null;
     }
 
     /*
