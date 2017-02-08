@@ -49,9 +49,8 @@
         <module>zooma-dependencies</module>
         <module>zooma-parent</module>
 		<module>zooma-mongo</module>
+        <module>zooma-solr</module>
         <module>zooma-annotation-consumer</module>
-		<module>zooma-csv-loader</module>
-		<module>zooma-solr</module>
 		<module>zooma-ui</module>
 	</modules>
 
