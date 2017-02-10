@@ -57,17 +57,22 @@
             <!-- version management for project internal dependencies -->
             <dependency>
                 <groupId>uk.ac.ebi.spot</groupId>
+                <artifactId>zooma-mongo-model</artifactId>
+                <version>${zooma.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>uk.ac.ebi.spot</groupId>
+                <artifactId>zooma-load-annotations</artifactId>
+                <version>${zooma.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>uk.ac.ebi.spot</groupId>
                 <artifactId>zooma-mongo</artifactId>
                 <version>${zooma.version}</version>
             </dependency>
             <dependency>
                 <groupId>uk.ac.ebi.spot</groupId>
                 <artifactId>zooma-solr</artifactId>
-                <version>${zooma.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>uk.ac.ebi.spot</groupId>
-                <artifactId>zooma-mongo-model</artifactId>
                 <version>${zooma.version}</version>
             </dependency>
 
