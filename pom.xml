@@ -48,6 +48,7 @@
 	<modules>
         <module>zooma-dependencies</module>
         <module>zooma-parent</module>
+		<module>zooma-mongo-model</module>
 		<module>zooma-mongo</module>
 		<module>zooma-csv-loader</module>
 		<module>zooma-solr</module>
