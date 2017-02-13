@@ -17,17 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import uk.ac.ebi.spot.zooma.model.*;
 import uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance;
-import uk.ac.ebi.spot.zooma.model.mongo.*;
-import uk.ac.ebi.spot.zooma.model.mongo.Annotation;
-import uk.ac.ebi.spot.zooma.model.mongo.MongoAnnotationProvenance;
-import uk.ac.ebi.spot.zooma.model.mongo.BiologicalEntity;
-import uk.ac.ebi.spot.zooma.model.mongo.Study;
+import uk.ac.ebi.spot.zooma.model.mongo.MongoAnnotation;
 import uk.ac.ebi.spot.zooma.repository.mongo.AnnotationRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 
 /**
@@ -35,7 +32,7 @@ import java.util.Date;
  */
 @Controller
 @RequestMapping("/api/mongoannotations")
-@ExposesResourceFor(Annotation.class)
+@ExposesResourceFor(MongoAnnotation.class)
 public class AnnotationAdderController implements ResourceProcessor<RepositoryLinksResource> {
 
     @Autowired
@@ -48,7 +45,7 @@ public class AnnotationAdderController implements ResourceProcessor<RepositoryLi
     }
 
     @RequestMapping(path = "/find", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
-    HttpEntity<PagedResources<Annotation>> findAnnotations(
+    HttpEntity<PagedResources<MongoAnnotation>> findAnnotations(
             @RequestParam(value = "propertyValue") String propertyValue,
             PagedResourcesAssembler assembler
     ) throws ResourceNotFoundException {
@@ -72,19 +69,15 @@ public class AnnotationAdderController implements ResourceProcessor<RepositoryLi
             @RequestParam(value = "annotator") String annotator,
             PagedResourcesAssembler assembler
     ) throws ResourceNotFoundException {
-        Collection<BiologicalEntity> biologicalEntities = new ArrayList<>();
-        Collection<Study> studies = new ArrayList<>();
 
         Study study = new Study(accession);
         if (studyURI != null){
             study.setStudyUri(studyURI);
         }
-        studies.add(study);
-        BiologicalEntity biologicalEntity = new BiologicalEntity(beName, studies);
+        BiologicalEntity biologicalEntity = new BiologicalEntity(beName, study);
         if (beURI != null){
             biologicalEntity.setBioEntityUri(beURI);
         }
-        biologicalEntities.add(biologicalEntity);
 
         TypedProperty property;
         if(propertyType != null) {
@@ -102,13 +95,13 @@ public class AnnotationAdderController implements ResourceProcessor<RepositoryLi
             semTags.add(semanticTags);
         }
 
-        Date generatedDate = new Date();
+        LocalDateTime generatedDate = LocalDateTime.now();
         MongoAnnotationProvenance annotationProvenance = new MongoAnnotationProvenance(new DatabaseAnnotationSource(uri, source, ""),
                 AnnotationProvenance.Evidence.MANUAL_CURATED,
                 AnnotationProvenance.Accuracy.PRECISE,
                 "ZOOMA",
                 annotator, generatedDate);
-        Annotation mongoAnnotation = new Annotation(biologicalEntities, property, semTags, annotationProvenance, true);
+        MongoAnnotation mongoAnnotation = new MongoAnnotation(biologicalEntity, property, semTags, annotationProvenance, true);
 
         annotationRepository.save(mongoAnnotation);
 

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.messaging.converter.MessageConverter;
-import uk.ac.ebi.spot.zooma.model.mongo.Annotation;
+import uk.ac.ebi.spot.zooma.model.mongo.MongoAnnotation;
 
 /**
  * Javadocs go here!
@@ -32,7 +32,7 @@ public class AnnotationEventHandler {
     }
 
     @HandleAfterSave
-    public void handleAnnotationSave(Annotation annotation) {
+    public void handleAnnotationSave(MongoAnnotation annotation) {
         getLog().info("New annotation saved: " + annotation.getId());
         rabbitTemplate.convertAndSend(annotation);
     }

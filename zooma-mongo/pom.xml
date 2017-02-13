@@ -53,6 +53,10 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>uk.ac.ebi.spot</groupId>
+			<artifactId>zooma-mongo-model</artifactId>
+		</dependency>
 	</dependencies>
 
     <build>

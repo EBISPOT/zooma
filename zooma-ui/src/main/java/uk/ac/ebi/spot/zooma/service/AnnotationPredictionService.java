@@ -10,7 +10,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.zooma.model.*;
 import uk.ac.ebi.spot.zooma.model.api.Property;
-import uk.ac.ebi.spot.zooma.model.mongo.TypedProperty;
+import uk.ac.ebi.spot.zooma.model.TypedProperty;
 import uk.ac.ebi.spot.zooma.model.solr.AnnotationSummary;
 import uk.ac.ebi.spot.zooma.utils.ZoomaUtils;
 
