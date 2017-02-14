@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class MongoAnnotationProvenance implements AnnotationProvenance {
+public class AnnotationProvenance implements uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance {
 
     @NonNull
     private DatabaseAnnotationSource source;

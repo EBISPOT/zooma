@@ -12,7 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.spot.zooma.config.MongoConfig;
 import uk.ac.ebi.spot.zooma.model.*;
-import uk.ac.ebi.spot.zooma.model.mongo.*;
+import uk.ac.ebi.spot.zooma.model.mongo.Annotation;
 import uk.ac.ebi.spot.zooma.repository.mongo.AnnotationRepository;
 
 import java.io.*;
@@ -54,24 +54,24 @@ public class AnnotationRepositoryServiceIT {
         //create provenance
         DatabaseAnnotationSource annotationSource = new DatabaseAnnotationSource("http://www.ebi.ac.uk/test", "test", "");
 
-        MongoAnnotationProvenance annotationProvenance = new MongoAnnotationProvenance(annotationSource,
-                MongoAnnotationProvenance.Evidence.MANUAL_CURATED,
-                MongoAnnotationProvenance.Accuracy.NOT_SPECIFIED,
-                "http://www.ebi.ac.uk/test", "Test annotator", LocalDateTime.now());
+        AnnotationProvenance annotationProvenance = new AnnotationProvenance(annotationSource,
+                                                                             AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                                                             AnnotationProvenance.Accuracy.NOT_SPECIFIED,
+                                                                             "http://www.ebi.ac.uk/test", "Test annotator", LocalDateTime.now());
 
-        MongoAnnotation annotationDocument = new MongoAnnotation(biologicalEntity,
-                property,
-                semanticTags,
-                annotationProvenance,
-                false);
+        Annotation annotationDocument = new Annotation(biologicalEntity,
+                                                       property,
+                                                       semanticTags,
+                                                       annotationProvenance,
+                                                       false);
 
         annotationRepository.save(annotationDocument);
 
-        MongoAnnotation annotation = new MongoAnnotation(biologicalEntity,
-                property,
-                semanticTags,
-                annotationProvenance,
-                false);
+        Annotation annotation = new Annotation(biologicalEntity,
+                                               property,
+                                               semanticTags,
+                                               annotationProvenance,
+                                               false);
         annotationRepository.save(annotation);
     }
 
@@ -83,7 +83,7 @@ public class AnnotationRepositoryServiceIT {
 
     @Test
     public void testFindAllDocuments(){
-        List<MongoAnnotation> mongoAnnotations = annotationRepository.findAll();
+        List<Annotation> mongoAnnotations = annotationRepository.findAll();
         assertTrue("More than 0", mongoAnnotations.size() > 0);
     }
 
@@ -92,54 +92,54 @@ public class AnnotationRepositoryServiceIT {
         Collection<String> semanticTags = new HashSet<>();
         semanticTags.add("http://www.ebi.ac.uk/efo/EFO_test");
 
-        Page<MongoAnnotation> mongoAnnotations = annotationRepository.findBySemanticTagIn(semanticTags, new PageRequest(0,20));
-        List<MongoAnnotation> mongoAnnotationsContent = mongoAnnotations.getContent();
+        Page<Annotation> mongoAnnotations = annotationRepository.findBySemanticTagIn(semanticTags, new PageRequest(0, 20));
+        List<Annotation> mongoAnnotationsContent = mongoAnnotations.getContent();
         assertTrue(mongoAnnotationsContent.size() > 0);
     }
 
 
     @Test
     public void testGetByProvenanceSourceName(){
-        Page<MongoAnnotation> annotations = annotationRepository.findByProvenanceSourceName("test", new PageRequest(0, 20));
-        List<MongoAnnotation> mongoAnnotationsContent = annotations.getContent();
+        Page<Annotation> annotations = annotationRepository.findByProvenanceSourceName("test", new PageRequest(0, 20));
+        List<Annotation> mongoAnnotationsContent = annotations.getContent();
         assertTrue(mongoAnnotationsContent.size() > 0);
-        MongoAnnotation annotation = (MongoAnnotation) mongoAnnotationsContent.toArray()[0];
+        Annotation annotation = (Annotation) mongoAnnotationsContent.toArray()[0];
         assertTrue(annotation.getProvenance().getSource().getName().equals("test"));
     }
 
     @Test
     public void testGetAllDocuments() throws Exception {
-        Collection<MongoAnnotation> annotationDocumentList = annotationRepository.findAll();
+        Collection<Annotation> annotationDocumentList = annotationRepository.findAll();
         assertThat("Not empty list", annotationDocumentList.size(), is(not(0)));
     }
 
     @Test
     public void testGetByAnnotatedProperty() throws Exception {
-        Page<MongoAnnotation> annotationDocument = annotationRepository.findByPropertyPropertyValue("test value", new PageRequest(0,20));
-        List<MongoAnnotation> mongoAnnotationsContent = annotationDocument.getContent();
+        Page<Annotation> annotationDocument = annotationRepository.findByPropertyPropertyValue("test value", new PageRequest(0, 20));
+        List<Annotation> mongoAnnotationsContent = annotationDocument.getContent();
 
-        MongoAnnotation annotation = (MongoAnnotation) mongoAnnotationsContent.toArray()[0];
+        Annotation annotation = (Annotation) mongoAnnotationsContent.toArray()[0];
         assertThat("The property value should be \"test value\"", annotation.getProperty().getPropertyValue(), is("test value"));
 
         annotationDocument = annotationRepository.findByPropertyPropertyTypeAndPropertyPropertyValue("test type", "test value", new PageRequest(0,20));
 
-        MongoAnnotation mongoAnnotation = (MongoAnnotation) mongoAnnotationsContent.toArray()[0];
+        Annotation mongoAnnotation = (Annotation) mongoAnnotationsContent.toArray()[0];
         assertThat("The property type should be \"test type\"", ((TypedProperty) mongoAnnotation.getProperty()).getPropertyType(), is("test type"));
     }
 
     @Test
     public void testUpdate() throws Exception{
-        Page<MongoAnnotation> annotationDocument = annotationRepository.findByPropertyPropertyValue("test value", new PageRequest(0,20));
-        List<MongoAnnotation> mongoAnnotationsContent = annotationDocument.getContent();
+        Page<Annotation> annotationDocument = annotationRepository.findByPropertyPropertyValue("test value", new PageRequest(0, 20));
+        List<Annotation> mongoAnnotationsContent = annotationDocument.getContent();
 
-        MongoAnnotation annotation = (MongoAnnotation) mongoAnnotationsContent.toArray()[0];
+        Annotation annotation = (Annotation) mongoAnnotationsContent.toArray()[0];
 
         TypedProperty oldProperty = annotation.getProperty();
         String oldId = annotation.getId();
 
         annotation.setProperty(new TypedProperty("new type", "new value"));
 
-        MongoAnnotation updatedAnnotation = annotationRepository.save(annotation);
+        Annotation updatedAnnotation = annotationRepository.save(annotation);
 
         assertTrue(updatedAnnotation.getId().equals(oldId));
         assertTrue(updatedAnnotation.getProperty().getPropertyValue().equals("new value"));

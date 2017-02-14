@@ -98,7 +98,7 @@ public class ZoomaCSVLoaderApplication {
     @Bean
     public Step step1(){
         return stepBuilderFactory.get("step1")
-                .<SimpleAnnotation, SimpleAnnotation> chunk(100)
+                .<SimpleAnnotation, SimpleAnnotation> chunk(1000)
                 .reader(reader())
                 .processor(processor())
                 .writer(writer())

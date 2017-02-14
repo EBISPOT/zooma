@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
-import uk.ac.ebi.spot.zooma.model.mongo.MongoAnnotation;
+import uk.ac.ebi.spot.zooma.model.mongo.Annotation;
 
 import java.util.Collection;
 
@@ -14,23 +14,22 @@ import java.util.Collection;
  * Created by olgavrou on 03/08/2016.
  */
 @Repository
-//@RepositoryRestResource(exported = false)
-public interface AnnotationRepository extends MongoRepository<MongoAnnotation, String> {
+public interface AnnotationRepository extends MongoRepository<Annotation, String> {
 
     @RestResource(path = "findByPropertyValue", rel = "findByPropertyValue")
-    Page<MongoAnnotation> findByPropertyPropertyValue(@Param("propertyValue") String propertyValue, Pageable pageable);
+    Page<Annotation> findByPropertyPropertyValue(@Param("propertyValue") String propertyValue, Pageable pageable);
 
     @RestResource(path = "findByPropertyType", rel = "findByPropertyType")
-    Page<MongoAnnotation> findByPropertyPropertyType(@Param("propertyType") String propertyType, Pageable pageable);
+    Page<Annotation> findByPropertyPropertyType(@Param("propertyType") String propertyType, Pageable pageable);
 
     @RestResource(path = "findByPropertyTypeAndValue", rel = "findByPropertyTypeAndValue")
-    Page<MongoAnnotation> findByPropertyPropertyTypeAndPropertyPropertyValue(@Param("propertyType") String propertyType, @Param("propertyValue") String propertyValue, Pageable pageable);
+    Page<Annotation> findByPropertyPropertyTypeAndPropertyPropertyValue(@Param("propertyType") String propertyType, @Param("propertyValue") String propertyValue, Pageable pageable);
 
     @RestResource(path = "findBySemanticTag", rel = "findBySemanticTag")
-    Page<MongoAnnotation> findBySemanticTagIn(@Param("semanticTag") Collection<String> semanticTag, Pageable pageable);
+    Page<Annotation> findBySemanticTagIn(@Param("semanticTag") Collection<String> semanticTag, Pageable pageable);
 
     @RestResource(path = "findBySourceName", rel = "findBySourceName")
-    Page<MongoAnnotation> findByProvenanceSourceName(@Param("name") String name, Pageable pageable);
+    Page<Annotation> findByProvenanceSourceName(@Param("name") String name, Pageable pageable);
 
     @Override
     @RestResource(exported = false)
@@ -38,11 +37,11 @@ public interface AnnotationRepository extends MongoRepository<MongoAnnotation, S
 
     @Override
     @RestResource(exported = false)
-    void delete(MongoAnnotation entity);
+    void delete(Annotation entity);
 
     @Override
     @RestResource(exported = false)
-    void delete(Iterable<? extends MongoAnnotation> entities);
+    void delete(Iterable<? extends Annotation> entities);
 
     @Override
     @RestResource(exported = false)

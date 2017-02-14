@@ -13,7 +13,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.spot.zooma.controller.AnnotationController;
 import uk.ac.ebi.spot.zooma.model.*;
-import uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance;
 
 import java.io.IOException;
 import java.net.URI;
@@ -88,11 +87,12 @@ public class ZoomaLoadAnnotationsApplicationTests {
 		BiologicalEntity be = new BiologicalEntity("GSE10927GSM277147", new Study("E-GEOD-10927"));
 		DatabaseAnnotationSource source = new DatabaseAnnotationSource("www.ebi.ac.uk/sysmicro", "atlas", "Phenotypes");
 
-		MongoAnnotationProvenance provenance = new MongoAnnotationProvenance(source, AnnotationProvenance.Evidence.MANUAL_CURATED,
-				AnnotationProvenance.Accuracy.PRECISE,
-				"generator",
-				"annotator",
-				LocalDateTime.now());
+		AnnotationProvenance
+                provenance = new AnnotationProvenance(source, uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                                      uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance.Accuracy.PRECISE,
+                                                      "generator",
+                                                      "annotator",
+                                                      LocalDateTime.now());
 
 		this.annotation.setBiologicalEntities(be);
 		this.annotation.setProvenance(provenance);

@@ -45,7 +45,7 @@ public class AnnotationItemProcessor implements ItemProcessor<SimpleAnnotation, 
                 .topic("topic")
                 .uri("uri")
                 .build();
-        log.info("Completeing provenance for ");
+        log.trace("Completeing provenance for ");
         return completeAnnotation;
     }
 }

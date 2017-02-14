@@ -6,6 +6,7 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.spot.zooma.model.SimpleAnnotation;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,16 +23,19 @@ public class CustomItemWriter implements ItemWriter<SimpleAnnotation> {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
+        System.out.print("Loading " + items.size() + " annotations");
         for (SimpleAnnotation simpleAnnotation : items) {
             if(simpleAnnotation.getSemantictag().equals("SEMANTIC_TAG")){
                 continue;
             }
             HttpEntity entity = new HttpEntity(simpleAnnotation.toString(), httpHeaders);
 
-            ResponseEntity<String> responseEntity = restTemplate.postForEntity("http://localhost:8081/annotations", entity, String.class);
+            ResponseEntity<String> responseEntity = restTemplate.postForEntity("http://localhost:8080/annotations", entity, String.class);
             HttpStatus status = responseEntity.getStatusCode();
-            String restCall = responseEntity.getBody();
-            System.out.println("status: " + status);
+            String responseBody = responseEntity.getBody();
+//            System.out.println("status: " + status + ", response: " + responseBody);
+            System.out.print(".");
         }
+        System.out.println("done!");
     }
 }

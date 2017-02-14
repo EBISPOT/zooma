@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.spot.zooma.model.*;
-import uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance;
-import uk.ac.ebi.spot.zooma.model.mongo.MongoAnnotation;
+import uk.ac.ebi.spot.zooma.model.mongo.Annotation;
 import uk.ac.ebi.spot.zooma.repository.mongo.AnnotationRepository;
 
 import java.time.LocalDateTime;
@@ -32,7 +31,7 @@ import java.util.Collection;
  */
 @Controller
 @RequestMapping("/api/mongoannotations")
-@ExposesResourceFor(MongoAnnotation.class)
+@ExposesResourceFor(Annotation.class)
 public class AnnotationAdderController implements ResourceProcessor<RepositoryLinksResource> {
 
     @Autowired
@@ -45,7 +44,7 @@ public class AnnotationAdderController implements ResourceProcessor<RepositoryLi
     }
 
     @RequestMapping(path = "/find", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
-    HttpEntity<PagedResources<MongoAnnotation>> findAnnotations(
+    HttpEntity<PagedResources<Annotation>> findAnnotations(
             @RequestParam(value = "propertyValue") String propertyValue,
             PagedResourcesAssembler assembler
     ) throws ResourceNotFoundException {
@@ -96,12 +95,13 @@ public class AnnotationAdderController implements ResourceProcessor<RepositoryLi
         }
 
         LocalDateTime generatedDate = LocalDateTime.now();
-        MongoAnnotationProvenance annotationProvenance = new MongoAnnotationProvenance(new DatabaseAnnotationSource(uri, source, ""),
-                AnnotationProvenance.Evidence.MANUAL_CURATED,
-                AnnotationProvenance.Accuracy.PRECISE,
-                "ZOOMA",
-                annotator, generatedDate);
-        MongoAnnotation mongoAnnotation = new MongoAnnotation(biologicalEntity, property, semTags, annotationProvenance, true);
+        AnnotationProvenance
+                annotationProvenance = new AnnotationProvenance(new DatabaseAnnotationSource(uri, source, ""),
+                                                                uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance.Evidence.MANUAL_CURATED,
+                                                                uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance.Accuracy.PRECISE,
+                                                                "ZOOMA",
+                                                                annotator, generatedDate);
+        Annotation mongoAnnotation = new Annotation(biologicalEntity, property, semTags, annotationProvenance, true);
 
         annotationRepository.save(mongoAnnotation);
 
