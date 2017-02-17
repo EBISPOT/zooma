@@ -41,7 +41,12 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.4</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>uk.ac.ebi.spot</groupId>
+            <artifactId>zooma-solr-template</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
