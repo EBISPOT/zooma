@@ -11,7 +11,7 @@
 // * @author Tony Burdett
 // * @date 28/09/12
 // */
-//public class ZoomaUtils {
+//public class SummaryUtils {
 //
 //    /**
 //     * Filter the supplied map of annotation summaries to their score, reducing them down to a set of summaries that

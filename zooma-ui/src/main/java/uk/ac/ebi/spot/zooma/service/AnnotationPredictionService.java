@@ -12,7 +12,7 @@
 //import uk.ac.ebi.spot.zooma.model.*;
 //import uk.ac.ebi.spot.zooma.model.api.Property;
 //import uk.ac.ebi.spot.zooma.model.TypedProperty;
-//import uk.ac.ebi.spot.zooma.utils.ZoomaUtils;
+//import uk.ac.ebi.spot.zooma.utils.SummaryUtils;
 //
 //import java.util.*;
 //
@@ -135,7 +135,7 @@
 //            Map<String, Float> goodAnnotationSummaries = annotationSelector.getGoodAnnotations(annotationSummaries, annotatedPropertyValue, getCutoffPercentage());
 //
 //            // now we have a list of annotation summaries; use this list to create predicted annotations
-//            AnnotationPrediction.Confidence confidence = ZoomaUtils.getConfidence(goodAnnotationSummaries, getCutoffScore());
+//            AnnotationPrediction.Confidence confidence = SummaryUtils.getConfidence(goodAnnotationSummaries, getCutoffScore());
 //
 //            for (String id : goodAnnotationSummaries.keySet()){
 ////                ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/annotations/" + id, String.class);

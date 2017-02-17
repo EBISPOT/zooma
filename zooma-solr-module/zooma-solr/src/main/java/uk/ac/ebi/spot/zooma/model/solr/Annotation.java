@@ -6,7 +6,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.data.solr.repository.Score;
-import uk.ac.ebi.spot.zooma.model.SolrBaseAnnotation;
 
 import java.util.*;
 
@@ -48,19 +47,12 @@ public class Annotation {
 
     @Field
     @NonNull
-    private Collection<String> source;
+    private String source;
 
     @Field
     @NonNull
     private float quality;
 
-    @Field
-    @NonNull
-    private int votes;
-
-    @Field
-    @NonNull
-    private int sourceNum;
 
     public boolean equals(Annotation annotation){
         if(!annotation.getPropertyValue().equals(this.getPropertyValue())){

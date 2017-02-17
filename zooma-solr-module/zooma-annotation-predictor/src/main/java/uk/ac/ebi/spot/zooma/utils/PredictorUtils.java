@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * @author Tony Burdett
  * @date 28/09/12
  */
-public class ZoomaUtils {
+public class PredictorUtils {
 
     /**
      * Filter the supplied map of annotation summaries to their score, reducing them down to a set of summaries that
@@ -194,33 +194,5 @@ public class ZoomaUtils {
 
         // if we get to here, all elements in each set are also in the other, so all elements are equal
         return true;
-    }
-
-    public static float normaliseScore(float score, float max){
-        float min = minScore();
-        if ((score - min) < 0) {
-            return 50;
-        }
-        else {
-            float n = 50 + (50 * (score - min)/(max - min));
-            return n;
-        }
-    }
-
-    public static float minScore() {
-        // expected minimum score
-        Date y2k;
-        try {
-            //a really old date would make the quality not so good
-            y2k = new SimpleDateFormat("YYYY").parse("2000");
-        }
-        catch (ParseException e) {
-            throw new InstantiationError("Could not parse date '2000' (YYYY)");
-        }
-        float bottomQuality = (float) (1.0 + Math.log10(y2k.getTime()));
-        int sourceNumber = 1;
-        int numOfDocs = 1;
-//        float normalizedFreq = 1.0f + (2 > 0 ? (numOfDocs / 2) : 0);
-        return  (bottomQuality + sourceNumber);
     }
 }

@@ -4,7 +4,7 @@
 //import org.springframework.stereotype.Service;
 //import uk.ac.ebi.spot.zooma.model.solr.AnnotationSummary;
 //import uk.ac.ebi.spot.zooma.utils.Scorer;
-//import uk.ac.ebi.spot.zooma.utils.ZoomaUtils;
+//import uk.ac.ebi.spot.zooma.utils.SummaryUtils;
 //
 //import java.text.ParseException;
 //import java.text.SimpleDateFormat;
@@ -47,7 +47,7 @@
 //
 //
 //        //cutoff scores based on the difference between the first score
-//        List<AnnotationSummary> results = ZoomaUtils.filterAnnotationSummaries(annotationsToNormScore, cutoffPercentage);
+//        List<AnnotationSummary> results = SummaryUtils.filterAnnotationSummaries(annotationsToNormScore, cutoffPercentage);
 //
 //        //Make sure the results are sorted (highest score first).
 //        Collections.sort(results, new Comparator<AnnotationSummary>() {

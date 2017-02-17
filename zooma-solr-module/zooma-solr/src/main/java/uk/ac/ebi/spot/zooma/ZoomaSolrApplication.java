@@ -34,19 +34,19 @@ public class ZoomaSolrApplication {
 		Collection<String> st = new ArrayList<>();
 		st.add("http://purl.obolibrary.org/obo/NCBITaxon_10091");
 		st.add("http://efo_001");
-		Collection<String> source = new ArrayList<>();
-		source.add("atlas");
-		Annotation annotation = new Annotation("something", "Mus musculus", st, "mongoid", source, 20.1f, 1, 1);
+		String source = "atlas";
+
+		Annotation annotation = new Annotation("something", "Mus musculus", st, "mongoid", source, 20.1f);
 		repository.save(annotation);
 
 		st = new ArrayList<>();
 		st.add("http://purl.obolibrary.org/obo/NCBITaxon_10090");
-		annotation = new Annotation("organism", "Mus musculus", st, "mongoid", source, 20.1f, 1, 1);
+		annotation = new Annotation("organism", "Mus musculus", st, "mongoid", source, 20.1f);
 		repository.save(annotation);
 
 		st = new ArrayList<>();
 		st.add("http://purl.obolibrary.org/obo/NCBITaxon_10080");
-		annotation = new Annotation("organism", "Mus musculus mu", st, "mongoid", source, 20.1f, 1, 1);
+		annotation = new Annotation("organism", "Mus musculus mu", st, "mongoid", source, 20.1f);
 		repository.save(annotation);
 		return null;
 	}
