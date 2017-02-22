@@ -1,7 +1,7 @@
 package uk.ac.ebi.spot.zooma.messaging;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import uk.ac.ebi.spot.zooma.model.Annotation;
 
 /**
@@ -10,10 +10,10 @@ import uk.ac.ebi.spot.zooma.model.Annotation;
  * @author Tony Burdett
  * @date 09/01/17
  */
-@Service
+@Component
 public class AnnotationSubmissionReceiver {
     @RabbitListener(queues = "annotation.save.queue")
     public void handleAnnotationSubmission(Annotation annotation) {
-        System.out.println("We have detected that a new annotation was submitted! " + annotation);
+        System.out.println("We have detected that a new message was received! " + annotation);
     }
 }
