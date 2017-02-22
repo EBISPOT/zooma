@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.zooma.model;
+package uk.ac.ebi.spot.zooma.model.neo4j;
 
 import lombok.Data;
 import org.neo4j.ogm.annotation.NodeEntity;

@@ -9,8 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import uk.ac.ebi.spot.zooma.model.*;
-import uk.ac.ebi.spot.zooma.service.NeoAnnotationService;
+import uk.ac.ebi.spot.zooma.model.neo4j.*;
+import uk.ac.ebi.spot.zooma.service.neo4j.AnnotationService;
 
 import java.io.IOException;
 import org.apache.log4j.Logger;
@@ -30,7 +30,7 @@ public class ZoomaNeo4jApplication {
 
 
 	@Bean
-	CommandLineRunner init(RestTemplate restTemplate, NeoAnnotationService annotationService) {
+	CommandLineRunner init(RestTemplate restTemplate, AnnotationService annotationService) {
 
 		List<Annotation> annotations = new ArrayList<>();
 

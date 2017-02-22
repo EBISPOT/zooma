@@ -1,9 +1,7 @@
-package uk.ac.ebi.spot.zooma.model;
+package uk.ac.ebi.spot.zooma.model.neo4j;
 
 import lombok.*;
-import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 
 /**
