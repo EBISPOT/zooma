@@ -2,6 +2,8 @@ package uk.ac.ebi.spot.zooma.model;
 
 
 import uk.ac.ebi.spot.zooma.model.api.Property;
+import uk.ac.ebi.spot.zooma.model.mongo.TypedProperty;
+import uk.ac.ebi.spot.zooma.model.mongo.UntypedProperty;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
-import uk.ac.ebi.spot.zooma.model.mongo.Annotation;
 
 import java.util.Collection;
 

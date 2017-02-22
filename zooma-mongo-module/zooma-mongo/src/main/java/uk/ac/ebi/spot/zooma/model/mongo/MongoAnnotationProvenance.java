@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.zooma.model;
+package uk.ac.ebi.spot.zooma.model.mongo;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

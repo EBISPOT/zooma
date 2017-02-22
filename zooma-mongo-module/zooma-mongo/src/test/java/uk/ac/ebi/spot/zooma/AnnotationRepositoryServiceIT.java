@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.spot.zooma.config.MongoConfig;
-import uk.ac.ebi.spot.zooma.model.*;
 import uk.ac.ebi.spot.zooma.model.mongo.*;
 import uk.ac.ebi.spot.zooma.repository.mongo.AnnotationRepository;
 
@@ -40,7 +39,7 @@ public class AnnotationRepositoryServiceIT {
 
     @Before
     public void setup(){
-        //Create an BaseAnnotation and store it in mongodb
+        //Create an Annotation and store it in mongodb
 
         Study mongoStudy = new Study("Accession1");
 

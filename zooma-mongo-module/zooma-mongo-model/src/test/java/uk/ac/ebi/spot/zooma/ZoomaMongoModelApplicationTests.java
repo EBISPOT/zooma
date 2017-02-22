@@ -1,7 +1,6 @@
 package uk.ac.ebi.spot.zooma;
 
 import org.junit.Test;
-import uk.ac.ebi.spot.zooma.model.*;
 import uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
