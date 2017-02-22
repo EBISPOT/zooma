@@ -79,11 +79,11 @@
 //            biologicalEntity.setBioEntityUri(beURI);
 //        }
 //
-//        TypedProperty property;
+//        Property property;
 //        if(propertyType != null) {
-//            property = new TypedProperty(propertyType, propertyValue);
+//            property = new Property(propertyType, propertyValue);
 //        } else {
-//            property = new TypedProperty("", propertyValue);
+//            property = new Property("", propertyValue);
 //        }
 //        Collection<String> semTags = new ArrayList<>();
 //        if(semanticTags.contains(",")){

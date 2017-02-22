@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.zooma.model.api;
+package uk.ac.ebi.spot.zooma.model.mongo;
 
 /**
  * Created by olgavrou on 04/08/2016.

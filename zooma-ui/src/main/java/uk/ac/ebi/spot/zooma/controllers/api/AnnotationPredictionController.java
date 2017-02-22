@@ -23,7 +23,7 @@
 //import org.springframework.web.bind.annotation.RequestParam;
 //import uk.ac.ebi.spot.zooma.model.SimpleAnnotationPrediction;
 //import uk.ac.ebi.spot.zooma.model.api.Property;
-//import uk.ac.ebi.spot.zooma.model.TypedProperty;
+//import uk.ac.ebi.spot.zooma.model.Property;
 //import uk.ac.ebi.spot.zooma.model.UntypedProperty;
 //import uk.ac.ebi.spot.zooma.service.AnnotationPredictionService;
 //
@@ -58,7 +58,7 @@
 //    ) throws ResourceNotFoundException {
 //        List<Property> propertyValues = new ArrayList<>();
 //        if(propertyType != null) {
-//            propertyValues.add(new TypedProperty(propertyType, propertyValue));
+//            propertyValues.add(new Property(propertyType, propertyValue));
 //        } else {
 //            propertyValues.add(new UntypedProperty(propertyValue));
 //        }

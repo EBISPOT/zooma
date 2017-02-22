@@ -45,7 +45,7 @@ public class AnnotationRepositoryServiceIT {
 
         BiologicalEntity biologicalEntity = new BiologicalEntity("GSMTest1", mongoStudy);
 
-        TypedProperty property = new TypedProperty("test type", "test value");
+        Property property = new Property("test type", "test value");
         String semanticTag = "http://www.ebi.ac.uk/efo/EFO_test";
         Collection<String> semanticTags = new ArrayList<>();
         semanticTags.add(semanticTag);
@@ -123,7 +123,7 @@ public class AnnotationRepositoryServiceIT {
         annotationDocument = annotationRepository.findByPropertyPropertyTypeAndPropertyPropertyValue("test type", "test value", new PageRequest(0,20));
 
         Annotation mongoAnnotation = (Annotation) mongoAnnotationsContent.toArray()[0];
-        assertThat("The property type should be \"test type\"", ((TypedProperty) mongoAnnotation.getProperty()).getPropertyType(), is("test type"));
+        assertThat("The property type should be \"test type\"", ((Property) mongoAnnotation.getProperty()).getPropertyType(), is("test type"));
     }
 
     @Test
@@ -133,10 +133,10 @@ public class AnnotationRepositoryServiceIT {
 
         Annotation annotation = (Annotation) mongoAnnotationsContent.toArray()[0];
 
-        TypedProperty oldProperty = annotation.getProperty();
+        Property oldProperty = annotation.getProperty();
         String oldId = annotation.getId();
 
-        annotation.setProperty(new TypedProperty("new type", "new value"));
+        annotation.setProperty(new Property("new type", "new value"));
 
         Annotation updatedAnnotation = annotationRepository.save(annotation);
 

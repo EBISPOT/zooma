@@ -15,7 +15,6 @@
     </properties>
     
     <modules>
-        <module>zooma-mongo-model</module>
         <module>zooma-mongo</module>
     </modules>
 </project>

@@ -23,7 +23,7 @@ public class Annotation {
     @NonNull
     private BiologicalEntity biologicalEntities;
     @NonNull
-    private TypedProperty property;
+    private Property property;
     @NonNull
     private Collection<String> semanticTag;
     @NonNull
@@ -33,7 +33,7 @@ public class Annotation {
     private Float quality;
 
 
-    public Annotation(BiologicalEntity biologicalEntities, TypedProperty property, Collection<String> semanticTag, MongoAnnotationProvenance provenance, boolean batchLoad) {
+    public Annotation(BiologicalEntity biologicalEntities, Property property, Collection<String> semanticTag, MongoAnnotationProvenance provenance, boolean batchLoad) {
         this.biologicalEntities = biologicalEntities;
         this.property = property;
         this.semanticTag = semanticTag;
@@ -50,7 +50,7 @@ public class Annotation {
 
     /**
      * Quality can not be set manually.
-     * It can only calculated based on the annotation's {@link uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance}
+     * It can only calculated based on the annotation's {@link AnnotationProvenance}
      */
     public void setQuality(){
         this.quality = calculateAnnotationQuality();

@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import uk.ac.ebi.spot.zooma.model.api.AnnotationProvenance;
 
 import java.time.LocalDateTime;
 

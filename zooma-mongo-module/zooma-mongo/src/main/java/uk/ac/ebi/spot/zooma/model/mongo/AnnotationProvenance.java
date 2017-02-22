@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.zooma.model.api;
+package uk.ac.ebi.spot.zooma.model.mongo;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

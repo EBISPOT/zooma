@@ -2,7 +2,6 @@ package uk.ac.ebi.spot.zooma.model.mongo;
 
 import lombok.Data;
 import lombok.NonNull;
-import uk.ac.ebi.spot.zooma.model.api.AnnotationSource;
 
 /**
  * Created by olgavrou on 05/08/2016.

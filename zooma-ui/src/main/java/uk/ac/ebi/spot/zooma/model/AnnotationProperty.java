@@ -1,9 +1,7 @@
 package uk.ac.ebi.spot.zooma.model;
 
 
-import uk.ac.ebi.spot.zooma.model.api.Property;
-import uk.ac.ebi.spot.zooma.model.mongo.TypedProperty;
-import uk.ac.ebi.spot.zooma.model.mongo.UntypedProperty;
+import uk.ac.ebi.spot.zooma.model.mongo.Property;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +34,7 @@ public class AnnotationProperty {
                 String propertyValue = line[0];
                 if (line.length > 1) {
                     String propertyType = line[1];
-                    Property typedProperty = new TypedProperty(propertyType, propertyValue);
+                    Property typedProperty = new Property(propertyType, propertyValue);
                     properties.add(typedProperty);
                 } else {
                     Property untypedProperty = new UntypedProperty(propertyValue);

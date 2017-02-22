@@ -11,7 +11,7 @@
 //import org.springframework.web.client.RestTemplate;
 //import uk.ac.ebi.spot.zooma.model.*;
 //import uk.ac.ebi.spot.zooma.model.api.Property;
-//import uk.ac.ebi.spot.zooma.model.TypedProperty;
+//import uk.ac.ebi.spot.zooma.model.Property;
 //import uk.ac.ebi.spot.zooma.utils.SummaryUtils;
 //
 //import java.util.*;
@@ -61,8 +61,8 @@
 //        for (Property property : properties){
 //            String annotatedPropertyValue = property.getPropertyValue();
 //            String annotatedPropertyType = null;
-//            if (property instanceof TypedProperty){
-//                annotatedPropertyType = ((TypedProperty) property).getPropertyType();
+//            if (property instanceof Property){
+//                annotatedPropertyType = ((Property) property).getPropertyType();
 //            }
 //            //set threads searching
 //            Predictor predictor = new Predictor(annotatedPropertyType, annotatedPropertyValue, sources);
