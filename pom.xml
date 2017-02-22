@@ -62,6 +62,7 @@
 		<module>zooma-solr-module</module>
 		<module>zooma-apps/zooma-csv-loader</module>
 		<module>zooma-ui</module>
+		<module>zooma-neo4j</module>
 	</modules>
 
 </project>

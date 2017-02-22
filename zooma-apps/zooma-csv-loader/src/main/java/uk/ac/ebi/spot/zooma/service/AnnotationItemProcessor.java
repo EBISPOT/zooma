@@ -3,13 +3,24 @@ package uk.ac.ebi.spot.zooma.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Value;
 import uk.ac.ebi.spot.zooma.model.SimpleAnnotation;
 
 /**
  * Created by olgavrou on 13/01/2017.
  */
 public class AnnotationItemProcessor implements ItemProcessor<SimpleAnnotation, SimpleAnnotation> {
+
     private final static Logger log = LoggerFactory.getLogger(AnnotationItemProcessor.class);
+
+    @Value("${name}")
+    private String name;
+
+    @Value("${uri}")
+    private String uri;
+
+    @Value("${topic}")
+    private String topic;
 
     @Override
     public SimpleAnnotation process(SimpleAnnotation simpleAnnotation) throws Exception {
@@ -41,9 +52,9 @@ public class AnnotationItemProcessor implements ItemProcessor<SimpleAnnotation, 
                 .evidence("MANUAL_CURATED")
                 .accuracy("PRECISE")
                 .generator("ZOOMA")
-                .name("name")
-                .topic("topic")
-                .uri("uri")
+                .name(name)
+                .topic(topic)
+                .uri(uri)
                 .build();
         log.info("Completeing provenance for ");
         return completeAnnotation;
