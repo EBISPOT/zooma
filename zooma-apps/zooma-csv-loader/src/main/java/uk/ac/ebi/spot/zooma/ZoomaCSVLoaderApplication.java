@@ -10,6 +10,7 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -38,13 +39,19 @@ public class ZoomaCSVLoaderApplication {
     @Autowired
     public StepBuilderFactory stepBuilderFactory;
 
+    @Value("${delimeter}")
+    private String delimeter;
+
+    @Value("${loadFrom}")
+    private String loadFrom;
+
 
     @Bean
     public FlatFileItemReader<SimpleAnnotation> reader(){
         FlatFileItemReader<SimpleAnnotation> reader = new FlatFileItemReader<>();
         try {
 //            URL url = new URL("ftp://ftp.ebi.ac.uk/pub/databases/spot/zooma/data/annotations/cbi/latest/biosample_plant.csv");
-            URL url = new URL("ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/atlas/curation/zoomage_report.CURATED.tsv");
+            URL url = new URL(loadFrom);
             URLConnection urlConnection = url.openConnection();
             InputStream in = urlConnection.getInputStream();
             URLConnection urlConnection2 = url.openConnection();
@@ -53,11 +60,13 @@ public class ZoomaCSVLoaderApplication {
             String firstLine = bufferedReader.readLine();
             bufferedReader.close();
             firstLine = firstLine.replace("_", "");
-            String[] headers = firstLine.split("\t");
+            String[] headers = firstLine.split(delimeter);
+
+
             reader.setResource(new InputStreamResource(in2));
             reader.setLineMapper(new DefaultLineMapper<SimpleAnnotation>() {{
                 setLineTokenizer(new DelimitedLineTokenizer(){{
-                    setDelimiter(DELIMITER_TAB);
+                    setDelimiter(delimeter);
                     setNames(new String[] {headers[0].toLowerCase(),
                             headers[1].toLowerCase(),
                             headers[2].toLowerCase(),
