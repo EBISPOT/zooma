@@ -15,7 +15,7 @@
     </properties>
 
     <modules>
-        <module>zooma-solr-model</module>
+        <!--<module>zooma-solr-model</module>-->
         <module>zooma-solr</module>
         <!--<module>zooma-solr-template</module>-->
         <!--<module>zooma-annotation-predictor</module>-->

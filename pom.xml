@@ -16,7 +16,7 @@
         <module>zooma-dependencies</module>
         <module>zooma-parent</module>
 		<module>zooma-mongo</module>
-		<module>zooma-solr-module</module>
+		<module>zooma-solr-module/zooma-solr</module>
 		<!--<module>zooma-ui</module>-->
 		<module>zooma-neo4j</module>
 		<module>zooma-csv-loader</module>

@@ -3,32 +3,16 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>uk.ac.ebi.spot</groupId>
-	<version>3.0.0-SNAPSHOT</version>
 	<artifactId>zooma-neo4j</artifactId>
-	<name>zooma-neo4j</name>
+	<name>Zooma Neo4j bindings</name>
 	<description>Zooma Neo4j module</description>
 
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.1.RELEASE</version>
-		<relativePath />
-		<!-- lookup parent from repository -->
+		<groupId>uk.ac.ebi.spot</groupId>
+		<artifactId>zooma-parent</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+		<relativePath>../zooma-parent/pom.xml</relativePath>
 	</parent>
-
-	<!--<parent>-->
-		<!--<groupId>uk.ac.ebi.spot</groupId>-->
-		<!--<artifactId>zooma-parent</artifactId>-->
-		<!--<version>3.0.0-SNAPSHOT</version>-->
-		<!--<relativePath>../zooma-parent/pom.xml</relativePath>-->
-	<!--</parent>-->
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
-	</properties>
 
 	<dependencies>
 		<dependency>
@@ -68,7 +52,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>1.5.1.RELEASE</version>
 			</plugin>
 		</plugins>
 	</build>
