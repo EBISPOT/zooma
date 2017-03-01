@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.spot.zooma.config.MongoConfig;
 import uk.ac.ebi.spot.zooma.model.mongo.*;
@@ -25,17 +26,13 @@ import static org.junit.Assert.*;
 /**
  * Created by olgavrou on 04/08/2016.
  */
-@RunWith(SpringRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = MongoConfig.class)
 public class AnnotationRepositoryServiceIT {
 
     @Autowired
     AnnotationRepository annotationRepository;
-
-    @Autowired
-    MongoTemplate mongoTemplate;
-
 
     @Before
     public void setup(){
@@ -76,8 +73,6 @@ public class AnnotationRepositoryServiceIT {
 
     @After
     public void teardown(){
-        //remove the annotations from the database
-//        mongoTemplate.getDb().dropDatabase();
     }
 
     @Test
