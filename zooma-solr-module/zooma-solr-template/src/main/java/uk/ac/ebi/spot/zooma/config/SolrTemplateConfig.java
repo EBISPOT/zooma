@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.spot.zooma.model.solr.CustomSolrTemplate;
 
 /**
  * Created by olgavrou on 13/02/2017.
@@ -24,7 +25,8 @@ public class SolrTemplateConfig {
 
     @Bean
     SolrTemplate solrTemplate() {
-        SolrTemplate solrTemplate = new SolrTemplate(solrClient());
+        CustomSolrTemplate solrTemplate = new CustomSolrTemplate(solrClient());
+//        SolrTemplate solrTemplate = new SolrTemplate(solrClient());
         return solrTemplate;
     }
 

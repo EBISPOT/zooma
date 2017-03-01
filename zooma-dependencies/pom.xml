@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.4.3.RELEASE</version>
+        <version>1.5.2.BUILD-SNAPSHOT</version>
         <relativePath />
         <!-- lookup parent from repository -->
     </parent>
@@ -52,18 +52,23 @@
         </pluginManagement>
     </build>
 
+    <repositories>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/libs-snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <!-- version management for project internal dependencies -->
-
             <dependency>
                 <groupId>uk.ac.ebi.spot</groupId>
                 <artifactId>zooma-mongo</artifactId>
-                <version>${zooma.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>uk.ac.ebi.spot</groupId>
-                <artifactId>zooma-neo4j</artifactId>
                 <version>${zooma.version}</version>
             </dependency>
             <dependency>
@@ -73,27 +78,17 @@
             </dependency>
             <dependency>
                 <groupId>uk.ac.ebi.spot</groupId>
-                <artifactId>zooma-solr-template</artifactId>
-                <version>${zooma.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>uk.ac.ebi.spot</groupId>
                 <artifactId>zooma-solr</artifactId>
                 <version>${zooma.version}</version>
             </dependency>
             <dependency>
                 <groupId>uk.ac.ebi.spot</groupId>
-                <artifactId>zooma-annotation-predictor</artifactId>
+                <artifactId>zooma-solr-template</artifactId>
                 <version>${zooma.version}</version>
             </dependency>
             <dependency>
                 <groupId>uk.ac.ebi.spot</groupId>
-                <artifactId>zooma-annotation-consumer-solr</artifactId>
-                <version>${zooma.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>uk.ac.ebi.spot</groupId>
-                <artifactId>zooma-annotation-consumer-neo4j</artifactId>
+                <artifactId>zooma-neo4j</artifactId>
                 <version>${zooma.version}</version>
             </dependency>
             <!--  additional external dependencies -->
@@ -136,11 +131,6 @@
                 <groupId>org.springframework.restdocs</groupId>
                 <artifactId>spring-restdocs-mockmvc</artifactId>
                 <version>${restdocs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.16.10</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

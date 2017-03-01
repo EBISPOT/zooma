@@ -8,10 +8,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
+import uk.ac.ebi.spot.zooma.model.solr.CustomSolrTemplate;
 
 
 @Configuration
-@EnableSolrRepositories(schemaCreationSupport = false, basePackages = "uk.ac.ebi.spot.zooma.repository.solr")
+@EnableSolrRepositories(basePackages = "uk.ac.ebi.spot.zooma.repository.solr")
 public class SolrContext {
 
     @Value("${solr.host}")
@@ -24,7 +25,8 @@ public class SolrContext {
 
     @Bean
     public SolrTemplate solrTemplate(){
-        SolrTemplate template = new SolrTemplate(solrClient());
+        CustomSolrTemplate template = new CustomSolrTemplate(solrClient());
+//        SolrTemplate template = new SolrTemplate(solrClient());
         return template;
     }
 

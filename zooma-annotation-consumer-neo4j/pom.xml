@@ -3,23 +3,20 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>uk.ac.ebi.spot.zooma</groupId>
 	<artifactId>zooma-annotation-consumer-neo4j</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
 	<name>Zooma Annotation Submission Consumer for Neo4j</name>
 	<description>Consumer for neo4j queue</description>
 
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.1.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<groupId>uk.ac.ebi.spot</groupId>
+		<artifactId>zooma-parent</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+		<relativePath>../zooma-parent/pom.xml</relativePath>
 	</parent>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<zooma.version>3.0.0-SNAPSHOT</zooma.version>
 	</properties>
 
 	<dependencies>
@@ -39,17 +36,14 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
-			<version>2.6.5</version>
 		</dependency>
 		<dependency>
 			<groupId>uk.ac.ebi.spot</groupId>
 			<artifactId>zooma-mongo</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>uk.ac.ebi.spot</groupId>
 			<artifactId>zooma-neo4j</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -58,6 +52,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>1.5.1.RELEASE</version>
 			</plugin>
 		</plugins>
 	</build>
