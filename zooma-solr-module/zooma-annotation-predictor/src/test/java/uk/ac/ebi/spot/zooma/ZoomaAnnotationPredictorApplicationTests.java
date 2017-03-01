@@ -24,7 +24,7 @@ public class ZoomaAnnotationPredictorApplicationTests {
 
 	@Test
 	public void predictAnnotationByPropertyValue() {
-		ArrayList<AnnotationPrediction> predictions = annotationPredictionService.predict(null, "liver", null);
+//		ArrayList<AnnotationPrediction> predictions = annotationPredictionService.predict(null, "liver", null);
 //		for(AnnotationPrediction prediction : predictions){
 ////			assertTrue(prediction.getAnnotatedPropertyValue().contains("spastic"));
 ////			assertTrue(prediction.getAnnotatedPropertyValue().contains("paraplegia"));

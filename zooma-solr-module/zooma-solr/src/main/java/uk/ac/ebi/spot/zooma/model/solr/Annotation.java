@@ -15,7 +15,6 @@ import java.util.*;
 @SolrDocument(solrCoreName = "annotations")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @RequiredArgsConstructor
 public class Annotation {
 

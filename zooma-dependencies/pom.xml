@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.4.1.RELEASE</version>
+        <version>1.4.3.RELEASE</version>
         <relativePath />
         <!-- lookup parent from repository -->
     </parent>
@@ -55,11 +55,7 @@
     <dependencyManagement>
         <dependencies>
             <!-- version management for project internal dependencies -->
-            <dependency>
-                <groupId>uk.ac.ebi.spot</groupId>
-                <artifactId>zooma-mongo-model</artifactId>
-                <version>${zooma.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>uk.ac.ebi.spot</groupId>
                 <artifactId>zooma-mongo</artifactId>
@@ -67,7 +63,7 @@
             </dependency>
             <dependency>
                 <groupId>uk.ac.ebi.spot</groupId>
-                <artifactId>zooma-access-annotations</artifactId>
+                <artifactId>zooma-neo4j</artifactId>
                 <version>${zooma.version}</version>
             </dependency>
             <dependency>
@@ -92,7 +88,12 @@
             </dependency>
             <dependency>
                 <groupId>uk.ac.ebi.spot</groupId>
-                <artifactId>zooma-annotation-predictor</artifactId>
+                <artifactId>zooma-annotation-consumer-solr</artifactId>
+                <version>${zooma.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>uk.ac.ebi.spot</groupId>
+                <artifactId>zooma-annotation-consumer-neo4j</artifactId>
                 <version>${zooma.version}</version>
             </dependency>
             <!--  additional external dependencies -->

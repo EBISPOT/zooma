@@ -18,38 +18,38 @@
 			</plugin>
 		</plugins>
 	</build>
-	<dependencies>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.1.7</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-test</artifactId>
-			<version>1.4.2.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>4.3.4.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-autoconfigure</artifactId>
-			<version>1.5.1.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<version>6.10</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-		</dependency>
-	</dependencies>
+	<!--<dependencies>-->
+		<!--<dependency>-->
+			<!--<groupId>ch.qos.logback</groupId>-->
+			<!--<artifactId>logback-classic</artifactId>-->
+			<!--<version>1.1.7</version>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>org.springframework.boot</groupId>-->
+			<!--<artifactId>spring-boot-test</artifactId>-->
+			<!--<version>1.4.2.RELEASE</version>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>org.springframework</groupId>-->
+			<!--<artifactId>spring-test</artifactId>-->
+			<!--<version>4.3.4.RELEASE</version>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>org.springframework.boot</groupId>-->
+			<!--<artifactId>spring-boot-autoconfigure</artifactId>-->
+			<!--<version>1.5.1.RELEASE</version>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>org.testng</groupId>-->
+			<!--<artifactId>testng</artifactId>-->
+			<!--<version>6.10</version>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>junit</groupId>-->
+			<!--<artifactId>junit</artifactId>-->
+			<!--<version>4.12</version>-->
+		<!--</dependency>-->
+	<!--</dependencies>-->
 	<packaging>pom</packaging>
 
 	<name>Zooma (root)</name>
@@ -60,9 +60,11 @@
         <module>zooma-parent</module>
 		<module>zooma-mongo</module>
 		<module>zooma-solr-module</module>
-		<module>zooma-apps/zooma-csv-loader</module>
 		<module>zooma-ui</module>
 		<module>zooma-neo4j</module>
+		<module>zooma-csv-loader</module>
+		<module>zooma-annotation-consumer-neo4j</module>
+		<module>zooma-annotation-consumer-solr</module>
 	</modules>
 
 </project>

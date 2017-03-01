@@ -2,6 +2,7 @@ package uk.ac.ebi.spot.zooma.model.neo4j;
 
 import lombok.*;
 import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
@@ -13,5 +14,6 @@ import org.neo4j.ogm.annotation.Property;
 public class SemanticTag {
 
     Long id;
+    @Index(unique=true,primary = true)
     String semanticTag;
 }

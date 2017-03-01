@@ -1,6 +1,7 @@
 package uk.ac.ebi.spot.zooma.model.neo4j;
 
 import lombok.Data;
+import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -15,13 +16,16 @@ public class Annotation {
 
     Long id;
 
+    String mongoId;
+
     @Relationship(type = "HAS_BIO_ENTITY")
-    private BiologicalEntity biologicalEntities;
+    private BiologicalEntity biologicalEntity;
 
     @Relationship(type = "HAS_PROPERTY")
     private Property property;
 
     @Relationship(type = "HAS_SEMANTIC_TAG")
+    @Index(unique=true,primary = true)
     private Collection<SemanticTag> semanticTag;
 
     @Relationship(type = "HAS_PROVENANCE")

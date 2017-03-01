@@ -1,8 +1,6 @@
 package uk.ac.ebi.spot.zooma.model.mongo;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -15,6 +13,7 @@ import java.util.StringJoiner;
  */
 @Data
 @NoArgsConstructor
+@RequiredArgsConstructor
 @Document(collection = "annotations")
 public class Annotation {
     @Id
@@ -32,14 +31,6 @@ public class Annotation {
     private boolean batchLoad;
     private Float quality;
 
-
-    public Annotation(BiologicalEntity biologicalEntities, Property property, Collection<String> semanticTag, MongoAnnotationProvenance provenance, boolean batchLoad) {
-        this.biologicalEntities = biologicalEntities;
-        this.property = property;
-        this.semanticTag = semanticTag;
-        this.provenance = provenance;
-        this.batchLoad = batchLoad;
-    }
 
     public float getQuality() {
         if (this.quality == null){

@@ -1,5 +1,6 @@
 package uk.ac.ebi.spot.zooma.config;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,14 +18,13 @@ public class SolrTemplateConfig {
     String solrHost;
 
     @Bean
-    public HttpSolrClient solrServer() {
+    public SolrClient solrClient() {
         return new HttpSolrClient(solrHost);
     }
 
     @Bean
     SolrTemplate solrTemplate() {
-        SolrTemplate solrTemplate = new SolrTemplate(solrServer());
-        solrTemplate.setSolrCore("annotations");
+        SolrTemplate solrTemplate = new SolrTemplate(solrClient());
         return solrTemplate;
     }
 

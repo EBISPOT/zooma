@@ -77,7 +77,7 @@ public class AnnotationRepositoryServiceIT {
     @After
     public void teardown(){
         //remove the annotations from the database
-        mongoTemplate.getDb().dropDatabase();
+//        mongoTemplate.getDb().dropDatabase();
     }
 
     @Test
