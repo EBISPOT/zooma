@@ -31,8 +31,6 @@ public class Annotation {
     @Relationship(type = "HAS_PROVENANCE")
     private AnnotationProvenance provenance;
 
-    private boolean batchLoad;
-
     private Float quality;
 
 }

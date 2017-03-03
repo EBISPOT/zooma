@@ -6,7 +6,8 @@ import lombok.NonNull;
 /**
  * Created by olgavrou on 05/08/2016.
  */
-@Data public class DatabaseAnnotationSource implements AnnotationSource {
+@Data
+public class DatabaseAnnotationSource implements AnnotationSource {
 
     @NonNull
     private String uri;

@@ -35,6 +35,7 @@ public class AnnotationRepositoryEventHandler {
     @HandleAfterCreate
     public void handleAnnotationCreate(Annotation annotation) {
         getLog().info("New annotation created: " + annotation.getId());
-        messagingTemplate.convertAndSend(Constants.Exchanges.ANNOTATION_FANOUT,"", annotation);
+
+        messagingTemplate.convertAndSend(Constants.Exchanges.ANNOTATION_FANOUT,"", annotation.toSimpleMap());
     }
 }

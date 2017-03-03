@@ -20,6 +20,6 @@ public class AnnotationProvenance {
     private String generator;
     private String generatedDate;
     private String annotator;
-    private String annotationDate;
+    private String annotatedDate;
 
 }

@@ -1,21 +1,21 @@
-package uk.ac.ebi.spot.zooma.model.mongo;
-
-import lombok.Data;
-import lombok.NonNull;
-
-/**
- * Created by olgavrou on 05/08/2016.
- */
-@Data
-public class OntologyAnnotationSource implements AnnotationSource {
-
-    @NonNull
-    private String uri;
-    @NonNull
-    private String name;
-
-    private final Type type = Type.ONTOLOGY;
-    @NonNull
-    private String topic;
-
-}
+//package uk.ac.ebi.spot.zooma.model.mongo;
+//
+//import lombok.Data;
+//import lombok.NonNull;
+//
+///**
+// * Created by olgavrou on 05/08/2016.
+// */
+//@Data
+//public class OntologyAnnotationSource implements AnnotationSource {
+//
+//    @NonNull
+//    private String uri;
+//    @NonNull
+//    private String name;
+//
+//    private final Type type = Type.ONTOLOGY;
+//    @NonNull
+//    private String topic;
+//
+//}

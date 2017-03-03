@@ -28,8 +28,7 @@ public class MongoAnnotationProvenance implements AnnotationProvenance {
     @NonNull
     private String annotator;
     @NonNull
-    private LocalDateTime annotationDate;
-
+    private LocalDateTime annotatedDate;
 
     public void setGeneratedDate(LocalDateTime generatedDate) {
         if (generatedDate == null){

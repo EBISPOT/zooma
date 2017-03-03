@@ -3,6 +3,7 @@ package uk.ac.ebi.spot.zooma;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -20,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @SpringBootApplication
+@EnableRabbit
 @ComponentScan("uk.ac.ebi.spot.zooma")
 public class ZoomaNeo4jApplication {
 

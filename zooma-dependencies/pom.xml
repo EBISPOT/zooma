@@ -33,6 +33,7 @@
         <commons-net.version>2.0</commons-net.version>
         <commons.io.version>1.3.2</commons.io.version>
         <restdocs.version>1.1.2.RELEASE</restdocs.version>
+        <lombok.version>1.16.14</lombok.version>
     </properties>
 
     <build>
@@ -62,17 +63,7 @@
             </dependency>
             <dependency>
                 <groupId>uk.ac.ebi.spot</groupId>
-                <artifactId>zooma-solr-model</artifactId>
-                <version>${zooma.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>uk.ac.ebi.spot</groupId>
                 <artifactId>zooma-solr</artifactId>
-                <version>${zooma.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>uk.ac.ebi.spot</groupId>
-                <artifactId>zooma-solr-template</artifactId>
                 <version>${zooma.version}</version>
             </dependency>
             <dependency>
@@ -81,6 +72,11 @@
                 <version>${zooma.version}</version>
             </dependency>
             <!--  additional external dependencies -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
             <dependency>
                 <groupId>net.sourceforge.owlapi</groupId>
                 <artifactId>owlapi-distribution</artifactId>

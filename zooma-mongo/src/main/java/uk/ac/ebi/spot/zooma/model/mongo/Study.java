@@ -7,7 +7,8 @@ import lombok.NonNull;
 /**
  * Created by olgavrou on 05/08/2016.
  */
-@Data public class Study {
+@Data
+public class Study {
 
     @NonNull
     private String study;

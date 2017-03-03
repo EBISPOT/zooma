@@ -15,13 +15,11 @@
 	<modules>
         <module>zooma-dependencies</module>
         <module>zooma-parent</module>
+		<module>zooma-solr</module>
 		<module>zooma-mongo</module>
-		<module>zooma-solr-module/zooma-solr</module>
 		<!--<module>zooma-ui</module>-->
 		<module>zooma-neo4j</module>
 		<module>zooma-csv-loader</module>
-		<module>zooma-annotation-consumer-neo4j</module>
-		<module>zooma-annotation-consumer-solr</module>
 	</modules>
 
 </project>

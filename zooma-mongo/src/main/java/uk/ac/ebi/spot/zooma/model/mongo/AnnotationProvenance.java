@@ -63,7 +63,7 @@ public interface AnnotationProvenance extends Serializable {
      *
      * @return the annotation creation date, may return null for unknown dates.
      */
-    LocalDateTime getAnnotationDate();
+    LocalDateTime getAnnotatedDate();
 
     /**
      * The evidence for the existance of a particular annotation.  This described a little about how this annotation was
