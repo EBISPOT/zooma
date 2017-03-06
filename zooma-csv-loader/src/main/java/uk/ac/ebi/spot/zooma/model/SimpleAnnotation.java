@@ -18,6 +18,7 @@ import java.util.StringJoiner;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SimpleAnnotation {
+    private String id;
     private String bioentity;
     private String study;
     private String propertytype;
@@ -95,7 +96,8 @@ public class SimpleAnnotation {
                 "\"semanticTag\" : [" + semTags.toString() + "]," +
                 "\"property\" : {" +
                 "\"propertyType\" : \"" + getPropertytype() + "\"," +
-                "\"propertyValue\" : \"" + getPropertyvalue() + "\"" +
+                "\"propertyValue\" : \"" + getPropertyvalue() + "\"," +
+                "\"_id\" : \"" + getId() + "\"" +
                 "}" +
                 "}";
 

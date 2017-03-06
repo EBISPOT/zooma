@@ -1,11 +1,6 @@
 package uk.ac.ebi.spot.zooma.config;
 
 
-import ch.qos.logback.classic.pattern.MessageConverter;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import uk.ac.ebi.spot.zooma.model.solr.CustomSolrTemplate;
 
 

@@ -44,15 +44,27 @@ public class Annotation {
 
     @Field
     @NonNull
-    private String mongoid;
+    private Collection<String> mongoid;
 
     @Field
     @NonNull
-    private String source;
+    private String strongestMongoid;
+
+    @Field
+    @NonNull
+    private Collection<String> source;
 
     @Field
     @NonNull
     private float quality;
+
+    @Field
+    @NonNull
+    private int votes;
+
+    @Field
+    @NonNull
+    private int sourceNum;
 
 
     public boolean equals(Annotation annotation){

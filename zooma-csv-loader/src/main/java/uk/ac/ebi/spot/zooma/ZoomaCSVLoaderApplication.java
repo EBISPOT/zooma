@@ -1,5 +1,7 @@
 package uk.ac.ebi.spot.zooma;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -46,6 +48,12 @@ public class ZoomaCSVLoaderApplication {
     private String loadFrom;
 
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    protected Logger getLog() {
+        return log;
+    }
+
     @Bean
     public FlatFileItemReader<SimpleAnnotation> reader(){
         FlatFileItemReader<SimpleAnnotation> reader = new FlatFileItemReader<>();
@@ -79,7 +87,8 @@ public class ZoomaCSVLoaderApplication {
                 }});
             }});
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to read file: " + loadFrom + " " + e);
+            return null;
         }
         return reader;
     }
@@ -114,6 +123,6 @@ public class ZoomaCSVLoaderApplication {
     }
 
     public static void main(String[] args){
-        System.exit(SpringApplication.exit(SpringApplication.run(ZoomaCSVLoaderApplication.class, args)));
+        SpringApplication.exit(SpringApplication.run(ZoomaCSVLoaderApplication.class, args));
     }
 }

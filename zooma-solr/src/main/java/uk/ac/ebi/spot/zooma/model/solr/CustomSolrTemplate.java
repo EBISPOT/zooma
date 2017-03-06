@@ -1,6 +1,7 @@
 package uk.ac.ebi.spot.zooma.model.solr;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.solr.core.*;
 import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.server.SolrClientFactory;
@@ -12,6 +13,10 @@ import org.springframework.data.solr.server.SolrClientFactory;
  * Created by olgavrou on 28/02/2017.
  */
 public class CustomSolrTemplate extends SolrTemplate {
+
+    @Value("${solr.core}")
+    String solrCore;
+
     public CustomSolrTemplate(SolrClient solrClient) {
         super(solrClient);
     }
@@ -46,6 +51,6 @@ public class CustomSolrTemplate extends SolrTemplate {
 
     @Override
     public <T> T execute(String collection, CollectionCallback<T> action) {
-        return super.execute("annotations", action);
+        return super.execute(this.solrCore, action);
     }
 }

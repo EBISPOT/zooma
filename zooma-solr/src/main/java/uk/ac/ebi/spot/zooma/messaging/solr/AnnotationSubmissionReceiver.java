@@ -7,16 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.spot.zooma.model.solr.Annotation;
-import uk.ac.ebi.spot.zooma.repository.solr.AnnotationRepository;
+import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryService;
 
 import java.io.IOException;
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +27,7 @@ import java.util.Map;
 public class AnnotationSubmissionReceiver {
 
     @Autowired
-    AnnotationRepository annotationRepository;
+    AnnotationRepositoryService annotationRepositoryService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -48,15 +45,23 @@ public class AnnotationSubmissionReceiver {
         Map<String, Object> propertiesMap = objectMapper.readValue(message.getBody(), new TypeReference<HashMap<String,Object>>() {});
 
         //source name field in Solr Annotation class is source
-        propertiesMap.put("source", propertiesMap.get("sourceName"));
+        Collection<String> source = new ArrayList<>();
+        source.add((String) propertiesMap.get("sourceName"));
+        propertiesMap.put("source", source);
         //need to set the mongoid field
-        propertiesMap.put("mongoid", propertiesMap.get("id"));
+        Collection<String> mongoid = new ArrayList<>();
+        mongoid.add((String) propertiesMap.get("id"));
+        propertiesMap.put("mongoid", mongoid);
+
+        propertiesMap.put("strongestMongoid", propertiesMap.get("id"));
+        propertiesMap.put("votes", 1);
+        propertiesMap.put("sourceNum", 1);
 
         Annotation annotation = objectMapper.convertValue(propertiesMap, Annotation.class);
 
-        Annotation savedAnn = annotationRepository.save(annotation);
+        annotationRepositoryService.save(annotation);
 
-        getLog().info("Solr Queue: We have saved the annotation into Solr! " + propertiesMap.get("id"));
+//        getLog().info("Solr Queue: We have saved the annotation into Solr! " + propertiesMap.get("id"));
     }
 
 }

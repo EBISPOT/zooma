@@ -20,7 +20,7 @@ public class CustomItemWriter implements ItemWriter<SimpleAnnotation> {
     public void write(List<? extends SimpleAnnotation> items) throws Exception {
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
 
         System.out.print("Loading " + items.size() + " annotations");
         for (SimpleAnnotation simpleAnnotation : items) {
