@@ -1,31 +1,22 @@
 package uk.ac.ebi.spot.zooma;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import uk.ac.ebi.spot.zooma.model.neo4j.*;
-import uk.ac.ebi.spot.zooma.service.neo4j.AnnotationService;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 @SpringBootApplication
 @EnableRabbit
 @ComponentScan("uk.ac.ebi.spot.zooma")
+/**
+ * Zooma Neo4j Application is the Neo endpoint of Zooma.
+ * It has a RabbitMQ listener {@link uk.ac.ebi.spot.zooma.messaging.neo4j.AnnotationSumbissionReceiver}
+ * that listens to a queue and if there is a new Annotation added to Zooma it will merge it to the graph.
+ */
 public class ZoomaNeo4jApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ZoomaNeo4jApplication.class, args);
+		ApplicationContext ctx = SpringApplication.run(ZoomaNeo4jApplication.class, args);
 	}
 }

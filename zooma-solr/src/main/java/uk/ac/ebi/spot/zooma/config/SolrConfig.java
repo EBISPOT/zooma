@@ -13,7 +13,7 @@ import uk.ac.ebi.spot.zooma.model.solr.CustomSolrTemplate;
 
 @Configuration
 @EnableSolrRepositories(basePackages = "uk.ac.ebi.spot.zooma.repository.solr")
-public class SolrContext {
+public class SolrConfig {
 
     @Value("${solr.host}")
     String solrHost;

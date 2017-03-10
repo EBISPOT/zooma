@@ -19,6 +19,11 @@ import java.util.Map;
 
 
 /**
+ * RabbitMQ queue listener
+ * Reads general Annotation message and converts it into a Neo {@link Annotation}
+ * The Annotation is saved through the {@link Provenance} relationship that connects the Annotation with
+ * It's {@link Source}.
+ *
  * Created by olgavrou on 24/02/2017.
  */
 @Component
@@ -42,6 +47,8 @@ public class AnnotationSumbissionReceiver {
 
         //read the message byte stream and convert to a HashMap
         Map<String, Object> propertiesMap = objectMapper.readValue(message.getBody(), new TypeReference<HashMap<String,Object>>() {});
+
+        //collect the properties from the Map and create the graph elements
 
         Collection<SemanticTag> semanticTags = new ArrayList();
         ArrayList<String> smTags = (ArrayList<String>) propertiesMap.get("semanticTag");
@@ -69,25 +76,30 @@ public class AnnotationSumbissionReceiver {
         source.setType((String) propertiesMap.get("sourceType"));
         source.setUri((String) propertiesMap.get("sourceUri"));
 
-        AnnotationProvenance provenance = new AnnotationProvenance();
+
+        Annotation neoAnnotation = new Annotation();
+        neoAnnotation.setBiologicalEntity(biologicalEntity);
+        neoAnnotation.setProperty(property);
+        neoAnnotation.setSemanticTag(semanticTags);
+        neoAnnotation.setQuality((float) ((double)propertiesMap.get("quality")));
+        neoAnnotation.setMongoId((String) propertiesMap.get("id"));
+
+
+        Provenance provenance = new Provenance();
         provenance.setAccuracy((String) propertiesMap.get("accuracy"));
         provenance.setEvidence((String) propertiesMap.get("evidence"));
         provenance.setAnnotator((String) propertiesMap.get("annotator"));
         provenance.setAnnotatedDate((String) propertiesMap.get("annotatedDate"));
         provenance.setGeneratedDate((String) propertiesMap.get("generatedDate"));
         provenance.setGenerator((String) propertiesMap.get("generator"));
+
+        provenance.setAnnotation(neoAnnotation);
         provenance.setSource(source);
+        //will merge the whole graph through the relationship
+        //default depth -1
+        annotationService.save(provenance);
+//        annotationService.save(neoAnnotation);
 
-        Annotation neoAnnotation = new Annotation();
-        neoAnnotation.setBiologicalEntity(biologicalEntity);
-        neoAnnotation.setProperty(property);
-        neoAnnotation.setSemanticTag(semanticTags);
-        neoAnnotation.setProvenance(provenance);
-        neoAnnotation.setQuality((float) ((double)propertiesMap.get("quality")));
-        neoAnnotation.setMongoId((String) propertiesMap.get("id"));
-
-        annotationService.save(neoAnnotation);
-
-        getLog().info("Neo4j Queue: We have saved the annotation into Neo4j! " + propertiesMap.get("id"));
+        getLog().info("Neo4j Queue: We have saved the annotation into Neo4j! Mongoid: " + propertiesMap.get("id"));
     }
 }

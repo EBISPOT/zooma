@@ -1,6 +1,7 @@
 package uk.ac.ebi.spot.zooma.model.neo4j;
 
 import lombok.Data;
+import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -14,6 +15,7 @@ import java.util.Collection;
 @NodeEntity
 public class Annotation {
 
+    @GraphId
     Long id;
 
     String mongoId;
@@ -25,11 +27,11 @@ public class Annotation {
     private Property property;
 
     @Relationship(type = "HAS_SEMANTIC_TAG")
-    @Index(unique=true,primary = true)
+
     private Collection<SemanticTag> semanticTag;
 
     @Relationship(type = "HAS_PROVENANCE")
-    private AnnotationProvenance provenance;
+    private Provenance provenance;
 
     private Float quality;
 
