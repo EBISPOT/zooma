@@ -12,8 +12,8 @@ import org.neo4j.ogm.annotation.NodeEntity;
 
     Long id;
 
-    private String uri;
     @Index(unique=true,primary = true)
+    private String uri;
     private String name;
     private String type;
     private String topic;

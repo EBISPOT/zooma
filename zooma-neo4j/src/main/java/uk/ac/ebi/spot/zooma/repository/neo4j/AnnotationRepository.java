@@ -1,8 +1,11 @@
 package uk.ac.ebi.spot.zooma.repository.neo4j;
 
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.stereotype.Repository;
 import uk.ac.ebi.spot.zooma.model.neo4j.*;
+
+import java.util.List;
 
 
 /**
@@ -11,4 +14,12 @@ import uk.ac.ebi.spot.zooma.model.neo4j.*;
 @Repository
 public interface AnnotationRepository extends Neo4jRepository<Annotation, Long> {
     Annotation findByMongoId(String mongoid);
+
+
+    @Query("match (p:Property)<-[propR:HAS_PROPERTY]-(a:Annotation)-[semTagR:HAS_SEMANTIC_TAG]->(s:SemanticTag) " +
+            "where p.propertyValue =~ {1} " +
+            "and p.propertyType = {0} " +
+            "return distinct p.propertyValue, p.propertyType, a, s, propR, semTagR")
+    List<Annotation> findByAnnotationPropertyPropertyTypeAndAnnotationPropertyPropertyValue(String propertyType,
+                                                                                           String propertyValue);
 }
