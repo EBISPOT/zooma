@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
  */
 @Data
 @NoArgsConstructor
-@RequiredArgsConstructor
 public class MongoAnnotationProvenance implements AnnotationProvenance {
 
     @NonNull
@@ -29,6 +28,17 @@ public class MongoAnnotationProvenance implements AnnotationProvenance {
     private String annotator;
     @NonNull
     private LocalDateTime annotatedDate;
+
+    public MongoAnnotationProvenance(DatabaseAnnotationSource source, Evidence evidence,
+                                     Accuracy accuracy, String generator, String annotator, LocalDateTime annotatedDate){
+        this.source = source;
+        this.evidence = evidence;
+        this.accuracy = accuracy;
+        this.generator = generator;
+        this.annotator = annotator;
+        this.annotatedDate = annotatedDate;
+        setGeneratedDate(LocalDateTime.now());
+    }
 
     public void setGeneratedDate(LocalDateTime generatedDate) {
         if (generatedDate == null){

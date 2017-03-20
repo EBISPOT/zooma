@@ -17,6 +17,8 @@ import java.util.Collection;
 //@RepositoryRestResource(exported = false)
 public interface AnnotationRepository extends MongoRepository<Annotation, String> {
 
+    Annotation findByChecksum(String checksum);
+
     @RestResource(path = "findByPropertyValue", rel = "findByPropertyValue")
     Page<Annotation> findByPropertyPropertyValue(@Param("propertyValue") String propertyValue, Pageable pageable);
 
@@ -47,4 +49,6 @@ public interface AnnotationRepository extends MongoRepository<Annotation, String
     @Override
     @RestResource(exported = false)
     void deleteAll();
+
+
 }

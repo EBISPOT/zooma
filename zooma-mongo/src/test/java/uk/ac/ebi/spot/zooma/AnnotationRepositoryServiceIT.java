@@ -56,8 +56,7 @@ public class AnnotationRepositoryServiceIT {
         Annotation annotationDocument = new Annotation(biologicalEntity,
                 property,
                 semanticTags,
-                annotationProvenance,
-                false);
+                annotationProvenance, "checksum1");
 
         annotationRepository.save(annotationDocument);
 
@@ -65,7 +64,7 @@ public class AnnotationRepositoryServiceIT {
                 property,
                 semanticTags,
                 annotationProvenance,
-                false);
+                "checksum2");
         annotationRepository.save(annotation);
     }
 

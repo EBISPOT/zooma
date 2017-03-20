@@ -1,52 +1,89 @@
 package uk.ac.ebi.spot.zooma.model.mongo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.time.LocalDateTime;
+import java.util.*;
 
 /**
  * Created by olgavrou on 02/08/2016.
  */
 @Data
 @NoArgsConstructor
-@RequiredArgsConstructor
 @Document(collection = "annotations")
 public class Annotation {
     @Id
     @CreatedBy
     private String id;
+    private String mongoId;
     @NonNull
     private BiologicalEntity biologicalEntities;
     @NonNull
     private Property property;
     @NonNull
+    @Indexed
     private Collection<String> semanticTag;
     @NonNull
     private MongoAnnotationProvenance provenance;
+    private Double quality;
     @NonNull
-    private boolean batchLoad;
-    private Float quality;
+    @Indexed
+    @JsonIgnore
+    private String checksum;
+    private Collection<String> replacedBy;
+    private String replaces;
 
-    public float getQuality() {
+
+    public double getQuality() {
         if (this.quality == null){
             this.quality = calculateAnnotationQuality();
         }
         return quality;
     }
 
+    public Collection<String> getReplacedBy(){
+        if (replacedBy == null){
+            this.replacedBy = new ArrayList<>();
+        }
+        return this.replacedBy;
+    }
+
+
+    public Annotation(BiologicalEntity biologicalEntity, Property property, Collection<String> semanticTag,
+               MongoAnnotationProvenance annotationProvenance, String checksum){
+        this.biologicalEntities = biologicalEntity;
+        this.property = property;
+        this.semanticTag = semanticTag;
+        this.provenance = annotationProvenance;
+        setQuality();
+        this.provenance.setGeneratedDate(LocalDateTime.now());
+        this.checksum = checksum;
+    }
+
+    /**
+     * A field that indicates the annotationid of the document.
+     * Not saved but populated on get to be exposed in the api
+     * @return
+     */
+    public String getMongoId(){
+        return id;
+    }
+
     /**
      * Quality can not be set manually.
      * It can only calculated based on the annotation's {@link AnnotationProvenance}
      */
+    public void setQuality(Double quality){
+        this.quality = calculateAnnotationQuality();
+    }
+
     public void setQuality(){
         this.quality = calculateAnnotationQuality();
     }
@@ -57,6 +94,7 @@ public class Annotation {
      */
     public void setProvenance(MongoAnnotationProvenance provenance){
         this.provenance = provenance;
+        this.provenance.setGeneratedDate(LocalDateTime.now());
         this.quality = calculateAnnotationQuality();
     }
 
@@ -67,7 +105,7 @@ public class Annotation {
      * <li>Evidence (Manually created, Inferred, etc.)</li> <li>Creator - Who made this annotation?</li> <li>Time of
      * creation - How recent is this annotation?</li> </ul>
      */
-    private float calculateAnnotationQuality() throws IllegalArgumentException {
+    private double calculateAnnotationQuality() throws IllegalArgumentException {
 
         if (this.provenance == null){
             throw new IllegalArgumentException("Provenance isn't set yet, can not calculate annotation provenance");
