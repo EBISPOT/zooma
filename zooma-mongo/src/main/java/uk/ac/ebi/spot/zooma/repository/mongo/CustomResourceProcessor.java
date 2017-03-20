@@ -17,25 +17,22 @@ import java.util.Collection;
 public class CustomResourceProcessor implements ResourceProcessor<Resource<Annotation>>  {
 
     private RepositoryEntityLinks entityLinks;
-    private AnnotationRepository annotationRepository;
 
     @Autowired
-    public CustomResourceProcessor(RepositoryEntityLinks entityLinks, AnnotationRepository annotationRepository) {
+    public CustomResourceProcessor(RepositoryEntityLinks entityLinks) {
         this.entityLinks = entityLinks;
-        this.annotationRepository = annotationRepository;
     }
 
 
     @Override
     public Resource<Annotation> process(Resource<Annotation> resource) {
-        Annotation annotation = annotationRepository.findOne(resource.getContent().getId());
-        Collection<String> replacedBy = annotation.getReplacedBy();
+        Collection<String> replacedBy = resource.getContent().getReplacedBy();
         for(String r : replacedBy){
             resource.add(entityLinks.linkToSingleResource(AnnotationRepository.class,
                     r)
                     .withRel("replacedBy"));
         }
-        String replaces = annotation.getReplaces();
+        String replaces = resource.getContent().getReplaces();
         if(replaces != null && !replaces.isEmpty()){
             resource.add(entityLinks.linkToSingleResource(AnnotationRepository.class, replaces).withRel("replaces"));
         }
