@@ -7,7 +7,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
 import uk.ac.ebi.spot.zooma.model.mongo.Annotation;
+import uk.ac.ebi.spot.zooma.model.mongo.AnnotationProvenance;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 /**
@@ -17,22 +19,18 @@ import java.util.Collection;
 //@RepositoryRestResource(exported = false)
 public interface AnnotationRepository extends MongoRepository<Annotation, String> {
 
-    Annotation findByChecksum(String checksum);
+    Annotation findByChecksum(@Param("checksum") String checksum);
 
-    @RestResource(path = "findByPropertyValue", rel = "findByPropertyValue")
-    Page<Annotation> findByPropertyPropertyValue(@Param("propertyValue") String propertyValue, Pageable pageable);
-
-    @RestResource(path = "findByPropertyType", rel = "findByPropertyType")
-    Page<Annotation> findByPropertyPropertyType(@Param("propertyType") String propertyType, Pageable pageable);
-
-    @RestResource(path = "findByPropertyTypeAndValue", rel = "findByPropertyTypeAndValue")
-    Page<Annotation> findByPropertyPropertyTypeAndPropertyPropertyValue(@Param("propertyType") String propertyType, @Param("propertyValue") String propertyValue, Pageable pageable);
-
-    @RestResource(path = "findBySemanticTag", rel = "findBySemanticTag")
-    Page<Annotation> findBySemanticTagIn(@Param("semanticTag") Collection<String> semanticTag, Pageable pageable);
-
-    @RestResource(path = "findBySourceName", rel = "findBySourceName")
-    Page<Annotation> findByProvenanceSourceName(@Param("name") String name, Pageable pageable);
+    @RestResource(path = "findByAnnotation", rel = "findByAnnotation")
+    Annotation findByBiologicalEntitiesBioEntityAndBiologicalEntitiesStudiesStudyAndPropertyPropertyTypeAndPropertyPropertyValueAndSemanticTagAndProvenanceAnnotatorAndProvenanceAnnotatedDateAndProvenanceEvidenceAndProvenanceSourceUri(
+            @Param("bioEntity") String bioEntity, @Param("study") String study,
+            @Param("propertyType") String propertyType, @Param("propertyValue") String propertyValue,
+            @Param("semanticTag") Collection<String> semanticTag,
+            @Param("annotator") String annotator,
+            @Param("annotatedDate") LocalDateTime annotatedDate,
+            @Param("evidence") AnnotationProvenance.Evidence evidence,
+            @Param("sourceUri") String sourceUri
+    );
 
     @Override
     @RestResource(exported = false)

@@ -6,16 +6,11 @@ import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.*;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.spot.zooma.exception.AnnotationAlreadyExiststException;
 import uk.ac.ebi.spot.zooma.messaging.Constants;
 import uk.ac.ebi.spot.zooma.model.mongo.Annotation;
-import uk.ac.ebi.spot.zooma.model.mongo.MongoAnnotationProvenance;
-import uk.ac.ebi.spot.zooma.utils.MongoUtils;
+import uk.ac.ebi.spot.zooma.utils.AnnotationChecksum;
 
-import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Javadocs go here!
@@ -35,13 +30,15 @@ public class AnnotationRepositoryEventHandler {
 
     private AnnotationRepository annotationRepository;
 
-    private final MessageDigest messageDigest = MongoUtils.generateMessageDigest();
-
+    private AnnotationChecksum annotationChecksum;
 
     @Autowired
-    public AnnotationRepositoryEventHandler(AmqpTemplate messagingTemplate, AnnotationRepository annotationRepository) {
+    public AnnotationRepositoryEventHandler(AmqpTemplate messagingTemplate,
+                                            AnnotationRepository annotationRepository,
+                                            AnnotationChecksum annotationChecksum) {
         this.messagingTemplate = messagingTemplate;
         this.annotationRepository = annotationRepository;
+        this.annotationChecksum = annotationChecksum;
     }
 
     @HandleAfterCreate
@@ -53,8 +50,8 @@ public class AnnotationRepositoryEventHandler {
 
     @HandleBeforeCreate
     public void handleAnnotationBeforeCreate(Annotation annotation){
-        this.checkDuplicate(annotation);
-        annotation.setChecksum(getAnnotationHash(annotation));
+        String hash = annotationChecksum.getChecksum(annotation, annotationRepository);
+        annotation.setChecksum(hash);
         //if the user has set an id for the annotation
         //annotations should only be created by mongo
         annotation.setId(null);
@@ -71,14 +68,14 @@ public class AnnotationRepositoryEventHandler {
     public void handleAnnotationBeforeSave(Annotation annotation){
         String oldAnnotationId = annotation.getId();
         Annotation oldAnnotation = annotationRepository.findOne(oldAnnotationId);
-        this.checkDuplicate(annotation);
+        String checksum = annotationChecksum.getChecksum(annotation, annotationRepository);
 
         //create the new annotation with the body of the sent annotation
         Annotation newAnnToSave = new Annotation(annotation.getBiologicalEntities(),
                 annotation.getProperty(), annotation.getSemanticTag(),
                 annotation.getProvenance(),
                 "");
-        newAnnToSave.setChecksum(getAnnotationHash(annotation));
+        newAnnToSave.setChecksum(checksum);
         newAnnToSave.setReplaces(oldAnnotationId);
         Annotation newAnn = annotationRepository.insert(newAnnToSave);
 
@@ -97,64 +94,5 @@ public class AnnotationRepositoryEventHandler {
         annotation.setQuality();
 
         getLog().info("Annotation: " + newAnn.getId() + " has replaced: " + annotation.getId());
-
-
     }
-
-    /**
-     * Calculates the hash of the annotation and
-     * throws an error if it already exists
-     * @param annotation
-     */
-    private void checkDuplicate(Annotation annotation){
-        String annHash = this.getAnnotationHash(annotation);
-        Annotation existingAnn = annotationRepository.findByChecksum(annHash);
-        if (existingAnn != null) {
-            //update the annotation with nothing?
-            throw new AnnotationAlreadyExiststException(existingAnn.getId());
-        }
-    }
-
-    private String getAnnotationHash(Annotation annotation){
-        List<String> idContents = new ArrayList<>();
-
-        idContents.add(annotation.getBiologicalEntities().getBioEntity());
-        idContents.add(annotation.getBiologicalEntities().getStudies().getStudy());
-        idContents.add(annotation.getProperty().getPropertyType());
-        idContents.add(annotation.getProperty().getPropertyValue());
-        for (String st : annotation.getSemanticTag()){
-            idContents.add(st);
-        }
-
-        MongoAnnotationProvenance provenance = annotation.getProvenance();
-        idContents.add(provenance.getAnnotator() != null ? provenance.getAnnotator() : "");
-
-        idContents.add(provenance.getAnnotatedDate() != null ? provenance.getAnnotatedDate().toString() : "");
-        idContents.add(provenance.getEvidence() != null ? provenance.getEvidence().toString() : "");
-        idContents.add(provenance.getSource().getUri() != null ? provenance.getSource().getUri() : "");
-
-        return generateIDFromContent(idContents.toArray(new String[idContents.size()]));
-
-    }
-
-    private String generateIDFromContent(String... contents) {
-        boolean hasNulls = false;
-        for (String s : contents) {
-            if (s == null) {
-                hasNulls = true;
-                break;
-            }
-        }
-        if (hasNulls) {
-            StringBuilder sb = new StringBuilder();
-            for (String s : contents) {
-                sb.append(s).append(";");
-            }
-            getLog().error("Attempting to generate new ID from content containing nulls: " + sb.toString());
-        }
-        synchronized (messageDigest) {
-            return MongoUtils.generateHashEncodedID(messageDigest, contents);
-        }
-    }
-
 }
