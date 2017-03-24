@@ -8,9 +8,11 @@ import org.springframework.web.client.RestTemplate;
  * Created by olgavrou on 08/02/2017.
  */
 @Configuration
-public class LoaderConfig {
+public class LoaderConfig{
     @Bean
     RestTemplate getRestTemplate(){
-        return new RestTemplate();
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+        return restTemplate;
     }
 }

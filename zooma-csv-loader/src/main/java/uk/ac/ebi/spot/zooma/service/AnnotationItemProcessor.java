@@ -40,7 +40,9 @@ public class AnnotationItemProcessor implements ItemProcessor<SimpleAnnotation, 
             }
             annotationdate = fixedDate.toString();
         }
-
+        if(simpleAnnotation.getAnnotationid() == null){
+            simpleAnnotation.setAnnotationid("");
+        }
         final SimpleAnnotation completeAnnotation = SimpleAnnotation.builder()
                 .bioentity(simpleAnnotation.getBioentity())
                 .study(simpleAnnotation.getStudy())
@@ -55,6 +57,7 @@ public class AnnotationItemProcessor implements ItemProcessor<SimpleAnnotation, 
                 .name(name)
                 .topic(topic)
                 .uri(uri)
+                .annotationid(simpleAnnotation.getAnnotationid())
                 .build();
         log.trace("Completeing provenance for ");
         return completeAnnotation;

@@ -18,7 +18,7 @@ import java.util.StringJoiner;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SimpleAnnotation {
-    private String id;
+    private String annotationid;
     private String bioentity;
     private String study;
     private String propertytype;
@@ -33,30 +33,8 @@ public class SimpleAnnotation {
     private String generator;
     private String annotator;
     private String annotationdate;
-    private boolean batchload;
+    private Action action;
 
-    public SimpleAnnotation buildAnnotationFromMap(Map<String, String> map){
-        SimpleAnnotation simpleAnnotation = SimpleAnnotation.builder().bioentity(map.get("bioentity"))
-                .study(map.get("study"))
-                .propertytype(map.get("propertytype"))
-                .propertyvalue(map.get("propertyvalue"))
-                .semantictag(map.get("semantictag"))
-                .uri(map.get("uri"))
-                .name(map.get("name"))
-                .topic(map.get("topic"))
-                .evidence(map.get("evidence"))
-                .accuracy(map.get("accuracy"))
-                .generator(map.get("generator"))
-                .annotator(map.get("annotator"))
-                .annotationdate(map.get("annotationdate"))
-                .build();
-        if (map.get("batchload") == "true"){
-            simpleAnnotation.setBatchload(true);
-        } else {
-            simpleAnnotation.setBatchload(false);
-        }
-        return simpleAnnotation;
-    }
 
     @Override
     public String toString() {
@@ -75,29 +53,28 @@ public class SimpleAnnotation {
         LocalDateTime dateTime = LocalDateTime.parse(getAnnotationdate(), dashedDateFormatter);
         String string = "{" +
                 "\"provenance\" : {" +
-                "\"evidence\" : \"" + getEvidence() + "\"," +
-                "\"annotatedDate\" : \"" + dateTime.toString() + "\"," +
-                "\"accuracy\" : \"" + getAccuracy() + "\"," +
-                "\"generator\" : \"ZOOMA" + "\"," +
-                "\"source\" : { " +
-                "\"name\" : \"" + getName() + "\"," +
-                "\"topic\" : \"" + getTopic() + "\"," +
-                "\"type\" : \"" + getType() + "\"," +
-                "\"uri\" : \"" + getUri() + "\"" +
-                "}," +
-                "\"annotator\" : \"" + getAnnotator() + "\"" +
+                    "\"evidence\" : \"" + getEvidence() + "\"," +
+                    "\"annotatedDate\" : \"" + dateTime.toString() + "\"," +
+                    "\"accuracy\" : \"" + getAccuracy() + "\"," +
+                    "\"generator\" : \"ZOOMA" + "\"," +
+                    "\"source\" : { " +
+                        "\"name\" : \"" + getName() + "\"," +
+                        "\"topic\" : \"" + getTopic() + "\"," +
+                        "\"type\" : \"" + getType() + "\"," +
+                        "\"uri\" : \"" + getUri() + "\"" +
+                    "}," +
+                    "\"annotator\" : \"" + getAnnotator() + "\"" +
                 "}," +
                 "\"biologicalEntities\" : {" +
-                "\"studies\" : {" +
-                "\"study\" : \"" + getStudy() + "\"" +
-                "}," +
-                "\"bioEntity\" : \"" + getBioentity() + "\"" +
+                    "\"studies\" : {" +
+                        "\"study\" : \"" + getStudy() + "\"" +
+                    "}," +
+                    "\"bioEntity\" : \"" + getBioentity() + "\"" +
                 "}," +
                 "\"semanticTag\" : [" + semTags.toString() + "]," +
                 "\"property\" : {" +
-                "\"propertyType\" : \"" + getPropertytype() + "\"," +
-                "\"propertyValue\" : \"" + getPropertyvalue() + "\"," +
-                "\"_id\" : \"" + getId() + "\"" +
+                    "\"propertyType\" : \"" + getPropertytype() + "\"," +
+                    "\"propertyValue\" : \"" + getPropertyvalue() + "\"" +
                 "}" +
                 "}";
 
@@ -117,4 +94,21 @@ public class SimpleAnnotation {
 //        }
 //
     }
+
+   public enum Action {
+
+       CREATED,
+       REPLACED,
+       ALREADY_EXISTS,
+       UNKNOWN;
+
+       public static Action lookup(String id) {
+           for (Action e : Action.values()) {
+               if (e.name().equals(id)) {
+                   return e;
+               }
+           }
+           return Action.UNKNOWN;
+       }
+   }
 }
