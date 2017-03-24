@@ -1,7 +1,10 @@
 package uk.ac.ebi.spot.zooma.repository.mongo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.LinkBuilder;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.stereotype.Component;
@@ -16,6 +19,9 @@ import java.util.Collection;
 public class CustomResourceProcessor implements ResourceProcessor<Resource<Annotation>>  {
 
     private RepositoryEntityLinks entityLinks;
+
+    @Value("${ols.term.location}")
+    private String olsTermLocation;
 
     @Autowired
     public CustomResourceProcessor(RepositoryEntityLinks entityLinks) {
@@ -35,6 +41,13 @@ public class CustomResourceProcessor implements ResourceProcessor<Resource<Annot
         if(replaces != null && !replaces.isEmpty()){
             resource.add(entityLinks.linkToSingleResource(AnnotationRepository.class, replaces).withRel("replaces"));
         }
+
+        Collection<String> semanticTags = resource.getContent().getSemanticTag();
+        for (String semTag : semanticTags){
+            Link link = new Link(olsTermLocation + semTag).withRel("olsLinks");
+            resource.add(link);
+        }
+
         return resource;
     }
 }
