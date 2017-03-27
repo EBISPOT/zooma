@@ -18,7 +18,7 @@ import java.util.*;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Annotation {
+public class AnnotationSummary {
 
     @Id
     @Field
@@ -67,20 +67,20 @@ public class Annotation {
     private int sourceNum;
 
 
-    public boolean equals(Annotation annotation){
-        if(!annotation.getPropertyValue().equals(this.getPropertyValue())){
+    public boolean equals(AnnotationSummary summary){
+        if(!summary.getPropertyValue().equals(this.getPropertyValue())){
             return false;
         }
 
-        if(!annotation.getPropertyType().equals(this.getPropertyType())){
+        if(!summary.getPropertyType().equals(this.getPropertyType())){
             return false;
         }
 
-        if(annotation.getSemanticTag().size() != this.getSemanticTag().size()){
+        if(summary.getSemanticTag().size() != this.getSemanticTag().size()){
             return false;
         }
 
-        if(!listEqualsNoOrder(this.getSemanticTag(), annotation.getSemanticTag())){ //if they are not equal
+        if(!listEqualsNoOrder(this.getSemanticTag(), summary.getSemanticTag())){ //if they are not equal
             return false;
         }
 

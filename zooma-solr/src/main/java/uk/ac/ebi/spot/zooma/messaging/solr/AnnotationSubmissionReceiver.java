@@ -8,8 +8,8 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.spot.zooma.model.solr.Annotation;
-import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryService;
+import uk.ac.ebi.spot.zooma.model.solr.AnnotationSummary;
+import uk.ac.ebi.spot.zooma.service.solr.AnnotationSummaryRepositoryService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import java.util.Map;
 public class AnnotationSubmissionReceiver {
 
     @Autowired
-    AnnotationRepositoryService annotationRepositoryService;
+    AnnotationSummaryRepositoryService summaryRepositoryService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -44,7 +44,7 @@ public class AnnotationSubmissionReceiver {
         //read the message byte stream and convert to a HashMap
         Map<String, Object> propertiesMap = objectMapper.readValue(message.getBody(), new TypeReference<HashMap<String,Object>>() {});
 
-        //source name field in Solr Annotation class is source
+        //source name field in Solr Annotation class, is source
         Collection<String> source = new ArrayList<>();
         source.add((String) propertiesMap.get("sourceName"));
         propertiesMap.put("source", source);
@@ -57,9 +57,9 @@ public class AnnotationSubmissionReceiver {
         propertiesMap.put("votes", 1);
         propertiesMap.put("sourceNum", 1);
 
-        Annotation annotation = objectMapper.convertValue(propertiesMap, Annotation.class);
+        AnnotationSummary summary = objectMapper.convertValue(propertiesMap, AnnotationSummary.class);
 
-        annotationRepositoryService.save(annotation);
+        summaryRepositoryService.save(summary);
 
 //        getLog().info("Solr Queue: We have saved the annotation into Solr! " + propertiesMap.get("id"));
     }

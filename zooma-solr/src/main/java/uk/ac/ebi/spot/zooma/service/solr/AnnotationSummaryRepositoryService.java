@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.spot.zooma.model.solr.Annotation;
-import uk.ac.ebi.spot.zooma.repository.solr.AnnotationRepository;
+import uk.ac.ebi.spot.zooma.model.solr.AnnotationSummary;
+import uk.ac.ebi.spot.zooma.repository.solr.AnnotationSummaryRepository;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -22,10 +22,10 @@ import java.util.StringJoiner;
  * Created by olgavrou on 06/03/2017.
  */
 @Service
-public class AnnotationRepositoryService {
+public class AnnotationSummaryRepositoryService {
 
     @Autowired
-    AnnotationRepository annotationRepository;
+    AnnotationSummaryRepository summaryRepository;
 
     @Autowired
     SolrTemplate solrTemplate;
@@ -39,65 +39,65 @@ public class AnnotationRepositoryService {
         return log;
     }
 
-    public void save(Annotation annotation) {
+    public void save(AnnotationSummary summary) {
         boolean updated;
         try {
-            updated = update(annotation);
+            updated = update(summary);
         } catch (IOException | SolrServerException e) {
-            getLog().debug("Update Solr Annotation could not be accessed!");
+            getLog().debug("Update Solr AnnotationSummary could not be accessed!");
             throw new IllegalStateException("Solr could not be accessed on update! " + e);
         }
         if(!updated){
-            Annotation saved = annotationRepository.save(annotation);
-            getLog().info("New Solr Annotation: " + saved.getId());
+            AnnotationSummary saved = summaryRepository.save(summary);
+            getLog().info("New Solr AnnotationSummary: " + saved.getId());
         }
     }
 
-    public boolean update(Annotation annotation) throws IOException, SolrServerException {
+    public boolean update(AnnotationSummary summary) throws IOException, SolrServerException {
         SolrQuery query = new SolrQuery();
         StringJoiner semTagQuery = new StringJoiner(" AND semanticTag: ");
-        for(String s : annotation.getSemanticTag()){
+        for(String s : summary.getSemanticTag()){
             semTagQuery.add("\"" + s + "\"");
         }
 
-        query.set("q", "propertyValueStr:\"" + annotation.getPropertyValue() + "\" AND " +
-                "semanticTag:" + semTagQuery.toString() + " AND propertyType: \"" + annotation.getPropertyType() + "\"");
+        query.set("q", "propertyValueStr:\"" + summary.getPropertyValue() + "\" AND " +
+                "semanticTag:" + semTagQuery.toString() + " AND propertyType: \"" + summary.getPropertyType() + "\"");
 
         QueryResponse response = solrTemplate.getSolrClient().query(this.solrCore, query);
-        List<Annotation> results = response.getBeans(Annotation.class);
+        List<AnnotationSummary> results = response.getBeans(AnnotationSummary.class);
         if(results.isEmpty()){
             return false;
         }
 
-        Annotation existingAnn = results.get(0); //should be exactly one
+        AnnotationSummary existingAnn = results.get(0); //should be exactly one
 
-        if (!existingAnn.equals(annotation)){
+        if (!existingAnn.equals(summary)){
             return false;
         }
 
         PartialUpdate partialUpdate = new PartialUpdate("id", existingAnn.getId());
 
         Collection<String> existingS = existingAnn.getSource();
-        String source = annotation.getSource().iterator().next(); //new annotation when added will have one source
+        String source = summary.getSource().iterator().next(); //new annotationSummary when added will have one source
 
         if (!existingS.contains(source)){
             partialUpdate.addValueToField("source", source);
             partialUpdate.increaseValueOfField("sourceNum", 1);
         }
 
-        partialUpdate.addValueToField("mongoid", annotation.getMongoid());
-        if(existingAnn.getQuality() < annotation.getQuality()){
-            //new annotation has higher quality
+        partialUpdate.addValueToField("mongoid", summary.getMongoid());
+        if(existingAnn.getQuality() < summary.getQuality()){
+            //new annotationSummary has higher quality
             //will be stored as summary's quality
-            partialUpdate.setValueOfField("quality", annotation.getQuality());
-            log.info("Updated document quality:" + existingAnn.getId());
+            partialUpdate.setValueOfField("quality", summary.getQuality());
+            getLog().info("Updated document quality:" + existingAnn.getId());
         }
 
         partialUpdate.increaseValueOfField("votes", 1);
         solrTemplate.saveBean(partialUpdate);
         solrTemplate.commit();
 
-        getLog().info("Solr Annotation Updated: " + existingAnn.getId());
+        getLog().info("Solr AnnotationSummary Updated: " + existingAnn.getId());
         return true;
     }
 
