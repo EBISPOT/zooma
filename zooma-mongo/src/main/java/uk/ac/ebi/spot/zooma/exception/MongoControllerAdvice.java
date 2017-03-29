@@ -1,8 +1,10 @@
 package uk.ac.ebi.spot.zooma.exception;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionException;
 import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.VndErrors;
@@ -30,19 +32,35 @@ public class MongoControllerAdvice {
 
     @ResponseBody
     @ExceptionHandler(AnnotationAlreadyExiststException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     VndErrors annotationAlreadyExiststExceptionHandler(AnnotationAlreadyExiststException e){
         if(e.getMessage() != null){
             Link link = entityLinks.linkToSingleResource(AnnotationRepository.class, e.getMessage());
-            getLog().error("Annotation already exists! id: " + e.getMessage());
+            getLog().debug("Annotation already exists! id: " + e.getMessage());
             return new VndErrors("error", "Annotation already exists!", link);
         }
         return new VndErrors("error", "Annotation already exists!");
     }
 
     @ResponseBody
-    @ExceptionHandler(AnnotationNotFoundException.class)
+    @ExceptionHandler(ConversionException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    VndErrors conversionFailedException(ConversionException e){
+        getLog().error("Conversion failed: " + e.getMessage());
+        return new VndErrors("error", e.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(JsonMappingException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    VndErrors jsonMappingException(JsonMappingException e){
+        getLog().error("Json Mapping failed: " + e.getMessage());
+        return new VndErrors("error", e.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(AnnotationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     VndErrors annotationNotFoundExceptionHandler(AnnotationNotFoundException e){
         return new VndErrors("error", e.getMessage());
     }

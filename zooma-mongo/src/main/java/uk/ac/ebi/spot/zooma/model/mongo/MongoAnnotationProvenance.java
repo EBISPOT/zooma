@@ -1,9 +1,10 @@
 package uk.ac.ebi.spot.zooma.model.mongo;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import uk.ac.ebi.spot.zooma.config.StringToLocalDateTimeDeserializer;
 
 import java.time.LocalDateTime;
 
@@ -27,6 +28,7 @@ public class MongoAnnotationProvenance implements AnnotationProvenance {
     @NonNull
     private String annotator;
     @NonNull
+    @JsonDeserialize(using = StringToLocalDateTimeDeserializer.class)
     private LocalDateTime annotatedDate;
 
     public MongoAnnotationProvenance(DatabaseAnnotationSource source, Evidence evidence,

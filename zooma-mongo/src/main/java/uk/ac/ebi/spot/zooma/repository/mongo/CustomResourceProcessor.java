@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.LinkBuilder;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.stereotype.Component;
@@ -44,7 +43,7 @@ public class CustomResourceProcessor implements ResourceProcessor<Resource<Annot
 
         Collection<String> semanticTags = resource.getContent().getSemanticTag();
         for (String semTag : semanticTags){
-            Link link = new Link(olsTermLocation + semTag).withRel("olsLinks");
+            Link link = new Link(olsTermLocation + semTag).withRel("ols");
             resource.add(link);
         }
 
