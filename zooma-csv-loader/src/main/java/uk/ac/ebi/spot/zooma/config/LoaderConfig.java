@@ -12,7 +12,7 @@ public class LoaderConfig{
     @Bean
     RestTemplate getRestTemplate(){
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+//        restTemplate.setErrorHandler(new CustomResponseErrorHandler());
         return restTemplate;
     }
 }

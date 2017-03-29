@@ -14,7 +14,6 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
 import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -23,7 +22,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.UrlResource;
 import uk.ac.ebi.spot.zooma.service.AnnotationHandler;
 import uk.ac.ebi.spot.zooma.service.AnnotationItemProcessor;
 import uk.ac.ebi.spot.zooma.model.SimpleAnnotation;
@@ -72,16 +71,17 @@ public class ZoomaCSVLoaderApplication {
         try {
             String[] headers = new String[0];
 
-//            FileReader fr = new FileReader(loadFrom);
-//            BufferedReader br = new BufferedReader(fr);
-//            String firstLine = br.readLine();
-//            br.close();
             URL url = new URL(loadFrom);
             URLConnection urlConnection = url.openConnection();
             InputStream in = urlConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
             String firstLine = bufferedReader.readLine();
+            in.close();
             bufferedReader.close();
+//            FileReader fr = new FileReader(loadFrom);
+//            BufferedReader br = new BufferedReader(fr);
+//            String firstLine = br.readLine();
+//            br.close();
             firstLine = firstLine.replace("_", "");
             headers = firstLine.split(delimeter);
 
@@ -113,17 +113,22 @@ public class ZoomaCSVLoaderApplication {
             URL url = new URL(loadFrom);
             URLConnection urlConnection = url.openConnection();
             InputStream in = urlConnection.getInputStream();
-            URLConnection urlConnection2 = url.openConnection();
-            InputStream in2 = urlConnection2.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
             String firstLine = bufferedReader.readLine();
             bufferedReader.close();
+//            FileReader fr = new FileReader(loadFrom);
+//            BufferedReader br = new BufferedReader(fr);
+//            String firstLine = br.readLine();
+//            br.close();
+//            File initialFile = new File(loadFrom);
+//            InputStream targetStream = new FileInputStream(initialFile);
+
             firstLine = firstLine.replace("_", "");
             String[] headers = firstLine.split(delimeter);
 
             String[] readHeaders = calculateHeaders(headers, false);
 
-            reader.setResource(new InputStreamResource(in2));
+            reader.setResource(new UrlResource(url));
             reader.setLineMapper(new DefaultLineMapper<SimpleAnnotation>() {{
                 setLineTokenizer(new DelimitedLineTokenizer(){{
                     setDelimiter(delimeter);

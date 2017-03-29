@@ -27,19 +27,7 @@ public class AnnotationItemProcessor implements ItemProcessor<SimpleAnnotation, 
         if(simpleAnnotation.getAnnotationdate().equals("ANNOTATION_DATE")){
             return null;
         }
-        String annotationdate = simpleAnnotation.getAnnotationdate();
-        if(annotationdate.contains("/")){
-            String[] splitD = annotationdate.split("/");
-            String time = splitD[2].split(" ")[1];
-            splitD[2] = splitD[2].split(" ")[0];
-            StringBuilder fixedDate = new StringBuilder();
-            if (splitD[splitD.length - 1].length() == 2) {
-                fixedDate.append(splitD[2] + "-").append(splitD[1] + "-").append("20").append(splitD[0] + " ").append(time).append(":00");;
-            } else {
-                fixedDate.append(splitD[2] + "-").append(splitD[1] + "-").append(splitD[0] + " ").append(time).append(":00");
-            }
-            annotationdate = fixedDate.toString();
-        }
+
         if(simpleAnnotation.getAnnotationid() == null){
             simpleAnnotation.setAnnotationid("");
         }
@@ -50,7 +38,7 @@ public class AnnotationItemProcessor implements ItemProcessor<SimpleAnnotation, 
                 .propertyvalue(simpleAnnotation.getPropertyvalue())
                 .semantictag(simpleAnnotation.getSemantictag())
                 .annotator(simpleAnnotation.getAnnotator())
-                .annotationdate(annotationdate)
+                .annotationdate(simpleAnnotation.getAnnotationdate())
                 .evidence("MANUAL_CURATED")
                 .accuracy("PRECISE")
                 .generator("ZOOMA")

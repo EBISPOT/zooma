@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.ac.ebi.spot.zooma.model.SimpleAnnotation;
@@ -29,7 +31,7 @@ public class AnnotationHandler {
         return log;
     }
 
-    private final String location = "http://localhost:8081/annotations/";
+    private final String location = "http://localhost:8080/annotations/";
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -42,85 +44,83 @@ public class AnnotationHandler {
 
 
     void postNewAnnotation(SimpleAnnotation simpleAnnotation) {
-        if(!annotationExists(simpleAnnotation)) {
-            HttpEntity entity = new HttpEntity(simpleAnnotation.toString(), httpHeaders);
-            ResponseEntity<String> responseEntity = restTemplate.postForEntity(location, entity, String.class);
+        HttpEntity entity = new HttpEntity(simpleAnnotation.toString(), httpHeaders);
+        ResponseEntity<String> responseEntity;
+        try{
+            responseEntity = restTemplate.postForEntity(location, entity, String.class);
             if (responseEntity.getStatusCode().equals(HttpStatus.CREATED)) {
                 simpleAnnotation.setAction(SimpleAnnotation.Action.CREATED);
-            } else {
-                simpleAnnotation.setAction(SimpleAnnotation.Action.UNKNOWN);
-                getLog().debug("Annotation {} could not be created: {}", simpleAnnotation, responseEntity.getStatusCode());
             }
-        } else {
-            simpleAnnotation.setAction(SimpleAnnotation.Action.ALREADY_EXISTS);
+        } catch (RestClientException e){
+            if (((HttpClientErrorException) e).getStatusCode().equals(HttpStatus.CONFLICT)) {
+                simpleAnnotation.setAction(SimpleAnnotation.Action.ALREADY_EXISTS);
+            }
+            getLog().debug(e.getMessage());
+        }
+        if(simpleAnnotation.getAction() == null){
+            simpleAnnotation.setAction(SimpleAnnotation.Action.UNKNOWN);
         }
     }
 
     void updateOldAnnotation(SimpleAnnotation simpleAnnotation) {
-        if(!annotationExists(simpleAnnotation)) {
-            HttpEntity entity = new HttpEntity(simpleAnnotation.toString(), httpHeaders);
-            String annotationid = simpleAnnotation.getAnnotationid();
-            if (annotationExists(annotationid)) {
+        if(annotationByIdExists(simpleAnnotation.getAnnotationid())) {
+            try {
+                HttpEntity entity = new HttpEntity(simpleAnnotation.toString(), httpHeaders);
+                String annotationid = simpleAnnotation.getAnnotationid();
                 restTemplate.put(location + annotationid, entity);
                 simpleAnnotation.setAction(SimpleAnnotation.Action.REPLACED);
-            } else {
-                simpleAnnotation.setAction(SimpleAnnotation.Action.UNKNOWN);
-                getLog().info("Annotation can't be updated. Id: {} doesn't exist!", annotationid);
+            } catch (RestClientException e){
+                if (((HttpClientErrorException) e).getStatusCode().equals(HttpStatus.CONFLICT)){
+                    simpleAnnotation.setAction(SimpleAnnotation.Action.ALREADY_EXISTS);
+                }
+                getLog().debug(e.getMessage());
             }
-        } else {
-            simpleAnnotation.setAction(SimpleAnnotation.Action.ALREADY_EXISTS);
+        }
+        if(simpleAnnotation.getAction() == null){
+            simpleAnnotation.setAction(SimpleAnnotation.Action.UNKNOWN);
         }
     }
 
-    boolean annotationExists(String id){
+    boolean annotationByIdExists(String id){
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(location + id, String.class);
-        if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND
-                || responseEntity.getBody() == null){
-            return false;
+        if (responseEntity.getStatusCode().equals(HttpStatus.OK)
+                && responseEntity.getBody() != null){
+            return true;
         }
-        return true;
+        return false;
     }
 
-    boolean annotationExists(SimpleAnnotation simpleAnnotation){
-        ResponseEntity<String> responseEntity = queryForAnnotation(simpleAnnotation);
-
-        if (responseEntity.getStatusCode() != HttpStatus.OK){
-            return false; //TODO: maybe throw error
-        }
-
-        if (responseEntity.getBody() == null){
-            return false;
-        }
-        return true;
-    }
 
     public Optional<String> getAnnotationId(SimpleAnnotation simpleAnnotation) {
         try {
             ResponseEntity<String> responseEntity = queryForAnnotation(simpleAnnotation);
-            if (responseEntity.getBody() != null) {
+            if (responseEntity.getStatusCode().equals(HttpStatus.OK)
+                    && responseEntity.getBody() != null) {
                 JSONObject object = this.objectMapper.convertValue(responseEntity.getBody(), JSONObject.class);
-                String id = null;
-
-                id = (String) object.get("mongoId");
-
+                String id = (String) object.get("mongoId");
                 if (id != null) {
                     return Optional.of(id);
                 }
+            } else {
+                getLog().debug("Response not OK! Status Code: " + responseEntity.getStatusCode() + " , Response Body: " + responseEntity.getBody());
             }
         } catch (JSONException e) {
             getLog().debug("mongoId field doesn't exist: " + simpleAnnotation);
-            return Optional.empty();
         }
         return Optional.empty();
     }
 
     ResponseEntity<String> queryForAnnotation(SimpleAnnotation simpleAnnotation){
+
+        String semTag = simpleAnnotation.getSemantictag();
+        semTag = semTag.replace("|",",");
+
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(location + "search/findByAnnotation")
                 .queryParam("bioEntity", simpleAnnotation.getBioentity())
                 .queryParam("study", simpleAnnotation.getStudy())
                 .queryParam("propertyType", simpleAnnotation.getPropertytype())
                 .queryParam("propertyValue", simpleAnnotation.getPropertyvalue())
-                .queryParam("semanticTag", simpleAnnotation.getSemantictag())
+                .queryParam("semanticTag", semTag)
                 .queryParam("annotator", simpleAnnotation.getAnnotator())
                 .queryParam("annotatedDate", simpleAnnotation.getAnnotationdate())
                 .queryParam("evidence", simpleAnnotation.getEvidence())

@@ -5,10 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by olgavrou on 02/08/2016.
@@ -38,23 +36,12 @@ public class SimpleAnnotation {
 
     @Override
     public String toString() {
+        Collection<String> semanticTags = this.getSemanticTagAsStringCollection(semantictag);
 
-        StringJoiner semTags = new StringJoiner(",");
-        if(semantictag.contains("|")){
-            String[] sts = semantictag.split("\\|");
-            for(String s : sts){
-                semTags.add("\"" + s + "\"");
-            }
-        } else {
-            semTags.add("\"" + semantictag + "\"");
-        }
-
-        DateTimeFormatter dashedDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime dateTime = LocalDateTime.parse(getAnnotationdate(), dashedDateFormatter);
         String string = "{" +
                 "\"provenance\" : {" +
                     "\"evidence\" : \"" + getEvidence() + "\"," +
-                    "\"annotatedDate\" : \"" + dateTime.toString() + "\"," +
+                    "\"annotatedDate\" : \"" + getAnnotationdate().toString() + "\"," +
                     "\"accuracy\" : \"" + getAccuracy() + "\"," +
                     "\"generator\" : \"ZOOMA" + "\"," +
                     "\"source\" : { " +
@@ -71,7 +58,7 @@ public class SimpleAnnotation {
                     "}," +
                     "\"bioEntity\" : \"" + getBioentity() + "\"" +
                 "}," +
-                "\"semanticTag\" : [" + semTags.toString() + "]," +
+                "\"semanticTag\" : " + semanticTags.toString() + "," +
                 "\"property\" : {" +
                     "\"propertyType\" : \"" + getPropertytype() + "\"," +
                     "\"propertyValue\" : \"" + getPropertyvalue() + "\"" +
@@ -80,19 +67,19 @@ public class SimpleAnnotation {
 
         return string;
 
-//        if(annotationdate.contains("/")){
-//            String[] splitD = annotationdate.split("/");
-//            String time = splitD[2].split(" ")[1];
-//            splitD[2] = splitD[2].split(" ")[0];
-//            StringBuilder fixedDate = new StringBuilder();
-//            if (splitD[splitD.length - 1].length() == 2) {
-//                fixedDate.append(splitD[2] + "-").append(splitD[1] + "-").append("20").append(splitD[0] + " ").append(time).append(":00");;
-//            } else {
-//                fixedDate.append(splitD[2] + "-").append(splitD[1] + "-").append(splitD[0] + " ").append(time).append(":00");
-//            }
-//            this.annotationdate = fixedDate.toString();
-//        }
-//
+    }
+
+    private Collection<String> getSemanticTagAsStringCollection(String semantictag){
+        Collection<String> semTags = new ArrayList<>();
+        if(semantictag.contains("|")){
+            String[] sts = semantictag.split("\\|");
+            for(String s : sts){
+                semTags.add("\"" + s + "\"");
+            }
+        } else {
+            semTags.add("\"" + semantictag + "\"");
+        }
+        return semTags;
     }
 
    public enum Action {
