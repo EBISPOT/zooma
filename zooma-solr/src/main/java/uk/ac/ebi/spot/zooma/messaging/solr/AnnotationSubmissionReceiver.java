@@ -41,6 +41,24 @@ public class AnnotationSubmissionReceiver {
     @RabbitListener(queues = "annotation.save.solr.queue")
     public void handleAnnotationSubmission(Message message) throws IOException {
 
+        AnnotationSummary summary = convertToAnnotationSummary(message);
+
+        summaryRepositoryService.save(summary);
+
+//        getLog().info("Solr Queue: We have saved the annotation into Solr! " + propertiesMap.get("id"));
+    }
+
+    @RabbitListener(queues = "annotation.replace.solr.queue")
+    public void handleAnnotationReplacement(Message message) throws IOException {
+
+        AnnotationSummary summary = convertToAnnotationSummary(message);
+        Map<String, Object> propertiesMap = objectMapper.readValue(message.getBody(), new TypeReference<HashMap<String,Object>>() {});
+        String replaces = (String) propertiesMap.get("replaces");
+
+        summaryRepositoryService.replace(summary, replaces);
+    }
+
+    private AnnotationSummary convertToAnnotationSummary(Message message) throws IOException {
         //read the message byte stream and convert to a HashMap
         Map<String, Object> propertiesMap = objectMapper.readValue(message.getBody(), new TypeReference<HashMap<String,Object>>() {});
 
@@ -48,6 +66,7 @@ public class AnnotationSubmissionReceiver {
         Collection<String> source = new ArrayList<>();
         source.add((String) propertiesMap.get("sourceName"));
         propertiesMap.put("source", source);
+
         //need to set the mongoid field
         Collection<String> mongoid = new ArrayList<>();
         mongoid.add((String) propertiesMap.get("id"));
@@ -56,12 +75,11 @@ public class AnnotationSubmissionReceiver {
         propertiesMap.put("strongestMongoid", propertiesMap.get("id"));
         propertiesMap.put("votes", 1);
         propertiesMap.put("sourceNum", 1);
+        propertiesMap.put("id", null);
 
-        AnnotationSummary summary = objectMapper.convertValue(propertiesMap, AnnotationSummary.class);
+        propertiesMap.put("lastModified", propertiesMap.get("generatedDate"));
 
-        summaryRepositoryService.save(summary);
-
-//        getLog().info("Solr Queue: We have saved the annotation into Solr! " + propertiesMap.get("id"));
+        return objectMapper.convertValue(propertiesMap, AnnotationSummary.class);
     }
 
 }

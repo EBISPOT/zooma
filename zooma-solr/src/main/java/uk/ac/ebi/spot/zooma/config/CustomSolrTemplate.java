@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.zooma.model.solr;
+package uk.ac.ebi.spot.zooma.config;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.springframework.beans.factory.annotation.Value;

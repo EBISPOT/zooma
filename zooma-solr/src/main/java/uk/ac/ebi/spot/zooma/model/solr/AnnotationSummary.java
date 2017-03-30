@@ -7,7 +7,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.data.solr.repository.Score;
+import org.springframework.format.annotation.DateTimeFormat;
+import uk.ac.ebi.spot.zooma.utils.SolrUtils;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -18,7 +21,7 @@ import java.util.*;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AnnotationSummary {
+public class AnnotationSummary implements Qualitative{
 
     @Id
     @Field
@@ -66,6 +69,11 @@ public class AnnotationSummary {
     @NonNull
     private int sourceNum;
 
+    @Field
+    @NonNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date lastModified;
+
 
     public boolean equals(AnnotationSummary summary){
         if(!summary.getPropertyValue().equals(this.getPropertyValue())){
@@ -80,17 +88,10 @@ public class AnnotationSummary {
             return false;
         }
 
-        if(!listEqualsNoOrder(this.getSemanticTag(), summary.getSemanticTag())){ //if they are not equal
+        if(!SolrUtils.listEqualsNoOrder(this.getSemanticTag(), summary.getSemanticTag())){ //if they are not equal
             return false;
         }
 
         return true;
-    }
-
-    public static <T> boolean listEqualsNoOrder(Collection<T> l1, Collection<T> l2) {
-        final Set<T> s1 = new HashSet<>(l1);
-        final Set<T> s2 = new HashSet<>(l2);
-
-        return s1.equals(s2);
     }
 }

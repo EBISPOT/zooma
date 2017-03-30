@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
-import uk.ac.ebi.spot.zooma.model.solr.CustomSolrTemplate;
 
 
 @Configuration

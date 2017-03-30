@@ -422,9 +422,11 @@
     <field name="votes" type="int" multiValued="false" stored="true"/>
     <field name="sourceNum" type="int" multiValued="false" stored="true"/>
     <field name="propertyValueStr" indexed="true" stored="false" type="strings" multiValued="false" omitNorms="false"/>
-    <!--<field name="exactAnnotatedProperty" type="exact_match" indexed="true" stored="false"/>-->
-    <!--<copyField source="propertyValue" dest="exactAnnotatedProperty" />-->
+    <field name="lastModified" type="tdate" indexed="true" stored="true" multiValued="false" omitNorms="true"/>
+    <!--<field name="propertyValueExact" indexed="true" stored="true" type="exact_match" multiValued="false" omitNorms="false"/>-->
+
     <copyField source="propertyValue" dest="propertyValueStr"/>
+    <!--<copyField source="propertyValue" dest="propertyValueExact"/>-->
     <dynamicField name="*_txt_en_split_tight" type="text_en_splitting_tight" indexed="true" stored="true"/>
     <dynamicField name="*_descendent_path" type="descendent_path" indexed="true" stored="true"/>
     <dynamicField name="*_ancestor_path" type="ancestor_path" indexed="true" stored="true"/>
