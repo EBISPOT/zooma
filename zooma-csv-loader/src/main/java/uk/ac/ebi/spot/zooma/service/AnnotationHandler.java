@@ -82,10 +82,14 @@ public class AnnotationHandler {
     }
 
     boolean annotationByIdExists(String id){
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(location + id, String.class);
-        if (responseEntity.getStatusCode().equals(HttpStatus.OK)
-                && responseEntity.getBody() != null){
-            return true;
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(location + id, String.class);
+            if (responseEntity.getStatusCode().equals(HttpStatus.OK)
+                    && responseEntity.getBody() != null) {
+                return true;
+            }
+        } catch (RestClientException e){
+
         }
         return false;
     }

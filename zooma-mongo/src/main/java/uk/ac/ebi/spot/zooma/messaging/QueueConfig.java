@@ -33,7 +33,10 @@ public class QueueConfig {
 
     @Bean Queue queueNeo() { return new Queue(Constants.Queues.ANNOTATION_SAVE_NEO, false); }
     @Bean Queue queueSolr() { return new Queue(Constants.Queues.ANNOTATION_SAVE_SOLR, false); }
+    @Bean Queue queueSolrReplace() { return new Queue(Constants.Queues.ANNOTATION_REPLACE_SOLR, false); }
     @Bean FanoutExchange exchange() { return new FanoutExchange(Constants.Exchanges.ANNOTATION_FANOUT); }
+    @Bean FanoutExchange exchangeReplace() { return new FanoutExchange(Constants.Exchanges.ANNOTATION_FANOUT_REPLACEMENT); }
     @Bean Binding bindingNeo(Queue queueNeo, FanoutExchange exchange) { return BindingBuilder.bind(queueNeo).to(exchange); }
     @Bean Binding bindingSolr(Queue queueSolr, FanoutExchange exchange) { return BindingBuilder.bind(queueSolr).to(exchange); }
+    @Bean Binding bindingSolrUpdate(Queue queueSolrReplace, FanoutExchange exchangeReplace) { return BindingBuilder.bind(queueSolrReplace).to(exchangeReplace); }
 }

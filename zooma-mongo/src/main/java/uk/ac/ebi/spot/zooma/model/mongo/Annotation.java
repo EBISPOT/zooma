@@ -184,6 +184,8 @@ public class Annotation {
         map.put("generatedDate", getProvenance().getGeneratedDate());
         map.put("generator", getProvenance().getGenerator());
         map.put("annotator", getProvenance().getAnnotator());
+        map.put("replaces", getReplaces());
+        map.put("replacedBy", getReplacedBy());
 
         return map;
     }

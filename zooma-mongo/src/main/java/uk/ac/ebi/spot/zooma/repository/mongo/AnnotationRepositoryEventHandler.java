@@ -79,6 +79,8 @@ public class AnnotationRepositoryEventHandler {
         newAnnToSave.setReplaces(oldAnnotationId);
         Annotation newAnn = annotationRepository.insert(newAnnToSave);
 
+        messagingTemplate.convertAndSend(Constants.Exchanges.ANNOTATION_FANOUT_REPLACEMENT,"", newAnn.toSimpleMap());
+
         //replace the annotation to be "updated" with the old annotation (i.e it's elements are not updated)
         Collection<String> replacedBy = oldAnnotation.getReplacedBy();
         replacedBy.add(newAnn.getId());
