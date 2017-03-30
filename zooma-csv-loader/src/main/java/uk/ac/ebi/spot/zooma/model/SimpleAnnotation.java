@@ -41,7 +41,7 @@ public class SimpleAnnotation {
         String string = "{" +
                 "\"provenance\" : {" +
                     "\"evidence\" : \"" + getEvidence() + "\"," +
-                    "\"annotatedDate\" : \"" + getAnnotationdate().toString() + "\"," +
+                    "\"annotatedDate\" : \"" + getAnnotationdate() + "\"," +
                     "\"accuracy\" : \"" + getAccuracy() + "\"," +
                     "\"generator\" : \"ZOOMA" + "\"," +
                     "\"source\" : { " +

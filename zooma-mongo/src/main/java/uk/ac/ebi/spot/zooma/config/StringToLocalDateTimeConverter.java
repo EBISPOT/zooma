@@ -16,6 +16,11 @@ public class StringToLocalDateTimeConverter implements Converter<String, LocalDa
 
     @Override
     public LocalDateTime convert(String source) {
+        if(source == null
+                || source.isEmpty()
+                || source.equals("null")){
+            return  LocalDateTime.now();
+        }
         DateTimeFormatter dashedDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         if (correctFormatter(dashedDateFormatter, source)){
@@ -34,6 +39,14 @@ public class StringToLocalDateTimeConverter implements Converter<String, LocalDa
             return normalizedDateTime(dashedDateFormatter, LocalDateTime.parse(source, formatter));
         }
         formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm:ss");
+        if (correctFormatter(formatter, source)) {
+            return normalizedDateTime(dashedDateFormatter, LocalDateTime.parse(source, formatter));
+        }
+        formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        if (correctFormatter(formatter, source)) {
+            return normalizedDateTime(dashedDateFormatter, LocalDateTime.parse(source, formatter));
+        }
+        formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         if (correctFormatter(formatter, source)) {
             return normalizedDateTime(dashedDateFormatter, LocalDateTime.parse(source, formatter));
         }

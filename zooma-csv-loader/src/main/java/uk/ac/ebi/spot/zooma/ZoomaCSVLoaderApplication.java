@@ -34,6 +34,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.StringJoiner;
 
 /**
  * Created by olgavrou on 08/02/2017.
@@ -67,7 +68,7 @@ public class ZoomaCSVLoaderApplication {
 
     @Bean
     FlatFileItemWriter<SimpleAnnotation> flatFileItemWriter(){
-        FlatFileItemWriter writer = new CustomItemWriter(this.annotationHandler);
+        FlatFileItemWriter writer = null;
         try {
             String[] headers = new String[0];
 
@@ -78,10 +79,9 @@ public class ZoomaCSVLoaderApplication {
             String firstLine = bufferedReader.readLine();
             in.close();
             bufferedReader.close();
-//            FileReader fr = new FileReader(loadFrom);
-//            BufferedReader br = new BufferedReader(fr);
-//            String firstLine = br.readLine();
-//            br.close();
+
+            String headerForNewFile = calculateOutputHeader(firstLine, delimeter);
+
             firstLine = firstLine.replace("_", "");
             headers = firstLine.split(delimeter);
 
@@ -93,6 +93,9 @@ public class ZoomaCSVLoaderApplication {
 
             DelimitedLineAggregator<SimpleAnnotation> aggregator = new DelimitedLineAggregator<>();
             aggregator.setDelimiter(delimeter);
+
+            writer = new CustomItemWriter(this.annotationHandler, headerForNewFile);
+
             //TODO: temporary report generated location
             writer.setResource(new FileSystemResource("./" + reportF + "_" + LocalDateTime.now() + "_Report.txt"));
             BeanWrapperFieldExtractor<SimpleAnnotation> fieldExtractor = new BeanWrapperFieldExtractor<>();
@@ -101,6 +104,8 @@ public class ZoomaCSVLoaderApplication {
             writer.setLineAggregator(aggregator);
         } catch (IOException e) {
             getLog().error("Failed to read file: " + loadFrom + " " + e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return writer;
@@ -116,24 +121,24 @@ public class ZoomaCSVLoaderApplication {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
             String firstLine = bufferedReader.readLine();
             bufferedReader.close();
-//            FileReader fr = new FileReader(loadFrom);
-//            BufferedReader br = new BufferedReader(fr);
-//            String firstLine = br.readLine();
-//            br.close();
-//            File initialFile = new File(loadFrom);
-//            InputStream targetStream = new FileInputStream(initialFile);
 
+            validateHeaders(firstLine.split(delimeter));
             firstLine = firstLine.replace("_", "");
             String[] headers = firstLine.split(delimeter);
 
             String[] readHeaders = calculateHeaders(headers, false);
 
+            int[] includedFieldPositions = calculateFieldPositions(headers, readHeaders.length);
+
+            DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer(){{
+                setDelimiter(delimeter);
+                setNames(readHeaders);
+                setIncludedFields(includedFieldPositions);
+            }};
+
             reader.setResource(new UrlResource(url));
             reader.setLineMapper(new DefaultLineMapper<SimpleAnnotation>() {{
-                setLineTokenizer(new DelimitedLineTokenizer(){{
-                    setDelimiter(delimeter);
-                    setNames(readHeaders);
-                }});
+                setLineTokenizer(tokenizer);
                 setFieldSetMapper(new BeanWrapperFieldSetMapper<SimpleAnnotation>(){{
                     setTargetType(SimpleAnnotation.class);
                 }});
@@ -144,7 +149,6 @@ public class ZoomaCSVLoaderApplication {
         }
         return reader;
     }
-
 
     @Bean
     public AnnotationItemProcessor processor(){
@@ -168,22 +172,75 @@ public class ZoomaCSVLoaderApplication {
                 .build();
     }
 
+    private void validateHeaders(String[] headers) {
+        boolean propType = false;
+        boolean propValue = false;
+        boolean semanticTag = false;
+        for (String h : headers){
+            if(h.contains("SEMANTIC_TAG")){
+                semanticTag = true;
+            }
+            if (h.contains("PROPERTY_TYPE")){
+                propType = true;
+            }
+            if (h.contains("PROPERTY_VALUE")){
+                propValue = true;
+            }
+        }
+        if(!(propType && propValue && semanticTag)){
+            throw new IllegalArgumentException("Must include PROPERTY_TYPE, PROPERTY_VALUE, and SEMANTIC_TAG fields!");
+        }
+    }
+
     private String[] calculateHeaders(String[] headers, boolean writer){
         ArrayList<String> calcHeaders = new ArrayList<>();
         for (String h : headers){
             calcHeaders.add(h.toLowerCase());
         }
-        if(!calcHeaders.contains("annotationid") && writer){
+        if(writer && !calcHeaders.contains("annotationid")){
             calcHeaders.add("annotationid");
         }
 
-        if(writer) {
+        if(writer && !calcHeaders.contains("action")) {
             calcHeaders.add("action");
+        }
+        if(!writer && calcHeaders.contains("action")) {
+            calcHeaders.remove("action");
         }
         String[] array = new String [calcHeaders.size()];
         return calcHeaders.toArray(array);
     }
 
+    /*
+    Calculates the field positions of the original headers to be included
+    If position is missing, field is ignored
+     */
+    private int[] calculateFieldPositions(String[] originalHeaders, int finalLength) {
+        int[] includedFieldPositions = new int[finalLength];
+
+        int i = 0;
+        int pos = 0;
+        for (String h : originalHeaders){
+            if (!h.replace("_", "").toLowerCase().equals("action")) {
+                includedFieldPositions[i] = pos;
+                i++;
+            }
+            pos++;
+        }
+        return includedFieldPositions;
+    }
+
+    private String calculateOutputHeader(String firstLine, String delimeter) {
+        StringJoiner joiner = new StringJoiner(delimeter);
+        joiner.add(firstLine);
+        if(!firstLine.contains("ANNOTATION_ID")){
+            joiner.add("ANNOTATION_ID");
+        }
+        if(!firstLine.contains("ACTION")){
+            joiner.add("ACTION");
+        }
+        return joiner.toString();
+    }
 
     public static void main(String[] args){
         SpringApplication.exit(SpringApplication.run(ZoomaCSVLoaderApplication.class, args));

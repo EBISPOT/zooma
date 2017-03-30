@@ -106,6 +106,9 @@ public class AnnotationHandler {
             }
         } catch (JSONException e) {
             getLog().debug("mongoId field doesn't exist: " + simpleAnnotation);
+        } catch (RestClientException e){
+            getLog().debug(e.getMessage());
+            return Optional.empty();
         }
         return Optional.empty();
     }

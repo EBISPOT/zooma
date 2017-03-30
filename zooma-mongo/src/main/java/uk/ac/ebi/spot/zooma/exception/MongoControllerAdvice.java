@@ -43,9 +43,17 @@ public class MongoControllerAdvice {
     }
 
     @ResponseBody
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    VndErrors illegalArgumentExceptionHandler(IllegalArgumentException e){
+        getLog().error(e.getMessage());
+        return new VndErrors("error", e.getMessage());
+    }
+
+    @ResponseBody
     @ExceptionHandler(ConversionException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    VndErrors conversionFailedException(ConversionException e){
+    VndErrors conversionFailedExceptionHandler(ConversionException e){
         getLog().error("Conversion failed: " + e.getMessage());
         return new VndErrors("error", e.getMessage());
     }

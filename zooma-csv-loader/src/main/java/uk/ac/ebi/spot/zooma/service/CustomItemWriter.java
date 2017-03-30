@@ -2,9 +2,12 @@ package uk.ac.ebi.spot.zooma.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import uk.ac.ebi.spot.zooma.model.SimpleAnnotation;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +24,14 @@ public class CustomItemWriter extends FlatFileItemWriter<SimpleAnnotation> {
         return log;
     }
 
-    public CustomItemWriter(AnnotationHandler annotationHandler) {
+    public CustomItemWriter(AnnotationHandler annotationHandler, String headers) {
         this.annotationHandler = annotationHandler;
+        super.setHeaderCallback(new FlatFileHeaderCallback() {
+            @Override
+            public void writeHeader(Writer writer) throws IOException {
+                writer.write(headers);
+            }
+        });
     }
 
     @Override

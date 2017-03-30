@@ -24,12 +24,21 @@ public class AnnotationItemProcessor implements ItemProcessor<SimpleAnnotation, 
 
     @Override
     public SimpleAnnotation process(SimpleAnnotation simpleAnnotation) throws Exception {
-        if(simpleAnnotation.getAnnotationdate().equals("ANNOTATION_DATE")){
+        if(simpleAnnotation.getSemantictag().equals("SEMANTIC_TAG")){
             return null;
         }
 
         if(simpleAnnotation.getAnnotationid() == null){
             simpleAnnotation.setAnnotationid("");
+        }
+        String evidence = "MANUAL_CURATED";
+        if(simpleAnnotation.getStudy() == null || simpleAnnotation.getStudy().isEmpty()
+                || simpleAnnotation.getBioentity() == null || simpleAnnotation.getBioentity().isEmpty()){
+            if(simpleAnnotation.getAnnotator() == null || simpleAnnotation.getAnnotator().isEmpty()) {
+                evidence = "NO_EVIDENCE";
+            }
+        } else if (simpleAnnotation.getAnnotator() == null || simpleAnnotation.getAnnotator().isEmpty()){
+            evidence = "SUBMITTER_PROVIDED";
         }
         final SimpleAnnotation completeAnnotation = SimpleAnnotation.builder()
                 .bioentity(simpleAnnotation.getBioentity())
@@ -39,7 +48,7 @@ public class AnnotationItemProcessor implements ItemProcessor<SimpleAnnotation, 
                 .semantictag(simpleAnnotation.getSemantictag())
                 .annotator(simpleAnnotation.getAnnotator())
                 .annotationdate(simpleAnnotation.getAnnotationdate())
-                .evidence("MANUAL_CURATED")
+                .evidence(evidence)
                 .accuracy("PRECISE")
                 .generator("ZOOMA")
                 .name(name)
