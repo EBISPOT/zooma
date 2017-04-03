@@ -22,7 +22,7 @@ public class Annotation {
     @Id
     @CreatedBy
     private String id;
-    private String mongoId;
+    private String mongoid;
     @NonNull
     private BiologicalEntity biologicalEntities;
     @NonNull
@@ -70,9 +70,9 @@ public class Annotation {
     /**
      * A field that indicates the annotationid of the document.
      * Not saved but populated on get to be exposed in the api
-     * @return
+     * @return the id
      */
-    public String getMongoId(){
+    public String getMongoid(){
         return id;
     }
 

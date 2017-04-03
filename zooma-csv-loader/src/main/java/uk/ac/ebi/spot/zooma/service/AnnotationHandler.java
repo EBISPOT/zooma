@@ -101,7 +101,7 @@ public class AnnotationHandler {
             if (responseEntity.getStatusCode().equals(HttpStatus.OK)
                     && responseEntity.getBody() != null) {
                 JSONObject object = this.objectMapper.convertValue(responseEntity.getBody(), JSONObject.class);
-                String id = (String) object.get("mongoId");
+                String id = (String) object.get("mongoid");
                 if (id != null) {
                     return Optional.of(id);
                 }
@@ -109,7 +109,7 @@ public class AnnotationHandler {
                 getLog().debug("Response not OK! Status Code: " + responseEntity.getStatusCode() + " , Response Body: " + responseEntity.getBody());
             }
         } catch (JSONException e) {
-            getLog().debug("mongoId field doesn't exist: " + simpleAnnotation);
+            getLog().debug("mongoid field doesn't exist: " + simpleAnnotation);
         } catch (RestClientException e){
             getLog().debug(e.getMessage());
             return Optional.empty();

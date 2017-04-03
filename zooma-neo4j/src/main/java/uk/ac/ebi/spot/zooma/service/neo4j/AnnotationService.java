@@ -37,7 +37,7 @@ public class  AnnotationService {
 
     @Transactional
     public void save(Annotation annotation){
-        Annotation annotation1 = annotationRepository.findByMongoId(annotation.getMongoId());
+        Annotation annotation1 = annotationRepository.findByMongoid(annotation.getMongoid());
 
         if(annotation1 == null) {
             session.save(annotation);
@@ -54,6 +54,11 @@ public class  AnnotationService {
     @Transactional
     public void save(List<Annotation> annotations){
         annotationRepository.save(annotations);
+    }
+
+    @Transactional
+    public Annotation findByMongoid(String mongoid){
+        return annotationRepository.findByMongoid(mongoid);
     }
 
 }

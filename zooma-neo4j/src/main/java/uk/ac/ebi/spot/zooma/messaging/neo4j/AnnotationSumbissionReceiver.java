@@ -48,6 +48,43 @@ public class AnnotationSumbissionReceiver {
         //read the message byte stream and convert to a HashMap
         Map<String, Object> propertiesMap = objectMapper.readValue(message.getBody(), new TypeReference<HashMap<String,Object>>() {});
 
+        Provenance provenance = createGraphElements(propertiesMap);
+        //will merge the whole graph through the relationship
+        //default depth -1
+        annotationService.save(provenance);
+//        annotationService.save(neoAnnotation);
+
+        getLog().info("Neo4j Queue: We have saved the annotation into Neo4j! Mongoid: " + propertiesMap.get("id"));
+    }
+
+    @RabbitListener(queues = "annotation.replace.neo.queue")
+    public void handleAnnotationReplacement(Message message) throws IOException {
+        //read the message byte stream and convert to a HashMap
+        Map<String, Object> propertiesMap = objectMapper.readValue(message.getBody(), new TypeReference<HashMap<String,Object>>() {});
+
+        Provenance provenance = createGraphElements(propertiesMap);
+        Annotation neoAnnotation = provenance.getAnnotation();
+
+        String replaces = "";
+        if(propertiesMap.get("replaces") != null) {
+            replaces = (String ) propertiesMap.get("replaces");
+            Annotation annBeinReplaced = annotationService.findByMongoid(replaces);
+            if (annBeinReplaced != null){
+                neoAnnotation.setReplaces(annBeinReplaced);
+            } else {
+                getLog().error("Annotation {} replaced mongoid that doesn't exist in Neo: {} ", propertiesMap.get("mongoid"), replaces);
+                return;
+            }
+        }
+        provenance.setAnnotation(neoAnnotation);
+        //will merge the whole graph through the relationship
+        //default depth -1
+        annotationService.save(provenance);
+
+        getLog().info("Neo4j Queue: Annotation with mongoid: {} replaces annotation with mongoid: {} ", propertiesMap.get("id"), replaces);
+    }
+
+    private Provenance createGraphElements(Map<String, Object> propertiesMap) {
         //collect the properties from the Map and create the graph elements
 
         Collection<SemanticTag> semanticTags = new ArrayList();
@@ -82,8 +119,7 @@ public class AnnotationSumbissionReceiver {
         neoAnnotation.setProperty(property);
         neoAnnotation.setSemanticTag(semanticTags);
         neoAnnotation.setQuality((float) ((double)propertiesMap.get("quality")));
-        neoAnnotation.setMongoId((String) propertiesMap.get("id"));
-
+        neoAnnotation.setMongoid((String) propertiesMap.get("id"));
 
         Provenance provenance = new Provenance();
         provenance.setAccuracy((String) propertiesMap.get("accuracy"));
@@ -95,11 +131,8 @@ public class AnnotationSumbissionReceiver {
 
         provenance.setAnnotation(neoAnnotation);
         provenance.setSource(source);
-        //will merge the whole graph through the relationship
-        //default depth -1
-        annotationService.save(provenance);
-//        annotationService.save(neoAnnotation);
 
-        getLog().info("Neo4j Queue: We have saved the annotation into Neo4j! Mongoid: " + propertiesMap.get("id"));
+        return provenance;
     }
+
 }

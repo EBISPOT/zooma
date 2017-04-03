@@ -13,7 +13,9 @@ import java.util.List;
  */
 @Repository
 public interface AnnotationRepository extends Neo4jRepository<Annotation, Long> {
-    Annotation findByMongoId(String mongoid);
+
+    @Query("match (a:Annotation) where a.mongoid={0} return a")
+    Annotation findByMongoid(String mongoid);
 
 
     @Query("match (p:Property)<-[propR:HAS_PROPERTY]-(a:Annotation)-[semTagR:HAS_SEMANTIC_TAG]->(s:SemanticTag) " +

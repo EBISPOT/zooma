@@ -11,6 +11,7 @@ public class Constants {
         public static final String ANNOTATION_SAVE_NEO = "annotation.save.neo.queue";
         public static final String ANNOTATION_SAVE_SOLR = "annotation.save.solr.queue";
         public static final String ANNOTATION_REPLACE_SOLR = "annotation.replace.solr.queue";
+        public static final String ANNOTATION_REPLACE_NEO = "annotation.replace.neo.queue";
     }
 
     public class Exchanges {

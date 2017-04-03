@@ -18,7 +18,8 @@ public class Annotation {
     @GraphId
     Long id;
 
-    String mongoId;
+    @Index
+    String mongoid;
 
     @Relationship(type = "HAS_BIO_ENTITY")
     private BiologicalEntity biologicalEntity;
@@ -32,6 +33,9 @@ public class Annotation {
 
     @Relationship(type = "HAS_PROVENANCE")
     private Provenance provenance;
+
+    @Relationship(type = "REPLACES")
+    private Annotation replaces;
 
     private Float quality;
 
