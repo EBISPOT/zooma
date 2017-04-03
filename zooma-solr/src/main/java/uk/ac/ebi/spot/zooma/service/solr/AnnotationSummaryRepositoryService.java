@@ -17,6 +17,7 @@ import uk.ac.ebi.spot.zooma.utils.SolrUtils;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -89,17 +90,34 @@ public class AnnotationSummaryRepositoryService {
         }
         AnnotationSummary oldSummary = results.get(0);
         if(!summary.getPropertyValue().equals(oldSummary.getPropertyValue())){
-            //TODO: update property value
-            //TODO: update property type
-            return;
+            summaryRepository.save(summary);
+            String source = summary.getSource().iterator().next(); // new summary should have exactly one source
+            if (oldSummary.getSource().contains(source)){
+                if(oldSummary.getVotes() == 1){
+                    summaryRepository.delete(oldSummary);
+                    getLog().debug("Old summary {} replaced and deleted by: ", oldSummary.getId(), summary );
+                } else {
+                    PartialUpdate partialUpdate = new PartialUpdate("id", oldSummary.getId());
+                    partialUpdate.setValueOfField("votes", (oldSummary.getVotes() - 1));
+                    Collection<String> oldSources = oldSummary.getSource();
+                    if (oldSources.size() > 1){
+                        oldSources.remove(source);
+                        partialUpdate.setValueOfField("source", oldSources);
+                        int sNum = (oldSummary.getSourceNum() - 1);
+                        partialUpdate.setValueOfField("sourceNum", sNum);
+                    }
+                    solrTemplate.saveBean(partialUpdate);
+                    solrTemplate.commit();
+                }
+            }
         } else if(!SolrUtils.listEqualsNoOrder(summary.getSemanticTag(), oldSummary.getSemanticTag())){
             //setting votes and source num same as summary being replaced for scoring to be fair
-            summary.setSourceNum(oldSummary.getSourceNum());
-            summary.setVotes(oldSummary.getVotes());
+//            summary.setSourceNum(oldSummary.getSourceNum());
+//            summary.setVotes(oldSummary.getVotes());
             //save new annotation summary that should be favoured over because it is more resent
             summaryRepository.save(summary);
-            getLog().info("New annotation summary {} replacing {} ", summary, oldSummary.getId());
         }
+        getLog().info("New annotation summary {} replacing {} ", summary, oldSummary.getId());
     }
 
     public List<AnnotationSummary>  findByPropertyTypeAndValue(List<String> sourceNames, String propertyType, String propertyValue) throws IOException, SolrServerException {
@@ -117,17 +135,35 @@ public class AnnotationSummaryRepositoryService {
 
         StringJoiner q2 = new StringJoiner(" OR ");
         q2.add(query.toString());
-        q2.add("propertyValueStr:\"" + propertyValue + "\"^100");
+        q2.add("propertyValueStr:\"" + propertyValue + "\"^10");
         q2.add("propertyValue:" + propertyValue);
 
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.set("q", q2.toString());
-        solrQuery.set("defType", "edismax");
-        solrQuery.set("bf","product(votes,sourceNum,quality)^0.0001");
-        solrQuery.set("fl","*,score");
-
+        solrQuery.setRows(1);
+        solrQuery.addSort("lastModified", SolrQuery.ORDER.desc);
+        solrQuery.setIncludeScore(true);
         QueryResponse response = solrTemplate.getSolrClient().query(solrQuery);
         List<AnnotationSummary> results = response.getBeans(AnnotationSummary.class);
+        LocalDateTime localDateTime = null;
+        if (!results.isEmpty()){
+            Date dateTime = results.get(0).getLastModified();
+            localDateTime = dateTime.toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
+        }
+
+        SolrQuery q = new SolrQuery();
+        if (localDateTime != null){
+            q.set("bf", "sum(div(1,sum(0.001,ms(\"" + localDateTime.toString() + "Z\",lastModified))),product(sum(votes,quality,sourceNum),0.001))^0.001");
+        } else {
+            q.set("bf","sum(votes,sourceNum,quality)^0.001");
+        }
+
+        q.set("q", q2.toString());
+        q.set("defType", "edismax");
+        q.setIncludeScore(true);
+
+        response = solrTemplate.getSolrClient().query(q);
+        results = response.getBeans(AnnotationSummary.class);
 
         List<AnnotationSummary> annotationSummaries = new ArrayList<>();
 
