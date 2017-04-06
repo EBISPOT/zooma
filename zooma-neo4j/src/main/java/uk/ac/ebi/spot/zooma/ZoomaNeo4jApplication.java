@@ -5,13 +5,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import uk.ac.ebi.spot.zooma.messaging.neo4j.AnnotationSubmissionReceiver;
 
 @SpringBootApplication
 @EnableRabbit
 @ComponentScan("uk.ac.ebi.spot.zooma")
 /**
  * Zooma Neo4j Application is the Neo endpoint of Zooma.
- * It has a RabbitMQ listener {@link uk.ac.ebi.spot.zooma.messaging.neo4j.AnnotationSumbissionReceiver}
+ * It has a RabbitMQ listener {@link AnnotationSubmissionReceiver}
  * that listens to a queue and if there is a new Annotation added to Zooma it will merge it to the graph.
  */
 public class ZoomaNeo4jApplication {

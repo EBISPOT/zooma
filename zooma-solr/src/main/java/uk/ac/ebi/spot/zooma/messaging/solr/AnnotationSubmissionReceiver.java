@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import uk.ac.ebi.spot.zooma.model.solr.AnnotationSummary;
 import uk.ac.ebi.spot.zooma.service.solr.AnnotationSummaryRepositoryService;
 
@@ -23,19 +22,22 @@ import java.util.Map;
  * @author Tony Burdett
  * @date 09/01/17
  */
-@Component
 public class AnnotationSubmissionReceiver {
 
-    @Autowired
     AnnotationSummaryRepositoryService summaryRepositoryService;
 
-    @Autowired
     ObjectMapper objectMapper;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {
         return log;
+    }
+
+    @Autowired
+    public AnnotationSubmissionReceiver(AnnotationSummaryRepositoryService summaryRepositoryService, ObjectMapper objectMapper) {
+        this.summaryRepositoryService = summaryRepositoryService;
+        this.objectMapper = objectMapper;
     }
 
     @RabbitListener(queues = "annotation.save.solr.queue")

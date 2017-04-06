@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import uk.ac.ebi.spot.zooma.model.neo4j.*;
 import uk.ac.ebi.spot.zooma.service.neo4j.AnnotationService;
 
@@ -26,20 +25,22 @@ import java.util.Map;
  *
  * Created by olgavrou on 24/02/2017.
  */
-@Component
-public class AnnotationSumbissionReceiver {
+public class AnnotationSubmissionReceiver {
 
-    @Autowired
     AnnotationService annotationService;
 
-    @Autowired
     ObjectMapper objectMapper;
-
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected Logger getLog() {
         return log;
+    }
+
+    @Autowired
+    public AnnotationSubmissionReceiver(AnnotationService annotationService, ObjectMapper objectMapper) {
+        this.annotationService = annotationService;
+        this.objectMapper = objectMapper;
     }
 
     @RabbitListener(queues = "annotation.save.neo.queue")
