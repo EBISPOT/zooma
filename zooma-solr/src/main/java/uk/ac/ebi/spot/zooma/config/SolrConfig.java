@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 import uk.ac.ebi.spot.zooma.messaging.solr.AnnotationSubmissionReceiver;
-import uk.ac.ebi.spot.zooma.service.solr.AnnotationSummaryRepositoryService;
+import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryService;
 
 
 @Configuration
@@ -25,7 +25,7 @@ public class SolrConfig {
     Boolean activateRabbit;
 
     @Autowired
-    AnnotationSummaryRepositoryService summaryRepositoryService;
+    AnnotationRepositoryService summaryRepositoryService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -43,7 +43,7 @@ public class SolrConfig {
     }
 
     @Bean
-    AnnotationSubmissionReceiver receiver(AnnotationSummaryRepositoryService service, ObjectMapper mapper){
+    AnnotationSubmissionReceiver receiver(AnnotationRepositoryService service, ObjectMapper mapper){
         if(activateRabbit) {
             return new AnnotationSubmissionReceiver(service, mapper);
         } else {

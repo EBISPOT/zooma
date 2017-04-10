@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.ac.ebi.spot.zooma.model.solr.AnnotationSummary;
-import uk.ac.ebi.spot.zooma.service.solr.AnnotationSummaryRepositoryService;
+import uk.ac.ebi.spot.zooma.model.solr.Annotation;
+import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public class AnnotationSubmissionReceiver {
 
-    AnnotationSummaryRepositoryService summaryRepositoryService;
+    AnnotationRepositoryService summaryRepositoryService;
 
     ObjectMapper objectMapper;
 
@@ -35,7 +35,7 @@ public class AnnotationSubmissionReceiver {
     }
 
     @Autowired
-    public AnnotationSubmissionReceiver(AnnotationSummaryRepositoryService summaryRepositoryService, ObjectMapper objectMapper) {
+    public AnnotationSubmissionReceiver(AnnotationRepositoryService summaryRepositoryService, ObjectMapper objectMapper) {
         this.summaryRepositoryService = summaryRepositoryService;
         this.objectMapper = objectMapper;
     }
@@ -43,7 +43,7 @@ public class AnnotationSubmissionReceiver {
     @RabbitListener(queues = "annotation.save.solr.queue")
     public void handleAnnotationSubmission(Message message) throws IOException {
 
-        AnnotationSummary summary = convertToAnnotationSummary(message);
+        Annotation summary = convertToAnnotationSummary(message);
 
         summaryRepositoryService.save(summary);
 
@@ -53,14 +53,14 @@ public class AnnotationSubmissionReceiver {
     @RabbitListener(queues = "annotation.replace.solr.queue")
     public void handleAnnotationReplacement(Message message) throws IOException {
 
-        AnnotationSummary summary = convertToAnnotationSummary(message);
+        Annotation summary = convertToAnnotationSummary(message);
         Map<String, Object> propertiesMap = objectMapper.readValue(message.getBody(), new TypeReference<HashMap<String,Object>>() {});
         String replaces = (String) propertiesMap.get("replaces");
 
         summaryRepositoryService.replace(summary, replaces);
     }
 
-    private AnnotationSummary convertToAnnotationSummary(Message message) throws IOException {
+    private Annotation convertToAnnotationSummary(Message message) throws IOException {
         //read the message byte stream and convert to a HashMap
         Map<String, Object> propertiesMap = objectMapper.readValue(message.getBody(), new TypeReference<HashMap<String,Object>>() {});
 
@@ -81,7 +81,7 @@ public class AnnotationSubmissionReceiver {
 
         propertiesMap.put("lastModified", propertiesMap.get("generatedDate"));
 
-        return objectMapper.convertValue(propertiesMap, AnnotationSummary.class);
+        return objectMapper.convertValue(propertiesMap, Annotation.class);
     }
 
 }

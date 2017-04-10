@@ -1,0 +1,70 @@
+version: '2'
+services:
+    zooma-mongo:
+        build: .
+        image: zooma:latest
+        depends_on:
+            - mongo
+            - rabbitmq
+        links:
+        - mongo
+        - rabbitmq
+        command:
+            - java 
+            - -jar 
+            - /home/zooma-mongo-3.0.0-SNAPSHOT.jar 
+        environment:
+        - ols.term.location=http://www.ebi.ac.uk/ols/api/terms?iri=
+        - spring.data.mongodb.database=zooma
+        - spring.data.mongodb.port=27017
+        - spring.jackson.serialization.write_dates_as_timestamps=false
+        - endpoints.beans.enabled=true
+        - spring.data.mongodb.host=mongo
+        - spring.rabbitmq.host=rabbitmq
+        ports:
+        - 8080:8080
+    zooma-solr:
+        image: zooma:latest
+        depends_on:
+            - zooma-mongo
+        links:
+            - solr
+            - rabbitmq
+        command:
+            - java
+            - -jar
+            - /home/zooma-solr-3.0.0-SNAPSHOT.jar
+        environment:
+        - spring.rabbitmq.host=rabbitmq
+        - solr.host=http://solr:8983/solr
+        ports:
+        - 8081:8090
+    solr:
+        image: solr:5.5.3-alpine
+        command: ["solr", "-f"]
+        environment:
+        - SOLR_HOME=/home/mysolrhome
+        ports: 
+        - 8983:8983
+        volumes:
+        - ./zooma-solr/src/main/solr-5-config/:/home/mysolrhome
+    mongo:
+        image: mongo:3.2
+        volumes: 
+        - mongo_data:/data/db
+        ports:
+        - 27017:27017
+        command:
+        - mongod
+    rabbitmq:
+        image: rabbitmq:3.6-management
+        hostname: zooma-rabbitmq
+        ports:
+        - 15672:15672
+        - 5672:5672
+        volumes:
+        - rabbitmq_data:/var/lib/rabbitmq/mnesia/rabbit@zooma-rabbitmq
+volumes:
+    solr_samples_data: null
+    mongo_data: null
+    rabbitmq_data: null

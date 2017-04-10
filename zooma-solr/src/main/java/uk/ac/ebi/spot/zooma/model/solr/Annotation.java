@@ -10,7 +10,6 @@ import org.springframework.data.solr.repository.Score;
 import org.springframework.format.annotation.DateTimeFormat;
 import uk.ac.ebi.spot.zooma.utils.SolrUtils;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -21,7 +20,7 @@ import java.util.*;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AnnotationSummary implements Qualitative{
+public class Annotation implements Qualitative{
 
     @Id
     @Field
@@ -75,7 +74,7 @@ public class AnnotationSummary implements Qualitative{
     private Date lastModified;
 
 
-    public boolean equals(AnnotationSummary summary){
+    public boolean equals(Annotation summary){
         if(!summary.getPropertyValue().equals(this.getPropertyValue())){
             return false;
         }

@@ -9,8 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.spot.zooma.config.SolrConfigTest;
-import uk.ac.ebi.spot.zooma.model.solr.AnnotationSummary;
-import uk.ac.ebi.spot.zooma.service.solr.AnnotationSummaryRepositoryService;
+import uk.ac.ebi.spot.zooma.model.solr.Annotation;
+import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,22 +24,22 @@ import static junit.framework.TestCase.assertTrue;
 public class ZoomaSolrApplicationTests {
 
 	@Autowired
-	AnnotationSummaryRepositoryService summaryRepositoryService;
+	AnnotationRepositoryService summaryRepositoryService;
 
 	@Test
 	@Ignore
 	public void contextLoads() throws IOException, SolrServerException {
-//		List<AnnotationSummary> annotationList = summaryRepositoryService.findByPropertyTypeAndValue(new ArrayList<>(),"organism part", "liver");
+//		List<Annotation> annotationList = summaryRepositoryService.findByPropertyTypeAndValue(new ArrayList<>(),"organism part", "liver");
 //		assertTrue(annotationList.size() > 0);
-		String value = "liver";
+		String value = "gastrocnemius and soleus muscle";
 		String type = "organism part";
 		ArrayList<String> source = new ArrayList<>();
 //		source.add("eva-clinvar");
-		List<AnnotationSummary> annotationList = summaryRepositoryService.findByPropertyTypeAndValue(source, type, value);
+		List<Annotation> annotationList = summaryRepositoryService.findByPropertyTypeAndValue(source, type, value);
 		if(annotationList.isEmpty()){
 			annotationList = summaryRepositoryService.findByPropertyTypeAndValue(source,null, value);
 		}
-		for (AnnotationSummary summary : annotationList){
+		for (Annotation summary : annotationList){
 			System.out.println("propertyType: " + summary.getPropertyType());
 			System.out.println("propertyType: " + summary.getPropertyValue());
 			System.out.println("semanticTag: " + summary.getSemanticTag());

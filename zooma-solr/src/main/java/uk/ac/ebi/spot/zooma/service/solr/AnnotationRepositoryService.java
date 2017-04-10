@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.spot.zooma.model.solr.AnnotationSummary;
-import uk.ac.ebi.spot.zooma.repository.solr.AnnotationSummaryRepository;
+import uk.ac.ebi.spot.zooma.model.solr.Annotation;
+import uk.ac.ebi.spot.zooma.repository.solr.AnnotationRepository;
 import uk.ac.ebi.spot.zooma.utils.Scorer;
 import uk.ac.ebi.spot.zooma.utils.SolrUtils;
 
@@ -25,23 +25,23 @@ import java.util.*;
  * Created by olgavrou on 06/03/2017.
  */
 @Service
-public class AnnotationSummaryRepositoryService {
+public class AnnotationRepositoryService {
 
-    private AnnotationSummaryRepository summaryRepository;
+    private AnnotationRepository summaryRepository;
 
     private SolrTemplate solrTemplate;
 
     private String solrCore;
 
-    Scorer<AnnotationSummary> scorer;
+    Scorer<Annotation> scorer;
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
-    public AnnotationSummaryRepositoryService(AnnotationSummaryRepository summaryRepository,
-                                              SolrTemplate solrTemplate,
-                                              @Value("${solr.core}") String solrCore,
-                                              Scorer<AnnotationSummary> scorer) {
+    public AnnotationRepositoryService(AnnotationRepository summaryRepository,
+                                       SolrTemplate solrTemplate,
+                                       @Value("${solr.core}") String solrCore,
+                                       Scorer<Annotation> scorer) {
         this.summaryRepository = summaryRepository;
         this.solrTemplate = solrTemplate;
         this.solrCore = solrCore;
@@ -54,21 +54,21 @@ public class AnnotationSummaryRepositoryService {
         return log;
     }
 
-    public void save(AnnotationSummary summary) {
+    public void save(Annotation summary) {
         boolean updated;
         try {
             updated = update(summary);
         } catch (IOException | SolrServerException e) {
-            getLog().debug("Update Solr AnnotationSummary could not be accessed!");
+            getLog().debug("Update Solr Annotation could not be accessed!");
             throw new IllegalStateException("Solr could not be accessed on update! " + e);
         }
         if(!updated){
-            AnnotationSummary saved = summaryRepository.save(summary);
-            getLog().info("New Solr AnnotationSummary: " + saved.toString());
+            Annotation saved = summaryRepository.save(summary);
+            getLog().info("New Solr Annotation: " + saved.toString());
         }
     }
 
-    public void replace(AnnotationSummary summary, String replaces) {
+    public void replace(Annotation summary, String replaces) {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.set("q", "mongoid:\"" + replaces + "\"");
         solrQuery.set("fl","*,score");
@@ -76,10 +76,10 @@ public class AnnotationSummaryRepositoryService {
         try {
             response = solrTemplate.getSolrClient().query(this.solrCore, solrQuery);
         } catch (IOException | SolrServerException e) {
-            getLog().debug("Replace Solr AnnotationSummary could not be accessed!");
+            getLog().debug("Replace Solr Annotation could not be accessed!");
             throw new IllegalStateException("Solr could not be accessed on update! " + e);
         }
-        List<AnnotationSummary> results = response.getBeans(AnnotationSummary.class);
+        List<Annotation> results = response.getBeans(Annotation.class);
         if(results.isEmpty()){
             getLog().error("Mongo document that has been replaced does not exist in solr! " + replaces);
             return;
@@ -88,7 +88,7 @@ public class AnnotationSummaryRepositoryService {
             getLog().error("Mongo id  was found in more than one annotation summary! " + replaces);
             return;
         }
-        AnnotationSummary oldSummary = results.get(0);
+        Annotation oldSummary = results.get(0);
         if(!summary.getPropertyValue().equals(oldSummary.getPropertyValue())){
             summaryRepository.save(summary);
             String source = summary.getSource().iterator().next(); // new summary should have exactly one source
@@ -120,7 +120,7 @@ public class AnnotationSummaryRepositoryService {
         getLog().info("New annotation summary {} replacing {} ", summary, oldSummary.getId());
     }
 
-    public List<AnnotationSummary>  findByPropertyTypeAndValue(List<String> sourceNames, String propertyType, String propertyValue) throws IOException, SolrServerException {
+    public List<Annotation>  findByPropertyTypeAndValue(List<String> sourceNames, String propertyType, String propertyValue) throws IOException, SolrServerException {
 
         StringJoiner query = new StringJoiner(" AND ");
         query.add("propertyValue:\"" + propertyValue + "\"");
@@ -144,7 +144,7 @@ public class AnnotationSummaryRepositoryService {
         solrQuery.addSort("lastModified", SolrQuery.ORDER.desc);
         solrQuery.setIncludeScore(true);
         QueryResponse response = solrTemplate.getSolrClient().query(solrQuery);
-        List<AnnotationSummary> results = response.getBeans(AnnotationSummary.class);
+        List<Annotation> results = response.getBeans(Annotation.class);
         LocalDateTime localDateTime = null;
         if (!results.isEmpty()){
             Date dateTime = results.get(0).getLastModified();
@@ -163,14 +163,14 @@ public class AnnotationSummaryRepositoryService {
         q.setIncludeScore(true);
 
         response = solrTemplate.getSolrClient().query(q);
-        results = response.getBeans(AnnotationSummary.class);
+        results = response.getBeans(Annotation.class);
 
-        List<AnnotationSummary> annotationSummaries = new ArrayList<>();
+        List<Annotation> annotationSummaries = new ArrayList<>();
 
         int totalDocumentsFound = 0;
         float maxSolrScore = 0.0f;
 
-        for(AnnotationSummary annotation : results){
+        for(Annotation annotation : results){
             if (annotation.getScore() > maxSolrScore){
                 maxSolrScore = annotation.getScore();
             }
@@ -178,20 +178,20 @@ public class AnnotationSummaryRepositoryService {
             totalDocumentsFound = totalDocumentsFound + annotation.getVotes();
         }
 
-        for(AnnotationSummary summary : results){
+        for(Annotation summary : results){
 
-            annotationSummaries.add(new AnnotationSummary(summary.getPropertyType(), summary.getPropertyValue(), summary.getSemanticTag(),
+            annotationSummaries.add(new Annotation(summary.getPropertyType(), summary.getPropertyValue(), summary.getSemanticTag(),
                     summary.getMongoid(), summary.getStrongestMongoid(), summary.getSource(),
                     summary.getScore(), // solr score for quality
                     summary.getVotes(), summary.getSourceNum(),
                     summary.getLastModified()));
         }
 
-        Map<AnnotationSummary, Float> annotationsToScore = scorer.score(annotationSummaries, propertyValue);
+        Map<Annotation, Float> annotationsToScore = scorer.score(annotationSummaries, propertyValue);
 
 
-        List<AnnotationSummary> returnSumms = new ArrayList<>();
-        for (AnnotationSummary as : annotationsToScore.keySet()){
+        List<Annotation> returnSumms = new ArrayList<>();
+        for (Annotation as : annotationsToScore.keySet()){
             // convert to 100 where 100 is the max solr score compared to the score they get after the similarity algorithm
             float normalizedScore = normScore(maxSolrScore, annotationsToScore.get(as));
             as.setQuality(normalizedScore);
@@ -201,10 +201,10 @@ public class AnnotationSummaryRepositoryService {
         return returnSumms;
     }
 
-    private boolean update(AnnotationSummary summary) throws IOException, SolrServerException {
+    private boolean update(Annotation summary) throws IOException, SolrServerException {
 
-        Optional<AnnotationSummary> retrieve = retrieveExistingAnnotationSummary(summary);
-        AnnotationSummary existingAnn;
+        Optional<Annotation> retrieve = retrieveExistingAnnotationSummary(summary);
+        Annotation existingAnn;
         if (!retrieve.isPresent()){
             return false;
         } else {
@@ -236,11 +236,11 @@ public class AnnotationSummaryRepositoryService {
         solrTemplate.saveBean(partialUpdate);
         solrTemplate.commit();
 
-        getLog().info("Solr AnnotationSummary Updated: " + existingAnn.getId());
+        getLog().info("Solr Annotation Updated: " + existingAnn.getId());
         return true;
     }
 
-    private Optional<AnnotationSummary> retrieveExistingAnnotationSummary(AnnotationSummary summary) throws IOException, SolrServerException {
+    private Optional<Annotation> retrieveExistingAnnotationSummary(Annotation summary) throws IOException, SolrServerException {
         SolrQuery query = new SolrQuery();
         StringJoiner semTagQuery = new StringJoiner(" AND semanticTag: ");
         for(String s : summary.getSemanticTag()){
@@ -251,12 +251,12 @@ public class AnnotationSummaryRepositoryService {
                 "semanticTag:" + semTagQuery.toString() + " AND propertyType: \"" + summary.getPropertyType() + "\"");
 
         QueryResponse response = solrTemplate.getSolrClient().query(this.solrCore, query);
-        List<AnnotationSummary> results = response.getBeans(AnnotationSummary.class);
+        List<Annotation> results = response.getBeans(Annotation.class);
         if(results.isEmpty()){
             return Optional.empty();
         }
 
-        AnnotationSummary existingAnn = results.get(0); //should be exactly one
+        Annotation existingAnn = results.get(0); //should be exactly one
 
         if (!existingAnn.equals(summary)){
             return Optional.empty();

@@ -9,9 +9,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
-import uk.ac.ebi.spot.zooma.model.solr.AnnotationSummary;
-import uk.ac.ebi.spot.zooma.repository.solr.AnnotationSummaryRepository;
-import uk.ac.ebi.spot.zooma.service.solr.AnnotationSummaryRepositoryService;
+import uk.ac.ebi.spot.zooma.model.solr.Annotation;
+import uk.ac.ebi.spot.zooma.repository.solr.AnnotationRepository;
 import uk.ac.ebi.spot.zooma.utils.Scorer;
 
 /**
@@ -29,10 +28,10 @@ public class SolrConfigTest {
         String solrCore;
 
         @Autowired
-        private AnnotationSummaryRepository repository;
+        private AnnotationRepository repository;
 
         @Autowired
-        Scorer<AnnotationSummary> scorer;
+        Scorer<Annotation> scorer;
 
         @Bean
         public SolrClient solrClient() {

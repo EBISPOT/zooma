@@ -2,7 +2,7 @@ package uk.ac.ebi.spot.zooma.utils;
 
 
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.spot.zooma.model.solr.AnnotationSummary;
+import uk.ac.ebi.spot.zooma.model.solr.Annotation;
 
 /**
  * Scores annotation summaries based on their quality and a lexical match measure (using the Needleman-Wunsch algorithm)
@@ -12,14 +12,14 @@ import uk.ac.ebi.spot.zooma.model.solr.AnnotationSummary;
  * @date 18/12/13
  */
 @Component
-public class AnnotationSummaryNeedlemanWunschScorer extends AbstractNeedlemanWunschScorer<AnnotationSummary> {
+public class AnnotationSummaryNeedlemanWunschScorer extends AbstractNeedlemanWunschScorer<Annotation> {
     /**
      * Extracts the annotated property value for the matched annotation summary to compare to the search string
      *
      * @param matched the object that is being scored
      * @return the annotated property value for the given annotation summary
      */
-    @Override protected String extractMatchedString(AnnotationSummary matched) {
+    @Override protected String extractMatchedString(Annotation matched) {
         return matched.getPropertyValue();
     }
 }

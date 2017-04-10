@@ -7,6 +7,5 @@ import org.springframework.context.annotation.Configuration;
  * Created by olgavrou on 09/03/2017.
  */
 @Configuration
-@ComponentScan("uk.ac.ebi.spot.zooma")
 public class TestConfig {
 }
