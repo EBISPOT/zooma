@@ -24,7 +24,7 @@ public class SolrConfigTest {
         @Value("${solr.host}")
         private String solrHost;
 
-        @Value("${solr.core}")
+        @Value("${spring.data.solr.core}")
         String solrCore;
 
         @Autowired

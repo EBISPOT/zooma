@@ -21,39 +21,40 @@ public class StringToLocalDateTimeConverter implements Converter<String, LocalDa
                 || source.equals("null")){
             return  LocalDateTime.now();
         }
-        DateTimeFormatter dashedDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+        DateTimeFormatter dashedDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         if (correctFormatter(dashedDateFormatter, source)){
-            return normalizedDateTime(dashedDateFormatter, LocalDateTime.parse(source, dashedDateFormatter));
+            return normalizedDateTime(LocalDateTime.parse(source, dashedDateFormatter));
         }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         if (correctFormatter(formatter, source)) {
-            return normalizedDateTime(dashedDateFormatter, LocalDateTime.parse(source, formatter));
+            return normalizedDateTime(LocalDateTime.parse(source, formatter));
         }
         formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         if (correctFormatter(formatter, source)) {
-            return normalizedDateTime(dashedDateFormatter, LocalDateTime.parse(source, formatter));
+            return normalizedDateTime(LocalDateTime.parse(source, formatter));
         }
         formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm");
         if (correctFormatter(formatter, source)) {
-            return normalizedDateTime(dashedDateFormatter, LocalDateTime.parse(source, formatter));
+            return normalizedDateTime(LocalDateTime.parse(source, formatter));
         }
         formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm:ss");
         if (correctFormatter(formatter, source)) {
-            return normalizedDateTime(dashedDateFormatter, LocalDateTime.parse(source, formatter));
+            return normalizedDateTime(LocalDateTime.parse(source, formatter));
         }
         formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         if (correctFormatter(formatter, source)) {
-            return normalizedDateTime(dashedDateFormatter, LocalDateTime.parse(source, formatter));
+            return normalizedDateTime(LocalDateTime.parse(source, formatter));
         }
         formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         if (correctFormatter(formatter, source)) {
-            return normalizedDateTime(dashedDateFormatter, LocalDateTime.parse(source, formatter));
+            return normalizedDateTime(LocalDateTime.parse(source, formatter));
         }
         throw new WrongDateFormatException(source);
     }
 
-    private LocalDateTime normalizedDateTime(DateTimeFormatter formatter, LocalDateTime dateTime) {
+    private LocalDateTime normalizedDateTime(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
         dateTime = dateTime.withSecond(1);
         dateTime.format(formatter);
         return dateTime;

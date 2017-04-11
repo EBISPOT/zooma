@@ -36,9 +36,11 @@ services:
             - /home/zooma-solr-3.0.0-SNAPSHOT.jar
         environment:
         - spring.rabbitmq.host=rabbitmq
-        - solr.host=http://solr:8983/solr
+        - spring.data.solr.host=http://solr:8983/solr
+        - spring.data.solr.core=annotations
+        - spring.rabbitmq.activate=true
         ports:
-        - 8081:8090
+        - 8081:8080
     solr:
         image: solr:5.5.3-alpine
         command: ["solr", "-f"]
@@ -50,8 +52,6 @@ services:
         - ./zooma-solr/src/main/solr-5-config/:/home/mysolrhome
     mongo:
         image: mongo:3.2
-        volumes: 
-        - mongo_data:/data/db
         ports:
         - 27017:27017
         command:
@@ -65,6 +65,4 @@ services:
         volumes:
         - rabbitmq_data:/var/lib/rabbitmq/mnesia/rabbit@zooma-rabbitmq
 volumes:
-    solr_samples_data: null
-    mongo_data: null
     rabbitmq_data: null

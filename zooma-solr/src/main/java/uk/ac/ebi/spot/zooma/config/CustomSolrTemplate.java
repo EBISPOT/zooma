@@ -14,7 +14,7 @@ import org.springframework.data.solr.server.SolrClientFactory;
  */
 public class CustomSolrTemplate extends SolrTemplate {
 
-    @Value("${solr.core}")
+    @Value("${spring.data.solr.core}")
     String solrCore;
 
     public CustomSolrTemplate(SolrClient solrClient) {

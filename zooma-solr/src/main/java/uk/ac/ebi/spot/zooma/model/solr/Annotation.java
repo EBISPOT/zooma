@@ -70,7 +70,7 @@ public class Annotation implements Qualitative{
 
     @Field
     @NonNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private Date lastModified;
 
 

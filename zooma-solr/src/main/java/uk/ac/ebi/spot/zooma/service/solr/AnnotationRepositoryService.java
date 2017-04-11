@@ -35,12 +35,12 @@ public class AnnotationRepositoryService {
 
     Scorer<Annotation> scorer;
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     @Autowired
     public AnnotationRepositoryService(AnnotationRepository summaryRepository,
                                        SolrTemplate solrTemplate,
-                                       @Value("${solr.core}") String solrCore,
+                                       @Value("${spring.data.solr.core}") String solrCore,
                                        Scorer<Annotation> scorer) {
         this.summaryRepository = summaryRepository;
         this.solrTemplate = solrTemplate;

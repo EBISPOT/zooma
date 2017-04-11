@@ -18,10 +18,10 @@ import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryService;
 @EnableSolrRepositories(basePackages = "uk.ac.ebi.spot.zooma.repository.solr")
 public class SolrConfig {
 
-    @Value("${solr.host}")
+    @Value("${spring.data.solr.host}")
     String solrHost;
 
-    @Value("${rabbitmq.activate}")
+    @Value("${spring.rabbitmq.activate}")
     Boolean activateRabbit;
 
     @Autowired

@@ -21,15 +21,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class QueueConfig {
-    @Bean MessageConverter messageConverter() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
-        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
-        converter.setJsonObjectMapper(mapper);
-        return converter;
-    }
 
     @Bean Queue queueSolr() { return new Queue(Constants.Queues.ANNOTATION_SAVE_SOLR, false); }
     @Bean Queue queueSolrReplace() { return new Queue(Constants.Queues.ANNOTATION_REPLACE_SOLR, false); }
