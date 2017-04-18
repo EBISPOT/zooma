@@ -31,19 +31,6 @@ public class  AnnotationService {
     @Autowired
     ProvenanceRepository provenanceRepository;
 
-    @Autowired
-    Session session;
-
-
-    @Transactional
-    public void save(Annotation annotation){
-        Annotation annotation1 = annotationRepository.findByMongoid(annotation.getMongoid());
-
-        if(annotation1 == null) {
-            session.save(annotation);
-        }
-
-    }
 
     @Transactional
     public void save(Provenance provenance){
