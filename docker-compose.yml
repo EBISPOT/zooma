@@ -26,7 +26,8 @@ services:
     zooma-solr:
         image: zooma:latest
         depends_on:
-            - zooma-mongo
+        - solr
+        - rabbitmq
         links:
             - solr
             - rabbitmq
@@ -41,19 +42,45 @@ services:
         - spring.rabbitmq.activate=true
         ports:
         - 8081:8080
+    zooma-neo4j:
+        image: zooma:latest
+        depends_on:
+        - neo4j
+        - rabbitmq
+        links:
+            - neo4j
+            - rabbitmq
+        command: sh -c "echo zooma-neo4j sleeping for 20s; sleep 20; chmod +x /home/start_zooma_neo4j.sh; /home/start_zooma_neo4j.sh"
+            # - java
+            #- -jar
+            #- /home/zooma-neo4j-3.0.0-SNAPSHOT.jar
+        environment:
+        - spring.rabbitmq.host=rabbitmq
+        - spring.rabbitmq.activate=true
+        - spring.data.neo4j.uri=http://neo4j:7474
+        - spring.data.neo4j.username=neo4j
+        - spring.data.neo4j.password=null
+        - spring.data.neo4j.indexes.auto=assert
+        #- spring.data.neo4j.indexes.auto=none
+        - spring.jackson.serialization.write-dates-as-timestamps:false
+        ports:
+        - 8082:8080
     solr:
         image: solr:5.5.3-alpine
-        command: ["solr", "-f"]
         environment:
         - SOLR_HOME=/home/mysolrhome
         ports: 
         - 8983:8983
         volumes:
         - ./zooma-solr/src/main/solr-5-config/:/home/mysolrhome
+          #- ./zooma-solr/src/main/sample_data/data/:/home/mysolrhome/annotation/data/
+        command: ["solr", "-f"]
     mongo:
         image: mongo:3.2
         ports:
         - 27017:27017
+        #volumes:
+        #- ./zooma-mongo/src/main/sample_data:/data/db
         command:
         - mongod
     rabbitmq:
@@ -64,5 +91,14 @@ services:
         - 5672:5672
         volumes:
         - rabbitmq_data:/var/lib/rabbitmq/mnesia/rabbit@zooma-rabbitmq
+    neo4j:
+        image: neo4j:3.1-enterprise
+        environment:
+        - NEO4J_AUTH=none
+        ports:
+        - 7474:7474
+        - 7687:7687
+        #volumes:
+        #- ./zooma-neo4j/src/main/sample_data:/data
 volumes:
     rabbitmq_data: null
