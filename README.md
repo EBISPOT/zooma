@@ -22,8 +22,38 @@ ZOOMA - Optimal Ontology Mapping Application. http://www.ebi.ac.uk/spot/zooma.
  
  internal Solr interface at http://localhost:8983/
  
+To stop docker containers from running: 
+
+`docker-compose down`
+ 
  To load data to the application in the container:
  - Edit the application.properties.example file in zooma-csv-loader
  - Rename it to application.properties
  - Run `mvn package` again
  - Run `java -jar zooma-csv-loader-<version>.jar` from the target directory of zooma-csv-loader while the container is running
+ 
+ # Persist Data
+ 
+ If you want the data that you load to persist, edit the `docker-compose.yml` file and uncomment the lines showed below in solr, mongo and neo4j services respectively, and the data will be saved in the paths specified. 
+
+solr:
+
+`#- ./zooma-solr/src/main/sample_data/data/:/home/mysolrhome/annotation/data/`
+
+mongo:
+
+`#volumes:`
+
+`#- ./zooma-mongo/src/main/sample_data:/data/db`
+        
+neo4j:
+
+`#volumes:`
+
+` #- ./zooma-neo4j/src/main/sample_data:/data`
+ 
+ If you stop docker and re-run it with the volumes loaded, you need go to edit the `docker-compose.yml` file and from the zooma-neo4j service comment out the 
+ 
+ `- spring.data.neo4j.indexes.auto=assert` line and 
+ 
+ un-comment the `- spring.data.neo4j.indexes.auto=none` line.
