@@ -17,10 +17,14 @@ ZOOMA - Optimal Ontology Mapping Application. http://www.ebi.ac.uk/spot/zooma.
  public zooma-mongo api: http://localhost:8080
  
  public zooma-solr api: http://localhost:8081
-
- internal RabbitMQ interface at http://localhost:15672/
  
- internal Solr interface at http://localhost:8983/
+ public zooma-neo4j api: http://localhost:8082
+
+ internal Solr endpoint at http://localhost:8983/
+ 
+ internal Neo4j endpoint at http://localhost:7474
+ 
+ internal RabbitMQ endpoint at http://localhost:15672/
  
 To stop docker containers from running: 
 
