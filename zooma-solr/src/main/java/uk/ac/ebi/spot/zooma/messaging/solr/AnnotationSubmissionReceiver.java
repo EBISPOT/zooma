@@ -8,7 +8,8 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.spot.zooma.model.solr.Annotation;
-import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryService;
+import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryServiceRead;
+import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryServiceWrite;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.Map;
  */
 public class AnnotationSubmissionReceiver {
 
-    AnnotationRepositoryService summaryRepositoryService;
+    AnnotationRepositoryServiceWrite summaryRepositoryService;
 
     ObjectMapper objectMapper;
 
@@ -35,7 +36,7 @@ public class AnnotationSubmissionReceiver {
     }
 
     @Autowired
-    public AnnotationSubmissionReceiver(AnnotationRepositoryService summaryRepositoryService, ObjectMapper objectMapper) {
+    public AnnotationSubmissionReceiver(AnnotationRepositoryServiceWrite summaryRepositoryService, ObjectMapper objectMapper) {
         this.summaryRepositoryService = summaryRepositoryService;
         this.objectMapper = objectMapper;
     }

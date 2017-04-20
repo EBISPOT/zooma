@@ -10,7 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.spot.zooma.config.SolrConfigTest;
 import uk.ac.ebi.spot.zooma.model.solr.Annotation;
-import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryService;
+import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryServiceRead;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,15 +24,15 @@ import static junit.framework.TestCase.assertTrue;
 public class ZoomaSolrApplicationTests {
 
 	@Autowired
-	AnnotationRepositoryService summaryRepositoryService;
+	AnnotationRepositoryServiceRead summaryRepositoryService;
 
 	@Test
 	@Ignore
 	public void contextLoads() throws IOException, SolrServerException {
 //		List<Annotation> annotationList = summaryRepositoryService.findByPropertyTypeAndValue(new ArrayList<>(),"organism part", "liver");
 //		assertTrue(annotationList.size() > 0);
-		String value = "gastrocnemius and soleus muscle";
-		String type = "organism part";
+		String value = "cell migration";
+		String type = "phenotype";
 		ArrayList<String> source = new ArrayList<>();
 //		source.add("eva-clinvar");
 		List<Annotation> annotationList = summaryRepositoryService.findByPropertyTypeAndValue(source, type, value);

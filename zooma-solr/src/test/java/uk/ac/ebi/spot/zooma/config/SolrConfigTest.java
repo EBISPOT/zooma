@@ -21,7 +21,7 @@ import uk.ac.ebi.spot.zooma.utils.Scorer;
 @EnableSolrRepositories(basePackages = "uk.ac.ebi.spot.zooma.repository.solr")
 public class SolrConfigTest {
 
-        @Value("${solr.host}")
+        @Value("${spring.data.solr.host}")
         private String solrHost;
 
         @Value("${spring.data.solr.core}")

@@ -45,7 +45,7 @@ public class  AnnotationService {
 
     @Transactional
     public Annotation findByMongoid(String mongoid){
-        return annotationRepository.findByMongoid(mongoid);
+        return annotationRepository.findAnnotationByMongoid(mongoid);
     }
 
 }
