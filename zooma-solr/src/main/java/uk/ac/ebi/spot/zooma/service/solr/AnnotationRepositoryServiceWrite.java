@@ -12,7 +12,6 @@ import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.zooma.model.solr.Annotation;
 import uk.ac.ebi.spot.zooma.repository.solr.AnnotationRepository;
-import uk.ac.ebi.spot.zooma.utils.Scorer;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -30,19 +29,15 @@ public class AnnotationRepositoryServiceWrite {
 
     private String solrCore;
 
-    Scorer<Annotation> scorer;
-
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     @Autowired
     public AnnotationRepositoryServiceWrite(AnnotationRepository summaryRepository,
                                            SolrTemplate solrTemplate,
-                                           @Value("${spring.data.solr.core}") String solrCore,
-                                           Scorer<Annotation> scorer) {
+                                           @Value("${spring.data.solr.core}") String solrCore) {
         this.summaryRepository = summaryRepository;
         this.solrTemplate = solrTemplate;
         this.solrCore = solrCore;
-        this.scorer = scorer;
     }
 
     private final Logger log = LoggerFactory.getLogger(getClass());

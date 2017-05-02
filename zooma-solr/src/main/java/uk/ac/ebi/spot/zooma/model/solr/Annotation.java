@@ -20,7 +20,7 @@ import java.util.*;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Annotation implements Qualitative{
+public class Annotation{
 
     @Id
     @Field

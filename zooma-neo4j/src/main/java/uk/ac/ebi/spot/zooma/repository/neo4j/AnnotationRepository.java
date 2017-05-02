@@ -26,5 +26,7 @@ public interface AnnotationRepository extends Neo4jRepository<Annotation, Long> 
             "and p.propertyType = {propertyType} " +
             "return distinct p.propertyValue, p.propertyType, a, s, propR, semTagR")
     List<Annotation> findByAnnotationPropertyPropertyTypeAndAnnotationPropertyPropertyValue(@Param("propertyType") String propertyType,
-                                                                                           @Param("propertyValue") String propertyValue);
+                                                                                            @Param("propertyValue") String propertyValue);
+
+//    List<Annotation> findByBiologicalEntityBioEntity(@Param("bioentity") String bioEntity);
 }

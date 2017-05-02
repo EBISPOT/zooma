@@ -1,5 +1,6 @@
 package uk.ac.ebi.spot.zooma.model.neo4j;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -34,6 +35,11 @@ import org.neo4j.ogm.annotation.Relationship;
 
     private void setProperty(){
         this.property = propertyType+propertyValue;
+    }
+
+    @JsonIgnore
+    public String getProperty(){
+        return property;
     }
 
     @Relationship(type = "ANNOTATES")

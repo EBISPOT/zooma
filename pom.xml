@@ -20,6 +20,7 @@
 		<!--<module>zooma-ui</module>-->
 		<module>zooma-neo4j</module>
 		<module>zooma-csv-loader</module>
+		<module>zooma-predictor</module>
 	</modules>
 
 </project>

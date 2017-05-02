@@ -6,6 +6,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.spot.zooma.config.SolrConfigTest;
@@ -33,11 +36,9 @@ public class ZoomaSolrApplicationTests {
 //		assertTrue(annotationList.size() > 0);
 		String value = "cell migration";
 		String type = "phenotype";
-		ArrayList<String> source = new ArrayList<>();
-//		source.add("eva-clinvar");
-		List<Annotation> annotationList = summaryRepositoryService.findByPropertyTypeAndValue(source, type, value);
-		if(annotationList.isEmpty()){
-			annotationList = summaryRepositoryService.findByPropertyTypeAndValue(source,null, value);
+		Page<Annotation> annotationList = summaryRepositoryService.findByPropertyTypeAndPropertyValue(type, value, new PageRequest(0, 20));
+		if(annotationList.getContent().isEmpty()){
+			annotationList = summaryRepositoryService.findByPropertyValue(value, new PageRequest(0, 20));
 		}
 		for (Annotation summary : annotationList){
 			System.out.println("propertyType: " + summary.getPropertyType());
@@ -47,7 +48,7 @@ public class ZoomaSolrApplicationTests {
 			System.out.println("source: " + summary.getSource());
 			System.out.println("========");
 		}
-		assertTrue(annotationList.size() > 0);
+		assertTrue(annotationList.getTotalElements() > 0);
 	}
 
 }

@@ -6,10 +6,13 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.zooma.model.solr.Annotation;
-import uk.ac.ebi.spot.zooma.utils.Scorer;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -24,14 +27,13 @@ public class AnnotationRepositoryServiceRead {
 
 
     private SolrTemplate solrTemplate;
-
-    Scorer<Annotation> scorer;
+    private String solrCore;
 
     @Autowired
     public AnnotationRepositoryServiceRead(SolrTemplate solrTemplate,
-                                           Scorer<Annotation> scorer) {
+                                           @Value("${spring.data.solr.core}") String solrCore) {
         this.solrTemplate = solrTemplate;
-        this.scorer = scorer;
+        this.solrCore = solrCore;
     }
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -40,70 +42,117 @@ public class AnnotationRepositoryServiceRead {
         return log;
     }
 
-    public List<Annotation>  findByPropertyTypeAndValue(List<String> sourceNames, String propertyType, String propertyValue) throws IOException, SolrServerException {
+    public Page<Annotation> findByPropertyValue(String propertyValue, Pageable pageable) throws IOException, SolrServerException {
+        String query = propertyValueQuery(propertyValue);
+        List<Annotation> results = query(query);
+        return listToPageable(results, pageable);
+    }
 
-        StringJoiner query = new StringJoiner(" AND ");
-        query.add("propertyValue:\"" + propertyValue + "\"");
-        if(propertyType != null){
-            query.add("propertyType:\"" + propertyType + "\"");
+    public Page<Annotation> findByPropertyValue(String propertyValue, List<String> sources, Pageable pageable) throws IOException, SolrServerException {
+        if (sources == null){
+            return findByPropertyValue(propertyValue, pageable);
         }
-        if(sourceNames != null && !sourceNames.isEmpty()){
-            for (String source : sourceNames){
-                query.add("source:\"" + source + "\"");
-            }
+        String query = andSourcesQuery(propertyValueQuery(propertyValue), sources);
+        List<Annotation> results = query(query);
+        return listToPageable(results, pageable);
+    }
+
+    public Page<Annotation> findByPropertyTypeAndPropertyValue(String propertyType, String propertyValue, Pageable pageable) throws IOException, SolrServerException {
+        String query = andPropertyTypeQuery(propertyValueQuery(propertyValue), propertyType);
+        List<Annotation> results = query(query);
+        return listToPageable(results, pageable);
+    }
+
+    public Page<Annotation> findByPropertyTypeAndPropertyValue(String propertyType, String propertyValue, List<String> sources, Pageable pageable) throws IOException, SolrServerException {
+        if (sources == null){
+            return findByPropertyTypeAndPropertyValue(propertyType, propertyValue, pageable);
         }
+        String query = andSourcesQuery(andPropertyTypeQuery(propertyValueQuery(propertyValue), propertyType), sources);
+        List<Annotation> results = query(query);
+        return listToPageable(results, pageable);
+    }
 
-        StringJoiner q2 = new StringJoiner(" OR ");
-        q2.add(query.toString());
-        q2.add("propertyValueStr:\"" + propertyValue + "\"^10");
-        q2.add("propertyValue:" + propertyValue);
+    String propertyValueQuery(String propertyValue){
+        StringJoiner or = new StringJoiner(" OR ");
+        or.add("propertyValue:\"" + propertyValue + "\"");
+        or.add("propertyValueStr:\"" + propertyValue + "\"^10");
+        or.add("propertyValue:" + propertyValue);
+        return or.toString();
+    }
 
+    String andPropertyTypeQuery(String query, String propertyType){
+        StringJoiner and = new StringJoiner(" AND ");
+        and.add(query);
+        and.add("propertyType:\"" + propertyType + "\"");
+        return and.toString();
+    }
+
+    String andSourcesQuery(String query, List<String> sources){
+        StringJoiner and = new StringJoiner(" AND ");
+        StringJoiner or = new StringJoiner(" OR ");
+        and.add(query);
+        for (String source : sources){
+            or.add("source:\"" + source + "\"");
+        }
+        String sourcez = "(" + or.toString() + ")";
+        and.add(sourcez);
+        return and.toString();
+    }
+
+    private Page<Annotation> listToPageable(List<Annotation> results, Pageable pageable){
+        int start = pageable.getOffset();
+        int end = (start + pageable.getPageSize()) > results.size() ? results.size() : (start + pageable.getPageSize());
+        Page<Annotation> pages = new PageImpl<Annotation>(results.subList(start, end), pageable, results.size());
+        return pages;
+    }
+
+    private List<Annotation> query(String query) throws IOException, SolrServerException {
         //get the most resent document's date
         SolrQuery solrQuery = new SolrQuery();
-        solrQuery.set("q", q2.toString());
+        solrQuery.set("q", query.toString());
         solrQuery.setRows(1);
         solrQuery.addSort("lastModified", SolrQuery.ORDER.desc);
         solrQuery.setIncludeScore(true);
-        QueryResponse response = solrTemplate.getSolrClient().query(solrQuery);
+        QueryResponse response = solrTemplate.getSolrClient().query(this.solrCore, solrQuery);
         List<Annotation> results = response.getBeans(Annotation.class);
         LocalDateTime localDateTime = null;
         if (!results.isEmpty()){
             Date dateTime = results.get(0).getLastModified();
             localDateTime = dateTime.toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
+        } else {
+            return results;
         }
 
         //query again to boost by date
         SolrQuery q = new SolrQuery();
         if (localDateTime != null){
-            q.set("bf", "sum(div(1,sum(0.001,ms(\"" + localDateTime.toString() + "Z\",lastModified))),product(sum(votes,quality,sourceNum),0.001))^0.001");
+            q.set("bf", "sum(div(1,sum(0.001,ms(" + localDateTime.toString() + "Z,lastModified))),product(sum(votes,quality,sourceNum),0.001))^0.001");
         } else {
             q.set("bf","sum(votes,sourceNum,quality)^0.001");
         }
 
-        q.set("q", q2.toString());
+//        q.set("boost","recip(ms(NOW,lastModified),3.16e-11,1,1)");
+
+//        q.set("bf", "sum(product(recip(ms(NOW,lastModified),3.16e-11,1,1),1000),product(sum(votes,quality,sourceNum),0.001))");
+
+//        q.set("boost", "sum(div(1,sum(0.001,ms(\"" + localDateTime.toString() + "Z\",lastModified))),product(sum(votes,quality,sourceNum),0.001))");
+
+//        q.set("boost", "sum(div(1,sum(0.001,ms($qq,lastModified))),product(sum(votes,quality,sourceNum),0.001))");
+//        q.set("qq","_query_:(propertyValue:\"cell migration\" AND propertyType:\"phenotype\" OR propertyValueStr:\"cell migration\"^10 OR propertyValue:cell migration&rows=1&sort=lastModified desc&fl=*,score)");
+
+        q.set("q", query.toString());
         q.set("defType", "edismax");
+        q.setRows(20);
         q.setIncludeScore(true);
 
-        response = solrTemplate.getSolrClient().query(q);
+        response = solrTemplate.getSolrClient().query(this.solrCore, q);
         results = response.getBeans(Annotation.class);
 
-        float maxSolrScore = results.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore())).get().getScore();
+        if(results.isEmpty()){
+            return results;
+        }
 
-        results.stream().forEach(annotation -> annotation.setQuality(annotation.getScore()));
-
-        Map<Annotation, Float> annotationsToScore = scorer.score(results, propertyValue);
-
-        List<Annotation> finalResult = new ArrayList<>();
-        finalResult.addAll(annotationsToScore.keySet());
-        finalResult.stream().forEach(annotation -> annotation.setQuality(normScore(maxSolrScore, annotationsToScore.get(annotation))));
-        return finalResult;
-    }
-
-    // convert to 100 where 100 is the max solr score compared to the score they get after the similarity algorithm
-    private float normScore(Float maxSolrScoreBeforeScorer, Float scoreAfterScorer) {
-        float dx = 100 * ((maxSolrScoreBeforeScorer - scoreAfterScorer) / maxSolrScoreBeforeScorer);
-        float n = 50 + (50 * (100 - dx) / 100);
-        return n;
+        return results;
     }
 
 }

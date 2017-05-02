@@ -1,6 +1,7 @@
 package uk.ac.ebi.spot.zooma.config;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.solr.core.CollectionCallback;
 import org.springframework.data.solr.core.RequestMethod;
@@ -51,6 +52,6 @@ public class TestCustomSolrTemplate extends SolrTemplate {
 
     @Override
     public <T> T execute(String collection, CollectionCallback<T> action) {
-        return super.execute(this.solrCore, action);
+        return super.execute(null, action);
     }
 }
