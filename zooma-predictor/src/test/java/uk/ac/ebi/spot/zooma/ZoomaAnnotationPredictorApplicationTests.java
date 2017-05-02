@@ -8,10 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.spot.zooma.config.TestPredictorConfig;
-import uk.ac.ebi.spot.zooma.service.AnnotationPredictionService;
+import uk.ac.ebi.spot.zooma.service.predictor.AnnotationPredictionService;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 import static org.junit.Assert.assertTrue;
 

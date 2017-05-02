@@ -1,7 +1,7 @@
-package uk.ac.ebi.spot.zooma.utils;
+package uk.ac.ebi.spot.zooma.utils.predictor;
 
 
-import uk.ac.ebi.spot.zooma.model.Qualitative;
+import uk.ac.ebi.spot.zooma.model.predictor.Qualitative;
 
 import java.util.Collection;
 import java.util.HashMap;

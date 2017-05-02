@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.zooma.utils;
+package uk.ac.ebi.spot.zooma.utils.predictor;
 
 import java.util.Collection;
 import java.util.Map;

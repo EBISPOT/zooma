@@ -1,6 +1,6 @@
-package uk.ac.ebi.spot.zooma.utils;
+package uk.ac.ebi.spot.zooma.utils.predictor;
 
-import uk.ac.ebi.spot.zooma.model.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
 
 import java.util.*;
 

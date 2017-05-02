@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.zooma.controller;
+package uk.ac.ebi.spot.zooma.controller.predictor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,11 +14,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.web.PagedResourcesAssembler;
-import uk.ac.ebi.spot.zooma.model.AnnotationPrediction;
-import uk.ac.ebi.spot.zooma.service.AnnotationPredictionService;
+import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.service.predictor.AnnotationPredictionService;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;

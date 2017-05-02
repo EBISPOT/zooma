@@ -1,8 +1,8 @@
-package uk.ac.ebi.spot.zooma.utils;
+package uk.ac.ebi.spot.zooma.utils.predictor;
 
 
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.spot.zooma.model.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
 
 /**
  * Scores annotation summaries based on their quality and a lexical match measure (using the Needleman-Wunsch algorithm)

@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.zooma.model;
+package uk.ac.ebi.spot.zooma.model.predictor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

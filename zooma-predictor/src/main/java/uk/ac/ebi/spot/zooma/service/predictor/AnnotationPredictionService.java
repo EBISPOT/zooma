@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.zooma.service;
+package uk.ac.ebi.spot.zooma.service.predictor;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,9 +10,9 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import uk.ac.ebi.spot.zooma.model.AnnotationPrediction;
-import uk.ac.ebi.spot.zooma.utils.PredictorUtils;
-import uk.ac.ebi.spot.zooma.utils.Scorer;
+import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.utils.predictor.PredictorUtils;
+import uk.ac.ebi.spot.zooma.utils.predictor.Scorer;
 
 
 import java.net.URI;

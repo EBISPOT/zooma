@@ -1,7 +1,7 @@
-package uk.ac.ebi.spot.zooma.utils;
+package uk.ac.ebi.spot.zooma.utils.predictor;
 
 import org.simmetrics.metrics.NeedlemanWunch;
-import uk.ac.ebi.spot.zooma.model.Qualitative;
+import uk.ac.ebi.spot.zooma.model.predictor.Qualitative;
 
 /**
  * An {@link AbstractStringQualityBasedScorer} that uses a the Needleman-Wunsch algorithm to
