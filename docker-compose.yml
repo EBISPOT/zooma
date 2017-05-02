@@ -23,7 +23,7 @@ services:
         - spring.rabbitmq.host=rabbitmq
         ports:
         - 8080:8080
-    zoomasolr:
+    zooma-solr:
         image: zooma:latest
         depends_on:
         - solr
@@ -42,7 +42,7 @@ services:
         - spring.rabbitmq.activate=true
         ports:
         - 8081:8080
-    zoomaneo4j:
+    zooma-neo4j:
         image: zooma:latest
         depends_on:
         - neo4j
@@ -50,7 +50,7 @@ services:
         links:
             - neo4j
             - rabbitmq
-        command: sh -c "echo zoomaneo4j sleeping for 20s; sleep 20; chmod +x /home/start_zooma_neo4j.sh; /home/start_zooma_neo4j.sh"
+        command: sh -c "echo zooma-neo4j sleeping for 20s; sleep 20; chmod +x /home/start_zooma_neo4j.sh; /home/start_zooma_neo4j.sh"
             # - java
             #- -jar
             #- /home/zooma-neo4j-3.0.0-SNAPSHOT.jar
@@ -68,17 +68,17 @@ services:
     zooma-predictor:
         image: zooma:latest
         depends_on:
-        - zoomaneo4j
-        - zoomasolr
+        - zooma-neo4j
+        - zooma-solr
         links:
-            - zoomaneo4j
-            - zoomasolr
+            - zooma-neo4j
+            - zooma-solr
         environment:
         - cutoff.percentage=0.9
         - cutoff.score=80.0
         - ols.term.location=http://www.ebi.ac.uk/ols/api/terms?iri=
         - zooma.neo4j.location=http://localhost:8082
-        - zooma.solr.location=http://zoomasolr:8080
+        - zooma.solr.location=http://zooma-solr:8080
         command: 
             - java
             - -jar
