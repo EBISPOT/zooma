@@ -1,6 +1,6 @@
 package uk.ac.ebi.spot.zooma.utils.predictor;
 
-import uk.ac.ebi.spot.zooma.model.predictor.Qualitative;
+import uk.ac.ebi.spot.zooma.model.predictor.Scorable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,12 +14,12 @@ import java.util.Map;
  * @author Tony Burdett
  * @date 30/11/13
  */
-public abstract class AbstractQualityBasedScorer<T extends Qualitative> implements Scorer<T> {
+public abstract class AbstractQualityBasedScorer<T extends Scorable> implements Scorer<T> {
     @Override
     public Map<T, Float> score(Collection<T> collection) {
         Map<T, Float> results = new HashMap<>();
         for (T t : collection) {
-            results.put(t, t.getQuality());
+            results.put(t, t.getScore());
         }
         return results;
     }

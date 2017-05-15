@@ -19,7 +19,7 @@ import java.util.Date;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AnnotationPrediction extends ResourceSupport implements Qualitative {
+public class AnnotationPrediction extends ResourceSupport implements Scorable {
 
     @NonNull
     private String propertyType;
@@ -47,10 +47,9 @@ public class AnnotationPrediction extends ResourceSupport implements Qualitative
 
     private Confidence confidence;
 
-
     @JsonIgnore
-    public float getScore(){
-        return score;
+    public float getQuality(){
+        return this.quality;
     }
 
     @JsonIgnore

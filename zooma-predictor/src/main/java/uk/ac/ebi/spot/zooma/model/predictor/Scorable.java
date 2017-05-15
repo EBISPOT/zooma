@@ -8,11 +8,11 @@ import java.io.Serializable;
  * @author Tony Burdett
  * @date 30/11/13
  */
-public interface Qualitative extends Serializable {
+public interface Scorable extends Serializable {
     /**
      * Returns a metric measuring the quality score of this object.
      *
      * @return a float representing the quality of this object
      */
-    float getQuality();
+    float getScore();
 }

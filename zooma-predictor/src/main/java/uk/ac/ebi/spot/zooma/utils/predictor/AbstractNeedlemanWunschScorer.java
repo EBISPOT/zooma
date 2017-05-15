@@ -1,7 +1,7 @@
 package uk.ac.ebi.spot.zooma.utils.predictor;
 
 import org.simmetrics.metrics.NeedlemanWunch;
-import uk.ac.ebi.spot.zooma.model.predictor.Qualitative;
+import uk.ac.ebi.spot.zooma.model.predictor.Scorable;
 
 /**
  * An {@link AbstractStringQualityBasedScorer} that uses a the Needleman-Wunsch algorithm to
@@ -10,7 +10,7 @@ import uk.ac.ebi.spot.zooma.model.predictor.Qualitative;
  * @author Tony Burdett
  * @date 12/12/13
  */
-public abstract class AbstractNeedlemanWunschScorer<T extends Qualitative> extends AbstractStringQualityBasedScorer<T> {
+public abstract class AbstractNeedlemanWunschScorer<T extends Scorable> extends AbstractStringQualityBasedScorer<T> {
     private NeedlemanWunch nwSimilarity;
 
     public AbstractNeedlemanWunschScorer() {

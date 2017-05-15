@@ -39,7 +39,7 @@ public class PredictorUtils {
 
         boolean achievedScore = false;
         for (AnnotationPrediction summary : results) {
-            if (!achievedScore && summary.getQuality() > cutoffScore) {
+            if (!achievedScore && summary.getScore() > cutoffScore) {
                 achievedScore = true;
                 break; //won't come in here again
             }

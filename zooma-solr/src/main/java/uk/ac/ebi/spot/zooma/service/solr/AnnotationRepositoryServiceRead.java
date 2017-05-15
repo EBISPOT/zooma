@@ -126,10 +126,11 @@ public class AnnotationRepositoryServiceRead {
         //query again to boost by date
         SolrQuery q = new SolrQuery();
         if (localDateTime != null){
-            q.set("bf", "sum(div(1,sum(0.001,ms(" + localDateTime.toString() + "Z,lastModified))),product(sum(votes,quality,sourceNum),0.001))^0.001");
-        } else {
-            q.set("bf","sum(votes,sourceNum,quality)^0.001");
-        }
+            q.set("bf", "div(1,sum(0.001,ms(" + localDateTime.toString() + "Z,lastModified)))^0.01");
+//            q.set("bf", "sum(div(1,sum(0.001,ms(" + localDateTime.toString() + "Z,lastModified))),product(sum(votes,quality,sourceNum),0.001))^0.001");
+        } //else {
+//            q.set("bf","sum(votes,sourceNum,quality)^0.001");
+//        }
 
 //        q.set("boost","recip(ms(NOW,lastModified),3.16e-11,1,1)");
 

@@ -1,21 +1,16 @@
 package uk.ac.ebi.spot.zooma.service.predictor;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.hateoas.PagedResources;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import uk.ac.ebi.spot.zooma.engine.AnnotationPredictionSearch;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
 import uk.ac.ebi.spot.zooma.utils.predictor.PredictorUtils;
 import uk.ac.ebi.spot.zooma.utils.predictor.Scorer;
 
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -27,24 +22,18 @@ public class AnnotationPredictionService {
 
     private float cutoffScore;
     private float cutoffPercentage;
-    private RestTemplate restTemplate;
-    private ObjectMapper objectMapper;
     private Scorer<AnnotationPrediction> scorer;
-    private String zoomaSolrLocation;
+    AnnotationPredictionSearch annotationPredictionSearch;
 
     @Autowired
     public AnnotationPredictionService(@Value("${cutoff.score}") float cutoffScore,
                                        @Value("${cutoff.percentage}") float cutoffPercentage,
-                                       RestTemplate restTemplate,
-                                       ObjectMapper objectMapper,
                                        Scorer<AnnotationPrediction> scorer,
-                                       @Value("${zooma.solr.location}") String zoomaSolrLocation) {
+                                       AnnotationPredictionSearch annotationPredictionSearch) {
         this.cutoffScore = cutoffScore;
         this.cutoffPercentage = cutoffPercentage;
-        this.restTemplate = restTemplate;
-        this.objectMapper = objectMapper;
         this.scorer = scorer;
-        this.zoomaSolrLocation = zoomaSolrLocation;
+        this.annotationPredictionSearch = annotationPredictionSearch;
     }
 
     public float getCutoffScore() {
@@ -60,38 +49,16 @@ public class AnnotationPredictionService {
 
 
     public List<AnnotationPrediction> predictByPropertyValue(String propertyValue) throws URISyntaxException {
-        URI uri = UriComponentsBuilder.fromHttpUrl(this.zoomaSolrLocation)
-                .path("/annotations/search/findByPropertyValue")
-                .queryParam("propertyValue", propertyValue)
-                .build().toUri();
 
-        PagedResources<AnnotationPrediction> r = restTemplate
-                .getForObject(uri,
-                        PagedResources.class);
-
-        List<AnnotationPrediction> results = objectMapper.convertValue(r.getContent() , new TypeReference<List<AnnotationPrediction>>(){});
+        List<AnnotationPrediction> results = annotationPredictionSearch.search(propertyValue);
 
         //scoring
         return calculateConfidence(results, propertyValue);
     }
 
     public List<AnnotationPrediction> predictByPropertyValueWithFilter(String propertyValue, List<String> sources) throws URISyntaxException {
-        StringJoiner stringJoiner = new StringJoiner(",");
-        for (String s : sources){
-            stringJoiner.add(s);
-        }
 
-        URI uri = UriComponentsBuilder.fromHttpUrl(this.zoomaSolrLocation)
-                .path("/annotations/search/findByPropertyValue")
-                .queryParam("propertyValue", propertyValue)
-                .queryParam("filter", stringJoiner.toString())
-                .build().toUri();
-
-        PagedResources<AnnotationPrediction> r = restTemplate
-                .getForObject(uri,
-                        PagedResources.class);
-
-        List<AnnotationPrediction> results = objectMapper.convertValue(r.getContent() , new TypeReference<List<AnnotationPrediction>>(){});
+        List<AnnotationPrediction> results = annotationPredictionSearch.search(propertyValue, sources);
 
         //scoring
         return calculateConfidence(results, propertyValue);
@@ -99,17 +66,7 @@ public class AnnotationPredictionService {
 
     public List<AnnotationPrediction> predictByPropertyTypeAndValue(String propertyType, String propertyValue) throws URISyntaxException {
 
-        URI uri = UriComponentsBuilder.fromHttpUrl(this.zoomaSolrLocation)
-                .path("/annotations/search/findByPropertyTypeAndValue")
-                .queryParam("propertyType", propertyType)
-                .queryParam("propertyValue", propertyValue)
-                .build().toUri();
-
-        PagedResources<AnnotationPrediction> r = restTemplate
-                .getForObject(uri,
-                        PagedResources.class);
-
-        List<AnnotationPrediction> results = objectMapper.convertValue(r.getContent() , new TypeReference<List<AnnotationPrediction>>(){});
+        List<AnnotationPrediction> results = annotationPredictionSearch.search(propertyType, propertyValue);
 
         //scoring
         return calculateConfidence(results, propertyValue);
@@ -117,41 +74,47 @@ public class AnnotationPredictionService {
 
     public List<AnnotationPrediction> predictByPropertyTypeAndValueWithFilter(String propertyType, String propertyValue, List<String> sources) throws URISyntaxException {
 
-        StringJoiner stringJoiner = new StringJoiner(",");
-        for (String s : sources){
-            stringJoiner.add(s);
-        }
-
-        URI uri = UriComponentsBuilder.fromHttpUrl(this.zoomaSolrLocation)
-                .path("/annotations/search/findByPropertyTypeAndValue")
-                .queryParam("propertyType", propertyType)
-                .queryParam("propertyValue", propertyValue)
-                .queryParam("filter", stringJoiner.toString())
-                .build().toUri();
-
-        PagedResources<AnnotationPrediction> r = restTemplate
-                .getForObject(uri,
-                        PagedResources.class);
-
-        List<AnnotationPrediction> results = objectMapper.convertValue(r.getContent() , new TypeReference<List<AnnotationPrediction>>(){});
+        List<AnnotationPrediction> results = annotationPredictionSearch.search(propertyType, propertyValue, sources);
 
         //scoring
         return calculateConfidence(results, propertyValue);
     }
 
     private List<AnnotationPrediction> calculateConfidence(List<AnnotationPrediction> results, String propertyValue) {
-        Optional<AnnotationPrediction> maxAnn = results.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
 
+        int totalDocumentsFound = 0;
+        for (AnnotationPrediction prediction : results){
+            totalDocumentsFound = totalDocumentsFound + prediction.getVotes();
+        }
+
+        //effectively final
+        int totDoc = totalDocumentsFound;
+        Optional<AnnotationPrediction> maxAnn = results.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
         float maxSolrScore = maxAnn.isPresent() ? maxAnn.get().getScore() : 0.0f;
 
-        results.stream().forEach(annotation -> annotation.setQuality(annotation.getScore()));
+        results.stream().forEach(annotation -> {
+            float sourceNumber = annotation.getSource().size();
+            float numOfDocs = annotation.getVotes();
+            float topQuality = annotation.getQuality();
+            float normalizedFreq = 1.0f + (totDoc > 0 ? (numOfDocs / totDoc) : 0);
+            float normalizedSolrScore = 1.0f + annotation.getScore() / maxSolrScore;
+            float score = (topQuality + sourceNumber) * normalizedSolrScore * normalizedFreq;
+            annotation.setScore(score);
+        });
 
+        //scorer based on text similarity
         Map<AnnotationPrediction, Float> annotationsToScore = scorer.score(results, propertyValue);
 
         List<AnnotationPrediction> scoredResults = new ArrayList<>();
         scoredResults.addAll(annotationsToScore.keySet());
-        scoredResults.stream().forEach(annotation -> annotation.setQuality(normScore(maxSolrScore, annotationsToScore.get(annotation))));
 
+        maxAnn = scoredResults.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
+        float maxNormalizedScore = maxAnn.isPresent() ? maxAnn.get().getScore() : 0.0f;
+
+        //normalize to 100
+        scoredResults.stream().forEach(annotation -> annotation.setScore(normScore(maxNormalizedScore, annotationsToScore.get(annotation))));
+
+        //cutoff 80%
         List<AnnotationPrediction> summaries = getGoodAnnotationSummaries(scoredResults, getCutoffPercentage());
 
 //         now we have a list of annotation summaries; use this list to create predicted annotations
@@ -175,7 +138,7 @@ public class AnnotationPredictionService {
 
         Map<AnnotationPrediction, Float> annotationsToNormScore = new HashMap<>();
         for(AnnotationPrediction summary : annotationSummaries){
-            annotationsToNormScore.put(summary, summary.getQuality());
+            annotationsToNormScore.put(summary, summary.getScore());
         }
 
         //cutoff scores based on the difference between the first score
