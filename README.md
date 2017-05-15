@@ -19,6 +19,8 @@ ZOOMA - Optimal Ontology Mapping Application. http://www.ebi.ac.uk/spot/zooma.
  public zooma-solr api: http://localhost:8081
  
  public zooma-neo4j api: http://localhost:8082
+ 
+ public zooma-predictor api: http://localhost:8083
 
  internal Solr endpoint at http://localhost:8983/
  
@@ -61,3 +63,14 @@ neo4j:
  `- spring.data.neo4j.indexes.auto=assert` line and 
  
  un-comment the `- spring.data.neo4j.indexes.auto=none` line.
+ 
+ # Search zooma
+ 
+ - by property value: http://localhost:8083/predictions/annotate?propertyValue=propertyValue
+ 
+ - by property value filter sources: http://localhost:8083/predictions/annotate?propertyValue=propertyValue&filter=source1,source2
+ 
+ - by property type and property value: http://localhost:8083/predictions/annotate?propertyType=propertyType&propertyValue=propertyValue
+ 
+ - by property type and property value filter sources: http://localhost:8083/predictions/annotate?propertyType=propertyType&propertyValue=propertyValue&filter=source1,source2
+ 
