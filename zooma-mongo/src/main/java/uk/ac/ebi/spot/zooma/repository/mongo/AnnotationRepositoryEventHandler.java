@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.*;
-import org.springframework.stereotype.Service;
+import org.springframework.data.rest.core.event.AbstractRepositoryEventListener;
+import org.springframework.stereotype.Component;
+import uk.ac.ebi.spot.zooma.exception.AnnotationAlreadyExiststException;
 import uk.ac.ebi.spot.zooma.messaging.Constants;
 import uk.ac.ebi.spot.zooma.model.mongo.Annotation;
 import uk.ac.ebi.spot.zooma.utils.AnnotationChecksum;
@@ -18,9 +20,9 @@ import java.util.Collection;
  * @author Tony Burdett
  * @date 06/01/17
  */
-@Service
+@Component
 @RepositoryEventHandler
-public class AnnotationRepositoryEventHandler {
+public class AnnotationRepositoryEventHandler extends AbstractRepositoryEventListener{
     private final Logger log = LoggerFactory.getLogger(getClass());
     protected Logger getLog() {
         return log;
@@ -50,7 +52,7 @@ public class AnnotationRepositoryEventHandler {
 
     @HandleBeforeCreate
     public void handleAnnotationBeforeCreate(Annotation annotation){
-        String hash = annotationChecksum.getChecksum(annotation, annotationRepository);
+        String hash = getChecksum(annotation);
         annotation.setChecksum(hash);
         //if the user has set an id for the annotation
         //annotations should only be created by mongo
@@ -68,7 +70,7 @@ public class AnnotationRepositoryEventHandler {
     public void handleAnnotationBeforeSave(Annotation annotation){
         String oldAnnotationId = annotation.getId();
         Annotation oldAnnotation = annotationRepository.findOne(oldAnnotationId);
-        String checksum = annotationChecksum.getChecksum(annotation, annotationRepository);
+        String checksum = getChecksum(annotation);
 
         //create the new annotation with the body of the sent annotation
         Annotation newAnnToSave = new Annotation(annotation.getBiologicalEntities(),
@@ -96,5 +98,20 @@ public class AnnotationRepositoryEventHandler {
         annotation.setQuality();
 
         getLog().info("Annotation: " + newAnn.getId() + " has replaced: " + annotation.getId());
+    }
+
+    /**
+     * Calculates the hash of the annotation and
+     * throws an error if it already exists
+     * @param annotation
+     */
+    private String getChecksum(Annotation annotation){
+        String annHash = annotationChecksum.getAnnotationHash(annotation);
+        Annotation existingAnn = annotationRepository.findByChecksum(annHash);
+        if (existingAnn != null) {
+            //update the annotation with nothing?
+            throw new AnnotationAlreadyExiststException(existingAnn.getId());
+        }
+        return annHash;
     }
 }

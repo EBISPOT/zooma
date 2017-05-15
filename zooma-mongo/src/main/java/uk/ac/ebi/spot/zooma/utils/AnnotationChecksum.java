@@ -3,10 +3,8 @@ package uk.ac.ebi.spot.zooma.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.spot.zooma.exception.AnnotationAlreadyExiststException;
 import uk.ac.ebi.spot.zooma.model.mongo.Annotation;
 import uk.ac.ebi.spot.zooma.model.mongo.MongoAnnotationProvenance;
-import uk.ac.ebi.spot.zooma.repository.mongo.AnnotationRepository;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -26,20 +24,6 @@ public class AnnotationChecksum {
         return log;
     }
 
-    /**
-     * Calculates the hash of the annotation and
-     * throws an error if it already exists
-     * @param annotation
-     */
-    public String getChecksum(Annotation annotation, AnnotationRepository annotationRepository){
-        String annHash = getAnnotationHash(annotation);
-        Annotation existingAnn = annotationRepository.findByChecksum(annHash);
-        if (existingAnn != null) {
-            //update the annotation with nothing?
-            throw new AnnotationAlreadyExiststException(existingAnn.getId());
-        }
-        return annHash;
-    }
 
     public String getAnnotationHash(Annotation annotation){
         List<String> idContents = new ArrayList<>();
