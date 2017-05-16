@@ -78,5 +78,5 @@ neo4j:
  
   - by property type and property value filter sources: http://localhost:8083/predictions/annotate?type=propertyType&q=propertyValue&sources=source1,source2&exclusive=true
   
-  -If you want to boost/filter by topics instead of sources, just replace the "sources=source1,source2" with "topics:topic1,topic2"
+  - <b>If you want to boost/filter by topics instead of sources, just replace "sources=source1,source2" in the above queries with "topics:topic1,topic2"</b>
  
