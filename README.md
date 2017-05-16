@@ -66,11 +66,17 @@ neo4j:
  
  # Search zooma
  
- - by property value: http://localhost:8083/predictions/annotate?propertyValue=propertyValue
+ - by property value: http://localhost:8083/predictions/annotate?q=propertyValue
  
- - by property value filter sources: http://localhost:8083/predictions/annotate?propertyValue=propertyValue&filter=source1,source2
+ - by property value boost sources: http://localhost:8083/predictions/annotate?q=propertyValue&sources=source1,source2
  
- - by property type and property value: http://localhost:8083/predictions/annotate?propertyType=propertyType&propertyValue=propertyValue
+  - by property value filter sources: http://localhost:8083/predictions/annotate?q=propertyValue&sources=source1,source2&exclusive=true
  
- - by property type and property value filter sources: http://localhost:8083/predictions/annotate?propertyType=propertyType&propertyValue=propertyValue&filter=source1,source2
+ - by property type and property value: http://localhost:8083/predictions/annotate?type=propertyType&q=propertyValue
+ 
+ - by property type and property value boost sources: http://localhost:8083/predictions/annotate?type=propertyType&q=propertyValue&sources=source1,source2
+ 
+  - by property type and property value filter sources: http://localhost:8083/predictions/annotate?type=propertyType&q=propertyValue&sources=source1,source2&exclusive=true
+  
+  -If you want to boost/filter by topics instead of sources, just replace the "sources=source1,source2" with "topics:topic1,topic2"
  
