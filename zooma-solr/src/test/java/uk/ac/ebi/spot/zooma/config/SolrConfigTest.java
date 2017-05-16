@@ -13,7 +13,7 @@ import org.springframework.data.solr.repository.config.EnableSolrRepositories;
  * Created by olgavrou on 13/10/2016.
  */
 @Configuration
-@ComponentScan("uk.ac.ebi.spot")
+//@ComponentScan("uk.ac.ebi.spot")
 @EnableSolrRepositories(basePackages = "uk.ac.ebi.spot.zooma.repository.solr")
 public class SolrConfigTest {
 

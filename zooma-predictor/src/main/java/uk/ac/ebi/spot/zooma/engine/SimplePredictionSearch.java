@@ -20,16 +20,16 @@ import java.util.StringJoiner;
  * Created by olgavrou on 15/05/2017.
  */
 @Component("delegate")
-public class SimpleAnnotationPredictionSearch implements AnnotationPredictionSearch {
+public class SimplePredictionSearch implements PredictionSearch {
 
     private RestTemplate restTemplate;
     private ObjectMapper objectMapper;
     private String zoomaHttpLocation;
 
     @Autowired
-    public SimpleAnnotationPredictionSearch(RestTemplate restTemplate,
-                                            ObjectMapper objectMapper,
-                                            @Value("${zooma.solr.location}")String zoomaHttpLocation) {
+    public SimplePredictionSearch(RestTemplate restTemplate,
+                                  ObjectMapper objectMapper,
+                                  @Value("${zooma.solr.location}")String zoomaHttpLocation) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.zoomaHttpLocation = zoomaHttpLocation;
@@ -44,8 +44,8 @@ public class SimpleAnnotationPredictionSearch implements AnnotationPredictionSea
     public List<AnnotationPrediction> search(String propertyValuePattern) {
 
         URI uri = UriComponentsBuilder.fromHttpUrl(this.zoomaHttpLocation)
-                .path("/annotations/search/findByPropertyValue")
-                .queryParam("propertyValue", propertyValuePattern)
+                .path("/annotations/search")
+                .queryParam("q", propertyValuePattern)
                 .build().toUri();
 
         PagedResources<AnnotationPrediction> r = restTemplate
@@ -56,17 +56,17 @@ public class SimpleAnnotationPredictionSearch implements AnnotationPredictionSea
     }
 
     @Override
-    public List<AnnotationPrediction> search(String propertyValuePattern, List<String> sources) {
-        StringJoiner stringJoiner = new StringJoiner(",");
-        for (String s : sources){
-            stringJoiner.add(s);
+    public List<AnnotationPrediction> search(String propertyValuePattern, List<String> origin, String originType, boolean exclusiveOrigins) {
+
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(this.zoomaHttpLocation)
+                .path("/annotations/search")
+                .queryParam("q", propertyValuePattern);
+
+        if(exclusiveOrigins){
+            filterOrigin(uriComponentsBuilder, origin, originType);
         }
 
-        URI uri = UriComponentsBuilder.fromHttpUrl(this.zoomaHttpLocation)
-                .path("/annotations/search/findByPropertyValue")
-                .queryParam("propertyValue", propertyValuePattern)
-                .queryParam("filter", stringJoiner.toString())
-                .build().toUri();
+        URI uri = uriComponentsBuilder.build().toUri();
 
         PagedResources<AnnotationPrediction> r = restTemplate
                 .getForObject(uri,
@@ -74,13 +74,14 @@ public class SimpleAnnotationPredictionSearch implements AnnotationPredictionSea
 
         return objectMapper.convertValue(r.getContent() , new TypeReference<List<AnnotationPrediction>>(){});
     }
+
 
     @Override
     public List<AnnotationPrediction> search(String propertyType, String propertyValuePattern) {
         URI uri = UriComponentsBuilder.fromHttpUrl(this.zoomaHttpLocation)
-                .path("/annotations/search/findByPropertyTypeAndValue")
-                .queryParam("propertyType", propertyType)
-                .queryParam("propertyValue", propertyValuePattern)
+                .path("/annotations/search")
+                .queryParam("type", propertyType)
+                .queryParam("q", propertyValuePattern)
                 .build().toUri();
 
         PagedResources<AnnotationPrediction> r = restTemplate
@@ -92,34 +93,36 @@ public class SimpleAnnotationPredictionSearch implements AnnotationPredictionSea
     }
 
     @Override
-    public List<AnnotationPrediction> search(String propertyType, String propertyValuePattern, List<String> sources) {
-        StringJoiner stringJoiner = new StringJoiner(",");
-        for (String s : sources){
-            stringJoiner.add(s);
+    public List<AnnotationPrediction> search(String propertyType, String propertyValuePattern, List<String> origin, String originType, boolean exclusiveOrigins) {
+
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(this.zoomaHttpLocation)
+                .path("/annotations/search")
+                .queryParam("type", propertyType)
+                .queryParam("q", propertyValuePattern);
+
+        if(exclusiveOrigins){
+            filterOrigin(uriComponentsBuilder, origin, originType);
         }
 
-        URI uri = UriComponentsBuilder.fromHttpUrl(this.zoomaHttpLocation)
-                .path("/annotations/search/findByPropertyTypeAndValue")
-                .queryParam("propertyType", propertyType)
-                .queryParam("propertyValue", propertyValuePattern)
-                .queryParam("filter", stringJoiner.toString())
-                .build().toUri();
+        URI uri = uriComponentsBuilder.build().toUri();
 
         PagedResources<AnnotationPrediction> r = restTemplate
                 .getForObject(uri,
                         PagedResources.class);
 
         return objectMapper.convertValue(r.getContent() , new TypeReference<List<AnnotationPrediction>>(){});
-
     }
 
-    @Override
-    public List<AnnotationPrediction> searchByPreferredSources(String propertyValuePattern, List<String> preferredSources, List<String> requiredSources) {
-        return null;
+
+    private void filterOrigin(UriComponentsBuilder uriComponentsBuilder, List<String> origin, String originType) {
+        if(!(originType.equals("sources") || originType.equals("topics"))){
+            throw new IllegalArgumentException("Origin type must be either \"sources\" or \"topics\"!");
+        }
+        StringJoiner stringJoiner = new StringJoiner(",");
+        for (String s : origin){
+            stringJoiner.add(s);
+        }
+        uriComponentsBuilder.queryParam(originType, stringJoiner.toString());
     }
 
-    @Override
-    public List<AnnotationPrediction> searchByPreferredSources(String propertyType, String propertyValuePattern, List<String> preferredSources, List<String> requiredSources) {
-        return null;
-    }
 }

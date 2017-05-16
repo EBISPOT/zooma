@@ -58,6 +58,10 @@ public class Annotation{
 
     @Field
     @NonNull
+    private Collection<String> topic;
+
+    @Field
+    @NonNull
     private float quality;
 
     @Field

@@ -1,5 +1,7 @@
 package uk.ac.ebi.spot.zooma.model.mongo;
 
+import java.util.Collection;
+
 /**
  * Created by olgavrou on 04/08/2016.
  */
@@ -8,7 +10,7 @@ public interface AnnotationSource {
     String getUri();
     String getName();
     Type getType();
-    String getTopic();
+    Collection<String> getTopic();
 
 
     enum Type {

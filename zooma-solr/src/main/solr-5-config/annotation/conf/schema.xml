@@ -418,6 +418,7 @@
     <field name="strongestMongoid" type="strings" multiValued="false" stored="true"/>
     <field name="semanticTag" type="strings" multiValued="true" stored="true"/>
     <field name="source" type="strings" multiValued="true" stored="true"/>
+    <field name="topic" type="strings" multiValued="true" stored="true"/>
     <field name="quality" type="float" multiValued="false" stored="true"/>
     <field name="votes" type="int" multiValued="false" stored="true"/>
     <field name="sourceNum" type="int" multiValued="false" stored="true"/>

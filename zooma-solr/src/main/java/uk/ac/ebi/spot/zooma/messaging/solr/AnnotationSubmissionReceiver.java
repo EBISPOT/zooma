@@ -8,7 +8,6 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.spot.zooma.model.solr.Annotation;
-import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryServiceRead;
 import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryServiceWrite;
 
 import java.io.IOException;
@@ -69,6 +68,11 @@ public class AnnotationSubmissionReceiver {
         Collection<String> source = new ArrayList<>();
         source.add((String) propertiesMap.get("sourceName"));
         propertiesMap.put("source", source);
+
+        //source topic  field in Solr Annotation class, is topic
+        Collection<String> topic = new ArrayList<>();
+        topic.addAll((Collection<String>) propertiesMap.get("sourceTopic"));
+        propertiesMap.put("topic", topic);
 
         //need to set the mongoid field
         Collection<String> mongoid = new ArrayList<>();

@@ -109,6 +109,18 @@ public class AnnotationRepositoryServiceWrite {
             partialUpdate.increaseValueOfField("sourceNum", 1);
         }
 
+        Collection<String> existingTopics = existingAnn.getTopic();
+        Collection<String> newTopics = new ArrayList<>();
+        summary.getTopic().stream().forEach(s -> {
+                if (!existingTopics.contains(s)){
+                    newTopics.add(s);
+                }
+            }
+        );
+        if(!newTopics.isEmpty()) {
+            partialUpdate.addValueToField("topic", newTopics);
+        }
+
         partialUpdate.addValueToField("mongoid", summary.getMongoid());
         if(existingAnn.getQuality() < summary.getQuality()){
             //new annotationSummary has higher quality

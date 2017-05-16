@@ -36,8 +36,8 @@ public class SimpleAnnotation {
 
     @Override
     public String toString() {
-        Collection<String> semanticTags = this.getSemanticTagAsStringCollection(semantictag);
-
+        Collection<String> semanticTags = this.getStringAsCollection(getSemantictag());
+        Collection<String> topics = this.getStringAsCollection(getTopic());
         String string = "{" +
                 "\"provenance\" : {" +
                     "\"evidence\" : \"" + getEvidence() + "\"," +
@@ -46,7 +46,7 @@ public class SimpleAnnotation {
                     "\"generator\" : \"ZOOMA" + "\"," +
                     "\"source\" : { " +
                         "\"name\" : \"" + getName() + "\"," +
-                        "\"topic\" : \"" + getTopic() + "\"," +
+                        "\"topic\" : " + topics.toString() + "," +
                         "\"type\" : \"" + getType() + "\"," +
                         "\"uri\" : \"" + getUri() + "\"" +
                     "}," +
@@ -69,17 +69,17 @@ public class SimpleAnnotation {
 
     }
 
-    private Collection<String> getSemanticTagAsStringCollection(String semantictag){
-        Collection<String> semTags = new ArrayList<>();
-        if(semantictag.contains("|")){
-            String[] sts = semantictag.split("\\|");
+    private Collection<String> getStringAsCollection(String string){
+        Collection<String> collection = new ArrayList<>();
+        if(string.contains("|")){
+            String[] sts = string.split("\\|");
             for(String s : sts){
-                semTags.add("\"" + s + "\"");
+                collection.add("\"" + s + "\"");
             }
         } else {
-            semTags.add("\"" + semantictag + "\"");
+            collection.add("\"" + string + "\"");
         }
-        return semTags;
+        return collection;
     }
 
    public enum Action {

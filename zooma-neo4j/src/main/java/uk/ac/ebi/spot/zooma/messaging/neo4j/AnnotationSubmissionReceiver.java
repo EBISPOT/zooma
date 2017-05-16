@@ -110,7 +110,7 @@ public class AnnotationSubmissionReceiver {
 
         Source source = new Source();
         source.setName((String) propertiesMap.get("sourceName"));
-        source.setTopic((String) propertiesMap.get("sourceTopic"));
+        source.setTopic((Collection<String>) propertiesMap.get("sourceTopic"));
         source.setType((String) propertiesMap.get("sourceType"));
         source.setUri((String) propertiesMap.get("sourceUri"));
 

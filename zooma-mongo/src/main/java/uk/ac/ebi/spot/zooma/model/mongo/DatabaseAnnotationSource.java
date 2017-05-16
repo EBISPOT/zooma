@@ -3,6 +3,8 @@ package uk.ac.ebi.spot.zooma.model.mongo;
 import lombok.Data;
 import lombok.NonNull;
 
+import java.util.Collection;
+
 /**
  * Created by olgavrou on 05/08/2016.
  */
@@ -16,6 +18,6 @@ public class DatabaseAnnotationSource implements AnnotationSource {
 
     private final Type type = Type.DATABASE;
     @NonNull
-    private String topic;
+    private Collection<String> topic;
 
 }

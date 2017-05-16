@@ -34,21 +34,56 @@ public class AnnotationController {
     }
 
     @RestResource
-    @RequestMapping(value = "/annotations/search/findByPropertyValue", method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity<PagedResources<Annotation>> findByPropertyValueFilterSources(@RequestParam(value = "propertyValue") String propertyValue,
-                                                                                   @RequestParam(value = "filter", required = false) List<String> sources,
-                                                                      PagedResourcesAssembler assembler, Pageable pageable) throws IOException, SolrServerException {
-        Page<Annotation> annotations = repositoryServiceRead.findByPropertyValue(propertyValue, sources, pageable);
+    @RequestMapping(value = "/annotations/search", params = {"q"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity<PagedResources<Annotation>> findByPropertyValue(@RequestParam(value = "q") String propertyValue,
+                                                                                   PagedResourcesAssembler assembler, Pageable pageable) throws IOException, SolrServerException {
+        Page<Annotation> annotations = repositoryServiceRead.findByPropertyValue(propertyValue, pageable);
         return new ResponseEntity<>(assembler.toResource(annotations), HttpStatus.OK);
     }
 
     @RestResource
-    @RequestMapping(value = "/annotations/search/findByPropertyTypeAndValue", method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity<PagedResources<Annotation>> findByPropertyTypeAndValueFilterSources(@RequestParam(value = "propertyType") String propertyType,
-                                                                                          @RequestParam(value = "propertyValue") String propertyValue,
-                                                                                   @RequestParam(value = "filter", required = false) List<String> sources,
+    @RequestMapping(value = "/annotations/search", params = {"q", "sources"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity<PagedResources<Annotation>> findByPropertyValueFilterSources(@RequestParam(value = "q") String propertyValue,
+                                                                                   @RequestParam(value = "sources", required = false) List<String> sources,
+                                                                      PagedResourcesAssembler assembler, Pageable pageable) throws IOException, SolrServerException {
+        Page<Annotation> annotations = repositoryServiceRead.findByPropertyValue(propertyValue, sources, "source", pageable);
+        return new ResponseEntity<>(assembler.toResource(annotations), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/annotations/search", params = {"q", "topics"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity<PagedResources<Annotation>> findByPropertyValueFilterTopics(@RequestParam(value = "q") String propertyValue,
+                                                                                   @RequestParam(value = "topics", required = false) List<String> topics,
                                                                                    PagedResourcesAssembler assembler, Pageable pageable) throws IOException, SolrServerException {
-        Page<Annotation> annotations = repositoryServiceRead.findByPropertyTypeAndPropertyValue(propertyType, propertyValue, sources, pageable);
+        Page<Annotation> annotations = repositoryServiceRead.findByPropertyValue(propertyValue, topics, "topic", pageable);
+        return new ResponseEntity<>(assembler.toResource(annotations), HttpStatus.OK);
+    }
+
+    @RestResource
+    @RequestMapping(value = "/annotations/search", params = {"type", "q"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity<PagedResources<Annotation>> findByPropertyTypeAndValue(@RequestParam(value = "type") String propertyType,
+                                                                                          @RequestParam(value = "q") String propertyValue,
+                                                                                          PagedResourcesAssembler assembler, Pageable pageable) throws IOException, SolrServerException {
+        Page<Annotation> annotations = repositoryServiceRead.findByPropertyTypeAndPropertyValue(propertyType, propertyValue, pageable);
+        return new ResponseEntity<>(assembler.toResource(annotations), HttpStatus.OK);
+    }
+
+    @RestResource
+    @RequestMapping(value = "/annotations/search", params = {"type", "q", "sources"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity<PagedResources<Annotation>> findByPropertyTypeAndValueFilterSources(@RequestParam(value = "type") String propertyType,
+                                                                                          @RequestParam(value = "q") String propertyValue,
+                                                                                   @RequestParam(value = "sources", required = false) List<String> sources,
+                                                                                   PagedResourcesAssembler assembler, Pageable pageable) throws IOException, SolrServerException {
+        Page<Annotation> annotations = repositoryServiceRead.findByPropertyTypeAndPropertyValue(propertyType, propertyValue, sources, "source", pageable);
+        return new ResponseEntity<>(assembler.toResource(annotations), HttpStatus.OK);
+    }
+
+    @RestResource
+    @RequestMapping(value = "/annotations/search", params = {"type", "q", "topics"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity<PagedResources<Annotation>> findByPropertyTypeAndValueFilterTopics(@RequestParam(value = "type") String propertyType,
+                                                                                          @RequestParam(value = "q") String propertyValue,
+                                                                                          @RequestParam(value = "topics", required = false) List<String> topics,
+                                                                                          PagedResourcesAssembler assembler, Pageable pageable) throws IOException, SolrServerException {
+        Page<Annotation> annotations = repositoryServiceRead.findByPropertyTypeAndPropertyValue(propertyType, propertyValue, topics, "topic", pageable);
         return new ResponseEntity<>(assembler.toResource(annotations), HttpStatus.OK);
     }
 }

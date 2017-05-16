@@ -34,6 +34,8 @@ public class AnnotationPrediction extends ResourceSupport implements Scorable {
     @NonNull
     private Collection<String> source;
     @NonNull
+    private Collection<String> topic;
+    @NonNull
     private float quality;
     @NonNull
     private int votes;

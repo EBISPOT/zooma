@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.spot.zooma.engine.AnnotationPredictionSearch;
+import uk.ac.ebi.spot.zooma.engine.PredictionSearch;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
 import uk.ac.ebi.spot.zooma.utils.predictor.PredictorUtils;
 import uk.ac.ebi.spot.zooma.utils.predictor.Scorer;
@@ -23,17 +23,17 @@ public class AnnotationPredictionService {
     private float cutoffScore;
     private float cutoffPercentage;
     private Scorer<AnnotationPrediction> scorer;
-    AnnotationPredictionSearch annotationPredictionSearch;
+    PredictionSearch predictionSearch;
 
     @Autowired
     public AnnotationPredictionService(@Value("${cutoff.score}") float cutoffScore,
                                        @Value("${cutoff.percentage}") float cutoffPercentage,
                                        Scorer<AnnotationPrediction> scorer,
-                                       AnnotationPredictionSearch annotationPredictionSearch) {
+                                       PredictionSearch predictionSearch) {
         this.cutoffScore = cutoffScore;
         this.cutoffPercentage = cutoffPercentage;
         this.scorer = scorer;
-        this.annotationPredictionSearch = annotationPredictionSearch;
+        this.predictionSearch = predictionSearch;
     }
 
     public float getCutoffScore() {
@@ -49,67 +49,36 @@ public class AnnotationPredictionService {
 
 
     public List<AnnotationPrediction> predictByPropertyValue(String propertyValue) throws URISyntaxException {
-
-        List<AnnotationPrediction> results = annotationPredictionSearch.search(propertyValue);
-
-        //scoring
+        List<AnnotationPrediction> results = predictionSearch.search(propertyValue);
         return calculateConfidence(results, propertyValue);
     }
 
-    public List<AnnotationPrediction> predictByPropertyValueWithFilter(String propertyValue, List<String> sources) throws URISyntaxException {
-
-        List<AnnotationPrediction> results = annotationPredictionSearch.search(propertyValue, sources);
-
-        //scoring
+    public List<AnnotationPrediction> predictByPropertyValueWithFilter(String propertyValue, List<String> origin, String originType, boolean exclusive) throws URISyntaxException {
+        List<AnnotationPrediction> results = predictionSearch.search(propertyValue, origin, originType, exclusive);
         return calculateConfidence(results, propertyValue);
     }
 
     public List<AnnotationPrediction> predictByPropertyTypeAndValue(String propertyType, String propertyValue) throws URISyntaxException {
-
-        List<AnnotationPrediction> results = annotationPredictionSearch.search(propertyType, propertyValue);
-
-        //scoring
+        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue);
         return calculateConfidence(results, propertyValue);
     }
 
-    public List<AnnotationPrediction> predictByPropertyTypeAndValueWithFilter(String propertyType, String propertyValue, List<String> sources) throws URISyntaxException {
-
-        List<AnnotationPrediction> results = annotationPredictionSearch.search(propertyType, propertyValue, sources);
-
-        //scoring
+    public List<AnnotationPrediction> predictByPropertyTypeAndValueWithFilter(String propertyType, String propertyValue, List<String> origin, String originType, boolean exclusive) throws URISyntaxException {
+        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue, origin, originType, exclusive);
         return calculateConfidence(results, propertyValue);
     }
+
 
     private List<AnnotationPrediction> calculateConfidence(List<AnnotationPrediction> results, String propertyValue) {
 
-        int totalDocumentsFound = 0;
-        for (AnnotationPrediction prediction : results){
-            totalDocumentsFound = totalDocumentsFound + prediction.getVotes();
-        }
-
-        //effectively final
-        int totDoc = totalDocumentsFound;
         Optional<AnnotationPrediction> maxAnn = results.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
-        float maxSolrScore = maxAnn.isPresent() ? maxAnn.get().getScore() : 0.0f;
-
-        results.stream().forEach(annotation -> {
-            float sourceNumber = annotation.getSource().size();
-            float numOfDocs = annotation.getVotes();
-            float topQuality = annotation.getQuality();
-            float normalizedFreq = 1.0f + (totDoc > 0 ? (numOfDocs / totDoc) : 0);
-            float normalizedSolrScore = 1.0f + annotation.getScore() / maxSolrScore;
-            float score = (topQuality + sourceNumber) * normalizedSolrScore * normalizedFreq;
-            annotation.setScore(score);
-        });
+        float maxNormalizedScore = maxAnn.isPresent() ? maxAnn.get().getScore() : 0.0f;
 
         //scorer based on text similarity
         Map<AnnotationPrediction, Float> annotationsToScore = scorer.score(results, propertyValue);
 
         List<AnnotationPrediction> scoredResults = new ArrayList<>();
         scoredResults.addAll(annotationsToScore.keySet());
-
-        maxAnn = scoredResults.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
-        float maxNormalizedScore = maxAnn.isPresent() ? maxAnn.get().getScore() : 0.0f;
 
         //normalize to 100
         scoredResults.stream().forEach(annotation -> annotation.setScore(normScore(maxNormalizedScore, annotationsToScore.get(annotation))));
@@ -128,8 +97,8 @@ public class AnnotationPredictionService {
     }
 
     // convert to 100 where 100 is the max solr score compared to the score they get after the similarity algorithm
-    private float normScore(Float maxSolrScoreBeforeScorer, Float scoreAfterScorer) {
-        float dx = 100 * ((maxSolrScoreBeforeScorer - scoreAfterScorer) / maxSolrScoreBeforeScorer);
+    private float normScore(Float maxScoreBeforeScorer, Float scoreAfterScorer) {
+        float dx = 100 * ((maxScoreBeforeScorer - scoreAfterScorer) / maxScoreBeforeScorer);
         float n = 50 + (50 * (100 - dx) / 100);
         return n;
     }

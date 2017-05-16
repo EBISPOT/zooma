@@ -41,8 +41,8 @@ public class AnnotationPredictionController {
         this.zoomaNeo4jLocation = zoomaNeo4jLocation;
     }
 
-    @RequestMapping(value = "/predictions/annotate", params = {"propertyValue"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictValue(@RequestParam(value = "propertyValue") String propertyValue,
+    @RequestMapping(value = "/predictions/annotate", params = {"q"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity predictValue(@RequestParam(value = "q") String propertyValue,
                               PagedResourcesAssembler assembler) throws URISyntaxException {
         List<AnnotationPrediction> predictions = predictionService.predictByPropertyValue(propertyValue);
         for(AnnotationPrediction prediction : predictions){
@@ -56,13 +56,13 @@ public class AnnotationPredictionController {
         return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/predictions/annotate", params = {"propertyValue", "filter"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictValue(@RequestParam(value = "propertyValue") String propertyValue,
-                                             @RequestParam(value = "filter") List<String> sources,
+    @RequestMapping(value = "/predictions/annotate", params = {"q", "sources"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity predictValueSources(@RequestParam(value = "q") String propertyValue,
+                                             @RequestParam(value = "sources") List<String> sources,
                                    PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValueWithFilter(propertyValue, sources);
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValueWithFilter(propertyValue, sources, "sources", false);
         for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValue(propertyValue, sources, assembler)).withSelfRel());
+            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueSources(propertyValue, sources, assembler)).withSelfRel());
             addLinks(prediction);
         }
 
@@ -72,9 +72,61 @@ public class AnnotationPredictionController {
         return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/predictions/annotate", params = {"propertyType", "propertyValue"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictTypeAndValue(@RequestParam(value = "propertyType") String propertyType,
-                                          @RequestParam(value = "propertyValue") String propertyValue,
+    @RequestMapping(value = "/predictions/annotate", params = {"q", "topics"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity predictValueTopics(@RequestParam(value = "q") String propertyValue,
+                                   @RequestParam(value = "topics") List<String> topics,
+                                   PagedResourcesAssembler assembler) throws URISyntaxException {
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValueWithFilter(propertyValue, topics, "topics", false);
+        for(AnnotationPrediction prediction : predictions){
+            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueTopics(propertyValue, topics, assembler)).withSelfRel());
+            addLinks(prediction);
+        }
+
+        int end = (20) > predictions.size() ? predictions.size() : (20);
+        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
+
+        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/predictions/annotate", params = {"q", "sources", "exclusive"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity predictValueSourcesExclusive(@RequestParam(value = "q") String propertyValue,
+                                   @RequestParam(value = "sources") List<String> sources,
+                                   @RequestParam(value = "exclusive") boolean exclusive,
+                                   PagedResourcesAssembler assembler) throws URISyntaxException {
+
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValueWithFilter(propertyValue, sources, "sources", exclusive);
+        for(AnnotationPrediction prediction : predictions){
+            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueSourcesExclusive(propertyValue, sources, exclusive, assembler)).withSelfRel());
+            addLinks(prediction);
+        }
+
+        int end = (20) > predictions.size() ? predictions.size() : (20);
+        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
+
+        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/predictions/annotate", params = {"q", "topics", "exclusive"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity predictValueTopicsExclusive(@RequestParam(value = "q") String propertyValue,
+                                                   @RequestParam(value = "topics") List<String> topics,
+                                                   @RequestParam(value = "exclusive") boolean exclusive,
+                                                   PagedResourcesAssembler assembler) throws URISyntaxException {
+
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValueWithFilter(propertyValue, topics, "topics", exclusive);
+        for(AnnotationPrediction prediction : predictions){
+            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueTopicsExclusive(propertyValue, topics, exclusive, assembler)).withSelfRel());
+            addLinks(prediction);
+        }
+
+        int end = (20) > predictions.size() ? predictions.size() : (20);
+        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
+
+        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/predictions/annotate", params = {"type", "q"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity predictTypeAndValue(@RequestParam(value = "type") String propertyType,
+                                          @RequestParam(value = "q") String propertyValue,
                                           PagedResourcesAssembler assembler) throws URISyntaxException {
         List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValue(propertyType, propertyValue);
         if (predictions.isEmpty()){
@@ -91,17 +143,79 @@ public class AnnotationPredictionController {
         return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/predictions/annotate", params = {"propertyType", "propertyValue", "filter"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictTypeAndValue(@RequestParam(value = "propertyType") String propertyType,
-                                          @RequestParam(value = "propertyValue") String propertyValue,
-                                          @RequestParam(value = "filter") List<String> sources,
+    @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "sources"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity predictTypeAndValueSources(@RequestParam(value = "type") String propertyType,
+                                          @RequestParam(value = "q") String propertyValue,
+                                          @RequestParam(value = "sources") List<String> sources,
                               PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValueWithFilter(propertyType, propertyValue, sources);
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValueWithFilter(propertyType, propertyValue, sources, "sources", false);
         if (predictions.isEmpty()){
-            predictions = predictionService.predictByPropertyValueWithFilter(propertyValue, sources);
+            predictions = predictionService.predictByPropertyValueWithFilter(propertyValue, sources, "sources",false);
         }
         for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValue(propertyType, propertyValue, sources, assembler)).withSelfRel());
+            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueSources(propertyType, propertyValue, sources, assembler)).withSelfRel());
+            addLinks(prediction);
+        }
+
+        int end = (20) > predictions.size() ? predictions.size() : (20);
+        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
+
+        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "topics"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity predictTypeAndValueTopics(@RequestParam(value = "type") String propertyType,
+                                                 @RequestParam(value = "q") String propertyValue,
+                                                 @RequestParam(value = "topics") List<String> topics,
+                                                 PagedResourcesAssembler assembler) throws URISyntaxException {
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValueWithFilter(propertyType, propertyValue, topics, "sources", false);
+        if (predictions.isEmpty()){
+            predictions = predictionService.predictByPropertyValueWithFilter(propertyValue, topics, "topics",false);
+        }
+        for(AnnotationPrediction prediction : predictions){
+            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueTopics(propertyType, propertyValue, topics, assembler)).withSelfRel());
+            addLinks(prediction);
+        }
+
+        int end = (20) > predictions.size() ? predictions.size() : (20);
+        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
+
+        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "sources", "exclusive"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity predictTypeAndValueSourcesExclusive(@RequestParam(value = "type") String propertyType,
+                                          @RequestParam(value = "q") String propertyValue,
+                                          @RequestParam(value = "sources") List<String> sources,
+                                          @RequestParam(value = "exclusive") boolean exclusive,
+                                          PagedResourcesAssembler assembler) throws URISyntaxException {
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValueWithFilter(propertyType, propertyValue, sources, "sources", exclusive);
+        if (predictions.isEmpty()){
+            predictions = predictionService.predictByPropertyValueWithFilter(propertyValue, sources, "sources", false);
+        }
+        for(AnnotationPrediction prediction : predictions){
+            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueSourcesExclusive(propertyType, propertyValue, sources, exclusive, assembler)).withSelfRel());
+            addLinks(prediction);
+        }
+
+        int end = (20) > predictions.size() ? predictions.size() : (20);
+        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
+
+        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "topics", "exclusive"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity predictTypeAndValueTopicsExclusive(@RequestParam(value = "type") String propertyType,
+                                                          @RequestParam(value = "q") String propertyValue,
+                                                          @RequestParam(value = "topics") List<String> topics,
+                                                          @RequestParam(value = "exclusive") boolean exclusive,
+                                                          PagedResourcesAssembler assembler) throws URISyntaxException {
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValueWithFilter(propertyType, propertyValue, topics, "topics", exclusive);
+        if (predictions.isEmpty()){
+            predictions = predictionService.predictByPropertyValueWithFilter(propertyValue, topics, "topics", false);
+        }
+        for(AnnotationPrediction prediction : predictions){
+            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueTopicsExclusive(propertyType, propertyValue, topics, exclusive, assembler)).withSelfRel());
             addLinks(prediction);
         }
 

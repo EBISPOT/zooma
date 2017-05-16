@@ -4,6 +4,8 @@ import lombok.*;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 
+import java.util.Collection;
+
 /**
  * Created by olgavrou on 05/08/2016.
  */
@@ -16,6 +18,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
     private String uri;
     private String name;
     private String type;
-    private String topic;
+    private Collection<String> topic;
 
 }
