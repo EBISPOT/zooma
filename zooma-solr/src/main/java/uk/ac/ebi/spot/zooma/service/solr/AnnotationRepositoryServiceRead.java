@@ -74,9 +74,9 @@ public class AnnotationRepositoryServiceRead {
 
     String propertyValueQuery(String propertyValue){
         StringJoiner or = new StringJoiner(" OR ");
-        or.add("propertyValue:\"" + propertyValue + "\"");
-        or.add("propertyValueStr:\"" + propertyValue + "\"^10");
-        or.add("propertyValue:" + propertyValue);
+        or.add("propertyValue:\"" + propertyValue + "\"^50");
+        or.add("propertyValueStr:\"" + propertyValue + "\"^100");
+        or.add("propertyValue:(" + propertyValue + ")^10");
         return or.toString();
     }
 
@@ -146,7 +146,7 @@ public class AnnotationRepositoryServiceRead {
 
         q.set("q", query.toString());
         q.set("defType", "edismax");
-        q.setRows(20);
+        q.setRows(100);
         q.setIncludeScore(true);
 
         response = solrTemplate.getSolrClient().query(this.solrCore, q);

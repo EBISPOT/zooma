@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.utils.predictor.ParetoDistributionTransformation;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,10 +16,12 @@ import java.util.Optional;
 public class PredictionSearchDecorator implements PredictionSearch {
 
     private PredictionSearch delegate;
+    private ParetoDistributionTransformation transformation;
 
     @Autowired
     public PredictionSearchDecorator(@Qualifier("delegate") PredictionSearch delegate) {
         this.delegate = delegate;
+        this.transformation = new ParetoDistributionTransformation(2);
     }
 
     @Override
@@ -47,13 +50,6 @@ public class PredictionSearchDecorator implements PredictionSearch {
 
 
     private List<AnnotationPrediction> primaryMetaScore(List<AnnotationPrediction> predictions){
-        int totalDocumentsFound = 0;
-        for (AnnotationPrediction prediction : predictions){
-            totalDocumentsFound = totalDocumentsFound + prediction.getVotes();
-        }
-
-        //effectively final
-        int totDoc = totalDocumentsFound;
         Optional<AnnotationPrediction> maxAnn = predictions.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
         float maxSolrScore = maxAnn.isPresent() ? maxAnn.get().getScore() : 0.0f;
 
@@ -61,12 +57,9 @@ public class PredictionSearchDecorator implements PredictionSearch {
             float sourceNumber = annotation.getSource().size();
             float numOfDocs = annotation.getVotes();
             float topQuality = annotation.getQuality();
-            float normalizedFreq = 1.0f + (totDoc > 0 ? (numOfDocs / totDoc) : 0);
             float normalizedSolrScore = 1.0f + annotation.getScore() / maxSolrScore;
-//            float score = (topQuality) * normalizedSolrScore * normalizedFreq;
-            float score = (topQuality + sourceNumber) * normalizedSolrScore * normalizedFreq;
-//            ParetoFunction paretoFunction = new ParetoFunction(2,1,1);
-//            float paretoVotes = paretoFunction.transform(numOfDocs);
+            float pareto = this.transformation.transform(numOfDocs);
+            float score = (topQuality + sourceNumber + pareto) * normalizedSolrScore;
             annotation.setScore(score);
         });
 
