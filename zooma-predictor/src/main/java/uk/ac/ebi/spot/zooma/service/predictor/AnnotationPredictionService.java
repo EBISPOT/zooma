@@ -53,8 +53,23 @@ public class AnnotationPredictionService {
         return calculateConfidence(results, propertyValue);
     }
 
-    public List<AnnotationPrediction> predictByPropertyValueWithFilter(String propertyValue, List<String> origin, String originType, boolean exclusive) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyValue, origin, originType, exclusive);
+    public List<AnnotationPrediction> predictByPropertyValueBoostSources(String propertyValue, List<String> sources) throws URISyntaxException {
+        List<AnnotationPrediction> results = predictionSearch.search(propertyValue, sources, "sources", false);
+        return calculateConfidence(results, propertyValue);
+    }
+
+    public List<AnnotationPrediction> predictByPropertyValueFilterSources(String propertyValue, List<String> sources) throws URISyntaxException {
+        List<AnnotationPrediction> results = predictionSearch.search(propertyValue, sources, "sources", true);
+        return calculateConfidence(results, propertyValue);
+    }
+
+    public List<AnnotationPrediction> predictByPropertyValueBoostTopics(String propertyValue, List<String> topics) throws URISyntaxException {
+        List<AnnotationPrediction> results = predictionSearch.search(propertyValue, topics, "topics", false);
+        return calculateConfidence(results, propertyValue);
+    }
+
+    public List<AnnotationPrediction> predictByPropertyValueFilterTopics(String propertyValue, List<String> topics) throws URISyntaxException {
+        List<AnnotationPrediction> results = predictionSearch.search(propertyValue, topics, "topics", true);
         return calculateConfidence(results, propertyValue);
     }
 
@@ -63,10 +78,26 @@ public class AnnotationPredictionService {
         return calculateConfidence(results, propertyValue);
     }
 
-    public List<AnnotationPrediction> predictByPropertyTypeAndValueWithFilter(String propertyType, String propertyValue, List<String> origin, String originType, boolean exclusive) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue, origin, originType, exclusive);
+    public List<AnnotationPrediction> predictByPropertyTypeAndValueBoostSources(String propertyType, String propertyValue, List<String> sources) throws URISyntaxException {
+        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue, sources, "sources", false);
         return calculateConfidence(results, propertyValue);
     }
+
+    public List<AnnotationPrediction> predictByPropertyTypeAndValueFilterSources(String propertyType, String propertyValue, List<String> sources) throws URISyntaxException {
+        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue, sources, "sources", true);
+        return calculateConfidence(results, propertyValue);
+    }
+
+    public List<AnnotationPrediction> predictByPropertyTypeAndValueBoostTopics(String propertyType, String propertyValue, List<String> topics) throws URISyntaxException {
+        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue, topics, "topics", false);
+        return calculateConfidence(results, propertyValue);
+    }
+
+    public List<AnnotationPrediction> predictByPropertyTypeAndValueFilterTopics(String propertyType, String propertyValue, List<String> topics) throws URISyntaxException {
+        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue, topics, "topics", true);
+        return calculateConfidence(results, propertyValue);
+    }
+
 
 
     private List<AnnotationPrediction> calculateConfidence(List<AnnotationPrediction> results, String propertyValue) {
