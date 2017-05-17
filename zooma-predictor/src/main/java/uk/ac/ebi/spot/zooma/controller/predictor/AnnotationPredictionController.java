@@ -50,10 +50,7 @@ public class AnnotationPredictionController {
             addLinks(prediction);
         }
 
-        int end = (20) > predictions.size() ? predictions.size() : (20);
-        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
-
-        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/predictions/annotate", params = {"q", "sources"}, method = RequestMethod.GET, produces="application/hal+json")
@@ -65,12 +62,9 @@ public class AnnotationPredictionController {
             prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueBoostSources(propertyValue, sources, assembler)).withSelfRel());
             addLinks(prediction);
         }
-
-        int end = (20) > predictions.size() ? predictions.size() : (20);
-        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
-
-        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
     }
+
 
     @RequestMapping(value = "/predictions/annotate", params = {"q", "topics"}, method = RequestMethod.GET, produces="application/hal+json")
     public HttpEntity predictValueBoostTopics(@RequestParam(value = "q") String propertyValue,
@@ -81,11 +75,7 @@ public class AnnotationPredictionController {
             prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueBoostTopics(propertyValue, topics, assembler)).withSelfRel());
             addLinks(prediction);
         }
-
-        int end = (20) > predictions.size() ? predictions.size() : (20);
-        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
-
-        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/predictions/annotate", params = {"q", "sources", "filter"}, method = RequestMethod.GET, produces="application/hal+json")
@@ -93,7 +83,6 @@ public class AnnotationPredictionController {
                                                 @RequestParam(value = "sources") List<String> sources,
                                                 @RequestParam(value = "filter") boolean filter,
                                                 PagedResourcesAssembler assembler) throws URISyntaxException {
-
         List<AnnotationPrediction> predictions;
         if(filter) {
             predictions = predictionService.predictByPropertyValueFilterSources(propertyValue, sources);
@@ -104,11 +93,7 @@ public class AnnotationPredictionController {
             prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueFilterSources(propertyValue, sources, filter, assembler)).withSelfRel());
             addLinks(prediction);
         }
-
-        int end = (20) > predictions.size() ? predictions.size() : (20);
-        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
-
-        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/predictions/annotate", params = {"q", "topics", "filter"}, method = RequestMethod.GET, produces="application/hal+json")
@@ -116,7 +101,6 @@ public class AnnotationPredictionController {
                                                @RequestParam(value = "topics") List<String> topics,
                                                @RequestParam(value = "filter") boolean filter,
                                                PagedResourcesAssembler assembler) throws URISyntaxException {
-
         List<AnnotationPrediction> predictions;
         if(filter) {
             predictions = predictionService.predictByPropertyValueFilterTopics(propertyValue, topics);
@@ -127,11 +111,7 @@ public class AnnotationPredictionController {
             prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueFilterTopics(propertyValue, topics, filter, assembler)).withSelfRel());
             addLinks(prediction);
         }
-
-        int end = (20) > predictions.size() ? predictions.size() : (20);
-        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
-
-        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/predictions/annotate", params = {"type", "q"}, method = RequestMethod.GET, produces="application/hal+json")
@@ -146,11 +126,7 @@ public class AnnotationPredictionController {
             prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValue(propertyType, propertyValue, assembler)).withSelfRel());
             addLinks(prediction);
         }
-
-        int end = (20) > predictions.size() ? predictions.size() : (20);
-        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
-
-        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "sources"}, method = RequestMethod.GET, produces="application/hal+json")
@@ -166,11 +142,7 @@ public class AnnotationPredictionController {
             prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueBoostSources(propertyType, propertyValue, sources, assembler)).withSelfRel());
             addLinks(prediction);
         }
-
-        int end = (20) > predictions.size() ? predictions.size() : (20);
-        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
-
-        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "topics"}, method = RequestMethod.GET, produces="application/hal+json")
@@ -186,11 +158,7 @@ public class AnnotationPredictionController {
             prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueBoostTopics(propertyType, propertyValue, topics, assembler)).withSelfRel());
             addLinks(prediction);
         }
-
-        int end = (20) > predictions.size() ? predictions.size() : (20);
-        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
-
-        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "sources", "filter"}, method = RequestMethod.GET, produces="application/hal+json")
@@ -216,11 +184,7 @@ public class AnnotationPredictionController {
             prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueFilterSources(propertyType, propertyValue, sources, filter, assembler)).withSelfRel());
             addLinks(prediction);
         }
-
-        int end = (20) > predictions.size() ? predictions.size() : (20);
-        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
-
-        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "topics", "filter"}, method = RequestMethod.GET, produces="application/hal+json")
@@ -246,11 +210,7 @@ public class AnnotationPredictionController {
             prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueFilterTopics(propertyType, propertyValue, topics, filter, assembler)).withSelfRel());
             addLinks(prediction);
         }
-
-        int end = (20) > predictions.size() ? predictions.size() : (20);
-        Page<AnnotationPrediction> page = new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
-
-        return new ResponseEntity<>(assembler.toResource(page), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
     }
 
     private void addLinks(AnnotationPrediction prediction){
@@ -264,6 +224,11 @@ public class AnnotationPredictionController {
         for (String mongoid : prediction.getMongoid()){
             prediction.add(new Link(zoomaNeo4jLocation + "/annotations/search/findByMongoid?mongoid=" + mongoid).withRel("derived.from"));
         }
+    }
+
+    private Page<AnnotationPrediction> listToPage(List<AnnotationPrediction> predictions) {
+        int end = (20) > predictions.size() ? predictions.size() : (20);
+        return new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
     }
 
 }
