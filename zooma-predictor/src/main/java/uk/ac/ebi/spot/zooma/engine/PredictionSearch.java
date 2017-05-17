@@ -16,7 +16,7 @@ public interface PredictionSearch {
     List<AnnotationPrediction> search(String propertyType, String propertyValuePattern);
 
     List<AnnotationPrediction> search(String propertyType, String propertyValuePattern,
-                                      List<String> sources,
+                                      List<String> origin,
                                       String originType,
                                       boolean exclusiveOrigins);
 

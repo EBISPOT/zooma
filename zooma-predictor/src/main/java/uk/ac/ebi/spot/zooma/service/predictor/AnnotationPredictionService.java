@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.zooma.engine.PredictionSearch;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
 import uk.ac.ebi.spot.zooma.utils.predictor.PredictorUtils;
-import uk.ac.ebi.spot.zooma.utils.predictor.Scorer;
-
 
 import java.net.URISyntaxException;
 import java.util.*;
@@ -22,17 +20,15 @@ public class AnnotationPredictionService {
 
     private float cutoffScore;
     private float cutoffPercentage;
-    private Scorer<AnnotationPrediction> scorer;
+
     PredictionSearch predictionSearch;
 
     @Autowired
     public AnnotationPredictionService(@Value("${cutoff.score}") float cutoffScore,
                                        @Value("${cutoff.percentage}") float cutoffPercentage,
-                                       Scorer<AnnotationPrediction> scorer,
                                        PredictionSearch predictionSearch) {
         this.cutoffScore = cutoffScore;
         this.cutoffPercentage = cutoffPercentage;
-        this.scorer = scorer;
         this.predictionSearch = predictionSearch;
     }
 
@@ -101,37 +97,17 @@ public class AnnotationPredictionService {
 
 
     private List<AnnotationPrediction> calculateConfidence(List<AnnotationPrediction> results, String propertyValue) {
-
-        Optional<AnnotationPrediction> maxAnn = results.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
-        float maxNormalizedScore = maxAnn.isPresent() ? maxAnn.get().getScore() : 0.0f;
-
-        //scorer based on text similarity
-        Map<AnnotationPrediction, Float> annotationsToScore = scorer.score(results, propertyValue);
-
-        List<AnnotationPrediction> scoredResults = new ArrayList<>();
-        scoredResults.addAll(annotationsToScore.keySet());
-
-        //normalize to 100
-        scoredResults.stream().forEach(annotation -> annotation.setScore(normScore(maxNormalizedScore, annotationsToScore.get(annotation))));
-
         //cutoff 80%
-        List<AnnotationPrediction> summaries = getGoodAnnotationSummaries(scoredResults, getCutoffPercentage());
+        List<AnnotationPrediction> predictions = getGoodAnnotationSummaries(results, getCutoffPercentage());
 
 //         now we have a list of annotation summaries; use this list to create predicted annotations
-        AnnotationPrediction.Confidence confidence = PredictorUtils.getConfidence(summaries, getCutoffScore());
+        AnnotationPrediction.Confidence confidence = PredictorUtils.getConfidence(predictions, getCutoffScore());
 
-        summaries.stream().forEach(annotationPrediction -> annotationPrediction.setConfidence(confidence));
+        predictions.stream().forEach(annotationPrediction -> annotationPrediction.setConfidence(confidence));
 
         getLog().info("**** Search for: {} done! ****", propertyValue);
 
-        return summaries;
-    }
-
-    // convert to 100 where 100 is the max solr score compared to the score they get after the similarity algorithm
-    private float normScore(Float maxScoreBeforeScorer, Float scoreAfterScorer) {
-        float dx = 100 * ((maxScoreBeforeScorer - scoreAfterScorer) / maxScoreBeforeScorer);
-        float n = 50 + (50 * (100 - dx) / 100);
-        return n;
+        return predictions;
     }
 
     private List<AnnotationPrediction> getGoodAnnotationSummaries(List<AnnotationPrediction> annotationSummaries, float cutoffPercentage){

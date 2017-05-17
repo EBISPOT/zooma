@@ -12,7 +12,6 @@ import java.util.List;
  * Created by olgavrou on 15/05/2017.
  */
 @Component("filter")
-@Primary
 public class PredictionSearchFilterDecorator implements PredictionSearch{
 
     private PredictionSearch predictionSearch;
