@@ -70,13 +70,13 @@ neo4j:
  
  - by property value boost sources: http://localhost:8083/predictions/annotate?q=propertyValue&sources=source1,source2
  
-  - by property value filter sources: http://localhost:8083/predictions/annotate?q=propertyValue&sources=source1,source2&exclusive=true
+  - by property value filter sources: http://localhost:8083/predictions/annotate?q=propertyValue&sources=source1,source2&filter=true
  
  - by property type and property value: http://localhost:8083/predictions/annotate?type=propertyType&q=propertyValue
  
  - by property type and property value boost sources: http://localhost:8083/predictions/annotate?type=propertyType&q=propertyValue&sources=source1,source2
  
-  - by property type and property value filter sources: http://localhost:8083/predictions/annotate?type=propertyType&q=propertyValue&sources=source1,source2&exclusive=true
+  - by property type and property value filter sources: http://localhost:8083/predictions/annotate?type=propertyType&q=propertyValue&sources=source1,source2&filter=true
   
   - <b>If you want to boost/filter by topics instead of sources, just replace "sources=source1,source2" in the above queries with "topics:topic1,topic2"</b>
  
