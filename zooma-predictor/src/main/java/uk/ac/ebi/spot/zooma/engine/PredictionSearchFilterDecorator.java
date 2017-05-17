@@ -31,7 +31,7 @@ public class PredictionSearchFilterDecorator implements PredictionSearch{
     public List<AnnotationPrediction> search(String propertyValuePattern, List<String> origin, String originType, boolean exclusiveOrigins) {
         List<AnnotationPrediction> predictions = predictionSearch.search(propertyValuePattern, origin, originType, exclusiveOrigins);
         if (!exclusiveOrigins){
-            return boostOrigin(predictions, origin);
+            return boostOrigin(predictions, origin, originType);
         }
         return predictions;
     }
@@ -45,29 +45,44 @@ public class PredictionSearchFilterDecorator implements PredictionSearch{
     public List<AnnotationPrediction> search(String propertyType, String propertyValuePattern, List<String> origin, String originType, boolean exclusiveOrigins) {
         List<AnnotationPrediction> predictions = predictionSearch.search(propertyType, propertyValuePattern, origin, originType, exclusiveOrigins);
         if (!exclusiveOrigins){
-            return boostOrigin(predictions, origin);
+            return boostOrigin(predictions, origin, originType);
         }
         return predictions;
     }
 
+    private List<AnnotationPrediction> boostOrigin(List<AnnotationPrediction> predictions, List<String> origin, String originType){
+        if(originType.equals("sources")){
+            return boostSources(predictions, origin);
+        } else if (originType.equals("topics")){
+            return boostTopics(predictions, origin);
+        }
+        return predictions;
+    }
 
-    private List<AnnotationPrediction> boostOrigin(List<AnnotationPrediction> predictions, List<String> origin){
+    private List<AnnotationPrediction> boostSources(List<AnnotationPrediction> predictions, List<String> sources){
         predictions.stream().forEach(annotationPrediction -> {
             annotationPrediction.getSource().stream().forEach(s -> {
-                if(origin.contains(s)) {
-                    float score = annotationPrediction.getScore();
-                    annotationPrediction.setScore(score * 1.5f); //score + 50% of score
-                }
-            });
-            annotationPrediction.getTopic().stream().forEach(s -> {
-                if(origin.contains(s)) {
+                if (sources.contains(s)) {
                     float score = annotationPrediction.getScore();
                     annotationPrediction.setScore(score * 1.5f); //score + 50% of score
                 }
             });
         });
-        //TODO add topic search if needed
         return predictions;
     }
+
+    private List<AnnotationPrediction> boostTopics(List<AnnotationPrediction> predictions, List<String> topics){
+        predictions.stream().forEach(annotationPrediction -> {
+            annotationPrediction.getTopic().stream().forEach(s -> {
+                if(topics.contains(s)) {
+                    float score = annotationPrediction.getScore();
+                    annotationPrediction.setScore(score * 1.5f); //score + 50% of score
+                }
+            });
+        });
+        return predictions;
+    }
+
+
 
 }
