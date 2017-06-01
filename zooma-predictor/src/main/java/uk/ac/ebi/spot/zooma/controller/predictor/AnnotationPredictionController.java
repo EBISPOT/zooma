@@ -2,10 +2,9 @@ package uk.ac.ebi.spot.zooma.controller.predictor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedResources;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
 import uk.ac.ebi.spot.zooma.service.predictor.AnnotationPredictionService;
+import uk.ac.ebi.spot.zooma.utils.predictor.PredictorUtils;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -32,203 +33,164 @@ public class AnnotationPredictionController {
     private AnnotationPredictionService predictionService;
     private String olsTermLocation;
     private String zoomaNeo4jLocation;
+    private String olsLocation;
+    private List<String> dontSearchOrigin;
 
     @Autowired
     public AnnotationPredictionController(AnnotationPredictionService predictionService, @Value("${ols.term.location}") String olsTermLocation,
-                                          @Value("${zooma.neo4j.location}") String zoomaNeo4jLocation) {
+                                          @Value("${zooma.neo4j.location}") String zoomaNeo4jLocation,
+                                          @Value("${ols.location}") String olsLocation) {
         this.predictionService = predictionService;
         this.olsTermLocation = olsTermLocation;
         this.zoomaNeo4jLocation = zoomaNeo4jLocation;
+        this.olsLocation = olsLocation;
+
+        this.dontSearchOrigin = new ArrayList<>();
+        this.dontSearchOrigin.add("none");
     }
 
     @RequestMapping(value = "/predictions/annotate", params = {"q"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictValue(@RequestParam(value = "q") String propertyValue,
-                              PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValue(propertyValue);
+    public HttpEntity<PagedResources<AnnotationPrediction>> predictValue(@RequestParam(value = "q") String propertyValue,
+                                                                         @RequestParam(value = "ontologies", required = false) List<String> ontologies,
+                                                                         @RequestParam(value = "filter", required = false) boolean filter,
+                                                                         @RequestParam(value = "onto_as_equals", required = false) boolean ontologiesAsEquals,
+                                                                         PagedResourcesAssembler assembler) throws URISyntaxException {
+
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValue(propertyValue, ontologies, filter);
+
+        if(ontologiesAsEquals && PredictorUtils.shouldSearch(ontologies) && !undergoneOntologySearch(predictions)){
+            predictions.addAll(predictionService.predictByPropertyValueOrigins(propertyValue, this.dontSearchOrigin, ontologies, filter));
+        }
+
         for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValue(propertyValue, assembler)).withSelfRel());
+            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValue(propertyValue, ontologies, filter, ontologiesAsEquals, assembler)).withSelfRel());
             addLinks(prediction);
         }
 
-        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(new PageImpl<>(predictions)), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/predictions/annotate", params = {"q", "sources"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictValueBoostSources(@RequestParam(value = "q") String propertyValue,
-                                               @RequestParam(value = "sources") List<String> sources,
+    @RequestMapping(value = "/predictions/annotate", params = {"q", "origins"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity<PagedResources<AnnotationPrediction>> predictValueBoostSources(@RequestParam(value = "q") String propertyValue,
+                                               @RequestParam(value = "origins") List<String> origins,
+                                               @RequestParam(value = "ontologies", required = false) List<String> ontologies,
+                                               @RequestParam(value = "filter", required = false) boolean filter,
+                                               @RequestParam(value = "onto_as_equals", required = false) boolean ontologiesAsEquals,
                                                PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValueBoostSources(propertyValue, sources);
+
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValueOrigins(propertyValue, origins, ontologies, filter);
+
+        if(ontologiesAsEquals && PredictorUtils.shouldSearch(ontologies) && !undergoneOntologySearch(predictions)){
+            predictions.addAll(predictionService.predictByPropertyValueOrigins(propertyValue, this.dontSearchOrigin, ontologies, filter));
+        }
+
+        Link link = linkTo(methodOn(AnnotationPredictionController.class).predictValueBoostSources(propertyValue, origins, ontologies, filter, ontologiesAsEquals, assembler)).withSelfRel();
+
         for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueBoostSources(propertyValue, sources, assembler)).withSelfRel());
+            prediction.add(link);
             addLinks(prediction);
         }
-        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
-    }
 
 
-    @RequestMapping(value = "/predictions/annotate", params = {"q", "topics"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictValueBoostTopics(@RequestParam(value = "q") String propertyValue,
-                                              @RequestParam(value = "topics") List<String> topics,
-                                              PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValueBoostTopics(propertyValue, topics);
-        for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueBoostTopics(propertyValue, topics, assembler)).withSelfRel());
-            addLinks(prediction);
-        }
-        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/predictions/annotate", params = {"q", "sources", "filter"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictValueFilterSources(@RequestParam(value = "q") String propertyValue,
-                                                @RequestParam(value = "sources") List<String> sources,
-                                                @RequestParam(value = "filter") boolean filter,
-                                                PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions;
-        if(filter) {
-            predictions = predictionService.predictByPropertyValueFilterSources(propertyValue, sources);
-        } else {
-            predictions = predictionService.predictByPropertyValueBoostSources(propertyValue, sources);
-        }
-        for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueFilterSources(propertyValue, sources, filter, assembler)).withSelfRel());
-            addLinks(prediction);
-        }
-        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/predictions/annotate", params = {"q", "topics", "filter"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictValueFilterTopics(@RequestParam(value = "q") String propertyValue,
-                                               @RequestParam(value = "topics") List<String> topics,
-                                               @RequestParam(value = "filter") boolean filter,
-                                               PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions;
-        if(filter) {
-            predictions = predictionService.predictByPropertyValueFilterTopics(propertyValue, topics);
-        } else {
-            predictions = predictionService.predictByPropertyValueBoostTopics(propertyValue, topics);
-        }
-        for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValueFilterTopics(propertyValue, topics, filter, assembler)).withSelfRel());
-            addLinks(prediction);
-        }
-        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toResource(new PageImpl<>(predictions)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/predictions/annotate", params = {"type", "q"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictTypeAndValue(@RequestParam(value = "type") String propertyType,
+    public HttpEntity<PagedResources<AnnotationPrediction>> predictTypeAndValue(@RequestParam(value = "type") String propertyType,
                                           @RequestParam(value = "q") String propertyValue,
+                                          @RequestParam(value = "ontologies", required = false) List<String> ontologies,
+                                          @RequestParam(value = "filter", required = false) boolean filter,
+                                          @RequestParam(value = "onto_as_equals", required = false) boolean ontologiesAsEquals,
                                           PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValue(propertyType, propertyValue);
-        if (predictions.isEmpty()){
-            predictions = predictionService.predictByPropertyValue(propertyValue);
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValue(propertyType, propertyValue, ontologies, filter);
+        if (predictions.isEmpty()) {
+            predictions = predictionService.predictByPropertyValue(propertyValue, ontologies, filter);
         }
-        for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValue(propertyType, propertyValue, assembler)).withSelfRel());
+
+        if (ontologiesAsEquals && PredictorUtils.shouldSearch(ontologies) && !undergoneOntologySearch(predictions)) {
+            List<AnnotationPrediction> olsPredictions;
+            olsPredictions = predictionService.predictByPropertyTypeAndValueOrigins(propertyType, propertyValue, this.dontSearchOrigin, ontologies, filter);
+            if (olsPredictions.isEmpty()) {
+                olsPredictions = predictionService.predictByPropertyValueOrigins(propertyValue, this.dontSearchOrigin, ontologies, filter);
+            }
+            predictions.addAll(olsPredictions);
+        }
+
+        for (AnnotationPrediction prediction : predictions) {
+            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValue(propertyType, propertyValue, ontologies, filter, ontologiesAsEquals, assembler)).withSelfRel());
             addLinks(prediction);
         }
-        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
+
+        return new ResponseEntity<>(assembler.toResource(new PageImpl<>(predictions)), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "sources"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictTypeAndValueBoostSources(@RequestParam(value = "type") String propertyType,
+    @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "origins"}, method = RequestMethod.GET, produces="application/hal+json")
+    public HttpEntity<PagedResources<AnnotationPrediction>> predictTypeAndValueBoostSources(@RequestParam(value = "type") String propertyType,
                                                       @RequestParam(value = "q") String propertyValue,
-                                                      @RequestParam(value = "sources") List<String> sources,
+                                                      @RequestParam(value = "origins") List<String> origins,
+                                                      @RequestParam(value = "ontologies", required = false) List<String> ontologies,
+                                                      @RequestParam(value = "filter", required = false) boolean filter,
+                                                      @RequestParam(value = "onto_as_equals", required = false) boolean ontologiesAsEquals,
                                                       PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValueBoostSources(propertyType, propertyValue, sources);
+
+        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValueOrigins(propertyType, propertyValue, origins, ontologies, filter);
         if (predictions.isEmpty()){
-            predictions = predictionService.predictByPropertyValueBoostSources(propertyValue, sources);
+            predictions = predictionService.predictByPropertyValueOrigins(propertyValue, origins, ontologies, filter);
         }
-        for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueBoostSources(propertyType, propertyValue, sources, assembler)).withSelfRel());
-            addLinks(prediction);
-        }
-        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
-    }
 
-    @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "topics"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictTypeAndValueBoostTopics(@RequestParam(value = "type") String propertyType,
-                                                     @RequestParam(value = "q") String propertyValue,
-                                                     @RequestParam(value = "topics") List<String> topics,
-                                                     PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValueBoostTopics(propertyType, propertyValue, topics);
-        if (predictions.isEmpty()){
-            predictions = predictionService.predictByPropertyValueBoostTopics(propertyValue, topics);
-        }
-        for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueBoostTopics(propertyType, propertyValue, topics, assembler)).withSelfRel());
-            addLinks(prediction);
-        }
-        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "sources", "filter"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictTypeAndValueFilterSources(@RequestParam(value = "type") String propertyType,
-                                                       @RequestParam(value = "q") String propertyValue,
-                                                       @RequestParam(value = "sources") List<String> sources,
-                                                       @RequestParam(value = "filter") boolean filter,
-                                                       PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions;
-        if(filter) {
-            predictions = predictionService.predictByPropertyTypeAndValueFilterSources(propertyType, propertyValue, sources);
-            if (predictions.isEmpty()) {
-                predictions = predictionService.predictByPropertyValueFilterSources(propertyValue, sources);
+        if(ontologiesAsEquals && PredictorUtils.shouldSearch(ontologies) && !undergoneOntologySearch(predictions)){
+            List<AnnotationPrediction> olsPredictions;
+            olsPredictions = predictionService.predictByPropertyTypeAndValueOrigins(propertyType, propertyValue, this.dontSearchOrigin, ontologies, filter);
+            if (olsPredictions.isEmpty()){
+                olsPredictions = predictionService.predictByPropertyValueOrigins(propertyValue, this.dontSearchOrigin, ontologies, filter);
             }
-        } else {
-            predictions = predictionService.predictByPropertyTypeAndValueBoostSources(propertyType, propertyValue, sources);
-            if (predictions.isEmpty()) {
-                predictions = predictionService.predictByPropertyValueBoostSources(propertyValue, sources);
-            }
+            predictions.addAll(olsPredictions);
         }
 
         for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueFilterSources(propertyType, propertyValue, sources, filter, assembler)).withSelfRel());
+            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueBoostSources(propertyType, propertyValue, origins, ontologies, filter, ontologiesAsEquals, assembler)).withSelfRel());
             addLinks(prediction);
         }
-        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
+
+        return new ResponseEntity<>(assembler.toResource(new PageImpl<>(predictions)), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/predictions/annotate", params = {"type", "q", "topics", "filter"}, method = RequestMethod.GET, produces="application/hal+json")
-    public HttpEntity predictTypeAndValueFilterTopics(@RequestParam(value = "type") String propertyType,
-                                                      @RequestParam(value = "q") String propertyValue,
-                                                      @RequestParam(value = "topics") List<String> topics,
-                                                      @RequestParam(value = "filter") boolean filter,
-                                                      PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions;
-        if(filter) {
-            predictions = predictionService.predictByPropertyTypeAndValueFilterTopics(propertyType, propertyValue, topics);
-            if (predictions.isEmpty()) {
-                predictions = predictionService.predictByPropertyValueFilterTopics(propertyValue, topics);
-            }
-        } else {
-            predictions = predictionService.predictByPropertyTypeAndValueBoostTopics(propertyType, propertyValue, topics);
-            if (predictions.isEmpty()) {
-                predictions = predictionService.predictByPropertyValueBoostTopics(propertyValue, topics);
-            }
-        }
+//    @RequestMapping(value = "/predictions/upvote", params = {"prediction"}, method = RequestMethod.POST, produces = "application/hal+json")
+//    public HttpEntity upvotePrediction(@RequestParam("prediction") AnnotationPrediction prediction,
+//                                       PagedResourcesAssembler assembler) throws URISyntaxException {
+//
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
 
-        for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueFilterTopics(propertyType, propertyValue, topics, filter, assembler)).withSelfRel());
-            addLinks(prediction);
-        }
-        return new ResponseEntity<>(assembler.toResource(listToPage(predictions)), HttpStatus.OK);
-    }
 
     private void addLinks(AnnotationPrediction prediction){
         for (String semTag : prediction.getSemanticTag()){
             Link link = new Link(olsTermLocation + semTag).withRel("ols");
             prediction.add(link);
         }
-        prediction.add(new Link(zoomaNeo4jLocation + "/annotations/search/findByMongoid?mongoid=" + prediction.getStrongestMongoid()).withRel("provenance"));
+        if(!prediction.getStrongestMongoid().equals("ols")) {
+            prediction.add(new Link(zoomaNeo4jLocation + "/annotations/search/findByMongoid?mongoid=" + prediction.getStrongestMongoid()).withRel("provenance"));
 
-        prediction.add(new Link(zoomaNeo4jLocation + "/annotations/search/findByMongoid?mongoid=" + prediction.getStrongestMongoid()).withRel("derived.from"));
-        for (String mongoid : prediction.getMongoid()){
-            prediction.add(new Link(zoomaNeo4jLocation + "/annotations/search/findByMongoid?mongoid=" + mongoid).withRel("derived.from"));
+            prediction.add(new Link(zoomaNeo4jLocation + "/annotations/search/findByMongoid?mongoid=" + prediction.getStrongestMongoid()).withRel("derived.from"));
+            for (String mongoid : prediction.getMongoid()) {
+                prediction.add(new Link(zoomaNeo4jLocation + "/annotations/search/findByMongoid?mongoid=" + mongoid).withRel("derived.from"));
+            }
+        } else {
+            prediction.add(new Link("http://" + olsLocation).withRel("provenance"));
+            for (String semTag : prediction.getSemanticTag()){
+                Link link = new Link(olsTermLocation + semTag).withRel("derived.from");
+                prediction.add(link);
+            }
         }
     }
 
-    private Page<AnnotationPrediction> listToPage(List<AnnotationPrediction> predictions) {
-        int end = (20) > predictions.size() ? predictions.size() : (20);
-        return new PageImpl<>(predictions.subList(0, end), new PageRequest(0, 20), predictions.size());
+    private boolean undergoneOntologySearch(List<AnnotationPrediction> predictions) {
+        for (AnnotationPrediction prediction : predictions) {
+            if (prediction.getStrongestMongoid().equals("ols")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

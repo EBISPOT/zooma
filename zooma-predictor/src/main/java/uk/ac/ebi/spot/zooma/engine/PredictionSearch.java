@@ -1,5 +1,6 @@
 package uk.ac.ebi.spot.zooma.engine;
 
+import org.springframework.data.domain.Page;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
 
 import java.util.List;
@@ -11,14 +12,13 @@ public interface PredictionSearch {
 
     List<AnnotationPrediction> search(String propertyValuePattern);
 
-    List<AnnotationPrediction> search(String propertyValuePattern, List<String> origin, String originType, boolean exclusiveOrigins);
+    List<AnnotationPrediction> searchWithOrigin(String propertyValuePattern, List<String> origin, boolean filter);
 
     List<AnnotationPrediction> search(String propertyType, String propertyValuePattern);
 
-    List<AnnotationPrediction> search(String propertyType, String propertyValuePattern,
-                                      List<String> origin,
-                                      String originType,
-                                      boolean exclusiveOrigins);
+    List<AnnotationPrediction> searchWithOrigin(String propertyType, String propertyValuePattern,
+                                                List<String> origin,
+                                                boolean filter);
 
 //    List<AnnotationPrediction> searchByPreferredSources(String propertyValuePattern,
 //                                                              List<String> preferredSources,

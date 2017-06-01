@@ -2,6 +2,7 @@ package uk.ac.ebi.spot.zooma.utils.predictor;
 
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
 
+import java.net.URI;
 import java.util.*;
 
 
@@ -35,38 +36,6 @@ public class PredictorUtils {
 
     }
 
-    public static AnnotationPrediction.Confidence getConfidence(List<AnnotationPrediction> results, float cutoffScore) {
-
-        boolean achievedScore = false;
-        for (AnnotationPrediction summary : results) {
-            if (!achievedScore && summary.getScore() > cutoffScore) {
-                achievedScore = true;
-                break; //won't come in here again
-            }
-        }
-
-        if (results.size() == 1 && achievedScore) {
-            // one good annotation, so create prediction with high confidence
-            return AnnotationPrediction.Confidence.HIGH;
-        }
-        else {
-            if (achievedScore) {
-                // multiple annotations each with a good score, create predictions with good confidence
-                return AnnotationPrediction.Confidence.GOOD;
-            }
-            else {
-                if (results.size() == 1) {
-                    // single stand out annotation that didn't achieve score, create prediction with good confidence
-                    return AnnotationPrediction.Confidence.GOOD;
-                }
-                else {
-                    // multiple annotations, none reached score, so create prediction with medium confidence
-                    return AnnotationPrediction.Confidence.MEDIUM;
-                }
-            }
-        }
-    }
-
 
     /**
      * Filter the supplied map of annotation summaries to their score, reducing them down to a set of summaries that
@@ -96,35 +65,7 @@ public class PredictorUtils {
         // compare each summary with the reference set
         while (summaryIterator.hasNext()) {
             AnnotationPrediction nextSummary = summaryIterator.next();
-            boolean isDuplicate = false;
-            AnnotationPrediction shouldReplace = null;
-            for (AnnotationPrediction referenceSummary : referenceSummaries) {
-                if (allEquals(referenceSummary.getSemanticTag(), nextSummary.getSemanticTag())) {
-                    isDuplicate = true;
-                    if (summaries.get(nextSummary) > summaries.get(referenceSummary)) {
-                        shouldReplace = referenceSummary;
-                    }
-                    break;
-                }
-            }
-
-            // if this doesn't duplicate another summary, add to reference set
-            if (!isDuplicate) {
-                referenceSummaries.add(nextSummary);
-            }
-            else {
-                // duplicate, is the new one better?
-                if (shouldReplace != null) {
-                    //try and replace, keeping the order that they where placed in
-                    for (int i = 0; i < referenceSummaries.size(); i++) {
-                        AnnotationPrediction summary = referenceSummaries.get(i);
-                        if (summary.equals(shouldReplace)) {
-                            referenceSummaries.remove(i);
-                            referenceSummaries.add(i, nextSummary);
-                        }
-                    }
-                }
-            }
+            referenceSummaries.add(nextSummary);
         }
 
         // return top scored summary
@@ -147,49 +88,24 @@ public class PredictorUtils {
             }
         });
 
-
-
-
         return results;
     }
 
-    /**
-     * Tests the contents of two collections to determine if they are equal.  This method will return true if and only
-     * if all items in collection 1 are present in collection 2 and all items in collection 2 are present in collection
-     * 1.  Furthermore, for collections that may contain duplicates (such as {@link List}s), both lists must be the same
-     * length for this to be true.
-     *
-     * @param c1  collection 1
-     * @param c2  collection 2
-     * @param <T> the type of collection 1 and 2 (if either collection is typed, both collections must have the same
-     *            type)
-     * @return true if the contents of collection 1 and 2 are identical
+
+    /*
+     * Indicates whether a set of sources contains the None Selected checkbox, or if they are empty. If so then these sources
+     * should not be searched.
      */
-    public static <T> boolean allEquals(Collection<T> c1, Collection<T> c2) {
-        // quick size screen for sets - if sizes aren't equal contents definitely can't be
-        if (c1 instanceof Set && c2 instanceof Set) {
-            if (c1.size() != c2.size()) {
+    public static  boolean shouldSearch(List<String> sources) {
+        if(sources == null){
+            return true;
+        }
+        for (String source : sources) {
+            if (source.equals("none")) { //source.toString().equals("None") || source.toString().equals("none") || source.toString().equals("Select None")
                 return false;
             }
         }
-
-        // either both c1 and c2 are not a set or both sets and sizes are equal
-
-        // is every element in c1 also in c2?
-        for (T t : c1) {
-            if (!c2.contains(t)) {
-                return false;
-            }
-        }
-
-        // and, is every element in c2 also in c1?
-        for (T t : c2) {
-            if (!c1.contains(t)) {
-                return false;
-            }
-        }
-
-        // if we get to here, all elements in each set are also in the other, so all elements are equal
         return true;
     }
+
 }

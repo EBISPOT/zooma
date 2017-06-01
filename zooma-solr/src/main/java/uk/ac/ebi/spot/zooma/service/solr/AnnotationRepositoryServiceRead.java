@@ -48,11 +48,11 @@ public class AnnotationRepositoryServiceRead {
         return listToPageable(results, pageable);
     }
 
-    public Page<Annotation> findByPropertyValue(String propertyValue, List<String> origin, String originType, Pageable pageable) throws IOException, SolrServerException {
+    public Page<Annotation> findByPropertyValue(String propertyValue, List<String> origin, Pageable pageable) throws IOException, SolrServerException {
         if (origin == null || origin.isEmpty()){
             return findByPropertyValue(propertyValue, pageable);
         }
-        String query = andOriginQuery(propertyValueQuery(propertyValue), origin, originType);
+        String query = andOriginsQuery(propertyValueQuery(propertyValue), origin);
         List<Annotation> results = query(query);
         return listToPageable(results, pageable);
     }
@@ -63,11 +63,11 @@ public class AnnotationRepositoryServiceRead {
         return listToPageable(results, pageable);
     }
 
-    public Page<Annotation> findByPropertyTypeAndPropertyValue(String propertyType, String propertyValue, List<String> origin, String originType, Pageable pageable) throws IOException, SolrServerException {
+    public Page<Annotation> findByPropertyTypeAndPropertyValue(String propertyType, String propertyValue, List<String> origin, Pageable pageable) throws IOException, SolrServerException {
         if (origin == null || origin.isEmpty()){
             return findByPropertyTypeAndPropertyValue(propertyType, propertyValue, pageable);
         }
-        String query = andOriginQuery(andPropertyTypeQuery(propertyValueQuery(propertyValue), propertyType), origin, originType);
+        String query = andOriginsQuery(andPropertyTypeQuery(propertyValueQuery(propertyValue), propertyType), origin);
         List<Annotation> results = query(query);
         return listToPageable(results, pageable);
     }
@@ -87,15 +87,14 @@ public class AnnotationRepositoryServiceRead {
         return and.toString();
     }
 
-    String andOriginQuery(String query, List<String> origin, String originType){
-        if(!(originType.equals("topic") || originType.equals("source"))){
-            throw new IllegalArgumentException("Origin type must be either \"source\" or \"topic\"!");
-        }
+    String andOriginsQuery(String query, List<String> origin){
+
         StringJoiner and = new StringJoiner(" AND ");
         StringJoiner or = new StringJoiner(" OR ");
         and.add(query);
         for (String orig : origin){
-            or.add(originType + ":\"" + orig + "\"");
+            or.add("topic" + ":\"" + orig + "\"");
+            or.add("source" + ":\"" + orig + "\"");
         }
         String origins = "(" + or.toString() + ")";
         and.add(origins);

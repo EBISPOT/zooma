@@ -11,7 +11,6 @@ import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
  * @author Tony Burdett
  * @date 18/12/13
  */
-@Component
 public class AnnotationSummaryNeedlemanWunschScorer extends AbstractNeedlemanWunschScorer<AnnotationPrediction> {
     /**
      * Extracts the annotated property value for the matched annotation summary to compare to the search string

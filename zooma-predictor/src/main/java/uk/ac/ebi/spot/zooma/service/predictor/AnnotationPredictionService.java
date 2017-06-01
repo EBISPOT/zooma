@@ -3,10 +3,13 @@ package uk.ac.ebi.spot.zooma.service.predictor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.zooma.engine.PredictionSearch;
+import uk.ac.ebi.spot.zooma.engine.decorators.PredictionSearchBoostOriginDecorator;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.utils.predictor.PredictorConfidenceCalculator;
 import uk.ac.ebi.spot.zooma.utils.predictor.PredictorUtils;
 
 import java.net.URISyntaxException;
@@ -21,15 +24,27 @@ public class AnnotationPredictionService {
     private float cutoffScore;
     private float cutoffPercentage;
 
-    PredictionSearch predictionSearch;
+    private PredictionSearch simplePredictionSearch;
+    private PredictionSearch olsPredictionSearch;
+    private PredictorConfidenceCalculator confidenceCalculator;
+
+
 
     @Autowired
     public AnnotationPredictionService(@Value("${cutoff.score}") float cutoffScore,
                                        @Value("${cutoff.percentage}") float cutoffPercentage,
-                                       PredictionSearch predictionSearch) {
+                                       @Qualifier("simple.delegate") PredictionSearch simplePredictionSearch,
+                                       @Qualifier("ols.delegate") PredictionSearch olsPredictionSearch,
+                                       PredictorConfidenceCalculator confidenceCalculator) {
         this.cutoffScore = cutoffScore;
         this.cutoffPercentage = cutoffPercentage;
-        this.predictionSearch = predictionSearch;
+        this.simplePredictionSearch = new PredictionSearchBoostOriginDecorator(
+                        simplePredictionSearch);
+
+        this.olsPredictionSearch = new PredictionSearchBoostOriginDecorator(
+                        olsPredictionSearch);
+
+        this.confidenceCalculator = confidenceCalculator;
     }
 
     public float getCutoffScore() {
@@ -44,91 +59,50 @@ public class AnnotationPredictionService {
     }
 
 
-    public List<AnnotationPrediction> predictByPropertyValue(String propertyValue) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyValue);
-        return calculateConfidence(results, propertyValue);
-    }
-
-    public List<AnnotationPrediction> predictByPropertyValueBoostSources(String propertyValue, List<String> sources) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyValue, sources, "sources", false);
-        return calculateConfidence(results, propertyValue);
-    }
-
-    public List<AnnotationPrediction> predictByPropertyValueFilterSources(String propertyValue, List<String> sources) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyValue, sources, "sources", true);
-        return calculateConfidence(results, propertyValue);
-    }
-
-    public List<AnnotationPrediction> predictByPropertyValueBoostTopics(String propertyValue, List<String> topics) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyValue, topics, "topics", false);
-        return calculateConfidence(results, propertyValue);
-    }
-
-    public List<AnnotationPrediction> predictByPropertyValueFilterTopics(String propertyValue, List<String> topics) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyValue, topics, "topics", true);
-        return calculateConfidence(results, propertyValue);
-    }
-
-    public List<AnnotationPrediction> predictByPropertyTypeAndValue(String propertyType, String propertyValue) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue);
-        return calculateConfidence(results, propertyValue);
-    }
-
-    public List<AnnotationPrediction> predictByPropertyTypeAndValueBoostSources(String propertyType, String propertyValue, List<String> sources) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue, sources, "sources", false);
-        return calculateConfidence(results, propertyValue);
-    }
-
-    public List<AnnotationPrediction> predictByPropertyTypeAndValueFilterSources(String propertyType, String propertyValue, List<String> sources) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue, sources, "sources", true);
-        return calculateConfidence(results, propertyValue);
-    }
-
-    public List<AnnotationPrediction> predictByPropertyTypeAndValueBoostTopics(String propertyType, String propertyValue, List<String> topics) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue, topics, "topics", false);
-        return calculateConfidence(results, propertyValue);
-    }
-
-    public List<AnnotationPrediction> predictByPropertyTypeAndValueFilterTopics(String propertyType, String propertyValue, List<String> topics) throws URISyntaxException {
-        List<AnnotationPrediction> results = predictionSearch.search(propertyType, propertyValue, topics, "topics", true);
-        return calculateConfidence(results, propertyValue);
-    }
-
-
-
-    private List<AnnotationPrediction> calculateConfidence(List<AnnotationPrediction> results, String propertyValue) {
-        //cutoff 80%
-        List<AnnotationPrediction> predictions = getGoodAnnotationSummaries(results, getCutoffPercentage());
-
-//         now we have a list of annotation summaries; use this list to create predicted annotations
-        AnnotationPrediction.Confidence confidence = PredictorUtils.getConfidence(predictions, getCutoffScore());
-
-        predictions.stream().forEach(annotationPrediction -> annotationPrediction.setConfidence(confidence));
-
-        getLog().info("**** Search for: {} done! ****", propertyValue);
-
-        return predictions;
-    }
-
-    private List<AnnotationPrediction> getGoodAnnotationSummaries(List<AnnotationPrediction> annotationSummaries, float cutoffPercentage){
-
-        Map<AnnotationPrediction, Float> annotationsToNormScore = new HashMap<>();
-        for(AnnotationPrediction summary : annotationSummaries){
-            annotationsToNormScore.put(summary, summary.getScore());
+    public List<AnnotationPrediction> predictByPropertyValue(String propertyValue, List<String> ontologies, boolean filter) throws URISyntaxException {
+        populateOntologies(ontologies);
+        List<AnnotationPrediction> results = this.simplePredictionSearch.search(propertyValue);
+        if(results.isEmpty() && PredictorUtils.shouldSearch(ontologies)){
+            results = this.olsPredictionSearch.searchWithOrigin(propertyValue, ontologies, filter);
         }
 
-        //cutoff scores based on the difference between the first score
-        List<AnnotationPrediction> results = PredictorUtils.filterAnnotationSummaries(annotationsToNormScore, cutoffPercentage);
+        return this.confidenceCalculator.calculateConfidence(results, propertyValue, getCutoffPercentage(), getCutoffScore());
+    }
 
-        //TODO: java 8
-        //Make sure the results are sorted (highest score first).
-        Collections.sort(results, new Comparator<AnnotationPrediction>() {
-            @Override public int compare(AnnotationPrediction o1, AnnotationPrediction o2) {
-                return annotationsToNormScore.get(o2).compareTo(annotationsToNormScore.get(o1));
-            }
-        });
+    public List<AnnotationPrediction> predictByPropertyValueOrigins(String propertyValue, List<String> origins, List<String> ontologies, boolean filter) throws URISyntaxException {
+        ontologies = populateOntologies(ontologies);
+        List<AnnotationPrediction> results = this.simplePredictionSearch.searchWithOrigin(propertyValue, origins, filter);
+        if(results.isEmpty() && PredictorUtils.shouldSearch(ontologies)){
+            results = this.olsPredictionSearch.searchWithOrigin(propertyValue, ontologies, filter);
+        }
 
-        return results;
+        return this.confidenceCalculator.calculateConfidence(results, propertyValue, getCutoffPercentage(), getCutoffScore());
+    }
+
+    public List<AnnotationPrediction> predictByPropertyTypeAndValue(String propertyType, String propertyValue, List<String> ontologies, boolean filter) throws URISyntaxException {
+        populateOntologies(ontologies);
+        List<AnnotationPrediction> results = this.simplePredictionSearch.search(propertyType, propertyValue);
+        if(results.isEmpty() && PredictorUtils.shouldSearch(ontologies)){
+            results = this.olsPredictionSearch.searchWithOrigin(propertyType, propertyValue, ontologies, filter);
+        }
+
+        return this.confidenceCalculator.calculateConfidence(results, propertyValue, getCutoffPercentage(), getCutoffScore());
+    }
+
+    public List<AnnotationPrediction> predictByPropertyTypeAndValueOrigins(String propertyType, String propertyValue, List<String> origins, List<String> ontologies, boolean filter) throws URISyntaxException {
+        ontologies = populateOntologies(ontologies);
+        List<AnnotationPrediction> results = this.simplePredictionSearch.searchWithOrigin(propertyType, propertyValue, origins, filter);
+        if(results.isEmpty() && PredictorUtils.shouldSearch(ontologies)){
+            results = this.olsPredictionSearch.searchWithOrigin(propertyType, propertyValue, ontologies, filter);
+        }
+        return this.confidenceCalculator.calculateConfidence(results, propertyValue, getCutoffPercentage(), getCutoffScore());
+    }
+
+    private List<String> populateOntologies(List<String> ontologies) {
+        if (ontologies == null){
+            ontologies = new ArrayList<>();
+        }
+        return ontologies;
     }
 
 }

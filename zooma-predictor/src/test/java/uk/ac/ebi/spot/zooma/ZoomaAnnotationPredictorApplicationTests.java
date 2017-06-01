@@ -11,6 +11,7 @@ import uk.ac.ebi.spot.zooma.config.TestPredictorConfig;
 import uk.ac.ebi.spot.zooma.service.predictor.AnnotationPredictionService;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertTrue;
 
@@ -25,7 +26,7 @@ public class ZoomaAnnotationPredictorApplicationTests {
 	@Test
 	@Ignore
 	public void predictAnnotationByPropertyValue() throws URISyntaxException {
-		annotationPredictionService.predictByPropertyValue("cell death");
+		annotationPredictionService.predictByPropertyValue("cell death", new ArrayList<>(), false);
 //		for(AnnotationPrediction prediction : predictions){
 ////			assertTrue(prediction.getAnnotatedPropertyValue().contains("spastic"));
 ////			assertTrue(prediction.getAnnotatedPropertyValue().contains("paraplegia"));
