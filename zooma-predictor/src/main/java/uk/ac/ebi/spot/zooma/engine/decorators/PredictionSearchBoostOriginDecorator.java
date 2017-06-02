@@ -2,6 +2,7 @@ package uk.ac.ebi.spot.zooma.engine.decorators;
 
 import uk.ac.ebi.spot.zooma.engine.PredictionSearch;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.model.predictor.Prediction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,13 +19,13 @@ public class PredictionSearchBoostOriginDecorator extends PredictionSearchDecora
     }
 
     @Override
-    public List<AnnotationPrediction> search(String propertyValuePattern) {
+    public List<Prediction> search(String propertyValuePattern) {
         return super.search(propertyValuePattern);
     }
 
     @Override
-    public List<AnnotationPrediction> searchWithOrigin(String propertyValuePattern, List<String> origin, boolean filter) {
-        List<AnnotationPrediction> predictions = super.searchWithOrigin(propertyValuePattern, origin, filter);
+    public List<Prediction> searchWithOrigin(String propertyValuePattern, List<String> origin, boolean filter) {
+        List<Prediction> predictions = super.searchWithOrigin(propertyValuePattern, origin, filter);
         if(!filter){
             return boostOrigin(predictions, origin);
         }
@@ -32,14 +33,14 @@ public class PredictionSearchBoostOriginDecorator extends PredictionSearchDecora
     }
 
     @Override
-    public List<AnnotationPrediction> search(String propertyType, String propertyValuePattern) {
+    public List<Prediction> search(String propertyType, String propertyValuePattern) {
         return super.search(propertyType, propertyValuePattern);
     }
 
 
     @Override
-    public List<AnnotationPrediction> searchWithOrigin(String propertyType, String propertyValuePattern, List<String> ontologies, boolean filter) {
-        List<AnnotationPrediction> predictions = super.searchWithOrigin(propertyType, propertyValuePattern, ontologies, filter);
+    public List<Prediction> searchWithOrigin(String propertyType, String propertyValuePattern, List<String> ontologies, boolean filter) {
+        List<Prediction> predictions = super.searchWithOrigin(propertyType, propertyValuePattern, ontologies, filter);
         if(!filter){
             return boostOrigin(predictions, ontologies);
         }
@@ -48,11 +49,11 @@ public class PredictionSearchBoostOriginDecorator extends PredictionSearchDecora
     }
 
 
-    private List<AnnotationPrediction> boostOrigin(List<AnnotationPrediction> predictions, List<String> origin){
-        for (AnnotationPrediction prediction : predictions){
+    private List<Prediction> boostOrigin(List<Prediction> predictions, List<String> origin){
+        for (Prediction prediction :  predictions){
             Collection<String> origins = new ArrayList<>();
-            origins.addAll(prediction.getSource());
-            origins.addAll(prediction.getTopic());
+            origins.addAll(((AnnotationPrediction)prediction).getSource());
+            origins.addAll(((AnnotationPrediction)prediction).getTopic());
             for(String o : origins){
                 if (origin.contains(o)) {
                     float score = prediction.getScore();

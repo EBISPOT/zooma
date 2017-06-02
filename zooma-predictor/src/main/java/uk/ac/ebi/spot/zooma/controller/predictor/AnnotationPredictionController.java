@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.model.predictor.Prediction;
 import uk.ac.ebi.spot.zooma.service.predictor.AnnotationPredictionService;
 import uk.ac.ebi.spot.zooma.utils.predictor.PredictorUtils;
 
@@ -56,15 +57,16 @@ public class AnnotationPredictionController {
                                                                          @RequestParam(value = "onto_as_equals", required = false) boolean ontologiesAsEquals,
                                                                          PagedResourcesAssembler assembler) throws URISyntaxException {
 
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValue(propertyValue, ontologies, filter);
+        List<Prediction> predictions = predictionService.predictByPropertyValue(propertyValue, ontologies, filter);
 
         if(ontologiesAsEquals && PredictorUtils.shouldSearch(ontologies) && !undergoneOntologySearch(predictions)){
             predictions.addAll(predictionService.predictByPropertyValueOrigins(propertyValue, this.dontSearchOrigin, ontologies, filter));
         }
 
-        for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValue(propertyValue, ontologies, filter, ontologiesAsEquals, assembler)).withSelfRel());
-            addLinks(prediction);
+        for(Prediction prediction : predictions){
+            AnnotationPrediction annotationPrediction = (AnnotationPrediction) prediction;
+            annotationPrediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictValue(propertyValue, ontologies, filter, ontologiesAsEquals, assembler)).withSelfRel());
+            addLinks(annotationPrediction);
         }
 
         return new ResponseEntity<>(assembler.toResource(new PageImpl<>(predictions)), HttpStatus.OK);
@@ -78,7 +80,7 @@ public class AnnotationPredictionController {
                                                @RequestParam(value = "onto_as_equals", required = false) boolean ontologiesAsEquals,
                                                PagedResourcesAssembler assembler) throws URISyntaxException {
 
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyValueOrigins(propertyValue, origins, ontologies, filter);
+        List<Prediction> predictions = predictionService.predictByPropertyValueOrigins(propertyValue, origins, ontologies, filter);
 
         if(ontologiesAsEquals && PredictorUtils.shouldSearch(ontologies) && !undergoneOntologySearch(predictions)){
             predictions.addAll(predictionService.predictByPropertyValueOrigins(propertyValue, this.dontSearchOrigin, ontologies, filter));
@@ -86,9 +88,10 @@ public class AnnotationPredictionController {
 
         Link link = linkTo(methodOn(AnnotationPredictionController.class).predictValueBoostSources(propertyValue, origins, ontologies, filter, ontologiesAsEquals, assembler)).withSelfRel();
 
-        for(AnnotationPrediction prediction : predictions){
-            prediction.add(link);
-            addLinks(prediction);
+        for(Prediction prediction : predictions){
+            AnnotationPrediction annotationPrediction = (AnnotationPrediction) prediction;
+            annotationPrediction.add(link);
+            addLinks(annotationPrediction);
         }
 
 
@@ -102,13 +105,13 @@ public class AnnotationPredictionController {
                                           @RequestParam(value = "filter", required = false) boolean filter,
                                           @RequestParam(value = "onto_as_equals", required = false) boolean ontologiesAsEquals,
                                           PagedResourcesAssembler assembler) throws URISyntaxException {
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValue(propertyType, propertyValue, ontologies, filter);
+        List<Prediction> predictions = predictionService.predictByPropertyTypeAndValue(propertyType, propertyValue, ontologies, filter);
         if (predictions.isEmpty()) {
             predictions = predictionService.predictByPropertyValue(propertyValue, ontologies, filter);
         }
 
         if (ontologiesAsEquals && PredictorUtils.shouldSearch(ontologies) && !undergoneOntologySearch(predictions)) {
-            List<AnnotationPrediction> olsPredictions;
+            List<Prediction> olsPredictions;
             olsPredictions = predictionService.predictByPropertyTypeAndValueOrigins(propertyType, propertyValue, this.dontSearchOrigin, ontologies, filter);
             if (olsPredictions.isEmpty()) {
                 olsPredictions = predictionService.predictByPropertyValueOrigins(propertyValue, this.dontSearchOrigin, ontologies, filter);
@@ -116,9 +119,10 @@ public class AnnotationPredictionController {
             predictions.addAll(olsPredictions);
         }
 
-        for (AnnotationPrediction prediction : predictions) {
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValue(propertyType, propertyValue, ontologies, filter, ontologiesAsEquals, assembler)).withSelfRel());
-            addLinks(prediction);
+        for (Prediction prediction : predictions) {
+            AnnotationPrediction annotationPrediction = (AnnotationPrediction) prediction;
+            annotationPrediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValue(propertyType, propertyValue, ontologies, filter, ontologiesAsEquals, assembler)).withSelfRel());
+            addLinks(annotationPrediction);
         }
 
         return new ResponseEntity<>(assembler.toResource(new PageImpl<>(predictions)), HttpStatus.OK);
@@ -133,13 +137,13 @@ public class AnnotationPredictionController {
                                                       @RequestParam(value = "onto_as_equals", required = false) boolean ontologiesAsEquals,
                                                       PagedResourcesAssembler assembler) throws URISyntaxException {
 
-        List<AnnotationPrediction> predictions = predictionService.predictByPropertyTypeAndValueOrigins(propertyType, propertyValue, origins, ontologies, filter);
+        List<Prediction> predictions = predictionService.predictByPropertyTypeAndValueOrigins(propertyType, propertyValue, origins, ontologies, filter);
         if (predictions.isEmpty()){
             predictions = predictionService.predictByPropertyValueOrigins(propertyValue, origins, ontologies, filter);
         }
 
         if(ontologiesAsEquals && PredictorUtils.shouldSearch(ontologies) && !undergoneOntologySearch(predictions)){
-            List<AnnotationPrediction> olsPredictions;
+            List<Prediction> olsPredictions;
             olsPredictions = predictionService.predictByPropertyTypeAndValueOrigins(propertyType, propertyValue, this.dontSearchOrigin, ontologies, filter);
             if (olsPredictions.isEmpty()){
                 olsPredictions = predictionService.predictByPropertyValueOrigins(propertyValue, this.dontSearchOrigin, ontologies, filter);
@@ -147,9 +151,10 @@ public class AnnotationPredictionController {
             predictions.addAll(olsPredictions);
         }
 
-        for(AnnotationPrediction prediction : predictions){
-            prediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueBoostSources(propertyType, propertyValue, origins, ontologies, filter, ontologiesAsEquals, assembler)).withSelfRel());
-            addLinks(prediction);
+        for(Prediction prediction : predictions){
+            AnnotationPrediction annotationPrediction = (AnnotationPrediction) prediction;
+            annotationPrediction.add(linkTo(methodOn(AnnotationPredictionController.class).predictTypeAndValueBoostSources(propertyType, propertyValue, origins, ontologies, filter, ontologiesAsEquals, assembler)).withSelfRel());
+            addLinks(annotationPrediction);
         }
 
         return new ResponseEntity<>(assembler.toResource(new PageImpl<>(predictions)), HttpStatus.OK);
@@ -184,9 +189,9 @@ public class AnnotationPredictionController {
         }
     }
 
-    private boolean undergoneOntologySearch(List<AnnotationPrediction> predictions) {
-        for (AnnotationPrediction prediction : predictions) {
-            if (prediction.getStrongestMongoid().equals("ols")) {
+    private boolean undergoneOntologySearch(List<Prediction> predictions) {
+        for (Prediction prediction : predictions) {
+            if (((AnnotationPrediction) prediction).getStrongestMongoid().equals("ols")) {
                 return true;
             }
         }

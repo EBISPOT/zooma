@@ -2,6 +2,7 @@ package uk.ac.ebi.spot.zooma.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.hateoas.hal.Jackson2HalModule;
@@ -11,7 +12,11 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.pride.utilities.ols.web.service.client.OLSClient;
 import uk.ac.ebi.pride.utilities.ols.web.service.config.OLSWsConfig;
-import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.model.predictor.Prediction;
+import uk.ac.ebi.spot.zooma.scorers.AbstractConfidenceCalculator;
+import uk.ac.ebi.spot.zooma.scorers.ConfidenceCalculatorImpl;
+import uk.ac.ebi.spot.zooma.scorers.SimilarityScorer;
+import uk.ac.ebi.spot.zooma.scorers.SimilarityScorerImpl;
 import uk.ac.ebi.spot.zooma.utils.predictor.AnnotationSummaryNeedlemanWunschScorer;
 import uk.ac.ebi.spot.zooma.utils.predictor.Scorer;
 
@@ -22,6 +27,11 @@ import java.util.Collections;
  */
 @Configuration
 public class PredictorConfig {
+
+    @Value("${cutoff.score}") float cutoffScore;
+    @Value("${cutoff.percentage}") float cutoffPercentage;
+    @Value("${max.ols.score}") float maxOLSScore;
+
     @Bean
     RestTemplate getRestTemplate(){
 
@@ -51,8 +61,18 @@ public class PredictorConfig {
     }
 
     @Bean
-    Scorer<AnnotationPrediction> scorer() {
+    Scorer<Prediction> scorer() {
         return new AnnotationSummaryNeedlemanWunschScorer();
+    }
+
+    @Bean
+    SimilarityScorer similarityScorer(){
+        return new SimilarityScorerImpl(scorer());
+    }
+
+    @Bean
+    AbstractConfidenceCalculator confidenceCalculator(){
+        return new ConfidenceCalculatorImpl(cutoffScore, cutoffPercentage, maxOLSScore, similarityScorer());
     }
 
 }

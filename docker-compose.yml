@@ -76,6 +76,7 @@ services:
         environment:
         - cutoff.percentage=0.9
         - cutoff.score=80.0
+        - max.ols.score=75.0
         - ols.term.location=http://www.ebi.ac.uk/ols/api/terms?iri=
         - ols.location=www.ebi.ac.uk/ols/
         - zooma.neo4j.location=http://localhost:8082

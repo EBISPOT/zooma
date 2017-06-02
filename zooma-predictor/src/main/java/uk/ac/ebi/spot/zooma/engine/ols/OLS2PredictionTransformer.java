@@ -3,6 +3,7 @@ package uk.ac.ebi.spot.zooma.engine.ols;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.model.predictor.Prediction;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -21,7 +22,7 @@ public class OLS2PredictionTransformer {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-    public AnnotationPrediction olsToPrediction(Term term){
+    public Prediction olsToPrediction(Term term){
 
         Collection<String> semanticTags = new ArrayList<>();
         semanticTags.add(term.getIri().getIdentifier().toString());

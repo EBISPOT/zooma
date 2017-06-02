@@ -15,4 +15,6 @@ public interface Scorable extends Serializable {
      * @return a float representing the quality of this object
      */
     float getScore();
+
+    void setScore(float score);
 }

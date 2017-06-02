@@ -1,8 +1,7 @@
 package uk.ac.ebi.spot.zooma.utils.predictor;
 
-import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.model.predictor.Prediction;
 
-import java.net.URI;
 import java.util.*;
 
 
@@ -23,56 +22,46 @@ public class PredictorUtils {
      * included.</li> </ol>
      * <p/>
      * This form does not take a minimum score - this is equivalent to calling {@link
-     * #filterAnnotationSummaries(Map, float, float)} with a cutoff score of 0.
+     * #filterAnnotationPredictions(List, float, float)} with a cutoff score of 0.
      *
      * @param summaries        the set of summaries to filter
      * @param cutoffPercentage the maximum distance away from the top score an annotation is allowed to be whilst not
      *                         being filtered
      * @return a filtered set of annotations, only including those that scored inside the confidence interval
      */
-    public static List<AnnotationPrediction> filterAnnotationSummaries(Map<AnnotationPrediction, Float> summaries,
-                                                                    float cutoffPercentage) {
-        return filterAnnotationSummaries(summaries, 0, cutoffPercentage);
+    public static List<Prediction> filterAnnotationPredictions(List<Prediction> summaries,
+                                                                         float cutoffPercentage) {
+        return filterAnnotationPredictions(summaries, 0, cutoffPercentage);
 
     }
 
 
     /**
-     * Filter the supplied map of annotation summaries to their score, reducing them down to a set of summaries that
-     * exclude any unreasonable matches.  Summaries are excluded from the results with the following criteria: <ol>
-     * <li>If it duplicates a prior summary (meaning it produces a mapping to the same collection of semantic tags)</li>
+     * Filter the supplied map of predictions to their score, reducing them down to a set of predictions that
+     * exclude any unreasonable matches.  Predictions are excluded from the results with the following criteria: <ol>
      * <li>If the score for this summary is less than the value of cutoffPercentage the value of the top scoring one.
      * So, if you supply a cutoffPercentage of 0.95, only summaries with a score of 95% the value of the top hit will be
      * included.</li> </ol>
      *
-     * @param summaries        the set of summaries to filter
+     * @param predictions        the set of summaries to filter
      * @param cutoffScore      the minimum allowed score for an annotation to not be filtered
      * @param cutoffPercentage the maximum
      * @return a filtered set of annotations, only including those that scored inside the confidence interval
      */
-    public static List<AnnotationPrediction> filterAnnotationSummaries(final Map<AnnotationPrediction, Float> summaries,
-                                                                    float cutoffScore,
-                                                                    float cutoffPercentage) {
-        if(summaries.isEmpty()){
+    public static List<Prediction> filterAnnotationPredictions(final List<Prediction> predictions,
+                                                                         float cutoffScore,
+                                                                         float cutoffPercentage) {
+        if(predictions == null || predictions.isEmpty()){
             return new ArrayList<>();
-        }
-        Iterator<AnnotationPrediction> summaryIterator = summaries.keySet().iterator();
-
-        // we need to find summaries that agree and exclude duplicates - build a reference set
-        List<AnnotationPrediction> referenceSummaries = new ArrayList<>();
-        referenceSummaries.add(summaryIterator.next()); // first summary can't duplicate anything
-
-        // compare each summary with the reference set
-        while (summaryIterator.hasNext()) {
-            AnnotationPrediction nextSummary = summaryIterator.next();
-            referenceSummaries.add(nextSummary);
         }
 
         // return top scored summary
-        List<AnnotationPrediction> results = new ArrayList<>();
-        float topScore = Collections.max(summaries.values());
-        for (AnnotationPrediction as : referenceSummaries) {
-            float score = summaries.get(as);
+        List<Prediction> results = new ArrayList<>();
+
+        Optional<Prediction> maxAnn = predictions.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
+        float topScore = maxAnn.isPresent() ? maxAnn.get().getScore() : 0.0f;
+        for (Prediction as : predictions) {
+            float score = as.getScore();
             // if the score for this summary is within 5% of the top score,
             // AND if it is greater than the cutoff score
             // include
@@ -81,12 +70,7 @@ public class PredictorUtils {
             }
         }
 
-        //Make sure the results are sorted (highest score first).
-        Collections.sort(results, new Comparator<AnnotationPrediction>() {
-            @Override public int compare(AnnotationPrediction o1, AnnotationPrediction o2) {
-                return summaries.get(o2).compareTo(summaries.get(o1));
-            }
-        });
+        results.sort(Comparator.comparing(Prediction::getScore));
 
         return results;
     }
@@ -101,11 +85,53 @@ public class PredictorUtils {
             return true;
         }
         for (String source : sources) {
-            if (source.equals("none")) { //source.toString().equals("None") || source.toString().equals("none") || source.toString().equals("Select None")
+            if (source.equals("none")) {
                 return false;
             }
         }
         return true;
+    }
+
+
+    /**
+     * Will normalize the score to 100 based on the delta percentage it has with the max score
+     *
+     * @param maxScore represents the max value a score can reach
+     * @param score the score we want to normalise
+     * @return the score will be 100 if it reached maxScore or
+     * below 100 by the delta percentage it has with the maxScore
+     */
+    public static float normalizeToOneHundred(float maxScore, float score) {
+        if (score > maxScore){
+            throw new IllegalArgumentException("Score can not be higher than max score!");
+        }
+
+        if(maxScore == 0){
+            return 50;
+        }
+
+        float dx = 100 * ((maxScore - score) / maxScore);
+        float norm = 50 + (50 * (100 - dx) / 100);
+        return norm;
+    }
+
+    /**
+     * Degrades a score to the maxPossibleScore based on it's difference from the maxScore
+     * @param maxPossibleScore the max possible score
+     * @param maxScore the max of the scores before the degration
+     * @param score the score to be degraded
+     * @return
+     */
+    public static float degradeToMaxScore(float maxPossibleScore, float maxScore, float score){
+        if (score > maxScore){
+            throw new IllegalArgumentException("Score can not be higher than max score!");
+        }
+
+        float degrade = maxPossibleScore - (maxScore - score);
+        if(degrade < 0){
+            return 0;
+        }
+        return degrade;
     }
 
 }

@@ -19,7 +19,7 @@ import java.util.Date;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AnnotationPrediction extends ResourceSupport implements Scorable {
+public class AnnotationPrediction extends ResourceSupport implements Prediction {
 
     @NonNull
     private String propertyType;
@@ -74,10 +74,4 @@ public class AnnotationPrediction extends ResourceSupport implements Scorable {
         return mongoid;
     }
 
-    public enum Confidence {
-        HIGH,
-        GOOD,
-        MEDIUM,
-        LOW
-    }
 }

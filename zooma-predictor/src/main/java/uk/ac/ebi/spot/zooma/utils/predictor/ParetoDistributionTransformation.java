@@ -14,11 +14,14 @@ import lombok.RequiredArgsConstructor;
 public class ParetoDistributionTransformation {
     @NonNull
     private float maxValue;
-    private float minValue = 0;
-    private float alpha = 1.5f;
+    private float minValue = 1;
+    private float alpha = 0.5f;
 
     
     public float transform(float value){
+        if(value == 0){
+            return 0;
+        }
         return new Double(this.maxValue * (1 - Math.pow((this.minValue / value), this.alpha))).floatValue();
     }
 }

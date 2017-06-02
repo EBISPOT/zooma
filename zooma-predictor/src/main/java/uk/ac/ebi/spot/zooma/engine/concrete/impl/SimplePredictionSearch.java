@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.ac.ebi.spot.zooma.engine.PredictionSearch;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.model.predictor.Prediction;
 import uk.ac.ebi.spot.zooma.utils.predictor.ParetoDistributionTransformation;
 
 import java.net.URI;
@@ -47,12 +48,12 @@ public class SimplePredictionSearch implements PredictionSearch {
     }
 
     @Override
-    public List<AnnotationPrediction> search(String propertyValuePattern) {
+    public List<Prediction> search(String propertyValuePattern) {
         return this.searchWithOrigin(propertyValuePattern, new ArrayList<>(), false);
     }
 
     @Override
-    public List<AnnotationPrediction> searchWithOrigin(String propertyValuePattern, List<String> origin, boolean filter) {
+    public List<Prediction> searchWithOrigin(String propertyValuePattern, List<String> origin, boolean filter) {
         getLog().debug("simple Solr search for {} ", propertyValuePattern);
         UriComponentsBuilder uriComponentsBuilder = constructQuery(propertyValuePattern);
 
@@ -63,18 +64,18 @@ public class SimplePredictionSearch implements PredictionSearch {
 
         URI uri = uriComponentsBuilder.build().toUri();
 
-        List<AnnotationPrediction> predictions = getForObject(uri);
+        List<Prediction> predictions = getForObject(uri);
         return primaryMetaScore(predictions);
     }
 
 
     @Override
-    public List<AnnotationPrediction> search(String propertyType, String propertyValuePattern) {
+    public List<Prediction> search(String propertyType, String propertyValuePattern) {
         return this.searchWithOrigin(propertyType, propertyValuePattern, new ArrayList<>(), false);
     }
 
     @Override
-    public List<AnnotationPrediction> searchWithOrigin(String propertyType, String propertyValuePattern, List<String> origin, boolean filter) {
+    public List<Prediction> searchWithOrigin(String propertyType, String propertyValuePattern, List<String> origin, boolean filter) {
         getLog().debug("simple Solr search for {} with type {} ", propertyValuePattern, propertyType);
         UriComponentsBuilder uriComponentsBuilder = constructQuery(propertyType, propertyValuePattern);
         if(filter){
@@ -83,7 +84,7 @@ public class SimplePredictionSearch implements PredictionSearch {
         }
         URI uri = uriComponentsBuilder.build().toUri();
 
-        List<AnnotationPrediction> predictions = getForObject(uri);
+        List<Prediction> predictions = getForObject(uri);
         return primaryMetaScore(predictions);
     }
 
@@ -109,25 +110,26 @@ public class SimplePredictionSearch implements PredictionSearch {
                 .queryParam("q", propertyValue);
     }
 
-    private List<AnnotationPrediction> getForObject(URI uri){
-        PagedResources<AnnotationPrediction> resources = restTemplate
+    private List<Prediction> getForObject(URI uri){
+        PagedResources<Prediction> resources = restTemplate
                 .getForObject(uri,
                         PagedResources.class);
         return objectMapper.convertValue(resources.getContent() , new TypeReference<List<AnnotationPrediction>>(){});
     }
 
-    private List<AnnotationPrediction> primaryMetaScore(List<AnnotationPrediction> predictions){
-        Optional<AnnotationPrediction> maxAnn = predictions.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
+    private List<Prediction> primaryMetaScore(List<Prediction> predictions){
+        Optional<Prediction> maxAnn = predictions.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
         float maxSolrScore = maxAnn.isPresent() ? maxAnn.get().getScore() : 0.0f;
 
         predictions.stream().forEach(annotation -> {
-            float sourceNumber = annotation.getSource().size();
-            float numOfDocs = annotation.getVotes();
-            float topQuality = annotation.getQuality();
-            float normalizedSolrScore = 1.0f + annotation.getScore() / maxSolrScore;
+            AnnotationPrediction prediction = (AnnotationPrediction) annotation;
+            float sourceNumber = prediction.getSource().size();
+            float numOfDocs = prediction.getVotes();
+            float topQuality = prediction.getQuality();
+            float normalizedSolrScore = 1.0f + prediction.getScore() / maxSolrScore;
             float pareto = this.transformation.transform(numOfDocs);
             float score = (topQuality + sourceNumber + pareto) * normalizedSolrScore;
-            annotation.setScore(score);
+            prediction.setScore(score);
         });
 
         return predictions;

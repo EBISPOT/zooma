@@ -1,7 +1,7 @@
 package uk.ac.ebi.spot.zooma.engine.decorators;
 
 import uk.ac.ebi.spot.zooma.engine.PredictionSearch;
-import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.model.predictor.Prediction;
 import uk.ac.ebi.spot.zooma.utils.predictor.PredictorUtils;
 
 import java.util.ArrayList;
@@ -19,13 +19,13 @@ public abstract class PredictionSearchDecorator implements PredictionSearch {
     }
 
     @Override
-    public List<AnnotationPrediction> search(String propertyValuePattern) {
+    public List<Prediction> search(String propertyValuePattern) {
         return delegate.search(propertyValuePattern);
     }
 
     @Override
-    public List<AnnotationPrediction> searchWithOrigin(String propertyValuePattern, List<String> origin, boolean filter) {
-        List<AnnotationPrediction> predictions = new ArrayList<>();
+    public List<Prediction> searchWithOrigin(String propertyValuePattern, List<String> origin, boolean filter) {
+        List<Prediction> predictions = new ArrayList<>();
         if(PredictorUtils.shouldSearch(origin)) {
             predictions = delegate.searchWithOrigin(propertyValuePattern, origin, filter);
         }
@@ -34,13 +34,13 @@ public abstract class PredictionSearchDecorator implements PredictionSearch {
 
 
     @Override
-    public List<AnnotationPrediction> search(String propertyType, String propertyValuePattern) {
+    public List<Prediction> search(String propertyType, String propertyValuePattern) {
         return delegate.search(propertyType, propertyValuePattern);
     }
 
     @Override
-    public List<AnnotationPrediction> searchWithOrigin(String propertyType, String propertyValuePattern, List<String> origin, boolean filter) {
-        List<AnnotationPrediction> predictions = new ArrayList<>();
+    public List<Prediction> searchWithOrigin(String propertyType, String propertyValuePattern, List<String> origin, boolean filter) {
+        List<Prediction> predictions = new ArrayList<>();
         if(PredictorUtils.shouldSearch(origin)) {
             predictions = delegate.searchWithOrigin(propertyType, propertyValuePattern, origin, filter);
         }

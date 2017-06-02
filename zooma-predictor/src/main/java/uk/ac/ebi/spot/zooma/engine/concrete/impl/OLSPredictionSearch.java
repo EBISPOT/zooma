@@ -8,7 +8,7 @@ import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 import uk.ac.ebi.spot.zooma.engine.PredictionSearch;
 import uk.ac.ebi.spot.zooma.engine.ols.OLS2PredictionTransformer;
 import uk.ac.ebi.spot.zooma.engine.ols.OLSSearchService;
-import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
+import uk.ac.ebi.spot.zooma.model.predictor.Prediction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +34,13 @@ public class OLSPredictionSearch implements PredictionSearch {
     }
 
     @Override
-    public List<AnnotationPrediction> search(String propertyValuePattern) {
+    public List<Prediction> search(String propertyValuePattern) {
         getLog().debug("OLS search for {} with ontologies {} ", propertyValuePattern);
         return this.searchWithOrigin(propertyValuePattern, new ArrayList<String>(), false);
     }
 
     @Override
-    public List<AnnotationPrediction> searchWithOrigin(String propertyValuePattern, List<String> origin, boolean filter) {
+    public List<Prediction> searchWithOrigin(String propertyValuePattern, List<String> origin, boolean filter) {
         List <Term> terms;
         //if filter == true we want to filter ontologies IF a list of them has been given
         if (filter && !origin.isEmpty()) {
@@ -53,13 +53,13 @@ public class OLSPredictionSearch implements PredictionSearch {
 
 
     @Override
-    public List<AnnotationPrediction> search(String propertyType, String propertyValuePattern) {
+    public List<Prediction> search(String propertyType, String propertyValuePattern) {
        return this.searchWithOrigin(propertyType, propertyValuePattern, new ArrayList<String>(), false);
     }
 
 
     @Override
-    public List<AnnotationPrediction> searchWithOrigin(String propertyType, String propertyValuePattern, List<String> origin, boolean filter) {
+    public List<Prediction> searchWithOrigin(String propertyType, String propertyValuePattern, List<String> origin, boolean filter) {
         List <Term> terms = new ArrayList<>();
 
         getLog().debug("simple OLS search for {} with type {} ", propertyValuePattern, propertyType);
@@ -98,8 +98,8 @@ public class OLSPredictionSearch implements PredictionSearch {
 
     }
 
-    private List<AnnotationPrediction> termsToPredictions(List<Term> terms){
-        List<AnnotationPrediction> predictions = new ArrayList<>();
+    private List<Prediction> termsToPredictions(List<Term> terms){
+        List<Prediction> predictions = new ArrayList<>();
         for (Term term : terms) {
             predictions.add(transformer.olsToPrediction(term));
         }
