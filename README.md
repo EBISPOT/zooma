@@ -66,17 +66,29 @@ neo4j:
  
  # Search zooma
  
+ Default behavior: Zooma will first look into the datasources and IF nothing is found it will look into all the ontologies in the Ontology Lookup Service (www.ebi.ac.uk/ols)
+ 
  - by property value: http://localhost:8083/predictions/annotate?q=propertyValue
- 
- - by property value boost sources: http://localhost:8083/predictions/annotate?q=propertyValue&sources=source1,source2
- 
-  - by property value filter sources: http://localhost:8083/predictions/annotate?q=propertyValue&sources=source1,source2&filter=true
  
  - by property type and property value: http://localhost:8083/predictions/annotate?type=propertyType&q=propertyValue
  
- - by property type and property value boost sources: http://localhost:8083/predictions/annotate?type=propertyType&q=propertyValue&sources=source1,source2
- 
-  - by property type and property value filter sources: http://localhost:8083/predictions/annotate?type=propertyType&q=propertyValue&sources=source1,source2&filter=true
+# Other options
+
+To further customise the above searches:
+
+- to boost specific topics or sources add `&origins=source1,source2,topic1`
+
+- to boost specific ontologies add `&ontologies=ontology1,ontology2`
+
+- to filter (i.e. return results only from) specific topics, sources, or ontologies also add `&filter=true` when adding the `origins` and/or `ontologies` fields
+
+- to omit searching in the datasources add `&origins=none`
+
+- to omit searching in OLS add `&ontologies=none`
+
+- to include results from OLS even if we get results back from the datasources add `&onto_as_equals=true`
+
+The above can be combined.
   
-  - <b>If you want to boost/filter by topics instead of sources, just replace "sources=source1,source2" in the above queries with "topics:topic1,topic2"</b>
+
  
