@@ -148,7 +148,13 @@ public class OLSSearchService extends Initializable {
     }
 
     private URI tryToReplaceSemanticTag(URI semanticTag){
-        Term replaceBy = olsClient.getReplacedBy(semanticTag.toString());
+        Term replaceBy = null;
+        try {
+            replaceBy = olsClient.getReplacedBy(semanticTag.toString());
+        } catch (RestClientException e){
+            getLog().debug(semanticTag + " something went wrong when we tried to find a replacement in OLS!");
+            replaceBy = null;
+        }
         if(replaceBy != null && replaceBy.getIri() != null && replaceBy.getIri().getIdentifier() != null) {
             return URI.create(replaceBy.getIri().getIdentifier());
         }
