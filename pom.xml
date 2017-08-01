@@ -209,7 +209,6 @@
         <module>zooma-owlapi</module>
         <module>zooma-jdbc</module>
         <module>zooma-lucene-services</module>
-        <module>lodestar</module>
         <module>ols-client</module>
         <module>zooma-lodestar</module>
         <module>zooma-security</module>
