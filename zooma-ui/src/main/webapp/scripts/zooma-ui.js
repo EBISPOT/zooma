@@ -872,13 +872,13 @@ function renderResults(data) {
                 if (loadedOntologyURIs.indexOf(result[7]) > -1) {
                     //found in OLS
                     // no comma separation in results from OLS, linkify entire field
-                    row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[5] + "&ontology=" + uriNameMap[result[7]].toLowerCase(), result[5]) + "</td>";
+                    row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[6] + result[5] + "&ontology=" + uriNameMap[result[7]].toLowerCase(), result[5]) + "</td>";
 
                 } else {
                     // multiple mappings will be comma separated
                     if (result[5].indexOf(", ") == -1) {
                         // no comma separation, linkify entire field
-                        row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[5], result[5]) + "</td>";
+                        row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[6] + result[5], result[5]) + "</td>";
                     }
                     else {
                         // comma separation, linkify each token
@@ -895,9 +895,11 @@ function renderResults(data) {
                             var l = termIDs.length - 1;
                             for (var k = 0; k < l; k++) {
                                 var termID = termIDs[k].trim();
-                                links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + termID, termID) + ",<br />";
+                                var ontologyURI = ontologyURIs[k];
+                                links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + ontologyURI + termID, termID) + ",<br />";
                             }
-                            links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + termIDs[l] , termIDs[l]);
+                            links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + ontologyURIs[l] + termIDs[l] , termIDs[l]);
+
                             row = row + "<td>" + links + "</td>";
                         }
                     }

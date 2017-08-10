@@ -47,11 +47,11 @@ public class ExternalLinks implements Links {
     */
     public void addPrefixToAllOLSLinks(String prefix){
         for (SemanticTag olsLink : this.olsLinks){
-            String semanticTag = olsLink.getSemanticTag().toString();
+            String href = olsLink.getHref().toString();
             try {
-                olsLink.setHref(URI.create(prefix + URLEncoder.encode(semanticTag, "UTF-8")));
+                olsLink.setHref(URI.create(prefix + URLEncoder.encode(href, "UTF-8")));
             } catch (UnsupportedEncodingException e) {
-                olsLink.setHref(URI.create(prefix + semanticTag));
+                olsLink.setHref(URI.create(prefix + href));
             }
         }
     }
