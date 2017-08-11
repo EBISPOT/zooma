@@ -239,6 +239,11 @@ function populateDatasources() {
                         "This work was part of the <a href='http://gtr.rcuk.ac.uk/projects?ref=BB%2FM018458%2F1' target='_blank'>\"Big Data Infrastructure for Crop Genomics\"</a> project</p>" +
                         "<p><b>DB name: 'cbi'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
                     nameDescriptionMap["CBI"] = desc;
+                } else if (name == "clinvar-xrefs"){
+                    datasourceNames.push("ClinVarXRefs");
+                    var desc = "<p><b>ClinVar</b><br>ClinVar aggregates information about genomic variation and its relationship to human health.</p>" +
+                        "<p><b>DB name: 'clinvar-xrefs'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                    nameDescriptionMap["ClinVarXRefs"] = desc;
                 } else {
                     datasourceNames.push(name);
                     nameDescriptionMap[name] =  "No description.";
@@ -627,6 +632,8 @@ function getRealName(name){
         realName = "sysmicro";
     } else if (name == "CBI"){
         realName = "cbi";
+    } else if (name == "ClinVarXRefs") {
+        realName = "clinvar-xrefs";
     } else {
         realName = name;
     }
@@ -971,6 +978,11 @@ function renderResults(data) {
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                         "<img src='images/cbi_icon.png' " +
                         "alt='CBI' style='height: 20px;'/> CBI </a></td>";
+                }  else if (result[7] == "https://www.ncbi.nlm.nih.gov/clinvar"){
+                    href = result[7];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                        "<img src='images/clinvarxrefs-logo.png' " +
+                        "alt='ClinVar xRefs' style='height: 20px;'/> ClinVar xRefs </a></td>";
                 } else {
                     var sourceName = uriNameMap[result[7]];
                     row = row + "<td><a href='" + result[7] + "' target='_blank'>" +
