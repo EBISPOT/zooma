@@ -150,7 +150,10 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
         Collection<AnnotationSummary> annotationSummaries = new ArrayList<>();
         List <Term> terms = new ArrayList<>();
 
-        terms = olsSearchService.getTermsByName(propertyValuePattern);
+        terms = olsSearchService.getExactTermsByName(propertyValuePattern);
+        if(terms.isEmpty()){
+            terms = olsSearchService.getTermsByName(propertyValuePattern);
+        }
 
        for (Term term : terms){
            annotationSummaries.add((AnnotationSummary) mapper.mapOLSTermToAnnotation(term));
@@ -169,7 +172,7 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
         List <Term> terms = new ArrayList<>();
 
         //get the parent uris from propertyType
-        List<Term> parentTerms = olsSearchService.getTermsByName(propertyType);
+        List<Term> parentTerms = olsSearchService.getExactTermsByName(propertyType);
         if (parentTerms != null && !parentTerms.isEmpty()) {
             StringBuilder childrenOf = new StringBuilder();
             for (Term parent : parentTerms) {
@@ -177,7 +180,10 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
                     childrenOf.append(parent.getIri().getIdentifier() + ",");
                 }
             }
-            terms = olsSearchService.getTermsByNameFromParent(propertyValuePattern, childrenOf.toString());
+            terms = olsSearchService.getExactTermsByNameFromParent(propertyValuePattern, childrenOf.toString());
+            if(terms.isEmpty()){
+                terms = olsSearchService.getTermsByNameFromParent(propertyValuePattern, childrenOf.toString());
+            }
 
             for (Term term : terms) {
                 annotationSummaries.add((AnnotationSummary) mapper.mapOLSTermToAnnotation(term));
@@ -205,7 +211,10 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
         List <Term> terms = new ArrayList<>();
 
         if (sources != null && !(sources.length == 0) ){
-            terms = olsSearchService.getTermsByName(propertyValuePattern, cleanSources(sources));
+            terms = olsSearchService.getExactTermsByName(propertyValuePattern, cleanSources(sources));
+            if(terms.isEmpty()){
+                terms = olsSearchService.getTermsByName(propertyValuePattern, cleanSources(sources));
+            }
         }
 
         for (Term term : terms){
@@ -229,7 +238,7 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
             //clean the sources
             ArrayList<String> cleanSources = cleanSources(sources);
             //get the parent uris from propertyType
-            List<Term> parentTerms = olsSearchService.getTermsByName(propertyType, cleanSources);
+            List<Term> parentTerms = olsSearchService.getExactTermsByName(propertyType, cleanSources);
             if (parentTerms != null && !parentTerms.isEmpty()) {
 
                 StringBuilder childrenOf = new StringBuilder();
@@ -239,7 +248,10 @@ public class OLSAnnotationSummarySearchService extends Initializable implements 
                     }
                 }
 
-                terms = olsSearchService.getTermsByNameFromParent(propertyValuePattern, cleanSources, childrenOf.toString());
+                terms = olsSearchService.getExactTermsByNameFromParent(propertyValuePattern, cleanSources, childrenOf.toString());
+                if(terms.isEmpty()){
+                    terms = olsSearchService.getTermsByNameFromParent(propertyValuePattern, cleanSources, childrenOf.toString());
+                }
 
                 for (Term term : terms) {
                     annotationSummaries.add((AnnotationSummary) mapper.mapOLSTermToAnnotation(term));

@@ -46,6 +46,8 @@ public class OLSSearchService extends Initializable {
         } else {
             this.olsClient = new OLSClient(new OLSWsConfig());
         }
+        this.olsClient.setSearchPageNum(0);
+        this.olsClient.setSearchPageSize(2);
         this.ontologyMappings = new HashMap<>();
         populateOntologyMappings();
 
@@ -65,8 +67,21 @@ public class OLSSearchService extends Initializable {
 
     }
 
+    public List<Term> getExactTermsByName(String value){
+        return filterDefiningOntology(getExactTermsByName(value, ""));
+    }
+
     public List<Term> getTermsByName(String value){
         return filterDefiningOntology(getTermsByName(value, ""));
+    }
+
+    public List<Term> getExactTermsByName(String value, ArrayList<String> sources){
+
+        List<Term> terms = new ArrayList<>();
+        for (String source : sources) {
+            terms.addAll(getExactTermsByName(value, source));
+        }
+        return filterDefiningOntology(terms);
     }
 
     public List<Term> getTermsByName(String value, ArrayList<String> sources){
@@ -78,16 +93,38 @@ public class OLSSearchService extends Initializable {
         return filterDefiningOntology(terms);
     }
 
-    private List<Term> getTermsByName(String value, String source){
+    private List<Term> getExactTermsByName(String value, String source){
         try {
             return olsClient.getExactTermsByName(value, source);
         } catch (RestClientException e){
             return new ArrayList<>();
         }
     }
+
+    private List<Term> getTermsByName(String value, String source){
+        try {
+            return olsClient.getTermsByName(value, source, false);
+        } catch (RestClientException e){
+            return new ArrayList<>();
+        }
+    }
     //
+
+    public List<Term> getExactTermsByNameFromParent(String value, String childrenOf){
+        return filterDefiningOntology(getExactTermsByNameFromParent(value, "", childrenOf));
+    }
+
+
     public List<Term> getTermsByNameFromParent(String value, String childrenOf){
         return filterDefiningOntology(getTermsByNameFromParent(value, "", childrenOf));
+    }
+
+    public List<Term> getExactTermsByNameFromParent(String value, ArrayList<String> sources, String childrenOf){
+        List<Term> terms = new ArrayList<>();
+        for (String source : sources) {
+            terms.addAll(getExactTermsByNameFromParent(value, source, childrenOf));
+        }
+        return filterDefiningOntology(terms);
     }
 
     public List<Term> getTermsByNameFromParent(String value, ArrayList<String> sources, String childrenOf){
@@ -98,9 +135,17 @@ public class OLSSearchService extends Initializable {
         return filterDefiningOntology(terms);
     }
 
-    private List<Term> getTermsByNameFromParent(String value, String source, String childrenOf){
+    private List<Term> getExactTermsByNameFromParent(String value, String source, String childrenOf){
         try {
             return olsClient.getExactTermsByNameFromParent(value, source, childrenOf);
+        } catch (RestClientException e){
+            return new ArrayList<>();
+        }
+    }
+
+    private List<Term> getTermsByNameFromParent(String value, String source, String childrenOf){
+        try {
+            return olsClient.getTermsByNameFromParent(value, source, false, childrenOf);
         } catch (RestClientException e){
             return new ArrayList<>();
         }
@@ -245,4 +290,11 @@ public class OLSSearchService extends Initializable {
         return null;
     }
 
+    public boolean inOLS(URI uri) {
+         List<Term> terms = olsClient.getExactTermsByIriString(uri.toString());
+         if (terms.isEmpty()){
+             return false;
+         }
+         return true;
+    }
 }

@@ -239,6 +239,11 @@ function populateDatasources() {
                         "This work was part of the <a href='http://gtr.rcuk.ac.uk/projects?ref=BB%2FM018458%2F1' target='_blank'>\"Big Data Infrastructure for Crop Genomics\"</a> project</p>" +
                         "<p><b>DB name: 'cbi'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
                     nameDescriptionMap["CBI"] = desc;
+                } else if (name == "clinvar-xrefs"){
+                    datasourceNames.push("ClinVarXRefs");
+                    var desc = "<p><b>ClinVar</b><br>ClinVar aggregates information about genomic variation and its relationship to human health.</p>" +
+                        "<p><b>DB name: 'clinvar-xrefs'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                    nameDescriptionMap["ClinVarXRefs"] = desc;
                 } else {
                     datasourceNames.push(name);
                     nameDescriptionMap[name] =  "No description.";
@@ -627,6 +632,8 @@ function getRealName(name){
         realName = "sysmicro";
     } else if (name == "CBI"){
         realName = "cbi";
+    } else if (name == "ClinVarXRefs") {
+        realName = "clinvar-xrefs";
     } else {
         realName = name;
     }
@@ -872,13 +879,13 @@ function renderResults(data) {
                 if (loadedOntologyURIs.indexOf(result[7]) > -1) {
                     //found in OLS
                     // no comma separation in results from OLS, linkify entire field
-                    row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[5] + "&ontology=" + uriNameMap[result[7]].toLowerCase(), result[5]) + "</td>";
+                    row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[6] + result[5] + "&ontology=" + uriNameMap[result[7]].toLowerCase(), result[5]) + "</td>";
 
                 } else {
                     // multiple mappings will be comma separated
                     if (result[5].indexOf(", ") == -1) {
                         // no comma separation, linkify entire field
-                        row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[5], result[5]) + "</td>";
+                        row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[6] + result[5], result[5]) + "</td>";
                     }
                     else {
                         // comma separation, linkify each token
@@ -895,9 +902,11 @@ function renderResults(data) {
                             var l = termIDs.length - 1;
                             for (var k = 0; k < l; k++) {
                                 var termID = termIDs[k].trim();
-                                links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + termID, termID) + ",<br />";
+                                var ontologyURI = ontologyURIs[k];
+                                links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + ontologyURI + termID, termID) + ",<br />";
                             }
-                            links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + termIDs[l] , termIDs[l]);
+                            links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + ontologyURIs[l] + termIDs[l] , termIDs[l]);
+
                             row = row + "<td>" + links + "</td>";
                         }
                     }
@@ -969,6 +978,11 @@ function renderResults(data) {
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                         "<img src='images/cbi_icon.png' " +
                         "alt='CBI' style='height: 20px;'/> CBI </a></td>";
+                }  else if (result[7] == "https://www.ncbi.nlm.nih.gov/clinvar"){
+                    href = result[7];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                        "<img src='images/clinvarxrefs-logo.png' " +
+                        "alt='ClinVar xRefs' style='height: 20px;'/> ClinVar xRefs </a></td>";
                 } else {
                     var sourceName = uriNameMap[result[7]];
                     row = row + "<td><a href='" + result[7] + "' target='_blank'>" +
