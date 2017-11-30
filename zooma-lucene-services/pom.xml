@@ -4,11 +4,11 @@
     <parent>
         <groupId>uk.ac.ebi.fgpt</groupId>
         <artifactId>zooma2</artifactId>
-        <version>2.1.8-SNAPSHOT</version>
+        <version>2.1.8</version>
     </parent>
 
     <artifactId>zooma-lucene-services</artifactId>
-    <version>2.1.8-SNAPSHOT</version>
+    <version>2.1.8</version>
 
     <name>ZOOMA 2: Lucene-driven service implementations</name>
     <url>http://www.ebi.ac.uk/fgpt/zooma</url>
@@ -16,7 +16,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <zooma.version>2.1.8-SNAPSHOT</zooma.version>
+        <zooma.version>2.1.8</zooma.version>
     </properties>
 
     <dependencies>

@@ -10,3 +10,5 @@ etc
 
 # Mac specific files
 .DS_Store
+
+*.versionsBackup
