@@ -288,6 +288,24 @@
                        target="_blank"><span class="external">JIRA bug tracker</span></a>.
                 </p>
             </div>
+            <div id="gdpr" class="grid_24">
+                <h3>Privacy Policy</h3>
+
+                <p>The General Data Protection Regulation (GDPR) will apply in the UK from 25 May 2018. It will replace the 1998 Data Protection Act and introduce new rules on privacy notices, as well as processing and safeguarding personal data.</p>
+
+                <p>
+                    This website requires cookies, and the limited processing of your personal data in order to function. By using the site you are agreeing to this as outlined in our <a href=“//www.ebi.ac.uk/data-protection/privacy-notice/embl-ebi-public-website“>Privacy Notice</a> and <a href=“//www.ebi.ac.uk/about/terms-of-use”>Terms of Use</a>.
+                </p>
+
+                <p>
+                    <a href=“//www.ebi.ac.uk/data-protection/privacy-notice/zooma”>Zooma Submission Service</a> applies to the data submitted to Zooma (eg. data to ontology annotations) via the zooma-submission@ebi.ac.uk e-mail address.
+                </p>
+
+                <p>
+                    <a href=“//www.ebi.ac.uk/data-protection/privacy-notice/zooma-mailing-list”>Zooma Mail Service</a> applies to our public e-mail list ontology-tools-support [at] ebi.ac.uk.
+                </p>
+            </div>
+
 
             <div id="thanks" class="grid_24">
                 <h3>Thanks</h3>
@@ -445,24 +463,20 @@
 
 <script type="text/javascript" src="scripts/zooma-about.js"></script>
 
-<!-- Google analytics -->
-<script type="text/javascript">
 
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-38623609-1']);
-    _gaq.push(['_trackPageview']);
+<!-- Google Analytics -->
+<script>
+    (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,"script","https://www.google-analytics.com/analytics.js","ga");
 
-    (function() {
-        var ga = document.createElement('script');
-        ga.type = 'text/javascript';
-        ga.async = true;
-        ga.src =
-                ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(ga, s);
-    })();
+    ga("create", "UA-38623609-1", "auto");
+    ga("send", "pageview");
+    ga("set", "anonymizeIp", true);
 
 </script>
+<!-- End Google Analytics -->
 
 
 <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.
