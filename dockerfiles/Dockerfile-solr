@@ -1,0 +1,14 @@
+FROM solr:5.5.3-alpine
+
+COPY zooma-solr/src/main/solr-5-config/annotation server/solr/annotation
+USER root 
+
+RUN chown -R solr:0 server/solr/annotation && chmod -R g=u server/solr/annotation
+RUN chgrp 0 server && chmod g=u server
+
+USER solr
+
+EXPOSE 8983:8983
+
+
+ENTRYPOINT ["solr", "-f"]

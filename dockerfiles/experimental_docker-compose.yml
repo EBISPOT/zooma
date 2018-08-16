@@ -1,0 +1,33 @@
+version: '2'
+services:
+    zooma-solr:
+        build:
+            context: .
+            dockerfile: Dockerfile-zooma-solr
+        ports:
+            - 8081:8081
+    zooma-mongo:
+        build:
+            context: .
+            dockerfile: Dockerfile-zooma-mongo
+        ports:
+            - 8080:8080
+    solr:
+        build:
+            context: .
+            dockerfile: Dockerfile-solr
+        ports: 
+        - 8983:8983
+    mongo:
+        build:
+            context: .
+            dockerfile: Dockerfile-mongo
+        ports:
+            - 27017:27017
+    rabbitmq:
+        build:
+            context: .
+            dockerfile: Dockerfile-rabbit
+        ports:
+            - 15672:15672
+            - 5672:5672

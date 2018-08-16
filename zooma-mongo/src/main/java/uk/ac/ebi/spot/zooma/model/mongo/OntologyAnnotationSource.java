@@ -1,3 +1,4 @@
+
 //package uk.ac.ebi.spot.zooma.model.mongo;
 //
 //import lombok.Data;

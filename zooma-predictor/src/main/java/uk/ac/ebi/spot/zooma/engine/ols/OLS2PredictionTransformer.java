@@ -22,7 +22,7 @@ public class OLS2PredictionTransformer {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-    public Prediction olsToPrediction(Term term){
+    public AnnotationPrediction olsToPrediction(Term term){
 
         Collection<String> semanticTags = new ArrayList<>();
         semanticTags.add(term.getIri().getIdentifier().toString());
@@ -46,7 +46,7 @@ public class OLS2PredictionTransformer {
         topics.add("Ontology");
         prediction.setTopic(topics);
         prediction.setQuality(score);
-        prediction.setStrongestMongoid("ols");
+        prediction.setType(AnnotationPrediction.Type.OLS);
 
         LocalDateTime dateTime = LocalDateTime.now();
         Date d = Date.from(dateTime.atZone(ZoneId.of("UTC")).toInstant());
@@ -55,6 +55,5 @@ public class OLS2PredictionTransformer {
         return prediction;
 
     }
-
 
 }

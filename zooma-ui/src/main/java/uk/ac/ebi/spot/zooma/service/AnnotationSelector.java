@@ -14,7 +14,7 @@
 // * Created by olgavrou on 04/11/2016.
 // */
 //@Service
-//public class AnnotationSummarySelector {
+//public class AnnotationSelector {
 //
 //    @Autowired
 //    Scorer<AnnotationSummary> scorer;

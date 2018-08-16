@@ -1,0 +1,12 @@
+FROM mongo:3.2
+
+USER root
+
+RUN chown -R mongodb:0 /data/db && chmod -R g=u /data/db
+RUN chgrp 0 /data  && chmod g=u /data 
+
+USER mongodb
+
+EXPOSE 27017:27017
+
+ENTRYPOINT ["mongod"]        

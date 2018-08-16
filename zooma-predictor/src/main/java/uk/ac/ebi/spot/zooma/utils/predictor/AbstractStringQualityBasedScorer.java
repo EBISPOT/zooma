@@ -5,6 +5,7 @@ import uk.ac.ebi.spot.zooma.model.predictor.Scorable;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
@@ -18,7 +19,7 @@ public abstract class AbstractStringQualityBasedScorer<T extends Scorable> exten
 
     @Override
     public Map<T, Float> score(Collection<T> collection, String searchString) {
-        Map<T, Float> results = new HashMap<>();
+        Map<T, Float> results = new IdentityHashMap<T, Float>();
         for (T t : collection) {
             float q = t.getScore();
             float s = getSimilarityIgnoreCase(searchString, extractMatchedString(t));

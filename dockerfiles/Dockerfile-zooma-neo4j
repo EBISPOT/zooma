@@ -1,0 +1,12 @@
+FROM openjdk:8-jre-alpine
+
+VOLUME /tmp
+COPY zooma-neo4j/target/*.jar start_zooma_neo4j.sh /home/
+
+
+EXPOSE 8082:8080
+
+
+RUN sh -c 'touch /home/zooma-neo4j-3.0.0-SNAPSHOT.jar'
+
+ENTRYPOINT sh -c "echo zooma-neo4j sleeping for 20s; sleep 20s; chmod +x /home/start_zooma_neo4j.sh; /home/start_zooma_neo4j.sh"

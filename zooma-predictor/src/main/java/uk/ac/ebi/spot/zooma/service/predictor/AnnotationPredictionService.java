@@ -46,11 +46,12 @@ public class AnnotationPredictionService {
 
 
     public List<Prediction> predictByPropertyValue(String propertyValue, List<String> ontologies, boolean filter) throws URISyntaxException {
-        populateOntologies(ontologies);
+        ontologies = populateOntologies(ontologies);
         List<Prediction> results = this.simplePredictionSearch.search(propertyValue);
-        if(results.isEmpty() && PredictorUtils.shouldSearch(ontologies)){
-            results = this.olsPredictionSearch.searchWithOrigin(propertyValue, ontologies, filter);
-        }
+        results.addAll(this.olsPredictionSearch.searchWithOrigin(propertyValue, ontologies, filter));
+//        if(results.isEmpty() && PredictorUtils.shouldSearch(ontologies)){
+//            results = this.olsPredictionSearch.searchWithOrigin(propertyValue, ontologies, filter);
+//        }
         results = this.confidenceCalculator.calculateFinalScore(results, propertyValue);
         return this.confidenceCalculator.setConfidence(results);
     }

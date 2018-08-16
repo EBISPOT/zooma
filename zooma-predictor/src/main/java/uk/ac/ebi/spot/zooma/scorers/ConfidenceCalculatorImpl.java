@@ -52,14 +52,14 @@ public class ConfidenceCalculatorImpl extends AbstractConfidenceCalculator {
         //cutoff 80%
         List<Prediction> results = PredictorUtils.filterAnnotationPredictions(predictions, cutoffPercentage);
 
-        maxAnn = results.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
-        float max = maxAnn.isPresent() ? maxAnn.get().getScore() : 100;
-        //normalize ols scores
-        results.stream().forEach(annotation -> {
-            if(((AnnotationPrediction)annotation).getStrongestMongoid().equals("ols")) {
-                annotation.setScore(PredictorUtils.degradeToMaxScore(this.maxOLSScore, max, annotation.getScore()));
-            }
-        });
+//        maxAnn = results.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
+//        float max = maxAnn.isPresent() ? maxAnn.get().getScore() : 100;
+//        //normalize ols scores
+//        results.stream().forEach(annotation -> {
+//            if(((AnnotationPrediction)annotation).getType().equals(AnnotationPrediction.Type.OLS)) {
+//                annotation.setScore(PredictorUtils.degradeToMaxScore(this.maxOLSScore, max, annotation.getScore()));
+//            }
+//        });
 
         results.sort(Comparator.comparing(Prediction::getScore));
 

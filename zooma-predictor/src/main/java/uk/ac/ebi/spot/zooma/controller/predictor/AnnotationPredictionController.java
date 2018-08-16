@@ -173,7 +173,7 @@ public class AnnotationPredictionController {
             Link link = new Link(olsTermLocation + semTag).withRel("ols");
             prediction.add(link);
         }
-        if(!prediction.getStrongestMongoid().equals("ols")) {
+        if(prediction.getType().equals(AnnotationPrediction.Type.DB)) {
             prediction.add(new Link(zoomaNeo4jLocation + "/annotations/search/findByMongoid?mongoid=" + prediction.getStrongestMongoid()).withRel("provenance"));
 
             prediction.add(new Link(zoomaNeo4jLocation + "/annotations/search/findByMongoid?mongoid=" + prediction.getStrongestMongoid()).withRel("derived.from"));
@@ -191,7 +191,7 @@ public class AnnotationPredictionController {
 
     private boolean undergoneOntologySearch(List<Prediction> predictions) {
         for (Prediction prediction : predictions) {
-            if (((AnnotationPrediction) prediction).getStrongestMongoid().equals("ols")) {
+            if (((AnnotationPrediction) prediction).getType().equals(AnnotationPrediction.Type.OLS)) {
                 return true;
             }
         }

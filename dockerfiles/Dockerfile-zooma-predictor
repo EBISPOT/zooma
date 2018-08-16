@@ -1,0 +1,11 @@
+FROM openjdk:8-jre-alpine
+
+VOLUME /tmp
+COPY zooma-predictor/target/*.jar /home/
+
+EXPOSE 8083:8080
+
+
+RUN sh -c 'touch /home/zooma-predictor-3.0.0-SNAPSHOT.jar'
+
+ENTRYPOINT ["java", "-Dcutoff.percentage=0.9", "-Dcutoff.score=80.0", "-Dmax.ols.score=75.0", "-Dols.term.location=http://www.ebi.ac.uk/ols/api/terms?iri=", "-Dols.location=www.ebi.ac.uk/ols/", "-Dzooma.neo4j.location=http://localhost:8082", "-Dzooma.solr.location=http://zooma-solr:8080", "-jar", "/home/zooma-predictor-3.0.0-SNAPSHOT.jar"]

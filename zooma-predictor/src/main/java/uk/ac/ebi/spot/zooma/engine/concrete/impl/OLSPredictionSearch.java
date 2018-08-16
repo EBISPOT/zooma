@@ -8,10 +8,14 @@ import uk.ac.ebi.pride.utilities.ols.web.service.model.Term;
 import uk.ac.ebi.spot.zooma.engine.PredictionSearch;
 import uk.ac.ebi.spot.zooma.engine.ols.OLS2PredictionTransformer;
 import uk.ac.ebi.spot.zooma.engine.ols.OLSSearchService;
+import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
 import uk.ac.ebi.spot.zooma.model.predictor.Prediction;
+import uk.ac.ebi.spot.zooma.utils.predictor.ParetoDistributionTransformation;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by olgavrou on 18/05/2017.
@@ -21,11 +25,13 @@ public class OLSPredictionSearch implements PredictionSearch {
 
     private OLSSearchService olsSearchService;
     private OLS2PredictionTransformer transformer;
+    private ParetoDistributionTransformation transformation;
 
     @Autowired
     public OLSPredictionSearch(OLSSearchService olsSearchService, OLS2PredictionTransformer transformer) {
         this.olsSearchService = olsSearchService;
         this.transformer = transformer;
+        this.transformation = new ParetoDistributionTransformation(2);
     }
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -103,6 +109,35 @@ public class OLSPredictionSearch implements PredictionSearch {
         for (Term term : terms) {
             predictions.add(transformer.olsToPrediction(term));
         }
+        return primaryMetaScore(predictions);
+    }
+
+    private List<Prediction> primaryMetaScore(List<Prediction> predictions){
+        Optional<Prediction> maxAnn = predictions.stream().max((a1, a2) -> Float.compare(a1.getScore(), a2.getScore()));
+        float maxSolrScore = maxAnn.isPresent() ? maxAnn.get().getScore() : 0.0f;
+
+        predictions.stream().forEach(annotation -> {
+            AnnotationPrediction prediction = (AnnotationPrediction) annotation;
+            float sourceNumber = prediction.getSource().size();
+            float numOfDocs = prediction.getVotes();
+            float topQuality = (float) calculateAnnotationQuality();
+            float normalizedSolrScore = 1.0f + prediction.getScore() / maxSolrScore;
+            float pareto = this.transformation.transform(numOfDocs);
+            float score = (topQuality + sourceNumber + pareto) * normalizedSolrScore;
+            prediction.setScore(score);
+        });
+
         return predictions;
+    }
+
+    private double calculateAnnotationQuality() throws IllegalArgumentException {
+
+        // evidence is most important factor, invert so ordinal 0 gets highest score
+        int evidenceScore = 6;
+        // creation time should then work backwards from most recent to oldest
+        long age = LocalDateTime.now().toLocalTime().toNanoOfDay();
+
+        return (float) (evidenceScore + Math.log10(age));
+
     }
 }

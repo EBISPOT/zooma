@@ -44,6 +44,9 @@ public class AnnotationPrediction extends ResourceSupport implements Prediction 
     @NonNull
     private float score;
 
+    private Type type = Type.DB;
+
+
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private Date lastModified;
 
@@ -72,6 +75,11 @@ public class AnnotationPrediction extends ResourceSupport implements Prediction 
     @JsonIgnore
     public Collection<String> getMongoid(){
         return mongoid;
+    }
+
+    public enum Type {
+        DB,
+        OLS
     }
 
 }

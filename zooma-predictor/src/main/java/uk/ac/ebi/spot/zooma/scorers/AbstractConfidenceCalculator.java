@@ -26,13 +26,15 @@ public abstract class AbstractConfidenceCalculator {
 
         boolean achievedScore = false;
         for (Prediction t : results) {
-            if (!achievedScore && t.getScore() > cutoffScore) {
+            if (t.getScore() > cutoffScore) {
                 achievedScore = true;
-                break; //won't come in here again
+            } else {
+                achievedScore = false;
+                break;
             }
         }
 
-        if (results.spliterator().getExactSizeIfKnown() == 1 && achievedScore) {
+        if (results.size() == 1 && achievedScore) {
             // one good annotation, so create prediction with high confidence
             return Confident.Confidence.HIGH;
         }
@@ -42,7 +44,7 @@ public abstract class AbstractConfidenceCalculator {
                 return Confident.Confidence.GOOD;
             }
             else {
-                if (results.spliterator().getExactSizeIfKnown() == 1) {
+                if (results.size() == 1) {
                     // single stand out annotation that didn't achieve score, create prediction with good confidence
                     return Confident.Confidence.GOOD;
                 }

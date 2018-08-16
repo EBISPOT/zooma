@@ -17,7 +17,7 @@ import uk.ac.ebi.spot.zooma.scorers.AbstractConfidenceCalculator;
 import uk.ac.ebi.spot.zooma.scorers.ConfidenceCalculatorImpl;
 import uk.ac.ebi.spot.zooma.scorers.SimilarityScorer;
 import uk.ac.ebi.spot.zooma.scorers.SimilarityScorerImpl;
-import uk.ac.ebi.spot.zooma.utils.predictor.AnnotationSummaryNeedlemanWunschScorer;
+import uk.ac.ebi.spot.zooma.utils.predictor.PredictionNeedlemanWunschScorer;
 import uk.ac.ebi.spot.zooma.utils.predictor.Scorer;
 
 import java.util.Collections;
@@ -62,7 +62,7 @@ public class PredictorConfig {
 
     @Bean
     Scorer<Prediction> scorer() {
-        return new AnnotationSummaryNeedlemanWunschScorer();
+        return new PredictionNeedlemanWunschScorer();
     }
 
     @Bean

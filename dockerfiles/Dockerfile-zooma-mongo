@@ -1,0 +1,10 @@
+FROM openjdk:8-jre-alpine
+
+COPY zooma-mongo/target/*.jar /home/
+
+EXPOSE 8080:8080
+
+
+#RUN sh -c 'touch /home/zooma-mongo-3.0.0-SNAPSHOT.jar'
+
+ENTRYPOINT ["java", "-Dols.term.location=http://www.ebi.ac.uk/ols/api/terms?iri=", "-Dspring.data.mongodb.database=zooma", "-Dspring.data.mongodb.port=27017", "-Dspring.jackson.serialization.write_dates_as_timestamps=false", "-Dendpoints.beans.enabled=true", "-Dspring.rabbitmq.host=rabbitmq", "-Dspring.data.mongodb.host=mongo", "-jar", "/home/zooma-mongo-3.0.0-SNAPSHOT.jar"]

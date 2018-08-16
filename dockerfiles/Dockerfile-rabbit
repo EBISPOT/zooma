@@ -1,0 +1,15 @@
+FROM rabbitmq:3.6-management
+
+ENV hostname="zooma-rabbitmq"
+
+USER root
+
+RUN chown -R rabbitmq:0 /var/lib/rabbitmq && chmod -R g=u /var/lib/rabbitmq
+RUN chgrp 0 /var && chmod g=u /var
+
+USER rabbitmq
+
+EXPOSE 15672:15672
+EXPOSE 5672:5672
+
+#ENTRYPOINT ["--hostname my-rabbit"]

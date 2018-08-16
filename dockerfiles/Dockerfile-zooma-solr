@@ -1,0 +1,11 @@
+FROM openjdk:8-jre-alpine
+
+#VOLUME /tmp
+COPY zooma-solr/target/*.jar /home/
+
+EXPOSE 8081:8081
+
+
+#RUN sh -c 'touch /home/zooma-solr-3.0.0-SNAPSHOT.jar'
+
+ENTRYPOINT ["java", "-Dserver.port=8081", "-Dspring.rabbitmq.host=rabbitmq", "-Dspring.data.solr.host=http://solr:8983/solr", "-Dspring.data.solr.core=annotations", "-Dspring.rabbitmq.activate=true", "-jar", "/home/zooma-solr-3.0.0-SNAPSHOT.jar"]

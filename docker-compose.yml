@@ -10,9 +10,9 @@ services:
         - mongo
         - rabbitmq
         command:
-            - java 
-            - -jar 
-            - /home/zooma-mongo-3.0.0-SNAPSHOT.jar 
+            - java
+            - -jar
+            - /home/zooma-mongo-3.0.0-SNAPSHOT.jar
         environment:
         - ols.term.location=http://www.ebi.ac.uk/ols/api/terms?iri=
         - spring.data.mongodb.database=zooma
@@ -81,7 +81,7 @@ services:
         - ols.location=www.ebi.ac.uk/ols/
         - zooma.neo4j.location=http://localhost:8082
         - zooma.solr.location=http://zooma-solr:8080
-        command: 
+        command:
             - java
             - -jar
             - /home/zooma-predictor-3.0.0-SNAPSHOT.jar
@@ -91,7 +91,7 @@ services:
         image: solr:5.5.3-alpine
         environment:
         - SOLR_HOME=/home/mysolrhome
-        ports: 
+        ports:
         - 8983:8983
         volumes:
         - ./zooma-solr/src/main/solr-5-config/:/home/mysolrhome

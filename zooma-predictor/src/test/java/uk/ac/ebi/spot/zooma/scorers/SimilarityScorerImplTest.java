@@ -3,7 +3,7 @@ package uk.ac.ebi.spot.zooma.scorers;
 import org.junit.Test;
 import uk.ac.ebi.spot.zooma.model.predictor.AnnotationPrediction;
 import uk.ac.ebi.spot.zooma.model.predictor.Prediction;
-import uk.ac.ebi.spot.zooma.utils.predictor.AnnotationSummaryNeedlemanWunschScorer;
+import uk.ac.ebi.spot.zooma.utils.predictor.PredictionNeedlemanWunschScorer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ public class SimilarityScorerImplTest {
 
     @Test
     public void score() throws Exception {
-        SimilarityScorerImpl scorer = new SimilarityScorerImpl(new AnnotationSummaryNeedlemanWunschScorer());
+        SimilarityScorerImpl scorer = new SimilarityScorerImpl(new PredictionNeedlemanWunschScorer());
         float initScore = 100;
         String initValue = "liver";
 
