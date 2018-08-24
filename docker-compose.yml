@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
     zooma-mongo:
         build: .
@@ -7,27 +7,27 @@ services:
             - mongo
             - rabbitmq
         links:
-        - mongo
-        - rabbitmq
+            - mongo
+            - rabbitmq
         command:
             - java
             - -jar
             - /home/zooma-mongo-3.0.0-SNAPSHOT.jar
         environment:
-        - ols.term.location=http://www.ebi.ac.uk/ols/api/terms?iri=
-        - spring.data.mongodb.database=zooma
-        - spring.data.mongodb.port=27017
-        - spring.jackson.serialization.write_dates_as_timestamps=false
-        - endpoints.beans.enabled=true
-        - spring.data.mongodb.host=mongo
-        - spring.rabbitmq.host=rabbitmq
+            - ols.term.location=http://www.ebi.ac.uk/ols/api/terms?iri=
+            - spring.data.mongodb.database=zooma
+            - spring.data.mongodb.port=27017
+            - spring.jackson.serialization.write_dates_as_timestamps=false
+            - endpoints.beans.enabled=true
+            - spring.data.mongodb.host=mongo
+            - spring.rabbitmq.host=rabbitmq
         ports:
-        - 8080:8080
+            - 8080:8080
     zooma-solr:
         image: zooma:latest
         depends_on:
-        - solr
-        - rabbitmq
+            - solr
+            - rabbitmq
         links:
             - solr
             - rabbitmq
@@ -36,17 +36,17 @@ services:
             - -jar
             - /home/zooma-solr-3.0.0-SNAPSHOT.jar
         environment:
-        - spring.rabbitmq.host=rabbitmq
-        - spring.data.solr.host=http://solr:8983/solr
-        - spring.data.solr.core=annotations
-        - spring.rabbitmq.activate=true
+            - spring.rabbitmq.host=rabbitmq
+            - spring.data.solr.host=http://solr:8983/solr
+            - spring.data.solr.core=annotations
+            - spring.rabbitmq.activate=true
         ports:
-        - 8081:8080
+            - 8081:8080
     zooma-neo4j:
         image: zooma:latest
         depends_on:
-        - neo4j
-        - rabbitmq
+            - neo4j
+            - rabbitmq
         links:
             - neo4j
             - rabbitmq
@@ -55,72 +55,72 @@ services:
             #- -jar
             #- /home/zooma-neo4j-3.0.0-SNAPSHOT.jar
         environment:
-        - spring.rabbitmq.host=rabbitmq
-        - spring.rabbitmq.activate=true
-        - spring.data.neo4j.uri=http://neo4j:7474
-        - spring.data.neo4j.username=neo4j
-        - spring.data.neo4j.password=null
-        - spring.data.neo4j.indexes.auto=assert
-        #- spring.data.neo4j.indexes.auto=none
-        - spring.jackson.serialization.write-dates-as-timestamps:false
+            - spring.rabbitmq.host=rabbitmq
+            - spring.rabbitmq.activate=true
+            - spring.data.neo4j.uri=http://neo4j:7474
+            - spring.data.neo4j.username=neo4j
+            - spring.data.neo4j.password=null
+            - spring.data.neo4j.indexes.auto=assert
+            #- spring.data.neo4j.indexes.auto=none
+            - spring.jackson.serialization.write-dates-as-timestamps:false
         ports:
-        - 8082:8080
+            - 8082:8080
     zooma-predictor:
         image: zooma:latest
         depends_on:
-        - zooma-neo4j
-        - zooma-solr
+            - zooma-neo4j
+            - zooma-solr
         links:
             - zooma-neo4j
             - zooma-solr
         environment:
-        - cutoff.percentage=0.9
-        - cutoff.score=80.0
-        - max.ols.score=75.0
-        - ols.term.location=http://www.ebi.ac.uk/ols/api/terms?iri=
-        - ols.location=www.ebi.ac.uk/ols/
-        - zooma.neo4j.location=http://localhost:8082
-        - zooma.solr.location=http://zooma-solr:8080
+            - cutoff.percentage=0.9
+            - cutoff.score=80.0
+            - max.ols.score=75.0
+            - ols.term.location=http://www.ebi.ac.uk/ols/api/terms?iri=
+            - ols.location=www.ebi.ac.uk/ols/
+            - zooma.neo4j.location=http://localhost:8082
+            - zooma.solr.location=http://zooma-solr:8080
         command:
             - java
             - -jar
             - /home/zooma-predictor-3.0.0-SNAPSHOT.jar
         ports:
-        - 8083:8080
+            - 8083:8080
     solr:
         image: solr:5.5.3-alpine
         environment:
-        - SOLR_HOME=/home/mysolrhome
+            - SOLR_HOME=/home/mysolrhome
         ports:
-        - 8983:8983
+            - 8983:8983
         volumes:
-        - ./zooma-solr/src/main/solr-5-config/:/home/mysolrhome
-          #- ./zooma-solr/src/main/sample_data/data/:/home/mysolrhome/annotation/data/
+            - ./zooma-solr/src/main/solr-5-config/:/home/mysolrhome
+            #- ./zooma-solr/src/main/sample_data/data/:/home/mysolrhome/annotation/data/
         command: ["solr", "-f"]
     mongo:
         image: mongo:3.2
         ports:
-        - 27017:27017
-        #volumes:
-        #- ./zooma-mongo/src/main/sample_data:/data/db
+            - 27017:27017
+        # volumes:
+        #     - ./zooma-mongo/src/main/sample_data:/data/db
         command:
-        - mongod
+            - mongod
     rabbitmq:
         image: rabbitmq:3.6-management
         hostname: zooma-rabbitmq
         ports:
-        - 15672:15672
-        - 5672:5672
+            - 15672:15672
+            - 5672:5672
         volumes:
-        - rabbitmq_data:/var/lib/rabbitmq/mnesia/rabbit@zooma-rabbitmq
+            - rabbitmq_data:/var/lib/rabbitmq/mnesia/rabbit@zooma-rabbitmq
     neo4j:
         image: neo4j:3.1-enterprise
         environment:
-        - NEO4J_AUTH=none
+            - NEO4J_AUTH=none
         ports:
-        - 7474:7474
-        - 7687:7687
-        #volumes:
-        #- ./zooma-neo4j/src/main/sample_data:/data
+            - 7474:7474
+            - 7687:7687
+        # volumes:
+        #     - ./zooma-neo4j/src/main/sample_data:/data
 volumes:
     rabbitmq_data: null
