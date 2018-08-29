@@ -50,10 +50,21 @@ services:
         links:
             - neo4j
             - rabbitmq
-        command: sh -c "echo zooma-neo4j sleeping for 20s; sleep 20; chmod +x /home/start_zooma_neo4j.sh; /home/start_zooma_neo4j.sh"
-            # - java
-            #- -jar
-            #- /home/zooma-neo4j-3.0.0-SNAPSHOT.jar
+        healthcheck:
+            #
+            #  Use wget; curl not installed on the default Alpine image.
+            #  If you need multiple wget tests, modify as below:
+            #  $ wget -O - http://neo4j:7474 2> /dev/null
+            #  ... etc.
+            #
+            #  "External" and "internal" neo4j address whould both work!
+            #
+            # test: [ "CMD", "wget", "http://host.docker.internal:7474" ]
+            test: [ "CMD", "wget", "http://neo4j:7474" ]
+            interval: 18s
+            timeout: 12s
+            retries: 3
+        command: sh -c "chmod +x /home/start_zooma_neo4j.sh; /home/start_zooma_neo4j.sh"
         environment:
             - spring.rabbitmq.host=rabbitmq
             - spring.rabbitmq.activate=true
