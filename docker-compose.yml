@@ -1,4 +1,8 @@
-version: '3'
+version: '3.3'
+networks:
+    default:
+        driver: overlay
+        attachable: true
 services:
     zooma-mongo:
         build: .
@@ -53,14 +57,13 @@ services:
         healthcheck:
             #
             #  Use wget; curl not installed on the default Alpine image.
-            #  If you need multiple wget tests, modify as below:
-            #  $ wget -O - http://neo4j:7474 2> /dev/null
-            #  ... etc.
+            #  Seems to perform multiple wgets, so redirect to stdout:
+            #  $ wget -O - http://neo4j:7474
             #
-            #  "External" and "internal" neo4j address whould both work!
+            #  "External" and "internal" Neo4j address should both work!
             #
-            # test: [ "CMD", "wget", "http://host.docker.internal:7474" ]
-            test: [ "CMD", "wget", "http://neo4j:7474" ]
+            # test: [ "CMD", "wget", "-O", "-", "http://host.docker.internal:7474" ]
+            test: [ "CMD", "wget", "-O", "-", "http://neo4j:7474" ]
             interval: 18s
             timeout: 12s
             retries: 3
