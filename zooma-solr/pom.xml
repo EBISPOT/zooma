@@ -67,7 +67,8 @@
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>tar-solr-config.sh</executable>
+							<executable>${basedir}/tar-solr-config.sh</executable>
+							<workingDirectory>${basedir}</workingDirectory>
 						</configuration>
 					</execution>
 				</executions>

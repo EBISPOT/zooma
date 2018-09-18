@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #  Prepare tarball of Solr configs, for copying into Docker Solr image
 
