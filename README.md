@@ -19,7 +19,7 @@ docker-compose utility is not required for any of these steps):
 
 [rem]: # (`docker-compose build`)
 
-`docker build -f SolrDockerfile -t solr-preconf4zooma .`
+`docker build -f SolrDockerfile -t solr-preconf4zooma .`  
 `docker build -t zooma .`
 
 Initialise docker swarm (necessary only if this is the inaugural run on the

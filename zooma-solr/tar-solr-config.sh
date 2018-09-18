@@ -17,4 +17,4 @@ xfswitch="--transform s"
 # tar -czf ../solr-5-config.tar.gz -C ./src/main --exclude data `echo "${xfswitch}"`/solr-5-config/mysolrhome/ solr-5-config
 
 #  Or just pipe to untar it again, but in the right place
-tar -czf - -C ./src/main --exclude data/?* `echo "${xfswitch}"`/solr-5-config/mysolrhome/ solr-5-config | tar -xf - -C ..
+tar -czf - -C ./src/main --exclude data/?* `echo "${xfswitch}"`/solr-5-config/mysolrhome/ solr-5-config | tar -xzf - -C ..
