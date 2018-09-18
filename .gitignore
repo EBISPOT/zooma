@@ -9,6 +9,14 @@ etc
 **/target/**
 #Application properties
 *.properties
-data
+sample_data/
 # Mac specific files
 .DS_Store
+# Emacs backup files
+*~
+# Files/directories copied to root directory during Maven package phase
+/solr-5-config/
+/mysolrhome/
+/*.tar.gz
+# Directory for example source data CSVs, etc.
+/csv/

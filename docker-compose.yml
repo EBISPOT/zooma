@@ -67,7 +67,10 @@ services:
             interval: 18s
             timeout: 12s
             retries: 3
-        command: sh -c "chmod +x /home/start_zooma_neo4j.sh; /home/start_zooma_neo4j.sh"
+        command:
+            - sh
+            - -c
+            - "chmod +x /home/start_zooma_neo4j.sh; /home/start_zooma_neo4j.sh"
         environment:
             - spring.rabbitmq.host=rabbitmq
             - spring.rabbitmq.activate=true
@@ -102,21 +105,23 @@ services:
         ports:
             - 8083:8080
     solr:
-        image: solr:5.5.3-alpine
+        image: solr-preconf4zooma:latest
         environment:
             - SOLR_HOME=/home/mysolrhome
         ports:
             - 8983:8983
         volumes:
-            - ./zooma-solr/src/main/solr-5-config/:/home/mysolrhome
-            #- ./zooma-solr/src/main/sample_data/data/:/home/mysolrhome/annotation/data/
+            #- ./zooma-solr/src/main/sample_data/data/:/home/mysolrhome/annotation/data
+            #- ./mysolrhome/:/home/mysolrhome
+            - solr_data:/home/mysolrhome/annotation/data
         command: ["solr", "-f"]
     mongo:
         image: mongo:3.2
         ports:
             - 27017:27017
-        # volumes:
-        #     - ./zooma-mongo/src/main/sample_data:/data/db
+        volumes:
+            # - ./zooma-mongo/src/main/sample_data/:/data/db
+            - mongo_data:/data/db
         command:
             - mongod
     rabbitmq:
@@ -134,7 +139,11 @@ services:
         ports:
             - 7474:7474
             - 7687:7687
-        # volumes:
-        #     - ./zooma-neo4j/src/main/sample_data:/data
+        volumes:
+            # - ./zooma-neo4j/src/main/sample_data/:/data
+            - neo4j_data:/data
 volumes:
     rabbitmq_data: null
+    solr_data:
+    mongo_data:
+    neo4j_data:
