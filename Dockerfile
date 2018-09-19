@@ -10,10 +10,11 @@ FROM openjdk:8-jre-alpine
 #      /home/
 
 #  Shorthand for above: uncomment to test docker build on development machine
-COPY zooma-[nmsp][oer]*[^e]/target/*-SNAPSHOT.jar /home/
+# COPY zooma-[msnp][oer]*[^e]/target/*-SNAPSHOT.jar /home/
+COPY zooma-*/target/zooma-[msnp]*-SNAPSHOT.jar /home/
 
 #  Uncomment for docker build on deployment machine
-# COPY *-SNAPSHOT.jar /home/
+# COPY zooma-[msnp]*-SNAPSHOT.jar /home/
 
 #  Other required files for zooma image
 COPY start_zooma_neo4j.sh /home/
