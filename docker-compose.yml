@@ -75,7 +75,8 @@ services:
             - spring.rabbitmq.activate=true
             - spring.data.neo4j.uri=http://neo4j:7474
             #- spring.data.neo4j.username=neo4j
-            #- spring.data.neo4j.password=null
+            - spring.data.neo4j.username=null
+            - spring.data.neo4j.password=null
             - spring.data.neo4j.indexes.auto=assert
             #- spring.data.neo4j.indexes.auto=none
             - spring.jackson.serialization.write-dates-as-timestamps:false
