@@ -100,7 +100,7 @@ public class AnnotationSubmissionReceiver {
         study.setStudy((String) propertiesMap.get("study"));
 
         BiologicalEntity biologicalEntity = new BiologicalEntity();
-        biologicalEntity.setBioEntity((String) propertiesMap.get("bioEntity"));
+        biologicalEntity.setBioEntity(((String) propertiesMap.get("sourceName")) + ":" + ((String) propertiesMap.get("bioEntity")));
         biologicalEntity.setStudy(study);
 
         Property property = new Property();
