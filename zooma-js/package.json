@@ -25,7 +25,8 @@
   "homepage": "https://github.com/EBISPOT/ZOOMA#readme",
   "devDependencies": {
     "bower": "^1.5.2",
-    "browser-sync": "^2.9.11",
+    "bower-files": "~3.11.3",
+    "browser-sync": "^2.26.3",
     "del": "^2.0.0",
     "gulp": "~3.9.0",
     "gulp-add-src": "^0.2.0",
@@ -37,7 +38,6 @@
     "gulp-rename": "^1.2.2",
     "gulp-uglify": "~1.4.0",
     "gulp-watch": "^4.3.5",
-    "bower-files": "~3.11.3",
     "main-bower-files": "^2.9.0",
     "run-sequence": "^1.1.2"
   },

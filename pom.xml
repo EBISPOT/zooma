@@ -155,7 +155,7 @@
     <!-- Bug Tracker -->
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/EBISPOT/zooma</url>
+        <url>https://github.com/EBISPOT/zooma/issues</url>
     </issueManagement>
 
     <!-- Version control (GitHub repository) -->
@@ -401,6 +401,33 @@
         </dependencies>
     </dependencyManagement>
 
+    <distributionManagement>
+   		<repository>
+   			<id>nexus-release</id>
+   			<name>Releases</name>
+   			<url>https://www.ebi.ac.uk/spot/nexus/repository/maven-releases/</url>
+   		</repository>
+   		<snapshotRepository>
+   			<id>nexus-snapshot</id>
+   			<name>Snapshot</name>
+   			<url>https://www.ebi.ac.uk/spot/nexus/repository/maven-snapshots/</url>
+   		</snapshotRepository>
+   	</distributionManagement>
+
+    <repositories>
+   	    <repository>
+   	        <id>nexus-public</id>
+   	        <name>Public Repository</name>
+   	        <url>https://www.ebi.ac.uk/spot/nexus/repository/maven-public/</url>
+   	        <releases>
+   	            <enabled>true</enabled>
+   	        </releases>
+   	        <snapshots>
+   	            <enabled>true</enabled>
+   	        </snapshots>
+   	    </repository>
+   	</repositories>
+    
     <profiles>
         <profile>
             <id>developer</id>

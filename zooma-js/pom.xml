@@ -30,8 +30,8 @@
                         </goals>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <nodeVersion>v6.9.1</nodeVersion>
-                            <yarnVersion>v0.17.0</yarnVersion>
+                            <nodeVersion>v10.6.0</nodeVersion>
+                            <yarnVersion>v1.12.1</yarnVersion>
                         </configuration>
                     </execution>
 
