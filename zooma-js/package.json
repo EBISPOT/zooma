@@ -4,7 +4,8 @@
   "description": "ZOOMA 2: Client javascript libraries",
   "main": "src/main/javascript/zooma.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node -e \"try { require('fs').symlinkSync(require('path').resolve('node_modules/@bower_components'), 'bower_components', 'junction') } catch (e) { }\""
   },
   "repository": {
     "type": "git",
@@ -39,5 +40,17 @@
     "bower-files": "~3.11.3",
     "main-bower-files": "^2.9.0",
     "run-sequence": "^1.1.2"
+  },
+  "dependencies": {
+    "@bower_components/bootstrap-tagsinput": "TimSchlechter/bootstrap-tagsinput#~0.5.0",
+    "@bower_components/css-spinners": "jlong/css-spinners#~2.2.0",
+    "@bower_components/gulp": "gulpjs/gulp#~3.9.0",
+    "@bower_components/jquery": "jquery/jquery-dist#~2.1.1",
+    "@bower_components/mustache.js": "janl/mustache.js#~2.2.0",
+    "@bower_components/tooltipster": "iamceege/tooltipster#~3.3.0",
+    "@bower_components/typeahead.js": "twitter/typeahead.js#~0.11.1"
+  },
+  "engines": {
+    "yarn": ">= 1.0.0"
   }
 }

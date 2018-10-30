@@ -14,7 +14,6 @@ var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"p
 
 // Declares a zooma jQuery plugin
 (function($,Mustache) {
-
     var logging; // should be one of 'console', 'div', or 'none'
     var loggingDiv; // defined if logging == 'div'
     var popupTemplate; // shared popup template
@@ -46,7 +45,7 @@ var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"p
             'zooma_base_path': default_zooma_base_path,
 			'zooma_datasources': [],
 			'zooma_preferred_datasources': [],
-            'zooma_property_type': 'disease'
+            'zooma_property_type': ''
         }, options);
 
         return $.extend({
@@ -209,9 +208,18 @@ var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"p
         return truncValue;
     };
 
+    // var getTermCatalog = function(term) {
+    //     var matches = term.match(/([A-Z]+)_\d+/);
+    //     if (matches && matches.length > 1) {
+    //         return matches[1].toLowerCase();    
+    //     } 
+    //     return "efo";
+    // };
 
     var setupTooltip = function(target,zoomaInfo){
 
+        // var catalog = getTermCatalog(zoomaInfo.shortname);
+        // var olsEndPoint = default_ols_url + catalog + "/" + default_ols_search_end + zoomaInfo.shortname;
         var olsEndPoint = default_ols_search_end + zoomaInfo.shortname;
 
         target.tooltipster({
@@ -266,6 +274,8 @@ var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"p
 
             }
         });
+        // target.hintModal();
+        // target.append("<div class=\"hintModal_container\">" + target.attr('id') + "</div>");
     };
     
     var retrieveZoomaAnnotations = function(settings, target, property) {
@@ -519,7 +529,10 @@ var default_tooltip_template = '<div class=\"zooma-popup\">\n\t<header class=\"p
     };
 
     var setupZoomaWidget = function(target, options) {
-
+        // var settings = extendOptions(options);
+        // initLogging(settings);
+        // initSpinner();
+        // commands['initOptions'].apply();
         var settings =  commands.initOptions(target,options);
         log("Attempting to set up unified zooma widget from " + target.attr('id') + "...");
 
