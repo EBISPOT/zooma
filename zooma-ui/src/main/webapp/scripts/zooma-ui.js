@@ -225,11 +225,16 @@ function populateDatasources() {
                     var desc = "<p><b>GWAS</b><br> A Catalog of Published Genome-Wide Association Studies.</p>" +
                         "<p><b>database name: 'gwas'</b><br><a href='//www.ebi.ac.uk/gwas' target='_blank'>www.ebi.ac.uk/gwas</a></p>";
                     nameDescriptionMap["GWAS"] = desc;
-                } else if (name == "atlas"){
+                } else if (name == "atlas") {
                     datasourceNames.push("ExpressionAtlas");
                     var desc = "<p><b>Expression Atlas</b><br>The Expression Atlas provides information on gene expression patterns under different biological conditions.</p>" +
                         "<p><b>DB name: 'atlas'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
                     nameDescriptionMap["ExpressionAtlas"] = desc;
+                } else if (name == "metabolights"){
+                datasourceNames.push("Metabolights");
+                var desc = "<p><b>MetaboLights</b><br>is a database for Metabolomics experiments and derived information. The database is cross-species, cross-technique and covers metabolite structures and their reference spectra as well as their biological roles, locations and concentrations, and experimental data from metabolic experiments.</p>" +
+                    "<p><b>DB name: 'metabolights'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                nameDescriptionMap["Metabolights"] = desc;
                 } else if (name == "cbi"){
                     datasourceNames.push("CBI");
                     var desc = "<p><b>Crop Bioinformatics Initiative</b><br>The CBI datasource contains a series of mappings designed to enable high-throughput " +
@@ -950,6 +955,12 @@ function renderResults(data) {
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/CelPh_logo.gif' " +
                             "alt='CellularPhenoTypes' style='height: 22px;'/> CellularPhenoTypes</a></td>";
+                }
+                else if (result[7] == "https://www.ebi.ac.uk/metabolights") {
+                    href = result[7];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                            "<img src='images/MetaboLightsLogo.png' " +
+                            "alt='Metabolights' style='height: 22px;'/> Metabolights</a></td>";
                 }
                 else if (result[7] == "https://www.ebi.ac.uk/uniprot") {
                     row = row + "<td><a href='//www.ebi.ac.uk/uniprot' target='_blank'>" +
