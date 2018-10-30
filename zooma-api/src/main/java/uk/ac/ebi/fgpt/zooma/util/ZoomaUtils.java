@@ -207,6 +207,11 @@ public class ZoomaUtils {
 
         //if from the results we have one whose value is the exact search string, then it should be favoured
         for (AnnotationSummary as : intermediateResults){
+            if(as.getID() != null && as.getID().equals("OLS")){
+                //if it's from OLS we don't want to be strict on the search
+                results.addAll(intermediateResults);
+                break;
+            }
             String value = as.getAnnotatedPropertyValue();
             if (value.equals(searchString)){
                 results.add(as);

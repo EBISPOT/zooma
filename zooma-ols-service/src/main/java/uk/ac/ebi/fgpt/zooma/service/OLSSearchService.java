@@ -36,6 +36,10 @@ public class OLSSearchService extends Initializable {
     private Map<URI, URI> originalToReplacementCache = new HashMap<>();
     private Map<URI, Boolean> replaceableCache = new HashMap<>();
 
+    //default parameters of search page number and search page size
+    private int defaultPageNum;
+    private int defaultPageSize;
+
 
     @Override
     protected void doInitialization() throws Exception {
@@ -46,6 +50,10 @@ public class OLSSearchService extends Initializable {
         } else {
             this.olsClient = new OLSClient(new OLSWsConfig());
         }
+
+        this.defaultPageNum = this.olsClient.getSearchPageNum();
+        this.defaultPageSize = this.olsClient.getSearchPageSize();
+
         this.ontologyMappings = new HashMap<>();
         populateOntologyMappings();
 
@@ -65,12 +73,27 @@ public class OLSSearchService extends Initializable {
 
     }
 
+    public List<Term> getExactTermsByName(String value){
+        specificSearchParams(0, 20);
+        return filterDefiningOntology(getExactTermsByName(value, ""));
+    }
+
     public List<Term> getTermsByName(String value){
+        specificSearchParams(0, 2);
         return filterDefiningOntology(getTermsByName(value, ""));
     }
 
-    public List<Term> getTermsByName(String value, ArrayList<String> sources){
+    public List<Term> getExactTermsByName(String value, ArrayList<String> sources){
+        specificSearchParams(0, 20);
+        List<Term> terms = new ArrayList<>();
+        for (String source : sources) {
+            terms.addAll(getExactTermsByName(value, source));
+        }
+        return filterDefiningOntology(terms);
+    }
 
+    public List<Term> getTermsByName(String value, ArrayList<String> sources){
+        specificSearchParams(0, 2);
         List<Term> terms = new ArrayList<>();
         for (String source : sources) {
             terms.addAll(getTermsByName(value, source));
@@ -78,19 +101,47 @@ public class OLSSearchService extends Initializable {
         return filterDefiningOntology(terms);
     }
 
-    private List<Term> getTermsByName(String value, String source){
+    private List<Term> getExactTermsByName(String value, String source){
         try {
+            specificSearchParams(0, 20);
             return olsClient.getExactTermsByName(value, source);
         } catch (RestClientException e){
             return new ArrayList<>();
         }
     }
-    //
+
+    private List<Term> getTermsByName(String value, String source){
+        try {
+            specificSearchParams(0, 2);
+            return olsClient.getTermsByName(value, source, false);
+        } catch (RestClientException e){
+            return new ArrayList<>();
+        }
+    }
+
+
+    public List<Term> getExactTermsByNameFromParent(String value, String childrenOf){
+        specificSearchParams(0, 20);
+        return filterDefiningOntology(getExactTermsByNameFromParent(value, "", childrenOf));
+    }
+
+
     public List<Term> getTermsByNameFromParent(String value, String childrenOf){
+        specificSearchParams(0, 2);
         return filterDefiningOntology(getTermsByNameFromParent(value, "", childrenOf));
     }
 
+    public List<Term> getExactTermsByNameFromParent(String value, ArrayList<String> sources, String childrenOf){
+        specificSearchParams(0, 20);
+        List<Term> terms = new ArrayList<>();
+        for (String source : sources) {
+            terms.addAll(getExactTermsByNameFromParent(value, source, childrenOf));
+        }
+        return filterDefiningOntology(terms);
+    }
+
     public List<Term> getTermsByNameFromParent(String value, ArrayList<String> sources, String childrenOf){
+        specificSearchParams(0, 2);
         List<Term> terms = new ArrayList<>();
         for (String source : sources) {
             terms.addAll(getTermsByNameFromParent(value, source, childrenOf));
@@ -98,16 +149,27 @@ public class OLSSearchService extends Initializable {
         return filterDefiningOntology(terms);
     }
 
-    private List<Term> getTermsByNameFromParent(String value, String source, String childrenOf){
+    private List<Term> getExactTermsByNameFromParent(String value, String source, String childrenOf){
         try {
+            specificSearchParams(0, 20);
             return olsClient.getExactTermsByNameFromParent(value, source, childrenOf);
         } catch (RestClientException e){
             return new ArrayList<>();
         }
     }
 
-    public String getLabelByIri(String iri){
+    private List<Term> getTermsByNameFromParent(String value, String source, String childrenOf){
         try {
+            specificSearchParams(0, 2);
+            return olsClient.getTermsByNameFromParent(value, source, false, childrenOf);
+        } catch (RestClientException e){
+            return new ArrayList<>();
+        }
+    }
+
+    public String getExactLabelByIri(String iri){
+        try {
+            defaultSearchParams();
             List<Term> terms = olsClient.getExactTermsByIriString(iri);
 
             for (Term term : terms){
@@ -148,37 +210,17 @@ public class OLSSearchService extends Initializable {
     }
 
     private URI tryToReplaceSemanticTag(URI semanticTag){
-
-        List<Term> terms = olsClient.getExactTermsByIriStringWithObsolete(semanticTag.toString());
-        Term foundTerm = null;
-        if (terms != null && !terms.isEmpty()) {
-            for (Term term : terms) {
-                if (term.isDefinedOntology()) {
-                    foundTerm = term;
-                }
-            }
-            if (foundTerm == null){
-                foundTerm = terms.get(0);
-            }
-
-            Term retrievedTerm = olsClient.retrieveTerm(foundTerm.getIri().getIdentifier(), foundTerm.getOntologyName());
-            if (retrievedTerm instanceof ObsoleteTerm){
-                Annotation annotation = retrievedTerm.getAnnotation();
-                Map<String, List<String >> annotationMap = annotation.getAnnotation();
-
-                List<String> replacedBy = annotationMap.get("term_replaced_by");
-                if (replacedBy == null){
-                    replacedBy = annotationMap.get("replacedBy");
-                }
-                if (replacedBy == null){
-                    replacedBy = annotationMap.get("termReplacedBy");
-                }
-                if (replacedBy != null && !replacedBy.isEmpty()){
-                    return URI.create(replacedBy.get(0));
-                }
-            }
+        defaultSearchParams();
+        Term replaceBy = null;
+        try {
+            replaceBy = olsClient.getReplacedBy(semanticTag.toString());
+        } catch (RestClientException e){
+            getLog().debug(semanticTag + " something went wrong when we tried to find a replacement in OLS!");
+            replaceBy = null;
         }
-
+        if(replaceBy != null && replaceBy.getIri() != null && replaceBy.getIri().getIdentifier() != null) {
+            return URI.create(replaceBy.getIri().getIdentifier());
+        }
         return null;
     }
 
@@ -218,6 +260,7 @@ public class OLSSearchService extends Initializable {
 
     public List<Ontology> getAllOntologies(){
         try {
+            defaultSearchParams();
             if (this.ontologyMappings != null && !this.ontologyMappings.isEmpty()) {
                 return (new ArrayList<>(ontologyMappings.values()));
             }
@@ -240,6 +283,7 @@ public class OLSSearchService extends Initializable {
             }
         }
         try {
+            defaultSearchParams();
             Ontology ontology = olsClient.getOntology(name);
             ontologyMappings.put(ontology.getId(), ontology);
             return ontology;
@@ -255,6 +299,7 @@ public class OLSSearchService extends Initializable {
         }
 
         try {
+            defaultSearchParams();
             Ontology ontology = olsClient.getOntologyFromId(URI.create(uri));
             if (ontology != null){
                 ontologyMappings.put(ontology.getId(), ontology);
@@ -266,4 +311,30 @@ public class OLSSearchService extends Initializable {
         return null;
     }
 
+    public boolean inOLS(URI uri) {
+        defaultSearchParams();
+         List<Term> terms = olsClient.getExactTermsByIriString(uri.toString());
+         if (terms.isEmpty()){
+             return false;
+         }
+         return true;
+    }
+
+    /**
+     * Restrics OLS client search to a page number and a page size
+     * @param pageNum
+     * @param pageSize
+     */
+    private void specificSearchParams(int pageNum, int pageSize){
+        this.olsClient.setSearchPageNum(pageNum);
+        this.olsClient.setSearchPageSize(pageSize);
+    }
+
+    /**
+     * Sets OLS client search page number and search page size to the defaults it had when initialized
+     */
+    private void defaultSearchParams(){
+        this.olsClient.setSearchPageNum(this.defaultPageNum);
+        this.olsClient.setSearchPageSize(this.defaultPageSize);
+    }
 }

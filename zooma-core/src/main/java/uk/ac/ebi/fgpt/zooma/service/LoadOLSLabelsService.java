@@ -48,7 +48,7 @@ public class LoadOLSLabelsService {
         Set<String> semanticTags = getOntologyDAO().getSemanticTags();
         getLog().info("Finding labels for each semantic tag using OLS starting...");
         for (String semanticTag : semanticTags) {
-            tagToLabelMap.put(semanticTag, getOlsSearchService().getLabelByIri(semanticTag));
+            tagToLabelMap.put(semanticTag, getOlsSearchService().getExactLabelByIri(semanticTag));
         }
         getLog().info("Finding labels for each semantic tag using OLS finished...");
         getLog().info("Inserting the labels into the graph starting...");

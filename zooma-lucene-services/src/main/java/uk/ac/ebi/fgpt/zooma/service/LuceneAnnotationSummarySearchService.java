@@ -275,7 +275,7 @@ public class LuceneAnnotationSummarySearchService extends ZoomaLuceneSearchServi
         Query q;
         if (sources.length > 0) {
             // unify processed queries into a single query
-            Query uq = formulateCombinedQuery(true, false, pqs.toArray(new Query[pqs.size()]));
+            Query uq = formulateCombinedQuery(false, false, pqs.toArray(new Query[pqs.size()]));
 
             // next generate a series of source queries
             List<Query> sqs = new ArrayList<>();

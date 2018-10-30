@@ -223,22 +223,38 @@ function populateDatasources() {
                 } else if (name == "gwas"){
                     datasourceNames.push("GWAS");
                     var desc = "<p><b>GWAS</b><br> A Catalog of Published Genome-Wide Association Studies.</p>" +
-                        "<p><b>database name: 'gwas'</b><br><a href='http://www.ebi.ac.uk/gwas' target='_blank'>http://www.ebi.ac.uk/gwas</a></p>";
+                        "<p><b>database name: 'gwas'</b><br><a href='//www.ebi.ac.uk/gwas' target='_blank'>www.ebi.ac.uk/gwas</a></p>";
                     nameDescriptionMap["GWAS"] = desc;
                 } else if (name == "atlas"){
                     datasourceNames.push("ExpressionAtlas");
                     var desc = "<p><b>Expression Atlas</b><br>The Expression Atlas provides information on gene expression patterns under different biological conditions.</p>" +
                         "<p><b>DB name: 'atlas'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
                     nameDescriptionMap["ExpressionAtlas"] = desc;
+                } else if (name == "cbi"){
+                    datasourceNames.push("CBI");
+                    var desc = "<p><b>Crop Bioinformatics Initiative</b><br>The CBI datasource contains a series of mappings designed to enable high-throughput " +
+                        "ontology annotation of plant-specific sample data. " +
+                        "These mappings are derived from the most commonly observed attributes used to describe plant samples in the " +
+                        "BioSamples database that could not previously be mapped to ontology terms. " +
+                        "This work was part of the <a href='//gtr.rcuk.ac.uk/projects?ref=BB%2FM018458%2F1' target='_blank'>\"Big Data Infrastructure for Crop Genomics\"</a> project</p>" +
+                        "<p><b>DB name: 'cbi'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                    nameDescriptionMap["CBI"] = desc;
+                } else if (name == "clinvar-xrefs"){
+                    datasourceNames.push("ClinVarXRefs");
+                    var desc = "<p><b>ClinVar</b><br>ClinVar aggregates information about genomic variation and its relationship to human health.</p>" +
+                        "<p><b>DB name: 'clinvar-xrefs'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                    nameDescriptionMap["ClinVarXRefs"] = desc;
                 } else {
+                    datasourceNames.push(name);
                     nameDescriptionMap[name] =  "No description.";
                 }
+                uriNameMap[sources[i].uri] =  sources[i].name;
             } else if (sources[i].type == "ONTOLOGY"){
                 searchableOntoNames.push(sources[i].title + " (" + sources[i].name + ")");
                 ontologyPrefixes.push(sources[i].name);
                 loadedOntologyURIs.push(sources[i].uri);
                 var desc = "<p><b>" + sources[i].title + "</b><br>" + sources[i].description + "</p>" +
-                    "<p><a href='http://www.ebi.ac.uk/ols/ontologies/" + sources[i].name + "' target='_blank'>view ontology in OLS</a></p>";
+                    "<p><a href='//www.ebi.ac.uk/ols/ontologies/" + sources[i].name + "' target='_blank'>view ontology in OLS</a></p>";
                 nameDescriptionMap[sources[i].name] = desc;
                 uriNameMap[sources[i].uri] =  sources[i].name;
             }
@@ -614,6 +630,10 @@ function getRealName(name){
         realName = "eva-clinvar";
     } else if (name == "CellularPhenoTypes"){
         realName = "sysmicro";
+    } else if (name == "CBI"){
+        realName = "cbi";
+    } else if (name == "ClinVarXRefs") {
+        realName = "clinvar-xrefs";
     } else {
         realName = name;
     }
@@ -859,13 +879,13 @@ function renderResults(data) {
                 if (loadedOntologyURIs.indexOf(result[7]) > -1) {
                     //found in OLS
                     // no comma separation in results from OLS, linkify entire field
-                    row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[5] + "&ontology=" + uriNameMap[result[7]].toLowerCase(), result[5]) + "</td>";
+                    row = row + "<td>" + linkify("//www.ebi.ac.uk/ols/search?exact=true&q=" + result[6] + result[5] + "&ontology=" + uriNameMap[result[7]].toLowerCase(), result[5]) + "</td>";
 
                 } else {
                     // multiple mappings will be comma separated
                     if (result[5].indexOf(", ") == -1) {
                         // no comma separation, linkify entire field
-                        row = row + "<td>" + linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + result[5], result[5]) + "</td>";
+                        row = row + "<td>" + linkify("//www.ebi.ac.uk/ols/search?exact=true&q=" + result[6] + result[5], result[5]) + "</td>";
                     }
                     else {
                         // comma separation, linkify each token
@@ -882,9 +902,11 @@ function renderResults(data) {
                             var l = termIDs.length - 1;
                             for (var k = 0; k < l; k++) {
                                 var termID = termIDs[k].trim();
-                                links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + termID, termID) + ",<br />";
+                                var ontologyURI = ontologyURIs[k];
+                                links += linkify("//www.ebi.ac.uk/ols/search?exact=true&q=" + ontologyURI + termID, termID) + ",<br />";
                             }
-                            links += linkify("http://www.ebi.ac.uk/ols/search?exact=true&q=" + termIDs[l] , termIDs[l]);
+                            links += linkify("//www.ebi.ac.uk/ols/search?exact=true&q=" + ontologyURIs[l] + termIDs[l] , termIDs[l]);
+
                             row = row + "<td>" + links + "</td>";
                         }
                     }
@@ -906,11 +928,11 @@ function renderResults(data) {
                 //}
                 var href;
                 if (loadedOntologyURIs.indexOf(result[7]) > -1){
-                    row = row + "<td><a href='" + "http://www.ebi.ac.uk/ols/ontologies/" + uriNameMap[result[7]] + "' target='_blank'>" +
+                    row = row + "<td><a href='" + "//www.ebi.ac.uk/ols/ontologies/" + uriNameMap[result[7]] + "' target='_blank'>" +
                         "<img src='images/ols-logo.jpg' " +
                         "alt='" + uriNameMap[result[7]] + "' style='height: 20px;'/> " + uriNameMap[result[7]] + "</a></td>";
                 }
-                else if (result[7] == "http://www.ebi.ac.uk/gxa") {
+                else if (result[7] == "https://www.ebi.ac.uk/gxa") {
                     href = result[7];
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='//www.ebi.ac.uk/gxa/resources/images/ExpressionAtlas_logo_web.png' " +
@@ -918,19 +940,19 @@ function renderResults(data) {
                 }
                 //TODO: change the loader to get the ebi gwas website
                 else if (result[7] == "http://www.genome.gov/gwastudies/") {
-                    href = "http://www.ebi.ac.uk/gwas";
+                    href = "//www.ebi.ac.uk/gwas";
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/nhgri.png' " +
                             "alt='GWAS' style='height: 22px;'/> GWAS</a></td>";
                 }
-                else if (result[7] == "http://www.ebi.ac.uk/fg/sym") {
+                else if (result[7] == "https://www.ebi.ac.uk/fg/sym") {
                     href = result[7];
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/CelPh_logo.gif' " +
                             "alt='CellularPhenoTypes' style='height: 22px;'/> CellularPhenoTypes</a></td>";
                 }
-                else if (result[7] == "http://www.ebi.ac.uk/uniprot") {
-                    row = row + "<td><a href='http://www.ebi.ac.uk/uniprot' target='_blank'>" +
+                else if (result[7] == "https://www.ebi.ac.uk/uniprot") {
+                    row = row + "<td><a href='//www.ebi.ac.uk/uniprot' target='_blank'>" +
                             "<img src='images/uniprot_logo.gif' " +
                             "alt='UniProt' style='height: 20px;'/> UniProt</a></td>";
                 }
@@ -940,7 +962,7 @@ function renderResults(data) {
                         "<img src='images/ot_logo_webheader.svg' " +
                         "alt='OpenTargets' style='height: 20px;'/> Open Targets</a></td>";
                 }
-                else if (result[7] == "http://www.ebi.ac.uk/eva"){
+                else if (result[7] == "https://www.ebi.ac.uk/eva"){
                     href = result[7];
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                         "<img src='images/eva_logo.png' " +
@@ -951,9 +973,20 @@ function renderResults(data) {
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                         "<img src='images/EBiSC-logo.png' " +
                         "alt='EBiSC' style='height: 20px;'/> EBiSC</a></td>";
-                }
-                else {
-                    row = row + "<td>" + result[7] + "</td>";
+                } else if (result[7] == "https://www.ebi.ac.uk/biosamples"){
+                    href = result[7];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                        "<img src='images/cbi_icon.png' " +
+                        "alt='CBI' style='height: 20px;'/> CBI </a></td>";
+                }  else if (result[7] == "https://www.ncbi.nlm.nih.gov/clinvar"){
+                    href = result[7];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                        "<img src='images/clinvarxrefs-logo.png' " +
+                        "alt='ClinVar xRefs' style='height: 20px;'/> ClinVar xRefs </a></td>";
+                } else {
+                    var sourceName = uriNameMap[result[7]];
+                    row = row + "<td><a href='" + result[7] + "' target='_blank'>" +
+                        sourceName + " </a></td>";
                 }
             }
             else {
