@@ -31,17 +31,9 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <nodeVersion>v6.9.1</nodeVersion>
-                            <yarnVersion>v0.16.1</yarnVersion>
+                            <yarnVersion>v0.17.0</yarnVersion>
                         </configuration>
                     </execution>
-
-                    <!--<execution>-->
-                        <!--<id>npm install</id>-->
-                        <!--<goals>-->
-                            <!--<goal>npm</goal>-->
-                        <!--</goals>-->
-                        <!--<phase>generate-resources</phase>-->
-                    <!--</execution>-->
 
                     <execution>
                         <id>yarn install</id>

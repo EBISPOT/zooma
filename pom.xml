@@ -147,17 +147,15 @@
     <!-- Mailing Lists -->
     <mailingLists>
         <mailingList>
-            <name>EBI Functional Genomics Production Team Mailing List</name>
-            <!--<subscribe>ebi-gwas-oc@ebi.ac.uk</subscribe>-->
-            <!--<unsubscribe>ebi-gwas-oc@ebi.ac.uk</unsubscribe>-->
-            <post>fgpt@ebi.ac.uk</post>
+            <name>EBI SPOT Ontology team</name>
+            <post>ontology-tools-support@ebi.ac.uk</post>
         </mailingList>
     </mailingLists>
 
     <!-- Bug Tracker -->
     <issueManagement>
-        <system>jira</system>
-        <url>http://www.ebi.ac.uk/panda/jira/browse/FGPTO/component/10874</url>
+        <system>GitHub</system>
+        <url>https://github.com/EBISPOT/zooma</url>
     </issueManagement>
 
     <!-- Version control (GitHub repository) -->
