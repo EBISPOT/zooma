@@ -4,11 +4,11 @@
     <parent>
         <groupId>uk.ac.ebi.fgpt</groupId>
         <artifactId>zooma2</artifactId>
-        <version>2.1.10-SNAPSHOT</version>
+        <version>2.1.11-SNAPSHOT</version>
     </parent>
 
     <artifactId>zooma-loading</artifactId>
-    <version>2.1.10-SNAPSHOT</version>
+    <version>2.1.11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ZOOMA 2: Parent project for all loaders</name>
@@ -16,7 +16,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <zooma.version>2.1.10-SNAPSHOT</zooma.version>
+        <zooma.version>2.1.11-SNAPSHOT</zooma.version>
     </properties>
 
     <dependencies>
