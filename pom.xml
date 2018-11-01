@@ -4,7 +4,7 @@
 
     <groupId>uk.ac.ebi.fgpt</groupId>
     <artifactId>zooma2</artifactId>
-    <version>2.1.9-SNAPSHOT</version>
+    <version>2.1.10-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ZOOMA 2</name>
@@ -128,7 +128,7 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties/>
+            <properties />
         </developer>
         <developer>
             <id>jupp</id>
@@ -140,7 +140,7 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties/>
+            <properties />
         </developer>
     </developers>
 
@@ -164,7 +164,7 @@
         <developerConnection>scm:git:git@github.com:EBISPOT/zooma.git</developerConnection>
         <url>http://github.com/EBISPOT/zooma</url>
       <tag>HEAD</tag>
-  </scm>
+    </scm>
 
     <!-- Reporting/Documentation output -->
     <reporting>
@@ -207,7 +207,6 @@
         <module>zooma-owlapi</module>
         <module>zooma-jdbc</module>
         <module>zooma-lucene-services</module>
-        <module>lodestar</module>
         <module>zooma-lodestar</module>
         <module>zooma-security</module>
         <module>zooma-loading</module>
@@ -446,7 +445,7 @@
                                 <id>enforce</id>
                                 <configuration>
                                     <rules>
-                                        <DependencyConvergence/>
+                                        <DependencyConvergence />
                                     </rules>
                                 </configuration>
                                 <goals>
