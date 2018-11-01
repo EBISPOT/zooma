@@ -1,6 +1,3 @@
-[submodule "ols-client"]
-	path = ols-client
-	url = https://github.com/EBISPOT/ols-client.git
 [submodule "lodestar"]
 	path = lodestar
 	url = https://github.com/EBISPOT/lodestar.git
