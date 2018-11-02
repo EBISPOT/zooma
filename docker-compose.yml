@@ -133,7 +133,7 @@ services:
         volumes:
             - rabbitmq_data:/var/lib/rabbitmq/mnesia/rabbit@zooma-rabbitmq
     neo4j:
-        image: neo4j:3.1-enterprise
+        image: neo-preconf4zooma:latest
         environment:
             - NEO4J_AUTH=none
         ports:

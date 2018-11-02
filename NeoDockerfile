@@ -1,0 +1,9 @@
+#  Increase memory configuration in Neo4j base
+
+FROM neo4j:3.1-enterprise AS neo-preconf4zooma
+
+#  Changing owner does not work when extracting tar!
+# ADD --chown=solr:nogroup ./solr-5-config.tar.gz /home/solr/
+
+# COPY --chown=root:root ./neo4j-entrypoint.sh /docker-entrypoint.sh
+COPY ./neo4j-entrypoint.sh /docker-entrypoint.sh

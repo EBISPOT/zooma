@@ -10,28 +10,38 @@ Install Maven and JDK 8. Then run:
   
 [rem]: # (Install docker-compose: <https://docs.docker.com/compose/>)
 
-`mvn package`
+```bash
+mvn package
+```
 
 Make sure you edit `Dockerfile` to enable the correct `COPY` command: this
 depends on which host you are running it from; details are documented in
-`Dockerfile` itself. Then build docker images for Zooma and customised Solr (the
-docker-compose utility is not required for any of these steps):
+`Dockerfile` itself. Then build docker images for Zooma, customised Neo4j and
+customised Solr (the docker-compose utility is not required for any of these
+steps):
 
 [rem]: # (`docker-compose build`)
 
-`docker build -f SolrDockerfile -t solr-preconf4zooma .`  
-`docker build -t zooma .`
+```bash
+docker build -f NeoDockerfile -t neo-preconf4zooma .
+docker build -f SolrDockerfile -t solr-preconf4zooma .
+docker build -t zooma .
+```
 
 Initialise docker swarm (necessary only if this is the inaugural run on the
 current host):
 
-`docker swarm init`
+```bash
+docker swarm init
+```
 
 Bring up docker services:
 
 [rem]: # (`docker-compose up`)
 
-`docker stack deploy --compose-file docker-compose.yml zooma`
+```bash
+docker stack deploy --compose-file docker-compose.yml zooma
+```
 
 public zooma-mongo api: <http://localhost:8080>
  
@@ -51,7 +61,9 @@ To stop docker containers from running:
 
 [rem]: # (`docker-compose down`)
 
-`docker stack rm zooma`
+```bash
+docker stack rm zooma
+```
  
 To load data to the application in the container:
 
