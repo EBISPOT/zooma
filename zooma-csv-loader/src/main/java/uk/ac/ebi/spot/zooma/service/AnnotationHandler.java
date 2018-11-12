@@ -32,6 +32,7 @@ public class AnnotationHandler {
     }
 
     private final String location = "http://localhost:8080/annotations/";
+    // private final String location = "http://scrappy:8080/annotations/";
     private ObjectMapper objectMapper;
 
     @Autowired

@@ -35,7 +35,16 @@ current host):
 docker swarm init
 ```
 
-Bring up docker services:
+You must ensure that you have allocated sufficient memory for docker to cover
+each continainer's (or service's) requirements. If Neo4j wants up to 3 GB, for
+example, it might be prudent to give docker itself access to 6 GB, depending on
+the other containerised applications in the stack. This can be configured within
+docker settings. Be aware that, confusingly, containers may crash without proper
+logging in the absence of sufficient memory to run them. Not over-throttling
+memory will also make for better stack performance, as it alleviates excessive
+swapping and paging.
+
+Assuming that sufficient memory has been allocated, bring up docker services:
 
 [rem]: # (`docker-compose up`)
 
