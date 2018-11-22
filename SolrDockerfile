@@ -6,3 +6,4 @@ FROM solr:5.5.3-alpine AS solr-preconf4zooma
 # ADD --chown=solr:nogroup ./solr-5-config.tar.gz /home/solr/
 
 COPY --chown=solr:nogroup ./mysolrhome /home/mysolrhome
+# CMD ["solr", "-f", "create_core", "-c", "apriori"]

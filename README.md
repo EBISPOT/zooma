@@ -36,7 +36,7 @@ docker swarm init
 ```
 
 You must ensure that you have allocated sufficient memory for docker to cover
-each continainer's (or service's) requirements. If Neo4j wants up to 3 GB, for
+each container's (or service's) requirements. If Neo4j wants up to 3 GB, for
 example, it might be prudent to give docker itself access to 6 GB, depending on
 the other containerised applications in the stack. This can be configured within
 docker settings. Be aware that, confusingly, containers may crash without proper
@@ -63,9 +63,11 @@ public zooma-predictor api: <http://localhost:8083>
 internal Solr endpoint at <http://localhost:8983>
 
 internal Neo4j endpoint at <http://localhost:7474>
- 
+
 internal RabbitMQ endpoint at <http://localhost:15672>
- 
+
+## Take Zooma down
+
 To stop docker containers from running: 
 
 [rem]: # (`docker-compose down`)
@@ -73,7 +75,24 @@ To stop docker containers from running:
 ```bash
 docker stack rm zooma
 ```
- 
+
+To clean up defunct containers and other debris, excluding volumes and images:
+
+```bash
+docker system prune
+```
+
+(Enter 'y' when asked whether you want to continue.)
+
+To remove old data volumes, in case you want to repopulate everything from
+scratch:
+
+```bash
+./remove_volumes.sh
+```
+
+## Populate Zooma
+
 To load data to the application in the container:
 
 - Edit the application.properties.example file in zooma-csv-loader
@@ -113,7 +132,7 @@ the `docker-compose.yml` file and from the zooma-neo4j service comment out the
  
 ... and un-comment the `- spring.data.neo4j.indexes.auto=none` line.
  
-## Search zooma
+## Search Zooma
  
 Default behaviour — Zooma will first look into the datasources and _if_ nothing
 is found it will look into all the ontologies in the Ontology Lookup Service

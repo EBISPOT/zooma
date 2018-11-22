@@ -74,11 +74,11 @@ services:
             - spring.rabbitmq.host=rabbitmq
             - spring.rabbitmq.activate=true
             - spring.data.neo4j.uri=http://neo4j:7474
-            #- spring.data.neo4j.username=neo4j
+            # - spring.data.neo4j.username=neo4j
             - spring.data.neo4j.username=null
             - spring.data.neo4j.password=null
             - spring.data.neo4j.indexes.auto=assert
-            #- spring.data.neo4j.indexes.auto=none
+            # - spring.data.neo4j.indexes.auto=none
             - spring.jackson.serialization.write-dates-as-timestamps:false
         ports:
             - 8082:8080
@@ -111,10 +111,11 @@ services:
         ports:
             - 8983:8983
         volumes:
-            #- ./zooma-solr/src/main/sample_data/data/:/home/mysolrhome/annotation/data
-            #- ./mysolrhome/:/home/mysolrhome
+            # - ./zooma-solr/src/main/sample_data/data/:/home/mysolrhome/annotation/data
+            # - ./mysolrhome/:/home/mysolrhome
             - solr_data:/home/mysolrhome/annotation/data
         command: ["solr", "-f"]
+        # command: ["solr", "-f",  "create_core", "-c", "apriori"]
     mongo:
         image: mongo:3.2
         ports:

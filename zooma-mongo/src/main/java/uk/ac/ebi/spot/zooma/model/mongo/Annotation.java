@@ -89,7 +89,7 @@ public class Annotation {
     }
 
     /**
-     * quality is caluclated based on provenance.
+     * quality is calculated based on provenance.
      * So we are making sure that it will be calculated once the provenance is set
      */
     public void setProvenance(MongoAnnotationProvenance provenance){
