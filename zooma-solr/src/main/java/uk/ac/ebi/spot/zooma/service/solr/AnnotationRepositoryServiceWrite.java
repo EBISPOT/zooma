@@ -6,10 +6,12 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.spot.zooma.config.AnnotationSolrTemplate;
 import uk.ac.ebi.spot.zooma.model.solr.Annotation;
 import uk.ac.ebi.spot.zooma.repository.solr.AnnotationRepository;
 
@@ -25,16 +27,16 @@ import java.util.*;
 public class AnnotationRepositoryServiceWrite {
     private AnnotationRepository summaryRepository;
 
-    private SolrTemplate solrTemplate;
+    private AnnotationSolrTemplate solrTemplate;
 
     private String solrCore;
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     @Autowired
-    public AnnotationRepositoryServiceWrite(AnnotationRepository summaryRepository,
-                                           SolrTemplate solrTemplate,
-                                           @Value("${spring.data.solr.core}") String solrCore) {
+    public AnnotationRepositoryServiceWrite(@Qualifier("annotationSolrRepository") AnnotationRepository summaryRepository,
+                                            AnnotationSolrTemplate solrTemplate,
+                                            @Value("${spring.data.solr.core}") String solrCore) {
         this.summaryRepository = summaryRepository;
         this.solrTemplate = solrTemplate;
         this.solrCore = solrCore;

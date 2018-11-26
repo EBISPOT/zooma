@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.spot.zooma.config.AnnotationSolrTemplate;
 import uk.ac.ebi.spot.zooma.model.solr.Annotation;
 
 import java.io.IOException;
@@ -26,11 +27,11 @@ import java.util.*;
 public class AnnotationRepositoryServiceRead {
 
 
-    private SolrTemplate solrTemplate;
+    private AnnotationSolrTemplate solrTemplate;
     private String solrCore;
 
     @Autowired
-    public AnnotationRepositoryServiceRead(SolrTemplate solrTemplate,
+    public AnnotationRepositoryServiceRead(AnnotationSolrTemplate solrTemplate,
                                            @Value("${spring.data.solr.core}") String solrCore) {
         this.solrTemplate = solrTemplate;
         this.solrCore = solrCore;

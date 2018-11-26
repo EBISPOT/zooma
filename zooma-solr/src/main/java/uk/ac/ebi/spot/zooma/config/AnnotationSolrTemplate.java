@@ -12,40 +12,39 @@ import org.springframework.data.solr.server.SolrClientFactory;
  * Issue: https://github.com/spring-projects/spring-boot/issues/8327
  * Created by olgavrou on 28/02/2017.
  */
-public class CustomSolrTemplate extends SolrTemplate {
+public class AnnotationSolrTemplate extends SolrTemplate {
 
-    @Value("${spring.data.solr.core}")
-    String solrCore;
+    String solrCore = "annotations";
 
-    public CustomSolrTemplate(SolrClient solrClient) {
+    public AnnotationSolrTemplate(SolrClient solrClient) {
         super(solrClient);
     }
 
-    public CustomSolrTemplate(SolrClient solrClient, String core) {
+    public AnnotationSolrTemplate(SolrClient solrClient, String core) {
         super(solrClient, core);
     }
 
-    public CustomSolrTemplate(SolrClient solrClient, String core, RequestMethod requestMethod) {
+    public AnnotationSolrTemplate(SolrClient solrClient, String core, RequestMethod requestMethod) {
         super(solrClient, core, requestMethod);
     }
 
-    public CustomSolrTemplate(SolrClientFactory solrClientFactory) {
+    public AnnotationSolrTemplate(SolrClientFactory solrClientFactory) {
         super(solrClientFactory);
     }
 
-    public CustomSolrTemplate(SolrClientFactory solrClientFactory, String defaultCore) {
+    public AnnotationSolrTemplate(SolrClientFactory solrClientFactory, String defaultCore) {
         super(solrClientFactory, defaultCore);
     }
 
-    public CustomSolrTemplate(SolrClientFactory solrClientFactory, RequestMethod requestMethod) {
+    public AnnotationSolrTemplate(SolrClientFactory solrClientFactory, RequestMethod requestMethod) {
         super(solrClientFactory, requestMethod);
     }
 
-    public CustomSolrTemplate(SolrClientFactory solrClientFactory, SolrConverter solrConverter) {
+    public AnnotationSolrTemplate(SolrClientFactory solrClientFactory, SolrConverter solrConverter) {
         super(solrClientFactory, solrConverter);
     }
 
-    public CustomSolrTemplate(SolrClientFactory solrClientFactory, SolrConverter solrConverter, RequestMethod defaultRequestMethod) {
+    public AnnotationSolrTemplate(SolrClientFactory solrClientFactory, SolrConverter solrConverter, RequestMethod defaultRequestMethod) {
         super(solrClientFactory, solrConverter, defaultRequestMethod);
     }
 
