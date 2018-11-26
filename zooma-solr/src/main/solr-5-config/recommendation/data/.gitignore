@@ -1,0 +1,3 @@
+#  Ignore everything but .gitignore, so Git keeps the parent directory
+*
+!.gitignore
