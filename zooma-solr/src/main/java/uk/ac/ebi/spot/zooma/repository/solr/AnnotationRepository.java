@@ -19,7 +19,7 @@ import java.util.List;
  * Created by olgavrou on 13/10/2016.
  */
 @Repository
-//@RestResource(exported = false)
+@RestResource(exported = false)
 public interface AnnotationRepository extends SolrCrudRepository<Annotation, String>{
 
 //    @Query(defType = "edismax", value = "propertyValue:\"?0\" OR propertyValueStr:\"?0\"^10 OR propertyValue:?0") //bf="sum(div(1,sum(0.001,ms(\"?1Z\",lastModified))),product(sum(votes,quality,sourceNum),0.001))"

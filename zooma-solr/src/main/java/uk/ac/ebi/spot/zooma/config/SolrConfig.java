@@ -13,13 +13,15 @@ import org.springframework.data.solr.repository.support.SolrRepositoryFactory;
 import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.data.solr.server.support.MulticoreSolrClientFactory;
 import uk.ac.ebi.spot.zooma.messaging.solr.AnnotationSubmissionReceiver;
+import uk.ac.ebi.spot.zooma.model.solr.Annotation;
+import uk.ac.ebi.spot.zooma.model.solr.Recommendation;
 import uk.ac.ebi.spot.zooma.repository.solr.AnnotationRepository;
 import uk.ac.ebi.spot.zooma.repository.solr.RecommendationRepository;
 import uk.ac.ebi.spot.zooma.service.solr.AnnotationRepositoryServiceWrite;
 
 
 @Configuration
-@EnableSolrRepositories(basePackages = "uk.ac.ebi.spot.zooma.repository.solr", multicoreSupport = true)
+@EnableSolrRepositories(basePackages = "uk.ac.ebi.spot.zooma.repository.solr", basePackageClasses = {Recommendation.class, Annotation.class}, multicoreSupport = true)
 public class SolrConfig {
 
     @Value("${spring.data.solr.host}")
@@ -35,22 +37,17 @@ public class SolrConfig {
         return new MulticoreSolrClientFactory(new HttpSolrClient(solrHost));
     }
 
-
-    @Bean
-    public SolrClient solrClient() {
-        return new HttpSolrClient(solrHost);
-    }
-
-    @Bean
-    public AnnotationSolrTemplate annotationsSolrTemplate(){
-        AnnotationSolrTemplate template = new AnnotationSolrTemplate(solrClient());
+    @Bean(name = "annotationsSolrTemplate")
+    public SolrTemplate annotationsSolrTemplate(){
+        SolrTemplate template = new SolrTemplate(solrServerFactory(), "annotations");
         template.setSolrCore("annotations");
         return template;
     }
 
     @Bean
     public SolrTemplate recommendationSolrTemplate(){
-        SolrTemplate template = new RecommendationSolrTemplate(solrClient(),"recommendations" );
+        SolrTemplate template = new SolrTemplate(solrServerFactory(), "recommendations");
+        template.setSolrCore("recommendations");
         return template;
     }
 

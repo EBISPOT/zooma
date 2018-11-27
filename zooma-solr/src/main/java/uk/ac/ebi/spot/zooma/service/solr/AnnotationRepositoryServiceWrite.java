@@ -27,7 +27,7 @@ import java.util.*;
 public class AnnotationRepositoryServiceWrite {
     private AnnotationRepository summaryRepository;
 
-    private AnnotationSolrTemplate solrTemplate;
+    private SolrTemplate solrTemplate;
 
     private String solrCore;
 
@@ -35,8 +35,7 @@ public class AnnotationRepositoryServiceWrite {
 
     @Autowired
     public AnnotationRepositoryServiceWrite(@Qualifier("annotationSolrRepository") AnnotationRepository summaryRepository,
-                                            AnnotationSolrTemplate solrTemplate,
-                                            @Value("${spring.data.solr.core}") String solrCore) {
+                                            @Qualifier("annotationsSolrTemplate") SolrTemplate solrTemplate) {
         this.summaryRepository = summaryRepository;
         this.solrTemplate = solrTemplate;
         this.solrCore = solrCore;
