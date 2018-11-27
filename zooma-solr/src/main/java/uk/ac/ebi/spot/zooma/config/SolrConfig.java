@@ -44,7 +44,7 @@ public class SolrConfig {
         return template;
     }
 
-    @Bean
+    @Bean(name="recommendationSolrTemplate")
     public SolrTemplate recommendationSolrTemplate(){
         SolrTemplate template = new SolrTemplate(solrServerFactory(), "recommendations");
         template.setSolrCore("recommendations");
