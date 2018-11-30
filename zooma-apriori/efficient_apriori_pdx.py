@@ -73,8 +73,9 @@ def main():
     #                ('OriginTissue : Blood', 'TumorType : Metastatic', 'SampleDiagnosis : acute myeloid leukemia', 'TAG = TumorType : Primary : ONTO_XXXX')
     #
     #                ]
+    print("About to build rules...")
     itemsets, rules = apriori(transactions, min_support=0, min_confidence=0)
-    
+    print("Rules built!")
     
     # Print out every rule with 2 items on the left hand side,
     # 1 item on the right hand side, sorted by lift
@@ -86,24 +87,36 @@ def main():
     for rule in sorted(rules_rhs, key=lambda rule: rule.lift):
         if "TAG" in rule.rhs[0]:
     
-            doc = {'properties' : [], 'conf' : rule.confidence, 'support' : rule.support, "lift" : rule.lift, "conviction" : rule.conviction}
+            doc = {
+                'propertiesType': [],
+                'propertiesValue' : [],
+                'propertiesTypeTag' : "",
+                'propertiesValueTag' : "",
+                'tag' : "",
+                'conf' : rule.confidence,
+                'support' : rule.support,
+                "lift" : rule.lift,
+                "conviction" : rule.conviction
+            }
             for lr in rule.lhs:
                 type, value = lr.split("|")
-                property = {'propertyType' : type, 'propertyValue' : value}
-                doc['properties'].append(property)
-    
+
+                doc['propertiesType'].append(type)
+                doc['propertiesValue'].append(value)
+
             # print(rule) # Prints the rule and its confidence, support, lift, ...
     
             ignore, stype, svalue, stag = rule.rhs[0].split("|")
-            doc['tag'] = {'propertyType' : stype, 'propertyValue' : svalue, 'tag' : stag}
+            doc['propertiesTypeTag'] = stype
+            doc['propertiesValueTag'] = svalue
+            doc['tag'] = stag
             documents.append(doc)
-            if doc_cnt < 4:
-                print(json.dumps(doc))
-                # requests.post('http://scrappy:8081/recommendations', json.dumps(doc))
-                # requests.post('http://localhost:8081/recommendations', data=doc)
+
+            print(json.dumps(doc))
+            requests.post('http://scrappy:8081/recommendations', json.dumps(doc))
+            # requests.post('http://localhost:8081/recommendations', data=doc)
                 
-            doc_cnt += 1
-    
+
     with open('rules.json', 'w') as outfile:
         json.dump(documents, outfile, indent=4, )
 
