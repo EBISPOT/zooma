@@ -2,8 +2,8 @@
 
 FROM python:3.7.1-alpine AS python-preconf4apriori
 
-COPY ./apriori_requirements.txt /
-ADD ./efficient_apriori_pdx.py /
+COPY ./zooma-apriori/apriori_requirements.txt /
+ADD ./zooma-apriori/efficient_apriori_pdx.py /
 RUN pip3 install -r /apriori_requirements.txt
 ENTRYPOINT [ "python3" ]
 CMD [ "/efficient_apriori_pdx.py" ]

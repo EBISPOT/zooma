@@ -4,3 +4,6 @@ neobolt==1.7.2
 neotime==1.7.1
 pytz==2018.7
 six==1.11.0
+flask==1.0.2
+jinja2==2.10
+requests==2.20.1
