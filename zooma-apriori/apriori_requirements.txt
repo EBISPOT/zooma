@@ -1,0 +1,6 @@
+efficient-apriori==0.4.4
+neo4j-driver==1.7.0
+neobolt==1.7.2
+neotime==1.7.1
+pytz==2018.7
+six==1.11.0
