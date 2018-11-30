@@ -51,19 +51,31 @@ public class RecommendationController {
     public HttpEntity<PagedResources<Recommendation>> recommend(
             @RequestParam(value = "propertyType", required = false) Collection<String> propertyTypes,
             @RequestParam(value = "propertyValue", required = false) Collection<String> propertyValues,
-            @RequestParam(value = "target", required = false) String target,
+            @RequestParam(value = "target", required = true) String target,
             PagedResourcesAssembler assembler, Pageable pageable) throws IOException, SolrServerException {
 
 
         SimpleQuery solrQuery = new SimpleQuery();
 
-        String typesOr = String.join(" OR ", propertyTypes);
-        String valuesOr = String.join(" OR ", propertyValues);
+        Criteria queryCriteria = new Criteria();
 
-        solrQuery.addCriteria(new Criteria("propertiesType").is(typesOr).or("propertiesValue").is(valuesOr).and("propertiesTypeTag").is(target));
+        if (propertyTypes != null) {
+            String typesOr = String.join(" OR ", propertyTypes);
+            queryCriteria.or("propertiesType").contains(typesOr);
+        }
 
+        if (propertyValues != null) {
+            String valuesOr = String.join(" OR ", propertyValues);
+            queryCriteria.or("propertiesValue").contains(valuesOr);
+        }
 
-        System.out.println(solrQuery.toString());
+        queryCriteria.and("propertiesTypeTag").or("propertiesValuesTag").contains(target);
+
+//        solrQuery.addCriteria(new Criteria("propertiesType").contains(typesOr).or("propertiesValue").contains(valuesOr).and("propertiesTypeTag").contains(target));
+
+        solrQuery.addCriteria(queryCriteria);
+
+        System.out.println(solrQuery.getCriteria().toString());
         Page<Recommendation> recommendationCollection=  solrTemplate.query(solrQuery, Recommendation.class);
 
         PagedResources<Recommendation> resources = assembler.toResource(recommendationCollection, linkTo(methodOn(RecommendationController.class).recommend(propertyTypes, propertyValues, target, assembler, pageable)).withSelfRel());
