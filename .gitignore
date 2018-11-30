@@ -9,6 +9,7 @@ etc
 **/target/**
 #Application properties
 *.properties
+!core.properties
 sample_data/
 # Mac specific files
 .DS_Store
