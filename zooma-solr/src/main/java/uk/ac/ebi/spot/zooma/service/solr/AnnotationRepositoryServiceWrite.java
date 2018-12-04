@@ -149,8 +149,9 @@ public class AnnotationRepositoryServiceWrite {
             semTagQuery.add("\"" + s + "\"");
         }
 
-        query.set("q", "propertyValueStr:\"" + summary.getPropertyValue() + "\" AND " +
-                "semanticTag:" + semTagQuery.toString() + " AND propertyType: \"" + summary.getPropertyType() + "\"");
+        String semSeg = summary.getSemanticTag().isEmpty() ? "" : "semanticTag:" + semTagQuery.toString() + " AND ";
+        query.set("q", "propertyValueStr:\"" + summary.getPropertyValue() + "\" AND " + semSeg +
+                "propertyType: \"" + summary.getPropertyType() + "\"");
 
         QueryResponse response = solrTemplate.getSolrClient().query(this.solrCore, query);
         List<Annotation> results = response.getBeans(Annotation.class);
