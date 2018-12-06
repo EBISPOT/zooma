@@ -112,9 +112,8 @@ def main():
             doc['tag'] = stag
             documents.append(doc)
 
-            print(json.dumps(doc))
-            requests.post('http://scrappy:8081/recommendations', json.dumps(doc))
-            # requests.post('http://localhost:8081/recommendations', data=doc)
+            # print(json.dumps(doc))
+            requests.post('http://zooma-solr:8080/recommendations', json.dumps(doc))
                 
 
     with open('rules.json', 'w') as outfile:
