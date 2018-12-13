@@ -57,25 +57,26 @@ public class RecommendationController {
 
         SimpleQuery solrQuery = new SimpleQuery();
 
-        Criteria queryCriteria = new Criteria();
+        Criteria queryCriteria = new Criteria("propertiesTypeTag").contains(target).or(new Criteria("propertiesValueTag").contains(target));
 
         if (propertyTypes != null) {
             String typesOr = String.join(" OR ", propertyTypes);
-            queryCriteria.or("propertiesType").contains(typesOr);
+            queryCriteria.and(new Criteria("propertiesType").contains(typesOr));
         }
 
         if (propertyValues != null) {
             String valuesOr = String.join(" OR ", propertyValues);
-            queryCriteria.or("propertiesValue").contains(valuesOr);
+            queryCriteria.and(new Criteria("propertiesValue").contains(valuesOr));
+
         }
 
-        queryCriteria.and("propertiesTypeTag").or("propertiesValuesTag").contains(target);
+//        queryCriteria.and("propertiesTypeTag").or("propertiesValuesTag").contains(target);
 
 //        solrQuery.addCriteria(new Criteria("propertiesType").contains(typesOr).or("propertiesValue").contains(valuesOr).and("propertiesTypeTag").contains(target));
 
         solrQuery.addCriteria(queryCriteria);
-
         System.out.println(solrQuery.getCriteria().toString());
+
         Page<Recommendation> recommendationCollection=  solrTemplate.query(solrQuery, Recommendation.class);
 
         PagedResources<Recommendation> resources = assembler.toResource(recommendationCollection, linkTo(methodOn(RecommendationController.class).recommend(propertyTypes, propertyValues, target, assembler, pageable)).withSelfRel());
