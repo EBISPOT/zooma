@@ -61,7 +61,7 @@ public class RecommendationController {
 
         if (propertyTypes != null) {
             String typesOr = String.join(" OR ", propertyTypes);
-            queryCriteria.and(new Criteria("propertiesType").contains(typesOr));
+            queryCriteria = queryCriteria.connect().and(new Criteria("propertiesType").contains(typesOr));
         }
 
         if (propertyValues != null) {
