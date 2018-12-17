@@ -25,6 +25,7 @@ steps):
 ```bash
 docker build -f NeoDockerfile -t neo-preconf4zooma .
 docker build -f SolrDockerfile -t solr-preconf4zooma .
+docker build -f AprioriDockerfile -t python-preconf4apriori .
 docker build -t zooma .
 ```
 
@@ -65,6 +66,22 @@ internal Solr endpoint at <http://localhost:8983>
 internal Neo4j endpoint at <http://localhost:7474>
 
 internal RabbitMQ endpoint at <http://localhost:15672>
+
+## Populate the recommender
+
+Finally, to enable the zooma recommender endpoint on zooma-solr, independently
+of the docker compose file you need to run the image python-preconf4apriori as a
+container attached to the zooma stack's default network:
+
+```bash
+docker run --network=zooma_default python-preconf4apriori
+```
+
+This should be run once only, and will populate the recommendations Solr core
+from empty, fed by the contents of the annotations core. You can check the load
+status, after the command prompt has returned, by checking data usage for the
+recommendations core in the Solr web interface; it should be a lot more than 71
+bytes (the usual value if it is empty)!
 
 ## Take Zooma down
 

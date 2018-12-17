@@ -114,6 +114,7 @@ services:
             # - ./zooma-solr/src/main/sample_data/data/:/home/mysolrhome/annotation/data
             # - ./mysolrhome/:/home/mysolrhome
             - solr_data:/home/mysolrhome/annotation/data
+            - solr_recommendations:/home/mysolrhome/recommendation/data
         command: ["solr", "-f"]
         # command: ["solr", "-f",  "create_core", "-c", "apriori"]
     mongo:
