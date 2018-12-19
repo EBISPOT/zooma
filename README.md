@@ -14,19 +14,22 @@ Install Maven and JDK 8. Then run:
 mvn package
 ```
 
-Make sure you edit `Dockerfile` to enable the correct `COPY` command: this
-depends on which host you are running it from; details are documented in
-`Dockerfile` itself. Then build docker images for Zooma, customised Neo4j and
-customised Solr (the docker-compose utility is not required for any of these
-steps):
+Then build docker images for Zooma, customised Neo4j, customised Solr and the A
+Priori recommender (the docker-compose utility is not required for any of these
+steps). Also, there is no longer any need to edit `Dockerfile` to enable the
+correct `COPY` command: instead, if and only if you are running your docker
+builds on a development machine, within the development environment, you need to
+add the switch `--build-arg dev=yes` to the last two commands below (indicated
+in square brackets). More details are documented in `Dockerfile` itself, and the
+respective variants thereof. To build the images:
 
 [rem]: # (`docker-compose build`)
 
 ```bash
 docker build -f NeoDockerfile -t neo-preconf4zooma .
 docker build -f SolrDockerfile -t solr-preconf4zooma .
-docker build -f AprioriDockerfile -t python-preconf4apriori .
-docker build -t zooma .
+docker build [--build-arg dev=yes] -f AprioriDockerfile -t python-preconf4apriori .
+docker build [--build-arg dev=yes] -t zooma .
 ```
 
 Initialise docker swarm (necessary only if this is the inaugural run on the

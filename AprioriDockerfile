@@ -2,8 +2,19 @@
 
 FROM python:3.7.1-alpine AS python-preconf4apriori
 
-COPY ./zooma-apriori/apriori_requirements.txt /home/
-ADD ./zooma-apriori/efficient_apriori_pdx.py /home/
+#  On the command line, set any string value for DEV, e.g. "yes" if building in
+#  the development (as opposed to deployment) environment; otherwise leave unset
+
+ARG dev
+ENV apdir ./${dev:+zooma-apriori/}
+
+#  Copy Python code and dependencies file
+
+COPY ${apdir}/apriori_requirements.txt /home/
+ADD ${apdir}/efficient_apriori_pdx.py /home/
+
+#  Install Python dependencies and populate Solr recommender core
+
 RUN pip3 install -r /home/apriori_requirements.txt
 ENTRYPOINT [ "python3" ]
 CMD [ "/home/efficient_apriori_pdx.py" ]
