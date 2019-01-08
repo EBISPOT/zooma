@@ -147,5 +147,6 @@ services:
 volumes:
     rabbitmq_data: null
     solr_data:
+    solr_recommendations:
     mongo_data:
     neo4j_data:

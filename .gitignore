@@ -21,3 +21,6 @@ sample_data/
 /*.tar.gz
 # Directory for example source data CSVs, etc.
 /csv/
+# Other non-code text files
+/*.json
+/zooma-csv-loader/*.txt
