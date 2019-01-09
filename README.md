@@ -15,7 +15,7 @@ mvn package
 ```
 
 Then build docker images for Zooma, customised Neo4j, customised Solr and the
-Apriori recommender (the docker-compose utility is not required for any of these
+Apriori recommender (the docker‑compose utility is not required for any of these
 steps). Also, there is no longer any need to edit `Dockerfile` to enable the
 correct `COPY` command: instead, if and only if you are running your docker
 builds on a development machine, within the development environment, you need to
@@ -44,7 +44,7 @@ each container's (or service's) requirements. If Neo4j wants up to 3 GB, for
 example, it might be prudent to give docker itself access to 6 GB, depending on
 the other containerised applications in the stack. This can be configured within
 docker settings. Be aware that, confusingly, containers may crash without proper
-logging in the absence of sufficient memory to run them. Not over-throttling
+logging in the absence of sufficient memory to run them. Not over‑throttling
 memory will also make for better stack performance, as it alleviates excessive
 swapping and paging.
 
@@ -73,7 +73,7 @@ associated services. The second command should show at least 8 running
 containers (one per service). If fewer than 8 containers are reported, wait a
 few seconds and try again, because they might not have spun up quite yet. If
 after a minute or so nothing else is happening, check (in the STATUS column) for
-any recently-exited (i.e. probably failed) containers with:
+any recently‑exited (i.e. probably failed) containers with:
 
 ```bash
 docker ps --all
@@ -106,11 +106,11 @@ internal Neo4j endpoint at <http://localhost:7474>
 internal RabbitMQ endpoint at <http://localhost:15672>
 
 Note that there is currently an issue concerning the initialisation of the
-zooma-neo4j container, which hosts the zooma-neo4j API. Because it is
+zooma‑neo4j container, which hosts the zooma‑neo4j API. Because it is
 initialised with a health check, it should report a status of "healthy" or
 "unhealthy". However, a "healthy" status cannot be relied upon in isolation,
 because the health check only tests the base neo4j container for upness, not
-actual readiness. Therefore the dependent zooma-neo4j container can get spun up
+actual readiness. Therefore the dependent zooma‑neo4j container can get spun up
 too early; this will not resolve without manual intervention. So if a call to
 the API on port 8082 (see above) returns an error, just stop the container with
 the following command:
@@ -120,13 +120,13 @@ the following command:
 The zooma stack will almost immediately spin up a replacement container; by this
 time the base neo4j container should be ready for it, with high probability, so
 this time it should bring up the service successfully. Give it a few seconds and
-test by re-issuing the above API call on port 8082.
+test by re‑issuing the above API call on port 8082.
 
 
 ### Populate the recommender
 
-Finally, to enable the Zooma recommender endpoint on zooma-solr, independently
-of the docker compose file you need to run the image python-preconf4apriori as a
+Finally, to enable the Zooma recommender endpoint on zooma‑solr, independently
+of the docker compose file you need to run the image python‑preconf4apriori as a
 container attached to the zooma stack's default network:
 
 ```bash
@@ -168,11 +168,11 @@ scratch:
 
 To load data to the application in the container:
 
-- Edit the application.properties.example file in zooma-csv-loader
+- Edit the application.properties.example file in zooma‑csv‑loader
 - Rename it to application.properties
 - Run `mvn package` again
 - Run `java -jar zooma-csv-loader-<version>.jar` from the target directory of
-  zooma-csv-loader while the container is running
+  zooma‑csv‑loader while the container is running
 
 ## Persist Data
 
@@ -198,12 +198,12 @@ neo4j:
 
 `#- neo4j_data:/data`
  
-If you stop docker and re-run it with the volumes loaded, you need go to edit
-the `docker-compose.yml` file and from the zooma-neo4j service comment out the
+If you stop docker and re‑run it with the volumes loaded, you need go to edit
+the `docker-compose.yml` file and from the zooma‑neo4j service comment out the
  
 `- spring.data.neo4j.indexes.auto=assert` line ... 
  
-... and un-comment the `- spring.data.neo4j.indexes.auto=none` line.
+... and un‑comment the `- spring.data.neo4j.indexes.auto=none` line.
  
 ## Search Zooma
  
