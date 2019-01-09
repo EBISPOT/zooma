@@ -14,8 +14,8 @@ Install Maven and JDK 8. Then run:
 mvn package
 ```
 
-Then build docker images for Zooma, customised Neo4j, customised Solr and the A
-Priori recommender (the docker-compose utility is not required for any of these
+Then build docker images for Zooma, customised Neo4j, customised Solr and the
+Apriori recommender (the docker-compose utility is not required for any of these
 steps). Also, there is no longer any need to edit `Dockerfile` to enable the
 correct `COPY` command: instead, if and only if you are running your docker
 builds on a development machine, within the development environment, you need to
@@ -115,7 +115,7 @@ too early; this will not resolve without manual intervention. So if a call to
 the API on port 8082 (see above) returns an error, just stop the container with
 the following command:
 
-`docker stop `*`container_name`*
+`docker stop`*`container_name`*
 
 The zooma stack will almost immediately spin up a replacement container; by this
 time the base neo4j container should be ready for it, with high probability, so
