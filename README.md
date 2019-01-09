@@ -48,6 +48,8 @@ logging in the absence of sufficient memory to run them. Not over-throttling
 memory will also make for better stack performance, as it alleviates excessive
 swapping and paging.
 
+### Fire up Zooma
+
 Assuming that sufficient memory has been allocated, bring up docker services:
 
 [rem]: # (`docker-compose up`)
@@ -55,6 +57,39 @@ Assuming that sufficient memory has been allocated, bring up docker services:
 ```bash
 docker stack deploy --compose-file docker-compose.yml zooma
 ```
+
+### Check status of containers
+
+After a few seconds, check that the services, or containers, are all up; note
+that there is only one container per service in the current Zooma configuration.
+
+```bash
+docker stack ls
+docker container ls
+```
+
+The first command above should report the existence of the zooma stack, with 8
+associated services. The second command should show at least 8 running
+containers (one per service). If fewer than 8 containers are reported, wait a
+few seconds and try again, because they might not have spun up quite yet. If
+after a minute or so nothing else is happening, check (in the STATUS column) for
+any recently-exited (i.e. probably failed) containers with:
+
+```bash
+docker ps --all
+```
+
+If one of the containers in the zooma stack has terminated unexpectedly, you can
+investigate by typing
+
+[rem]: # (```bash)
+[rem]: # (docker logs container_name)
+[rem]: # (```)
+
+`docker logs`*`container_name`*
+
+Assuming that you have 8 running containers inside the zooma stack, check (e.g.
+with `curl`) that the following endpoints are available:
 
 public zooma-mongo api: <http://localhost:8080>
  
@@ -70,9 +105,27 @@ internal Neo4j endpoint at <http://localhost:7474>
 
 internal RabbitMQ endpoint at <http://localhost:15672>
 
-## Populate the recommender
+Note that there is currently an issue concerning the initialisation of the
+zooma-neo4j container, which hosts the zooma-neo4j API. Because it is
+initialised with a health check, it should report a status of "healthy" or
+"unhealthy". However, a "healthy" status cannot be relied upon in isolation,
+because the health check only tests the base neo4j container for upness, not
+actual readiness. Therefore the dependent zooma-neo4j container can get spun up
+too early; this will not resolve without manual intervention. So if a call to
+the API on port 8082 (see above) returns an error, just stop the container with
+the following command:
 
-Finally, to enable the zooma recommender endpoint on zooma-solr, independently
+`docker stop `*`container_name`*
+
+The zooma stack will almost immediately spin up a replacement container; by this
+time the base neo4j container should be ready for it, with high probability, so
+this time it should bring up the service successfully. Give it a few seconds and
+test by re-issuing the above API call on port 8082.
+
+
+### Populate the recommender
+
+Finally, to enable the Zooma recommender endpoint on zooma-solr, independently
 of the docker compose file you need to run the image python-preconf4apriori as a
 container attached to the zooma stack's default network:
 
