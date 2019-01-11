@@ -13,9 +13,16 @@ import requests
 
 
 def main():
+
+    #  'neo4j' and 'zooma-solr' apply only inside the docker network, but are
+    #  portable across hosts, and the preferred option
     
-    driver = GraphDatabase.driver("bolt://scrappy.ebi.ac.uk:7687")
-    # driver = GraphDatabase.driver("bolt://neo4j:7687")
+    # stackhost = {'neo' : 'scrappy.ebi.ac.uk',
+    #              'zooma_solr': 'scrappy.ebi.ac.uk'}
+    stackhost = {'neo' : 'neo4j',
+                 'zooma_solr': 'zooma-solr'}
+    
+    driver = GraphDatabase.driver("bolt://%s:7687" % stackhost['neo'])
     
     cypher_query = """
     MATCH (a)-[:HAS_PROVENANCE]->(s:Source)
@@ -113,7 +120,7 @@ def main():
             documents.append(doc)
 
             # print(json.dumps(doc))
-            requests.post('http://zooma-solr:8080/recommendations', json.dumps(doc))
+            requests.post('http://%s:8080/recommendations' % stackhost['zooma_solr'], json.dumps(doc))
                 
 
     with open('rules.json', 'w') as outfile:
