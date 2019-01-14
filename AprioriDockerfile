@@ -11,7 +11,7 @@ ENV apdir ./${dev:+zooma-apriori/}
 #  Copy Python code and dependencies file
 
 COPY ${apdir}/apriori_requirements.txt /home/
-ADD ${apdir}/efficient_apriori_pdx.py /home/
+COPY ${apdir}/efficient_apriori_pdx.py /home/
 
 #  Install Python dependencies and populate Solr recommender core
 
