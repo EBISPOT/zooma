@@ -17,9 +17,9 @@ def main():
     #  'neo4j' and 'zooma-solr' apply only inside the docker network, but are
     #  portable across hosts, and the preferred option
     
-    # stackhost = {'neo' : 'scrappy.ebi.ac.uk',
+    # stackhost = {'neo': 'scrappy.ebi.ac.uk',
     #              'zooma_solr': 'scrappy.ebi.ac.uk'}
-    stackhost = {'neo' : 'neo4j',
+    stackhost = {'neo': 'neo4j',
                  'zooma_solr': 'zooma-solr'}
     
     driver = GraphDatabase.driver("bolt://%s:7687" % stackhost['neo'])
@@ -121,7 +121,6 @@ def main():
 
             # print(json.dumps(doc))
             requests.post('http://%s:8080/recommendations' % stackhost['zooma_solr'], json.dumps(doc))
-                
 
     with open('rules.json', 'w') as outfile:
         json.dump(documents, outfile, indent=4, )
