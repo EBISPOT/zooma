@@ -422,22 +422,17 @@
   <field name="conviction" type="float" multiValued="false" stored="true"/>
   <field name="id" type="strings" multiValued="false" indexed="true" required="true" stored="true"/>
   <field name="lift" type="float" multiValued="false" stored="true"/>
-  <field name="properties.propertyType" type="strings"/>
-  <field name="properties.propertyValue" type="strings"/>
-  <!--field name="propertyType" type="text_general" omitNorms="false" multiValued="true" indexed="true" stored="true"/-->
-  <field name="propertyType" type="text_gen_lower_case" omitNorms="false" multiValued="true" indexed="true" stored="true"/>
+    <!--field name="propertyType" type="text_general" omitNorms="false" multiValued="true" indexed="true" stored="true"/-->
+  <field name="propertiesType" type="text_gen_lower_case" omitNorms="false" multiValued="true" indexed="true" stored="true"/>
   <!--field name="propertyTypeTag" type="text_general" omitNorms="false" multiValued="false" indexed="true" stored="true"/-->
-  <field name="propertyTypeTag" type="text_gen_lower_case" omitNorms="false" multiValued="false" indexed="true" stored="true"/>
+  <field name="propertiesTypeTag" type="text_gen_lower_case" omitNorms="false" multiValued="false" indexed="true" stored="true"/>
   <!--field name="propertyValue" type="text_general" omitNorms="false" multiValued="true" indexed="true" stored="true"/-->
-  <field name="propertyValue" type="text_gen_lower_case" omitNorms="false" multiValued="true" indexed="true" stored="true"/>
+  <field name="propertiesValue" type="text_gen_lower_case" omitNorms="false" multiValued="true" indexed="true" stored="true"/>
   <!--field name="propertyValueTag" type="text_general" omitNorms="false" multiValued="false" indexed="true" stored="true"/-->
-  <field name="propertyValueTag" type="text_gen_lower_case" omitNorms="false" multiValued="false" indexed="true" stored="true"/>
+  <field name="propertiesValueTag" type="text_gen_lower_case" omitNorms="false" multiValued="false" indexed="true" stored="true"/>
   <field name="support" type="float" multiValued="false" stored="true"/>
   <!--field name="tag" type="text_general" omitNorms="false" multiValued="false" indexed="true" stored="true"/-->
   <field name="tag" type="text_gen_lower_case" omitNorms="false" multiValued="false" indexed="true" stored="true"/>
-  <field name="tag.propertyType" type="strings"/>
-  <field name="tag.propertyValue" type="strings"/>
-  <field name="tag.tag" type="strings"/>
   <dynamicField name="*_txt_en_split_tight" type="text_en_splitting_tight" indexed="true" stored="true"/>
   <dynamicField name="*_descendent_path" type="descendent_path" indexed="true" stored="true"/>
   <dynamicField name="*_ancestor_path" type="ancestor_path" indexed="true" stored="true"/>

@@ -4,7 +4,7 @@ FROM python:3.7.1-alpine AS python-preconf4apriori
 
 #  On the command line, we used to have to set any string value for DEV, e.g.
 #  "yes" if building in the development (as opposed to deployment) environment;
-#  otherwise it was unset. This has become  obsolete because the zooma-apriori
+#  otherwise it was unset. This has become obsolete because the zooma-apriori
 #  subdirectory is now used in both development and deployment environments.
 
 ARG dev
