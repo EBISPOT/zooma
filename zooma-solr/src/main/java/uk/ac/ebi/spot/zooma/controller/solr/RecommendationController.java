@@ -66,13 +66,13 @@ public class RecommendationController {
 
         if (propertyValues != null) {
             String valuesOr = String.join(" OR ", propertyValues);
-            queryCriteria.and(new Criteria("propertiesValue").contains(valuesOr));
-
+            // queryCriteria.and(new Criteria("propertiesValue").contains(valuesOr));
+            queryCriteria = queryCriteria.connect().and(new Criteria("propertiesValue").contains(valuesOr));
         }
 
-//        queryCriteria.and("propertiesTypeTag").or("propertiesValuesTag").contains(target);
+        // queryCriteria.and("propertiesTypeTag").or("propertiesValuesTag").contains(target);
 
-//        solrQuery.addCriteria(new Criteria("propertiesType").contains(typesOr).or("propertiesValue").contains(valuesOr).and("propertiesTypeTag").contains(target));
+        // solrQuery.addCriteria(new Criteria("propertiesType").contains(typesOr).or("propertiesValue").contains(valuesOr).and("propertiesTypeTag").contains(target));
 
         solrQuery.addCriteria(queryCriteria);
         System.out.println(solrQuery.getCriteria().toString());
