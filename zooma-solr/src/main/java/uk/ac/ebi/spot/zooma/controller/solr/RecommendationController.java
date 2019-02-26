@@ -57,17 +57,29 @@ public class RecommendationController {
 
         SimpleQuery solrQuery = new SimpleQuery();
 
-        Criteria queryCriteria = new Criteria("propertiesTypeTag").contains(target).or(new Criteria("propertiesValueTag").contains(target));
+        Criteria queryCriteria = (new Criteria("propertiesTypeTag").contains(target).or(new Criteria("propertiesValueTag").contains(target))).connect();
 
         if (propertyTypes != null) {
+            /*
             String typesOr = String.join(" OR ", propertyTypes);
             queryCriteria = queryCriteria.connect().and(new Criteria("propertiesType").contains(typesOr));
+             */
+
+            for(String propertyType : propertyTypes) {
+                queryCriteria = queryCriteria.and(new Criteria("propertiesType").contains(propertyType));
+            }
         }
 
         if (propertyValues != null) {
+            /*
             String valuesOr = String.join(" OR ", propertyValues);
             // queryCriteria.and(new Criteria("propertiesValue").contains(valuesOr));
             queryCriteria = queryCriteria.connect().and(new Criteria("propertiesValue").contains(valuesOr));
+             */
+
+            for(String propertyValue : propertyValues) {
+                queryCriteria = queryCriteria.and(new Criteria("propertiesValue").contains(propertyValue));
+            }
         }
 
         // queryCriteria.and("propertiesTypeTag").or("propertiesValuesTag").contains(target);
