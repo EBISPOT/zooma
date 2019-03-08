@@ -11,6 +11,7 @@ import org.springframework.data.rest.webmvc.RepositoryLinksResource;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.SimpleTermsQuery;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -19,16 +20,18 @@ import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriUtils;
 import uk.ac.ebi.spot.zooma.model.solr.Annotation;
 import uk.ac.ebi.spot.zooma.model.solr.Recommendation;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
+import java.util.ArrayList;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -55,43 +58,46 @@ public class RecommendationController {
             PagedResourcesAssembler assembler, Pageable pageable) throws IOException, SolrServerException {
 
 
-        SimpleQuery solrQuery = new SimpleQuery();
+        ArrayList<String> solrArray = new ArrayList<>();
 
-        Criteria queryCriteria = (new Criteria("propertiesTypeTag").contains(target).or(new Criteria("propertiesValueTag").contains(target))).connect();
+        String startingQueryString = "(propertiesTypeTag:*%s* OR propertiesValueTag:*%%s*)";
+        for (int i = 0; i < 2; i++) {
+            startingQueryString = String.format(startingQueryString, target);
+        }
+        // System.out.println(String.format("Criteria starting contents are:  %s", startingQueryString));
+        solrArray.add(startingQueryString);
 
         if (propertyTypes != null) {
-            /*
-            String typesOr = String.join(" OR ", propertyTypes);
-            queryCriteria = queryCriteria.connect().and(new Criteria("propertiesType").contains(typesOr));
-             */
 
+            String exclusiveSet = StringUtils.collectionToDelimitedString(propertyTypes, "|");
+
+            String propertyTypeQuerySkeleton = "propertiesType:*%s*";
             for(String propertyType : propertyTypes) {
-                queryCriteria = queryCriteria.and(new Criteria("propertiesType").contains(propertyType));
+                solrArray.add(String.format(propertyTypeQuerySkeleton, propertyType));
             }
+            solrArray.add(String.format("-propertiesType:/~(.*(%s).*)/", exclusiveSet));
         }
 
         if (propertyValues != null) {
-            /*
-            String valuesOr = String.join(" OR ", propertyValues);
-            // queryCriteria.and(new Criteria("propertiesValue").contains(valuesOr));
-            queryCriteria = queryCriteria.connect().and(new Criteria("propertiesValue").contains(valuesOr));
-             */
 
+            String exclusiveSet = StringUtils.collectionToDelimitedString(propertyValues, "|");
+
+            String propertyValueQuerySkeleton = "propertiesValue:*%s*";
             for(String propertyValue : propertyValues) {
-                queryCriteria = queryCriteria.and(new Criteria("propertiesValue").contains(propertyValue));
+                solrArray.add(String.format(propertyValueQuerySkeleton, propertyValue));
             }
+            solrArray.add(String.format("-propertiesValue:/~(.*(%s).*)/", exclusiveSet));
         }
 
-        // queryCriteria.and("propertiesTypeTag").or("propertiesValuesTag").contains(target);
-
-        // solrQuery.addCriteria(new Criteria("propertiesType").contains(typesOr).or("propertiesValue").contains(valuesOr).and("propertiesTypeTag").contains(target));
-
-        solrQuery.addCriteria(queryCriteria);
-        System.out.println(solrQuery.getCriteria().toString());
+        String solrQueryString = String.join(" AND ", solrArray);
+        System.out.println(String.format("Query string is:  %s", solrQueryString));
+        SimpleQuery solrQuery = new SimpleQuery(solrQueryString);
 
         Page<Recommendation> recommendationCollection=  solrTemplate.query(solrQuery, Recommendation.class);
 
-        PagedResources<Recommendation> resources = assembler.toResource(recommendationCollection, linkTo(methodOn(RecommendationController.class).recommend(propertyTypes, propertyValues, target, assembler, pageable)).withSelfRel());
+        PagedResources<Recommendation> resources = assembler.toResource(recommendationCollection,
+                linkTo(methodOn(RecommendationController.class).recommend(
+                        propertyTypes, propertyValues, target, assembler, pageable)).withSelfRel());
         return new ResponseEntity<>(assembler.toResource(recommendationCollection), HttpStatus.OK);
     }
 
