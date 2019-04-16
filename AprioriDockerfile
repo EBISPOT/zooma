@@ -19,5 +19,5 @@ COPY ${apdir}/efficient_apriori_pdx.py /home/
 #  Install Python dependencies and populate Solr recommender core
 
 RUN pip3 install -r /home/apriori_requirements.txt
-ENTRYPOINT [ "python3" ]
+ENTRYPOINT [ "python3", "-u" ]
 CMD [ "/home/efficient_apriori_pdx.py" ]

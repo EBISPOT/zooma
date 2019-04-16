@@ -30,6 +30,11 @@ public interface AnnotationRepository extends MongoRepository<Annotation, String
             @Param("sourceUri") String sourceUri
     );
 
+    @RestResource(path = "findByBiologicalEntity", rel = "findByBiologicalEntity")
+    Collection<Annotation> findByBiologicalEntitiesBioEntity(
+            @Param("bioEntity") String bioEntity
+    );
+
     @Override
     @RestResource(exported = false)
     void delete(String s);

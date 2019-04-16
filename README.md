@@ -133,11 +133,12 @@ container attached to the zooma stack's default network:
 docker run --network=zooma_default python-preconf4apriori
 ```
 
-This should be run once only, and will populate the recommendations Solr core
-from empty, fed by the contents of the annotations core. You can check the load
-status, after the command prompt has returned, by checking data usage for the
-recommendations core in the Solr web interface; it should be a lot more than 71
-bytes (the usual value if it is empty)!
+This will now empty and then repopulate the recommendations Solr core, fed by
+the contents of the annotations core. It can, and should, be re-run each time
+there is an update to the annotations core. You can check the load status, after
+the command prompt has returned, by checking data usage for the recommendations
+core in the Solr web interface; it should be a lot more than 71 bytes (the usual
+value if it is empty)!
 
 ## Take Zooma down
 

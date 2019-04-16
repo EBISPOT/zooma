@@ -10,6 +10,7 @@ from efficient_apriori import apriori
 from neo4j import GraphDatabase, basic_auth
 import json
 import requests
+# from urllib2 import *  # Might need if a requests post doesn't work ...
 
 
 def main():
@@ -17,9 +18,8 @@ def main():
     #  'neo4j' and 'zooma-solr' apply only inside the docker network, but are
     #  portable across hosts, and the preferred option
     
-    # stackhost = {'neo': 'scrappy.ebi.ac.uk',
-    #              'zooma_solr': 'scrappy.ebi.ac.uk'}
     stackhost = {'neo': 'neo4j',
+                 'solr': 'solr',
                  'zooma_solr': 'zooma-solr'}
     
     driver = GraphDatabase.driver("bolt://%s:7687" % stackhost['neo'])
@@ -35,11 +35,14 @@ def main():
     ;"""
     
     session = driver.session()
-    
+
+    print('Running Cypher query ...')
     results = session.run (cypher_query)
+
     
     annotations = {}
-    
+
+    print('Populating annotations object ...')
     for result in results:
         # print(result)
         bioentity = result[0]
@@ -50,14 +53,17 @@ def main():
         if bioentity not in annotations:
             annotations[bioentity] = {'properties' : [], 'tags' : []}
     
-        property = { 'propertyType' : propertyType, 'propertyValue' : propertyValue}
+        property = {'propertyType' : propertyType, 'propertyValue': propertyValue}
         annotations[bioentity]['properties'].append(property)
     
         if semanticTag:
-            tag = { 'propertyType' : propertyType, 'propertyValue' : propertyValue, 'semanticTag' : semanticTag}
+            tag = {'propertyType': propertyType, 'propertyValue': propertyValue, 'semanticTag': semanticTag}
             annotations[bioentity]['tags'].append(tag)
-    
+
+
     transactions = []
+
+    print('Populating transactions array ...')
     for key, value in annotations.items():
     
         for tag in value['tags']:
@@ -71,26 +77,36 @@ def main():
             transactions.append(entry)
     
     
-    # transactions = [('OriginTissue : Blood', 'TumorType : Primary', 'SampleDiagnosis : acute myeloid leukemia', 'TAG = OriginTissue : Blood : UBERON_0000178'),
-    #                ('OriginTissue : Blood', 'TumorType : Primary', 'SampleDiagnosis : acute myeloid leukemia','TAG = SampleDiagnosis : acute myeloid leukemia : NCIT_C3171'),
-    #                ('OriginTissue : Blood', 'TumorType : Primary', 'SampleDiagnosis : acute myeloid leukemia', 'TAG = TumorType : Primary : UBERON_0002371')
-    #                 ,
-    #                ('OriginTissue : Blood', 'TumorType : Metastatic', 'SampleDiagnosis : acute myeloid leukemia', 'TAG = OriginTissue : Blood : UBERON_0000178'),
-    #                ('OriginTissue : Blood', 'TumorType : Metastatic', 'SampleDiagnosis : acute myeloid leukemia', 'TAG = SampleDiagnosis : Metastatic acute myeloid leukemia : EFO_00002'),
-    #                ('OriginTissue : Blood', 'TumorType : Metastatic', 'SampleDiagnosis : acute myeloid leukemia', 'TAG = TumorType : Primary : ONTO_XXXX')
-    #
-    #                ]
-    print("About to build rules...")
+    # transactions = [
+    #     ('OriginTissue : Blood', 'TumorType : Primary', 'SampleDiagnosis : acute myeloid leukemia', 'TAG = OriginTissue : Blood : UBERON_0000178'),
+    #     ('OriginTissue : Blood', 'TumorType : Primary', 'SampleDiagnosis : acute myeloid leukemia','TAG = SampleDiagnosis : acute myeloid leukemia : NCIT_C3171'),
+    #     ('OriginTissue : Blood', 'TumorType : Primary', 'SampleDiagnosis : acute myeloid leukemia', 'TAG = TumorType : Primary : UBERON_0002371'),
+    #     ('OriginTissue : Blood', 'TumorType : Metastatic', 'SampleDiagnosis : acute myeloid leukemia', 'TAG = OriginTissue : Blood : UBERON_0000178'),
+    #     ('OriginTissue : Blood', 'TumorType : Metastatic', 'SampleDiagnosis : acute myeloid leukemia', 'TAG = SampleDiagnosis : Metastatic acute myeloid leukemia : EFO_00002'),
+    #     ('OriginTissue : Blood', 'TumorType : Metastatic', 'SampleDiagnosis : acute myeloid leukemia', 'TAG = TumorType : Primary : ONTO_XXXX')
+    # ]
+
+    print("Building rules...")
     itemsets, rules = apriori(transactions, min_support=0, min_confidence=0)
-    print("Rules built!")
     
-    # Print out every rule with 2 items on the left hand side,
-    # 1 item on the right hand side, sorted by lift
+    #  Print out every rule with two items on the left hand side and one item on
+    #  the right hand side, sorted by lift
     rules_rhs = filter(lambda rule:  len(rule.rhs) == 1, rules)
-    
+
+    #  Assign root of core URLs to correct node (it's a format string because we
+    #  go on to use 2 distinct ports)
+    recommender_core = 'http://%%s:%%s/%%s/recommendations' % ()
+
+    #  Empty the existing core
+    emptier_url = '%s/update?stream.body=<delete><query>*.*</query></delete>&commit=true' % (recommender_core % (stackhost['solr'], '8983', 'solr'))
+    # print('emptier_url set to: %s' % emptier_url)
+    print('Emptying pre-existing rules from recommender core ...')
+    requests.get(emptier_url)
+
     documents = []
     
     doc_cnt = 0
+    print('Writing new rules to recommender core ...')
     for rule in sorted(rules_rhs, key=lambda rule: rule.lift):
         if "TAG" in rule.rhs[0]:
     
@@ -111,7 +127,7 @@ def main():
                 doc['propertiesType'].append(type)
                 doc['propertiesValue'].append(value)
 
-            # print(rule) # Prints the rule and its confidence, support, lift, ...
+            # print(rule)  # Prints the rule and its confidence, support, lift, ...
     
             ignore, stype, svalue, stag = rule.rhs[0].split("|")
             doc['propertiesTypeTag'] = stype
@@ -120,11 +136,14 @@ def main():
             documents.append(doc)
 
             # print(json.dumps(doc))
-            requests.post('http://%s:8080/recommendations' % stackhost['zooma_solr'], json.dumps(doc))
+            requests.post(recommender_core % (stackhost['zooma_solr'], '8080', ''), json.dumps(doc))
 
-    with open('rules.json', 'w') as outfile:
+    rule_file = 'rules.json'
+    print('Saving new rules to %s ...' % rule_file)
+    with open(rule_file, 'w') as outfile:
         json.dump(documents, outfile, indent=4, )
 
+    print('Completed.')
     return "all fine"
 
 
