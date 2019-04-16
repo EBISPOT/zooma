@@ -91,14 +91,14 @@ public class RecommendationController {
 
         String solrQueryString = String.join(" AND ", solrArray);
         System.out.println(String.format("Query string is:  %s", solrQueryString));
-        SimpleQuery solrQuery = new SimpleQuery(solrQueryString);
+        SimpleQuery solrQuery = new SimpleQuery(solrQueryString, pageable);
 
         Page<Recommendation> recommendationCollection=  solrTemplate.query(solrQuery, Recommendation.class);
 
         PagedResources<Recommendation> resources = assembler.toResource(recommendationCollection,
                 linkTo(methodOn(RecommendationController.class).recommend(
                         propertyTypes, propertyValues, target, assembler, pageable)).withSelfRel());
-        return new ResponseEntity<>(assembler.toResource(recommendationCollection), HttpStatus.OK);
+        return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
 
