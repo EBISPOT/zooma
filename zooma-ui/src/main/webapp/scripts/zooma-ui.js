@@ -235,6 +235,11 @@ function populateDatasources() {
                 var desc = "<p><b>MetaboLights</b><br>is a database for Metabolomics experiments and derived information. The database is cross-species, cross-technique and covers metabolite structures and their reference spectra as well as their biological roles, locations and concentrations, and experimental data from metabolic experiments.</p>" +
                     "<p><b>DB name: 'metabolights'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
                 nameDescriptionMap["Metabolights"] = desc;
+                } else if (name == "ukbiobank"){
+                datasourceNames.push("UKBioBank");
+                var desc = "<p><b>UK BioBank</b><br>is a large long-term biobank study in the United Kingdom which is investigating the respective contributions of genetic predisposition and environmental exposure to the development of disease. This Zooma datasets contains mappings for UK BioBank traits to the Experimental Factor Ontology</p>" +
+                    "<p><b>DB name: 'ukbiobank'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
+                nameDescriptionMap["Metabolights"] = desc;
                 } else if (name == "cbi"){
                     datasourceNames.push("CBI");
                     var desc = "<p><b>Crop Bioinformatics Initiative</b><br>The CBI datasource contains a series of mappings designed to enable high-throughput " +
@@ -961,6 +966,12 @@ function renderResults(data) {
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/MetaboLightsLogo.png' " +
                             "alt='Metabolights' style='height: 22px;'/> Metabolights</a></td>";
+                }
+                else if (result[7] == "https://github.com/EBISPOT/EFO-UKB-mappings") {
+                    href = result[7];
+                    row = row + "<td><a href='" + href + "' target='_blank'>" +
+                            "<img src='images/ukbiobank.jpg' " +
+                            "alt='UKBioBank' style='height: 22px;'/> UK BioBank</a></td>";
                 }
                 else if (result[7] == "https://www.ebi.ac.uk/uniprot") {
                     row = row + "<td><a href='//www.ebi.ac.uk/uniprot' target='_blank'>" +
