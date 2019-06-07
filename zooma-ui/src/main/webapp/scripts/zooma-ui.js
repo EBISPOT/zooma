@@ -236,8 +236,8 @@ function populateDatasources() {
                     "<p><b>DB name: 'metabolights'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
                 nameDescriptionMap["Metabolights"] = desc;
                 } else if (name == "ukbiobank"){
-                datasourceNames.push("UKBioBank");
-                var desc = "<p><b>UK BioBank</b><br>is a large long-term biobank study in the United Kingdom which is investigating the respective contributions of genetic predisposition and environmental exposure to the development of disease. This Zooma datasets contains mappings for UK BioBank traits to the Experimental Factor Ontology</p>" +
+                datasourceNames.push("UKBiobank");
+                var desc = "<p><b>UK Biobank</b><br>is a large long-term biobank study in the United Kingdom which is investigating the respective contributions of genetic predisposition and environmental exposure to the development of disease. This Zooma datasets contains mappings for UK BioBank traits to the Experimental Factor Ontology</p>" +
                     "<p><b>DB name: 'ukbiobank'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
                 nameDescriptionMap["Metabolights"] = desc;
                 } else if (name == "cbi"){
@@ -971,7 +971,7 @@ function renderResults(data) {
                     href = result[7];
                     row = row + "<td><a href='" + href + "' target='_blank'>" +
                             "<img src='images/ukbiobank.jpg' " +
-                            "alt='UKBioBank' style='height: 22px;'/> UK BioBank</a></td>";
+                            "alt='UKBioBank' style='height: 22px;'/> UK Biobank</a></td>";
                 }
                 else if (result[7] == "https://www.ebi.ac.uk/uniprot") {
                     row = row + "<td><a href='//www.ebi.ac.uk/uniprot' target='_blank'>" +
