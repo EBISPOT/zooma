@@ -239,7 +239,7 @@ function populateDatasources() {
                 datasourceNames.push("UKBiobank");
                 var desc = "<p><b>UK Biobank</b><br>is a large long-term biobank study in the United Kingdom which is investigating the respective contributions of genetic predisposition and environmental exposure to the development of disease. This Zooma datasets contains mappings for UK BioBank traits to the Experimental Factor Ontology</p>" +
                     "<p><b>DB name: 'ukbiobank'</b><br><a href='" + sources[i].uri + "' target='_blank'>" + sources[i].uri + "</a></p>";
-                nameDescriptionMap["Metabolights"] = desc;
+                nameDescriptionMap["UKBiobank"] = desc;
                 } else if (name == "cbi"){
                     datasourceNames.push("CBI");
                     var desc = "<p><b>Crop Bioinformatics Initiative</b><br>The CBI datasource contains a series of mappings designed to enable high-throughput " +
