@@ -1,5 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.access;
 
+import com.google.common.base.CharMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -169,6 +170,7 @@ public class Zooma extends SourceFilteredEndpoint {
                                                          @RequestParam(required = false) String propertyType,
                                                          @RequestParam(required = false,
                                                                        defaultValue = "") String filter) {
+        propertyValue = removeProblematicCharacters(propertyValue);
         if (propertyType == null) {
             SearchType searchType = validateFilterArguments(filter);
             URI[] requiredSources = new URI[0];
@@ -238,6 +240,7 @@ public class Zooma extends SourceFilteredEndpoint {
                                                                 @RequestParam(required = false) String propertyType,
                                                                 @RequestParam(required = false,
                                                                               defaultValue = "") String filter) {
+        propertyValue = removeProblematicCharacters(propertyValue);
         if (propertyType == null) {
             SearchType searchType = validateFilterArguments(filter);
             URI[] requiredSources = new URI[0];
@@ -346,6 +349,18 @@ public class Zooma extends SourceFilteredEndpoint {
                 }
         );
         return waitForResults(f, propertyValue);
+    }
+
+    /**
+     * Some characters can make regex matches problematic. This method removes these problematic
+     * characters.
+     *
+     * Characters that are removed currently are: ()
+     *
+     * @return 
+     */
+    private static String removeProblematicCharacters(String strToCleanup) {
+        return CharMatcher.inRange('(',')').removeFrom(strToCleanup);
     }
 
     private List<AnnotationPrediction> waitForResults(Future<List<AnnotationPrediction>> f, String propertyValue) {
@@ -616,6 +631,7 @@ public class Zooma extends SourceFilteredEndpoint {
 
         return new SimpleAnnotation(annotationSummary.getURI(), biologicalEntities, property, annotationProvenance, annotationSummary.getSemanticTags().iterator().next());
     }
+
 
     @ExceptionHandler(SearchTimeoutException.class)
     @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
