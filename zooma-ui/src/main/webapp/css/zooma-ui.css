@@ -182,7 +182,7 @@ table.version {
 
 
 li:not(:last-child) {
-    margin-bottom: 5px;
+    /* margin-bottom: 5px; */
 }
 
 
@@ -205,15 +205,6 @@ li:not(:last-child) {
     display: block;
 }
 
-#zooma-info{
-    position: absolute;
-    margin-top: 1em;
-    margin-left: 5px;
-    height: 350px;
-    overflow:auto;
-
-}
-
 .jumbotron{
     padding: 18px;
     color:inherit;
@@ -224,4 +215,8 @@ li:not(:last-child) {
     margin-bottom: 10px;
     font-size: 14px;
     font-weight: 200;
+}
+
+#zooma-content {
+    padding: 8px;
 }
