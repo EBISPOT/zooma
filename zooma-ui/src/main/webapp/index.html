@@ -144,12 +144,6 @@
                                     style="resize: none; width: 98%; overflow: auto; height: 248px;"></textarea>
                             </label>
     
-                            <div style="float: left; padding: 8px 0; width: 50%">
-                                <div id="progressbar" style="height: 22px; display: none;">
-                                    <div class="progress-label"></div>
-                                </div>
-                            </div>
-    
                             <div style="float: right; padding-right: 4px">
                                 <input type="button" name="submit" value="Clear" class="submit" style="float: right"
                                     onclick="clearAll();">
@@ -160,6 +154,10 @@
                         <div style="float: left;">
                             <a href="#" class="nav-toggle icon icon-functional" data-icon="s"><span>Configure
                                     Datasources</span></a>
+    
+                            <div id="progressbar" style="height: 22px; display: none;">
+                                <div class="progress-label"></div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -306,9 +304,9 @@
             
                     <div id="zooma-results" class="row padding-top-large">
             
-                <div class="columns medium-12">
+                <div class="columns medium-12 padding-top-large">
                         <div class="row">
-                            <div class="columns medium-12">
+                            <div class="columns medium-12 padding-top-large">
                                 <h3>Results</h3>
                             </div>
                         </div>
