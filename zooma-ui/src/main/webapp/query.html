@@ -13,129 +13,118 @@
     <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> --> <!-- Not yet implemented -->
 
     <title>SPARQL &lt; ZOOMA &lt; EMBL-EBI</title>
-    <meta name="description" content="EMBL-EBI"><!-- Describe what this page is about -->
-    <meta name="keywords" content="bioinformatics, europe, institute"><!-- A few keywords that relate to the content of THIS PAGE (not the whol project) -->
-    <meta name="author" content="EMBL-EBI"><!-- Your [project-name] here -->
 
-    <!-- Mobile viewport optimized: j.mp/bplateviewport -->
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="ZOOMA | Ontology Mapping and Annotation"/>
+  <meta name="author" content="Tony Burdett"/>
+  <meta name="keywords" content="ZOOMA, ZOOMA2, ZOOMA 2, ontology mapping, ontology annotation"/>
+  <meta name="HandheldFriendly" content="true" />
+  <meta name="MobileOptimized" content="width" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#70BDBD" /> <!-- Android Chrome mobile browser tab color -->
+  <!-- Get suggested SEO and social metatags at:
+       https://www.ebi.ac.uk/style-lab/websites/patterns/meta-copy.html -->
 
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
+  <!-- Add information on the life cycle of this page -->
+  <meta name="ebi:owner" content="John Doe" /> <!-- Who should be contacted about changes -->
+  <meta name="ebi:review-cycle" content="30" /> <!-- In days, how often should the content be reviewed -->
+  <meta name="ebi:last-review" content="2015-12-20" /> <!-- The last time the content was reviewed -->
+  <meta name="ebi:expiry" content="2016-01-20" /> <!-- When this content is no longer relevant -->
 
-    <!-- CSS: implied media=all -->
-    <!-- CSS concatenated and minified via ant build script-->
-    <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/boilerplate-style.css">
-    <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-global.css" type="text/css" media="screen">
-    <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/ebi-visual.css" type="text/css" media="screen">
-    <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/984-24-col-fluid.css" type="text/css" media="screen">
+  <!-- If you link to any other sites frequently, consider optimising performance with a DNS prefetch -->
+  <link rel="dns-prefetch" href="//www.ebi.ac.uk" />
 
-    <!-- you can replace this with [projectname]-colours.css. See //frontier.ebi.ac.uk/web/style/colour for details of how to do this -->
-    <!-- also inform ES so we can host your colour palette file -->
-    <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/css/compliance/develop/embl-petrol-colours.css" type="text/css" media="screen">
+  <!-- If you have custom icon, replace these as appropriate.
+       You can generate them at realfavicongenerator.net -->
+  <link rel="icon" type="image/x-icon" href="https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/images/logos/EMBL-EBI/favicons/favicon.ico" />
+  <link rel="icon" type="image/png" href="https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/images/logos/EMBL-EBI/favicons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/images/logos/EMBL-EBI/favicons/android-chrome-192x192.png" /> <!-- Android (192px) -->
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/images/logos/EMBL-EBI/favicons/apple-icon-114x114.png" /> <!-- For iPhone 4 Retina display (114px) -->
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/images/logos/EMBL-EBI/favicons/apple-icon-72x72.png" /> <!-- For iPad (72px) -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/images/logos/EMBL-EBI/favicons/apple-icon-144x144.png" /> <!-- For iPad retinat (144px) -->
+  <link rel="apple-touch-icon-precomposed" href="https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/images/logos/EMBL-EBI/favicons/apple-icon-57x57.png" /> <!-- For iPhone (57px) -->
+  <link rel="mask-icon" href="https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/images/logos/EMBL-EBI/favicons/safari-pinned-tab.svg" color="#ffffff" /> <!-- Safari icon for pinned tab -->
+  <meta name="msapplication-TileColor" content="#2b5797" /> <!-- MS Icons -->
+  <meta name="msapplication-TileImage" content="//ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/images/logos/EMBL-EBI/favicons/mstile-144x144.png" />
 
-    <!-- for production the above can be replaced with -->
-    <!--
-    <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/css/compliance/mini/ebi-fluid-embl.css">
-    -->
     <link rel="stylesheet" href="css/lode-style.css" type="text/css" media="screen">
-
-
-    <style type="text/css">
-            /* You have the option of setting a maximum width for your page, and making sure everything is centered */
-            /* body { max-width: 1600px; margin: 0 auto; } */
-    </style>
-
     <link rel="stylesheet" href="css/thickbox.css" type="text/css" media="screen">
-    <link rel="stylesheet" href="css/lode-style.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="codemirror/codemirror.css" type="text/css" media="screen">
 
-    <!-- end CSS-->
+  <!-- CSS: implied media=all -->
+  <!-- CSS concatenated and minified via ant build script-->
 
+    <link rel="stylesheet" href="css/zooma-ui.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="css/jquery.jscrollpane.css" type="text/css" media="screen"/>
+    <link rel="stylesheet"
+          href="//www.gstatic.com/freebase/suggest/3_1/suggest.min.css"
+          type="text/css"
+          media="screen"/>
+    <link rel="stylesheet"
+          href="//code.jquery.com/ui/1.8.18/themes/smoothness/jquery-ui.css"
+          type="text/css"
+          media="screen"/>
 
-    <!-- All JavaScript at the bottom, except for Modernizr / Respond.
-Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries
-For optimal performance, use a custom Modernizr build: www.modernizr.com/download/ -->
+  <link rel="stylesheet" href="https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/css/ebi-global.css" type="text/css" media="all" />
+  <link rel="stylesheet" href="https://dev.ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.2/fonts.css" type="text/css" media="all" />
 
-    <!-- Full build -->
-    <!-- <script src="//www.ebi.ac.uk/web_guidelines/js/libs/modernizr.minified.2.1.6.js"></script> -->
+  <!-- Use this CSS file for any custom styling -->
+  <!--
+    <link rel="stylesheet" href="css/custom.css" type="text/css" media="all" />
+  -->
 
-    <!-- custom build (lacks most of the "advanced" HTML5 support -->
-    <script src="//www.ebi.ac.uk/web_guidelines/js/libs/modernizr.custom.49274.js"></script>
+  <!-- If you have a custom header image or colour -->
+  <!--
+  <meta name="ebi:masthead-color" content="#000" />
+  <meta name="ebi:masthead-image" content="//www.ebi.ac.uk/web_guidelines/EBI-Framework/images/backgrounds/embl-ebi-background.jpg" />
+  -->
 
+  <!-- you can replace this with theme-[projectname].css. See http://www.ebi.ac.uk/web/style/colour for details of how to do this -->
+  <!-- also inform ES so we can host your colour palette file -->
+  <link rel="stylesheet" href="https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/css/theme-embl-petrol.css" type="text/css" media="all" />
+  <!-- end CSS-->
 </head>
 
-<body onload="$('#sparql-endpoint').sparql({
-    namespaces : lodeNamespacePrefixes,
-    example_queries: exampleQueries,
-    default_query: 'SELECT DISTINCT ?annotation WHERE {\n?annotation a oac:DataAnnotation \n}',
-    servlet_base : 'v2/api',
-    logging: false,
-    inference: false});"  class="level2"><!-- add any of your classes or IDs -->
+<body class="level2"><!-- add any of your classes or IDs -->
+
 <div id="skip-to">
-    <ul>
-        <li><a href="#content">Skip to main content</a></li>
-        <li><a href="#local-nav">Skip to local navigation</a></li>
-        <li><a href="#global-nav">Skip to EBI global navigation menu</a></li>
-        <li><a href="#global-nav-expanded">Skip to expanded EBI global navigation menu (includes all sub-sections)</a></li>
-    </ul>
-</div>
-
-<div id="wrapper" class="container_24">
-<header>
-    <div id="global-masthead" class="masthead grid_24">
-        <!--This has to be one line and no newline characters-->
-        <a href="//www.ebi.ac.uk/" title="Go to the EMBL-EBI homepage"><img src="//www.ebi.ac.uk/web_guidelines/images/logos/EMBL-EBI/EMBL_EBI_Logo_white.png" alt="EMBL European Bioinformatics Institute"></a>
-
-        <nav>
-            <ul id="global-nav">
-                <!-- set active class as appropriate -->
-                <li class="first active" id="services"><a href="//www.ebi.ac.uk/services">Services</a></li>
-                <li id="research"><a href="//www.ebi.ac.uk/research">Research</a></li>
-                <li id="training"><a href="//www.ebi.ac.uk/training">Training</a></li>
-                <li id="industry"><a href="//www.ebi.ac.uk/industry">Industry</a></li>
-                <li id="about" class="last"><a href="//www.ebi.ac.uk/about">About us</a></li>
-            </ul>
-        </nav>
-
+    <a href="#content">Skip to main content</a>
     </div>
+    
+    <header id="masthead-black-bar" class="clearfix masthead-black-bar">
+    </header>
 
-    <div id="local-masthead" class="masthead grid_24 nomenu">
+<div id="content" role="main">
 
-        <!-- local-title -->
-        <!-- NB: for additional title style patterns, see //frontier.ebi.ac.uk/web/style/patterns -->
+    <div data-sticky-container>
+        <header id="masthead" class="masthead" style="background-image: url('https://www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/backgrounds/embl-ebi-background-4.jpg');" data-sticky data-sticky-on="large" data-top-anchor="content:top" data-btm-anchor="content:bottom">
+          <div class="masthead-inner row">
+            <!-- local-title -->
+            <div class="columns medium-12" id="local-title">
+              <h1><a href="../../" title="Back to ZOOMA homepage"><img style="height: 100px;" src="images/zooma_logo_new.png"/></a></h1>
+            </div>
+            <!-- /local-title -->
+            <!-- local-nav -->
+            <nav >
+              <ul id="local-nav" class="dropdown menu float-left" data-description="navigational">
+                <li><a href="./">Home</a></li>
+                <li><a href="./sparql">Explore</a></li>
+                <li><a href="./docs">Help</a></li>
+                <li><a href="./about.html">About ZOOMA</a></li>
+              </ul>
+            </nav>
+            <!-- /local-nav -->
+          </div>
+        </header>
+      </div>
 
-        <div class="grid_12 alpha" id="local-title">
-            <h1><a href="./" title="">ZOOMA</a></h1>
+      <div class="row">
+        <div class="columns medium-12">
+          <h3>Zooma SPARQL Endpoint</h3>
+
+          <p>This is the Zooma SPARQL Endpoint.  You can use the box below to explore the Zooma annotation repository in depth.</p>
+          <div id="sparql-endpoint"></div>
         </div>
-        <!-- /local-title -->
-
-        <!-- local-nav -->
-        <nav>
-            <ul class="grid_24" id="local-nav">
-                <li class="first">
-                    <a href="./">Home</a>
-                </li>
-                <li class="active">
-                    <a href="./sparql">Explore</a>
-                </li>
-                <li>
-                    <a href="./docs">Help</a>
-                </li>
-                <li class="last">
-                    <a href="./about.html">About ZOOMA</a>
-                </li>
-            </ul>
-        </nav>
-        <!-- /local-nav -->
-
-    </div>
-</header>
-
-<div id="content" role="main" class="grid_24 clearfix">
-
-    <h3>Zooma SPARQL Endpoint</h3>
-
-    <p>This is the Zooma SPARQL Endpoint.  You can use the box below to explore the Zooma annotation repository in depth.</p>
-    <div id="sparql-endpoint"/>
+      </div>
 
 </div>
 
@@ -194,35 +183,42 @@ For optimal performance, use a custom Modernizr build: www.modernizr.com/downloa
 </footer>
 </div> <!--! end of #wrapper -->
 
-
-<!-- JavaScript at the bottom for fast page loading -->
-
-<!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
-<!--
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-<script>window.jQuery || document.write('<script src="../js/libs/jquery-1.6.2.min.js"><\/script>')</script>
--->
-
-
-<!-- Your custom JavaScript file scan go here... change names accordingly -->
-<!--
-<script defer="defer" src="//www.ebi.ac.uk/web_guidelines/js/plugins.js"></script>
-<script defer="defer" src="//www.ebi.ac.uk/web_guidelines/js/script.js"></script>
--->
-<script defer="defer" src="//www.ebi.ac.uk/web_guidelines/js/cookiebanner.js"></script>
-<script defer="defer" src="//www.ebi.ac.uk/web_guidelines/js/foot.js"></script>
-
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<script type="text/javascript" src="scripts/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="scripts/jquery.jscrollpane.min.js"></script>
+<script type="text/javascript" src="scripts/jquery.sidebar.min.js"></script>
 
+<script type="text/javascript" src="codemirror/codemirror.js"></script>
+<script type="text/javascript" src="codemirror/sparql.js"></script>
 <script type="text/javascript" src="scripts/namespaces.js"></script>
 <script type="text/javascript" src="scripts/queries.js"></script>
 <script type="text/javascript" src="scripts/lode.js"></script>
 <script type="text/javascript" src="scripts/thickbox.js"></script>
-<script type="text/javascript" src="codemirror/codemirror.js"></script>
-<link rel="stylesheet" href="codemirror/codemirror.css">
-<script type="text/javascript" src="codemirror/sparql.js"></script>
-<!-- end scripts-->
+
+<script defer="defer" src="//ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/js/script.js"></script>
+
+<!-- The Foundation theme JavaScript -->
+<script src="//ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/libraries/foundation-6/js/foundation.js"></script>
+<script src="//ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/js/foundationExtendEBI.js"></script>
+<script type="text/JavaScript">$(document).foundation();</script>
+<script type="text/JavaScript">$(document).foundationExtendEBI();</script>
+
+<script>
+
+(function($) {
+
+$('#sparql-endpoint').sparql({
+    namespaces : lodeNamespacePrefixes,
+    example_queries: exampleQueries,
+    default_query: 'SELECT DISTINCT ?annotation WHERE {\n?annotation a oac:DataAnnotation \n}',
+    servlet_base : 'v2/api',
+    logging: false,
+    inference: false});
+
+})(jQuery);
+
+</script>
 
 <!-- Google Analytics -->
 <script>
