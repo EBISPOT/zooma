@@ -1,0 +1,70 @@
+{
+    "sources": [
+        {
+            "url": "http://www.ebi.ac.uk/gxa",
+            "linkTo": "https://www.ebi.ac.uk/gxa",
+            "name": "Expression Atlas",
+            "logo": "images/expression-atlas.png"
+        },
+        {
+            "url": "http://www.genome.gov/gwastudies/",
+            "linkTo": "//www.ebi.ac.uk/gwas",
+            "name": "GWAS",
+            "logo": "images/nhgri.png"
+        },
+        {
+            "url": "https://www.ebi.ac.uk/fg/sym",
+            "linkTo": "https://www.ebi.ac.uk/fg/sym",
+            "name": "CellularPhenoTypes",
+            "logo": "images/CelPh_logo.gif"
+        },
+        {
+            "url": "https://www.ebi.ac.uk/metabolights",
+            "linkTo": "https://www.ebi.ac.uk/metabolights",
+            "name": "Metabolights",
+            "logo": "images/MetaboLightsLogo.png"
+        },
+        {
+            "url": "https://github.com/EBISPOT/EFO-UKB-mappings",
+            "linkTo": "https://github.com/EBISPOT/EFO-UKB-mappings",
+            "name": "UKBioBank",
+            "logo": "images/ukbiobank.jpg"
+        },
+        {
+            "url": "https://www.ebi.ac.uk/uniprot",
+            "linkTo": "https://www.ebi.ac.uk/uniprot",
+            "name": "UniProt",
+            "logo": "images/uniprot_logo.gif"
+        },
+        {
+            "url": "https://www.targetvalidation.org",
+            "linkTo": "https://www.targetvalidation.org",
+            "name": "OpenTargets",
+            "logo": "images/ot_logo_webheader.svg"
+        },
+        {
+            "url": "https://www.ebi.ac.uk/eva",
+            "linkTo": "https://www.ebi.ac.uk/eva",
+            "name": "EVA ClinVar",
+            "logo": "images/eva_logo.png"
+        },
+        {
+            "url": "https://cells.ebisc.org/",
+            "linkTo": "https://cells.ebisc.org/",
+            "name": "EBiSC",
+            "logo": "images/EBiSC-logo.png"
+        },
+        {
+            "url": "https://www.ebi.ac.uk/biosamples",
+            "linkTo": "https://www.ebi.ac.uk/biosamples",
+            "name": "CBI",
+            "logo": "images/cbi_icon.png"
+        },
+        {
+            "url": "https://www.ncbi.nlm.nih.gov/clinvar",
+            "linkTo": "https://www.ncbi.nlm.nih.gov/clinvar",
+            "name": "ClinVar xRefs",
+            "logo": "images/clinvarxrefs-logo.png"
+        }
+    ]
+}
