@@ -37,29 +37,28 @@ public abstract class ZOOMA2BackingUpDriver {
         if (!Files.exists(backupPath)) {
             out.print(
                     "Backing up " + path.toString() + " to " + backupPath.toString() + "...");
-            Files.move(path,
+            Files.copy(path,
                        backupPath,
-                       StandardCopyOption.REPLACE_EXISTING,
-                       StandardCopyOption.ATOMIC_MOVE);
+                       StandardCopyOption.REPLACE_EXISTING);
             out.println("ok!");
         }
         else {
             out.print(
                     "Backup already exists for today, clearing " + path.toString() + "...");
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-            out.println("ok!");
         }
+        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        out.println("ok!");
     }
 }
