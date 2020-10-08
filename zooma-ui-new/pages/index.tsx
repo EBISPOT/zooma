@@ -1,4 +1,4 @@
-import EBIMasthead, { EBIStyles, EBIScripts, EBIFooter } from "../components/EBI";
+import { EBIMasthead, EBIScripts, EBIFooter } from "../components/EBI";
 import Head from "next/head";
 import ZoomaNav from "../components/ZoomaNav";
 import { Fragment, Component, ChangeEvent } from "react";

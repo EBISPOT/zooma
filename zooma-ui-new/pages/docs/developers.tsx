@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React, { Fragment } from "react";
 import { Row } from "react-foundation";
-import EBIMasthead, { EBIFooter, EBIScripts } from "../../components/EBI";
+import { EBIMasthead, EBIFooter, EBIScripts } from "../../components/EBI";
 import ZoomaNav from "../../components/ZoomaNav";
 
 export default function developerDocs() {

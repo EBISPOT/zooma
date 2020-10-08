@@ -2,18 +2,10 @@
 import { Fragment, Component } from "react"
 import Head from "next/head"
 
-export default function EBIMasthead() {
+export function EBIMasthead() {
     return (
         <header id="masthead-black-bar" className="clearfix masthead-black-bar">
         </header>
-    )
-}
-
-export function EBIStyles() {
-
-    return (
-        <Fragment>
-        </Fragment>
     )
 }
 

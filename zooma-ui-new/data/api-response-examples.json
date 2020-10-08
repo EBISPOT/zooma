@@ -1,5 +1,5 @@
 {
-    "1": [
+    "2": [
         {
           "uri": null,
           "annotatedProperty": {
@@ -74,10 +74,10 @@
           "annotatedBiologicalEntities": []
         }
       ],
-      "2": { "fragment":"90E386B39F0AD3DA5CCBD8AAA6F14907", "namespace":"http://rdf.ebi.ac.uk/resource/zooma/gxa/", "uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907", "shortname":"gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907" },
-      "3": [ "rare genetic bone development disorder", "caenorhabditis elegans embryo stage", "genetic disorder", "abnormality of the integument", "hormone measurement", "chemical entity", "disease", "disposition", "cancer", "genetic congenital limb malformation" ],
-      "4": { "uri": "http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143", "propertyType": "organism", "propertyValue": "Mus musculus" },
-      "5": {
+      "3": { "fragment":"90E386B39F0AD3DA5CCBD8AAA6F14907", "namespace":"http://rdf.ebi.ac.uk/resource/zooma/gxa/", "uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907", "shortname":"gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907" },
+      "4": [ "rare genetic bone development disorder", "caenorhabditis elegans embryo stage", "genetic disorder", "abnormality of the integument", "hormone measurement", "chemical entity", "disease", "disposition", "cancer", "genetic congenital limb malformation" ],
+      "5": { "uri": "http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143", "propertyType": "organism", "propertyValue": "Mus musculus" },
+      "6": {
         "uri": "http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907",
         "annotatedProperty": {
           "uri": "http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143",
