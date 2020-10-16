@@ -1,0 +1,104 @@
+
+
+.ontotools-masthead {
+    background-color: black;
+    background-image: url('https://www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/backgrounds/embl-ebi-background-4.jpg');
+}
+
+.ontotools-logo {
+    height: 100px;
+}
+
+main {
+    padding: 8px;
+}
+
+#zooma-query-box {
+    height: 100%;
+}
+
+.automatic {
+    background-color: #DEFFDE;
+}
+
+.curation {
+    background-color: #FFFDC4 !important;
+}
+
+.unmapped {
+    display: none;
+}
+
+.context-help-wrapper {
+    position: relative;
+    top: 20px;
+    left: 20px;
+    z-index: 1;
+    display: none;
+}
+
+.context-help-content {
+    position: absolute;
+    border: 1px solid #000000;
+    background-color: #f7f7f7;
+    display: none;
+}
+
+.context-help-label {
+    font-weight: inherit;
+    color: inherit;
+}
+
+.context-help-label:after {
+    font-family: 'EBI-Generic';
+    font-size: 70%;
+    color: inherit !important;
+    content: attr(data-icon);
+    vertical-align: super;
+    margin: 0 0 0 0;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.modal-outer {
+    z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 15%;
+}
+
+.modal-inner {
+    background-color: white;
+    border-radius: 8px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.modal-title h1 {
+    font-size: x-large;
+    color: white;
+    margin: 0;
+}
+
+.modal-title {
+    background-color: #007c82;
+    padding: 10px;
+}
+
+.modal-body {
+    padding: 8px;
+}
+
+
+.sortable-handle {
+    color: #bbb;
+}
+.sortable {
+    z-index: 9999;
+}

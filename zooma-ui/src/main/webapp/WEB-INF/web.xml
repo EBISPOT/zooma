@@ -108,4 +108,13 @@
         <res-auth>Container</res-auth>
     </resource-ref>
 
+
+
+
+    <!-- https://stackoverflow.com/questions/41246261/react-routing-is-able-to-handle-different-url-path-but-tomcat-returns-404-not-av/41249464#41249464 -->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/index.html</location>
+    </error-page>
+
 </web-app>
