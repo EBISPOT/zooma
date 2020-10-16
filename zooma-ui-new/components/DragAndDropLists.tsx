@@ -29,8 +29,8 @@ const getListStyle = isDraggingOver => ({
     padding: grid,
     width: 250,
     height: '300px',
-    overflowY: 'scroll',
-    overflowX: 'none'
+    overflowY: 'scroll' as any,
+    overflowX: 'none' as any
 });
 
 export interface ListEntry {

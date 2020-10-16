@@ -15,10 +15,10 @@
     "install": "^0.13.0",
     "next": "9.5.3",
     "npm": "^6.14.8",
-    "react": "16.13.1",
+    "react": "16.14.0",
     "react-autocomplete": "^1.8.1",
     "react-beautiful-dnd": "^13.0.0",
-    "react-dom": "16.13.1",
+    "react-dom": "16.14.0",
     "react-foundation": "^0.9.6",
     "sass": "^1.26.10"
   },

@@ -23,6 +23,15 @@ function ZoomaApp({ Component, pageProps }) {
           <meta name="msapplication-TileColor" content="#2b5797" /> 
           <meta name="msapplication-TileImage" content="//ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/images/logos/EMBL-EBI/favicons/mstile-144x144.png" />
           <link rel="stylesheet" href="https://dev.ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.2/fonts.css"/>
+          <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+          <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+          <script type="text/javascript" src="codemirror/codemirror.js"></script>
+          <script type="text/javascript" src="codemirror/sparql.js"></script>
+          <script type="text/javascript" src="scripts/lode.js"></script>
+          <script type="text/javascript" src="scripts/thickbox.js"></script>
+          <link rel="stylesheet" href="css/lode-style.css" type="text/css" media="screen" />
+          <link rel="stylesheet" href="css/thickbox.css" type="text/css" media="screen" />
+          <link rel="stylesheet" href="codemirror/codemirror.css" type="text/css" media="screen" />
         </Head>
         <Component {...pageProps} />
     </Fragment>
