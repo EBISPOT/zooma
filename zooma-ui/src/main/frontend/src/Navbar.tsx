@@ -16,7 +16,7 @@ export default function Navbar(props:NavProps) {
                 <Column small={12} medium={12} id="local-title">
                     <h1>
                         <Link to="/" title="Back to ZOOMA homepage">
-                            <img className="ontotools-logo" src="/images/zooma_logo_new.png" />
+                            <img className="ontotools-logo" src={process.env.PUBLIC_URL + "images/zooma_logo_new.png"} />
                         </Link>
                     </h1>
                 </Column>
