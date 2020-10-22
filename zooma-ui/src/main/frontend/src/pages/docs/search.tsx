@@ -19,7 +19,7 @@ export default function docs() {
                     this box - it should populate the box with example terms. Hit 'Annotate'. A progress bar
                     appears, showing you when ZOOMA has mapped your terms.
                 </p>
-                <img src="/images/show-me-examples.png" className="grid_6 omega" alt="Show me some examples..."/>
+                <img src={process.env.PUBLIC_URL + "/images/show-me-examples.png"} className="grid_6 omega" alt="Show me some examples..."/>
                 <p>
                     Once complete, you should see a table of results. Green shows that ZOOMA could map this term
                     "automatically", i.e. with a HIGH degree of confidence. Yellow shows that ZOOMA was less sure with a GOOD, MEDIUM or LOW degree of confidence, and
@@ -28,7 +28,7 @@ export default function docs() {
                     our search. If you look at the text box, you'll see when you clicked "Show me some examples..." it
                     populated a type after some values, with a tab between them, e.g.: <i>cooked broccoli	compound</i>.
                 </p>
-                <img style={{textAlign: 'center'}} src="/images/full-example.png" alt="A ZOOMA table of results"/>
+                <img style={{textAlign: 'center'}} src={process.env.PUBLIC_URL + "/images/full-example.png"} alt="A ZOOMA table of results"/>
                 <p>
                     Let's look at some of the examples in a little more detail, and try to make it harder for Zooma to find a result.
                     First let us limit it's sources by annotating the terms to the Expression Atlas datasource.<br/> Zooma gives you the option
@@ -37,7 +37,7 @@ export default function docs() {
                     From the 'Configure Datasources' gear, select 'Configure Curated Datasources' and select only Expression Atlas as the source to be searched in.
                 </p>
                 <img style={{textAlign: 'center'}} 
-                     src="/images/configure-datasources.png"
+                     src={process.env.PUBLIC_URL + "/images/configure-datasources.png"}
                      alt="Configure Zooma Datasources"/>
                 <p>
                     Next limit the terms to the four ones shown below, and remove the type 'phenotype' from spastic paraplegia 10. <br/>
@@ -45,7 +45,7 @@ export default function docs() {
                     Again we can see that some terms where mapped with high confidence, and others with good. If we look at the terms that weren't mapped,
                     in the case of spastic paraplegia 10, we can see that Zooma will not find a mapping in the Expression Atlas datasource.
                 </p>
-                <img style={{textAlign: 'center'}} src="/images/results.png" alt="A ZOOMA table of results"/>
+                <img style={{textAlign: 'center'}} src={process.env.PUBLIC_URL + "/images/results.png"} alt="A ZOOMA table of results"/>
                 <p>
                     Lets try to help Zooma out again, by adding some context.
                     If we add a type to spastic paraplegia 10, we can improve our confidence. Modify the input box -
@@ -53,14 +53,14 @@ export default function docs() {
                     that the third result in our table has gone yellow with a good confidence.
                 </p>
                 <img style={{textAlign: 'center'}} 
-                     src="/images/results-extra-type.png"
+                     src={process.env.PUBLIC_URL + "/images/results-extra-type.png"}
                      alt="More results, with additional typing"/>
                 <p>
                     If you open the 'Configure Datasources' gear, and de-select the Expression Atlas datasource, Zooma will look into all the available curated datasources.
                     If you Annotate the terms once again, you will see that Zooma has found a mapping with high confidence in the EVA ClinVar database for spastic paraplegia.
                 </p>
                 <img style={{textAlign: 'center'}} 
-                     src="/images/results-all-datasources.png"
+                     src={process.env.PUBLIC_URL + "/images/results-all-datasources.png"}
                      alt="More results, with additional datasources"/>
                 <h3>Worked Examples</h3>
                 <p>
@@ -141,11 +141,11 @@ export default function docs() {
                     select from the available curated datasources, or look for an ontology in the <a href="//www.ebi.ac.uk/ols" target="_blank">Ontology Lookup Service</a>.
                 </p>
                 <img style={{textAlign: 'center'}}
-                     src="/images/configure-datasources-complete.png"
+                     src={process.env.PUBLIC_URL + "/images/configure-datasources-complete.png"}
                      alt="Configure Datasources"/>
 
                 <img style={{textAlign: 'center'}}
-                     src="/images/ontology-sources.png"
+                     src={process.env.PUBLIC_URL + "/images/ontology-sources.png"}
                      alt="Configure Ontology Sources"/>
 
                 <h3>Adding New Mappings to Zooma</h3>

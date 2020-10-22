@@ -16,32 +16,32 @@ export default function Navbar(props:NavProps) {
                 <Column small={12} medium={12} id="local-title">
                     <h1>
                         <Link to="/" title="Back to ZOOMA homepage">
-                            <img className="ontotools-logo" src={process.env.PUBLIC_URL + "images/zooma_logo_new.png"} />
+                            <img className="ontotools-logo" src={process.env.PUBLIC_URL + "/images/zooma_logo_new.png"} />
                         </Link>
                     </h1>
                 </Column>
                 <nav>
                     <ul id="local-nav" className="dropdown menu float-left" data-description="navigational">
 
-                        <li className={loc.pathname === '/' ? 'active' : ''}>
+                        <li className={loc.pathname.endsWith('/') ? 'active' : ''}>
                             <Link to="/">
                                 Home
                             </Link>
                         </li>
 
-                        <li className={loc.pathname === '/sparql' ? 'active' : ''}>
+                        <li className={loc.pathname.endsWith('/sparql') ? 'active' : ''}>
                             <Link to="/sparql">
                                 Explore
                             </Link>
                         </li>
 
-                        <li className={loc.pathname.startsWith('/docs') ? 'active' : ''}>
+                        <li className={loc.pathname.indexOf('/docs/') !== -1 ? 'active' : ''}>
                             <Link to="/docs">
                                 Help
                             </Link>
                         </li>
 
-                        <li className={loc.pathname === '/about' ? 'active' : ''}>
+                        <li className={loc.pathname.endsWith('/about') ? 'active' : ''}>
                             <Link to="/about">
                                 About
                             </Link>
