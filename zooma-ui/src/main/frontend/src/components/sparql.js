@@ -1,4 +1,5 @@
-CodeMirror.defineMode("sparql", function(config) {
+
+let mode = { name: 'sparql', fn: function(config) {
     var indentUnit = config.indentUnit;
     var curPunc;
 
@@ -167,6 +168,7 @@ CodeMirror.defineMode("sparql", function(config) {
             }
         }
     };
-});
+}}
 
-CodeMirror.defineMIME("application/x-sparql-query", "sparql");
+
+export default mode
