@@ -6,9 +6,10 @@ import ResultsTable from "../components/ResultsTable";
 import * as ZoomaApi from '../api/ZoomaApi'
 import { getDatasources, ZoomaDatasources } from "../api/ZoomaDatasources";
 import { runInThisContext } from "vm";
-import DatasourcesModal from "../components/DatasourcesModal";
+import DatasourcesModal from "../components/Datasources";
 import { ZoomaDatasourceConfig } from "../api/ZoomaDatasourceConfig";
 import * as React from 'react'
+import Datasources from "../components/Datasources";
 
 interface Props {
 }
@@ -16,7 +17,6 @@ interface Props {
 interface State {
   datasources:ZoomaDatasources|undefined
   datasourceConfig:ZoomaDatasourceConfig|undefined
-  showDatasourceModal:boolean
   query:string
   searching: boolean,
   progress:number
@@ -31,7 +31,6 @@ export default class Home extends Component<Props, State> {
       this.state = {
         datasources: undefined,
         datasourceConfig: undefined,
-        showDatasourceModal: false,
         query: '',
         searching: false,
         progress: 0,
@@ -67,21 +66,15 @@ export default class Home extends Component<Props, State> {
 
         return (
             <main>
-              {
-                this.state.showDatasourceModal &&
-                this.state.datasources &&
-                this.state.datasourceConfig &&
-                <DatasourcesModal datasources={this.state.datasources} datasourceConfig={this.state.datasourceConfig} onConfigChanged={this.onDatasourceConfigChanged} onDone={this.onDatasourcesModalDone} />
-              }
               <Row>
-                <Column small={12} medium={6} orderOnSmall={1}>
+                <h3>Query</h3>
+                <Column small={12} medium={12}>
+                        <p>Use the text box to find possible ontology mappings for free text terms in the ZOOMA repository of curated annotation knowledge. You can add one term (e.g. 'Homo sapiens') per line. If you also have a type for your term (e.g. 'organism'), put this after the term, separated by a tab.
+If you are new to ZOOMA, take a look at our getting started guide.</p>
+                </Column>
+                <Column small={12} medium={12}>
                   <Row>
-                    <Column small={6} medium={6}>
-                        <Row>
-                        What's this?
-                        </Row>
-                    </Column>
-                    <Column small={6} medium={6}>
+                    <Column small={12} medium={12}>
                         <Row className="align-right">
                             <a onClick={this.onClickShowExamples}>
                                 Show me some examples...
@@ -92,25 +85,32 @@ export default class Home extends Component<Props, State> {
                   <Row>
                           <textarea style={{minHeight: '300px'}} value={this.state.query} onChange={this.onEditQuery}></textarea>
                   </Row>
-                  <Row className="align-right">
-                      <button className="button" onClick={this.onClickDatasources} style={{marginRight: 'auto'}}>
-                        <span className="icon icon-functional" data-icon='s'></span>
-                        &nbsp; Datasources
-                        </button>
-                      <button className="button" onClick={this.onClickAnnotate}>Annotate</button>
-                      &nbsp;
-                      <button className="button secondary"
-                          disabled={this.state.results.length === 0}
-                          onClick={this.onClickClear}>Clear</button>
-                  </Row>
-                </Column>
-                <Column small={12} medium={6} orderOnSmall={2}>
-                  <Blurb />
                 </Column>
               </Row>
               <Row>
+                <h3>Datasources</h3>
                 <Column small={12} medium={12}>
-                  <h3>Results</h3>
+                        <p>ZOOMA maps text to ontology terms based on curated mappings from selected datasources (more preferred), and by searching ontologies directly (less preferred). Here, you can select which curated datasources to use, optionally ranked in order of preference. You can also select which ontologies to search directly.</p>
+                </Column>
+                <Column small={12} medium={12}>
+                    {
+                        this.state.datasources &&
+                        this.state.datasourceConfig &&
+                        <Datasources datasources={this.state.datasources} datasourceConfig={this.state.datasourceConfig} onConfigChanged={this.onDatasourceConfigChanged} />
+                    }
+                </Column>
+              </Row>
+                    <br/>
+                <Row className="align-center">
+                    <button className="button large" onClick={this.onClickAnnotate}>Annotate</button>
+                    &nbsp;
+                    <button className="button secondary large"
+                        disabled={this.state.results.length === 0}
+                        onClick={this.onClickClear}>Clear</button>
+                </Row>
+              <Row>
+                <h3>Results</h3>
+                <Column small={12} medium={12}>
                   <p>The table below shows a report describing how ZOOMA annotates text terms supplied above.</p>
                   <ResultsTable results={this.state.results} datasources={this.state.datasources} />
                 </Column>
@@ -166,17 +166,6 @@ export default class Home extends Component<Props, State> {
     onDatasourcesModalDone = () => {
       this.setState(prevState => ({ ...prevState, showDatasourceModal: false }))
     }
-}
-
-function Blurb() {
-  return (
-      <Callout>
-        <p>Zooma is a tool for mapping free text annotations to ontology term based on a curated repository of annotation knowledge.</p>
-        <p>Where mappings are not found in the curated respository one or more ontologies can be selected from the Ontology Lookup Service to increase coverage. For example if you want to map GWAS annotations select the GWAS datasource and a common disease ontology such as EFO or DOID to maximise coverage when terms have no curated mappings.</p>
-        <p>Use the text box to find possible ontology mappings for free text terms in the ZOOMA repository of curated annotation knowledge. You can add one term (e.g. 'Homo sapiens') per line. If you also have a type for your term (e.g. 'organism'), put this after the term, separated by a tab. 
-If you are new to ZOOMA, take a look at our getting started guide.</p>
-      </Callout>
-  )
 }
 
 var examples =

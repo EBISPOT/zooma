@@ -29,12 +29,6 @@ export default function Navbar(props:NavProps) {
                             </Link>
                         </li>
 
-                        <li className={loc.pathname.endsWith('/sparql') ? 'active' : ''}>
-                            <Link to="/sparql">
-                                Explore
-                            </Link>
-                        </li>
-
                         <li className={loc.pathname.indexOf('/docs/') !== -1 ? 'active' : ''}>
                             <Link to="/docs">
                                 Help

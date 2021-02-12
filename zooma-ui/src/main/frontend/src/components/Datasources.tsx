@@ -11,12 +11,12 @@ import classNames from 'classnames'
 import DragAndDropLists, { List, ListEntry } from "./DragAndDropLists"
 import { ZoomaDatasourceConfig } from "../api/ZoomaDatasourceConfig"
 import Autocomplete from 'react-autocomplete'
+import { Fragment } from 'react'
 
 interface Props {
     datasources:ZoomaDatasources
     datasourceConfig:ZoomaDatasourceConfig
     onConfigChanged:(config:ZoomaDatasourceConfig)=>void
-    onDone:()=>void
 }
 
 interface State {
@@ -24,7 +24,7 @@ interface State {
     ontoAutocomplete:string
 }
 
-export default class DatasourcesModal extends React.Component<Props, State> {
+export default class Datasources extends React.Component<Props, State> {
 
     constructor(props) {
         super(props)
@@ -53,7 +53,7 @@ export default class DatasourcesModal extends React.Component<Props, State> {
         ]
 
         return (
-            <Modal title="Configure Datasources">
+            <Fragment>
                 {/* <div className="tabs-content">
                 <ul className="tabs" data-tabs>
                     <li className={classNames('tabs-title', {'is-active': tab === 'curated'} )}><a>Curated Datasources</a></li>
@@ -66,23 +66,17 @@ export default class DatasourcesModal extends React.Component<Props, State> {
                     </p>
                 </div>
                 <button className="button">Done</button> */}
-                <Tabs>
-                    <TabItem isActive={tab === 'curated'} onClick={(e) => { this.setState({ tab: 'curated' }) }}>
-                        <a href={'#curated'} aria-selected={tab === 'curated'}>Curated Datasources</a>
-                    </TabItem>
-                    <TabItem isActive={tab === 'ontology'} onClick={(e) => { this.setState({ tab: 'ontology' }) }}>
-                        <a href={'#ontology'} aria-selected={tab === 'ontology'}>Ontology Sources</a>
-                    </TabItem>
-				</Tabs>
-				<TabsContent>
-					<TabPanel id={'curated'} isActive={tab === 'curated'}>
+				<Row style={{border: '1px solid #777', padding: '12px'}}>
+                    <Column small={6}>
+                        <h4>1. Curated Datasources</h4>
                         <label>
                             <input type="checkbox"/>
                             Don't search in any datasources
                         </label>
                         <DragAndDropLists lists={lists} onChange={this.onDatasourceListsChanged}/>
-                    </TabPanel>
-					<TabPanel id={'ontology'} isActive={tab === 'ontology'}>
+                    </Column>
+					<Column small={6}>
+                        <h4>2. Ontology Sources</h4>
                         <label>
                             <input type="checkbox"/>
                             Don't search in any ontologies
@@ -115,11 +109,9 @@ export default class DatasourcesModal extends React.Component<Props, State> {
                                 </ul>
                             }
                         </label>
-                    </TabPanel>
-				</TabsContent>
-                <br/>
-                <button className="button" onClick={this.onDone}>Done</button>
-            </Modal>
+                    </Column>
+				</Row>
+            </Fragment>
         )
     }
 
@@ -147,9 +139,6 @@ export default class DatasourcesModal extends React.Component<Props, State> {
         this.setState((s) => ({ ...s, ontoAutocomplete: '' }))
     }
 
-    onDone = () => {
-        this.props.onDone()
-    }
 
 }
 

@@ -93,7 +93,7 @@ export default class DragAndDropLists extends Component<Props, State> {
                         <Droppable droppableId={'droppable-' + i}>
                         {(provided, snapshot) => (
                             <div style={{display: 'inline-block', verticalAlign: 'top'}}>
-                                <h4>{list.title}</h4>
+                                <h5>{list.title}</h5>
                             <div
                                 ref={provided.innerRef}
                                 style={getListStyle(snapshot.isDraggingOver)}>

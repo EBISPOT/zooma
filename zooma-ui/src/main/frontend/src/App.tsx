@@ -8,7 +8,6 @@ import Docs from './pages/docs';
 import DocsApi from './pages/docs/api';
 import DocsSearch from './pages/docs/search';
 import About from './pages/about';
-import Sparql from './pages/sparql';
 
 export default function App() {
   return (
@@ -20,7 +19,6 @@ export default function App() {
       <Route exact path='/docs/search' component={DocsSearch}></Route>
       <Route exact path='/docs/api' component={DocsApi}></Route>
       <Route exact path='/about' component={About}></Route>
-      <Route exact path='/sparql' component={Sparql}></Route>
       <EBIFooter/>
     </div>
   );
