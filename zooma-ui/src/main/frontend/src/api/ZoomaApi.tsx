@@ -9,8 +9,12 @@ export interface SearchParams {
         propertyValue: string
         propertyType: string
     }[]
+
+    doNotSearchDatasources:boolean
     requiredSources:string[]
     preferredSources:string[]
+
+    doNotSearchOntologies:boolean
     ontologySources:string[]
 }
 
@@ -49,16 +53,27 @@ export async function search(params:SearchParams, onProgress:(pc:number)=>void) 
 
     let filter = ''
 
-    if(params.requiredSources.length > 0) {
-        filter += 'required:[' + params.requiredSources.join(',') + ']'
+    if(params.doNotSearchDatasources === true) {
+        filter += 'required:[Select%20None]'
+    } else {
+        if(params.requiredSources.length > 0) {
+            filter += 'required:[' + params.requiredSources.join(',') + ']'
+        }
+        if (params.preferredSources.length > 0) {
+            filter += 'preferred:[' + params.preferredSources.join(',') + ']'
+        }
     }
 
-    if(params.preferredSources.length > 0) {
-        filter += 'preferred:[' + params.preferredSources.join(',') + ']'
+    if(params.doNotSearchOntologies === true) {
+        filter += 'ontologies:[Select%20None]'
+    } else {
+        if(params.ontologySources.length > 0) {
+            filter += 'ontologies:[' + params.ontologySources.join(',') + ']'
+        }
     }
 
-    if(params.ontologySources.length > 0) {
-        filter += 'ontologies:[' + params.ontologySources.join(',') + ']'
+    if(filter !== '') {
+        filter = 'filter=' + filter
     }
 
     let submitRes = await fetch(apiUrl + '/services/map?' + filter, {

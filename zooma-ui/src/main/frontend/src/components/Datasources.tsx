@@ -2,7 +2,7 @@
 
 
 import * as React from 'react'
-import { Row, Column, Tabs, TabItem, TabsContent, TabPanel } from "react-foundation"
+import { Row, Column, Tabs, TabItem, TabsContent, TabPanel, Button } from "react-foundation"
 import * as ZoomaApi from "../api/ZoomaApi"
 import { ZoomaDatasources } from "../api/ZoomaDatasources"
 import { sources } from '../data/sources.json'
@@ -33,6 +33,9 @@ export default class Datasources extends React.Component<Props, State> {
             tab: 'curated',
             ontoAutocomplete: ''
         }
+
+        console.log('datasources are')
+        console.dir(props.datasources)
     }
 
     render() {
@@ -44,33 +47,24 @@ export default class Datasources extends React.Component<Props, State> {
         let lists = [
             { 
                 title: 'Unranked',
-                entries: datasourceConfig.unrankedDatasources.map(ds => ({ id: ds, content: ds })),
+                entries: datasourceConfig.unrankedDatasources.map(ds => ({ id: ds, content: datasources.nameTitleMap.get(ds) || ds })),
             },
             {
                 title: 'Ranked',
-                entries: datasourceConfig.rankedDatasources.map(ds => ({ id: ds, content: ds }))
+                entries: datasourceConfig.rankedDatasources.map(ds => ({ id: ds, content: datasources.nameTitleMap.get(ds) || ds }))
             }
         ]
 
+        console.log('lists')
+        console.dir(lists)
+
         return (
             <Fragment>
-                {/* <div className="tabs-content">
-                <ul className="tabs" data-tabs>
-                    <li className={classNames('tabs-title', {'is-active': tab === 'curated'} )}><a>Curated Datasources</a></li>
-                    <li className={classNames('tabs-title', {'is-active': tab === 'ontology'} )}><a>Ontology Sources</a></li>
-                </ul>
-                </div>
-                <div className="tabs-panel">
-                    <p>
-                    test
-                    </p>
-                </div>
-                <button className="button">Done</button> */}
 				<Row style={{border: '1px solid #777', padding: '12px'}}>
                     <Column small={6}>
                         <h4>1. Curated Datasources</h4>
                         <label>
-                            <input type="checkbox"/>
+                            <input type="checkbox" checked={datasourceConfig.doNotSearchDatasources} onChange={this.onChangeDoNotSearchDatasources} />
                             Don't search in any datasources
                         </label>
                         <DragAndDropLists lists={lists} onChange={this.onDatasourceListsChanged}/>
@@ -78,37 +72,37 @@ export default class Datasources extends React.Component<Props, State> {
 					<Column small={6}>
                         <h4>2. Ontology Sources</h4>
                         <label>
-                            <input type="checkbox"/>
+                            <input type="checkbox" checked={datasourceConfig.doNotSearchOntologies} onChange={this.onChangeDoNotSearchOntologies} />
                             Don't search in any ontologies
-                            <br/>
-                            <Autocomplete
-                                getItemValue={(item) => item}
-                                shouldItemRender={(item, value) => item.toLowerCase().indexOf(value.toLowerCase()) > -1}
-                                inputProps={{
-                                    placeholder: 'Search ontologies by name, e.g. EFO or Experimental Factor Ontology',
-                                    style:{ width: '500px', padding: '8px'}
-                                }}
-                                items={datasources.searchableOntoNames}
-                                renderItem={(item, isHighlighted) =>
-                                    <div style={{ background: isHighlighted ? 'lightgray' : 'white', padding: '8px' }}>
-                                        {item}
-                                    </div>
-                                }
-                                value={this.state.ontoAutocomplete}
-                                onChange={(e, val) => this.setState((s) => ({ ...s, ontoAutocomplete: val }))}
-                                onSelect={this.onSelectOntology}
-                            />
-                            {
-                                <ul>
-                                {datasourceConfig.ontologySources.map(source => {
-                                    return <li key={source}>
-                                        <input type="checkbox"/>
-                                        {source}
-                                    </li>
-                                })}
-                                </ul>
-                            }
                         </label>
+                        <Autocomplete
+                            getItemValue={(item) => item.name}
+                            shouldItemRender={(item, value) => item.displayName.toLowerCase().indexOf(value.toLowerCase()) > -1}
+                            inputProps={{
+                                placeholder: 'Search ontologies by name, e.g. EFO or Experimental Factor Ontology',
+                                style:{ width: '500px', padding: '8px'}
+                            }}
+                            items={datasources.searchableOntoNames}
+                            renderItem={(item, isHighlighted) =>
+                                <div style={{ background: isHighlighted ? 'lightgray' : 'white', padding: '8px' }}>
+                                    {item.displayName}
+                                </div>
+                            }
+                            value={this.state.ontoAutocomplete}
+                            onChange={(e, val) => this.setState((s) => ({ ...s, ontoAutocomplete: val }))}
+                            onSelect={this.onSelectOntology}
+                        />
+                        <br/>
+                        <br/>
+                        <div>
+                            {datasourceConfig.ontologySources.map(source => {
+                                return <div key={source}>
+                                    <a onClick={() => this.removeOntologySource(source)}>x</a>
+                                    &nbsp;
+                                    {source}
+                                </div>
+                            })}
+                        </div>
                     </Column>
 				</Row>
             </Fragment>
@@ -130,13 +124,58 @@ export default class Datasources extends React.Component<Props, State> {
 
     onSelectOntology = (val) => {
 
+        let newSources = [...this.props.datasourceConfig.ontologySources]
+
+        if(newSources.indexOf(val) === -1) {
+            newSources.push(val)
+        }
+
         let newConfig:ZoomaDatasourceConfig = {
             ...this.props.datasourceConfig,
-            // ontologySources: [
+            ontologySources: newSources
          }
 
-
         this.setState((s) => ({ ...s, ontoAutocomplete: '' }))
+
+        this.props.onConfigChanged(newConfig)
+    }
+
+    onChangeDoNotSearchDatasources = (e) => {
+
+        let newConfig:ZoomaDatasourceConfig = {
+            ...this.props.datasourceConfig,
+            doNotSearchDatasources: e.target.checked
+         }
+
+        this.props.onConfigChanged(newConfig)
+    }
+
+    onChangeDoNotSearchOntologies = (e) => {
+
+        let newConfig:ZoomaDatasourceConfig = {
+            ...this.props.datasourceConfig,
+            doNotSearchOntologies: e.target.checked
+         }
+
+        this.props.onConfigChanged(newConfig)
+    }
+
+    removeOntologySource = (s) => {
+
+        let newSources = [...this.props.datasourceConfig.ontologySources]
+
+        let i = newSources.indexOf(s)
+
+        if(i !== -1) {
+            newSources.splice(i, 1)
+        }
+
+        let newConfig:ZoomaDatasourceConfig = {
+            ...this.props.datasourceConfig,
+            ontologySources: newSources
+         }
+
+        this.props.onConfigChanged(newConfig)
     }
 
 

@@ -23,7 +23,7 @@ export async function getDatasources():Promise<ZoomaDatasources> {
 export class ZoomaDatasources {
 
     datasourceNames:string[] = []
-    searchableOntoNames:string[] = []
+    searchableOntoNames:{name:string, displayName:string}[] = []
     ontologyPrefixes:string[] = []
     loadedOntologyURIs:string[] = []
     nameDescriptionMap:Map<string,string> = new Map()
@@ -38,18 +38,22 @@ export class ZoomaDatasources {
 
                 let db = databases[source.name]
 
+                this.datasourceNames.push(source.name)
+
                 if(db !== undefined) {
-                    this.datasourceNames.push(db.name)
-                    this.nameDescriptionMap[source.name] = db.desc
+                    //this.datasourceNames.push(db.name)
+                    this.uriNameMap.set(source.uri, source.name)
+                    this.nameTitleMap.set(source.name, db.name)
+                    this.nameDescriptionMap.set(source.name, db.desc)
                 } else {
-                    this.datasourceNames.push(source.name)
-                    this.nameDescriptionMap[source.name] = 'No description.'
+                    //this.datasourceNames.push(source.name)
+                    this.uriNameMap.set(source.uri, source.name)
+                    this.nameTitleMap.set(source.name, source.name)
+                    this.nameDescriptionMap.set(source.name, 'No description.')
                 }
 
-                this.uriNameMap[source.uri] = source.name
-
             } else if(source.type === 'ONTOLOGY') {
-                this.searchableOntoNames.push(source.title + ' (' + source.name + ')')
+                this.searchableOntoNames.push({ name: source.name, displayName: source.title + ' (' + source.name + ')' })
                 this.ontologyPrefixes.push(source.name)
                 this.loadedOntologyURIs.push(source.uri)
                 this.nameDescriptionMap.set(source.name, source.description)

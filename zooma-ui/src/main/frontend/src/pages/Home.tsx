@@ -131,11 +131,14 @@ If you are new to ZOOMA, take a look at our getting started guide.</p>
             .map(line => line.split('\t'))
             .map(tokens => ({ propertyValue: tokens[0], propertyType: tokens[1] }))
 
+      let requiredSources = [...this.state.datasourceConfig!.unrankedDatasources, ...this.state.datasourceConfig!.rankedDatasources]
+      let preferredSources = this.state.datasourceConfig!.rankedDatasources
+      let ontologySources = this.state.datasourceConfig!.ontologySources
+      let doNotSearchDatasources = this.state.datasourceConfig!.doNotSearchDatasources
+      let doNotSearchOntologies = this.state.datasourceConfig!.doNotSearchOntologies
+
       let searchParams:ZoomaApi.SearchParams = {
-          properties,
-          requiredSources: [],
-          preferredSources: [],
-          ontologySources: []
+          properties, requiredSources, preferredSources, ontologySources, doNotSearchDatasources, doNotSearchOntologies
       }
 
       this.setState(prevState => ({ ...prevState, searching: true }))
