@@ -51,6 +51,8 @@ export default class Home extends Component<Props, State> {
 
       let datasourceConfig:ZoomaDatasourceConfig = {
         doNotSearchDatasources: false,
+
+        excludedDatasources: [],
         unrankedDatasources: datasources.datasourceNames,
         rankedDatasources: [],
 

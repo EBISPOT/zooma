@@ -46,12 +46,25 @@ export default class Datasources extends React.Component<Props, State> {
 
         let lists = [
             { 
+                title: 'Excluded',
+                entries: datasourceConfig.excludedDatasources.map(ds => ({
+                    id: ds,
+                    content: <Fragment>{datasources.nameTitleMap.get(ds) || ds}</Fragment>
+                })),
+            },
+            { 
                 title: 'Unranked',
-                entries: datasourceConfig.unrankedDatasources.map(ds => ({ id: ds, content: datasources.nameTitleMap.get(ds) || ds })),
+                entries: datasourceConfig.unrankedDatasources.map(ds => ({
+                    id: ds,
+                    content: <Fragment>{datasources.nameTitleMap.get(ds) || ds}</Fragment>
+                })),
             },
             {
                 title: 'Ranked',
-                entries: datasourceConfig.rankedDatasources.map(ds => ({ id: ds, content: datasources.nameTitleMap.get(ds) || ds }))
+                entries: datasourceConfig.rankedDatasources.map(ds => ({
+                    id: ds,
+                    content: <Fragment>{datasources.nameTitleMap.get(ds) || ds}</Fragment>
+                }))
             }
         ]
 
@@ -68,6 +81,7 @@ export default class Datasources extends React.Component<Props, State> {
                             Don't search in any datasources
                         </label>
                         <DragAndDropLists lists={lists} onChange={this.onDatasourceListsChanged}/>
+                        <a onClick={this.excludeAll}>Exclude all</a>
                     </Column>
 					<Column small={6}>
                         <h4>2. Ontology Sources</h4>
@@ -111,10 +125,11 @@ export default class Datasources extends React.Component<Props, State> {
 
     onDatasourceListsChanged = (lists:List[]) => {
 
-        let [ unrankedDatasources, rankedDatasources ] = lists
+        let [ excludedDatasources, unrankedDatasources, rankedDatasources ] = lists
 
         let newConfig:ZoomaDatasourceConfig = {
             ...this.props.datasourceConfig,
+            excludedDatasources: excludedDatasources.entries.map(d => d.id),
             unrankedDatasources: unrankedDatasources.entries.map(d => d.id),
             rankedDatasources: rankedDatasources.entries.map(d => d.id)
          }
@@ -178,6 +193,26 @@ export default class Datasources extends React.Component<Props, State> {
         this.props.onConfigChanged(newConfig)
     }
 
+
+    excludeAll = () => {
+        
+        let config = this.props.datasourceConfig
+
+        let excluded = [
+            ...config.excludedDatasources,
+            ...config.unrankedDatasources,
+            ...config.rankedDatasources
+        ]
+
+        let newConfig:ZoomaDatasourceConfig = {
+            ...this.props.datasourceConfig,
+            excludedDatasources: excluded,
+            unrankedDatasources: [],
+            rankedDatasources: []
+         }
+
+        this.props.onConfigChanged(newConfig)
+    }
 
 }
 

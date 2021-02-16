@@ -27,7 +27,7 @@ const getItemStyle = (isDragging:any, draggableStyle:any) => ({
 const getListStyle = (isDraggingOver:any) => ({
     background: isDraggingOver ? '#ccffcc' : 'white',
     padding: grid,
-    width: 250,
+    width: 190,
     height: '300px',
     overflowY: 'scroll' as any,
     overflowX: 'none' as any
@@ -35,7 +35,7 @@ const getListStyle = (isDraggingOver:any) => ({
 
 export interface ListEntry {
     id:string
-    content:string
+    content:JSX.Element
 }
 
 export interface List {
