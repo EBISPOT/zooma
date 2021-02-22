@@ -1,0 +1,100 @@
+MSL1_GFP	RNAi
+cyclin T1 shRNA	RNAi
+Mass: 101.6 kg	biometrics
+A549/ATCC	cell_line
+AG09699	cell_line
+AG11364	cell_line
+Coriell GM15224	cell_line
+GM17132	cell_line
+GM17226	cell_line
+GM17765	cell_line
+GM17775	cell_line
+LN18	cell_line
+LuCaP69 xenograft	cell_line
+LuCaP86.2 xenograft	cell_line
+ND00397	cell_line
+T98G glioma	cell_line
+hgps-ipsc_2: Human HGPS fibroblasts AG01972, AG11498, AG06297, and normal fibroblasts GM00038 (9 year), AG05247 (87 year), AG09602 (92 year) were purchased from Coriell Cell Repository and reprogrammed using the protocol below.	cell_line
+CD34 positive mononuclear	cell_type
+CD49a positive	cell_type
+Sca-1+,Lin-,AA4.1+,c-Kit++ FLHSC	cell_type
+eNK cell	cell_type
+epidermal keratinocyte, P-2 treatment	cell_type
+lower-SP HSC	cell_type
+mainly hippocampal neurons	cell_type
+murine bone-marrow derived macrophages	cell_type
+myeloid dendritic cell CD8-	cell_type
+normal erythroid	cell_type
+pro-B cell	cell_type
+CDK4/6 inhibitor PD 0332991	compound
+Clostridium perfringens toxin	compound
+Cxcl12 75 nanomolar	compound
+GR24 10 micromolar	compound
+allyl alcohol 0.8 micromolar	compound
+bucetin 300 micromolar	compound
+chlorpyrifos 0.35 milligrams per kilogram per day	compound
+clomipramine 40 micromolar	compound
+cyproconazole 1.5 micromolar	compound
+interleukin 1 beta	compound
+labetalol 140 micromolar	compound
+monensin 0.0000109 molar	compound
+naproxen 400 micromolar	compound
+nitrofurazone 10 micromolar	compound
+serum amyloid A	compound
+triamterene 1.2 micromolar	compound
+E-LGCL-5	datasource
+E-MEXP-403	datasource
+GSE1922	datasource
+GSE4636	datasource
+Growing-Postselection	developmental_stage
+DFS = 127 months	dfs_follow_up
+prostate epithelial transit amplifying cells	differentiation_state
+Ann Arbor stage: IIB	disease_staging
+Unclassified	disease_staging
+stage 4	disease_staging
+Trypanosoma congolense infected	disease_state
+moderate chronic allograft nephropathy	disease_state
+Mrk-0	ecotype
+OX0153:DZ twin	family_relationship
+less than 20	generation
+AP1::AtIPT4	genetic_modification
+T-DNA knock out mutation	genetic_modification
+sir2 control	genetic_modification
+HCC227 lung adenocarcinoma	groups_369
+HCC3153 breast cancer	groups_369
+HCC515 lung adenocarcinoma	groups_369
+SKMM1 multiple myeloma	groups_369
+pc3 prostate cancer	groups_96
+bronchial epithelia	groups_with_10_and_more_replicates
+glucose-limiting medium	growth_condition
+twice a week activity	growth_condition
+Solid	histology
+X-radiation 2 Grays	irradiate
+del(11)(p12)	karyotype
+unknown cytogenetics	karyotype
+Drosophila yakuba	organism
+cancer, Homogenized	organism_part
+distal part small intestine	organism_part
+flower + shoot apex	organism_part
+lymphoid tissue	organism_part
+media of abdominal aorta	organism_part
+prefrontal cortex area 9	organism_part
+proximal epiphysis of right fibula	organism_part
+triceps	organism_part
+ventral prostate	organism_part
+B220Low sIgM+	phenotype
+Txnip-deficient	phenotype
+Txnip-deficient	phenotype
+female	sex
+B6-(Cg)TyrC-2J	strain_or_line
+BXD31	strain_or_line
+BY 4742 delta med31	strain_or_line
+BY4742	strain_or_line
+GABI-Kat_545D05	strain_or_line
+PER-606	strain_or_line
+SHEP-Tet21N	strain_or_line
+a mixed 129 SvJ/C57Bl6 genetic background	strain_or_line
+Oligofectamine with EGFP oligonucleotide	treatment
+PM treated	treatment
+epigallocatechin gallate 20 micromolar	treatment
+mouse dorsal skin without tape stripping	treatment

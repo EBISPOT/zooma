@@ -1,0 +1,59 @@
+{
+    "databases": {
+        "sysmicro": {
+            "name": "CellularPhenoTypes",
+            "longName": "Cellular Phenotype Database",
+            "desc": "The Cellular Phenotype database provides easy access to phenotypic data derived from high-throughput screening, facilitating data sharing and integration."
+        },
+        "ebisc": {
+            "name": "ebisc",
+            "longName": "EBiSC",
+            "desc": "iPSC line catalogue"
+        },
+        "cttv": {
+            "name": "cttv",
+            "longName": "OpenTargets",
+            "desc": "Open Targets is a public-private initiative to generate evidence on the validity of therapeutic targets based on genome-scale experiments and analysis."
+        },
+        "uniprot": {
+            "name": "UniProt",
+            "longName": "UniProt",
+            "desc": "A comprehensive, high quality and freely accessible resource of protein sequence and functional information."
+        },
+        "eva-clinvar": {
+            "name": "ClinVar",
+            "longName": "European Variation Archive",
+            "desc": "The European Variation Archive is an open-access database of all types of genetic variation data from all species."
+        },
+        "gwas": {
+            "name": "GWAS",
+            "longName": "GWAS",
+            "desc": "A Catalog of Published Genome-Wide Association Studies"
+        },
+        "atlas": {
+            "name": "ExpressionAtlas",
+            "longName": "Expression Atlas",
+            "desc": "The Expression Atlas provides information on gene expression patterns under different biological conditions."
+        },
+        "metabolights": {
+            "name": "Metabolights",
+            "longName": "Metabolights",
+            "desc": "Metabolights is a database for Metabolomics experiments and derived information. The database is cross-species, cross-technique and covers metabolite structures and their reference spectra as well as their biological roles, locations and concentrations, and experimental data from metabolic experiments."
+        },
+        "ukbiobank": {
+            "name": "UKBiobank",
+            "longName": "UK Biobank",
+            "desc": "A large long-term biobank study in the United Kingdom which is investigating the respective contributions of genetic predisposition and environmental exposure to the development of disease. This Zooma datasets contains mappings for UK BioBank traits to the Experimental Factor Ontology"
+        },
+        "cbi": {
+            "name": "CBI",
+            "longName": "Crop Bioinformatics Initiative",
+            "desc": "The CBI datasource contains a series of mappings designed to enable high-throughput ontology annotation of plant-specific sample data. These mappings are derived from the most commonly observed attributes used to describe plant samples in the BioSamples database that could not previously be mapped to ontology terms"
+        },
+        "clinvar-xrefs": {
+            "name": "ClinVarXRefs",
+            "longName": "ClinVar",
+            "desc": "ClinVar aggregates information about genomic variation and its relationship to human health."
+        }
+    }
+}

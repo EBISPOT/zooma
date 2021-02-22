@@ -1,0 +1,30 @@
+{
+  "name": "zooma-ui",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@types/classnames": "^2.2.10",
+    "@types/react-foundation": "^0.9.6",
+    "classnames": "^2.2.6",
+    "http-proxy-middleware": "^1.0.5",
+    "install": "^0.13.0",
+    "next": "9.5.3",
+    "npm": "^6.14.8",
+    "react": "16.14.0",
+    "react-autocomplete": "^1.8.1",
+    "react-beautiful-dnd": "^13.0.0",
+    "react-dom": "16.14.0",
+    "react-foundation": "^0.9.6",
+    "sass": "^1.26.10"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.27",
+    "@types/react": "^16.9.45",
+    "typescript": "^3.9.7"
+  }
+}

@@ -1,0 +1,100 @@
+HDAC1 knockdown	RNAi
+HP1 dsRNAi	RNAi
+Tis11 dsRNA and LPS	RNAi
+Experiment was started at 4 wks of age, rats were adapted to the condition for 5 days and fed the diet indicated for 14 days.	age
+Size: 166.5 cm	biometrics
+proneural	cancer_site
+CD19+ CD20- CD27+ CD38 high HLA-DR low	cell_line
+G118	cell_line
+GM06944	cell_line
+GM14535	cell_line
+GM17176	cell_line
+HUES-1	cell_line
+KMH2	cell_line
+Swiss9	cell_line
+CD4+CD25-	cell_type
+Mac1+Kit+ myeloid progenitor cell	cell_type
+crypt cell	cell_type
+epithelial gastric mucosa cell	cell_type
+follicular B cell	cell_type
+murine leukemia cell	cell_type
+aortic banding - sham	clinical_treatment
+olfactory bulbectomy	clinical_treatment
+trigger of anesthetic-preconditioning	clinical_treatment
+Recombinant Tumor Necrosis Factor-Alpha 0.1 nanograms per milliliter	compound
+aplidin + cytarabine	compound
+dimethyloxalylglycine 0.001 molar	compound
+furosemide 100 micromolar	compound
+listeriolysin 6 nanomolar	compound
+puromycin aminonucleoside 500 micromolar	compound
+triamterene 1.2 micromolar	compound
+triamterene 6 micromolar	compound
+E-MEXP-231	datasource
+E-MEXP-76	datasource
+GSE1648	datasource
+GSE4485	datasource
+GSE6205	datasource
+Boyes key 1.04	developmental_stage
+second instar	developmental_stage
+DFS = 6 months	dfs_follow_up
+Follow-up = 99 months	dfs_follow_up
+calorie restricted diet	diet
+N0, M0, T2	disease_staging
+T1N2bM0	disease_staging
+T2N0	disease_staging
+T2N1G3	disease_staging
+PBS with lesions	disease_state
+X-linked chronic granulomatous	disease_state
+elevated IOP	disease_state
+high stereotypy response	disease_state
+none	disease_state
+pulmonary tuberculosis	disease_state
+week 12 post SIV infected	disease_state
+continuous	dose
+Indica 93-11	ecotype
+OX0192:MZ twin	family_relationship
+OX0290:MZ twin	family_relationship
+monozygotic twin pair 1	family_relationship
+AfFAAH overexpression	genetic_modification
+BT20 breast cancer	groups_369
+BeWo choriocarcinoma	groups_369
+HCC1195 lung adenocarcinoma	groups_369
+T cell diseased	groups_with_10_and_more_replicates
+ethanol-limiting medium	growth_condition
+monolayer	growth_condition
+pH 4.5	growth_condition
+Gram-Positive	infect
+adenovirus	infect
+group A streptococcus	infect
+iso(11)(q10)	karyotype
+negative	lymph_node_status
+Alexei,Gratchev	operator_variation
+Marta,Artieda	operator_variation
+Tumor tissue grown from patient dervived colon cancer specimen	organism_part
+above ground tissue plus roots	organism_part
+brain, frontal cortex, superior frontal cortex, Brodmanns Area 9	organism_part
+flower + shoot apex	organism_part
+frontal cerebral cortex	organism_part
+glomeruli of human kidney	organism_part
+hepatocellular carcinoma (HCC)	organism_part
+inflorescence + shoot apex	organism_part
+metanephric mesenchyme	organism_part
+non-lung	organism_part
+pooled whole-body extracts	organism_part
+root elongation zone	organism_part
+skin (leg)	organism_part
+subcutaneous white adipose tissue, dorsal, in periischeum region	organism_part
+batch D	population
+Parenteral feeding 72hr	protocol_type
+after pulse	sampling_time_point
+BY4741_Dhaa1	strain_or_line
+C57BL/Ka-CD45.2:Thy-1.1	strain_or_line
+HFY1201	strain_or_line
+Sigma 1278b	strain_or_line
+W303-1B G291D	strain_or_line
+Concentration: 4.4 mM	test_result
+plasma acetaminophen: 0 ug_per_ml; plasma glucagon: 64.8 pg_per_ml	test_result
+Day 0	time
+co-incubated with PDL1-overexpresssed ID8	treatment
+lipoV3	treatment
+pair-feeding to ZD for 10 days from 5-wk-old	treatment

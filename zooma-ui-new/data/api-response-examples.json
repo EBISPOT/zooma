@@ -1,0 +1,128 @@
+{
+    "2": [
+        {
+          "uri": null,
+          "annotatedProperty": {
+            "uri": null,
+            "propertyValue": "mus musculus"
+          },
+          "semanticTags": [
+            "http://purl.obolibrary.org/obo/NCBITaxon_10090"
+          ],
+          "replacedBy": [],
+          "replaces": [],
+          "derivedFrom": {
+            "uri": "http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907",
+            "annotatedProperty": {
+              "uri": "http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143",
+              "propertyType": "organism",
+              "propertyValue": "Mus musculus"
+            },
+            "semanticTags": [
+              "http://purl.obolibrary.org/obo/NCBITaxon_10090"
+            ],
+            "replacedBy": [],
+            "replaces": [],
+            "provenance": {
+              "source": {
+                "type": "DATABASE",
+                "name": "atlas",
+                "uri": "http://www.ebi.ac.uk/gxa"
+              },
+              "evidence": "ZOOMA_INFERRED_FROM_CURATED",
+              "accuracy": "NOT_SPECIFIED",
+              "generator": "ZOOMA",
+              "generatedDate": 1450439979000,
+              "annotator": "UNKNOWN",
+              "annotationDate": null
+            },
+            "annotatedBiologicalEntities": [
+              {
+                "uri": "http://rdf.ebi.ac.uk/resource/zooma/gxa/636196CF38C074D81ED37DA4009E3133",
+                "name": "ebi.ac.uk:Tab2MAGE:E-GEOD-1579.18.Extract",
+                "types": [
+                  "http://www.w3.org/2002/07/owl#NamedIndividual",
+                  "http://rdf.ebi.ac.uk/terms/zooma/Target"
+                ],
+                "studies": [
+                  {
+                    "uri": "http://rdf.ebi.ac.uk/resource/zooma/gxa/DA13D971C08AFD60E64ADFDEAE5CB7EA",
+                    "accession": "E-GEOD-1579",
+                    "types": [
+                      "http://www.w3.org/2002/07/owl#NamedIndividual",
+                      "http://rdf.ebi.ac.uk/terms/zooma/DatabaseEntrySource"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "confidence": "HIGH",
+          "provenance": {
+            "source": {
+              "type": "DATABASE",
+              "name": "zooma",
+              "uri": "www.ebi.ac.uk/spot/zooma"
+            },
+            "evidence": "COMPUTED_FROM_TEXT_MATCH",
+            "accuracy": null,
+            "generator": "ZOOMA",
+            "generatedDate": 1452693184607,
+            "annotator": "ZOOMA",
+            "annotationDate": 1452693184607
+          },
+          "annotatedBiologicalEntities": []
+        }
+      ],
+      "3": { "fragment":"90E386B39F0AD3DA5CCBD8AAA6F14907", "namespace":"http://rdf.ebi.ac.uk/resource/zooma/gxa/", "uri":"http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907", "shortname":"gxaresource:90E386B39F0AD3DA5CCBD8AAA6F14907" },
+      "4": [ "rare genetic bone development disorder", "caenorhabditis elegans embryo stage", "genetic disorder", "abnormality of the integument", "hormone measurement", "chemical entity", "disease", "disposition", "cancer", "genetic congenital limb malformation" ],
+      "5": { "uri": "http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143", "propertyType": "organism", "propertyValue": "Mus musculus" },
+      "6": {
+        "uri": "http://rdf.ebi.ac.uk/resource/zooma/gxa/90E386B39F0AD3DA5CCBD8AAA6F14907",
+        "annotatedProperty": {
+          "uri": "http://rdf.ebi.ac.uk/resource/zooma/461CE7ADFDA7E46E0AAEA17AC66AF143",
+          "propertyType": "organism",
+          "propertyValue": "Mus musculus"
+        },
+        "semanticTags": [
+          "http://purl.obolibrary.org/obo/NCBITaxon_10090"
+        ],
+        "replacedBy": [],
+        "replaces": [],
+        "annotatedBiologicalEntities": [
+          {
+            "uri": "http://rdf.ebi.ac.uk/resource/zooma/gxa/636196CF38C074D81ED37DA4009E3133",
+            "name": "ebi.ac.uk:Tab2MAGE:E-GEOD-1579.18.Extract",
+            "types": [
+              "http://www.w3.org/2002/07/owl#NamedIndividual",
+              "http://rdf.ebi.ac.uk/terms/zooma/Target"
+            ],
+            "studies": [
+              {
+                "uri": "http://rdf.ebi.ac.uk/resource/zooma/gxa/DA13D971C08AFD60E64ADFDEAE5CB7EA",
+                "accession": "E-GEOD-1579",
+                "types": [
+                  "http://www.w3.org/2002/07/owl#NamedIndividual",
+                  "http://rdf.ebi.ac.uk/terms/zooma/DatabaseEntrySource"
+                ]
+              }
+            ]
+          }
+        ],
+        "provenance": {
+          "source": {
+            "type": "DATABASE",
+            "name": "atlas",
+            "uri": "http://www.ebi.ac.uk/gxa"
+          },
+          "evidence": "ZOOMA_INFERRED_FROM_CURATED",
+          "accuracy": "NOT_SPECIFIED",
+          "generator": "ZOOMA",
+          "generatedDate": 1450439979000,
+          "annotator": "UNKNOWN",
+          "annotationDate": null
+        }
+      }
+
+
+}
