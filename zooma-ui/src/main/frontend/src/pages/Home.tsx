@@ -9,7 +9,8 @@ import { runInThisContext } from "vm";
 import DatasourcesModal from "../components/Datasources";
 import { ZoomaDatasourceConfig } from "../api/ZoomaDatasourceConfig";
 import * as React from 'react'
-import Datasources from "../components/Datasources";
+import Datasources from "../components/Datasources"
+import ProgressBar from "@ramonak/react-progress-bar";;
 
 interface Props {
 }
@@ -110,6 +111,14 @@ If you are new to ZOOMA, take a look at our getting started guide.</p>
                         disabled={this.state.results.length === 0}
                         onClick={this.onClickClear}>Clear</button>
                 </Row>
+                {
+                    (this.state.progress > 0 && this.state.progress < 0.99) &&
+                        <Row className="align-center">
+                <Column small={6} medium={6}>
+                        <ProgressBar completed={Math.round(this.state.progress * 100)} bgcolor="#8ebe53" labelColor="#000000"  />
+                        </Column>
+                        </Row>
+                }
               <Row>
                 <h3>Results</h3>
                 <Column small={12} medium={12}>
