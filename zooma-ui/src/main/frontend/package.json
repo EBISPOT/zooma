@@ -17,6 +17,7 @@
     "@types/react-dom": "^16.9.0",
     "@types/react-foundation": "^0.9.6",
     "@types/react-router-dom": "^5.1.6",
+    "file-saver": "^2.0.5",
     "node-sass": "^4.14.1",
     "react": "^16.14.0",
     "react-autocomplete": "^1.8.1",

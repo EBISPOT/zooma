@@ -10,7 +10,9 @@ import DatasourcesModal from "../components/Datasources";
 import { ZoomaDatasourceConfig } from "../api/ZoomaDatasourceConfig";
 import * as React from 'react'
 import Datasources from "../components/Datasources"
-import ProgressBar from "@ramonak/react-progress-bar";;
+import ProgressBar from "@ramonak/react-progress-bar"
+import FileSaver from 'file-saver'
+
 
 interface Props {
 }
@@ -22,6 +24,7 @@ interface State {
   searching: boolean,
   progress:number
   results:ZoomaApi.SearchResult[]
+  tsv:string
 }
 
 export default class Home extends Component<Props, State> {
@@ -35,7 +38,8 @@ export default class Home extends Component<Props, State> {
         query: '',
         searching: false,
         progress: 0,
-        results: []
+        results: [],
+        tsv: ''
       }
     }
 
@@ -122,7 +126,14 @@ If you are new to ZOOMA, take a look at our getting started guide.</p>
               <Row>
                 <h3>Results</h3>
                 <Column small={12} medium={12}>
-                  <p>The table below shows a report describing how ZOOMA annotates text terms supplied above.</p>
+                    <Row>
+                        <Column small={8}>
+                            <p>The table below shows a report describing how ZOOMA annotates text terms supplied above.</p>
+                        </Column>
+                        <Column small={4} style={{ textAlign: 'right' }}>
+                            <img style={{cursor: 'pointer'}} onClick={this.onDownloadTSV} src="https://www.ebi.ac.uk/web_guidelines/images/icons/EBI-FileFormats/File%20format%20icons/file_TSV.png"/>
+                        </Column>
+                    </Row>
                   <ResultsTable results={this.state.results} datasources={this.state.datasources} />
                 </Column>
               </Row>
@@ -154,15 +165,15 @@ If you are new to ZOOMA, take a look at our getting started guide.</p>
 
       this.setState(prevState => ({ ...prevState, searching: true }))
 
-      let results = await ZoomaApi.search(searchParams, (progress:number) => {
+      let { results, tsv } = await ZoomaApi.search(searchParams, (progress:number) => {
         this.setState(prevState => ({ ...prevState, progress }))
       })
 
-      this.setState(prevState => ({ ...prevState, searching: false, results }))
+      this.setState(prevState => ({ ...prevState, searching: false, results, tsv }))
     }
 
     onClickClear = () => {
-      this.setState(prevState => ({ ...prevState, query: '', results: [] }))
+      this.setState(prevState => ({ ...prevState, query: '', results: [], tsv: '' }))
     }
 
     onClickShowExamples = () => {
@@ -180,6 +191,12 @@ If you are new to ZOOMA, take a look at our getting started guide.</p>
     onDatasourcesModalDone = () => {
       this.setState(prevState => ({ ...prevState, showDatasourceModal: false }))
     }
+
+    onDownloadTSV = () => {
+        var blob = new Blob([this.state.tsv], { type: 'application/rdf+xml' })
+        FileSaver.saveAs(blob, 'results.tsv')
+    }
+
 }
 
 var examples =

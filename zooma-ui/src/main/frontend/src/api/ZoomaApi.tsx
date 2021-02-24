@@ -100,28 +100,43 @@ export async function search(params:SearchParams, onProgress:(pc:number)=>void) 
         await delay(1000)
     }
 
-    let finalRes = await fetch(apiUrl + '/services/map?json', {
-        method: 'GET',
-        headers: {
-            'accept': 'application/json'
-        }
-    })
+    let [ jsonRes, tsvRes ] = await Promise.all([
 
-    let body = await finalRes.json()
+        fetch(apiUrl + '/services/map?json', {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json'
+            }
+        }),
 
-    return body.data.map((row:any) => {
+        fetch(apiUrl + '/services/map', {
+            method: 'GET',
+            headers: {
+                'accept': 'text/plain'
+            }
+        })
+    ])
 
-        return {
-            propertyType: row[0],
-            propertyValue: row[1],
-            ontologyTermLabel: row[2],
-            ontologyTermSynonyms: row[3],
-            mappingConfidence: row[4],
-            ontologyTermID: row[5],
-            ontologyURI: row[6],
-            datasource: row[7]
-        } as SearchResult
-    })
+
+    let body = await jsonRes.json()
+    let tsv = await tsvRes.text()
+
+    return {
+        results: body.data.map((row:any) => {
+
+            return {
+                propertyType: row[0],
+                propertyValue: row[1],
+                ontologyTermLabel: row[2],
+                ontologyTermSynonyms: row[3],
+                mappingConfidence: row[4],
+                ontologyTermID: row[5],
+                ontologyURI: row[6],
+                datasource: row[7]
+            } as SearchResult
+        }),
+        tsv
+    }
 }
 
 async function status():Promise<string> {
