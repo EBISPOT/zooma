@@ -193,7 +193,7 @@ If you are new to ZOOMA, take a look at our getting started guide.</p>
     }
 
     onDownloadTSV = () => {
-        var blob = new Blob([this.state.tsv], { type: 'application/rdf+xml' })
+        var blob = new Blob([this.state.tsv], { type: 'text/csv' })
         FileSaver.saveAs(blob, 'results.tsv')
     }
 
