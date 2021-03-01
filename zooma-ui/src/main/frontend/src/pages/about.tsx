@@ -2,6 +2,7 @@ import { EBIMasthead } from "../components/EBI";
 import ZoomaNav from "../Navbar";
 import React, { Fragment } from "react";
 import { Row, Column } from 'react-foundation'
+import { Link } from 'react-router-dom'
 
 export default function About() {
 
@@ -18,8 +19,8 @@ export default function About() {
             </p>
 
             <p>
-              If you are new to ZOOMA, take a look at our <a href="./docs/getting-started.html">getting started
-                                                                                                guide</a>.
+              If you are new to ZOOMA, take a look at our <Link to="/docs/search">getting started
+                                                                                                guide</Link>.
             </p>
           </div>
         </div>
