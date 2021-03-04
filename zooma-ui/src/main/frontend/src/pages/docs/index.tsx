@@ -19,8 +19,16 @@ export default function docs() {
                 <Row>
                     <Link to="/docs/api">
                         <div style={{cursor: 'pointer'}}>
-                            <h2>Developer API</h2>
+                            <h2>REST API</h2>
                             <p>Zooma developer documentation, including how to code tools against the Zooma REST API.</p>
+                        </div>
+                    </Link>
+                </Row>
+                <Row>
+                    <Link to="/docs/developers">
+                        <div style={{cursor: 'pointer'}}>
+                            <h2>Annotation model</h2>
+                            <p>Information about the ZOOMA annotation model and data loading.</p>
                         </div>
                     </Link>
                 </Row>
