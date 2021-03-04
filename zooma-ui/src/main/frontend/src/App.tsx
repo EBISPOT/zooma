@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Docs from './pages/docs';
 import DocsApi from './pages/docs/api';
 import DocsSearch from './pages/docs/search';
+import DocsDevelopers from './pages/docs/developers';
 import About from './pages/about';
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
       <Route exact path='/docs' component={Docs}></Route>
       <Route exact path='/docs/search' component={DocsSearch}></Route>
       <Route exact path='/docs/api' component={DocsApi}></Route>
+      <Route exact path='/docs/developers' component={DocsDevelopers}></Route>
       <Route exact path='/about' component={About}></Route>
       <EBIFooter/>
     </div>
