@@ -81,7 +81,7 @@ public class ZOOMA2LoaderDriver extends ZOOMA2BackingUpDriver {
                 CSVAnnotationDAO csvAnnotationDAO = annotationDAOs.get(datasource);
                 csvAnnotationDAO.loadDataFromCSV();
             } catch (Exception e) {
-                throw new ZoomaLoadingException("Could not load datasource: " + datasource, e);
+                getLog().error("Could not load datasource: " + datasource, e);
             }
         }
         getLog().debug("Found and loaded " + loader.getAvailableDatasources().size() + " AnnotationDAOs");
