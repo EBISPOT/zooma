@@ -45,7 +45,9 @@ public class RepositoryConnectionTester extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         try {
+            log.trace("SetUp 1");
             ApplicationContext context = new ClassPathXmlApplicationContext("test-config.xml");
+            log.trace("Application context setup succeeded!");
             SparqlService service = (SparqlService) context.getBean("lodeSparqlService");
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
@@ -64,7 +66,8 @@ public class RepositoryConnectionTester extends TestCase {
             this.studyBean = (SparqlStudyDAO) context.getBean("lodeStudyDAO");
         }
         catch (Exception e) {
-            log.info("Failed to create beans for Repository connection test, no tests run");
+            log.error("Failed to create beans for Repository connection test, no tests run");
+            fail();
         }
     }
 

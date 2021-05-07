@@ -181,15 +181,19 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
                     semanticTagsStr = annotationElements.length <= column || annotationElements[column].isEmpty()
                             ? null
                             : annotationElements[column];
-                    if (semanticTagsStr.contains("|")) {
+                    if (semanticTagsStr == null) {
                         semanticTags = new ArrayList<>();
-                        for (String semanticTagStr : semanticTagsStr.split(Pattern.quote("|"))) {
-                            semanticTags.add(convertSemanticTagToURI(semanticTagStr.trim()));
+                        getLog().error("SEMANTIC_TAG column is empty for line = \"" + line + "\"" );
+                    } else {
+                        if (semanticTagsStr.contains("|")) {
+                            semanticTags = new ArrayList<>();
+                            for (String semanticTagStr : semanticTagsStr.split(Pattern.quote("|"))) {
+                                semanticTags.add(convertSemanticTagToURI(semanticTagStr.trim()));
+                            }
+                        } else {
+                            semanticTags = Collections.singletonList(convertSemanticTagToURI(annotationElements[column]));
                         }
-                    }
-                    else {
-                        semanticTags = Collections.singletonList(convertSemanticTagToURI(annotationElements[column]));
-                    }
+                   }
                 }
                 else {
                     semanticTags = Collections.singletonList(null);

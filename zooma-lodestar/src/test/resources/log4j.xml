@@ -13,7 +13,7 @@
     </logger>
 
     <logger name="uk.ac.ebi" additivity="false">
-        <level value="DEBUG" />
+        <level value="TRACE" />
         <appender-ref ref="console" />
     </logger>
 
