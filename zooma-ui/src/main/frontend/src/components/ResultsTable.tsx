@@ -11,6 +11,7 @@ interface Props {
 }
 
 interface State {
+    hideUnmapped: boolean
 }
 
 export default class ResultsTable extends Component<Props, State> {
@@ -19,12 +20,21 @@ export default class ResultsTable extends Component<Props, State> {
         super(props)
 
         this.state = {
+            hideUnmapped: false
         }
     }
 
     render() {
 
+        let { results } = this.props
+
         return (
+            <Fragment>
+            <label>
+                <input type="checkbox" checked={this.state.hideUnmapped} onClick={this.toggleHideUnmapped}>
+                    Hide results that did not map
+                </input>
+            </label>
             <table>
                 <thead>
                     <tr>
@@ -50,7 +60,9 @@ export default class ResultsTable extends Component<Props, State> {
                 </thead>
                 <tbody>
                     {
-                    this.props.results.map(result =>
+                    results
+                    .filter(result => (!this.state.hideUnmapped) || result.mappingConfidence !== 'Did not map')
+                    .map(result =>
                         <tr className={getResultClass(result)}>
                             <td>{result.propertyType}</td>
                             <td>{result.propertyValue}</td>
@@ -64,7 +76,20 @@ export default class ResultsTable extends Component<Props, State> {
                     )}
                 </tbody>
             </table>
+            <p>
+                <b>Stats:</b> {results.length} properties   
+                {results.filter(r => r.mappingConfidence === 'High').length} high   
+                {results.filter(r => r.mappingConfidence === 'Good').length} good   
+                {results.filter(r => r.mappingConfidence === 'Medium').length} medium   
+                {results.filter(r => r.mappingConfidence === 'Low').length} low 
+                {results.filter(r => r.mappingConfidence === 'Did not map').length} unmapped
+            </p>
+            </Fragment>
         )
+    }
+
+    toggleHideUnmapped = () => {
+        this.setState({ hideUnmapped: !this.state.hideUnmapped })
     }
 
 }
