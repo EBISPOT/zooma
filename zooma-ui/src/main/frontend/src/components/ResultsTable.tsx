@@ -28,12 +28,13 @@ export default class ResultsTable extends Component<Props, State> {
 
         let { results } = this.props
 
+        console.dir(results)
+
         return (
             <Fragment>
             <label>
-                <input type="checkbox" checked={this.state.hideUnmapped} onClick={this.toggleHideUnmapped}>
-                    Hide results that did not map
-                </input>
+                <input type="checkbox" checked={this.state.hideUnmapped} onClick={this.toggleHideUnmapped}/>
+                Hide results that did not map
             </label>
             <table>
                 <thead>
@@ -77,11 +78,11 @@ export default class ResultsTable extends Component<Props, State> {
                 </tbody>
             </table>
             <p>
-                <b>Stats:</b> {results.length} properties   
-                {results.filter(r => r.mappingConfidence === 'High').length} high   
-                {results.filter(r => r.mappingConfidence === 'Good').length} good   
-                {results.filter(r => r.mappingConfidence === 'Medium').length} medium   
-                {results.filter(r => r.mappingConfidence === 'Low').length} low 
+                <b>Stats:</b> {results.length} properties &emsp;&emsp;
+                {results.filter(r => r.mappingConfidence === 'High').length} high &emsp;&emsp;
+                {results.filter(r => r.mappingConfidence === 'Good').length} good  &emsp;&emsp;
+                {results.filter(r => r.mappingConfidence === 'Medium').length} medium  &emsp;&emsp;
+                {results.filter(r => r.mappingConfidence === 'Low').length} low &emsp;&emsp;
                 {results.filter(r => r.mappingConfidence === 'Did not map').length} unmapped
             </p>
             </Fragment>

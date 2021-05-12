@@ -25,10 +25,6 @@ main {
     background-color: #FFFDC4 !important;
 }
 
-.unmapped {
-    display: none;
-}
-
 .context-help-wrapper {
     position: relative;
     top: 20px;
