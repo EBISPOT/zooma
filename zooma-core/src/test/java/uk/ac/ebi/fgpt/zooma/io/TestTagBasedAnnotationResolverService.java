@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.io;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
@@ -22,13 +22,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotSame;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertSame;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +59,7 @@ public class TestTagBasedAnnotationResolverService {
         return log;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         URI studyURI = URI.create("http://www.ebi.ac.uk/zooma/test/study");
         URI sourceURI = URI.create("http://www.ebi.ac.uk/zooma/test");
@@ -128,7 +128,7 @@ public class TestTagBasedAnnotationResolverService {
         resolver.setZoomaAnnotationDAO(annotationDAO);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         resolver.shutdown();
         resolver = null;
@@ -147,15 +147,15 @@ public class TestTagBasedAnnotationResolverService {
                                emptyAnnotation);
             Collection<Annotation> results1 = resolver.resolve("Test 1", annotations1);
             // expect 2 results = unresolvable and modified
-            assertEquals("Unexpected number of results", 2, results1.size());
+            assertEquals(2, results1.size(), "Unexpected number of results");
             // resolvable annotation already exists, so should be absent
-            assertFalse("Results contains unexpected annotation", results1.contains(resolvableAnnotation));
+            assertFalse(results1.contains(resolvableAnnotation), "Results contains unexpected annotation");
             // unresolvable annotation does not exist so should be present
-            assertTrue("Results is missing expected annotation", results1.contains(unresolvableAnnotation));
+            assertTrue(results1.contains(unresolvableAnnotation), "Results is missing expected annotation");
             // modified annotation is new, so should be present
-            assertTrue("Results is missing expected annotation", results1.contains(modifiedAnnotation));
+            assertTrue(results1.contains(modifiedAnnotation), "Results is missing expected annotation");
             // empty annotation has no semantic tag so should be excluded
-            assertFalse("Results contains unexpected annotation", results1.contains(emptyAnnotation));
+            assertFalse(results1.contains(emptyAnnotation), "Results contains unexpected annotation");
 
 
             Collection<Annotation> annotations2 = new HashSet<>();
@@ -163,10 +163,10 @@ public class TestTagBasedAnnotationResolverService {
                                updatedAnnotation);
             Collection<Annotation> results2 = resolver.resolve("Test 2", annotations2);
             // expect 1 result = new version of updated
-            assertEquals("Unexpected number of results", 1, results2.size());
+            assertEquals(1, results2.size(), "Unexpected number of results");
             // updated OR resolvable annotation already exists, so should be absent
-            assertFalse("Results contains unexpected annotation", results2.contains(updatedAnnotation));
-            assertFalse("Results contains unexpected annotation", results2.contains(resolvableAnnotation));
+            assertFalse(results2.contains(updatedAnnotation), "Results contains unexpected annotation");
+            assertFalse(results2.contains(resolvableAnnotation), "Results contains unexpected annotation");
             // updated annotation should cause a new annotation to be added
             boolean foundRelated = false;
             for (Annotation a : results2) {
@@ -179,7 +179,7 @@ public class TestTagBasedAnnotationResolverService {
                     }
                 }
             }
-            assertTrue("Results is missing expected annotation", foundRelated);
+            assertTrue(foundRelated, "Results is missing expected annotation");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -196,30 +196,30 @@ public class TestTagBasedAnnotationResolverService {
             // if annotation resolves, should get null result
             result = resolver.resolve(resolvableAnnotation);
             getLog().debug("Testing resolvableAnnotation does resolve");
-            assertNull("Result of annotation resolving is not null", result);
+            assertNull(result, "Result of annotation resolving is not null");
             getLog().debug("Result was null as expected");
 
             // if annotation does not resolve, should get exact annotation back as result
             result = resolver.resolve(unresolvableAnnotation);
             getLog().debug("Testing unresolvableAnnotation does not resolve");
-            assertSame("Result of annotation resolving is not the same", result, unresolvableAnnotation);
+            assertSame(result, unresolvableAnnotation, "Result of annotation resolving is not the same");
             getLog().debug("Result was same as expected");
 
             // if annotation exists (by URI) but is updated, we should get back a new annotation linked to the old one
             result = resolver.resolve(updatedAnnotation);
             getLog().debug("Testing updatedAnnotation resolves and returns an updated form");
-            assertNotSame("Result is the same annotation as that resolved", result, updatedAnnotation);
+            assertNotSame(result, updatedAnnotation, "Result is the same annotation as that resolved");
             getLog().debug("Result was not the same as expected");
             getLog().debug("Annotation comparison:" +
                                    "\n\tResult:  \t" + result.toString() +
                                    "\n\tOriginal:\t" + updatedAnnotation.toString());
-            assertTrue("Result is not replaced by updatedAnnotation",
-                       result.getReplaces().contains(resolvableAnnotation.getURI()));
+            assertTrue(result.getReplaces().contains(resolvableAnnotation.getURI()),
+                    "Result is not replaced by updatedAnnotation");
 
             // if annotation doesn't exist but is a modified version of an old one, we should get back our original annotation, but linked to an old one
             result = resolver.resolve(modifiedAnnotation);
-            assertTrue("No relation between result and resolvableAnnotation",
-                       result.getReplaces().contains(resolvableAnnotation.getURI()));
+            assertTrue(result.getReplaces().contains(resolvableAnnotation.getURI()),
+                    "No relation between result and resolvableAnnotation");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -234,10 +234,10 @@ public class TestTagBasedAnnotationResolverService {
         Collection<Annotation> results;
         try {
             results = resolver.filter(Collections.singleton(resolvableAnnotation));
-            assertTrue("resolvableAnnotation was unexpectedly filtered", results.contains(resolvableAnnotation));
+            assertTrue(results.contains(resolvableAnnotation), "resolvableAnnotation was unexpectedly filtered");
 
             results = resolver.filter(Collections.singleton(emptyAnnotation));
-            assertFalse("emptyAnnotation was unexpectedly preserved", results.contains(emptyAnnotation));
+            assertFalse(results.contains(emptyAnnotation), "emptyAnnotation was unexpectedly preserved");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -248,41 +248,37 @@ public class TestTagBasedAnnotationResolverService {
     @Test
     public void testAnnotationExists() {
         getLog().info("Testing exists()");
-        assertTrue("Annotation does not exist as expected", resolver.exists(resolvableAnnotation));
-        assertFalse("Annotation exists, but shouold not", resolver.exists(unresolvableAnnotation));
+        assertTrue(resolver.exists(resolvableAnnotation), "Annotation does not exist as expected");
+        assertFalse(resolver.exists(unresolvableAnnotation), "Annotation exists, but shouold not");
     }
 
     @Test
     public void testIsAnnotationUpdated() {
         getLog().info("Testing isUpdated()");
-        assertTrue("Annotation not detected as updated",
-                   resolver.isUpdated(updatedAnnotation, resolvableAnnotation));
-        assertTrue("Annotation not detected as updated",
-                   resolver.isUpdated(modifiedAnnotation, resolvableAnnotation));
-        assertFalse("Annotation detected as updated unexpectedly",
-                    resolver.isUpdated(resolvableAnnotation, resolvableAnnotation));
+        assertTrue(resolver.isUpdated(updatedAnnotation, resolvableAnnotation),
+                "Annotation not detected as updated");
+        assertTrue(resolver.isUpdated(modifiedAnnotation, resolvableAnnotation),
+                "Annotation not detected as updated");
+        assertFalse(resolver.isUpdated(resolvableAnnotation, resolvableAnnotation),
+                "Annotation detected as updated unexpectedly");
     }
 
     @Test
     public void testWasAnnotationModified() {
         getLog().info("Testing wasModified()");
-        assertTrue("Annotation not detected as modified", resolver.wasModified(updatedAnnotation));
-        assertTrue("Annotation not detected as modified", resolver.wasModified(modifiedAnnotation));
-        assertFalse("Annotation detected as modified unexpectedly",
-                    resolver.wasModified(unresolvableAnnotation));
+        assertTrue(resolver.wasModified(updatedAnnotation), "Annotation not detected as modified");
+        assertTrue(resolver.wasModified(modifiedAnnotation), "Annotation not detected as modified");
+        assertFalse(resolver.wasModified(unresolvableAnnotation), "Annotation detected as modified unexpectedly");
     }
 
     @Test
     public void testFindModifiedAnnotation() {
         getLog().info("Testing findModified()");
-        assertSame("Annotation not detected as modified",
-                   resolver.findModified(updatedAnnotation),
-                   resolvableAnnotation);
-        assertSame("Annotation not detected as modified",
-                   resolver.findModified(modifiedAnnotation),
-                   resolvableAnnotation);
-        assertNull("Annotation detected as modified unexpectedly",
-                   resolver.findModified(unresolvableAnnotation));
+        assertSame(resolver.findModified(updatedAnnotation),
+                   resolvableAnnotation, "Annotation not detected as modified");
+        assertSame(resolver.findModified(modifiedAnnotation),
+                   resolvableAnnotation, "Annotation not detected as modified");
+        assertNull(resolver.findModified(unresolvableAnnotation), "Annotation detected as modified unexpectedly");
     }
 
     @Test
@@ -291,19 +287,19 @@ public class TestTagBasedAnnotationResolverService {
         Annotation result;
         try {
             result = resolver.findModified(updatedAnnotation);
-            assertEquals("Annotation modification does not match expected",
-                         ZoomaResolver.Modification.PROPERTY_VALUE_MODIFICATION,
-                         resolver.getModification(updatedAnnotation, result));
+            assertEquals(ZoomaResolver.Modification.PROPERTY_VALUE_MODIFICATION,
+                         resolver.getModification(updatedAnnotation, result),
+                    "Annotation modification does not match expected");
             result = resolver.findModified(modifiedAnnotation);
-            assertEquals("Annotation modification does not match expected",
-                         ZoomaResolver.Modification.PROPERTY_VALUE_MODIFICATION,
-                         resolver.getModification(modifiedAnnotation, result));
+            assertEquals(ZoomaResolver.Modification.PROPERTY_VALUE_MODIFICATION,
+                         resolver.getModification(modifiedAnnotation, result),
+                    "Annotation modification does not match expected");
             result = resolver.findModified(resolvableAnnotation);
-            assertEquals("Annotation modification does not match expected",
-                         ZoomaResolver.Modification.NO_MODIFICATION,
-                         resolver.getModification(resolvableAnnotation, result));
+            assertEquals(ZoomaResolver.Modification.NO_MODIFICATION,
+                         resolver.getModification(resolvableAnnotation, result),
+                    "Annotation modification does not match expected");
             result = resolver.findModified(unresolvableAnnotation);
-            assertNull("Annotation modification does not match expected", result);
+            assertNull(result, "Annotation modification does not match expected");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -321,10 +317,10 @@ public class TestTagBasedAnnotationResolverService {
             assertTrue(result.toString().equals(incrementTestFirst.toString() + "_1"));
 
             result = resolver.incrementAnnotationURI(incrementTestRepeat);
-            assertFalse("Result should not match a pre-existing one",
-                        result.toString().equals(incrementTestRepeat1.toString()));
-            assertFalse("Result should not match a pre-existing one",
-                        result.toString().equals(incrementTestRepeat2.toString()));
+            assertFalse(result.toString().equals(incrementTestRepeat1.toString()),
+                    "Result should not match a pre-existing one");
+            assertFalse(result.toString().equals(incrementTestRepeat2.toString()),
+                    "Result should not match a pre-existing one");
             assertTrue(result.toString().equals(incrementTestRepeat.toString() + "_3"));
         }
         catch (Exception e) {

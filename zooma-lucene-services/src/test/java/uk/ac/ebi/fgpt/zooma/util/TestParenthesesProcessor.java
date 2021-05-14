@@ -1,15 +1,15 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Javadocs go here!
@@ -32,7 +32,7 @@ public class TestParenthesesProcessor {
 //    private  boolean throughInterruptedException = false;
     private ParenthesesProcessor processor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         processor = new ParenthesesProcessor();
     }
@@ -89,7 +89,7 @@ public class TestParenthesesProcessor {
             assertTrue(processor.canProcess(combi));
             List<String> results = processor.processSearchString(combi);
             assertEquals(1, results.size());
-            assertEquals("something  and some more content) and more ( with", results.get(0));
+            assertEquals(results.get(0), "something  and some more content) and more ( with");
         }
         catch (InterruptedException e) {
             e.printStackTrace();

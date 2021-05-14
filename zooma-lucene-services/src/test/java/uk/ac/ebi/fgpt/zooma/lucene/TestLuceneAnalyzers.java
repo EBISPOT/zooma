@@ -19,8 +19,8 @@ import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +32,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Javadocs go here!
@@ -57,7 +57,7 @@ public class TestLuceneAnalyzers {
         return log;
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         try {
             // create index setup
@@ -163,7 +163,7 @@ public class TestLuceneAnalyzers {
                             results.add(d.get("title"));
                             getLog().debug("Result " + (i + 1) + ": " + d.get("title"));
                         }
-                        assertTrue("Results does not contain expected title '" + query + "'", results.contains(query));
+                        assertTrue(results.contains(query), "Results does not contain expected title '" + query + "'");
                     }
                 }
             }
@@ -195,7 +195,7 @@ public class TestLuceneAnalyzers {
                     results.add(d.get("title"));
                     getLog().debug("Result " + (i + 1) + ": " + d.get("title"));
                 }
-                assertTrue("Results does not contain expected title '" + query + "'", results.contains(query.toString()));
+                assertTrue(results.contains(query.toString()), "Results does not contain expected title '" + query + "'");
             }
         }
         catch (IOException e) {

@@ -1,13 +1,14 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.semanticweb.owlapi.model.IRI;
 
 import java.io.IOException;
 import java.net.URL;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 /**
  * @author Tony Burdett
@@ -30,18 +31,18 @@ public class TestOntologyAccessionUtils {
             // do forward lookups
             IRI iri;
             iri = OntologyAccessionUtils.getIRIFromAccession(testAccession1);
-            assertEquals("IRI doesn't match that expected from lookup", testIri1, iri);
+            assertEquals(testIri1, iri, "IRI doesn't match that expected from lookup");
 
             iri = OntologyAccessionUtils.getIRIFromAccession(testAccession2);
-            assertEquals("IRI doesn't match that expected from lookup", testIri2, iri);
+            assertEquals(testIri2, iri, "IRI doesn't match that expected from lookup");
 
             // do a reverse lookup
             String accession;
             accession = OntologyAccessionUtils.getAccessionFromIRI(testIri1);
-            assertEquals("Accession doesn't match that expected from lookup", testAccession1, accession);
+            assertEquals(testAccession1, accession, "Accession doesn't match that expected from lookup");
 
             accession = OntologyAccessionUtils.getAccessionFromIRI(testIri2);
-            assertEquals("Accession doesn't match that expected from lookup", testAccession2, accession);
+            assertEquals(testAccession2, accession,"Accession doesn't match that expected from lookup");
         }
         catch (IOException e) {
             e.printStackTrace();

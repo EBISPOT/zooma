@@ -1,16 +1,16 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 
 public class TestUnmodifyingSorter {
-    @Before
+    @BeforeEach
     public void setUp() {
 
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
 
     }

@@ -1,7 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static junit.framework.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Javadocs go here!
@@ -52,7 +52,7 @@ public class TestURIUtils {
 
     private URI inferredURI;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         URL url = getClass().getClassLoader().getResource("config/naming/prefix.properties");
         String path = url != null ? url.toString().replace("file:", "").replace("config/naming/prefix.properties", "") : "";
@@ -108,9 +108,9 @@ public class TestURIUtils {
             e.printStackTrace();
             fail("Couldn't load prefix properties");
         }
-        assertEquals("Unexpected number of prefixes", properties.size(), prefixMappings.size());
-        assertTrue("Could not find 'slash' prefix", prefixMappings.containsKey("slash"));
-        assertTrue("Could not find 'hash' prefix", prefixMappings.containsKey("hash"));
+        assertEquals(properties.size(), prefixMappings.size(), "Unexpected number of prefixes");
+        assertTrue(prefixMappings.containsKey("slash"),"Could not find 'slash' prefix");
+        assertTrue(prefixMappings.containsKey("hash"), "Could not find 'hash' prefix");
         System.out.println("Contents of prefix mappings: " + prefixMappings.toString());
     }
 
@@ -119,10 +119,10 @@ public class TestURIUtils {
         String result;
         result = URIUtils.getShortform(uri1);
         System.out.println("Shortened " + uri1 + " -> " + result);
-        assertEquals("Unexpected shortened form", prefix1 + ":term", result);
+        assertEquals(prefix1 + ":term", result, "Unexpected shortened form");
         result = URIUtils.getShortform(uri2);
         System.out.println("Shortened " + uri2 + " -> " + result);
-        assertEquals("Unexpected shortened form", prefix2 + ":term", result);
+        assertEquals(prefix2 + ":term", result, "Unexpected shortened form");
     }
 
     @Test
@@ -132,9 +132,9 @@ public class TestURIUtils {
         pm.put(prefix2, namespace3);
         pm.put(prefix3, namespace4);
 
-        assertEquals("Unexpected shortened form", prefix1 + ":term", URIUtils.getShortform(pm, uri1));
-        assertEquals("Unexpected shortened form", prefix2 + ":term", URIUtils.getShortform(pm, uri2));
-        assertEquals("Unexpected shortened form", prefix3 + ":term", URIUtils.getShortform(pm, uri3));
+        assertEquals(prefix1 + ":term", URIUtils.getShortform(pm, uri1), "Unexpected shortened form");
+        assertEquals(prefix2 + ":term", URIUtils.getShortform(pm, uri2), "Unexpected shortened form");
+        assertEquals(prefix3 + ":term", URIUtils.getShortform(pm, uri3), "Unexpected shortened form");
     }
 
 
@@ -144,8 +144,8 @@ public class TestURIUtils {
         pm.put(prefix1, namespace2);
         pm.put(prefix2, namespace3);
 
-        assertEquals("Unexpected lengthened form", uri1, URIUtils.getURI(pm, shortform1));
-        assertEquals("Unexpected lengthened form", uri2, URIUtils.getURI(pm, shortform2));
+        assertEquals(uri1, URIUtils.getURI(pm, shortform1), "Unexpected lengthened form");
+        assertEquals(uri2, URIUtils.getURI(pm, shortform2), "Unexpected lengthened form");
     }
 
     @Test
@@ -178,26 +178,26 @@ public class TestURIUtils {
         // first pass
         shortform = URIUtils.getShortform(uri4, strictness, prefixCreationMode);
         System.out.println("Shortened " + uri4 + " -> " + shortform);
-        assertEquals("Unexpected shortened form", "anoth:term", shortform);
+        assertEquals("anoth:term", shortform, "Unexpected shortened form");
         uri = URIUtils.getURI(shortform);
         System.out.println("Lengthened " + uri4 + " -> " + uri);
-        assertEquals("Unexpected uri", uri4, uri);
+        assertEquals(uri4, uri, "Unexpected uri");
 
         // second pass, should reuse cached prefix zooma1
         shortform = URIUtils.getShortform(uri4, strictness, prefixCreationMode);
         System.out.println("Shortened " + uri4 + " -> " + shortform);
-        assertEquals("Unexpected shortened form", "anoth:term", shortform);
+        assertEquals("anoth:term", shortform, "Unexpected shortened form");
         uri = URIUtils.getURI(shortform);
         System.out.println("Lengthened " + shortform + " -> " + uri);
-        assertEquals("Unexpected uri", uri4, uri);
+        assertEquals(uri4, uri, "Unexpected uri");
 
         // test namespace ends in # instead of /
         shortform = URIUtils.getShortform(uri5, strictness, prefixCreationMode);
         System.out.println("Shortened " + uri5 + " -> " + shortform);
-        assertEquals("Unexpected shortened form", "yetan:term", shortform);
+        assertEquals("yetan:term", shortform, "Unexpected shortened form");
         uri = URIUtils.getURI(shortform);
         System.out.println("Lengthened " + shortform + " -> " + uri);
-        assertEquals("Unexpected uri", uri5, uri);
+        assertEquals(uri5, uri,"Unexpected uri");
     }
 
     @Test
@@ -209,7 +209,7 @@ public class TestURIUtils {
         String result;
         result = URIUtils.getShortform(uri6, strictness, prefixCreationMode);
         System.out.println("Shortened " + uri6 + " -> " + result);
-        assertFalse("Short form results in an invalid localname", result.contains("/") || result.contains("#"));
+        assertFalse(result.contains("/") || result.contains("#"), "Short form results in an invalid localname");
     }
 
     @Test
@@ -221,7 +221,7 @@ public class TestURIUtils {
         String result;
         result = URIUtils.getShortform(uri9, strictness, prefixCreationMode);
         System.out.println("Shortened " + uri9 + " -> " + result);
-        assertFalse("Short form results in an invalid localname", result.contains("/"));
+        assertFalse(result.contains("/"), "Short form results in an invalid localname");
     }
 
     @Test
@@ -230,12 +230,12 @@ public class TestURIUtils {
         result = URIUtils.getShortform(uri7);
         localName = result.replace(result.substring(0, result.lastIndexOf(":") + 1), "");
         System.out.println("Shortened " + uri7 + " -> " + result);
-        assertFalse("Short form results in an invalid localname '" + localName + "'", localName.isEmpty());
+        assertFalse(localName.isEmpty(), "Short form results in an invalid localname '" + localName + "'");
 
         result = URIUtils.getShortform(uri7);
         localName = result.replace(result.substring(0, result.lastIndexOf(":") + 1), "");
         System.out.println("Shortened " + uri7 + " -> " + result);
-        assertFalse("Short form results in an invalid localname '" + localName + "'", localName.isEmpty());
+        assertFalse(localName.isEmpty(), "Short form results in an invalid localname '" + localName + "'");
     }
 
     @Test
@@ -257,8 +257,8 @@ public class TestURIUtils {
         String result;
         result = URIUtils.getShortform(inferredURI);
         System.out.println("Shortened " + inferredURI + " -> " + result);
-        assertEquals("Unexpected shortened form", inferredPrefix + ":term", result);
+        assertEquals(inferredPrefix + ":term", result, "Unexpected shortened form");
 
-        assertEquals("Unexpected lengthened form", inferredURI, URIUtils.getURI(inferredShortform));
+        assertEquals(inferredURI, URIUtils.getURI(inferredShortform), "Unexpected lengthened form");
     }
 }

@@ -1,7 +1,7 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +39,7 @@ public class TestOWLAnnotationDAO {
         return log;
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         try {
             IRI testOntologyIRI = IRI.create(getClass().getClassLoader().getResource("test.owl"));

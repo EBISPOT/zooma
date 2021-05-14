@@ -17,16 +17,16 @@ import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestLuceneIndexWriter {
     private Version version;
@@ -40,7 +40,7 @@ public class TestLuceneIndexWriter {
         return log;
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         try {
             // create index setup
@@ -98,7 +98,7 @@ public class TestLuceneIndexWriter {
             ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
             // print results
-            assertEquals("Wrong number of hits", 4, hits.length);
+            assertEquals(4, hits.length, "Wrong number of hits");
             for (int i = 0; i < hits.length; ++i) {
                 int docId = hits[i].doc;
                 Document d = searcher.doc(docId);

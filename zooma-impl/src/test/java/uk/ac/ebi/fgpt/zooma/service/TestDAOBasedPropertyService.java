@@ -1,8 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 
 import java.net.URI;
@@ -10,13 +8,17 @@ import java.net.URI;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+
 public class TestDAOBasedPropertyService {
     private PropertyDAO dao;
     private DAOBasedPropertyService service;
 
     private URI uri;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         dao = mock(PropertyDAO.class);
         service = new DAOBasedPropertyService();
@@ -24,7 +26,7 @@ public class TestDAOBasedPropertyService {
         uri = URI.create("http://test.org/uri");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         service = null;
         dao = null;

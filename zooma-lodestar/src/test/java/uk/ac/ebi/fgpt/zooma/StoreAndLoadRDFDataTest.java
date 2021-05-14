@@ -1,7 +1,11 @@
 package uk.ac.ebi.fgpt.zooma;
 
-import junit.framework.TestCase;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -10,21 +14,21 @@ import uk.ac.ebi.fgpt.lode.service.SparqlService;
 import uk.ac.ebi.fgpt.lode.utils.TupleQueryFormats;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
+import uk.ac.ebi.fgpt.zooma.util.LabelUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-@Ignore
-public class StoreAndLoadRDFDataTest extends TestCase {
+@Disabled
+public class StoreAndLoadRDFDataTest {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     private SparqlService sparqlService;
     private AnnotationDAO annotationBean;
 
+    @BeforeEach
+    public void setUp() {
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
         try {
             logger.trace("Setup 1");
             ApplicationContext context = new ClassPathXmlApplicationContext("minimal-virtuoso-test-config.xml");
@@ -35,6 +39,12 @@ public class StoreAndLoadRDFDataTest extends TestCase {
             logger.error("Failed to create beans for Repository connection test, no tests run");
             fail();
         }
+    }
+
+    @AfterEach
+    public void teardown() {
+        sparqlService = null;
+        annotationBean = null;
     }
 
     public void testSimpleSPARQLQuery() {

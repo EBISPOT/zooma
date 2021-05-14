@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.access;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.mockito.ArgumentMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
@@ -49,7 +49,7 @@ public class TestZoomaPropertySearchEngine {
         return log;
     }
 
-    @SuppressWarnings("unchecked") @Before
+    @SuppressWarnings("unchecked") @BeforeEach
     public void setUp() {
         // create the greek alphabet/numeric system
         String alpha = "alpha";
@@ -146,7 +146,7 @@ public class TestZoomaPropertySearchEngine {
                                                          propertyLimiter);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         // don't need to do anything here
     }
@@ -157,7 +157,7 @@ public class TestZoomaPropertySearchEngine {
             String prefix = number.getPropertyValue().substring(0, 3);
             getLog().debug("Testing query for " + prefix);
             Collection<Property> searchResults = propertySearchEngine.query(prefix);
-            assertSame("Unexpected prefix search results returned for " + prefix, numbers, searchResults);
+            assertSame(numbers, searchResults, "Unexpected prefix search results returned for " + prefix);
             verify(propertySearchService).searchByPrefix(prefix);
         }
     }
@@ -169,7 +169,7 @@ public class TestZoomaPropertySearchEngine {
             String type = ((TypedProperty) number).getPropertyType();
             getLog().debug("Testing query for " + prefix + ", " + type);
             Collection<Property> searchResults = propertySearchEngine.query(prefix, type);
-            assertSame("Unexpected prefix and type search results returned for " + prefix, numbers, searchResults);
+            assertSame(numbers, searchResults, "Unexpected prefix and type search results returned for " + prefix);
             verify(propertySearchService).searchByPrefix(type, prefix);
         }
     }
@@ -182,9 +182,9 @@ public class TestZoomaPropertySearchEngine {
             String type = ((TypedProperty) number).getPropertyType();
             getLog().debug("Testing query for " + prefix + ", " + type + ", 10, 0");
             Collection<Property> searchResults = propertySearchEngine.query(prefix, type, 10, 0);
-            assertSame("Unexpected prefix, type, limit search results returned for " + prefix,
-                       limitedProperties,
-                       searchResults);
+            assertSame(limitedProperties,
+                       searchResults,
+                    "Unexpected prefix, type, limit search results returned for " + prefix);
             verify(propertySearchService).searchByPrefix(type, prefix);
             verify(propertySorter, times(i)).sort(numbers);
             verify(propertyLimiter, times(i++)).limit(numbers, 10, 0);

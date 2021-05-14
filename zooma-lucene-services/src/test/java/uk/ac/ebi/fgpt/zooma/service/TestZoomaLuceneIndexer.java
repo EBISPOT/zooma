@@ -7,9 +7,9 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationSummaryDAO;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
@@ -43,10 +43,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -68,7 +68,7 @@ public class TestZoomaLuceneIndexer {
     //    private PropertyDAO singlePropertyDAO;
     private PropertyDAO propertyDAO;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         try {
             // create index setup
@@ -239,7 +239,7 @@ public class TestZoomaLuceneIndexer {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
 //        singlePropertyDAO = null;
         propertyDAO = null;
@@ -340,7 +340,7 @@ public class TestZoomaLuceneIndexer {
         Collection<AnnotationSummary> results = searchService.search("value1", emptySources, emptySources);
 
         // assert result is as expected
-        assertEquals("Wrong number of results", 2, results.size());
+        assertEquals(2, results.size(), "Wrong number of results");
 
         // get both summaries
         AnnotationSummary verifiedSummary = null;
@@ -355,10 +355,10 @@ public class TestZoomaLuceneIndexer {
             }
         }
 
-        assertNotNull("Could not find a verified annotation summary", verifiedSummary);
-        assertNotNull("Could not find an unverified annotation summary", unverifiedSummary);
+        assertNotNull(verifiedSummary, "Could not find a verified annotation summary");
+        assertNotNull(unverifiedSummary, "Could not find an unverified annotation summary");
 
-        assertTrue("Verified summary should score higher than unverified summary",
-                verifiedSummary.getQuality() > unverifiedSummary.getQuality());
+        assertTrue(verifiedSummary.getQuality() > unverifiedSummary.getQuality(),
+                "Verified summary should score higher than unverified summary");
     }
 }

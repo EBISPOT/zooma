@@ -1,7 +1,8 @@
 package uk.ac.ebi.fgpt.zooma;
 
-import junit.framework.TestCase;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -18,6 +19,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * @author Simon Jupp
  * @date 17/05/2012 Functional Genomics Group EMBL-EBI
@@ -25,8 +29,8 @@ import java.util.List;
  * This is an integration test of the DAOs when connected to a triple store, by default these should be ignored unless a
  * specific backend is provided
  */
-//@Ignore
-public class RepositoryConnectionTester extends TestCase {
+
+public class RepositoryConnectionTester {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -41,9 +45,8 @@ public class RepositoryConnectionTester extends TestCase {
 
     boolean hasConnection = false;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    public void setUp() {
         try {
             log.trace("SetUp 1");
             ApplicationContext context = new ClassPathXmlApplicationContext("test-config.xml");
@@ -71,6 +74,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlAnnotationDao1() {
 
         if (hasConnection) {
@@ -79,6 +83,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlAnnotationDao2() {
 
         if (hasConnection) {
@@ -105,6 +110,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlAnnotationDao2a() {
 
         if (hasConnection) {
@@ -130,6 +136,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlAnnotationDao2b() {
 
         if (hasConnection) {
@@ -160,6 +167,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlAnnotationDao2c() {
 
         if (hasConnection) {
@@ -183,6 +191,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlAnnotationDao3() {
 
         if (hasConnection) {
@@ -201,6 +210,7 @@ public class RepositoryConnectionTester extends TestCase {
     }
 
 
+    @Test
     public void testSparqlSummaryAnnotationDao3() {
 
         if (hasConnection) {
@@ -217,6 +227,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlSummaryAnnotationDao3a() {
 
         if (hasConnection) {
@@ -230,6 +241,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlSummaryAnnotationDao3b() {
 
         if (hasConnection) {
@@ -249,6 +261,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlSummaryAnnotationDao3c() {
 
         if (hasConnection) {
@@ -268,6 +281,7 @@ public class RepositoryConnectionTester extends TestCase {
     }
 
 
+    @Test
     public void testSparqlAnnotationDao5() {
 
         if (hasConnection) {
@@ -287,6 +301,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlAnnotationDao6() {
 
         if (hasConnection) {
@@ -306,6 +321,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlAnnotationLoading() {
 
         if (hasConnection) {
@@ -337,6 +353,7 @@ public class RepositoryConnectionTester extends TestCase {
 
     }
 
+    @Test
     public void testSparqlAnnotationDeleting() {
 
         if (hasConnection) {
@@ -368,6 +385,7 @@ public class RepositoryConnectionTester extends TestCase {
 
     }
 
+    @Test
     public void testSparqlAnnotationDeleting2 ()  {
         Annotation newanno = new SimpleAnnotation(URI.create("http://rdf.ebi.ac.uk/resource/zooma/arrayexpress/002E4969CFD3C4B1E829912ABB3FE706-test"),
                                                   null,
@@ -380,6 +398,7 @@ public class RepositoryConnectionTester extends TestCase {
 
     }
 
+    @Test
     public void testSparqlPropertyDao() {
 
         if (hasConnection) {
@@ -399,6 +418,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
     }
 
+    @Test
     public void testSparqlPropertyDao2() {
 
             if (hasConnection) {
@@ -419,6 +439,7 @@ public class RepositoryConnectionTester extends TestCase {
         }
 
 
+    @Test
     public void testSparqlStudyDao1() {
 
         if (hasConnection) {

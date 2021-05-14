@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.access;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.zooma.model.Annotation;
@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
@@ -54,7 +54,7 @@ public class TestZoomaAnnotationSearchEngine {
         return log;
     }
 
-    @SuppressWarnings("unchecked") @Before
+    @SuppressWarnings("unchecked") @BeforeEach
     public void setUp() {
         // create the greek alphabet/numeric system
         String alpha = "alpha";
@@ -118,7 +118,7 @@ public class TestZoomaAnnotationSearchEngine {
                                                       annotationLimiter);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         // don't need to do anything here
     }
@@ -131,7 +131,7 @@ public class TestZoomaAnnotationSearchEngine {
             getLog().debug("Testing query for " + prefix);
             Collection<Annotation> searchResults = annotationSearchEngine.query(prefix);
             verify(annotationSearchService).searchByPrefix(prefix);
-            assertEquals("Unexpected prefix search results returned for " + prefix, annotations, searchResults);
+            assertEquals(annotations, searchResults, "Unexpected prefix search results returned for " + prefix);
         }
     }
 
@@ -146,9 +146,9 @@ public class TestZoomaAnnotationSearchEngine {
             Collection<Annotation> searchResults = annotationSearchEngine.query(prefix, type);
             verify(annotationSearchService).searchByPrefix(type, prefix);
             verify(annotationSorter, times(i++)).sort(annotations);
-            assertEquals("Unexpected prefix and type search results returned for " + prefix,
-                         annotations,
-                         searchResults);
+            assertEquals(annotations,
+                         searchResults,
+                    "Unexpected prefix and type search results returned for " + prefix);
         }
     }
 
@@ -164,9 +164,9 @@ public class TestZoomaAnnotationSearchEngine {
             verify(annotationSearchService).searchByPrefix(type, prefix);
             verify(annotationSorter, times(i)).sort(annotations);
             verify(annotationLimiter, times(i++)).limit(annotations, 10, 0);
-            assertEquals("Unexpected prefix, type, limit search results returned for " + prefix,
-                         limitedAnnotations,
-                         searchResults);
+            assertEquals(limitedAnnotations,
+                         searchResults,
+                    "Unexpected prefix, type, limit search results returned for " + prefix);
         }
     }
 }

@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import uk.ac.ebi.fgpt.zooma.datasource.AnnotationDAO;
 import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
 import uk.ac.ebi.fgpt.zooma.model.Property;
@@ -24,7 +24,7 @@ public class TestDAOBasedAnnotationService {
     private URI uri;
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
         dao = mock(AnnotationDAO.class);
         service = new DAOBasedAnnotationService();
@@ -37,7 +37,7 @@ public class TestDAOBasedAnnotationService {
         uri = URI.create("http://test.org/uri");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         service = null;
         dao = null;

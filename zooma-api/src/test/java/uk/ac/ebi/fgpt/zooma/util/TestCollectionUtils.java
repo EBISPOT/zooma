@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,8 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Javadocs go here!
@@ -22,6 +21,8 @@ import static junit.framework.Assert.assertTrue;
  * @date 18/02/13
  */
 public class TestCollectionUtils {
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     private Object item1;
     private Object item2;
 
@@ -31,8 +32,9 @@ public class TestCollectionUtils {
     private Object unequalItem1;
     private Object unequalItem2;
 
-    @Before
+    @BeforeEach
     public void setup() {
+        logger.trace("Initializing item1");
         item1 = new Object() {
             @Override public int hashCode() {
                 return 1;
@@ -77,7 +79,7 @@ public class TestCollectionUtils {
         unequalItem2 = new Object();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         item1 = null;
         item2 = null;
@@ -90,21 +92,18 @@ public class TestCollectionUtils {
     @Test
     public void testSame() {
         Collection coll = Arrays.asList(item1, item2);
-        assertTrue("Comparing identical collections should be return true",
-                   CollectionUtils.compareCollectionContents(coll, coll));
+        assertTrue(CollectionUtils.compareCollectionContents(coll, coll), "Comparing identical collections should be return true");
     }
 
     @Test
     public void testAllEqual() {
         Collection coll1 = Arrays.asList(item1, item2);
         Collection coll2 = Arrays.asList(equalItem1, equalItem2);
-        assertTrue("Comparing equal collections should be return true",
-                   CollectionUtils.compareCollectionContents(coll1, coll2));
+        assertTrue(CollectionUtils.compareCollectionContents(coll1, coll2), "Comparing equal collections should be return true");
 
         Collection coll3 = Arrays.asList(item1, item2);
-        Collection coll4 = Arrays.asList(equalItem1, equalItem2);
-        assertTrue("Comparing equal but differently ordered collections should be return true",
-                   CollectionUtils.compareCollectionContents(coll3, coll4));
+        Collection coll4 = Arrays.asList(equalItem2, equalItem1);
+        assertTrue(CollectionUtils.compareCollectionContents(coll3, coll4), "Comparing equal but differently ordered collections should be return true");
 
         List<Object> coll5 = new ArrayList<>();
         coll5.add(item1);
@@ -112,30 +111,27 @@ public class TestCollectionUtils {
         Set<Object> coll6 = new HashSet<>();
         coll6.add(equalItem1);
         coll6.add(equalItem2);
-        assertTrue("Comparing differently typed collections with same elements should be return true",
-                   CollectionUtils.compareCollectionContents(coll5, coll6));
+        assertTrue(CollectionUtils.compareCollectionContents(coll5, coll6), "Comparing differently typed collections with same elements should be return true");
     }
 
     @Test
     public void testNotAllEqual() {
         Collection coll1 = Arrays.asList(item1, item2);
         Collection coll2 = Arrays.asList(equalItem1, unequalItem2);
-        assertFalse("Comparing unequal collections should be return false",
-                    CollectionUtils.compareCollectionContents(coll1, coll2));
+        assertFalse(CollectionUtils.compareCollectionContents(coll1, coll2), "Comparing unequal collections should be return false");
     }
 
     @Test
     public void testAllDifferent() {
         Collection coll1 = Arrays.asList(item1, item2);
         Collection coll2 = Arrays.asList(unequalItem1, unequalItem2);
-        assertFalse("Comparing unequal collections should be return false",
-                    CollectionUtils.compareCollectionContents(coll1, coll2));
+        assertFalse(CollectionUtils.compareCollectionContents(coll1, coll2), "Comparing unequal collections should be return false");
     }
 
     @Test
     public void testEmpty() {
         Collection coll1 = Collections.emptyList();
         Collection coll2 = Collections.emptyList();
-        assertTrue("Empty collections should be equal", CollectionUtils.compareCollectionContents(coll1, coll2));
+        assertTrue(CollectionUtils.compareCollectionContents(coll1, coll2), "Empty collections should be equal");
     }
 }

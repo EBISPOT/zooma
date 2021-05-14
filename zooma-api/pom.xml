@@ -15,6 +15,7 @@
 
     <properties>
         <zooma.version>2.1.11-SNAPSHOT</zooma.version>
+        <junit.jupiter.version>5.7.1</junit.jupiter.version>
     </properties>
 
     <dependencies>
@@ -29,6 +30,11 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
         </dependency>
     </dependencies>
 </project>
