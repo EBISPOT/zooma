@@ -109,7 +109,9 @@ If you are new to ZOOMA, take a look at our getting started guide.</p>
               </Row>
                     <br/>
                 <Row className="align-center">
-                    <button className="button large" onClick={this.onClickAnnotate}>Annotate</button>
+                    <button className="button large"
+                     disabled={this.state.searching}
+                     onClick={this.onClickAnnotate}>Annotate</button>
                     &nbsp;
                     <button className="button secondary large"
                         disabled={this.state.results.length === 0}
@@ -163,7 +165,7 @@ If you are new to ZOOMA, take a look at our getting started guide.</p>
           properties, requiredSources, preferredSources, ontologySources, doNotSearchDatasources, doNotSearchOntologies
       }
 
-      this.setState(prevState => ({ ...prevState, searching: true }))
+      await this.setState(prevState => ({ ...prevState, searching: true }))
 
       let { results, tsv } = await ZoomaApi.search(searchParams, (progress:number) => {
         this.setState(prevState => ({ ...prevState, progress }))
