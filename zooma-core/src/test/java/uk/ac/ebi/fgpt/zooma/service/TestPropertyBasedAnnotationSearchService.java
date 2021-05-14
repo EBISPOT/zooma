@@ -1,6 +1,6 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestPropertyBasedAnnotationSearchService {
     @Test

@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.access;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.mockito.ArgumentMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
@@ -47,7 +47,7 @@ public class TestZoomaPropertyTypeSearchEngine {
         return log;
     }
 
-    @SuppressWarnings("unchecked") @Before
+    @SuppressWarnings("unchecked") @BeforeEach
     public void setUp() {
         // create the greek alphabet/numeric type
         String numberType = "greek numerals";
@@ -95,7 +95,7 @@ public class TestZoomaPropertyTypeSearchEngine {
                                                                  propertyTypeLimiter);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         // don't need to do anything here
     }
@@ -106,7 +106,7 @@ public class TestZoomaPropertyTypeSearchEngine {
             String prefix = type.substring(0, 3);
             getLog().debug("Testing query for type " + type);
             Collection<String> searchResults = propertyTypeSearchEngine.query(prefix);
-            assertSame("Unexpected prefix search results returned for " + prefix, types, searchResults);
+            assertSame(types, searchResults, "Unexpected prefix search results returned for " + prefix);
             verify(propertyTypeSearchService, atLeastOnce()).searchByPrefix(prefix);
         }
     }
@@ -118,7 +118,7 @@ public class TestZoomaPropertyTypeSearchEngine {
             String prefix = type.substring(0, 3);
             getLog().debug("Testing query for type " + type + ", 10, 0");
             Collection<String> searchResults = propertyTypeSearchEngine.query(prefix, 10, 0);
-            assertSame("Unexpected prefix search results returned for " + prefix, limitedTypes, searchResults);
+            assertSame(limitedTypes, searchResults, "Unexpected prefix search results returned for " + prefix);
             verify(propertyTypeSearchService, atLeastOnce()).searchByPrefix(prefix);
             verify(propertyTypeSorter, times(i)).sort(types);
             verify(propertyTypeLimiter, times(i++)).limit(types, 10, 0);

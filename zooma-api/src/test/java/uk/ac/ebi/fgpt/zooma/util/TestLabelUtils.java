@@ -1,16 +1,14 @@
 package uk.ac.ebi.fgpt.zooma.util;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import uk.ac.ebi.fgpt.zooma.datasource.OntologyDAO;
 
 import java.net.URI;
 import java.util.Collections;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,7 +33,7 @@ public class TestLabelUtils {
 
     private OntologyDAO ontologyDAO;
 
-    @Before
+    @BeforeEach
     public void setup() {
         testLabel1 = "label one";
         testLabel2 = "label two";
@@ -55,7 +53,7 @@ public class TestLabelUtils {
         when(ontologyDAO.getSemanticTagSynonyms(entity1)).thenReturn(Collections.singleton(testSynonym));
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         ontologyDAO = null;
         LabelUtils utils = new LabelUtils();

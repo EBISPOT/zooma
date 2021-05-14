@@ -1,14 +1,14 @@
 package uk.ac.ebi.fgpt.zooma.model;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Javadocs go here!
@@ -30,12 +30,12 @@ public class TestSimpleTypedProperty {
 
         try {
             boolean equals = property.equals(thatProperty);
-            assertFalse("Objects should not be equal", equals);
+            assertFalse(equals, "Objects should not be equal");
 
             int hashcode = property.hashCode();
             int thatHashcode = thatProperty.hashCode();
 
-            assertFalse("hashcodes should not be equal", hashcode == thatHashcode);
+            assertFalse(hashcode == thatHashcode, "hashcodes should not be equal");
 
             duplicateProperty = new SimpleTypedProperty("type", "value");
             Set<Property> propertys = new HashSet<>();

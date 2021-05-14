@@ -1,8 +1,8 @@
 package uk.ac.ebi.fgpt.zooma.service;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import uk.ac.ebi.fgpt.zooma.datasource.PropertyDAO;
 
 import static org.mockito.Mockito.mock;
@@ -12,14 +12,14 @@ public class TestDAOBasedPropertyTypeService {
     private PropertyDAO dao;
     private DAOBasedPropertyTypeService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         dao = mock(PropertyDAO.class);
         service = new DAOBasedPropertyTypeService();
         service.setPropertyDAO(dao);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         service = null;
         dao = null;

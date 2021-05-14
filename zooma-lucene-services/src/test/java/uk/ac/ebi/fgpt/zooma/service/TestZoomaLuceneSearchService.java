@@ -20,8 +20,8 @@ import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import uk.ac.ebi.fgpt.zooma.datasource.ZoomaDAO;
 import uk.ac.ebi.fgpt.zooma.model.Identifiable;
 
@@ -35,9 +35,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,7 +52,7 @@ public class TestZoomaLuceneSearchService {
     private Identifiable bar;
     private Identifiable baz;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         try {
             // create index setup
@@ -123,7 +123,7 @@ public class TestZoomaLuceneSearchService {
         try {
             Query q = new QueryParser("name", analyzer).parse(querystr);
             Collection<String> results = searchService.doQuery(q, new SingleFieldStringMapper("name"));
-            assertEquals("Wrong number of results", 4, results.size());
+            assertEquals(4, results.size(), "Wrong number of results");
             assertTrue(results.contains("foo"));
             assertTrue(results.contains("foo bar"));
             assertTrue(results.contains("foo bar baz"));
@@ -131,7 +131,7 @@ public class TestZoomaLuceneSearchService {
 
             q = new QueryParser("uri", analyzer).parse(querystr);
             results = searchService.doQuery(q, new SingleFieldStringMapper("uri"));
-            assertEquals("Wrong number of results", 4, results.size());
+            assertEquals(4, results.size(), "Wrong number of results");
             assertTrue(results.contains(convertToURI("foo").toString()));
             assertTrue(results.contains(convertToURI("foo bar").toString()));
             assertTrue(results.contains(convertToURI("foo bar baz").toString()));
@@ -154,20 +154,20 @@ public class TestZoomaLuceneSearchService {
             String querystr = "foo";
             Query q = new QueryParser("uri", analyzer).parse(querystr);
             Collection<Identifiable> results = searchService.doQuery(q, new SingleFieldURIMapper("uri"), dao);
-            assertEquals("Wrong number of results", 1, results.size());
-            assertTrue("Identifiable 'foo' not found", results.contains(foo));
+            assertEquals(1, results.size(), "Wrong number of results");
+            assertTrue(results.contains(foo), "Identifiable 'foo' not found");
 
             querystr = "bar";
             q = new QueryParser("uri", analyzer).parse(querystr);
             results = searchService.doQuery(q, new SingleFieldURIMapper("uri"), dao);
-            assertEquals("Wrong number of results", 1, results.size());
-            assertTrue("Identifiable 'bar' not found", results.contains(bar));
+            assertEquals(1, results.size(), "Wrong number of results");
+            assertTrue(results.contains(bar), "Identifiable 'bar' not found");
 
             querystr = "baz";
             q = new QueryParser("uri", analyzer).parse(querystr);
             results = searchService.doQuery(q, new SingleFieldURIMapper("uri"), dao);
-            assertEquals("Wrong number of results", 1, results.size());
-            assertTrue("Identifiable 'baz' not found", results.contains(baz));
+            assertEquals(1, results.size(), "Wrong number of results");
+            assertTrue(results.contains(baz), "Identifiable 'baz' not found");
         }
         catch (ParseException e) {
             e.printStackTrace();
@@ -218,7 +218,7 @@ public class TestZoomaLuceneSearchService {
             for (String s : results) {
                 System.out.println("Next result: '" + s + "'");
             }
-            assertEquals("Wrong number of results", 4, results.size());
+            assertEquals(4, results.size(),"Wrong number of results");
             assertTrue(results.contains("foo"));
             assertTrue(results.contains("foo bar"));
             assertTrue(results.contains("foo bar baz"));
