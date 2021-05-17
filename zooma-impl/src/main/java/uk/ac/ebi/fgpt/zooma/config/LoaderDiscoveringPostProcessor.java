@@ -68,7 +68,7 @@ public class LoaderDiscoveringPostProcessor implements BeanFactoryPostProcessor 
                 for (File next : f.listFiles(filter)) {
                     URLClassLoader urlLoader = new URLClassLoader(new URL[]{next.toURI().toURL()});
                     int count = 0;
-                    Enumeration<URL> urlEnum = urlLoader.findResources("zooma-annotation-dao.xml");
+                        Enumeration<URL> urlEnum = urlLoader.findResources("zooma-annotation-dao.xml");
                     while (urlEnum.hasMoreElements()) {
                         urlEnum.nextElement();
                         count++;
