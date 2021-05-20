@@ -1,0 +1,16 @@
+
+build:
+  image: docker:18-git
+  stage: build
+  only:
+    - main
+    - stable
+  services:
+    - docker:18-dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t ${ZOOMA_IMAGE_PREFIX}/zooma:$CI_COMMIT_REF_NAME-$CI_BUILD_ID .
+    - docker tag ${ZOOMA_IMAGE_PREFIX}/zooma:$CI_COMMIT_REF_NAME-$CI_BUILD_ID ${ZOOMA_IMAGE_PREFIX}/zooma:$CI_COMMIT_REF_NAME
+    - docker push ${ZOOMA_IMAGE_PREFIX}/zooma:$CI_COMMIT_REF_NAME-$CI_BUILD_ID
+    - docker push ${ZOOMA_IMAGE_PREFIX}/zooma:$CI_COMMIT_REF_NAME
+
