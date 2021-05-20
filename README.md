@@ -2,15 +2,34 @@
 
 ZOOMA is an application for discovering optimal ontology mappings, developed by the Samples, Phenotypes and Ontologies Team at [EMBL-EBI](http://www.ebi.ac.uk). It can be used to automatically annotate "properties" (plain text, descriptive values about biological entities) with "semantic tags" (ontology classes).
 
-## Links
+* ZOOMA is currently live at the EBI here http://www.ebi.ac.uk/spot/zooma
+* ZOOMA documentation can be found here http://www.ebi.ac.uk/spot/zooma/docs
 
-### ZOOMA homepage
+## Deploying with Docker
 
-http://www.ebi.ac.uk/spot/zooma
+The preferred method of deployment for ZOOMA is using Docker.  First, create the
+necessary volumes:
 
-### ZOOMA documentation
+    docker volume create --name=zooma-config
 
-http://www.ebi.ac.uk/spot/zooma/docs
+Then, start ZOOMA:
+
+    docker run -d --name zooma -p 8009:8080 -v zooma-config:/root/.zooma/config ebispot/zooma:latest
+
+You should now be able to access ZOOMA at `http://localhost:8080`.
+
+To configure ZOOMA, first stop the docker container:
+
+    docker stop zooma
+
+The configuration files will be located in the zooma-config volume on your filesystem. For Ubuntu, this will be located at `/var/lib/docker/volumes/zooma-config/_data`.
+
+Once configured, start ZOOMA again:
+
+    docker start zooma
+
+
+## Building ZOOMA manually
 
 ### Dependencies
 1. Java - Tested on Oracle JDK version 1.8
