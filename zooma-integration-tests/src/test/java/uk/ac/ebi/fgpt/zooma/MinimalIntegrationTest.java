@@ -2,6 +2,7 @@ package uk.ac.ebi.fgpt.zooma;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
+@Disabled
 public class MinimalIntegrationTest {
 
     private static Logger logger = LoggerFactory.getLogger(MinimalIntegrationTest.class);
@@ -29,6 +30,7 @@ public class MinimalIntegrationTest {
     private static File zoomaLoadersDirectory;
     private static String startVirtuosoCommand;
     private static String stopVirtuosoCommand;
+
 
     @BeforeAll
     static void initAll() {
@@ -96,6 +98,7 @@ public class MinimalIntegrationTest {
         process.getOutputStream().close();
         assertEquals(0, exitCode, "No errors should be detected");
     }
+
 
     @Test
     void succeedingTest() {

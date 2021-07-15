@@ -9,7 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zooma-integration-testing</artifactId>
+    <name>ZOOMA 2: Integration tests</name>
+    <artifactId>zooma-integration-tests</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

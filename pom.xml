@@ -220,7 +220,7 @@
         <module>zooma-js</module>
         <module>zooma-ui</module>
         <module>zooma-ols-service</module>
-        <module>zooma-integration-testing</module>
+        <module>zooma-integration-tests</module>
     </modules>
 
     <!-- dependencies required by all zooma modules -->
