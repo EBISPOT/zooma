@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:zoomacsv="http://www.ebi.ac.uk/fgpt/zooma/zooma-csv-loader"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.ebi.ac.uk/fgpt/zooma/zooma-csv-loader
+       http://www.ebi.ac.uk/fgpt/zooma/zooma-csv-loader.xsd">
+    
+    <zoomacsv:csvAnnotations name="MinimalTestData"
+                             uri="https://www.ebi.ac.uk/about/collaborations/human-cell-atlas"
+                             loadFrom="file://${zooma.data.dir}/data/tsv/minimal-test-data.tsv"
+                             delimiter="\t" />
+</beans>

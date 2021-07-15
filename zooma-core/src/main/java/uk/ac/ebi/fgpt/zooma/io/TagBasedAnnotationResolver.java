@@ -17,7 +17,7 @@ import java.util.Set;
  * property types) to infer whether two annotations resolve or not.  This class requires biological entity and
  * annotation DAOs to perform lookups.
  * <p/>
- * To annotations are considered to resolve if either a) they have the same URI as an existing annotation or b) they
+ * Two annotations are considered to resolve if either a) they have the same URI as an existing annotation or b) they
  * share matching study accessions, biological entity names, and property types.  If these checks pass, then {@link
  * #resolve(uk.ac.ebi.fgpt.zooma.model.Annotation)} will return a reference to the annotation from the DAO. It is also
  * possible to perform an update check to see if the property value or semantic tag on the new annotation has been
