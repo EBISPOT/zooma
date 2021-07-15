@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <context:property-placeholder location="classpath:minimal-zooma.properties" />
+
+    <context:annotation-config />
+
+    <bean name="annotationResolver" class="uk.ac.ebi.fgpt.zooma.io.TagBasedAnnotationResolver" />
+    <!--<bean name="annotationResolver" class="uk.ac.ebi.fgpt.zooma.io.ContextBasedAnnotationResolver" />-->
+    <bean name="annotationStorer" class="uk.ac.ebi.fgpt.zooma.io.UnimplementedZoomaStorer" />
+    <bean name="annotationSerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIAnnotationSerializer" />
+
+    <bean name="zoomaLoader" class="uk.ac.ebi.fgpt.zooma.io.ConfigurableAnnotationLoader">
+        <constructor-arg name="outputPath" value="${zooma.data.dir}/rdf" />
+        <constructor-arg name="fileNameBase" value="zooma_annotations" />
+
+        <property name="annotationResolver" ref="annotationResolver" />
+        <property name="annotationSerializer" ref="annotationSerializer" />
+        <property name="annotationStorer" ref="annotationStorer" />
+
+        <!-- Set these flags to configure the behaviour of the loader -->
+        <property name="resolvingEnabled" value="false" />
+        <property name="serializingEnabled" value="true" />
+        <property name="storingEnabled" value="false" />
+    </bean>
+
+    <bean id="dataLoadingService"
+          class="uk.ac.ebi.fgpt.zooma.service.MultithreadedDataLoadingService"
+          autowire="byType"
+          destroy-method="shutdown">
+        <property name="zoomaLoader" ref="zoomaLoader" />
+    </bean>
+
+<!--    <bean id="jenaVirtuosoExecutorService" class="uk.ac.ebi.fgpt.lode.impl.JenaVirtuosoExecutorService"/>-->
+
+<!--    <bean id="lodeSparqlService" class="uk.ac.ebi.fgpt.lode.impl.JenaSparqlService">-->
+<!--        <property name="maxQueryLimit" value="${lode.sparql.query.maxlimit}" />-->
+<!--        <property name="queryExecutionService" ref="jenaVirtuosoExecutorService" />-->
+<!--    </bean>-->
+
+<!--    <bean id="prefixProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">-->
+<!--        <property name="location" value="classpath:zooma/prefix.properties" />-->
+<!--    </bean>-->
+
+<!--    <bean id="propertiesMapAdapter" class="uk.ac.ebi.fgpt.zooma.util.PropertiesMapAdapter" init-method="init">-->
+<!--        <property name="properties" ref="prefixProperties" />-->
+<!--    </bean>-->
+
+<!--    <bean id="queryManager" class="uk.ac.ebi.fgpt.zooma.service.QueryManager" init-method="init">-->
+<!--        <property name="sparqlQueryResource" value="classpath:queries.sparql" />-->
+<!--        <property name="propertiesMapAdapter" ref="propertiesMapAdapter" />-->
+<!--    </bean>-->
+
+<!--    <bean id="owlBioentitySerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIBiologicalEntitySerializer"></bean>-->
+<!--    <bean id="lodeBiologicalEntityDAO"-->
+<!--          class="uk.ac.ebi.fgpt.zooma.datasource.SparqlBiologicalEntityDAO"-->
+<!--          autowire-candidate="false">-->
+<!--        <property name="queryManager" ref="queryManager" />-->
+<!--        <property name="queryService" ref="jenaVirtuosoExecutorService" />-->
+<!--        <property name="biologicalEntityZoomaSerializer" ref="owlBioentitySerializer" />-->
+<!--    </bean>-->
+
+<!--    <bean id="owlAnnotationSerializer" class="uk.ac.ebi.fgpt.zooma.io.OWLAPIAnnotationSerializer"></bean>-->
+<!--    <bean id="lodeAnnotationDAO" class="uk.ac.ebi.fgpt.zooma.datasource.SparqlAnnotationDAO" autowire-candidate="false">-->
+<!--        <property name="queryManager" ref="queryManager" />-->
+<!--        <property name="queryService" ref="jenaVirtuosoExecutorService" />-->
+<!--        <property name="biologicalEntityDAO" ref="lodeBiologicalEntityDAO" />-->
+<!--        <property name="annotationZoomaSerializer" ref="owlAnnotationSerializer" />-->
+<!--    </bean>-->
+</beans>

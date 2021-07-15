@@ -36,6 +36,18 @@
             <artifactId>spring-beans</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>net.sourceforge.owlapi</groupId>
+            <artifactId>owlapi-distribution</artifactId>
+            <version>3.5.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
 
         <!-- Using a thread safe date formatter -->
         <dependency>

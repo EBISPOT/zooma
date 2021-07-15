@@ -498,11 +498,12 @@ public class CSVAnnotationDAO extends RowBasedDataAnnotationMapper implements An
         if (semanticTag == null) {
             return null;
         }
-        else if (semanticTag.equals("")) {
+        semanticTag = semanticTag.replaceAll("\\W+","").trim();
+        if (semanticTag.equals("")) {
             return null;
         }
         else {
-            return URI.create(semanticTag.trim());
+            return URI.create(semanticTag);
         }
     }
 
