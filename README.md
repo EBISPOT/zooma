@@ -15,9 +15,9 @@ First, create the necessary volumes:
 
 Then, start ZOOMA:
 
-    docker run -d --name zooma -p 8009:8080 -v zooma-config:/root/.zooma/config ebispot/zooma:latest
+    docker run -d --name zooma -p 8009:8080 -v zooma-config:/root/.zooma/config ebispot/zooma:stable
 
-You should now be able to access ZOOMA at `http://localhost:8080`.
+You should now be able to access ZOOMA at `http://localhost:8009`.
 
 To configure ZOOMA, first stop the docker container:
 
