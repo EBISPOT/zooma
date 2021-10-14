@@ -203,13 +203,6 @@
             <version>${zooma.version}</version>
         </dependency>
 
-        <!-- Javascript client library webjar -->
-        <dependency>
-            <groupId>uk.ac.ebi.fgpt</groupId>
-            <artifactId>zooma-js</artifactId>
-            <version>${zooma.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.tuckey</groupId>
             <artifactId>urlrewritefilter</artifactId>

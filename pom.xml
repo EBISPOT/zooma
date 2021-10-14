@@ -217,7 +217,6 @@
         <module>zooma-client</module>
         <module>zooma-builder-app</module>
         <module>zooma-searcher-app</module>
-        <module>zooma-js</module>
         <module>zooma-ui</module>
         <module>zooma-ols-service</module>
         <module>zooma-integration-tests</module>
