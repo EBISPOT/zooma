@@ -105,6 +105,16 @@
                             <arguments>run-script build</arguments>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>npm cache verify</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>cache verify</arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
