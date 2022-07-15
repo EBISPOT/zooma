@@ -86,13 +86,13 @@
                         <phase>generate-resources</phase>
                     </execution>
                     <execution>
-                        <id>npm cache verify</id>
+                        <id>npm cache clean</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <arguments>cache verify</arguments>
+                            <arguments>cache clean --force</arguments>
                         </configuration>
                     </execution>
                     <execution>
