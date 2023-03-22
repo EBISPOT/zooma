@@ -10,7 +10,7 @@ ENV OJDBC6="https://www.oracle.com/webapps/redirect/signon?nexturl=https://downl
 RUN wget $OJDBC6 -O /lib/ojdbc6.jar \
     && mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc6 -Dpackaging=jar -Dversion=11.2.0.4 -Dfile=/lib/ojdbc6.jar \
     && test /root/.m2/repository/com/oracle/ojdbc6/11.2.0.4/ojdbc6-11.2.0.4.jar
-RUN cd /opt/zooma_github && mvn clean package
+RUN cd /opt/zooma_github && mvn clean package -DskipTests
 RUN mkdir /opt/tmp && unzip /opt/zooma_github/zooma-builder-app/target/zooma-builder.zip -d /opt/tmp
 RUN cp /opt/zooma_github/zooma-ui/target/zooma.war /usr/local/tomcat/webapps/
 
