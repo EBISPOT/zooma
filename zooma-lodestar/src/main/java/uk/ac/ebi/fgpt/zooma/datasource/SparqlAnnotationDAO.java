@@ -3,53 +3,33 @@ package uk.ac.ebi.fgpt.zooma.datasource;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.*;
-import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.lode.exception.LodeException;
 import uk.ac.ebi.fgpt.lode.service.JenaQueryExecutionService;
 import uk.ac.ebi.fgpt.zooma.Namespaces;
-import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
-import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
-import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
-import uk.ac.ebi.fgpt.zooma.exception.TooManyResultsException;
-import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
+import uk.ac.ebi.fgpt.zooma.exception.*;
 import uk.ac.ebi.fgpt.zooma.io.ZoomaSerializer;
-import uk.ac.ebi.fgpt.zooma.model.Annotation;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.AnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.BiologicalEntity;
-import uk.ac.ebi.fgpt.zooma.model.Property;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotation;
-import uk.ac.ebi.fgpt.zooma.model.SimpleAnnotationProvenance;
-import uk.ac.ebi.fgpt.zooma.model.SimpleDatabaseAnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.SimpleOntologyAnnotationSource;
-import uk.ac.ebi.fgpt.zooma.model.SimpleTypedProperty;
-import uk.ac.ebi.fgpt.zooma.model.Study;
-import uk.ac.ebi.fgpt.zooma.model.TypedProperty;
+import uk.ac.ebi.fgpt.zooma.model.*;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
 import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
-import virtuoso.jena.driver.VirtDataSetGraph;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Simon Jupp
@@ -107,12 +87,14 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         this.queryManager = queryManager;
     }
 
-    @Override public void create(Annotation annotation) throws ResourceAlreadyExistsException {
+    @Override
+    public void create(Annotation annotation) throws ResourceAlreadyExistsException {
         getLog().debug("Triggered annotation create request...\n\n" + annotation.toString());
         create(Collections.singleton(annotation));
     }
 
-    @Override public void create(Collection<Annotation> annotations) throws ResourceAlreadyExistsException {
+    @Override
+    public void create(Collection<Annotation> annotations) throws ResourceAlreadyExistsException {
         getLog().debug("Triggered create annotations request for " + annotations.size() + " annotations\n\n");
 
         for (Annotation a : annotations) {
@@ -125,7 +107,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         writeToModel(annotations);
     }
 
-    public boolean annotationExists (URI uri) {
+    public boolean annotationExists(URI uri) {
         String query = "ASK {<" + uri.toString() + "> a <http://www.openannotation.org/ns/DataAnnotation>}";
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
@@ -136,8 +118,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
 
         } catch (LodeException e) {
             log.error("Problem checking is annotation " + uri.toString() + " exists", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
@@ -148,12 +129,13 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         return false;
     }
 
-    @Override public void update(Annotation annotation) throws NoSuchResourceException {
+    @Override
+    public void update(Annotation annotation) throws NoSuchResourceException {
         getLog().debug("Triggered annotation update request...\n\n" + annotation.toString());
         update(Collections.singleton(annotation));
     }
 
-    private void writeToModel (Collection<Annotation> annotations) {
+    private void writeToModel(Collection<Annotation> annotations) {
         if (annotations.isEmpty()) {
             return;
         }
@@ -177,7 +159,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                     } catch (Exception e) {
                         log.error("Error writing annotations to Jena model", e);
                     } finally {
-                        if (g!= null) {
+                        if (g != null) {
                             g.close();
                         }
                         getLog().debug("Finished serialising annotation thread");
@@ -191,14 +173,11 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             });
             thread.start();
             getAnnotationZoomaSerializer().serialize(getDatasourceName(), annotations, pos);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.error("Couldn't write annotations ", e);
-        }
-        catch (ZoomaSerializationException e) {
+        } catch (ZoomaSerializationException e) {
             log.error("Couldn't write annotation to model", e);
-        }
-        finally {
+        } finally {
             if (pos != null) {
                 try {
                     pos.close();
@@ -209,7 +188,8 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         }
     }
 
-    @Override public void update(Collection<Annotation> annotations) throws NoSuchResourceException {
+    @Override
+    public void update(Collection<Annotation> annotations) throws NoSuchResourceException {
         getLog().debug("Triggered annotation update request for " + annotations.size() + " annotations \n\n");
 
         for (Annotation a : annotations) {
@@ -221,7 +201,8 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         writeToModel(annotations);
     }
 
-    @Override public void delete(Annotation annotation) throws NoSuchResourceException {
+    @Override
+    public void delete(Annotation annotation) throws NoSuchResourceException {
         if (read(annotation.getURI()) == null) {
             throw new NoSuchResourceException(
                     "Can't delete annotation with URI " + annotation.getURI() + " no such annotation exists");
@@ -234,15 +215,18 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         g.close();
     }
 
-    @Override public Collection<Annotation> read() {
+    @Override
+    public Collection<Annotation> read() {
         return read(-1, -1);
     }
 
-    @Override public int count() {
+    @Override
+    public int count() {
         return getAllAnnotationURIs(-1, -1).size();
     }
 
-    @Override public List<Annotation> read(int size, int start) {
+    @Override
+    public List<Annotation> read(int size, int start) {
 
         String query = getQueryManager().getSparqlQuery("ANNOTATIONS.read");
         Graph g = getQueryService().getDefaultGraph();
@@ -265,11 +249,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             execute = getQueryService().getQueryExecution(g, q1, false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
@@ -306,11 +288,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 uris.add(URI.create(sol.getResource(QueryVariables.RESOURCE.toString()).getURI()));
             }
 
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve all annotation URIs", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
@@ -322,7 +302,8 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         return uris;
     }
 
-    @Override public Annotation read(URI uri) {
+    @Override
+    public Annotation read(URI uri) {
         String query = getQueryManager().getSparqlQuery("ANNOTATIONS.read");
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
@@ -339,21 +320,17 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             if (annos.size() > 1) {
                 getLog().error("Too many results looking for annotation <" + uri.toString() + ">");
                 throw new TooManyResultsException("Expected one result, got " + annos.size() + " for <" + uri + ">");
-            }
-            else {
+            } else {
                 if (annos.size() == 0) {
                     return null;
-                }
-                else {
+                } else {
                     return annos.get(0);
                 }
             }
 
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
@@ -364,7 +341,8 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
     }
 
 
-    @Override public Collection<Annotation> readByStudy(Study study) {
+    @Override
+    public Collection<Annotation> readByStudy(Study study) {
         String query = getQueryManager().getSparqlQuery("ANNOTATIONS_STUDY.read");
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
@@ -378,11 +356,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             execute = getQueryService().getQueryExecution(g, queryString.asQuery(), false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
@@ -393,7 +369,8 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
     }
 
 
-    @Override public Collection<Annotation> readByBiologicalEntity(BiologicalEntity biologicalEntity) {
+    @Override
+    public Collection<Annotation> readByBiologicalEntity(BiologicalEntity biologicalEntity) {
         String query = getQueryManager().getSparqlQuery("ANNOTATIONS_BIOENTITY.read");
 
         Graph g = getQueryService().getDefaultGraph();
@@ -409,11 +386,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             execute = getQueryService().getQueryExecution(g, q1.toString(), initialBinding, false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
@@ -423,7 +398,8 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         }
     }
 
-    @Override public Collection<Annotation> readByProperty(Property property) {
+    @Override
+    public Collection<Annotation> readByProperty(Property property) {
         String query = getQueryManager().getSparqlQuery("ANNOTATIONS.read");
 
         Graph g = getQueryService().getDefaultGraph();
@@ -433,8 +409,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         if (property.getURI() != null) {
             initialBinding.add(QueryVariables.PROPERTY_VALUE_ID.toString(),
                     new ResourceImpl(property.getURI().toString()));
-        }
-        else {
+        } else {
             Model m = ModelFactory.createDefaultModel();
             if (property instanceof TypedProperty) {
                 initialBinding.add(QueryVariables.PROPERTY_NAME.toString(),
@@ -453,11 +428,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             execute = getQueryService().getQueryExecution(g, queryString.asQuery(), false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
@@ -467,7 +440,8 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         }
     }
 
-    @Override public Collection<Annotation> readBySemanticTag(URI semanticTagURI) {
+    @Override
+    public Collection<Annotation> readBySemanticTag(URI semanticTagURI) {
         String query = getQueryManager().getSparqlQuery("ANNOTATIONS.read");
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
@@ -481,11 +455,9 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             execute = getQueryService().getQueryExecution(g, queryString.asQuery(), false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
@@ -509,14 +481,16 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
         List<Annotation> annotationList = new ArrayList<>();
         annotationList.addAll(annotationMap.values());
         Collections.sort(annotationList, new Comparator<Annotation>() {
-            @Override public int compare(Annotation o1, Annotation o2) {
+            @Override
+            public int compare(Annotation o1, Annotation o2) {
                 return o1.getURI().toString().compareTo(o2.getURI().toString());
             }
         });
         return annotationList;
     }
 
-    @Override public String getDatasourceName() {
+    @Override
+    public String getDatasourceName() {
         return "zooma";
     }
 
@@ -579,7 +553,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 anno.getAnnotatedBiologicalEntities().clear();
 
                 // get any updates to the bioentities map
-                ((SparqlBiologicalEntityDAO)getBiologicalEntityDAO()).getBiologicalEntityFromBindingSet(
+                ((SparqlBiologicalEntityDAO) getBiologicalEntityDAO()).getBiologicalEntityFromBindingSet(
                         biologicalEntityMap,
                         studyMap,
                         solution
@@ -593,14 +567,13 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             if (ontoUri != null) {
                 anno.getSemanticTags().add(ontoUri);
             }
-        }
-        else {
+        } else {
 
 
             Set<BiologicalEntity> beSet = new HashSet<>();
             if (beUri != null) {
                 // get bio entity form binding map
-                BiologicalEntity entity = ((SparqlBiologicalEntityDAO)getBiologicalEntityDAO()).getBiologicalEntityFromBindingSet(
+                BiologicalEntity entity = ((SparqlBiologicalEntityDAO) getBiologicalEntityDAO()).getBiologicalEntityFromBindingSet(
                         new HashMap<URI, BiologicalEntity>(),
                         new HashMap<URI, Study>(),
                         solution
@@ -622,14 +595,12 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 try {
                     name = URIBindingUtils.getName(evidenceUri);
                     ev = AnnotationProvenance.Evidence.lookup(name);
-                }
-                catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
                     ev = AnnotationProvenance.Evidence.NON_TRACEABLE;
                     getLog().warn("SPARQL query returned evidence '" + name + "' " +
                             "(" + evidenceUri + ") but this is not a valid evidence type.  " +
                             "Setting evidence to " + ev);
-                }
-                catch (NullPointerException e) {
+                } catch (NullPointerException e) {
                     ev = AnnotationProvenance.Evidence.NON_TRACEABLE;
                     getLog().warn("No traceable evidence (" + e.getMessage() + ") for annotation " +
                             "<" + annotationUri.toString() + ">.  Setting evidence to " + ev);
@@ -650,14 +621,12 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                 DateTime generatedDate = null;
                 if (generated == null) {
                     getLog().warn("No generated date for annotation <" + annotationUri.toString() + ">");
-                }
-                else {
+                } else {
                     // handle cases where virtuoso returns .0 for timezone
                     String dateStr = generated.getLexicalForm().replace(".0", "Z");
                     try {
                         generatedDate = fmt.parseDateTime(dateStr);
-                    }
-                    catch (NumberFormatException e) {
+                    } catch (NumberFormatException e) {
                         getLog().error("Can't read generation date '" + dateStr + "' " +
                                 "for annotation <" + annotationUri.toString() + ">", e);
 
@@ -671,8 +640,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                     try {
                         // handle cases where virtuoso returns .0 for timezone
                         annotatedDate = fmt.parseDateTime(dateStr);
-                    }
-                    catch (NumberFormatException e) {
+                    } catch (NumberFormatException e) {
                         getLog().error("Can't read annotation date '" + dateStr + "' " +
                                 "for annotation <" + annotationUri.toString() + ">", e);
                     }
@@ -687,8 +655,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
                     if (sourceT == AnnotationSource.Type.ONTOLOGY) {
                         source = new SimpleOntologyAnnotationSource(URI.create(database.toString()),
                                 sourceName.getLexicalForm(), null, null);
-                    }
-                    else if (sourceT == AnnotationSource.Type.DATABASE) {
+                    } else if (sourceT == AnnotationSource.Type.DATABASE) {
                         source = new SimpleDatabaseAnnotationSource(URI.create(database.toString()),
                                 sourceName.getLexicalForm());
                     }
@@ -711,8 +678,7 @@ public class SparqlAnnotationDAO implements AnnotationDAO {
             Annotation newAnno = null;
             if (ontoUri == null) {
                 newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov);
-            }
-            else {
+            } else {
                 newAnno = new SimpleAnnotation(annotationUri, beSet, p, prov, ontoUri);
             }
             annotationMap.put(newAnno.getURI(), newAnno);

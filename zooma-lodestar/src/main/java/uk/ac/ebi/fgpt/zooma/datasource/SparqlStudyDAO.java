@@ -1,38 +1,19 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node_Literal;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.QuerySolutionMap;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.query.*;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
-import com.hp.hpl.jena.rdf.model.impl.RDFListImpl;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
-import com.hp.hpl.jena.reasoner.rulesys.builtins.Regex;
-import com.hp.hpl.jena.sparql.expr.RegexEngine;
-import com.hp.hpl.jena.sparql.expr.RegexJava;
-import com.hp.hpl.jena.sparql.expr.nodevalue.NodeValueString;
-import com.hp.hpl.jena.sparql.syntax.ElementFilter;
-import com.hp.hpl.jena.sparql.util.ExprUtils;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.lode.exception.LodeException;
 import uk.ac.ebi.fgpt.lode.service.JenaQueryExecutionService;
-import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
-import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
-import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
-import uk.ac.ebi.fgpt.zooma.exception.TooManyResultsException;
-import uk.ac.ebi.fgpt.zooma.exception.ZoomaSerializationException;
+import uk.ac.ebi.fgpt.zooma.exception.*;
 import uk.ac.ebi.fgpt.zooma.io.ZoomaSerializer;
 import uk.ac.ebi.fgpt.zooma.model.Property;
 import uk.ac.ebi.fgpt.zooma.model.SimpleStudy;
@@ -44,12 +25,7 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Simon Jupp
@@ -93,11 +69,13 @@ public class SparqlStudyDAO implements StudyDAO {
         this.studyZoomaSerializer = studyZoomaSerializer;
     }
 
-    @Override public String getDatasourceName() {
+    @Override
+    public String getDatasourceName() {
         return "zooma.studies";
     }
 
-    @Override public int count() {
+    @Override
+    public int count() {
         String query = getQueryManager().getSparqlCountQuery("Study.read");
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
@@ -113,11 +91,9 @@ public class SparqlStudyDAO implements StudyDAO {
                 c = Integer.parseInt(cv);
             }
 
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve count for properties", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
@@ -128,7 +104,8 @@ public class SparqlStudyDAO implements StudyDAO {
         return c;
     }
 
-    @Override public void create(Study study) throws ResourceAlreadyExistsException {
+    @Override
+    public void create(Study study) throws ResourceAlreadyExistsException {
         getLog().debug("Triggered study create request...\n\n" + study.toString());
 
         if (read(study.getURI()) != null) {
@@ -150,16 +127,15 @@ public class SparqlStudyDAO implements StudyDAO {
             });
             thread.start();
             getStudyZoomaSerializer().serialize(getDatasourceName(), Collections.singleton(study), pos);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.error("Couldn't create study entity " + study.toString(), e);
-        }
-        catch (ZoomaSerializationException e) {
+        } catch (ZoomaSerializationException e) {
             log.error("Couldn't create study entity " + study.toString(), e);
         }
     }
 
-    @Override public void update(Study study) throws NoSuchResourceException {
+    @Override
+    public void update(Study study) throws NoSuchResourceException {
         getLog().debug("Triggered study entity update request...\n\n" + study.toString());
         if (read(study.getURI()) == null) {
             throw new NoSuchResourceException(
@@ -184,17 +160,16 @@ public class SparqlStudyDAO implements StudyDAO {
             });
             thread.start();
             getStudyZoomaSerializer().serialize(getDatasourceName(), Collections.singleton(study), pos);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.error("Couldn't create study entity " + study.toString(), e);
-        }
-        catch (ZoomaSerializationException e) {
+        } catch (ZoomaSerializationException e) {
             log.error("Couldn't create study entity " + study.toString(), e);
         }
 
     }
 
-    @Override public void delete(Study study) throws NoSuchResourceException {
+    @Override
+    public void delete(Study study) throws NoSuchResourceException {
         if (read(study.getURI()) == null) {
             throw new NoSuchResourceException(
                     "Can't delete study entity with URI " + study.getURI() + " no such study entity exists");
@@ -207,11 +182,13 @@ public class SparqlStudyDAO implements StudyDAO {
     }
 
 
-    @Override public Collection<Study> read() {
+    @Override
+    public Collection<Study> read() {
         return read(-1, -1);
     }
 
-    @Override public List<Study> read(int size, int start) {
+    @Override
+    public List<Study> read(int size, int start) {
         String query = getQueryManager().getSparqlQuery("Study.read");
         Graph g = getQueryService().getDefaultGraph();
         Query q1 = QueryFactory.create(query, Syntax.syntaxARQ);
@@ -226,11 +203,9 @@ public class SparqlStudyDAO implements StudyDAO {
             execute = getQueryService().getQueryExecution(g, q1, false);
             ResultSet results = execute.execSelect();
             return evaluateQueryResults(results);
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
@@ -241,7 +216,8 @@ public class SparqlStudyDAO implements StudyDAO {
 
     }
 
-    @Override public Study read(URI uri) {
+    @Override
+    public Study read(URI uri) {
 
         if (uri == null) {
             throw new RuntimeException("Can't read studies for URI null");
@@ -263,21 +239,17 @@ public class SparqlStudyDAO implements StudyDAO {
             if (studies.size() > 1) {
                 getLog().error("Too many results looking for study <" + uri.toString() + ">");
                 throw new TooManyResultsException("Expected one result, got " + studies.size() + " for <" + uri + ">");
-            }
-            else {
+            } else {
                 if (studies.size() == 0) {
                     return null;
-                }
-                else {
+                } else {
                     return studies.get(0);
                 }
             }
 
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
@@ -319,15 +291,15 @@ public class SparqlStudyDAO implements StudyDAO {
         String query;
         if (useInference) {
             query = getQueryManager().getSparqlQuery("Study.bySemanticTagInferred");
-        }
-        else {
+        } else {
             query = getQueryManager().getSparqlQuery("Study.bySemanticTag");
         }
         return _readBySemanticTags(query, useInference, semanticTags);
     }
 
 
-    @Override public Collection<Study> readByAccession(String accession) {
+    @Override
+    public Collection<Study> readByAccession(String accession) {
 
         String query = getQueryManager().getSparqlQuery("Study.readByAccession");
 
@@ -349,11 +321,9 @@ public class SparqlStudyDAO implements StudyDAO {
             bes.addAll(evaluateQueryResults(results));
             execute.close();
 
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
+        } finally {
             if (g != null) {
                 g.close();
             }
@@ -362,7 +332,8 @@ public class SparqlStudyDAO implements StudyDAO {
 
     }
 
-    @Override public Collection<Study> readByProperty(Property... property) {
+    @Override
+    public Collection<Study> readByProperty(Property... property) {
 
         String query = getQueryManager().getSparqlQuery("Study.readByProperty");
 
@@ -373,7 +344,7 @@ public class SparqlStudyDAO implements StudyDAO {
         try {
 
             for (Property p : property) {
-                if (p.getURI() != null)  {
+                if (p.getURI() != null) {
                     QueryExecution execute = null;
                     QuerySolutionMap initialBinding = new QuerySolutionMap();
                     initialBinding.add(QueryVariables.PROPERTY_VALUE_ID.toString(), new ResourceImpl(p.getURI().toString()));
@@ -384,11 +355,9 @@ public class SparqlStudyDAO implements StudyDAO {
                 }
             }
 
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
+        } finally {
             if (g != null) {
                 g.close();
             }
@@ -414,11 +383,9 @@ public class SparqlStudyDAO implements StudyDAO {
                 execute.close();
             }
 
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation", e);
-        }
-        finally {
+        } finally {
             if (g != null) {
                 g.close();
             }
@@ -457,11 +424,9 @@ public class SparqlStudyDAO implements StudyDAO {
                     types.add(URI.create(r.getURI()));
                 }
             }
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve types for biological entity types", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
