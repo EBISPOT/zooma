@@ -2,5 +2,5 @@
 
 base=${0%/*};
 
-bsub -I -q production-rh74 -M 18000 -R "rusage[mem=18000]" $base/build-rdf.sh $@;
+bsub -I -q production -M 18000 -R "rusage[mem=18000]" $base/build-rdf.sh $@;
 exit $?;
