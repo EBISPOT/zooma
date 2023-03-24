@@ -5,7 +5,6 @@ import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import uk.ac.ebi.fgpt.zooma.util.URIUtils;
 
 import java.io.IOException;
@@ -25,7 +24,8 @@ public class URIShortformJsonSerializer extends JsonSerializer<URI> {
         return log;
     }
 
-    @Override public void serialize(URI uri, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
+    @Override
+    public void serialize(URI uri, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
             throws IOException {
         // serialize the URI using only the short form
         String shortform = URIUtils.getShortform(uri);

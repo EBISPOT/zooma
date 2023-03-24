@@ -1,10 +1,12 @@
 package uk.ac.ebi.fgpt.zooma.datasource;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.*;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.QuerySolutionMap;
+import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fgpt.lode.exception.LodeException;
@@ -12,24 +14,13 @@ import uk.ac.ebi.fgpt.lode.service.JenaQueryExecutionService;
 import uk.ac.ebi.fgpt.zooma.exception.NoSuchResourceException;
 import uk.ac.ebi.fgpt.zooma.exception.ResourceAlreadyExistsException;
 import uk.ac.ebi.fgpt.zooma.exception.SPARQLQueryException;
-import uk.ac.ebi.fgpt.zooma.model.*;
+import uk.ac.ebi.fgpt.zooma.model.AnnotationSummary;
 import uk.ac.ebi.fgpt.zooma.service.QueryManager;
 import uk.ac.ebi.fgpt.zooma.service.QueryVariables;
-import uk.ac.ebi.fgpt.zooma.util.URIBindingUtils;
 import uk.ac.ebi.fgpt.zooma.util.ZoomaUtils;
-import virtuoso.jena.driver.VirtGraph;
-import virtuoso.jena.driver.VirtuosoQueryExecution;
-import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This partial implementation of the AnnotationSummaryDAO is designed specifically to support the efficient creation of
@@ -87,11 +78,9 @@ public class SparqlLuceneAnnotationSummaryDAO implements AnnotationSummaryDAO {
             execute = getQueryService().getQueryExecution(g, query, new QuerySolutionMap(), false);
             ResultSet results = execute.execSelect();
             return calculateSummaries(results);
-        }
-        catch (LodeException e) {
+        } catch (LodeException e) {
             throw new SPARQLQueryException("Failed to retrieve annotation summaries", e);
-        }
-        finally {
+        } finally {
             if (execute != null) {
                 execute.close();
                 if (g != null) {
