@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>zooma2</artifactId>
@@ -112,15 +113,15 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.1</version>
                 <configuration>
-                  <webResources>
-                    <resource>
-                      <!-- this is relative to the pom.xml directory -->
-                      <directory>src/main/frontend/build</directory>
-                    </resource>
-                  </webResources>
-                  <attachClasses>true</attachClasses>
+                    <webResources>
+                        <resource>
+                            <!-- this is relative to the pom.xml directory -->
+                            <directory>src/main/frontend/build</directory>
+                        </resource>
+                    </webResources>
+                    <attachClasses>true</attachClasses>
                 </configuration>
-              </plugin>
+            </plugin>
         </plugins>
     </build>
 
@@ -203,13 +204,6 @@
             <version>${zooma.version}</version>
         </dependency>
 
-        <!-- Javascript client library webjar -->
-        <dependency>
-            <groupId>uk.ac.ebi.fgpt</groupId>
-            <artifactId>zooma-js</artifactId>
-            <version>${zooma.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.tuckey</groupId>
             <artifactId>urlrewritefilter</artifactId>
@@ -240,6 +234,24 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-openid</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.5.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>1.5.3</version>
         </dependency>
 
         <!-- logging dependencies -->

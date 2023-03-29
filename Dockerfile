@@ -10,6 +10,12 @@ ENV OJDBC6="https://www.oracle.com/webapps/redirect/signon?nexturl=https://downl
 RUN wget $OJDBC6 -O /lib/ojdbc6.jar \
     && mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc6 -Dpackaging=jar -Dversion=11.2.0.4 -Dfile=/lib/ojdbc6.jar \
     && test /root/.m2/repository/com/oracle/ojdbc6/11.2.0.4/ojdbc6-11.2.0.4.jar
+RUN mvn install:install-file -DcreateChecksum=true -Dpackaging=jar -Dfile=/opt/zooma_github/zooma-lodestar/lib/jena-core-2.12.0.jar -DgroupId=org.apache.jena -DartifactId=jena-core -Dversion=2.12.0
+RUN mvn install:install-file -DcreateChecksum=true -Dpackaging=jar -Dfile=/opt/zooma_github/zooma-lodestar/lib/jena-arq-2.12.0.jar -DgroupId=org.apache.jena -DartifactId=jena-arq -Dversion=2.12.0
+RUN mvn install:install-file -DcreateChecksum=true -Dpackaging=jar -Dfile=/opt/zooma_github/zooma-lodestar/lib/lode-core-api-1.3.jar -DgroupId=ebi-lode -DartifactId=lode-core-api -Dversion=1.3
+RUN mvn install:install-file -DcreateChecksum=true -Dpackaging=jar -Dfile=/opt/zooma_github/zooma-lodestar/lib/lode-virtuoso-impl-1.3.jar -DgroupId=ebi-lode -DartifactId=lode-virtuoso-impl -Dversion=1.3
+RUN mvn install:install-file -DcreateChecksum=true -Dpackaging=jar -Dfile=/opt/zooma_github/zooma-ui/lib/jackson-mapper-asl-1.5.3.jar -DgroupId=org.codehaus.jackson -DartifactId=jackson-mapper-asl -Dversion=1.5.3
+RUN mvn install:install-file -DcreateChecksum=true -Dpackaging=jar -Dfile=/opt/zooma_github/zooma-ui/lib/jackson-core-asl-1.5.3.jar -DgroupId=org.codehaus.jackson -DartifactId=jackson-core-asl -Dversion=1.5.3
 RUN cd /opt/zooma_github && mvn clean package
 RUN mkdir /opt/tmp && unzip /opt/zooma_github/zooma-builder-app/target/zooma-builder.zip -d /opt/tmp
 RUN cp /opt/zooma_github/zooma-ui/target/zooma.war /usr/local/tomcat/webapps/

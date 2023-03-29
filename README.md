@@ -7,16 +7,17 @@ ZOOMA is an application for discovering optimal ontology mappings, developed by 
 
 ## Deploying with Docker
 
-The preferred method of deployment for ZOOMA is using Docker.  First, create the
-necessary volumes:
+The preferred method of deployment for ZOOMA is using Docker.   If you would like to deploy **the entire OntoTools stack** (OLS, OxO, and ZOOMA), check out the [OntoTools Docker Config](https://github.com/EBISPOT/ontotools-docker-config) repository. If you would like to deploy **ZOOMA only**, read on.
+
+First, create the necessary volumes:
 
     docker volume create --name=zooma-config
 
 Then, start ZOOMA:
 
-    docker run -d --name zooma -p 8009:8080 -v zooma-config:/root/.zooma/config ebispot/zooma:latest
+    docker run -d --name zooma -p 8009:8080 -v zooma-config:/root/.zooma/config ebispot/zooma:stable
 
-You should now be able to access ZOOMA at `http://localhost:8080`.
+You should now be able to access ZOOMA at `http://localhost:8009`.
 
 To configure ZOOMA, first stop the docker container:
 

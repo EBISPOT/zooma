@@ -1,0 +1,32 @@
+name: Build & publish zooma images
+
+on:
+  push:
+    branches: [ "dev", "stable" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push zooma Docker image
+        run: |
+          docker build -t ghcr.io/ebispot/zooma:${{ github.sha }} .
+          docker tag ghcr.io/ebispot/zooma:${{ github.sha }} ghcr.io/ebispot/zooma:${{ github.ref_name }}
+          docker push --all-tags ghcr.io/ebispot/zooma
