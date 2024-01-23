@@ -121,7 +121,10 @@ public class Config {
     }
 
     public String getPreferredPrefix() {
-        return preferredPrefix;
+        if (preferredPrefix != null)
+            return preferredPrefix;
+        else
+            return getId();
     }
 
     public void setPreferredPrefix(String preferredPrefix) {
